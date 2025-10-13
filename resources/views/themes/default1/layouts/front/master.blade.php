@@ -920,10 +920,7 @@ foreach ($footerWidgetTypes as $widgetType) {
     }
 }
 ?>
-<script>
 
-
-</script>
 <!-- Vendor -->
 <script src="{{asset('client/porto/js-2/plugins.min.js')}}"></script>
 

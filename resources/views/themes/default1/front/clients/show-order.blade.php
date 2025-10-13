@@ -316,6 +316,14 @@
                                 </a>
                             </li>
                         @endif
+                        @if($whatsappStatus)
+                            <li class="nav-item">
+
+                                <a class="nav-link" href="#whats-app-integration" data-bs-toggle="tab" data-hash data-hash-offset="0"
+                                   data-hash-offset-lg="500" data-hash-delay="500">WhatsApp SignUp
+                                </a>
+                            </li>
+                            @endif
                     </ul>
                 </aside>
             </div>
@@ -795,8 +803,38 @@
                         </div>
                     </div>
                 </div>
+
+    <div class="tab-pane tab-pane-navigation" id="whats-app-integration" role="tabpanel">
+        <div id="alertMessage-22"></div>
+
+        <div class="row mb-4">
+            <div class="col">
+                <button id="get-url" style="background-color: #1877f2; border: 0; border-radius: 4px; color: #fff; cursor: pointer; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: bold; height: 40px; padding: 0 24px;">
+                    {{ __('message.add_new_number')}}
+                </button>
             </div>
         </div>
+
+        <div class="row">
+            <div class="table-responsive">
+                <table id="shownumber-table" class="table table-striped table-bordered mw-auto" cellspacing="0" width="100%" styleClass="borderless">
+                    <thead>
+                    <tr>
+{{--                        <th>UserName</th>--}}
+                        <th>{{__('message.phone_number')}}</th>
+                        <th>{{__('message.waba_id')}}</th>
+                        <th>{{__('message.phone_number_id')}}</th>
+                        <th>{{__('message.business_id')}}</th>
+                        <th>{{__('message.whatsapp_access_token')}}</th>
+                        <th>{{__('message.create_at')}}</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
     </div>
 
     <div class="modal fade" id="autorenewModal" tabindex="-1" role="dialog" aria-labelledby="autorenewModalLabel" aria-hidden="true">
@@ -840,6 +878,55 @@
             </div>
         </div>
     </div>
+
+
+
+    <div class="modal fade" id="Whatsapp-url" tabindex="-1" role="dialog" aria-labelledby="autorenewModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h4 class="modal-title" id="autorenewModalLabel">{{ __('message.auto_renewal')}}</h4>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row">
+
+                        <div class="form-group col">
+
+                            <label class="form-label">Webhook URL <span class="text-danger"> *</span>
+                                <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="" data-original-title="The Webhook URL can be found under the Additional Configuration section of the WhatsApp settings in the Admin Panel."></i>
+                            </label>
+                            <div class="custom-select-1">
+                                {!! html()->text('webhook_url')->class('form-control')->id('webhook_url')->placeholder('https://example.com') !!}
+                                <div class="space"></div>
+                            </div>
+
+{{--                            <label class="form-label mt-3">VerifyToken <span class="text-danger"> *</span></label>--}}
+{{--                            <div class="custom-select-1">--}}
+{{--                                {!! html()->text('verify_token')->class('form-control'.($errors->has('verify_token') ? ' is-invalid' : ''))->id('verify_token') !!}--}}
+{{--                            </div>--}}
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('message.close')}}</button>
+
+                    <button type="button" class="btn btn-primary" id="whatsapp_close">{{ __('message.save')}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <div class="modal fade" id="cloudDomainModal" tabindex="-1" role="dialog" aria-labelledby="cloudDomainModalLabel" aria-hidden="true">
 
@@ -1166,7 +1253,6 @@
 
 
 
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <form name='razorpayform' action="{!!url('rzpRenewal-disable/'.$order->id)!!}" method="POST">
         {{ csrf_field() }}
@@ -1177,7 +1263,287 @@
 
 
     </form>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
 
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+
+
+    <script>
+            $('#shownumber-table').DataTable({
+                processing: true,
+                serverSide: true,
+                stateSave: false,
+
+                ajax: "{{ url('whatsapp-client-table/'.$order->id) }}", // Calls the separate function
+                oLanguage: {
+                    sLengthMenu: "_MENU_ Records per page",
+                    sSearch: "<span style='right: 180px;'>Search:</span> ",
+                    {{--sProcessing: ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'--}}
+                    sProcessing: ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">{!! __('message.loading') !!}</div></div>'
+
+                },
+                language: {
+                    paginate: {
+                        first:      "{{ __('message.paginate_first') }}",
+                        last:       "{{ __('message.paginate_last') }}",
+                        next:       "{{ __('message.paginate_next') }}",
+                        previous:   "{{ __('message.paginate_previous') }}"
+                    },
+                    emptyTable:     "{{ __('message.empty_table') }}",
+                    info:           "{{ __('message.datatable_info') }}",
+                    zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                    infoEmpty:      "{{ __('message.info_empty') }}",
+                    infoFiltered:   "{{ __('message.info_filtered') }}",
+                    lengthMenu:     "{{ __('message.length_menu') }}",
+                    loadingRecords: "{{ __('message.loading_records') }}",
+                    search:         "{{ __('message.table_search') }}",
+                },
+
+                // Apply 'no-sort' class only to specific targets (3rd and 4th columns)
+                columnDefs: [
+                    {
+                        // targets: [2, 3], // Status and Action columns
+                        // orderable: false
+                    }
+                ],
+
+                columns: [
+                    // { data: 'UserName', name: 'UserName', orderable: true, searchable: true },
+                    { data: 'PhoneNumber', name: 'PhoneNumber', orderable: true , searchable: true },
+                    { data: 'WabaId', name: 'WabaId', orderable: true, searchable: true },
+                    { data: 'PhoneNumberId', name: 'PhoneNumberId', orderable: true, searchable: true },
+                    { data: 'BusinessId', name: 'BusinessId', orderable: false, searchable: false },
+                    { data: 'access_token', name: 'Access Token', orderable: false, searchable: false },
+
+                    { data: 'created_at', name: 'CreatedAt', orderable: false, searchable: false }
+
+                ]
+            });
+
+            $(document).on('click', '.copy-btn', function() {
+                const button = $(this);
+                const token = button.data('token');
+                const message = button.siblings('.copy-msg');
+
+                navigator.clipboard.writeText(token).then(() => {
+                    message.fadeIn(200).delay(1000).fadeOut(400);
+                });
+            });
+
+            $('#whatsapp_close').on('click',function(e){
+
+                const userRequiredFields = {
+                    name:'Please Enter Webhook URL. ',
+
+
+                };
+                var webhook_url=$('#webhook_url');
+
+                const userFields = {
+                    name:webhook_url,
+
+                };
+
+
+                // Clear previous errors
+                Object.values(userFields).forEach(field => {
+                    field.removeClass('is-invalid');
+                    field.next().next('.error').remove();
+
+                });
+
+                let isValid = true;
+
+                const showError = (field, message) => {
+                    field.addClass('is-invalid');
+                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                };
+
+                // Validate required fields
+                Object.keys(userFields).forEach(field => {
+                    if (!userFields[field].val()) {
+                        showError(userFields[field], userRequiredFields[field]);
+                        isValid = false;
+                    }
+                });
+
+                if (isValid && !isValidURL(userFields.name.val())) {
+                    showError(userFields.name,'Please enter a Valid URL',);
+                    isValid = false;
+                }
+
+                // If validation fails, prevent form submission
+                if (!isValid) {
+                    e.preventDefault();
+                }else{
+                    var url=webhook_url.val();
+                    // var token=$('#verify_token').val();
+                    $.ajax({
+                        data: {'url' : url,},
+                        url: '{{url("url-save")}}',
+                        method: 'POST',
+                        dataType: 'json',
+                        success: function(data) {
+                                $('#Whatsapp-url').modal('hide');
+                            launchWhatsAppSignup();
+                        },
+                        error: function(error) {
+                            console.error('Error:', error);
+                        }
+                    });
+                }
+        })
+            function isValidURL(str) {
+                try {
+                    new URL(str);
+                    return true;
+                } catch (_) {
+                    return false;
+                }
+            }
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            // Add input event listeners for all fields
+            ['webhook_url'].forEach(id => {
+
+                document.getElementById(id).addEventListener('input', function () {
+                    removeErrorMessage(this);
+
+                });
+            });
+        $('#get-url').on('click',function(){
+            $('#Whatsapp-url').modal('show');
+        });
+
+        // SDK initialization
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId: {{$app_id}},
+                autoLogAppEvents: true,
+                xfbml: true,
+                version: 'v24.0'
+            });
+        };
+            var fbData=null;
+            var fbToken=null;
+        // Session logging message event listener
+            window.addEventListener('message', (event) => {
+                if (!event.origin.endsWith('facebook.com')) return;
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'WA_EMBEDDED_SIGNUP') {
+                        console.log('message event: ', data);
+                                {{--$.ajax ({--}}
+                                {{--    url: '{{url("save-waba-id")}}',--}}
+                                {{--    type : 'post',--}}
+                                {{--    data: {--}}
+                                {{--        "waba_id": data.data.waba_id,"phone_number_id":data.data.phone_number_id,"business_id":data.data.business_id,--}}
+                                {{--    },--}}
+                                {{--    success: function (data) {--}}
+                                {{--        console.log(data);--}}
+
+                                {{--    },--}}
+                                {{--    error:function(data){--}}
+                                {{--        console.log(data);--}}
+                                {{--    },--}}
+                                {{--})--}}
+                            fbData = data;
+                        getAllData();
+                    }
+                } catch {
+                    console.log('message event: ', event.data);
+                    // your code goes here
+                }
+            });
+
+            // Response callback
+            const fbLoginCallback = (response) => {
+                if (response.authResponse) {
+                    fbToken=response.authResponse.code;
+                    getAllData();
+                    console.log('response1: ', code);
+                    {{--$.ajax ({--}}
+                    {{--    url: '{{url("save-access-token")}}',--}}
+                    {{--    type : 'post',--}}
+                    {{--    data: {--}}
+                    {{--        "code": code,--}}
+                    {{--    },--}}
+                    {{--    success: function (data) {--}}
+                    {{--        console.log(data);--}}
+                    {{--    },--}}
+                    {{--    error:function(data){--}}
+                    {{--        console.log(data);--}}
+                    {{--    },--}}
+                    {{--})--}}
+                    // your code goes here
+                } else {
+                    console.log('response2: ', response);
+                    // your code goes here
+                }
+            }
+
+            function getAllData() {
+                if (fbData && fbToken) {
+                    var data = fbData;
+                    $.ajax({
+                        url: '{{url("save-waba-id")}}',
+                        type: 'post',
+                        data: {
+                            "waba_id": data.data.waba_id,
+                            "phone_number_id": data.data.phone_number_id,
+                            "business_id": data.data.business_id,
+                            'code': fbToken,
+                            "order_id": {!! $order->id !!}
+                        },
+                        success: function (response) {
+                            $('#alertMessage-22').show();
+                            var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> ' + @json(__('message.success')) +'! </strong>' + response.message + '.</div>';
+                            $('#alertMessage-22').html(result + ".");
+                            $("#pay").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
+                            setTimeout(function () {
+                                $('#alertMessage-22').slideUp(3000, function () {
+                                    setTimeout(function () {
+                                        location.reload();
+                                    }, 1000);
+                                });
+                            })
+                        },
+                        error: function (response) {
+                            $('#alertMessage-22').show();
+                            var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> ' + @json(__('message.success')) +'! </strong>' + response.message + '.</div>';
+                            $('#alertMessage-22').html(result + ".");
+                            $("#pay").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
+                            setTimeout(function () {
+                                $('#alertMessage-22').slideUp(3000, function () {
+                                    setTimeout(function () {
+                                        location.reload();
+                                    }, 1000);
+                                });
+                            })
+                        },
+                    })
+                }
+            }
+        // Launch method and callback registration
+        const launchWhatsAppSignup = () => {
+
+            FB.login(fbLoginCallback, {
+                config_id: {{$config_id}},
+                response_type: 'code',
+                override_default_response_type: true,
+                extras: {
+                    setup: {},
+                }
+            });
+        }
+    </script>
     <script src="https://js.stripe.com/v3/"></script>
     <script>
         $(function () {

@@ -44,11 +44,9 @@
         }
 
 
-        .fw_400 {
-            font-weight: 400;
-        }
+        .fw_400 { font-weight: 400; }
 
-        .settingiconblue p {
+        .settingiconblue p{
             text-align: center;
             font-size: 16px;
             word-wrap: break-word;
@@ -265,7 +263,18 @@
                         <div class="text-center text-sm fw_400">{{ __('message.language') }}</div>
                     </div>
                 </div>
-
+                <div class="col-md-2 col-sm-6">
+                    <div class="settingiconblue">
+                        <div class="settingdivblue">
+                            <a class="icons-color" href="{{url('whatsapp-users')}}">
+                            <span class="fa-stack fa-2x">
+                            <i class="fab fa-whatsapp fa-stack-1x" style="font-size: 1.4em;"></i>
+                            </span>
+                            </a>
+                        </div>
+                        <div class="text-center text-sm fw_400">Whatsapp-Users</div>
+                    </div>
+                </div>
                 @if($mailSendingStatus==1)
                     <div class="col-md-2 col-sm-6">
                         <div class="settingiconblue">
@@ -415,18 +424,6 @@
                 </div>
                 <!--/.col-md-2-->
 
-                <div class="col-md-2 col-sm-6">
-                    <div class="settingiconblue">
-                        <div class="settingdivblue">
-                            <a class="icons-color" href="{{url('queue')}}">
-                                <span class="fa-stack fa-2x">
-                                    <i class="fa fa-upload fa-stack-1x"></i>
-                                </span>
-                            </a>
-                        </div>
-                        <div class="text-center text-sm fw_400">{{ __('message.queues') }}</div>
-                    </div>
-                </div>
 
                 @if($isRedisConfigured)
                     <div class="col-md-2 col-sm-6">
@@ -579,7 +576,18 @@
                     </div>
                 </div>
 
-
+            <div class="col-md-2 col-sm-6">
+                <div class="settingiconblue">
+                    <div class="settingdivblue">
+                        <a class="icons-color" href="{{url('queue')}}">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-upload fa-stack-1x"></i>
+                                </span>
+                        </a>
+                    </div>
+                    <div class="text-center text-sm fw_400">{{ __('message.queues') }}</div>
+                </div>
+            </div>
             </div>
             <!-- /.row -->
         </div>
