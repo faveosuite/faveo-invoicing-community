@@ -532,7 +532,7 @@
             }
 
             // Validate reCAPTCHA
-            let recaptchaToken = await window.mobileVerifyRecaptcha.tokenValidation(mobileVerifyRecaptcha, "mobile_verify");
+            let recaptchaToken = await window.mobileVerifyRecaptcha.tokenValidation("mobile_verify");
             if (!recaptchaToken) return;
 
             const data = { eid, otp: otpValue };
@@ -648,7 +648,7 @@
             }
 
             // Validate reCAPTCHA
-            let recaptchaToken = await window.emailVerifyRecaptcha.tokenValidation(emailVerifyRecaptcha, "email_verify");
+            let recaptchaToken = await window.emailVerifyRecaptcha.tokenValidation("email_verify");
             if (!recaptchaToken) return;
 
             const data = { eid, otp: otpValue };

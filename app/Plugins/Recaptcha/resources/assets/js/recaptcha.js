@@ -429,12 +429,7 @@ var RecaptchaManager = (function() {
             var siteKey = config.v2SiteKey || self.globalSiteKeys.v2;
             var renderTarget;
 
-            // --- Start of fix ---
-
-            // Conditionally select the render target based on the badge position.
             if (config.badge === 'bottomright' || config.badge === 'bottomleft') {
-                // For corner positions, create a dedicated dummy container in the body.
-                // This allows the reCAPTCHA script to position the badge correctly.
                 var dummyContainerId = 'recaptcha-dummy-container-' + instance.id;
                 var dummyEl = document.getElementById(dummyContainerId);
                 if (!dummyEl) {
@@ -443,19 +438,20 @@ var RecaptchaManager = (function() {
                     document.body.appendChild(dummyEl);
                 }
                 renderTarget = dummyEl;
-
-                // Clear the original container since it's not used for the badge itself.
                 container.innerHTML = '';
             } else {
-                // For 'inline' badges, render directly inside the provided container.
                 var widgetId = 'recaptcha-invisible-widget-' + instance.id;
                 container.innerHTML = '<div id="' + widgetId + '"></div>';
                 renderTarget = container.querySelector('#' + widgetId);
             }
 
-            // --- End of fix ---
-
             try {
+                // --- Start of fix ---
+                var cleanupCallbacks = function() {
+                    instance.resolveV2 = null;
+                    instance.rejectV2 = null;
+                };
+
                 var renderParams = {
                     sitekey: siteKey,
                     size: 'invisible',
@@ -467,28 +463,27 @@ var RecaptchaManager = (function() {
                         instance.v2Token = token;
                         if (instance.resolveV2) {
                             instance.resolveV2(token);
-                            instance.resolveV2 = null;
                         }
+                        cleanupCallbacks();
                     },
                     'expired-callback': function() {
                         instance.v2Token = null;
                         if (instance.rejectV2) {
-                            instance.rejectV2(new Error('reCAPTCHA expired'));
-                            instance.rejectV2 = null;
+                            instance.rejectV2(new Error('reCAPTCHA challenge expired. Please try again.'));
                         }
+                        cleanupCallbacks();
                     },
                     'error-callback': function() {
                         instance.v2Token = null;
                         if (instance.rejectV2) {
-                            instance.rejectV2(new Error('reCAPTCHA error'));
-                            instance.rejectV2 = null;
+                            // This handles the "Uncaught (in promise) null" case by ensuring a proper Error is always sent.
+                            instance.rejectV2(new Error('reCAPTCHA challenge failed or was closed by the user.'));
                         }
+                        cleanupCallbacks();
                     }
                 };
 
-                // Pass the correctly chosen renderTarget to the reCAPTCHA API.
                 instance.v2WidgetId = window.grecaptcha.render(renderTarget, renderParams);
-
                 self.log('v2 invisible widget rendered for instance ' + instance.id);
             } catch (error) {
                 self.logError('Error rendering v2 invisible widget:', error);
@@ -604,115 +599,117 @@ function RecaptchaInstance(internalState, manager) {
 }
 
 /**
- * Toggle fallback (switch to v2 for this instance)
+ * Toggle fallback (switch to v2)
  */
-RecaptchaInstance.prototype.useFallback = function(force) {
-    force = force !== false; // default to true
-
-    // NEW: Skip fallback if disabled
+RecaptchaInstance.prototype.useFallback = function(force = true) {
     if (this.state.disabled) {
-        this.manager.log('Instance ' + this.state.id + ' is disabled - fallback skipped');
+        this.manager.log(`Instance ${this.state.id} is disabled - fallback skipped`);
         return Promise.resolve();
     }
 
-    if (!this.state.config.fallback) {
-        return Promise.resolve();
-    }
+    if (!this.state.config.fallback) return Promise.resolve();
 
-    // Check if both site keys are available
-    var v2SiteKey = this.state.config.v2SiteKey || this.manager.globalSiteKeys.v2;
-
-    if (!v2SiteKey) {
-        return Promise.resolve();
-    }
+    const v2SiteKey = this.state.config.v2SiteKey || this.manager.globalSiteKeys.v2;
+    if (!v2SiteKey) return Promise.resolve();
 
     this.state.forceFallback = force;
 
-    var self = this;
+    const self = this;
+
     if (force && this.state.mode === 'v3') {
-        // Load v2 script if not loaded
         return this.manager.loadV2Script(this.state.config.lang)
-            .then(function() {
-                // Render v2 widget
-                return self.manager.renderV2Widget(self.state);
-            })
-            .then(function() {
-                self.manager.log('Instance ' + self.state.id + ' switched to fallback (v2) mode');
-            });
+            .then(() => self.manager.renderV2Widget(self.state))
+            .then(() => self.manager.log(`Instance ${self.state.id} switched to fallback (v2) mode`));
     } else if (!force) {
-        // Switch back to v3 if needed
         return this.manager.renderV3Widget(this.state)
-            .then(function() {
-                self.manager.log('Instance ' + self.state.id + ' switched back to v3 mode');
-            });
+            .then(() => self.manager.log(`Instance ${self.state.id} switched back to v3 mode`));
     }
 
     return Promise.resolve();
 };
 
 /**
- * Get reCAPTCHA token
+ * Uniform token retrieval
  */
-RecaptchaInstance.prototype.getToken = function(action) {
-    action = action || 'default';
-
-    // NEW: Return null immediately if disabled
+RecaptchaInstance.prototype.getToken = function(action = 'default') {
     if (this.state.disabled) {
-        this.manager.log('Instance ' + this.state.id + ' is disabled - returning null token');
+        this.manager.log(`Instance ${this.state.id} is disabled - returning null token`);
         return Promise.resolve(null);
     }
 
-    var config = this.state.config;
-
-    // Forced fallback → always v2
-    if (this.state.forceFallback) {
-        return this.getV2Token();
+    if (this.state.forceFallback || this.state.mode === 'v2') {
+        return this._getV2TokenSafe();
     }
 
-    if (this.state.mode === 'v2') {
-        return this.getV2Token();
-    } else if (this.state.mode === 'v2-invisible') {
-        return this.getV2InvisibleToken();
-    } else if (this.state.mode === 'v3') {
-        var finalAction = config.action || action;
-        return this.getV3Token(finalAction);
+    if (this.state.mode === 'v2-invisible') {
+        return this._getV2InvisibleTokenSafe();
     }
 
-    return Promise.reject(new Error('Invalid reCAPTCHA mode'));
+    if (this.state.mode === 'v3') {
+        return this._getV3TokenSafe(action);
+    }
+
+    this.manager.logError(`Invalid reCAPTCHA mode for instance ${this.state.id}`);
+    return Promise.resolve(null);
+};
+
+// --- Internal safe wrappers ---
+
+RecaptchaInstance.prototype._getV2TokenSafe = function() {
+    if (this.state.v2Token) return Promise.resolve(this.state.v2Token);
+    this.manager.log(`No v2 token available for instance ${this.state.id}`);
+    return Promise.resolve(null);
+};
+
+RecaptchaInstance.prototype._getV2InvisibleTokenSafe = function() {
+    const self = this;
+    return new Promise(resolve => {
+        self.getV2InvisibleToken()
+            .then(token => resolve(token))
+            .catch(error => {
+                self.manager.logError(`v2-invisible token failed for instance ${self.state.id}`, error);
+                resolve(null);
+            });
+    });
+};
+
+RecaptchaInstance.prototype._getV3TokenSafe = function(action) {
+    const self = this;
+    return new Promise(resolve => {
+        self.getV3Token(action)
+            .then(token => resolve(token))
+            .catch(error => {
+                self.manager.logError(`v3 token generation failed for instance ${self.state.id}`, error);
+                resolve(null);
+            });
+    });
 };
 
 /**
- * Get v2 token (waits for user interaction)
+ * Get v2 token (requires user interaction)
  */
 RecaptchaInstance.prototype.getV2Token = function() {
-    if (this.state.v2Token) {
-        return Promise.resolve(this.state.v2Token); // token exists, return it
-    } else {
-        return Promise.reject(new Error('No reCAPTCHA v2 token available')); // immediately throw error
-    }
+    return this.state.v2Token ? Promise.resolve(this.state.v2Token) : Promise.reject(new Error('No v2 token available'));
 };
 
 /**
  * Get v2 invisible token (programmatically execute)
  */
 RecaptchaInstance.prototype.getV2InvisibleToken = function() {
-    var self = this;
-
-    return new Promise(function(resolve, reject) {
-        if (self.state.v2Token) {
-            // Token already exists
-            resolve(self.state.v2Token);
-            return;
-        }
-
-        // Set up promise resolvers
+    const self = this;
+    return new Promise((resolve, reject) => {
         self.state.resolveV2 = resolve;
         self.state.rejectV2 = reject;
 
-        // Execute the invisible reCAPTCHA
         try {
-            window.grecaptcha.execute(self.state.v2WidgetId);
-            self.manager.log('v2 invisible execution triggered for instance ' + self.state.id);
+            window.grecaptcha.execute(self.state.v2WidgetId)
+                .then(() => self.state.resolveV2())
+                .catch(error => {
+                    self.state.resolveV2 = null;
+                    self.state.rejectV2 = null;
+                    reject(error);
+                });
+            self.manager.log(`v2 invisible execution triggered for instance ${self.state.id}`);
         } catch (error) {
             self.state.resolveV2 = null;
             self.state.rejectV2 = null;
@@ -721,34 +718,46 @@ RecaptchaInstance.prototype.getV2InvisibleToken = function() {
     });
 };
 
-RecaptchaInstance.prototype.tokenValidation = function(instance, action) {
-    action = action || 'default';
+/**
+ * Get v3 token (automatic execution)
+ */
+RecaptchaInstance.prototype.getV3Token = function(action) {
+    const siteKey = this.state.config.v3SiteKey || this.manager.globalSiteKeys.v3;
+    const self = this;
 
-    var container = instance.state && instance.state.container || document.getElementById('recaptcha-container');
+    return window.grecaptcha.execute(siteKey, { action })
+        .then(token => {
+            self.manager.log(`v3 token generated for action: ${action}`);
+            return token;
+        })
+        .catch(error => {
+            self.manager.logError('v3 execution failed:', error);
+            throw error;
+        });
+};
 
-    // Remove any previous error
+/**
+ * Validate token
+ */
+RecaptchaInstance.prototype.tokenValidation = function(action = 'default') {
+    const container = this.state.container || document.getElementById('recaptcha-container');
+
     if (container && container.querySelector('.invalid-feedback')) {
         container.querySelector('.invalid-feedback').remove();
     }
 
-    // NEW: Accept null token for disabled instances
-    if (instance.state.disabled) {
-        return Promise.resolve(true); // Consider disabled reCAPTCHA as valid
-    }
+    if (this.state.disabled) return Promise.resolve(true);
 
-    var errorMessage = instance.state.config.validationErrorMessage || 'reCAPTCHA validation failed. Please try again.';
+    const errorMessage = this.state.config.validationErrorMessage || 'reCAPTCHA validation failed. Please try again.';
 
-    var self = this;
-    return instance.getToken(action)
-        .then(function(token) {
-            if (!token) {
-                throw new Error("No token received");
-            }
+    return this.getToken(action)
+        .then(token => {
+            if (!token) throw new Error('No token received');
             return token;
         })
-        .catch(function(error) {
+        .catch(error => {
             if (container) {
-                var errorEl = document.createElement('div');
+                const errorEl = document.createElement('div');
                 errorEl.className = 'invalid-feedback d-block';
                 errorEl.textContent = errorMessage;
                 container.appendChild(errorEl);
@@ -758,63 +767,37 @@ RecaptchaInstance.prototype.tokenValidation = function(instance, action) {
 };
 
 /**
- * Get v3 token (automatic execution)
- */
-RecaptchaInstance.prototype.getV3Token = function(action) {
-    var config = this.state.config;
-    var siteKey = config.v3SiteKey || this.manager.globalSiteKeys.v3;
-
-    var self = this;
-    return window.grecaptcha.execute(siteKey, { action: action })
-        .then(function(token) {
-            self.manager.log('v3 token generated for action: ' + action);
-            return token;
-        })
-        .catch(function(error) {
-            self.manager.logError('v3 execution failed:', error);
-            throw error;
-        });
-};
-
-/**
- * Reset the widget (works for v2 and v2-invisible)
+ * Reset widget
  */
 RecaptchaInstance.prototype.reset = function() {
-    // NEW: Skip reset if disabled
     if (this.state.disabled) {
-        this.manager.log('Instance ' + this.state.id + ' is disabled - reset skipped');
+        this.manager.log(`Instance ${this.state.id} is disabled - reset skipped`);
         return;
     }
 
-    var isV2Mode = (this.state.mode === 'v2' || this.state.mode === 'v2-invisible');
-    var isFallbackV2 = (this.state.forceFallback && this.state.v2WidgetId !== null);
+    const isV2Mode = this.state.mode === 'v2' || this.state.mode === 'v2-invisible';
+    const isFallbackV2 = this.state.forceFallback && this.state.v2WidgetId !== null;
 
     if ((isV2Mode || isFallbackV2) && this.state.v2WidgetId !== null) {
         try {
             window.grecaptcha.reset(this.state.v2WidgetId);
             this.state.v2Token = null;
-            this.manager.log((isFallbackV2 ? 'fallback v2' : this.state.mode) + ' widget ' + this.state.id + ' reset');
+            this.manager.log(`${isFallbackV2 ? 'fallback v2' : this.state.mode} widget ${this.state.id} reset`);
         } catch (error) {
-            this.manager.logError('Error resetting widget for instance ' + this.state.id + ':', error);
+            this.manager.logError(`Error resetting widget for instance ${this.state.id}:`, error);
         }
     }
 
-    // Clear any pending v2 promises/callbacks
-    if (this.state.resolveV2) {
-        this.state.resolveV2 = null;
-    }
-    if (this.state.rejectV2) {
-        this.state.rejectV2 = null;
-    }
+    this.state.resolveV2 = null;
+    this.state.rejectV2 = null;
 };
 
 /**
- * Execute invisible reCAPTCHA manually (for v2-invisible mode)
+ * Execute v2-invisible manually
  */
 RecaptchaInstance.prototype.execute = function() {
-    // NEW: Return null if disabled
     if (this.state.disabled) {
-        this.manager.log('Instance ' + this.state.id + ' is disabled - execute returning null');
+        this.manager.log(`Instance ${this.state.id} is disabled - execute returning null`);
         return Promise.resolve(null);
     }
 
@@ -822,7 +805,7 @@ RecaptchaInstance.prototype.execute = function() {
         return Promise.reject(new Error('Execute method is only available for v2-invisible mode'));
     }
 
-    return this.getV2InvisibleToken();
+    return this._getV2InvisibleTokenSafe();
 };
 
 /**
@@ -833,71 +816,56 @@ RecaptchaInstance.prototype.getCurrentMode = function() {
 };
 
 /**
- * Check if token is available
+ * Check token availability
  */
 RecaptchaInstance.prototype.hasToken = function() {
-    // NEW: Always return true for disabled instances
-    if (this.state.disabled) {
-        return true;
-    }
-    return this.state.v2Token !== null;
+    return this.state.disabled || this.state.v2Token !== null;
 };
 
 /**
- * Check if instance is disabled
+ * Check if disabled
  */
 RecaptchaInstance.prototype.isDisabled = function() {
-    return this.state.disabled || false;
+    return !!this.state.disabled;
 };
 
 /**
- * Get detailed state information
+ * Get state info
  */
 RecaptchaInstance.prototype.getState = function() {
     return {
         id: this.state.id,
         mode: this.state.mode,
-        disabled: this.state.disabled || false, // NEW
+        disabled: !!this.state.disabled,
         hasV2Widget: this.state.v2WidgetId !== null,
         v2Token: this.state.v2Token,
         hasToken: this.hasToken(),
-        config: Object.assign({}, this.state.config)
+        config: { ...this.state.config }
     };
 };
 
 /**
- * Destroy the instance
+ * Destroy instance
  */
 RecaptchaInstance.prototype.destroy = function() {
-    // NEW: Skip cleanup if disabled (no widgets to clean up)
     if (this.state.disabled) {
         this.state.container.innerHTML = '';
         this.manager.instances.delete(this.state.id);
-        this.manager.log('Disabled instance ' + this.state.id + ' destroyed');
+        this.manager.log(`Disabled instance ${this.state.id} destroyed`);
         return;
     }
 
     if ((this.state.mode === 'v2' || this.state.mode === 'v2-invisible') && this.state.v2WidgetId !== null) {
-        try {
-            this.reset();
-        } catch (error) {
-            this.manager.logError('Error during cleanup:', error);
-        }
+        try { this.reset(); } catch (error) { this.manager.logError('Error during cleanup:', error); }
     }
 
-    // Clear container
     this.state.container.innerHTML = '';
 
-    // Remove instance-specific styles
-    var inlineStyles = document.querySelector('#recaptcha-inline-styles-' + this.state.id);
-    if (inlineStyles) {
-        inlineStyles.remove();
-    }
+    const inlineStyles = document.querySelector(`#recaptcha-inline-styles-${this.state.id}`);
+    if (inlineStyles) inlineStyles.remove();
 
-    // Remove from manager's instance map
     this.manager.instances.delete(this.state.id);
-
-    this.manager.log('Instance ' + this.state.id + ' destroyed');
+    this.manager.log(`Instance ${this.state.id} destroyed`);
 };
 
 // Export for use

@@ -277,30 +277,42 @@
             }
             toggleCaptchaSettings() {
                 const selectedVersion = this.elements.captchaVersion.value;
-
-                // Reset failover if not v3
-                if (selectedVersion !== 'v3_invisible') {
-                    this.elements.failoverAction.value = 'none';
-                }
                 const selectedFailover = this.elements.failoverAction.value;
 
-                // Boolean flags for clarity
+                // Boolean flags
                 const isV3 = selectedVersion === 'v3_invisible';
                 const isV2Checkbox = selectedVersion === 'v2_checkbox' || selectedFailover === 'v2_checkbox';
                 const isV2Invisible = selectedVersion === 'v2_invisible';
 
-                // Show/hide elements
-                this.elements.scoreGroup.style.display = isV3 ? 'flex' : 'none';
-                this.elements.themeGroup.style.display = isV2Checkbox ? 'flex' : 'none';
-                this.elements.sizeGroup.style.display = isV2Checkbox ? 'flex' : 'none';
-                this.elements.badgeGroup.style.display = (isV3 || isV2Invisible) ? 'flex' : 'none';
-                this.elements.v3SettingsBlock.style.display = isV3 ? 'block' : 'none';
-                this.elements.v2SettingsBlock.style.display = (!isV3 || selectedFailover === 'v2_checkbox') ? 'block' : 'none';
-                document.getElementById('group_failover_action').style.display = isV3 ? 'flex' : 'none';
+                // Hide everything first
+                this.elements.v3SettingsBlock.style.display = 'none';
+                this.elements.v2SettingsBlock.style.display = 'none';
+                this.elements.scoreGroup.style.display = 'none';
+                this.elements.themeGroup.style.display = 'none';
+                this.elements.sizeGroup.style.display = 'none';
+                this.elements.badgeGroup.style.display = 'none';
+                document.getElementById('group_failover_action').style.display = 'none';
 
-                // Clear previews and re-render visible ones
+                // Now show only relevant blocks instantly
+                if (isV3) {
+                    this.elements.v3SettingsBlock.style.display = 'block';
+                    this.elements.scoreGroup.style.display = 'flex';
+                    this.elements.badgeGroup.style.display = 'flex';
+                    document.getElementById('group_failover_action').style.display = 'flex';
+                }
+                if (isV2Checkbox) {
+                    this.elements.v2SettingsBlock.style.display = 'block';
+                    this.elements.themeGroup.style.display = 'flex';
+                    this.elements.sizeGroup.style.display = 'flex';
+                }
+                if (isV2Invisible) {
+                    this.elements.v2SettingsBlock.style.display = 'block';
+                    this.elements.badgeGroup.style.display = 'flex';
+                }
+
+                // Clear previews immediately (no delay)
                 this.clearAllPreviews();
-                setTimeout(() => this.renderPreviews(), 100);
+                this.renderPreviews();
             }
             handleFailoverChange() {
                 this.toggleCaptchaSettings();
@@ -313,13 +325,13 @@
                 const v2Key = this.elements.v2SiteKey.value.trim();
                 const theme = document.querySelector('input[name="theme"]:checked').value;
                 const size = document.querySelector('input[name="size"]:checked').value;
-                if (selectedVersion === 'v3_invisible' && this.elements.v3SettingsBlock.style.display !== 'none') {
+                if (selectedVersion === 'v3_invisible' && this.elements.v3SettingsBlock.style.display !== 'none' && v3Key) {
                     await this.renderV3Preview(v3Key);
                 }
-                if ((selectedVersion === 'v2_checkbox' || selectedFailover === 'v2_checkbox') && this.elements.v2SettingsBlock.style.display !== 'none') {
+                if ((selectedVersion === 'v2_checkbox' || selectedFailover === 'v2_checkbox') && this.elements.v2SettingsBlock.style.display !== 'none' && v2Key) {
                     await this.renderV2Preview(v2Key, theme, size);
                 }
-                if (selectedVersion === 'v2_invisible' && this.elements.v2SettingsBlock.style.display !== 'none') {
+                if (selectedVersion === 'v2_invisible' && this.elements.v2SettingsBlock.style.display !== 'none' && v2Key) {
                     await this.renderV2InvisiblePreview(v2Key);
                 }
             }
@@ -360,11 +372,13 @@
             clearV3Preview() {
                 if (this.instances.v3) { try { this.instances.v3.destroy(); } catch(e){} this.instances.v3 = null; }
                 this.elements.v3Response.innerHTML = '';
+                this.elements.v3Error.textContent = '';
             }
             clearV2Preview() {
                 if (this.instances.v2) { try { this.instances.v2.destroy(); } catch(e){} this.instances.v2 = null; }
                 if (this.instances.v2Invisible) { try { this.instances.v2Invisible.destroy(); } catch(e){} this.instances.v2Invisible = null; }
                 this.elements.v2Response.innerHTML = '';
+                this.elements.v2Error.textContent = '';
             }
             showLoading(show) {
                 if (show) {
@@ -479,6 +493,71 @@
                 return this.elements.failoverAction.value === 'v2_checkbox';
             }
 
+            async tokenValidation(version) {
+                const tokens = {
+                    v2ResponseToken: null,
+                    v2InvisibleResponseToken: null,
+                    v3ResponseToken: null,
+                    hasError: false
+                };
+
+                // Helper to handle token retrieval and error assignment
+                const getToken = async (instance, tokenKey, errorMessages) => {
+                    try {
+                        if (!instance) {
+                            this.elements[errorMessages.element].textContent = errorMessages.failed;
+                            tokens.hasError = true;
+                            return null;
+                        }
+                        const token = await instance.getToken(errorMessages.action || undefined);
+                        if (!token) {
+                            this.elements[errorMessages.element].textContent = errorMessages.empty;
+                            tokens.hasError = true;
+                        }
+                        tokens[tokenKey] = token;
+                    } catch (e) {
+                        this.elements[errorMessages.element].textContent = errorMessages.failed;
+                        tokens.hasError = true;
+                    }
+                };
+
+                switch (version) {
+                    case 'v3_invisible':
+                        if (this.elements.failoverAction.value === 'v2_checkbox') {
+                            await getToken(this.instances.v2, 'v2InvisibleResponseToken', {
+                                element: 'v2Error',
+                                empty: '{{ __("recaptcha::recaptcha.complete_recaptcha_v2") }}',
+                                failed: '{{ __("recaptcha::recaptcha.failed_generate_v2_token") }}'
+                            });
+                        }
+                        await getToken(this.instances.v3, 'v3ResponseToken', {
+                            element: 'v3Error',
+                            empty: '{{ __("recaptcha::recaptcha.complete_recaptcha_v3") }}',
+                            failed: '{{ __("recaptcha::recaptcha.failed_generate_v3_token") }}',
+                            action: 'settings_save'
+                        });
+                        break;
+
+                    case 'v2_checkbox':
+                        await getToken(this.instances.v2, 'v2ResponseToken', {
+                            element: 'v2Error',
+                            empty: '{{ __("recaptcha::recaptcha.complete_recaptcha_v2") }}',
+                            failed: '{{ __("recaptcha::recaptcha.failed_generate_v2_token") }}'
+                        });
+                        break;
+
+                    case 'v2_invisible':
+                        await getToken(this.instances.v2Invisible, 'v2InvisibleResponseToken', {
+                            element: 'v2Error',
+                            empty: '{{ __("recaptcha::recaptcha.complete_recaptcha_v2") }}',
+                            failed: '{{ __("recaptcha::recaptcha.failed_generate_v2_token") }}'
+                        });
+                        break;
+                }
+
+                return tokens;
+            }
+
             async handleSubmit(e) {
                 e.preventDefault();
                 if (!$(this.elements.form).valid()) { this.shakeForm(); return false; }
@@ -487,17 +566,12 @@
                 submitButton.innerHTML = '<i class="fa fa-spinner fa-spin"></i>&nbsp;&nbsp;{{ __('recaptcha::recaptcha.saving') }}...';
                 this.elements.v2Error.textContent = '';
                 this.elements.v3Error.textContent = '';
-                let v2ResponseToken = null, v2InvisibleResponseToken = null, v3ResponseToken = null, hasError = false, captchaInstance = null;
-                if (this.instances.v3) {
-                    try { v3ResponseToken = await this.instances.v3.getToken('settings_save'); captchaInstance = this.instances.v3; if (!v3ResponseToken) { this.elements.v3Error.textContent = '{{ __('recaptcha::recaptcha.complete_recaptcha_v3') }}'; hasError = true; } } catch (e) { this.elements.v3Error.textContent = '{{ __('recaptcha::recaptcha.failed_generate_v3_token') }}'; hasError = true; }
+                const { v2ResponseToken, v2InvisibleResponseToken, v3ResponseToken, hasError } = await this.tokenValidation(this.elements.captchaVersion.value);
+                if (hasError) {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '<i class="fa fa-save">&nbsp;&nbsp;</i>{{ __('recaptcha::recaptcha.save') }}';
+                    return false;
                 }
-                if (this.instances.v2) {
-                    try { v2ResponseToken = await this.instances.v2.getToken(); captchaInstance = this.instances.v2; if (!v2ResponseToken) { this.elements.v2Error.textContent = '{{ __('recaptcha::recaptcha.complete_recaptcha_v2') }}'; hasError = true; } } catch (e) { this.elements.v2Error.textContent = '{{ __('recaptcha::recaptcha.failed_generate_v2_token') }}'; hasError = true; }
-                }
-                if (this.instances.v2Invisible) {
-                    try { v2InvisibleResponseToken = await this.instances.v2Invisible.getToken(); captchaInstance = this.instances.v2Invisible; if (!v2InvisibleResponseToken) { this.elements.v2Error.textContent = '{{ __('recaptcha::recaptcha.complete_recaptcha_v2') }}'; hasError = true; } } catch (e) { this.elements.v2Error.textContent = '{{ __('recaptcha::recaptcha.failed_generate_v2_token') }}'; hasError = true; }
-                }
-                if (hasError) { submitButton.disabled = false; submitButton.innerHTML = '<i class="fa fa-save">&nbsp;&nbsp;</i>{{ __('recaptcha::recaptcha.save') }}'; return; }
                 const payload = {
                     captcha_version: this.elements.captchaVersion.value,
                     failover_action: this.elements.failoverAction.value,
@@ -560,10 +634,9 @@
                         } else {
                             this.showAlert(msg, 'error');
                         }
-                        this.renderPreviews();
                     },
                     complete: () => {
-                        captchaInstance.reset();
+                        this.renderPreviews();
                         submitButton.disabled = false;
                         submitButton.innerHTML = '<i class="fa fa-save">&nbsp;&nbsp;</i>{{ __('recaptcha::recaptcha.save') }}';
                     }

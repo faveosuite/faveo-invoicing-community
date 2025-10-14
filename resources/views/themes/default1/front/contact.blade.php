@@ -267,7 +267,7 @@ $(document).ready(function() {
 
         try {
             // Validate reCAPTCHA
-            let recaptchaToken = await window.contactRecaptcha.tokenValidation(contactRecaptcha, "demo");
+            let recaptchaToken = await window.contactRecaptcha.tokenValidation("contact");
             if (!recaptchaToken) return;
 
             $('#mobile_code_hiddenco').val('+' + $('#mobilenumcon').attr('data-dial-code'));
@@ -276,7 +276,7 @@ $(document).ready(function() {
             // Collect form data
             let formData = $form.serializeArray();
 
-            if (!window.demoRecaptcha.isDisabled() && recaptchaToken) {
+            if (!window.contactRecaptcha.isDisabled() && recaptchaToken) {
                 formData.push({ name: "g-recaptcha-response", value: recaptchaToken });
                 formData.push({ name: "page_id", value: window.pageId });
             }

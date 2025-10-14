@@ -50,6 +50,8 @@ class AuthController extends BaseAuthController
     public function __construct()
     {
         $this->middleware('guest', ['except' => 'getLogout']);
+        $this->middleware('recaptcha:mobile_verify')->only('verifyOtp');
+        $this->middleware('recaptcha:email_verify')->only('verifyEmail');
         $license = new LicenseController();
         $this->licensing = $license;
     }

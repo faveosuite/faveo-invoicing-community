@@ -245,7 +245,7 @@
 
             try {
                 // Validate reCAPTCHA
-                let recaptchaToken = await window.demoRecaptcha.tokenValidation(demoRecaptcha, "demo");
+                let recaptchaToken = await window.demoRecaptcha.tokenValidation("demo");
                 if (!recaptchaToken) return;
 
                 $('#mobile_code_hiddenDemo').val('+' + $('#mobilenumdemo').attr('data-dial-code'));
