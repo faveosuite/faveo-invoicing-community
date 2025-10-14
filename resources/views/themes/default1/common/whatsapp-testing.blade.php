@@ -5,10 +5,10 @@
     // SDK initialization
     window.fbAsyncInit = function() {
         FB.init({
-            appId: '1434685455331701', // your app ID goes here
+            appId: '802421802601961',
             autoLogAppEvents: true,
             xfbml: true,
-            version: 'v23.0' // Graph API version goes here
+            version: 'v24.0'
         });
     };
 
@@ -18,11 +18,11 @@
         try {
             const data = JSON.parse(event.data);
             if (data.type === 'WA_EMBEDDED_SIGNUP') {
-                console.log('message event: ', data); // remove after testing
+                console.log('message event: ', data);
                 // your code goes here
             }
         } catch {
-            console.log('message event: ', event.data); // remove after testing
+            console.log('message event: ', event.data);
             // your code goes here
         }
     });
@@ -42,7 +42,7 @@
     // Launch method and callback registration
     const launchWhatsAppSignup = () => {
         FB.login(fbLoginCallback, {
-            config_id: '1321634892946880', // your configuration ID goes here
+            config_id: '1613294093413891',
             response_type: 'code',
             override_default_response_type: true,
             extras: {
