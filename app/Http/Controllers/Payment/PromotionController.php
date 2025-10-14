@@ -304,11 +304,13 @@ class PromotionController extends BasePromotionController
             $value = $this->findCostAfterDiscount($promo->id, $validProductForPromo, \Auth::user()->id);
             $productid = '';
             foreach (\Cart::getContent() as $item) {
-                if ($item->id == $validProductForPromo) {
+
+                if ($item->associatedModel->id == $validProductForPromo) {
                     $productid = $item->id;
                     $original = $item->price;
                 }
             }
+
             if ($productid) {
                 \Session::put('usage', 1);
                 \Session::put('code', $promo->code);
