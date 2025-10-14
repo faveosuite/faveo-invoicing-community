@@ -48,7 +48,7 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except(['logout', 'store-basic-details']);
-        $this->middleware(['blockFailedVerifications:login','recaptcha:login'])->only('login');
+        $this->middleware(['blockFailedVerifications:login', 'recaptcha:login'])->only('login');
     }
 
     /**
