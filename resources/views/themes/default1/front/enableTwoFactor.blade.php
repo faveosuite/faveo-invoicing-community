@@ -181,7 +181,7 @@
                 }
 
                 try {
-                    let recaptchaToken = await window.twoFactorRecaptcha.tokenValidation(twoFactorRecaptcha, "login");
+                    let recaptchaToken = await window.twoFactorRecaptcha.tokenValidation("login_2fa");
                     if (!recaptchaToken) return;
 
                     // Collect form data

@@ -310,7 +310,7 @@
 
                  try {
                      // Validate reCAPTCHA
-                     let recaptchaToken = await window.resetRecaptcha.tokenValidation(resetRecaptcha, "login");
+                     let recaptchaToken = await window.resetRecaptcha.tokenValidation("reset");
                      if (!recaptchaToken) return;
 
                      // Collect form data

@@ -189,7 +189,7 @@ main
 
             try {
                 // Validate reCAPTCHA
-                let recaptchaToken = await window.forgotRecaptcha.tokenValidation(forgotRecaptcha, "demo");
+                let recaptchaToken = await window.forgotRecaptcha.tokenValidation("forgot");
                 if (!recaptchaToken) return;
 
                 // Collect form data

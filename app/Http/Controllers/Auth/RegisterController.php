@@ -49,6 +49,7 @@ class RegisterController extends Controller
     public function __construct()
     {
         $this->middleware('guest');
+        $this->middleware('recaptcha:register')->only('postRegister');
     }
 
     public function emailVerification($email)

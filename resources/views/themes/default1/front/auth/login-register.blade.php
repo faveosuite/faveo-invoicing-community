@@ -687,7 +687,7 @@ foreach($scripts as $script) {
 
                 try {
                     // Validate reCAPTCHA
-                    let recaptchaToken = await window.loginRecaptcha.tokenValidation(loginRecaptcha, "login");
+                    let recaptchaToken = await window.loginRecaptcha.tokenValidation("login");
                     if (!recaptchaToken) return;
 
                     // Collect form data
@@ -863,7 +863,7 @@ foreach($scripts as $script) {
 
                 try {
                     // Validate reCAPTCHA
-                    let recaptchaToken = await window.registerRecaptcha.tokenValidation(registerRecaptcha, "register");
+                    let recaptchaToken = await window.registerRecaptcha.tokenValidation("register");
                     if (!recaptchaToken) return;
 
                     // Set hidden fields for mobile details

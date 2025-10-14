@@ -1082,7 +1082,6 @@ setTimeout(function() {
                 try {
                     // Get reCAPTCHA token
                     let recaptchaToken = await window.mailChimpRecaptcha.tokenValidation(
-                        mailChimpRecaptcha,
                         "mailChimp"
                     );
 

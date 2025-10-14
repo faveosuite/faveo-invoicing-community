@@ -163,7 +163,7 @@
                 }
 
                 try {
-                    let recaptchaToken = await window.recoveryRecaptcha.tokenValidation(recoveryRecaptcha, "login");
+                    let recaptchaToken = await window.recoveryRecaptcha.tokenValidation("login_recovery");
                     if (!recaptchaToken) return;
 
                     // Collect form data
