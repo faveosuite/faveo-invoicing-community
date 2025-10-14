@@ -59,8 +59,8 @@ Route::post('store-basic-details', [Auth\LoginController::class, 'storeBasicDeta
 // !social logins rotes end
 
 Route::middleware('installAgora')->group(function () {
-    Route::get('whatsapp-test',function(){
-       return view('themes.default1.common.whatsapp-testing');
+    Route::get('whatsapp-test', function () {
+        return view('themes.default1.common.whatsapp-testing');
     });
     Route::post('store_toggle_state', [Common\TemplateController::class, 'toggle'])->withoutMiddleware(['auth', 'admin']);
     Route::get('pricing', [Front\CartController::class, 'cart'])->name('pricing');
