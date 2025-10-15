@@ -205,10 +205,10 @@ main
     color: white;
 }
 
-.blue li::before{
+/*.blue li::before{*/
 
-    background-color: #099fdc;
-}
+/*    background-color: #099fdc;*/
+/*}*/
 
 .owl-carousel .owl-item img{
     display: unset;

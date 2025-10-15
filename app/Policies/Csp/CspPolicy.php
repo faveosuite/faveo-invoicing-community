@@ -103,6 +103,7 @@ class CspPolicy extends Policy
                 'b.tile.openstreetmap.org',
                 'c.tile.openstreetmap.org',
                 'unpkg.com',
+                'https://images.unsplash.com',
             ])
             ->addDirective(Directive::MANIFEST, [Keyword::SELF])
             ->addDirective(Directive::MEDIA, [
