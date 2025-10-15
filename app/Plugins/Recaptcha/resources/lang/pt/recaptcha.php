@@ -4,44 +4,44 @@ return [
     /*
     * Recaptcha Settings Page
     */
-    'captcha_settings' => 'Configurações do Captcha',
-    'captcha_configuration' => 'Configuração do Captcha',
-    'captcha_version' => 'Versão do Captcha',
+    'captcha_settings' => 'Configurações do reCAPTCHA',
+    'captcha_configuration' => 'Configuração do reCAPTCHA',
+    'captcha_version' => 'Versão do reCAPTCHA',
     'recaptcha_v3' => 'reCAPTCHA v3',
     'recaptcha_v2_invisible' => 'reCAPTCHA v2 Invisível',
-    'recaptcha_v2_checkbox' => 'reCAPTCHA v2 Caixa de seleção',
+    'recaptcha_v2_checkbox' => 'Caixa de seleção do reCAPTCHA v2',
     'select_captcha_type' => 'Selecione qual versão do reCAPTCHA usar',
-    'failover_action' => 'Ação de Failover',
+    'failover_action' => 'Ação de failover',
     'none' => 'Nenhum',
-    'fallback_v2_checkbox' => 'Voltar para reCAPTCHA v2 Caixa de seleção',
+    'fallback_v2_checkbox' => 'Voltar para a caixa de seleção do reCAPTCHA v2',
     'action_if_captcha_fails' => 'Ação a ser tomada se o reCAPTCHA falhar',
-    
+
     /*
     * Recaptcha v3 Settings
     */
     'recaptcha_v3_settings' => 'Configurações do reCAPTCHA v3',
     'v3_site_key' => 'Chave do site v3',
-    'enter_v3_site_key' => 'Digite sua chave de site reCAPTCHA v3',
+    'enter_v3_site_key' => 'Digite a chave do seu site reCAPTCHA v3',
     'v3_secret_key' => 'Chave secreta v3',
-    'enter_v3_secret_key' => 'Digite sua chave secreta reCAPTCHA v3',
+    'enter_v3_secret_key' => 'Digite sua chave secreta do reCAPTCHA v3',
     'v3_score_threshold' => 'Limite de pontuação v3',
-    'v3_score_hint' => 'Valor entre 0,0 e 1,0 (maior é melhor)',
-    'v3_preview' => 'Pré-visualização v3',
-    
+    'v3_score_hint' => 'Valor entre 0,0 e 1,0 (quanto maior, melhor)',
+    'v3_preview' => 'Visualização v3',
+
     /*
     * Recaptcha v2 Settings
     */
     'recaptcha_v2_settings' => 'Configurações do reCAPTCHA v2',
     'v2_site_key' => 'Chave do site v2',
-    'enter_v2_site_key' => 'Digite sua chave de site reCAPTCHA v2',
+    'enter_v2_site_key' => 'Digite a chave do seu site reCAPTCHA v2',
     'v2_secret_key' => 'Chave secreta v2',
-    'enter_v2_secret_key' => 'Digite sua chave secreta reCAPTCHA v2',
-    'v2_preview' => 'Pré-visualização v2',
-    
+    'enter_v2_secret_key' => 'Digite sua chave secreta do reCAPTCHA v2',
+    'v2_preview' => 'Visualização v2',
+
     /*
-    * Appearance & Messages
+    * Appearance
     */
-    'appearance_messages' => 'Aparência e Mensagens',
+    'appearance_messages' => 'Aparência',
     'theme' => 'Tema',
     'theme_light' => 'Claro',
     'theme_dark' => 'Escuro',
@@ -52,7 +52,7 @@ return [
     'badge_bottomright' => 'Inferior direito',
     'badge_bottomleft' => 'Inferior esquerdo',
     'badge_inline' => 'Em linha',
-    
+
     /*
     * Common
     */
@@ -60,57 +60,57 @@ return [
     'saving' => 'Salvando',
     'home' => 'Início',
     'settings' => 'Configurações',
-    
+
     /*
     * Success messages
     */
     'captcha_settings_updated' => 'Configurações do reCAPTCHA atualizadas com sucesso!',
-    
+
     /*
     * Error messages
     */
-    'captcha_message' => 'Falha na verificação do captcha. Por favor, tente novamente.',
-    
+    'captcha_message' => 'A verificação do reCAPTCHA falhou. Tente novamente.',
+
     /*
     * JavaScript validation messages
     */
     'field_required_condition' => 'Este campo é obrigatório quando a condição é atendida',
-    'select_captcha_version' => 'Por favor, selecione uma versão do captcha',
-    'v3_site_key_required' => 'Chave do site reCAPTCHA v3 é obrigatória',
-    'v3_secret_key_required' => 'Chave secreta reCAPTCHA v3 é obrigatória',
-    'v2_site_key_required' => 'Chave do site reCAPTCHA v2 é obrigatória',
-    'v2_secret_key_required' => 'Chave secreta reCAPTCHA v2 é obrigatória',
-    'valid_recaptcha_site_key' => 'Por favor, insira uma chave de site reCAPTCHA válida',
-    'valid_recaptcha_secret_key' => 'Por favor, insira uma chave secreta reCAPTCHA válida',
-    'score_threshold_required' => 'Limite de pontuação é obrigatório para reCAPTCHA v3',
-    'valid_number' => 'Por favor, insira um número válido',
-    'complete_recaptcha_v3' => 'Por favor, complete o reCAPTCHA v3.',
-    'failed_generate_v3_token' => 'Falha ao gerar token reCAPTCHA v3.',
-    'complete_recaptcha_v2' => 'Por favor, complete o reCAPTCHA v2.',
-    'failed_generate_v2_token' => 'Falha ao gerar token reCAPTCHA v2.',
+    'select_captcha_version' => 'Selecione uma versão do reCAPTCHA',
+    'v3_site_key_required' => 'A chave do site reCAPTCHA v3 é obrigatória',
+    'v3_secret_key_required' => 'A chave secreta do reCAPTCHA v3 é obrigatória',
+    'v2_site_key_required' => 'A chave do site reCAPTCHA v2 é obrigatória',
+    'v2_secret_key_required' => 'A chave secreta do reCAPTCHA v2 é obrigatória',
+    'valid_recaptcha_site_key' => 'Digite uma chave de site reCAPTCHA válida',
+    'valid_recaptcha_secret_key' => 'Digite uma chave secreta reCAPTCHA válida',
+    'score_threshold_required' => 'O limite de pontuação é obrigatório para o reCAPTCHA v3',
+    'valid_number' => 'Digite um número válido',
+    'complete_recaptcha_v3' => 'Falha ao gerar o token do reCAPTCHA. Verifique se a chave do site está configurada corretamente e é válida.',
+    'failed_generate_v3_token' => 'Falha ao gerar o token do reCAPTCHA. Verifique se a chave do site está configurada corretamente e é válida.',
+    'complete_recaptcha_v2' => 'Preencha o reCAPTCHA v2.',
+    'failed_generate_v2_token' => 'Falha ao gerar o token do reCAPTCHA v2.',
     'settings_saved' => 'Configurações salvas.',
-    'failed_save_settings' => 'Falha ao salvar configurações. Por favor, tente novamente.',
-    
+    'failed_save_settings' => 'Falha ao salvar as configurações. Tente novamente.',
+
     /*
     * Backend validation messages
     */
     'invalid_secret_or_token' => 'Chave secreta ou token de resposta inválido',
-    'captcha_verification_failed' => 'Falha na verificação do Captcha (incompatibilidade de pontuação/ação/nome do host)',
-    
+    'captcha_verification_failed' => 'A verificação do reCAPTCHA falhou (incompatibilidade de pontuação/ação/nome do host)',
+
     /*
     * Validation messages
     */
-    'captcha_version_required' => 'Versão do Captcha é obrigatória',
-    'captcha_version_in' => 'Versão do Captcha selecionada é inválida',
-    'failover_action_required' => 'Ação de failover é obrigatória',
-    'failover_action_in' => 'Ação de failover selecionada é inválida',
-    'score_threshold_numeric' => 'Limite de pontuação deve ser um número',
-    'score_threshold_min' => 'Limite de pontuação deve ser pelo menos 0',
-    'score_threshold_max' => 'Limite de pontuação não deve ser maior que 1',
-    'theme_required' => 'Tema é obrigatório',
-    'theme_in' => 'Tema selecionado é inválido',
-    'size_required' => 'Tamanho é obrigatório',
-    'size_in' => 'Tamanho selecionado é inválido',
-    'badge_position_required' => 'Posição do selo é obrigatória',
-    'badge_position_in' => 'Posição do selo selecionada é inválida',
+    'captcha_version_required' => 'A versão do reCAPTCHA é obrigatória',
+    'captcha_version_in' => 'A versão do reCAPTCHA selecionada é inválida',
+    'failover_action_required' => 'A ação de failover é obrigatória',
+    'failover_action_in' => 'A ação de failover selecionada é inválida',
+    'score_threshold_numeric' => 'O limite de pontuação deve ser um número',
+    'score_threshold_min' => 'O limite de pontuação deve ser de pelo menos 0',
+    'score_threshold_max' => 'O limite de pontuação não deve ser maior que 1',
+    'theme_required' => 'O tema é obrigatório',
+    'theme_in' => 'O tema selecionado é inválido',
+    'size_required' => 'O tamanho é obrigatório',
+    'size_in' => 'O tamanho selecionado é inválido',
+    'badge_position_required' => 'A posição do selo é obrigatória',
+    'badge_position_in' => 'A posição do selo selecionada é inválida',
 ];
