@@ -4,9 +4,9 @@ return [
     /*
     * Recaptcha Settings Page
     */
-    'captcha_settings' => 'Captcha Settings',
-    'captcha_configuration' => 'Captcha Configuration',
-    'captcha_version' => 'Captcha Version',
+    'captcha_settings' => 'reCAPTCHA Settings',
+    'captcha_configuration' => 'reCAPTCHA Configuration',
+    'captcha_version' => 'reCAPTCHA Version',
     'recaptcha_v3' => 'reCAPTCHA v3',
     'recaptcha_v2_invisible' => 'reCAPTCHA v2 Invisible',
     'recaptcha_v2_checkbox' => 'reCAPTCHA v2 Checkbox',
@@ -39,9 +39,9 @@ return [
     'v2_preview' => 'v2 Preview',
     
     /*
-    * Appearance & Messages
+    * Appearance
     */
-    'appearance_messages' => 'Appearance & Messages',
+    'appearance_messages' => 'Appearance',
     'theme' => 'Theme',
     'theme_light' => 'Light',
     'theme_dark' => 'Dark',
@@ -69,13 +69,13 @@ return [
     /*
     * Error messages
     */
-    'captcha_message' => 'Captcha verification failed. Please try again.',
+    'captcha_message' => 'reCAPTCHA verification failed. Please try again.',
     
     /*
     * JavaScript validation messages
     */
     'field_required_condition' => 'This field is required when the condition is met',
-    'select_captcha_version' => 'Please select a captcha version',
+    'select_captcha_version' => 'Please select a reCAPTCHA version',
     'v3_site_key_required' => 'reCAPTCHA v3 site key is required',
     'v3_secret_key_required' => 'reCAPTCHA v3 secret key is required',
     'v2_site_key_required' => 'reCAPTCHA v2 site key is required',
@@ -84,8 +84,8 @@ return [
     'valid_recaptcha_secret_key' => 'Please enter a valid reCAPTCHA secret key',
     'score_threshold_required' => 'Score threshold is required for reCAPTCHA v3',
     'valid_number' => 'Please enter a valid number',
-    'complete_recaptcha_v3' => 'Please complete the reCAPTCHA v3.',
-    'failed_generate_v3_token' => 'Failed to generate reCAPTCHA v3 token.',
+    'complete_recaptcha_v3' => 'Failed to generate reCAPTCHA token. Please verify that the site key is correctly configured and valid.',
+    'failed_generate_v3_token' => 'Failed to generate reCAPTCHA token. Please verify that the site key is correctly configured and valid.',
     'complete_recaptcha_v2' => 'Please complete the reCAPTCHA v2.',
     'failed_generate_v2_token' => 'Failed to generate reCAPTCHA v2 token.',
     'settings_saved' => 'Settings saved.',
@@ -95,13 +95,13 @@ return [
     * Backend validation messages
     */
     'invalid_secret_or_token' => 'Secret key or response token is invalid',
-    'captcha_verification_failed' => 'Captcha verification failed (score/action/hostname mismatch)',
+    'captcha_verification_failed' => 'reCAPTCHA verification failed (score/action/hostname mismatch)',
     
     /*
     * Validation messages
     */
-    'captcha_version_required' => 'Captcha version is required',
-    'captcha_version_in' => 'Selected captcha version is invalid',
+    'captcha_version_required' => 'reCAPTCHA version is required',
+    'captcha_version_in' => 'Selected reCAPTCHA version is invalid',
     'failover_action_required' => 'Failover action is required',
     'failover_action_in' => 'Selected failover action is invalid',
     'score_threshold_numeric' => 'Score threshold must be a number',

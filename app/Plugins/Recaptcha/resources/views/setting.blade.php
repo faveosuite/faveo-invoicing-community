@@ -279,12 +279,20 @@
                 const selectedVersion = this.elements.captchaVersion.value;
                 const selectedFailover = this.elements.failoverAction.value;
 
-                // Boolean flags
                 const isV3 = selectedVersion === 'v3_invisible';
-                const isV2Checkbox = selectedVersion === 'v2_checkbox' || selectedFailover === 'v2_checkbox';
+                const isV2Checkbox = selectedVersion === 'v2_checkbox' || (isV3 && selectedFailover === 'v2_checkbox');
                 const isV2Invisible = selectedVersion === 'v2_invisible';
 
-                // Hide everything first
+                // Update dynamic key on preview containers so external code or re-init logic
+                // can detect that the preview context has changed (based on version/failover)
+                try {
+                    const dynamicKey = `${selectedVersion}:${selectedFailover}`;
+                    if (this.elements.v3Response) this.elements.v3Response.setAttribute('data-dynamic-key', dynamicKey);
+                    if (this.elements.v2Response) this.elements.v2Response.setAttribute('data-dynamic-key', dynamicKey);
+                } catch (e) {
+                }
+
+                // Hide all by default
                 this.elements.v3SettingsBlock.style.display = 'none';
                 this.elements.v2SettingsBlock.style.display = 'none';
                 this.elements.scoreGroup.style.display = 'none';
