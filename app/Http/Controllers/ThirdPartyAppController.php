@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\ThirdPartyApp;
 use Illuminate\Http\Request;
-use function Laravel\Prompts\error;
 
 class ThirdPartyAppController extends Controller
 {
@@ -61,12 +60,10 @@ class ThirdPartyAppController extends Controller
 
             $total = $query->count();
 
-
-            return successResponse( __('message.third_party_apps_fetched'), [
+            return successResponse(__('message.third_party_apps_fetched'), [
                 'third_party_apps' => $thirdPartyApps,
-                'total' => $total
+                'total' => $total,
             ]);
-
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -103,7 +100,7 @@ class ThirdPartyAppController extends Controller
             ]);
         $this->thirdParty->fill($request->all())->save();
 
-        return successResponse( __('message.saved-successfully'));
+        return successResponse(__('message.saved-successfully'));
     }
 
     public function getAppKey()
@@ -172,7 +169,6 @@ class ThirdPartyAppController extends Controller
      * @param  \App\ThirdPartyApp  $thirdPartyApp
      * @return \Illuminate\Http\Response
      */
-
     public function destroy(Request $request)
     {
         try {
@@ -184,8 +180,8 @@ class ThirdPartyAppController extends Controller
 
             $ids = array_filter(array_map('trim', $ids));
 
-            if (!is_array($ids) || empty($ids)) {
-                return errorResponse( __('message.select-a-row'));
+            if (! is_array($ids) || empty($ids)) {
+                return errorResponse(__('message.select-a-row'));
             }
 
             $deleted = [];
@@ -202,12 +198,11 @@ class ThirdPartyAppController extends Controller
                 }
             }
 
-            if (!empty($notFound)) {
-                return errorResponse( __('message.no-record'));
+            if (! empty($notFound)) {
+                return errorResponse(__('message.no-record'));
             }
 
-            return successResponse( __('message.deleted-successfully'));
-
+            return successResponse(__('message.deleted-successfully'));
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }

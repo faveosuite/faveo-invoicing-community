@@ -944,7 +944,6 @@ function loging($context, $message, $level = 'error', $array = [])
     \Log::$level($message.':-:-:-'.$context, $array);
 }
 
-
 /**
  * Deletes all user sessions except the current session.
  *
@@ -1001,23 +1000,23 @@ function deleteUserSessions(int $userId, string $password): void
  * Format a given datetime string to UTC timezone.
  *
  * @param  string|null  $datetime  The datetime string to format.
- * @return \Carbon\Carbon|null  The formatted datetime in UTC or null if input is invalid.
+ * @return \Carbon\Carbon|null The formatted datetime in UTC or null if input is invalid.
  */
-function toFormatDateAndTime($datetime){
+function toFormatDateAndTime($datetime)
+{
+    if (! $datetime) {
+        return null;
+    }
+    // Decode if URL encoded
+    $datetime = urldecode($datetime);
 
-        if (!$datetime) {
-            return null;
-        }
-        // Decode if URL encoded
-        $datetime = urldecode($datetime);
+    // Parse using app timezone
+    $carbon = Carbon::parse($datetime, config('app.timezone'));
 
-        // Parse using app timezone
-        $carbon = Carbon::parse($datetime, config('app.timezone'));
-
-        // Return in UTC
-        return $carbon->clone()->setTimezone('UTC');
-
+    // Return in UTC
+    return $carbon->clone()->setTimezone('UTC');
 }
+
 /**
  * Log activity in a standard format across the system.
  *
