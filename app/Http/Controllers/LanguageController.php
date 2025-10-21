@@ -26,11 +26,10 @@ class LanguageController extends Controller
 
             $defaultLang = Setting::value('content') ?? 'en';
 
-            return successResponse( __('message.language_fetched'), [
+            return successResponse(__('message.language_fetched'), [
                 'languages' => $languages,
-                'default_language' => $defaultLang
+                'default_language' => $defaultLang,
             ]);
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
@@ -53,11 +52,11 @@ class LanguageController extends Controller
                     $languageById->status = $request->status;
                     $languageById->save();
 
-                    return successResponse( __('message.language_status_updated_successfully'));
+                    return successResponse(__('message.language_status_updated_successfully'));
                 }
             }
 
-            return errorResponse( __('message.language_not_found'));
+            return errorResponse(__('message.language_not_found'));
         } catch (\Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
         }
@@ -75,11 +74,11 @@ class LanguageController extends Controller
                 $languageConfig = \Config::get("languages.$langLocale", ['', '']);
 
                 $languages[] = [
-                    'id'          => $key,
-                    'locale'      => $langLocale,
-                    'name'        => $languageConfig[0] ?? $langLocale,
+                    'id' => $key,
+                    'locale' => $langLocale,
+                    'name' => $languageConfig[0] ?? $langLocale,
                     'translation' => $languageConfig[1] ?? '',
-                    'status'      => $dbLanguages[$langLocale]->status ?? 0,
+                    'status' => $dbLanguages[$langLocale]->status ?? 0,
                 ];
             }
 
@@ -89,7 +88,6 @@ class LanguageController extends Controller
                 __('message.language_fetched'),
                 $languages
             );
-
         } catch (\Exception $exception) {
             return errorResponse($exception->getMessage());
         }

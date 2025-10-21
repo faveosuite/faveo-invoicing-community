@@ -62,18 +62,17 @@ class LicensePermissionsController extends Controller
                         return [
                             'id' => $perm->id,
                             'permissions' => $perm->permissions,
-                            'assigned' => $license->permissions->contains('id', $perm->id)
+                            'assigned' => $license->permissions->contains('id', $perm->id),
                         ];
-                    })
+                    }),
                 ];
             });
 
             $licenseTypes->setCollection($data);
 
             return successResponse(__('message.license_types_permissions_fetched'), [
-                'license_types' => $licenseTypes
+                'license_types' => $licenseTypes,
             ]);
-
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -107,7 +106,7 @@ class LicensePermissionsController extends Controller
             $request->validate([
                 'license_id' => 'required|exists:license_types,id',
                 'permission_ids' => 'nullable|array',
-                'permission_ids.*' => 'nullable|exists:license_permissions,id'
+                'permission_ids.*' => 'nullable|exists:license_permissions,id',
             ]);
 
             $licenseId = $request->input('license_id');
@@ -117,7 +116,7 @@ class LicensePermissionsController extends Controller
                 ->where('license_type_id', $licenseId)
                 ->delete();
 
-            if (!empty($permissionIds)) {
+            if (! empty($permissionIds)) {
                 \DB::table('license_license_permissions')->insert(
                     collect($permissionIds)->map(function ($permissionId) use ($licenseId) {
                         return [
@@ -129,7 +128,6 @@ class LicensePermissionsController extends Controller
             }
 
             return successResponse(__('message.permissions_updated_successfully'));
-
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
