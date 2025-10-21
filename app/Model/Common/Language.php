@@ -12,6 +12,6 @@ class Language extends Model
         'name',
         'translation',
         'locale',
-        'enable_disable',
+        'status',
     ];
 }

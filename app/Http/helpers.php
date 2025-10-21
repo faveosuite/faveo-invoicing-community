@@ -957,6 +957,7 @@ function createUrl(string $path): string
     return rtrim($baseUrl, '/').'/'.ltrim($path, '/');
 }
 
+
 /**
  * Deletes all user sessions except the current session.
  *
@@ -1007,4 +1008,26 @@ function deleteUserSessions(int $userId, string $password): void
     // Clean directory keeping only selected sessions
     $keepFiles = $sessionsToKeep->map(fn ($file) => $file->getFilename())->all();
     File::cleanDirectoryFiles($sessionPath, $keepFiles);
+}
+
+/**
+ * Format a given datetime string to UTC timezone.
+ *
+ * @param  string|null  $datetime  The datetime string to format.
+ * @return \Carbon\Carbon|null  The formatted datetime in UTC or null if input is invalid.
+ */
+function toFormatDateAndTime($datetime){
+
+        if (!$datetime) {
+            return null;
+        }
+        // Decode if URL encoded
+        $datetime = urldecode($datetime);
+
+        // Parse using app timezone
+        $carbon = Carbon::parse($datetime, config('app.timezone'));
+
+        // Return in UTC
+        return $carbon->clone()->setTimezone('UTC');
+
 }
