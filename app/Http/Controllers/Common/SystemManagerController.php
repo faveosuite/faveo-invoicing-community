@@ -20,57 +20,89 @@ class SystemManagerController extends Controller
 
     public function getSystemManagers()
     {
-        $users = User::select('id', 'first_name', 'last_name', 'email', 'position')
-            ->where('role', 'admin')
-            ->whereIn('position', ['account_manager', 'manager'])
-            ->get();
+        try {
+            $users = User::select('id', 'first_name', 'last_name', 'email', 'position')
+                ->where('role', 'admin')
+                ->whereIn('position', ['account_manager', 'manager'])
+                ->get();
 
-        $accountManagers = $users->filter(fn ($user) => $user->position === 'account_manager')
-            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
-            ->toArray();
+            $accountManagers = $users
+                ->filter(fn($user) => $user->position === 'account_manager')
+                ->map(fn($user) => [
 
-        $salesManager = $users->filter(fn ($user) => $user->position === 'manager')
-            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
-            ->toArray();
+                    'id' => $user->id,
+                    'name' => $user->first_name . ' ' . $user->last_name,
+                    'email' => $user->email
+                ])
+                ->values();
 
-        $settings = ManagerSetting::whereIn('manager_role', ['account', 'sales'])
-            ->pluck('auto_assign', 'manager_role');
+            $salesManagers = $users
+                ->filter(fn($user) => $user->position === 'manager')
+                ->map(fn($user) => [
+                    'id' => $user->id,
+                    'name' => $user->first_name . ' ' . $user->last_name,
+                    'email' => $user->email
+                ])
+                ->values();
 
-        $accountManagersAutoAssign = $settings['account'];
-        $salesManagerAutoAssign = $settings['sales'];
+            $settings = ManagerSetting::whereIn('manager_role', ['account', 'sales'])
+                ->pluck('auto_assign', 'manager_role');
 
-        return view('themes.default1.common.system-managers', compact(
-            'accountManagers',
-            'salesManager',
-            'accountManagersAutoAssign',
-            'salesManagerAutoAssign'
-        ));
+            $accountManagersAutoAssign = $settings['account'] ?? false;
+            $salesManagersAutoAssign = $settings['sales'] ?? false;
+
+            $response = [
+                'account_managers' => $accountManagers,
+                'sales_managers' => $salesManagers,
+                'account_managers_auto_assign' => (bool)$accountManagersAutoAssign,
+                'sales_managers_auto_assign' => (bool)$salesManagersAutoAssign
+            ];
+
+            return successResponse('', $response);
+
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
+
 
     public function searchAdmin(Request $request)
     {
         try {
             $term = trim($request->q);
+
             if (empty($term)) {
-                return \Response::json([]);
-            }
-            $users = User::where('email', 'LIKE', '%'.$term.'%')
-             ->orWhere('first_name', 'LIKE', '%'.$term.'%')
-             ->orWhere('last_name', 'LIKE', '%'.$term.'%')
-             ->select('id', 'email', 'profile_pic', 'first_name', 'last_name', 'role')->get();
-            $formatted_tags = [];
-
-            foreach ($users as $user) {
-                if ($user->role == 'admin') {
-                    $formatted_users[] = ['id' => $user->id, 'text' => $user->email, 'profile_pic' => $user->profile_pic,
-                        'first_name' => $user->first_name, 'last_name' => $user->last_name, ];
-                }
+                return errorResponse( __('message.search_term_required'));
             }
 
-            return \Response::json($formatted_users);
+            $users = User::where(function ($query) use ($term) {
+                $query->where('email', 'LIKE', "%{$term}%")
+                    ->orWhere('first_name', 'LIKE', "%{$term}%")
+                    ->orWhere('last_name', 'LIKE', "%{$term}%");
+            })
+                ->where('role', 'admin')
+                ->select('id', 'email', 'profile_pic', 'first_name', 'last_name', 'role')
+                ->get();
+
+            if ($users->isEmpty()) {
+                return errorResponse( __('message.no_admins_found'));
+            }
+
+            $formattedUsers = $users->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'text' => $user->email,
+                    'profile_pic' => $user->profile_pic,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'role' => $user->role,
+                ];
+            });
+
+            return successResponse('', $formattedUsers);
+
         } catch (\Exception $e) {
-            // returns if try fails with exception meaagse
-            return redirect()->back()->with('fails', $e->getMessage());
+            return errorResponse($e->getMessage());
         }
     }
 
