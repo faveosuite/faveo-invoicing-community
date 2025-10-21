@@ -385,8 +385,7 @@ trait ApiKeySettings
                 's3_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', ''),
             ];
 
-            return successResponse('',$fileStorage);
-
+            return successResponse('', $fileStorage);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }

@@ -6,8 +6,6 @@ use App\ApiKey;
 use App\Email_log;
 use App\EmailValidationResults;
 use App\Facades\Attach;
-use App\Http\Controllers\BillingInstaller\InstallerController;
-use App\Http\Controllers\Order\OrderSearchController;
 use App\Http\Requests\Common\SettingsRequest;
 use App\Model\Common\Country;
 use App\Model\Common\EmailMobileValidationProviders;
@@ -50,7 +48,7 @@ class SettingsController extends BaseSettingsController
 
     public function settings(Setting $settings)
     {
-        if (!$settings->where('id', '1')->first()) {
+        if (! $settings->where('id', '1')->first()) {
             $settings->create(['company' => '']);
         }
         $isRedisConfigured = QueueService::where('short_name', 'redis')->value('status');
@@ -73,7 +71,6 @@ class SettingsController extends BaseSettingsController
             ];
 
             return successResponse(__('message.data-retrieved-successfully'), $response);
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
@@ -82,7 +79,7 @@ class SettingsController extends BaseSettingsController
     /**
      * Get the Status and Api Keys for Settings Module.
      *
-     * @param ApiKey $apikeys
+     * @param  ApiKey  $apikeys
      */
     public function licensekeys(ApiKey $apikeys)
     {
@@ -301,9 +298,9 @@ class SettingsController extends BaseSettingsController
         $whatsappStatus = $this->statusSetting->value('whatsapp_status');
         $toggleSwitch = '
         <label class="switch toggle_event_editing gcaptcha">
-            <input type="checkbox" value="' . $checkboxValue . '"  
+            <input type="checkbox" value="'.$checkboxValue.'"  
                    name="modules_settings"
-                   class="checkbox2" id="captcha" ' . $checked . '>
+                   class="checkbox2" id="captcha" '.$checked.'>
             <span class="slider round"></span>
         </label>
     ';
@@ -322,9 +319,9 @@ class SettingsController extends BaseSettingsController
             $dataTable = collect([
                 ['options' => \Lang::get('message.license_heading'), 'description' => \Lang::get('message.license_description'), 'status' => '
         <label class="switch toggle_event_editing licenser">
-            <input type="checkbox" value="' . ($status ? '1' : '0') . '"  
+            <input type="checkbox" value="'.($status ? '1' : '0').'"  
                    name="modules_settings"
-                   class="checkbox" id="License" ' . ($status ? 'checked' : '') . '>
+                   class="checkbox" id="License" '.($status ? 'checked' : '').'>
             <span class="slider round"></span>
         </label>
     ', 'action' => $licenseAction,
@@ -332,44 +329,44 @@ class SettingsController extends BaseSettingsController
                 ['options' => \Lang::get('message.recaptcha_heading'), 'description' => \Lang::get('message.google_description'), 'status' => $toggleSwitch, 'action' => $recaptchaAction,
                 ],
                 ['options' => \Lang::get('message.msg91_heading'), 'description' => \Lang::get('message.msg91_description'), 'status' => '<label class="switch toggle_event_editing mstatus">
-                    <input type="checkbox" value="' . ($mobileStatus ? '1' : '0') . '"  name="mobile_settings"
-                           class="checkbox4" id="mobile"' . ($mobileStatus ? 'checked' : '') . '>
+                    <input type="checkbox" value="'.($mobileStatus ? '1' : '0').'"  name="mobile_settings"
+                           class="checkbox4" id="mobile"'.($mobileStatus ? 'checked' : '').'>
                     <span class="slider round"></span>
                     </label>', 'action' => $mobileAction,
                 ],
                 ['options' => \Lang::get('message.mailchimp_heading'), 'description' => \Lang::get('message.mailchimp_description'), 'status' => '<label class="switch toggle_event_editing mailchimpstatus">
-                        <input type="checkbox" value="' . ($mailchimpSetting ? '1' : '0') . '"  name="mobile_settings"
-                               class="checkbox9" id="mailchimp"' . ($mailchimpSetting ? 'checked' : '') . '>
+                        <input type="checkbox" value="'.($mailchimpSetting ? '1' : '0').'"  name="mobile_settings"
+                               class="checkbox9" id="mailchimp"'.($mailchimpSetting ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>', 'action' => $mailchimpAction,
                 ],
                 ['options' => \Lang::get('message.terms_heading'), 'description' => \Lang::get('message.terms_description'), 'status' => '<label class="switch toggle_event_editing termstatus1">
 
-                        <input type="checkbox" value="' . ($termsStatus ? '1' : '0') . '"  name="terms_settings"
-                               class="checkbox10" id="terms"' . ($termsStatus ? 'checked' : '') . '>
+                        <input type="checkbox" value="'.($termsStatus ? '1' : '0').'"  name="terms_settings"
+                               class="checkbox10" id="terms"'.($termsStatus ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>', 'action' => $termsAction,
                 ],
                 ['options' => \Lang::get('message.pipedrive_heading'), 'description' => \Lang::get('message.pipedrive_description'), 'status' => '<label class="switch toggle_event_editing pipedrivestatus">
-                        <input type="checkbox" value="' . ($pipedriveStatus ? '1' : '0') . '"  name="pipedrive_settings"
-                           class="checkbox13" id="pipedrive"' . ($pipedriveStatus ? 'checked' : '') . '>
+                        <input type="checkbox" value="'.($pipedriveStatus ? '1' : '0').'"  name="pipedrive_settings"
+                           class="checkbox13" id="pipedrive"'.($pipedriveStatus ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>', 'action' => $pipedriveAction,
                 ],
                 ['options' => \Lang::get('message.github_heading'), 'description' => \Lang::get('message.github_description'), 'status' => '<label class="switch toggle_event_editing githubstatus">
-                            <input type="checkbox" value="' . ($githubStatus ? '1' : '0') . '" name="github_settings" class="checkbox" id="github"' . ($githubStatus ? 'checked' : '') . '>
+                            <input type="checkbox" value="'.($githubStatus ? '1' : '0').'" name="github_settings" class="checkbox" id="github"'.($githubStatus ? 'checked' : '').'>
                             <span class="slider round"></span>
                         </label>', 'action' => $githubAction,
                 ],
                 ['options' => \Lang::get('message.email_provider'), 'description' => \Lang::get('message.email_validation_description'), 'status' => '<label class="switch toggle_event_editing emailValidationStatus">
-                        <input type="checkbox" value="' . ($emailStatus ? '1' : '0') . '"  name="EmailValidationStatus"
-                               class="checkboxEmail" id="email_validation_status"' . ($emailStatus ? 'checked' : '') . '>
+                        <input type="checkbox" value="'.($emailStatus ? '1' : '0').'"  name="EmailValidationStatus"
+                               class="checkboxEmail" id="email_validation_status"'.($emailStatus ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>', 'action' => $emailValidationAction,
                 ],
                 ['options' => \Lang::get('message.mobile_provider'), 'description' => \Lang::get('message.mobile_validation_description'), 'status' => '<label class="switch toggle_event_editing mobileValidationStatus">
-                        <input type="checkbox" value="' . ($mobileValStatus ? '1' : '0') . '"  name="mobileValidationStatus"
-                               class="checkbox9" id="mobile_validation_status"' . ($mobileValStatus ? 'checked' : '') . '>
+                        <input type="checkbox" value="'.($mobileValStatus ? '1' : '0').'"  name="mobileValidationStatus"
+                               class="checkbox9" id="mobile_validation_status"'.($mobileValStatus ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>', 'action' => $mobileValidationAction,
                 ],
@@ -397,7 +394,7 @@ class SettingsController extends BaseSettingsController
 
     private function getStatus2($value, $value2)
     {
-        if (!$value && !$value2) {
+        if (! $value && ! $value2) {
             return 'Inactive';
         } else {
             return 'Active';
@@ -419,7 +416,7 @@ class SettingsController extends BaseSettingsController
     /**
      * PAyment Gateway that is shown on the basis of currency.
      *
-     * @param string $currency The currency of the Product Selected
+     * @param  string  $currency  The currency of the Product Selected
      * @return string Name of the Payment Gateway
      */
     public static function checkPaymentGateway($currency)
@@ -456,13 +453,14 @@ class SettingsController extends BaseSettingsController
             $defaultLang = optional(Setting::first())->content;
 
             $settings = Setting::with([
-                    'defaultCurrency:id,code,name',
-                    'country:country_id,country_name,country_code_char2',
-                    'state:state_subdivision_id,state_subdivision_name,state_subdivision_code',
-                    'language:id,name,locale'
-                ]
+                'defaultCurrency:id,code,name',
+                'country:country_id,country_name,country_code_char2',
+                'state:state_subdivision_id,state_subdivision_name,state_subdivision_code',
+                'language:id,name,locale',
+            ]
             )->findOrFail(1);
-            return successResponse( __('message.system_setting_fetched'), $settings);
+
+            return successResponse(__('message.system_setting_fetched'), $settings);
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -513,17 +511,17 @@ class SettingsController extends BaseSettingsController
                 $todo = Setting::findOrFail($request->id);
                 if ($request->column == 'logo') {
                     $logoPath = $todo->logo;
-                    Attach::delete('images/' . $logoPath);
+                    Attach::delete('images/'.$logoPath);
                     $todo->logo = null;
                 }
                 if ($request->column == 'admin') {
                     $adminLogoPath = $todo->admin_logo;
-                    Attach::delete('admin/images/' . $adminLogoPath);
+                    Attach::delete('admin/images/'.$adminLogoPath);
                     $todo->admin_logo = null;
                 }
                 if ($request->column == 'fav') {
                     $favIconPath = $todo->fav_icon;
-                    Attach::delete('common/images' . $favIconPath);
+                    Attach::delete('common/images'.$favIconPath);
                     $todo->fav_icon = null;
                 }
                 $todo->save();
@@ -712,7 +710,7 @@ class SettingsController extends BaseSettingsController
                 ->orderColumn('to', '-date $1')
                 ->orderColumn('subject', '-date $1')
                 ->addColumn('checkbox', function ($model) {
-                    return "<input type='checkbox' class='email' value=" . $model->id . ' name=select[] id=check>';
+                    return "<input type='checkbox' class='email' value=".$model->id.' name=select[] id=check>';
                 })
                 ->addColumn('date', function ($model) {
                     $date = $model->date;
@@ -725,13 +723,13 @@ class SettingsController extends BaseSettingsController
                 ->addColumn('to', function ($model) {
                     $id = User::where('email', $model->to)->value('id');
 
-                    return '<a href=' . url('clients/' . $id) . '>' . ucfirst($model->to) . '<a>';
+                    return '<a href='.url('clients/'.$id).'>'.ucfirst($model->to).'<a>';
                 })
                 ->addColumn('subject', function ($model) {
                     return '<a href="#" class="text-primary view-mail" data-id="'.$model->id.'">'.e(ucfirst($model->subject)).'</a>';
                 })
                 ->rawColumns(['checkbox', 'date', 'from', 'to',
-                    'bcc', 'subject', 'status',])
+                    'bcc', 'subject', 'status', ])
                 ->filterColumn('from', function ($query, $keyword) {
                     $sql = '`from` like ?';
                     $query->whereRaw($sql, ["%{$keyword}%"]);
@@ -749,7 +747,7 @@ class SettingsController extends BaseSettingsController
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
                 ->rawColumns(['checkbox', 'date', 'from', 'to',
-                    'bcc', 'subject', 'status',])
+                    'bcc', 'subject', 'status', ])
                 ->make(true);
         } catch (\Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
@@ -780,7 +778,7 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $ids = $request->input('select');
-            if (!empty($ids)) {
+            if (! empty($ids)) {
                 foreach ($ids as $id) {
                     $activity = Activity::where('id', $id)->first();
                     if ($activity) {
@@ -789,39 +787,39 @@ class SettingsController extends BaseSettingsController
                         echo "<div class='alert alert-danger alert-dismissable'>
                         <i class='fa fa-ban'></i>
 
-                        <b>" . /* @scrutinizer ignore-type */ \Lang::get('message.alert') . '!</b> ' .
-                            /* @scrutinizer ignore-type */ \Lang::get('message.failed') . '
+                        <b>". /* @scrutinizer ignore-type */ \Lang::get('message.alert').'!</b> '.
+                            /* @scrutinizer ignore-type */ \Lang::get('message.failed').'
 
                         <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            ' . /* @scrutinizer ignore-type */ \Lang::get('message.no-record') . '
+                            '. /* @scrutinizer ignore-type */ \Lang::get('message.no-record').'
                     </div>';
                         //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
                     }
                 }
                 echo "<div class='alert alert-success alert-dismissable'>
                         <i class='fa fa-ban'></i>
-                        <b>" . /* @scrutinizer ignore-type */ \Lang::get('message.alert') . '!</b> '
-                    . /* @scrutinizer ignore-type */ \Lang::get('message.success') . '
+                        <b>". /* @scrutinizer ignore-type */ \Lang::get('message.alert').'!</b> '
+                    . /* @scrutinizer ignore-type */ \Lang::get('message.success').'
                         <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            ' . /* @scrutinizer ignore-type */ \Lang::get('message.deleted-successfully') . '
+                            '. /* @scrutinizer ignore-type */ \Lang::get('message.deleted-successfully').'
                     </div>';
             } else {
                 echo "<div class='alert alert-danger alert-dismissable'>
                         <i class='fa fa-ban'></i>
-                        <b>" . /* @scrutinizer ignore-type */ \Lang::get('message.alert') .
-                    '!</b> ' . /* @scrutinizer ignore-type */ \Lang::get('message.failed') . '
+                        <b>". /* @scrutinizer ignore-type */ \Lang::get('message.alert').
+                    '!</b> '. /* @scrutinizer ignore-type */ \Lang::get('message.failed').'
                         <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            ' . /* @scrutinizer ignore-type */ \Lang::get('message.select-a-row') . '
+                            '. /* @scrutinizer ignore-type */ \Lang::get('message.select-a-row').'
                     </div>';
                 //echo \Lang::get('message.select-a-row');
             }
         } catch (\Exception $e) {
             echo "<div class='alert alert-danger alert-dismissable'>
                         <i class='fa fa-ban'></i>
-                        <b>" . /* @scrutinizer ignore-type */ \Lang::get('message.alert') . '!</b> ' .
-                /* @scrutinizer ignore-type */ \Lang::get('message.failed') . '
+                        <b>". /* @scrutinizer ignore-type */ \Lang::get('message.alert').'!</b> '.
+                /* @scrutinizer ignore-type */ \Lang::get('message.failed').'
                         <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            ' . \Lang::get('message.err_msg.') . '
+                            '.\Lang::get('message.err_msg.').'
                     </div>';
         }
     }
@@ -881,7 +879,7 @@ class SettingsController extends BaseSettingsController
             $query = $this->paymentLogData($from, $till);
 
             // Search filter
-            if (!empty($search)) {
+            if (! empty($search)) {
                 $query->where(function ($q) use ($search) {
                     $q->whereHas('orderDetails', function ($sub) use ($search) {
                         $sub->where('number', 'like', "%{$search}%");
@@ -904,15 +902,16 @@ class SettingsController extends BaseSettingsController
 
             // Transform
             $logs->getCollection()->transform(function ($log) {
-                $userName = $log->user ? trim($log->user->first_name . ' ' . $log->user->last_name) : null;
+                $userName = $log->user ? trim($log->user->first_name.' '.$log->user->last_name) : null;
+
                 return [
                     'id' => $log->id,
                     'order_number' => $log->order,
-                    'order_link' => $log->orderDetails ? $this->hyperLinkGenerator('orders/' . $log->orderDetails->id, $log->order): null,
+                    'order_link' => $log->orderDetails ? $this->hyperLinkGenerator('orders/'.$log->orderDetails->id, $log->order) : null,
                     'payment_email' => $log->from,
                     'user_name' => $userName,
                     'user_email' => $log->user ? $log->user->email : null,
-                    'user_link' => $log->user ? $this->hyperLinkGenerator('clients/' . $log->user->id, $userName) : null,
+                    'user_link' => $log->user ? $this->hyperLinkGenerator('clients/'.$log->user->id, $userName) : null,
                     'amount' => $log->amount,
                     'description' => ucfirst($log->payment_type),
                     'payment_method' => ucfirst($log->payment_method),
@@ -922,13 +921,12 @@ class SettingsController extends BaseSettingsController
                 ];
             });
 
-            return successResponse( __('message.payment_logs_retrieved'), [
+            return successResponse(__('message.payment_logs_retrieved'), [
                 'logs' => $logs,
                 'total' => $total,
             ]);
-
         } catch (\Exception $e) {
-            return errorResponse( $e->getMessage());
+            return errorResponse($e->getMessage());
         }
     }
 
@@ -936,7 +934,7 @@ class SettingsController extends BaseSettingsController
     {
         $query = Payment_log::with([
             'user:id,first_name,last_name,email,user_name',
-            'orderDetails'
+            'orderDetails',
         ])->select([
             'id',
             'from',
@@ -949,12 +947,11 @@ class SettingsController extends BaseSettingsController
             'order',
             'exception',
             'amount',
-            'payment_type'
+            'payment_type',
         ]);
 
         // Apply date filter if any date is provided
         if ($from || $till) {
-
             // If only one date is provided, use it for both "from" and "till"
             $from = $from ?: $till;
             $till = $till ?: $from;
@@ -962,7 +959,6 @@ class SettingsController extends BaseSettingsController
             // Convert dates to UTC format
             $fromUtc = toFormatDateAndTime($from);
             $tillUtc = toFormatDateAndTime($till);
-
 
             // If only date provided (no time), include the entire day
             $fromUtc = strlen($from) <= 10 ? $fromUtc->startOfDay() : $fromUtc;
@@ -988,24 +984,21 @@ class SettingsController extends BaseSettingsController
         try {
             $ids = $request->input('select');
 
-            if (empty($ids) || !is_array($ids)) {
-                return errorResponse( __('message.select-a-row'),400);
+            if (empty($ids) || ! is_array($ids)) {
+                return errorResponse(__('message.select-a-row'), 400);
             }
 
             $deleted = Payment_log::whereIn('id', $ids)->delete();
 
             if ($deleted) {
-                return successResponse( __('message.deleted-successfully'));
-
+                return successResponse(__('message.deleted-successfully'));
             } else {
-                return errorResponse( __('message.no_record_found'),404);
+                return errorResponse(__('message.no_record_found'), 404);
             }
-
         } catch (\Exception $e) {
-           return errorResponse( $e->getMessage() );
+            return errorResponse($e->getMessage());
         }
     }
-
 
     public function contactOption()
     {
@@ -1021,7 +1014,6 @@ class SettingsController extends BaseSettingsController
                 'mobileStatus' => $mobileStatus,
                 'preferred_verification' => $preferred_verification,
             ]);
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
@@ -1054,14 +1046,14 @@ class SettingsController extends BaseSettingsController
         $label1 = html()->label(__('message.emailMode'), 'emailMode')->class('required')->toHtml();
         $input1 = html()->text('emailMode', $mode)->class('form-control emailMode')->id('emailMode')->toHtml();
         $input3 = '<select class="form-control emailMode" id="emailMode" name="emailMode">'
-            . '<option value="quick"' . ($mode == 'quick' ? ' selected' : '') . '>Quick</option>'
-            . '<option value="power"' . ($mode == 'power' ? ' selected' : '') . '>Power</option>'
-            . '</select>';
+            .'<option value="quick"'.($mode == 'quick' ? ' selected' : '').'>Quick</option>'
+            .'<option value="power"'.($mode == 'power' ? ' selected' : '').'>Power</option>'
+            .'</select>';
 
         if ($request->input('value') === 'reoon') {
             $response = '<div>
-        <div class="form-group">' . $label2 . $input . '</div>
-        <div class="form-group">' . $label1 . $input3 . '</div>
+        <div class="form-group">'.$label2.$input.'</div>
+        <div class="form-group">'.$label1.$input3.'</div>
          <div class="form-group" id="checkboxToRender">
                 </div>
         
@@ -1069,12 +1061,12 @@ class SettingsController extends BaseSettingsController
             if ($mode == 'power') {
                 $statusOptions = $this->setStatus($current);
                 $response = '<div>
-        <div class="form-group">' . $label2 . $input . '</div>
-        <div class="form-group">' . $label1 . $input3 . '</div>
+        <div class="form-group">'.$label2.$input.'</div>
+        <div class="form-group">'.$label1.$input3.'</div>
          <div class="form-group" id="checkboxToRender">
          <div class="form-group">
-            <label for="allowed_statuses" class="required">' . __('message.allowed_estatus') . '</label>'
-                    . $statusOptions .
+            <label for="allowed_statuses" class="required">'.__('message.allowed_estatus').'</label>'
+                    .$statusOptions.
                     '</div>
                 </div>
                 <span class="error invalid-feedback d-block" id="checkboxErrorMessage"></span>
@@ -1093,8 +1085,8 @@ class SettingsController extends BaseSettingsController
         $statusOptions = $this->setStatus($current);
 
         $response = '<div class="form-group">
-            <label for="allowed_statuses" class="required">' . __('message.allowed_estatus') . '</label>'
-            . $statusOptions .
+            <label for="allowed_statuses" class="required">'.__('message.allowed_estatus').'</label>'
+            .$statusOptions.
             '</div>
             <span class="error invalid-feedback d-block" id="checkboxErrorMessage"></span>';
 
@@ -1221,8 +1213,8 @@ class SettingsController extends BaseSettingsController
             $label = ucfirst(str_replace('_', ' ', $status));
             $statusOptions .= '<div class="form-check">
         <input class="form-check-input emailStatusCheckbox" type="checkbox" 
-               name="allowed_statuses[]" value="' . $bit . '" id="status_' . $status . '" ' . $checked . '>
-        <label class="form-check-label" for="status_' . $status . '">' . $label . '</label>
+               name="allowed_statuses[]" value="'.$bit.'" id="status_'.$status.'" '.$checked.'>
+        <label class="form-check-label" for="status_'.$status.'">'.$label.'</label>
     </div>';
         }
 
@@ -1244,19 +1236,19 @@ class SettingsController extends BaseSettingsController
         $label3 = html()->label(__('message.mobileMode'), 'mobileMode')->class('required')->toHtml();
         $input3 = html()->text('mobileMode', $mode)->class('form-control mobileMode')->id('mobileMode')->toHtml();
         $input4 = '<select class="form-control emailMode" id="mobileMode" name="mobileMode">'
-            . '<option value="basic"' . ($mode == 'basic' ? ' selected' : '') . '>Basic</option>'
-            . '<option value="standard"' . ($mode == 'standard' ? ' selected' : '') . '>Standard</option>'
-            . '<option value="advanced/async"' . ($mode == 'advanced/async' ? ' selected' : '') . '>Advanced</option>'
-            . '</select>';
+            .'<option value="basic"'.($mode == 'basic' ? ' selected' : '').'>Basic</option>'
+            .'<option value="standard"'.($mode == 'standard' ? ' selected' : '').'>Standard</option>'
+            .'<option value="advanced/async"'.($mode == 'advanced/async' ? ' selected' : '').'>Advanced</option>'
+            .'</select>';
         if ($provider == 'vonage') {
             $response = '<div>
-        <div class="form-group">' . $label2 . $input . '</div>
-        <div class="form-group">' . $label1 . $input1 . '</div>
-        <div class="form-group">' . $label3 . $input4 . '</div>
+        <div class="form-group">'.$label2.$input.'</div>
+        <div class="form-group">'.$label1.$input1.'</div>
+        <div class="form-group">'.$label3.$input4.'</div>
     </div>';
         } else {
             $response = '<div>
-        <div class="form-group">' . $label2 . $input . '</div>
+        <div class="form-group">'.$label2.$input.'</div>
     </div>';
         }
 
@@ -1299,7 +1291,7 @@ class SettingsController extends BaseSettingsController
                 'api_key' => $apikey,
                 'api_secret' => $apisecret,
             ]);
-            if (!$response->successful() && !$response->json('value')) {
+            if (! $response->successful() && ! $response->json('value')) {
                 return errorResponse(trans('message.mobileApikey_error'));
             }
             $emailSave->where('type', 'mobile')->update(['to_use' => 0]);
@@ -1316,7 +1308,7 @@ class SettingsController extends BaseSettingsController
                 'phone' => '+14155552671',
             ]);
 
-            if (!$response->successful() && $response->json('error')) {
+            if (! $response->successful() && $response->json('error')) {
                 return errorResponse(trans('message.mobileApikey_error'));
             }
             $emailSave->where('type', 'mobile')->update(['to_use' => 0]);
@@ -1400,14 +1392,13 @@ class SettingsController extends BaseSettingsController
                 ->simplePaginate($limit);
             $total = $query->count();
 
-
             $logs->getCollection()->transform(function ($log) {
                 return [
                     'id' => $log->id,
                     'name' => ucfirst($log->log_name),
                     'description' => ucfirst($log->description),
                     'username' => $log->causer_id ? User::where('id', $log->causer_id)->value('user_name') : null,
-                    'role' => $log->causer_id ? User::where('id',$log->causer_id)->value('role') : null,
+                    'role' => $log->causer_id ? User::where('id', $log->causer_id)->value('role') : null,
                     'new' => $this->getNewEntry($log->properties, $log),
                     'old' => $this->getOldEntry($log->properties, $log),
                     'created_at' => $log->created_at->format('Y-m-d H:i:s'),
@@ -1416,7 +1407,7 @@ class SettingsController extends BaseSettingsController
 
             return successResponse('Activity logs fetched successfully', [
                 'logs' => $logs,
-                'total' => $total
+                'total' => $total,
             ]);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
@@ -1429,7 +1420,6 @@ class SettingsController extends BaseSettingsController
 
         try {
             if ($from || $till) {
-
                 // If only one date is provided, use it for both "from" and "till"
                 $from = $from ?: $till;
                 $till = $till ?: $from;
@@ -1438,24 +1428,22 @@ class SettingsController extends BaseSettingsController
                 $fromUtc = toFormatDateAndTime($from);
                 $tillUtc = toFormatDateAndTime($till);
 
-
                 // If only date provided (no time), include the entire day
                 $fromUtc = strlen($from) <= 10 ? $fromUtc->startOfDay() : $fromUtc;
                 $tillUtc = strlen($till) <= 10 ? $tillUtc->endOfDay() : $tillUtc;
 
-            $query->whereBetween('created_at', [$fromUtc, $tillUtc]);
-        }
+                $query->whereBetween('created_at', [$fromUtc, $tillUtc]);
+            }
 
             return $query;
-
-    } catch (\Exception $e) {
-                return errorResponse( $e->getMessage());
-            }
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
 
     private function searchQueryForActivityLogs($query, $search)
     {
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('log_name', 'LIKE', "%$search%")
                     ->orWhere('description', 'LIKE', "%$search%")
@@ -1467,13 +1455,12 @@ class SettingsController extends BaseSettingsController
                     });
             });
         }
+
         return $query;
     }
 
     private function hyperLinkGenerator($href, $value): string
     {
-        return "<a href='" . url($href) . "'>" . $value . "</a>";
+        return "<a href='".url($href)."'>".$value.'</a>';
     }
-
-
 }

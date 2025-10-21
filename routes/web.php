@@ -596,9 +596,9 @@ Route::middleware('installAgora')->group(function () {
 
     Route::delete('third-party-delete', [ThirdPartyAppController::class, 'destroy'])->name('third-party-delete');
 
-      /*
-      * Cloud Api's
-      */
+    /*
+    * Cloud Api's
+    */
     Route::post('create/tenant', [Tenancy\TenantController::class, 'createTenant']);
 
     Route::post('change/domain', [Tenancy\CloudExtraActivities::class, 'changeDomain']);

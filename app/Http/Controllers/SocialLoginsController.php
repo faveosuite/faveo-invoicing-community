@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\SocialLogin;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 
 class SocialLoginsController extends Controller
 {
@@ -50,13 +49,12 @@ class SocialLoginsController extends Controller
             ]);
 
             if ($updated) {
-                return successResponse( __('message.social_login_settings_updated'));
+                return successResponse(__('message.social_login_settings_updated'));
             }
 
-            return errorResponse( __('message.no-record'), [], 404);
+            return errorResponse(__('message.no-record'), [], 404);
         } catch (\Exception $e) {
-            return errorResponse(__('message.error_occurred_social_login') . ': ' . $e->getMessage());
+            return errorResponse(__('message.error_occurred_social_login').': '.$e->getMessage());
         }
     }
-
 }
