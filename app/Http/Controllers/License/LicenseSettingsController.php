@@ -39,7 +39,6 @@ class LicenseSettingsController extends LicensePermissionsController
             $sortField = $request->input('sort-field', 'created_at');
             $limit = $request->input('limit', 10);
 
-
             $query = $this->licenseType
                 ->select('id', 'name')
                 ->when($searchString, function ($q) use ($searchString) {
@@ -53,12 +52,10 @@ class LicenseSettingsController extends LicensePermissionsController
             $licenseTypes = $query->simplePaginate($limit);
             $total = $licenseTypes->count();
 
-
             return successResponse('', [
                 'license_types' => $licenseTypes,
-                'total' => $total
+                'total' => $total,
             ]);
-
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -75,7 +72,7 @@ class LicenseSettingsController extends LicensePermissionsController
         try {
             $productType = $this->licenseType->fill($request->input())->save();
 
-            return successResponse( __('message.saved-successfully'));
+            return successResponse(__('message.saved-successfully'));
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -105,7 +102,7 @@ class LicenseSettingsController extends LicensePermissionsController
             $ids = $request->input('select');
 
             if (empty($ids)) {
-                return errorResponse( __('message.select-a-row') );
+                return errorResponse(__('message.select-a-row'));
             }
 
             foreach ($ids as $id) {
@@ -116,7 +113,6 @@ class LicenseSettingsController extends LicensePermissionsController
             }
 
             return successResponse(__('message.deleted-successfully'));
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
