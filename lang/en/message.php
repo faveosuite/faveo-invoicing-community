@@ -2716,4 +2716,14 @@ return [
     'cloud_plan_error' => 'Please remove the cloud product or link it to an alternate plan.',
 
     'deletion_blocked' => 'Deletion blocked: the following users are assigned as :roles: :names.',
+    'search_term_required' => 'Search term is required',
+    'no_admins_found' => 'No admins found',
+    'third_party_apps_fetched' => 'Third-party apps fetched successfully',
+    'language_fetched' => 'Languages fetched successfully',
+    'license_types_permissions_fetched' => 'License types and permissions fetched successfully',
+    'contact_options_retrieved' => 'Contact options retrieved successfully',
+    'payment_logs_retrieved' => 'Payment Logs Fetched Successfully',
+    'no_record_found' => 'No record found',
+    'system_setting_fetched' => 'System settings fetched successfully',
+    'msg91_reports_fetched' => 'Msg91 Reports fetched successfully',
 ];

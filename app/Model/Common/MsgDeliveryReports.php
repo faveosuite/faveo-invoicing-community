@@ -35,7 +35,6 @@ class MsgDeliveryReports extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id')
-            ->selectRaw("id, CONCAT(first_name, ' ', last_name) as full_name, email");
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

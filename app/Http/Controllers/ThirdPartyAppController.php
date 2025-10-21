@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\ThirdPartyApp;
 use Illuminate\Http\Request;
+use function Laravel\Prompts\error;
 
 class ThirdPartyAppController extends Controller
 {
@@ -23,60 +24,51 @@ class ThirdPartyAppController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        return view('themes.default1.third-party.index');
-    }
+//    public function index()
+//    {
+//        return view('themes.default1.third-party.index');
+//    }
 
     /*
     * Get All the third party apps
     */
-    public function getThirdPartyDetails()
+    public function getThirdPartyDetails(Request $request)
     {
         try {
-            $thirdPartyApps = $this->thirdParty->select('id', 'app_name', 'app_key', 'app_secret');
+            $searchString = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = $request->input('limit', 10);
 
-            return \DataTables::of($thirdPartyApps)
-             ->orderColumn('app_name', '-created_at $1')
-             ->orderColumn('app_key', '-created_at $1')
-             ->orderColumn('app_secret', '-created_at $1')
-            ->addColumn('checkbox', function ($model) {
-                return "<input type='checkbox' class='type_checkbox' 
-            value=".$model->id.' name=select[] id=check>';
-            })
-            ->addColumn('app_name', function ($model) {
-                return $model->app_name;
-            })
-            ->addColumn('app_key', function ($model) {
-                return $model->app_key;
-            })
-             ->addColumn('app_secret', function ($model) {
-                 return $model->app_secret;
-             })
-            ->addColumn('action', function ($model) {
-                return "<p><button data-toggle='modal' 
-             data-id=".$model->id." data-appName='$model->app_name'. data-appKey='$model->app_key'. data-secret='$model->app_secret' class='btn btn-sm btn-secondary btn-xs editThirdPartyApp'".tooltip(__('message.edit'))."<i class='fa fa-edit'
-             style='color:white;'> </i></button>&nbsp;</p>";
-            })
-             ->filterColumn('app_name', function ($query, $keyword) {
-                 $sql = 'app_name like ?';
-                 $query->whereRaw($sql, ["%{$keyword}%"]);
-             })
-             ->filterColumn('app_key', function ($query, $keyword) {
-                 $sql = 'app_key like ?';
-                 $query->whereRaw($sql, ["%{$keyword}%"]);
-             })
-            ->filterColumn('app_secret', function ($query, $keyword) {
-                $sql = 'app_secret like ?';
-                $query->whereRaw($sql, ["%{$keyword}%"]);
-            })
-                ->editColumn('app_secret', function ($user) {
-                    return '*****';
-                })
-            ->rawColumns(['checkbox', 'app_name', 'app_key', 'app_secret', 'action'])
-            ->make(true);
+            $query = $this->thirdParty
+                ->select('id', 'app_name', 'app_key', 'app_secret')
+                ->when($searchString, function ($q) use ($searchString) {
+                    $q->where(function ($sub) use ($searchString) {
+                        $sub->where('app_name', 'like', "%{$searchString}%")
+                            ->orWhere('app_key', 'like', "%{$searchString}%");
+                    });
+                });
+
+            if ($sortOrder != '' && $sortField != '') {
+                $query->orderBy($sortField, $sortOrder);
+            }
+
+            $thirdPartyApps = $query->simplePaginate($limit)->toArray();
+
+            foreach ($thirdPartyApps['data'] as &$app) {
+                $app['app_secret'] = '*****';
+            }
+
+            $total = $query->count();
+
+
+            return successResponse( __('message.third_party_apps_fetched'), [
+                'third_party_apps' => $thirdPartyApps,
+                'total' => $total
+            ]);
+
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -111,7 +103,7 @@ class ThirdPartyAppController extends Controller
             ]);
         $this->thirdParty->fill($request->all())->save();
 
-        return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
+        return successResponse( __('message.saved-successfully'));
     }
 
     public function getAppKey()
@@ -180,54 +172,44 @@ class ThirdPartyAppController extends Controller
      * @param  \App\ThirdPartyApp  $thirdPartyApp
      * @return \Illuminate\Http\Response
      */
+
     public function destroy(Request $request)
     {
         try {
             $ids = $request->input('select');
-            if (! empty($ids)) {
-                foreach ($ids as $id) {
-                    $app = $this->thirdParty->where('id', $id)->first();
-                    if ($app) {
-                        $app->delete();
-                    } else {
-                        echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
-                </div>';
-                        //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
-                    }
-                }
-                echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
 
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.success').'
-
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
-                </div>';
-            } else {
-                echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
-                </div>';
-                //echo \Lang::get('message.select-a-row');
+            if (is_string($ids)) {
+                $ids = explode(',', $ids);
             }
+
+            $ids = array_filter(array_map('trim', $ids));
+
+            if (!is_array($ids) || empty($ids)) {
+                return errorResponse( __('message.select-a-row'));
+            }
+
+            $deleted = [];
+            $notFound = [];
+
+            foreach ($ids as $id) {
+                $app = $this->thirdParty->where('id', $id)->first();
+
+                if ($app) {
+                    $app->delete();
+                    $deleted[] = $id;
+                } else {
+                    $notFound[] = $id;
+                }
+            }
+
+            if (!empty($notFound)) {
+                return errorResponse( __('message.no-record'));
+            }
+
+            return successResponse( __('message.deleted-successfully'));
+
         } catch (\Exception $e) {
-            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */
-                    \Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$e->getMessage().'
-                </div>';
+            return errorResponse($e->getMessage());
         }
     }
 }
