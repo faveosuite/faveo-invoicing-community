@@ -8,7 +8,6 @@ use App\Model\Common\Msg91Status;
 use App\Model\Common\MsgDeliveryReports;
 use App\ThirdPartyApp;
 use Carbon\Carbon;
-use DataTables;
 use Illuminate\Http\Request;
 
 class MSG91Controller extends Controller
@@ -100,32 +99,33 @@ class MSG91Controller extends Controller
 
         $sortField = $request->input('sort_field', 'date');
         $sortOrder = $request->input('sort_order', 'desc');
-        $limit     = $request->input('limit', 10);
+        $limit = $request->input('limit', 10);
 
         $baseQuery = $this->msgLogData();
         $baseQuery = $this->searchQuery($baseQuery);
         $baseQuery = $this->filterQuery($baseQuery);
 
         // Paginate and count
-        $logs  = $baseQuery->orderBy($sortField, $sortOrder)->simplePaginate($limit);
+        $logs = $baseQuery->orderBy($sortField, $sortOrder)->simplePaginate($limit);
         $total = $baseQuery->count();
 
         // Format Output
         $logs->getCollection()->transform(function ($log) {
-            $fullName = $log->user ? trim($log->user->first_name . ' ' . $log->user->last_name) : null;
+            $fullName = $log->user ? trim($log->user->first_name.' '.$log->user->last_name) : null;
+
             return [
-                'request_id'     => $log->request_id,
+                'request_id' => $log->request_id,
                 'user_fullname' => $fullName,
-                'user_email'     => $log->user?->email,
-                'status'         => $log->readableStatus->status_label,
+                'user_email' => $log->user?->email,
+                'status' => $log->readableStatus->status_label,
                 'failure_reason' => $log->failure_reason,
-                'mobile_number'  => $log->mobile_number,
-                'delivery_date'  => $log->date,
-                'created_at'     => $log->created_at,
+                'mobile_number' => $log->mobile_number,
+                'delivery_date' => $log->date,
+                'created_at' => $log->created_at,
             ];
         });
 
-        return successResponse( __('message.msg91_reports_fetched'), [
+        return successResponse(__('message.msg91_reports_fetched'), [
             'logs' => $logs,
             'total' => $total,
         ]);
@@ -140,7 +140,7 @@ class MSG91Controller extends Controller
     {
         $search = $this->request->input('search-query');
 
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('request_id', 'like', "%$search%")
                     ->orWhereHas('readableStatus', function ($q) use ($search) {
@@ -169,7 +169,7 @@ class MSG91Controller extends Controller
         // Full Name Filter
         $query->when($request->filled('full_name'), function ($q) use ($request) {
             $q->whereHas('user', function ($subQuery) use ($request) {
-                $subQuery->whereRaw("CONCAT(users.first_name, ' ', users.last_name) LIKE ?", ['%' . $request->full_name . '%']);
+                $subQuery->whereRaw("CONCAT(users.first_name, ' ', users.last_name) LIKE ?", ['%'.$request->full_name.'%']);
             });
         });
 
@@ -245,10 +245,10 @@ class MSG91Controller extends Controller
         ]);
     }
 
-    public function getMsgStauts(){
+    public function getMsgStauts()
+    {
         $status = Msg91Status::orderBy('status_label')->pluck('status_label');
 
         return successResponse('', $status);
     }
-
 }
