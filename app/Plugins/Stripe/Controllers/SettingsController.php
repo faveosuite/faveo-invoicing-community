@@ -108,7 +108,8 @@ class SettingsController extends Controller
                 'stripe_key' => $request->input('stripe_key'),
             ]);
 
-            return successResponse(['success' => 'true', 'message' => __('message.stripe_settings_updated_successfully')]);
+            return successResponse( __('message.stripe_settings_updated_successfully'));
+
         } catch (\Cartalyst\Stripe\Exception\UnauthorizedException  $e) {
             return errorResponse($e->getMessage());
         } catch (\Exception $e) {

@@ -9,15 +9,31 @@ use Illuminate\Support\Facades\File;
 
 class LanguageController extends Controller
 {
-    public function viewLanguage()
+    public function viewLanguage(Request $request)
     {
-        $dbLanguages = \App\Model\Common\Language::all();
-        $defaultLang = Setting::first()->value('content') ?? 'en';
+        try {
+            $searchString = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'name');
+            $limit = $request->input('limit', 10);
 
-        return view('themes.default1.common.languages', [
-            'languages' => $dbLanguages,
-            'defaultLang' => $defaultLang,
-        ]);
+            $languages = Language::when($searchString, function ($query) use ($searchString) {
+                $query->where('name', 'like', "%$searchString%")
+                    ->orWhere('locale', 'like', "%$searchString%");
+            })
+                ->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
+
+            $defaultLang = Setting::value('content') ?? 'en';
+
+            return successResponse( __('message.language_fetched'), [
+                'languages' => $languages,
+                'default_language' => $defaultLang
+            ]);
+
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
 
     public function toggleLanguageStatus(Request $request)
@@ -38,14 +54,11 @@ class LanguageController extends Controller
                         'status' => $request->status,
                     ]);
 
-                    return response()->json([
-                        'success' => true,
-                        'message' => __('message.language_status_updated_successfully'),
-                    ]);
+                    return successResponse( __('message.language_status_updated_successfully'));
                 }
             }
 
-            return response()->json(['success' => false, 'message' => __('message.language_not_found')], 404);
+            return errorResponse( __('message.language_not_found'));
         } catch (\Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
         }
@@ -55,27 +68,30 @@ class LanguageController extends Controller
     {
         try {
             $languageList = array_map('basename', File::directories(lang_path()));
-            $languages = [];
             $dbLanguages = Language::all()->keyBy('locale');
 
+            $languages = [];
+
             foreach ($languageList as $key => $langLocale) {
-                $language = [];
-                $language['id'] = $key;
-                $language['locale'] = $langLocale;
+                $languageConfig = \Config::get("languages.$langLocale", ['', '']);
 
-                $languageArray = \Config::get("languages.$langLocale", ['', '']);
-                $language['name'] = $languageArray[0];
-                $language['translation'] = $languageArray[1];
-
-                $language['status'] = $dbLanguages[$langLocale]->status ?? 0;
-
-                $languages[] = $language;
+                $languages[] = [
+                    'id'          => $key,
+                    'locale'      => $langLocale,
+                    'name'        => $languageConfig[0] ?? $langLocale,
+                    'translation' => $languageConfig[1] ?? '',
+                    'status'      => $dbLanguages[$langLocale]->status ?? 0,
+                ];
             }
 
-            return successResponse('', collect($languages)->sortBy('name')->values()->all());
-        } catch (\Exception $exception) {
-            \Logger::exception($exception);
+            $languages = collect($languages)->sortBy('name')->values()->all();
 
+            return successResponse(
+                __('message.language_fetched'),
+                $languages
+            );
+
+        } catch (\Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
