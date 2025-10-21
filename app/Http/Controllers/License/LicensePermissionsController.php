@@ -62,18 +62,17 @@ class LicensePermissionsController extends Controller
                         return [
                             'id' => $perm->id,
                             'permissions' => $perm->permissions,
-                            'assigned' => $license->permissions->contains('id', $perm->id)
+                            'assigned' => $license->permissions->contains('id', $perm->id),
                         ];
-                    })
+                    }),
                 ];
             });
 
             $licenseTypes->setCollection($data);
 
             return successResponse(__('message.license_types_permissions_fetched'), [
-                'license_types' => $licenseTypes
+                'license_types' => $licenseTypes,
             ]);
-
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
