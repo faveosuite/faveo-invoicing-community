@@ -27,21 +27,21 @@ class SystemManagerController extends Controller
                 ->get();
 
             $accountManagers = $users
-                ->filter(fn($user) => $user->position === 'account_manager')
-                ->map(fn($user) => [
+                ->filter(fn ($user) => $user->position === 'account_manager')
+                ->map(fn ($user) => [
 
                     'id' => $user->id,
-                    'name' => $user->first_name . ' ' . $user->last_name,
-                    'email' => $user->email
+                    'name' => $user->first_name.' '.$user->last_name,
+                    'email' => $user->email,
                 ])
                 ->values();
 
             $salesManagers = $users
-                ->filter(fn($user) => $user->position === 'manager')
-                ->map(fn($user) => [
+                ->filter(fn ($user) => $user->position === 'manager')
+                ->map(fn ($user) => [
                     'id' => $user->id,
-                    'name' => $user->first_name . ' ' . $user->last_name,
-                    'email' => $user->email
+                    'name' => $user->first_name.' '.$user->last_name,
+                    'email' => $user->email,
                 ])
                 ->values();
 
@@ -54,17 +54,15 @@ class SystemManagerController extends Controller
             $response = [
                 'account_managers' => $accountManagers,
                 'sales_managers' => $salesManagers,
-                'account_managers_auto_assign' => (bool)$accountManagersAutoAssign,
-                'sales_managers_auto_assign' => (bool)$salesManagersAutoAssign
+                'account_managers_auto_assign' => (bool) $accountManagersAutoAssign,
+                'sales_managers_auto_assign' => (bool) $salesManagersAutoAssign,
             ];
 
             return successResponse('', $response);
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
-
 
     public function searchAdmin(Request $request)
     {
@@ -72,7 +70,7 @@ class SystemManagerController extends Controller
             $term = trim($request->q);
 
             if (empty($term)) {
-                return errorResponse( __('message.search_term_required'));
+                return errorResponse(__('message.search_term_required'));
             }
 
             $users = User::where(function ($query) use ($term) {
@@ -85,7 +83,7 @@ class SystemManagerController extends Controller
                 ->get();
 
             if ($users->isEmpty()) {
-                return errorResponse( __('message.no_admins_found'));
+                return errorResponse(__('message.no_admins_found'));
             }
 
             $formattedUsers = $users->map(function ($user) {
@@ -100,7 +98,6 @@ class SystemManagerController extends Controller
             });
 
             return successResponse('', $formattedUsers);
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
