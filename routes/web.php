@@ -200,8 +200,12 @@ Route::middleware('installAgora')->group(function () {
      * Client
      */
 
-    //contact-option
+    /*
+     * Contact API
+     */
     Route::get('contact-option', [Common\SettingsController::class, 'contactOption'])->name('contact-option');
+    Route::post('verificationSettings', [Common\SettingsController::class, 'postContactOption']);
+
     Route::post('emailData', [Common\SettingsController::class, 'emailData']);
     Route::post('emailCheckboxData', [Common\SettingsController::class, 'emailCheckboxData']);
     Route::get('get-email-validation-logs', [Common\SettingsController::class, 'getEmailValidationLogs']);
@@ -211,7 +215,6 @@ Route::middleware('installAgora')->group(function () {
     Route::post('mobileData', [Common\SettingsController::class, 'mobileData']);
     Route::post('email-settings-save', [Common\SettingsController::class, 'emailSettingsSave']);
     Route::post('mobile-settings-save', [Common\SettingsController::class, 'mobileSettingsSave']);
-    Route::post('verificationSettings', [Common\SettingsController::class, 'postContactOption']);
 
     /*
      * Profile Process
@@ -245,7 +248,25 @@ Route::middleware('installAgora')->group(function () {
     Route::patch('settings/template', [Common\SettingsController::class, 'postSettingsTemplate']);
     Route::patch('settings/error', [Common\SettingsController::class, 'postSettingsError']);
     Route::get('settings/activitylog', [Common\SettingsController::class, 'settingsActivity']);
+    Route::get('settings/maillog', [Common\SettingsController::class, 'settingsMail']);
+
+    /*
+     * System Logs
+     */
+
+    //Get Activity Log
     Route::get('get-activity', [Common\SettingsController::class, 'getActivity'])->name('get-activity');
+
+    //Get Payment Log
+//    Route::get('settings/paymentlog', [Common\SettingsController::class, 'settingsPayment']);
+    Route::get('get-paymentlog', [Common\SettingsController::class, 'getPaymentlog'])->name('get-paymentlog');
+    Route::delete('paymentlog-delete', [Common\SettingsController::class, 'destroyPayment'])->name('paymentlog-delete');
+
+    //Get Msg91 Log
+//    Route::get('sms/reports', [Common\MSG91Controller::class, 'msg91Reports']);
+    Route::get('sms/reports', [Common\MSG91Controller::class, 'getMsg91Reports']);
+    Route::get('getMsgStatus', [Common\MSG91Controller::class, 'getMsgStauts']);
+
     Route::get('get-email', [Common\SettingsController::class, 'getMails'])->name('get-email');
     Route::get('/email-log/body/{id}', [Common\SettingsController::class, 'getBody'])->name('email-log.body');
     Route::delete('activity-delete', [Common\SettingsController::class, 'destroy'])->name('activity-delete');
@@ -271,9 +292,6 @@ Route::middleware('installAgora')->group(function () {
     Route::post('v3captchaDetails', [Common\BaseSettingsController::class, 'v3captchaDetails'])->name('v3captchaDetails');
     Route::get('demo/page', [Front\PageController::class, 'VewDemoPage']);
     Route::post('save/demo', [Front\PageController::class, 'saveDemoPage']);
-    Route::get('settings/paymentlog', [Common\SettingsController::class, 'settingsPayment']);
-    Route::get('get-paymentlog', [Common\SettingsController::class, 'getPaymentlog'])->name('get-paymentlog');
-    Route::delete('paymentlog-delete', [Common\SettingsController::class, 'destroyPayment'])->name('paymentlog-delete');
 
     /*
      * Client
@@ -382,16 +400,17 @@ Route::middleware('installAgora')->group(function () {
     Route::delete('comment-delete', [User\CommentController::class, 'destroy'])->name('comment-delete');
 
     /*
-         * License
-         */
+     * License
+    */
     Route::resource('license-type', License\LicenseSettingsController::class);
     Route::get('get-license-type', [License\LicenseSettingsController::class, 'getLicenseTypes'])->name('get-license-type');
     Route::delete('license-type-delete', [License\LicenseSettingsController::class, 'destroy'])->name('license-type-delete');
     Route::get('license-permissions', [License\LicensePermissionsController::class, 'index']);
     Route::get('get-license-permission', [License\LicensePermissionsController::class, 'getPermissions'])->name('get-license-permission');
-    Route::delete('add-permission', [License\LicensePermissionsController::class, 'addPermission'])->name('add-permission');
+    Route::post('add-permission', [License\LicensePermissionsController::class, 'addPermission'])->name('add-permission');
     Route::get('tick-permission', [License\LicensePermissionsController::class, 'tickPermission'])->name('tick-permission');
     Route::get('orders/license/{order_number}', [License\LicenseController::class, 'licenseRedirect']);
+
     /*
      * Order
      */
@@ -570,9 +589,8 @@ Route::middleware('installAgora')->group(function () {
     Route::get('country-count', [WelcomeController::class, 'countryCount'])->name('country-count')->middleware('admin');
 
     /*
-    Cloud APIs
+     * Third Party Apps
      */
-
     Route::resource('third-party-keys', ThirdPartyAppController::class);
 
     Route::get('get-third-party-app', [ThirdPartyAppController::class, 'getThirdPartyDetails'])->name('get-third-party-app');
@@ -581,6 +599,9 @@ Route::middleware('installAgora')->group(function () {
 
     Route::delete('third-party-delete', [ThirdPartyAppController::class, 'destroy'])->name('third-party-delete');
 
+      /*
+      * Cloud Api's
+      */
     Route::post('create/tenant', [Tenancy\TenantController::class, 'createTenant']);
 
     Route::post('change/domain', [Tenancy\CloudExtraActivities::class, 'changeDomain']);
@@ -675,8 +696,6 @@ Route::middleware('installAgora')->group(function () {
         Route::post('msg91/reports/{app_key}/{app_secret}', [Common\MSG91Controller::class, 'handleReports'])->withoutMiddleware(['admin', 'auth']);
     });
 
-    Route::get('sms/reports', [Common\MSG91Controller::class, 'msg91Reports']);
-    Route::get('getMsgReports', [Common\MSG91Controller::class, 'getMsg91Reports']);
     Route::get('msgThirdPartyUpdate/{thirdPartyId}', [MSG91Controller::class, 'getThirdPartyMsgDetails']);
 
     //preview image

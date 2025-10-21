@@ -31,33 +31,34 @@ class LicenseSettingsController extends LicensePermissionsController
     /*
     * Get All the categories
     */
-    public function getLicenseTypes()
+    public function getLicenseTypes(Request $request)
     {
         try {
-            $allTypes = $this->licenseType->select('id', 'name');
+            $searchString = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = $request->input('limit', 10);
 
-            return \DataTables::of($allTypes)
-            ->orderColumn('type_name', '-created_at $1')
 
-            ->addColumn('checkbox', function ($model) {
-                return "<input type='checkbox' class='type_checkbox' 
-            value=".$model->id.' name=select[] id=check>';
-            })
-            ->addColumn('type_name', function ($model) {
-                return ucfirst($model->name);
-            })
-            ->addColumn('action', function ($model) {
-                return "<p><button data-toggle='modal' 
-             data-id=".$model->id." data-name= '$model->name' 
-             class='btn btn-sm btn-secondary btn-xs editType'".tooltip(__('message.edit'))."<i class='fa fa-edit'
-             style='color:white;'> </i></button>&nbsp;</p>";
-            })
-              ->filterColumn('type_name', function ($query, $keyword) {
-                  $sql = 'name like ?';
-                  $query->whereRaw($sql, ["%{$keyword}%"]);
-              })
-             ->rawColumns(['checkbox', 'type_name', 'action'])
-            ->make(true);
+            $query = $this->licenseType
+                ->select('id', 'name')
+                ->when($searchString, function ($q) use ($searchString) {
+                    $q->where('name', 'LIKE', "%$searchString%");
+                });
+
+            if ($sortField && $sortOrder) {
+                $query->orderBy($sortField, $sortOrder);
+            }
+
+            $licenseTypes = $query->simplePaginate($limit);
+            $total = $licenseTypes->count();
+
+
+            return successResponse('', [
+                'license_types' => $licenseTypes,
+                'total' => $total
+            ]);
+
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -74,9 +75,9 @@ class LicenseSettingsController extends LicensePermissionsController
         try {
             $productType = $this->licenseType->fill($request->input())->save();
 
-            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
+            return successResponse( __('message.saved-successfully'));
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -91,9 +92,9 @@ class LicenseSettingsController extends LicensePermissionsController
                 $type->save();
             }
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+            return successResponse(__('message.updated-successfully'));
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -107,50 +108,22 @@ class LicenseSettingsController extends LicensePermissionsController
     {
         try {
             $ids = $request->input('select');
-            if (! empty($ids)) {
-                foreach ($ids as $id) {
-                    $type = $this->licenseType->where('id', $id)->first();
-                    if ($type) {
-                        $type->delete();
-                    } else {
-                        echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
-                </div>';
-                        //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
-                    }
-                }
-                echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
 
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.success').'
-
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
-                </div>';
-            } else {
-                echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
-                </div>';
-                //echo \Lang::get('message.select-a-row');
+            if (empty($ids)) {
+                return errorResponse( __('message.select-a-row') );
             }
+
+            foreach ($ids as $id) {
+                $type = $this->licenseType->find($id);
+                if ($type) {
+                    $type->delete();
+                }
+            }
+
+            return successResponse(__('message.deleted-successfully'));
+
         } catch (\Exception $e) {
-            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */
-                    \Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$e->getMessage().'
-                </div>';
+            return errorResponse($e->getMessage());
         }
     }
 }
