@@ -370,21 +370,26 @@ trait ApiKeySettings
 
     public function showFileStorage()
     {
-        $fileStorageSettings = FileSystemSettings::first();
+        try {
+            $fileStorageSettings = FileSystemSettings::first();
 
-        $fileStorage = (object) [
-            'disk' => $fileStorageSettings->disk ?? '',
-            'local_file_storage_path' => env('STORAGE_PATH', storage_path('app/public')),
-            's3_bucket' => env('AWS_BUCKET', ''),
-            's3_region' => env('AWS_DEFAULT_REGION', ''),
-            's3_access_key' => env('AWS_ACCESS_KEY_ID', ''),
-            's3_secret_key' => env('AWS_SECRET_ACCESS_KEY', ''),
-            's3_endpoint_url' => env('AWS_ENDPOINT', ''),
-            's3_url' => env('AWS_URL', ''),
-            's3_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', ''),
-        ];
+            $fileStorage = [
+                'disk' => $fileStorageSettings->disk ?? '',
+                'local_file_storage_path' => env('STORAGE_PATH', storage_path('app/public')),
+                's3_bucket' => env('AWS_BUCKET', ''),
+                's3_region' => env('AWS_DEFAULT_REGION', ''),
+                's3_access_key' => env('AWS_ACCESS_KEY_ID', ''),
+                's3_secret_key' => env('AWS_SECRET_ACCESS_KEY', ''),
+                's3_endpoint_url' => env('AWS_ENDPOINT', ''),
+                's3_url' => env('AWS_URL', ''),
+                's3_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', ''),
+            ];
 
-        return view('themes.default1.common.setting.file-storage', compact('fileStorage'));
+            return successResponse('',$fileStorage);
+
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
 
     public function updateStoragePath(UpdateStoragePathRequest $request)
