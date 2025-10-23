@@ -201,7 +201,7 @@ class CartController extends BaseCartController
                 $unpaidInvoice = $this->checkUnpaidInvoices($item);
 
                 if ($unpaidInvoice) {
-                    $this->cart->clear($item->id);
+                    $this->cart->clear();
 
                     return redirect('my-invoice/'.$unpaidInvoice->id.'#invoice-section')
                     ->with('warning', __('message.unpaid_invoice_warning'));
@@ -239,7 +239,7 @@ class CartController extends BaseCartController
                 ->first();
 
             if ($unpaidInvoice) {
-                Cart::clear($item->id);
+                $this->cart->clear();
 
                 return $unpaidInvoice;
             }

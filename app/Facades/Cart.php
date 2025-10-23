@@ -2,10 +2,12 @@
 
 namespace App\Facades;
 
+use app\Cart\UserCart;
 use App\Traits\TaxCalculation;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Facade;
 
-class Cart
+class Cart extends Facade
 {
     public $session;
 
@@ -18,7 +20,10 @@ class Cart
         $this->session = \Session();
         $this->sessionName = 'cart';
     }
-
+    protected static function getFacadeAccessor(): string
+    {
+        return 'user-cart';
+    }
     public function add($id, $name = null, $price = null, $quantity = null, $attributes = [], $conditions = [], $associatedModel = null)
     {
         $cart = $this->getContent();
@@ -170,7 +175,7 @@ class Cart
     public function getConditions($id)
     {
         $cart = $this->get($id);
-        $content = $cart ? $$cart['conditions'] : null;
+        $content = $cart ? $cart['conditions'] : null;
 
         return $content;
     }
@@ -181,4 +186,16 @@ class Cart
 
         return $cart['conditions']['type'] == $type;
     }
+
+    public function removeCartCondition($condition){
+       $cart= $this->getContent();
+       foreach($cart as $items){
+           if($items['conditions']['type']==$condition){
+               $items['conditions'] = null;
+               $this->update($items['id'], ['conditions'=>null]);
+           }
+       }
+
+    }
+
 }
