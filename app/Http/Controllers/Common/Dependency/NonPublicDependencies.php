@@ -17,7 +17,6 @@ class NonPublicDependencies extends BaseDependencyController
                 return $this->products();
             case 'product-plans':
                 return $this->productPlans();
-
         }
     }
 
@@ -52,7 +51,7 @@ class NonPublicDependencies extends BaseDependencyController
                     $query->where('name', 'like', "%{$searchQuery}%");
                 });
 
-        return $this->get('products', $baseQuery, function ($item){
+        return $this->get('products', $baseQuery, function ($item) {
             return ['id' => $item->id, 'name' => $item->name];
         });
     }
@@ -70,8 +69,8 @@ class NonPublicDependencies extends BaseDependencyController
                 $query->where('name', 'like', "%{$searchQuery}%");
             });
 
-         return $this->get('plans', $baseQuery, function ($item){
-             return ['id' => $item->id, 'name' => $item->name];
-         });
+        return $this->get('plans', $baseQuery, function ($item) {
+            return ['id' => $item->id, 'name' => $item->name];
+        });
     }
 }
