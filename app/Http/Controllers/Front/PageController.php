@@ -566,7 +566,6 @@ class PageController extends Controller
                 $description = self::getPriceDescription($product->id);
                 $status = Product::find($product->id);
             }
-
             return view('themes.default1.common.template.shoppingcart', compact('templates', 'headline', 'tagline', 'description', 'status'));
         } catch (\Exception $ex) {
             \Logger::exception($ex);
@@ -655,6 +654,8 @@ class PageController extends Controller
                 return '<button class="btn '.$orderButton.' btn-modern buttonsale" data-toggle="modal" data-target="#tenancy" data-mydata="'.$product->id.'">
                                 <span style="white-space: nowrap;">'.__('message.order_now').'</span>
                             </button>';
+                //for vue
+//                return['class'=>$orderButton,'product_id'=>$product->id,'type'=>'cloud','button'=>__('message.order_now')];
             } elseif ($product->status) {
                 return '
     <button type="button"
@@ -663,10 +664,17 @@ class PageController extends Controller
         '.__('message.order_now').'
     </button>
 ';
+                //For vue when product status is one different process takes place in store
+                //                return['class'=>$orderButton,'product_id'=>$product->id,'type'=>'cloud','button'=>__('message.order_now')];
+
             } else {
+                //for vue
+//                return ['class'=>$orderButton,'type'=>'multioption','button'=>__('message.order_now')];
                 return '<input type="submit" value="Order Now" class="btn '.$orderButton.' btn-modern buttonsale"></form>';
             }
         } else {
+            //for vue
+//            return ['url'=>'https://www.faveohelpdesk.com/contact-us/', 'button'=>__('message.contact_sales') ,'class'=>$orderButton,'type'=>'normal'];
             return '<a class="btn '.$orderButton.' btn-modern sales buttonsale" href="https://www.faveohelpdesk.com/contact-us/">'.__('message.contact_sales').'</a>';
         }
     }
@@ -885,6 +893,8 @@ class PageController extends Controller
                             $priceDescription = 'free';
                         } else {
                             $priceDescription = $description->no_of_agents ? 'per month for <strong>'.' '.$description->no_of_agents.' '.'agent</strong>' : 'per month';
+                            //for vue
+//                            $priceDescription = $description->no_of_agents?$description->no_of_agents:'per month';
                         }
 
                         break;

@@ -183,7 +183,6 @@ class CheckoutController extends InfoController
 
             User::where('id', \Auth::user()->id)->update(['billing_pay_balance' => 0]);
             $cart = $this->cart;
-
             return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain', 'amt_to_credit', 'curr', 'cart'));
         } catch (\Exception $ex) {
             \Logger::exception($ex);
@@ -345,7 +344,7 @@ class CheckoutController extends InfoController
 
                     $url = view('themes.default1.front.postCheckoutTemplate', compact('invoice', 'date', 'product', 'items', 'orders', 'orderNumber', 'show'))->render();
                     // }
-                    \Cart::clear();
+                    $this->cart->clear();
                     if (\Session::has('nothingLeft')) {
                         $do = ! (\Session::get('priceToBePaid') < \Session::get('priceRemaining'));
 
