@@ -103,7 +103,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('contact-us', [Front\PageController::class, 'contactUs']);
     Route::post('contact-us', [Front\PageController::class, 'postContactUs']);
     Route::post('remove-coupon', [Front\CartController::class, 'removeCoupon']);
-
+    Route::post('remove-product',);
     Route::post('demo-request', [Front\PageController::class, 'postDemoReq'])->withoutMiddleware(['auth']);
     Route::get('confirm/payment', [RazorpayController::class, 'afterPayment']);
     Route::post('stripeUpdatePayment/confirm', [Front\ClientController::class, 'stripeUpdatePayment']);
@@ -144,6 +144,7 @@ Route::middleware('installAgora')->group(function () {
 
     Route::get('get-versions/{productid}/{clientid}/{invoiceid}/', [Front\ClientController::class, 'getVersionList'])->name('get-versions');
     Route::get('get-github-versions/{productid}/{clientid}/{invoiceid}/', [Front\ClientController::class, 'getGithubVersionList'])->name('get-github-versions');
+    Route::get('master-data', [Front\ClientController::class, 'masterData'])->name('master-data');
 
     // Post Route For Make Razorpay Payment Request
     Route::post('payment/{invoice}', [RazorpayController::class, 'payment'])->name('payment');

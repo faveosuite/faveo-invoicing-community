@@ -272,7 +272,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $rule = $tax_rule->findOrFail(1);
             $rounding = $rule->rounding;
             $user_id = \Auth::user()->id;
-            $grand_total = (string) $this->cart->getTotal();
+            $grand_total = $this->cart->getTotal();
             $number = rand(11111111, 99999999);
             $date = \Carbon\Carbon::now();
             if ($rounding) {
