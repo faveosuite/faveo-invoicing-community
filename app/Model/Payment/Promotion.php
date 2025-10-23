@@ -3,6 +3,7 @@
 namespace App\Model\Payment;
 
 use App\BaseModel;
+use App\Model\Product\Product;
 use App\Traits\SystemActivityLogsTrait;
 
 class Promotion extends BaseModel
@@ -44,8 +45,32 @@ class Promotion extends BaseModel
 
     public function delete()
     {
-        $this->relation()->delete();
+        $this->relation->each(function ($relation) {
+            $relation->delete();
+        });
 
         return parent::delete();
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults();
+    }
+
+    public function promotionType()
+    {
+        return $this->belongsTo(\App\Model\Payment\PromotionType::class, 'type', 'id');
+    }
+
+    public function products()
+    {
+        return $this->hasOneThrough(
+            Product::class,
+            \App\Model\Payment\PromoProductRelation::class,
+            'promotion_id', // Foreign key on promo_product_relations table...
+            'id',           // Foreign key on products table...
+            'id',           // Local key on promotions table...
+            'product_id'    // Local key on promo_product_relations table
+        );
     }
 }

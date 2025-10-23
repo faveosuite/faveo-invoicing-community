@@ -158,7 +158,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $sortOrder = $request->input('sort-order', 'asc');
             $sortField = $request->input('sort-field', 'created_at');
             $limit = $request->input('limit', 10);
-            $page = $request->input('page', 1);
 
             $query = $this->advanceSearch($request);
 
@@ -179,7 +178,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                         ->orWhere('status', 'like', "%{$status}%")
                         ->orWhere('currency', 'like', "%{$search}%");
                 });
-            })->orderBy($sortField, $sortOrder)->paginate($limit, ['*'], 'page', $page);
+            })->orderBy($sortField, $sortOrder)->simplePaginate($limit);
 
             $invoice->getCollection()->transform(function ($invoice) {
                 $statusMapping = [

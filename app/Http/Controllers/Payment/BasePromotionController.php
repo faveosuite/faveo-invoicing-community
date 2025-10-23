@@ -10,10 +10,9 @@ class BasePromotionController extends Controller
     public function getCode()
     {
         try {
-            $code = str_random(6);
-            echo strtoupper($code);
+            return successResponse('', strtoupper(str_random(6)));
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 

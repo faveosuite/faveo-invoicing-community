@@ -632,20 +632,20 @@ class ClientController extends AdvanceSearchController
     public function downloadExportedFile($id)
     {
         try {
-            $exportDetail = ExportDetail::find($id);
+            $exportDetail = ExportDetail::findOrFail($id);
 
             if (! $exportDetail) {
-                return redirect()->back()->with('fails', \Lang::get('message.file_not_found'));
+                return errorResponse(__('message.file_not_found'));
             }
 
             $expirationTime = $exportDetail->created_at->addHours(6);
             if (now()->gt($expirationTime)) {
-                return redirect()->back()->with('fails', \Lang::get('message.download_link_expired'));
+                return errorResponse(__('message.download_link_expired'));
             }
 
             $filePath = $exportDetail->file_path;
             if (! file_exists($filePath)) {
-                return redirect()->back()->with('fails', \Lang::get('message.file_not_found'));
+                return errorResponse(__('message.file_not_found'));
             }
 
             $zipFileName = $exportDetail->file.'.zip';
@@ -667,12 +667,13 @@ class ClientController extends AdvanceSearchController
                 }
                 $zip->close();
             } else {
-                return redirect()->back()->with('fails', \Lang::get('message.failed_create_zip_file'));
+                return errorResponse(__('message.failed_create_zip_file'));
             }
 
             return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             \Log::error('Report Export Failure'.$e->getMessage());
+            return errorResponse('Report Export Failure'.$e->getMessage());
         }
     }
 
@@ -746,7 +747,6 @@ class ClientController extends AdvanceSearchController
         $sortOrder = $request->input('sort-order', 'asc');
         $sortField = $request->input('sort-field', 'created_at');
         $limit = $request->input('limit', 10);
-        $page = $request->input('page', 1);
 
         $users = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'country', 'created_at')
             ->where(function ($query) use ($searchQuery) {
@@ -757,7 +757,7 @@ class ClientController extends AdvanceSearchController
                     ->orWhere('created_at', 'like', '%'.$searchQuery.'%');
             })
             ->orderBy($sortField, $sortOrder)
-            ->paginate($limit, ['*'], 'page', $page);
+            ->simplePaginate($limit);
 
         return successResponse('', $users);
     }
@@ -803,27 +803,6 @@ class ClientController extends AdvanceSearchController
         User::whereIn('id', $ids)->delete();
 
         return successResponse(__('message.user-suspend-successfully'));
-    }
-
-    public function getManagers(Request $request)
-    {
-        $role = $request->input('role', 'manager');
-        $page = $request->input('page', 1);
-        $search = $request->input('search_query', '');
-        $limit = $request->input('limit', 10);
-
-        $managers = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'country', 'created_at')
-            ->where('role', $role)
-            ->when($search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('email', 'like', "%{$search}%")
-                        ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
-                });
-            })
-            ->orderByDesc('created_at')
-            ->paginate($limit, ['*'], 'page', $page);
-
-        return successResponse('', $managers);
     }
 
     public function userCreate(ClientRequest $request)

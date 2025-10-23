@@ -753,16 +753,15 @@ Route::get('language/control', [LanguageController::class, 'fetchLangDropdownUse
 
 Route::get('users', [User\ClientController::class, 'getAllUsers']);
 Route::delete('users', [User\ClientController::class, 'deleteBulkUsers']);
-Route::get('managers', [User\ClientController::class, 'getManagers']);
 Route::post('users', [User\ClientController::class, 'userCreate']);
 Route::get('user/{id}', [User\ClientController::class, 'getEditUser']);
 Route::put('user/{id}', [User\ClientController::class, 'userUpdate']);
 
-Route::get('soft-delete', [User\SoftDeleteController::class, 'softDeletedUsers'])->name('soft-delete');
+Route::get('soft-delete', [User\SoftDeleteController::class, 'softDeletedUsers']);
 Route::get('user/restore/{id}', [User\SoftDeleteController::class, 'restoreUser']);
 Route::delete('permanent-delete-client', [User\SoftDeleteController::class, 'permanentDeleteUser']);
 
-Route::get('orders', [Order\OrderController::class, 'getOrders'])->name('orders');
+Route::get('orders', [Order\OrderController::class, 'getOrders']);
 Route::delete('orders', [Order\OrderController::class, 'deleteBulkOrders']);
 Route::get('order/{id}', [Order\OrderController::class, 'getOrder']);
 
@@ -778,7 +777,44 @@ Route::post('switch-license-mode', [License\LocalizedLicenseController::class, '
 Route::get('invoices', [Order\InvoiceController::class, 'getInvoices']);
 Route::delete('invoices', [Order\InvoiceController::class, 'deleteBulkInvoices']);
 Route::get('invoice/{id}', [Order\InvoiceController::class, 'getInvoice']);
-Route::get('productsList', [Product\ProductController::class, 'getProductDropdown']);
-Route::get('getProductPlans/{productId}', [Product\ProductController::class, 'getProductPlans']);
 Route::post('get-price', [Product\ProductController::class, 'getPrice']);
 Route::get('dependency/{type}', [Common\Dependency\DependencyController::class, 'handle']);
+
+Route::get('pages', [Front\PageController::class, 'getAllPages']);
+Route::delete('pages', [Front\PageController::class, 'deleteBulkPages']);
+Route::get('page/{id}', [Front\PageController::class, 'getPage']);
+Route::put('page/{id}', [Front\PageController::class, 'updatePage']);
+Route::post('save/demo', [Front\PageController::class, 'saveDemoPage']);
+Route::get('products', [Product\ProductController::class, 'getAllProducts']);
+Route::delete('products', [Product\ProductController::class, 'deleteBulkProducts']);
+Route::get('product/{productId}', [Product\ProductController::class, 'getProduct']);
+Route::get('product/uploads/{productId}', [Product\ProductController::class, 'getProductUploads']);
+Route::delete('product/upload', [Product\ProductController::class, 'deleteBulkProductUpload']);
+Route::get('product/upload/{productUploadId}', [Product\ProductController::class, 'getProductUpload']);
+Route::patch('product/upload/{productUploadId}', [Product\ProductController::class, 'updateProductUpload']);
+Route::put('product/upload/{productId}/', [Product\ProductController::class,'productUploadCreate']);
+Route::put('product', [Product\ProductController::class,'productCreate']);
+Route::patch('product/{productId}',[Product\ProductController::class,'updateProduct']);
+Route::get('plans', [Product\PlanController::class, 'getAllPlans']);
+Route::put('plans', [Product\PlanController::class, 'planCreate']);
+Route::get('plan/{planId}', [Product\PlanController::class, 'getPlan']);
+Route::patch('plan/{planId}', [Product\PlanController::class, 'updatePlan']);
+Route::delete('plans', [Product\PlanController::class, 'deleteBulkPlans']);
+Route::get('promotions', [Payment\PromotionController::class, 'getAllPromotions']);
+Route::get('promotion/{promotionId}', [Payment\PromotionController::class,'getPromotion']);
+Route::get('getPromotionCode', [Payment\PromotionController::class, 'getCode']);
+Route::patch('updatePromotion', [Payment\PromotionController::class, 'updatePromotionCode']);
+Route::put('promotionCreate', [Payment\PromotionController::class, 'promotionCodeCreate']);
+Route::delete('promotions', [Payment\PromotionController::class, 'deleteBulkPromotions']);
+Route::get('groups', [Product\GroupController::class, 'getProductGroups']);
+Route::get('group/{group_id}', [Product\GroupController::class,'getGroup']);
+Route::patch('group/{group_id}', [Product\GroupController::class,'updateGroup']);
+Route::put('group', [Product\GroupController::class,'groupCreate']);
+Route::delete('group', [Product\GroupController::class, 'deleteBulkGroups']);
+Route::get('reports', [ReportController::class, 'getAllReports']);
+Route::get('download-exported-file/{id}', [User\ClientController::class, 'downloadExportedFile'])->name('download.exported.file');
+Route::delete('reports', [ReportController::class, 'deleteBulkReports']);
+Route::get('reports/setting', [ReportController::class, 'getReportsSettings']);
+Route::patch('reports/setting', [ReportController::class, 'updateReportsSettings']);
+
+Route::get('dashboard', [DashboardController::class, 'dashboard']);
