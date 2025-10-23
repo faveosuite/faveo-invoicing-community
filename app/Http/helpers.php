@@ -211,7 +211,6 @@ function getStatusLabel($status)
     }
 }
 
-
 function getCountryByCode($code)
 {
     try {
@@ -1034,7 +1033,7 @@ function toFormatDateAndTime($datetime)
 /**
  * Convert days to human-readable format using match.
  *
- * @param int $days
+ * @param  int  $days
  * @return string|null
  */
 function formatDays(int $days)
@@ -1042,7 +1041,7 @@ function formatDays(int $days)
     return match (true) {
         $days <= 0 => null,
         $days < 30 => "$days Days",
-        $days < 365 => intval($days / 30) . (intval($days / 30) > 1 ? ' Months' : ' Month'),
-        default => intval($days / 365) . (intval($days / 365) > 1 ? ' Years' : ' Year'),
+        $days < 365 => intval($days / 30).(intval($days / 30) > 1 ? ' Months' : ' Month'),
+        default => intval($days / 365).(intval($days / 365) > 1 ? ' Years' : ' Year'),
     };
 }

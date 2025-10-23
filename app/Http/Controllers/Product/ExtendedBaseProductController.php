@@ -352,7 +352,6 @@ class ExtendedBaseProductController extends Controller
         $product->save();
     }
 
-
     public function getProductUploads(Request $request, $productId)
     {
         $searchQuery = $request->input('search-query', '');
@@ -363,18 +362,17 @@ class ExtendedBaseProductController extends Controller
         try {
             $productUpload = ProductUpload::where('product_id', $productId)
                 ->when($searchQuery, function ($query) use ($searchQuery) {
-                    return $query->where('title', 'like', '%' . $searchQuery . '%')
-                        ->orWhere('description', 'like', '%' . $searchQuery . '%')
-                        ->orWhere('version', 'like', '%' . $searchQuery . '%')
-                        ->orWhere('file', 'like', '%' . $searchQuery . '%')
-                        ->orWhere('release_type', 'like', '%' . $searchQuery . '%');
+                    return $query->where('title', 'like', '%'.$searchQuery.'%')
+                        ->orWhere('description', 'like', '%'.$searchQuery.'%')
+                        ->orWhere('version', 'like', '%'.$searchQuery.'%')
+                        ->orWhere('file', 'like', '%'.$searchQuery.'%')
+                        ->orWhere('release_type', 'like', '%'.$searchQuery.'%');
                 })
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
             return successResponse('', $productUpload);
-
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -392,9 +390,9 @@ class ExtendedBaseProductController extends Controller
             $productUploads = ProductUpload::whereIn('id', $ids)->get();
 
             foreach ($productUploads as $upload) {
-                $filePath = $storagePath . '/' . $upload->file;
+                $filePath = $storagePath.'/'.$upload->file;
 
-                if (!empty($upload->file) && Attach::exists($filePath)) {
+                if (! empty($upload->file) && Attach::exists($filePath)) {
                     Attach::delete($filePath);
                 }
             }
@@ -402,20 +400,19 @@ class ExtendedBaseProductController extends Controller
             ProductUpload::whereIn('id', $ids)->delete();
 
             return successResponse(__('message.deleted-successfully'));
-
         } catch (\Exception $e) {
-            return errorResponse(__('message.errors_occurs_delete_product') . ' ' . $e->getMessage());
+            return errorResponse(__('message.errors_occurs_delete_product').' '.$e->getMessage());
         }
     }
 
     public function getProductUpload(Request $request, $productUploadId)
     {
         try {
-           return successResponse('',
-               ProductUpload::with('product:id,name')
-                   ->findOrFail($productUploadId)
-           );
-        }catch (\Exception $e){
+            return successResponse('',
+                ProductUpload::with('product:id,name')
+                    ->findOrFail($productUploadId)
+            );
+        } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -453,10 +450,8 @@ class ExtendedBaseProductController extends Controller
             }
 
             return successResponse(__('message.product_updated_successfully'));
-
-        } catch (\Exception $ex){
+        } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
-
 }
