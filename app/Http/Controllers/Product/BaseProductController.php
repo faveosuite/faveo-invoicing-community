@@ -36,7 +36,7 @@ class BaseProductController extends ExtendedBaseProductController
      */
     public function getProductQtyCheck(int $productId, Plan $plan, string $currency)
     {
-        if (!self::checkMultiProduct($productId)) {
+        if (! self::checkMultiProduct($productId)) {
             return [
                 'can_modify' => false,
                 'quantity' => null,
@@ -74,7 +74,7 @@ class BaseProductController extends ExtendedBaseProductController
 
     public function getAgentQtyCheck(int $productId, Plan $plan, string $currency)
     {
-        if (!self::checkMultiAgent($productId)) {
+        if (! self::checkMultiAgent($productId)) {
             return [
                 'can_modify' => false,
                 'quantity' => null,
@@ -296,14 +296,14 @@ class BaseProductController extends ExtendedBaseProductController
     {
         $request->validate([
             'product' => 'required|integer',
-            'plan'    => 'required|string',
-            'user'    => 'nullable|integer',
+            'plan' => 'required|string',
+            'user' => 'nullable|integer',
         ]);
 
         try {
             $productId = $request->input('product');
-            $userId    = $request->input('user');
-            $planId    = $request->input('plan');
+            $userId = $request->input('user');
+            $planId = $request->input('plan');
 
             $plan = Plan::findOrFail($planId);
 
@@ -322,7 +322,7 @@ class BaseProductController extends ExtendedBaseProductController
                         : false,
                 ],
                 'product_quantity' => $this->getProductQtyCheck($productId, $plan, $currency),
-                'agents'   => $this->getAgentQtyCheck($productId, $plan, $currency),
+                'agents' => $this->getAgentQtyCheck($productId, $plan, $currency),
             ];
 
             return successResponse('', $result);

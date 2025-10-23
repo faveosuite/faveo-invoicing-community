@@ -673,6 +673,7 @@ class ClientController extends AdvanceSearchController
             return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             \Log::error('Report Export Failure'.$e->getMessage());
+
             return errorResponse('Report Export Failure'.$e->getMessage());
         }
     }
