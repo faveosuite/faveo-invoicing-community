@@ -296,8 +296,8 @@ class GroupController extends Controller
         $limit = $request->input('limit', 10);
 
         $groups = ProductGroup::when($searchQuery, function ($query) use ($searchQuery) {
-                $query->where('name', 'like', "%{$searchQuery}%");
-            })
+            $query->where('name', 'like', "%{$searchQuery}%");
+        })
             ->orderBy($sortField, $sortOrder)
             ->simplePaginate($limit);
 
@@ -309,7 +309,7 @@ class GroupController extends Controller
         try {
             return ProductGroup::with([
                 'pricingTemplate:id,image,name',
-                'product:id,name,group'
+                'product:id,name,group',
             ])->findOrFail($groupId);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
@@ -341,7 +341,7 @@ class GroupController extends Controller
             });
 
             // If enabling the group, ensure all products have plans
-            if ($request->status == 1 && !$products->isEmpty() && !$allProductsHavePlans) {
+            if ($request->status == 1 && ! $products->isEmpty() && ! $allProductsHavePlans) {
                 return errorResponse(__('message.all_products_monthly_yearly_plan'));
             }
 
@@ -353,8 +353,7 @@ class GroupController extends Controller
             $group->product()->update(['status' => $productStatus]);
 
             return successResponse(__('message.updated-successfully'));
-
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -362,7 +361,7 @@ class GroupController extends Controller
     public function groupCreate(GroupRequest $request)
     {
         try {
-             ProductGroup::create($request->validated());
+            ProductGroup::create($request->validated());
 
             return successResponse(__('message.saved-successfully'));
         } catch (\Exception $ex) {
@@ -379,7 +378,6 @@ class GroupController extends Controller
         }
 
         try {
-
             \DB::transaction(function () use ($ids) {
                 $groups = ProductGroup::whereIn('id', $ids)->get();
 
@@ -389,10 +387,8 @@ class GroupController extends Controller
             });
 
             return successResponse(__('message.deleted-successfully'));
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
-
 }

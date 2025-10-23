@@ -388,7 +388,7 @@ class PromotionController extends BasePromotionController
             'promotionType:id,name',
             'products' => function ($q) {
                 $q->select('products.id', 'products.name');
-            }
+            },
         ])
             ->when($searchQuery, function ($q) use ($searchQuery) {
                 $q->where(function ($query) use ($searchQuery) {
@@ -401,12 +401,11 @@ class PromotionController extends BasePromotionController
                         });
                 });
             })
-            ->orderBy('promotions.' . $sortField, $sortOrder)
+            ->orderBy('promotions.'.$sortField, $sortOrder)
             ->simplePaginate($limit);
 
         return successResponse('', $promotions);
     }
-
 
     public function getPromotion($promotionId, Request $request)
     {
@@ -415,11 +414,11 @@ class PromotionController extends BasePromotionController
                 'promotionType:id,name',
                 'products' => function ($q) {
                     $q->select('products.id', 'products.name');
-                }
+                },
             ])
             ->findOrFail($promotionId);
         } catch (\Exception $ex) {
-           return errorResponse($ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -428,7 +427,7 @@ class PromotionController extends BasePromotionController
         try {
             $promotion = Promotion::findOrFail($promotionId);
 
-            $start  = Carbon::parse($request->input('start'))->format('Y-m-d H:i:s');
+            $start = Carbon::parse($request->input('start'))->format('Y-m-d H:i:s');
             $expiry = Carbon::parse($request->input('expiry'))->format('Y-m-d H:i:s');
 
             // Update promotion fields
@@ -437,7 +436,7 @@ class PromotionController extends BasePromotionController
                 'type' => $request->input('type'),
                 'value' => $request->input('type') == 2
                     ? intval($request->input('value'))
-                    : intval($request->input('value')) . '%',
+                    : intval($request->input('value')).'%',
                 'uses' => $request->input('uses'),
                 'start' => $start,
                 'expiry' => $expiry,
@@ -453,12 +452,10 @@ class PromotionController extends BasePromotionController
             ]);
 
             return successResponse(__('message.updated-successfully'));
-
-        } catch (\Exception $ex){
+        } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
-
 
     public function promotionCodeCreate(PromotionRequest $request)
     {
@@ -472,7 +469,7 @@ class PromotionController extends BasePromotionController
                 'code' => $request->input('code'),
                 'type' => $request->input('type'),
                 'value' => $request->input('type') == 1
-                    ? intval($request->input('value')) . '%'
+                    ? intval($request->input('value')).'%'
                     : intval($request->input('value')),
                 'uses' => $request->input('uses'),
                 'start' => $start,
@@ -490,7 +487,6 @@ class PromotionController extends BasePromotionController
             return errorResponse($ex->getMessage());
         }
     }
-
 
     public function deleteBulkPromotions(Request $request)
     {
@@ -510,10 +506,8 @@ class PromotionController extends BasePromotionController
             });
 
             return successResponse(__('message.deleted-successfully'));
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
-
 }
