@@ -31,6 +31,8 @@ class DependencyController extends NonPublicDependencies
         switch ($type) {
             case 'time-zones':
                 return $this->timeZones();
+            default:
+                return $this->handleNonPublicDependencies($type);
         }
     }
 

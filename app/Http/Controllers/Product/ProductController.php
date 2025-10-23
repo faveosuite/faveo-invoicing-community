@@ -744,8 +744,299 @@ class ProductController extends BaseProductController
             ->when($searchQuery, function ($query, $searchQuery) {
                 $query->where('name', 'like', "%{$searchQuery}%");
             })
-            ->paginate($limit, ['*'], 'page', $page);
+            ->simplePaginate($limit);
 
         return successResponse('', $plans);
     }
+
+
+    public function getAllProducts(Request $request)
+    {
+        $searchQuery = $request->input('search-query', '');
+        $sortOrder = $request->input('sort-order', 'asc');
+        $sortField = $request->input('sort-field', 'created_at');
+        $limit = $request->input('limit', 10);
+
+        $products = Product::select('id', 'name', 'image', 'group', 'type' , 'created_at')
+            ->with([
+                'groupRelation',
+                'licenseType'
+            ])
+        ->orderBy($sortField, $sortOrder)
+        ->simplePaginate($limit);
+
+        $products->getCollection()->transform(function ($product) {
+            $permissions = LicensePermissionsController::getPermissionsForProduct($product->id);
+            $download_url = (is_array($permissions) && !empty($permissions['downloadPermission']))
+                ? url("product/download/{$product->id}")
+                : null;
+
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'image' => $product->image,
+                'group' => $product->groupRelation->name,
+                'license_type' => $product->licenseType->name,
+                'action' => [
+                    'edit_url' => url('products/'.$product->id.'/edit'),
+                    'download_url' => $download_url,
+                ],
+                'created_at' => $product->created_at
+            ];
+        });
+
+        return successResponse('', $products);
+    }
+
+    public function deleteBulkProducts(Request $request)
+    {
+        $ids = $request->input('product_ids', []);
+
+        if (empty($ids)) {
+            return errorResponse(__('message.select-a-row'));
+        }
+
+        try {
+            \DB::transaction(function() use ($ids) {
+
+                $products = Product::whereIn('id', $ids)->get();
+                $licenseStatus = StatusSetting::value('license_status');
+
+                // Delete from licensing if enabled
+                if ($licenseStatus == 1) {
+                    foreach ($products as $product) {
+                        $this->licensing->deleteProductFromAPL($product);
+                    }
+                }
+
+                foreach ($products as $product) {
+                    $product->delete();
+                }
+            });
+
+            return successResponse(__('message.deleted-successfully'));
+        } catch (\Exception $e) {
+            return errorResponse(__('message.errors_occurs_delete_product') . ' ' . $e->getMessage());
+        }
+    }
+
+
+
+    public function getProduct(Request $request, $productId)
+    {
+        try {
+           $product = Product::with([
+               'groupRelation:id,name',
+               'licenseType:id,name',
+               'taxes',
+               'planRelation',
+           ])->findOrFail($productId);
+
+           return successResponse('', $product);
+
+        }catch (\Exception $e){
+            return errorResponse($e->getMessage());
+        }
+    }
+
+
+    public function productUploadCreate(Request $request, $productId)
+    {
+        $request->validate([
+            'producttitle' => 'required|string|max:255',
+            'version' => 'required|string|max:50',
+            'filename' => 'required|string|max:255',
+            'dependencies' => 'required|array',
+        ], [
+            'producttitle.required' => __('validation.product_validate.producttitle_required'),
+            'version.required' => __('validation.product_validate.version_required'),
+            'filename.required' => __('validation.product_validate.filename_required'),
+            'dependencies.required' => __('validation.product_validate.dependencies_required'),
+        ]);
+
+        try {
+            $product = Product::findOrFail($productId);
+
+             \DB::transaction(function () use ($request, $validated, $product) {
+
+                // Save the product upload
+                $productUpload = ProductUpload::create([
+                    'product_id' => $product->id,
+                    'title' => $validated['producttitle'],
+                    'description' => $request->input('description'),
+                    'version' => $validated['version'],
+                    'file' => $validated['filenteksalahame'],
+                    'is_private' => $request->boolean('is_private'),
+                    'is_restricted' => $request->boolean('is_restricted'),
+                    'release_type' => $request->input('release_type'),
+                    'dependencies' => json_encode($validated['dependencies']),
+                ]);
+
+                // Update the product version
+                $product->update(['version' => $validated['version']]);
+
+                if (StatusSetting::value('license_status') == 1) {
+                    (new AutoUpdateController())
+                        ->addNewVersion(
+                            $product->id,
+                            $validated['version'],
+                            $validated['filename'],
+                            '1'
+                        );
+                }
+
+            });
+
+            return successResponse(__('message.product_upload_created_successfully'));
+
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    public function productCreate(Request $request)
+    {
+        $validated = $request->validate([
+            'name'                 => 'required|unique:products,name',
+            'type'                 => 'required',
+            'description'          => 'required',
+            'product_description'  => 'required',
+            'image'                => 'sometimes|mimes:jpeg,png,jpg|max:2048',
+            'product_sku'          => 'required|unique:products,product_sku',
+            'group'                => 'required',
+            'show_agent'           => 'required',
+        ], [
+            'product_sku.unique'    => __('validation.product_sku_unique'),
+            'name.unique'           => __('validation.product_name_unique'),
+            'show_agent.required'   => __('validation.product_show_agent_required'),
+        ]);
+
+        try {
+            \DB::transaction(function() use ($request, $validated) {
+
+                // Handle Image Upload
+                if ($request->hasFile('image')) {
+                    $validated['image'] = basename(Attach::put('common/images/', $request->file('image'), null, true));
+                }
+
+                $validated['show_agent']          = $request->boolean('show_agent');
+                $validated['highlight']           = $request->boolean('highlight');
+                $validated['add_to_contact']      = $request->boolean('add_to_contact');
+                $validated['can_modify_agent']    = $request->boolean('can_modify_agent');
+                $validated['can_modify_quantity'] = $request->boolean('can_modify_quantity');
+
+                // Filter only fillable fields
+                $data = array_intersect_key($validated, array_flip(Product::getFillable()));
+
+                // Create Product
+                $product = Product::create($data);
+
+                // Insert Taxes
+                collect($request->input('tax', []))
+                    ->map(fn($taxId) => [
+                        'product_id'   => $product->id,
+                        'tax_class_id' => $taxId,
+                    ])
+                    ->whenNotEmpty(fn($taxData) => TaxProductRelation::insert($taxData));
+
+                // Handle Licensing
+                if (StatusSetting::value('license_status')) {
+                    $this->licensing->addNewProduct($validated['name'], $validated['product_sku']);
+                    $licenseProductId = $this->licensing->searchProductId($validated['product_sku']);
+                    (new AutoUpdateController())->addNewProductToAUS(
+                        $licenseProductId,
+                        $validated['name'],
+                        $validated['product_sku']
+                    );
+                }
+
+            });
+
+            return successResponse(__('message.saved-successfully'));
+
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+
+    public function updateProduct($productId, Request $request)
+    {
+        $validated = $request->validate([
+            'name'                 => 'required',
+            'type'                 => 'required',
+            'description'          => 'required',
+            'product_description'  => 'required',
+            'image'                => 'sometimes|mimes:jpeg,png,jpg|max:2048',
+            'file'                 => 'sometimes|file',
+            'product_sku'          => 'required',
+            'group'                => 'required',
+            'show_agent'           => 'required',
+        ], [
+            'name.required' => __('validation.product_controller.name_required'),
+            'type.required' => __('validation.product_controller.type_required'),
+            'description.required' => __('validation.product_controller.description_required'),
+            'product_description.required' => __('validation.product_controller.product_description_required'),
+            'image.mimes' => __('validation.product_controller.image_mimes'),
+            'image.max' => __('validation.product_controller.image_max'),
+            'product_sku.required' => __('validation.product_controller.product_sku_required'),
+            'group.required' => __('validation.product_controller.group_required'),
+            'show_agent.required' => __('validation.product_controller.show_agent_required'),
+        ]);
+
+        try {
+            \DB::transaction(function() use ($validated, $request, $productId) {
+
+                $product = Product::findOrFail($productId);
+
+                // Handle image upload
+                if ($request->hasFile('image')) {
+                    $validated['image'] = basename(Attach::put('common/images/', $request->file('image'), null, true));
+                }
+
+                // Cart-related flags
+                $validated['show_agent']          = $request->boolean('show_agent');
+                $validated['highlight']           = $request->boolean('highlight');
+                $validated['add_to_contact']      = $request->boolean('add_to_contact');
+                $validated['can_modify_agent']    = $request->boolean('can_modify_agent');
+                $validated['can_modify_quantity'] = $request->boolean('can_modify_quantity');
+
+                // Update product with only fillable fields
+                $fillableData = array_intersect_key($validated, array_flip($product->getFillable()));
+                $product->update($fillableData);
+
+                // Handle taxes in the same elegant style as create()
+                collect($request->input('tax', []))
+                    ->map(fn($taxId) => [
+                        'product_id'   => $product->id,
+                        'tax_class_id' => $taxId,
+                    ])
+                    ->whenNotEmpty(function($taxData) use ($product) {
+                        TaxProductRelation::where('product_id', $product->id)->delete();
+                        TaxProductRelation::insert($taxData);
+                    });
+
+                // Update version from GitHub if provided
+                if ($request->filled('github_owner') && $request->filled('github_repository')) {
+                    $this->updateVersionFromGithub(
+                        $product->id,
+                        $request->input('github_owner'),
+                        $request->input('github_repository')
+                    );
+                }
+
+                // Handle licensing if enabled
+                if (StatusSetting::value('license_status')) {
+                    $this->licensing->editProduct($validated['name'], $validated['product_sku']);
+                }
+            });
+
+            return successResponse(__('message.updated-successfully'));
+
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
+
 }
