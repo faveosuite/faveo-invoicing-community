@@ -32,24 +32,23 @@ class BaseProductController extends ExtendedBaseProductController
     /*
     * Get Product Qty if Product can be modified
      */
-    public function getProductQtyCheck($productid, $planid)
+    public function getProductQtyCheck(int $productId, Plan $plan, string $currency)
     {
-        try {
-            $check = self::checkMultiProduct($productid);
-            if ($check == true) {
-                $value = Product::find($productid)->planRelation->find($planid)->planPrice->first()->product_quantity;
-                $value = $value == null ? 1 : $value;
-
-                return "<div>
-	                        <label class='required'>"./* @scrutinizer ignore-type */
-                            \Lang::get('message.quantity')."</label>
-	                        <input type='text' name='quantity' class='form-control' id='quantity' value='$value'>
-	                        <span class='error-message' id='quantity-msg'></span>
-	                </div>";
-            }
-        } catch (\Exception $ex) {
-            return $ex->getMessage();
+        if (!self::checkMultiProduct($productId)) {
+            return [
+                'can_modify' => false,
+                'quantity' => null,
+            ];
         }
+
+        $value = $plan->planPrice
+            ->where('currency', $currency)
+            ->value('product_quantity');
+
+        return [
+            'can_modify' => true,
+            'quantity' => empty($value) ? 1 : (int) $value,
+        ];
     }
 
     /*
@@ -71,17 +70,23 @@ class BaseProductController extends ExtendedBaseProductController
         return false;
     }
 
-    public function getAgentQtyCheck($planid, $currency)
+    public function getAgentQtyCheck(int $productId, Plan $plan, string $currency)
     {
-        $check = self::checkMultiAgent($productid);
-
-        if ($check == true) {
-            return 0;
+        if (!self::checkMultiAgent($productId)) {
+            return [
+                'can_modify' => false,
+                'quantity' => null,
+            ];
         }
 
-        $value = Plan::find($planid)->planPrice->where('currency', $currency)->value('no_of_agents');
+        $value = $plan->planPrice
+            ->where('currency', $currency)
+            ->value('no_of_agents');
 
-        return empty($value) ? 0 : $value;
+        return [
+            'can_modify' => true,
+            'quantity' => empty($value) ? 0 : (int) $value,
+        ];
     }
 
     /*
@@ -287,22 +292,33 @@ class BaseProductController extends ExtendedBaseProductController
     {
         $request->validate([
             'product' => 'required|integer',
-            'plan' => 'required|string',
-            'user' => 'nullable|integer',
+            'plan'    => 'required|string',
+            'user'    => 'nullable|integer',
         ]);
 
         try {
             $productId = $request->input('product');
-            $userId = $request->input('user');
-            $plan = $request->input('plan');
+            $userId    = $request->input('user');
+            $planId    = $request->input('plan');
 
-            $price = (new CartController())->cost($productId, $plan, $userId, true);
+            $plan = Plan::findOrFail($planId);
+
+            $currency = userCurrencyAndPrice($userId, $plan)['currency'];
+
+            $price = (new CartController())->cost($productId, $planId, $userId, true);
+
+            $product = Product::findOrFail($productId);
 
             $result = [
                 'price' => $price,
-                'field' => $this->getProductField($productId),
-                'quantity' => $this->getProductQtyCheck($productId, $plan),
-                'agents' => $this->getAgentQtyCheck($plan, userCurrencyAndPrice($userId, Plan::find($plan))['currency']),
+                'fields' => [
+                    'required_domain' => (bool) $product->required_domain,
+                    'is_cloud_product' => in_array($productId, cloudPopupProducts())
+                        ? ['domain' => cloudSubDomain()]
+                        : false,
+                ],
+                'product_quantity' => $this->getProductQtyCheck($productId, $plan, $currency),
+                'agents'   => $this->getAgentQtyCheck($productId, $plan, $currency),
             ];
 
             return successResponse('', $result);

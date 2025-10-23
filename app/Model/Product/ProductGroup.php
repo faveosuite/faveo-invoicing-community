@@ -27,7 +27,7 @@ class ProductGroup extends BaseModel
 
     public function pricingTemplate()
     {
-        return $this->belongsTo(\App\Model\Common\PricingTemplate::class);
+        return $this->belongsTo(\App\Model\Common\PricingTemplate::class, 'pricing_templates_id', 'id');
     }
 
     public function delete()

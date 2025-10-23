@@ -14,4 +14,9 @@ class FrontendPage extends BaseModel
     {
         $this->attributes['slug'] = str_replace(' ', '', $value);
     }
+
+    public function parent()
+    {
+        return $this->belongsTo(FrontendPage::class, 'parent_page_id');
+    }
 }

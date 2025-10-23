@@ -25,7 +25,6 @@ class SoftDeleteController extends ClientController
         $sortOrder = $request->input('sort-order', 'asc');
         $sortField = $request->input('sort-field', 'created_at');
         $limit = $request->input('limit', 10);
-        $page = $request->input('page', 1);
 
         $users = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'country', 'created_at')
             ->where(function ($query) use ($searchQuery) {
@@ -37,7 +36,7 @@ class SoftDeleteController extends ClientController
             })
             ->orderBy($sortField, $sortOrder)
             ->onlyTrashed()
-            ->paginate($limit, ['*'], 'page', $page);
+            ->simplePaginate($limit);
 
         return successResponse('', $users);
     }

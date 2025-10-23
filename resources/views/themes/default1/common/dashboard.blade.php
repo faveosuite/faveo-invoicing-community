@@ -190,7 +190,7 @@
 
     {{-- Recent Invoices(Past 30 Days) --}}
     @component('mini_views.card', [
-           'title'=> __('message.total_sold_products'),
+           'title'=> __('message.recent_invoice'),
            'layout' => 'table',
            'collection'=> $invoices,
            'columns'=> [ __('message.invoice_no'), __('message.total'), __('message.user') ,__('message.date'), __('message.paid'), __('message.balance'), __('message.status')],
