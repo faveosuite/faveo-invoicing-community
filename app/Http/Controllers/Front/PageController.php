@@ -1042,18 +1042,98 @@ class PageController extends Controller
 
     public function saveDemoPage(Request $request)
     {
-        $data = $request->validate([
-            'status' => 'required',
+        $request->validate([
+            'status' => 'required|boolean',
         ]);
-        $data = [
-            'status' => $request->input('status') === 'true' ? 1 : 0,
-        ];
 
-        $existingData = Demo_page::first();
-        $existingData ? $existingData->update($data) : Demo_page::create($data);
+         Demo_page::updateOrCreate([],
+            ['status' => $request->boolean('status')]
+        );
 
-        $message = $existingData ? __('message.data_updated_successfully') : __('message.data_created_successfully');
-
-        return redirect()->back()->with('success', $message);
+        return successResponse(__('message.data_updated_successfully'));
     }
+
+    public function getAllPages(Request $request)
+    {
+        $searchQuery = $request->input('search-query', '');
+        $sortOrder = $request->input('sort-order', 'asc');
+        $sortField = $request->input('sort-field', 'created_at');
+        $limit = $request->input('limit', 10);
+
+        $pages = FrontendPage::select('id', 'name', 'url', 'created_at')
+            ->when($searchQuery, function ($query) use ($searchQuery) {
+                $query->where(function ($q) use ($searchQuery) {
+                    $q->where('name', 'like', "%{$searchQuery}%")
+                        ->orWhere('url', 'like', "%{$searchQuery}%");
+                });
+            })
+            ->orderBy($sortField, $sortOrder)
+            ->simplePaginate($limit);
+
+        return successResponse('', $pages);
+    }
+
+    public function deleteBulkPages(Request $request)
+    {
+        $ids = $request->input('page_ids', []);
+
+        $defaultPageId = DefaultPage::pluck('page_id')->first();
+
+        if (empty($ids)){
+            return errorResponse(__('message.select-a-row'));
+        }
+
+        if(in_array($defaultPageId, $ids)){
+            return errorResponse(__('message.can-not-delete-default-page'));
+        }
+
+        FrontendPage::whereIn('id', $ids)->where('id', '!=', $defaultPageId)->delete();
+
+        return successResponse(__('message.deleted-successfully'));
+    }
+
+    public function getPage(Request $request, $pageId)
+    {
+        try {
+            return successResponse('', FrontendPage::with('parent:id,name')->findOrFail($pageId));
+        }catch (\Exception $ex){
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function updatePage(Request $request, $pageId)
+    {
+        try {
+            $page = FrontendPage::findOrFail($pageId);
+
+            // Fill except created_at
+            $page->fill($request->except('created_at'));
+
+            // Handle created_at if provided and valid
+            if ($request->filled('created_at')) {
+                $date = \DateTime::createFromFormat('m/d/Y', $request->input('created_at'));
+                if ($date) {
+                    $page->created_at = $date->format('Y-m-d H:i:s');
+                }
+            }
+
+            $page->save();
+
+            $defaultPageId = $request->input('default_page_id');
+            $defaultUrl = $defaultPageId
+                ? FrontendPage::where('id', $defaultPageId)->value('url')
+                : url('my-invoices');
+
+            DefaultPage::findOrFail(1)->update([
+                'page_id'  => $defaultPageId ?? 1,
+                'page_url' => $defaultUrl,
+            ]);
+
+            return successResponse(__('message.updated-successfully'), $page);
+
+        } catch (\Throwable $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
 }

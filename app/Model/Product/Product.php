@@ -7,6 +7,8 @@ use App\Facades\Attach;
 use App\Model\Configure\ConfigOption;
 use App\Model\Configure\PluginCompatibleWithProducts;
 use App\Model\Configure\ProductPluginGroup;
+use App\Model\Payment\TaxClass;
+use App\Model\Payment\TaxProductRelation;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -106,6 +108,16 @@ class Product extends BaseModel
         return $this->hasMany(\App\Model\Payment\TaxProductRelation::class, 'product_id');
     }
 
+    public function taxes()
+    {
+        return $this->belongsToMany(
+            TaxClass::class, // Related model
+            TaxProductRelation::class, // Pivot table
+            'product_id', // FK on pivot table to Product
+            'tax_class_id' // FK on pivot table to TaxClass
+        );
+    }
+
     public function productUpload()
     {
         return $this->hasMany(\App\Model\Product\ProductUpload::class, 'product_id');
@@ -151,9 +163,9 @@ class Product extends BaseModel
         return $this->hasMany($related, 'product');
     }
 
-    public function group()
+    public function groupRelation()
     {
-        return $this->belongsTo(\App\Model\Product\ProductGroup::class);
+        return $this->belongsTo(ProductGroup::class, 'group',  'id');
     }
 
     public function plan()

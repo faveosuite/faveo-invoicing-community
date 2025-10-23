@@ -8,6 +8,7 @@ use App\Model\Payment\PromoProductRelation;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
 use App\Model\Product\Product;
+use Carbon\Carbon;
 use Darryldecode\Cart\CartCondition;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -59,52 +60,52 @@ class PromotionController extends BasePromotionController
         }
     }
 
-    public function getPromotion()
-    {
-        $new_promotion = $this->promotion->select('code', 'type', 'id');
-
-        return DataTables::of($new_promotion)
-                            ->orderColumn('code', '-created_at $1')
-                            ->orderColumn('type', '-created_at $1')
-                            ->orderColumn('products', '-created_at $1')
-
-                            ->addColumn('checkbox', function ($model) {
-                                return "<input type='checkbox' class='promotion_checkbox'
-                                 value=".$model->id.' name=select[] id=check>';
-                            })
-                        ->addColumn('code', function ($model) {
-                            return ucfirst($model->code);
-                        })
-                        ->addColumn('type', function ($model) {
-                            return $this->type->where('id', $model->type)->first()->name;
-                        })
-                        ->addColumn('products', function ($model) {
-                            $selected = $this->promoRelation->select('product_id')
-                            ->where('promotion_id', $model->id)->get();
-                            $result = [];
-                            foreach ($selected as $key => $select) {
-                                $result[$key] = $this->product->where('id', $select->product_id)->first()->name;
-                            }
-                            if (! empty($result)) {
-                                return implode(',', $result);
-                            } else {
-                                return 'None';
-                            }
-                        })
-                        ->addColumn('action', function ($model) {
-                            return '<a href='.url('promotions/'.$model->id.'/edit')
-                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit' 
-                            style='color:white;'> </i></a>";
-                        })
-                         ->filterColumn('code', function ($query, $keyword) {
-                             $sql = 'code like ?';
-                             $query->whereRaw($sql, ["%{$keyword}%"]);
-                         })
-
-                         ->rawColumns(['checkbox', 'code', 'products', 'action'])
-
-                        ->make(true);
-    }
+//    public function getPromotion()
+//    {
+//        $new_promotion = $this->promotion->select('code', 'type', 'id');
+//
+//        return DataTables::of($new_promotion)
+//                            ->orderColumn('code', '-created_at $1')
+//                            ->orderColumn('type', '-created_at $1')
+//                            ->orderColumn('products', '-created_at $1')
+//
+//                            ->addColumn('checkbox', function ($model) {
+//                                return "<input type='checkbox' class='promotion_checkbox'
+//                                 value=".$model->id.' name=select[] id=check>';
+//                            })
+//                        ->addColumn('code', function ($model) {
+//                            return ucfirst($model->code);
+//                        })
+//                        ->addColumn('type', function ($model) {
+//                            return $this->type->where('id', $model->type)->first()->name;
+//                        })
+//                        ->addColumn('products', function ($model) {
+//                            $selected = $this->promoRelation->select('product_id')
+//                            ->where('promotion_id', $model->id)->get();
+//                            $result = [];
+//                            foreach ($selected as $key => $select) {
+//                                $result[$key] = $this->product->where('id', $select->product_id)->first()->name;
+//                            }
+//                            if (! empty($result)) {
+//                                return implode(',', $result);
+//                            } else {
+//                                return 'None';
+//                            }
+//                        })
+//                        ->addColumn('action', function ($model) {
+//                            return '<a href='.url('promotions/'.$model->id.'/edit')
+//                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit'
+//                            style='color:white;'> </i></a>";
+//                        })
+//                         ->filterColumn('code', function ($query, $keyword) {
+//                             $sql = 'code like ?';
+//                             $query->whereRaw($sql, ["%{$keyword}%"]);
+//                         })
+//
+//                         ->rawColumns(['checkbox', 'code', 'products', 'action'])
+//
+//                        ->make(true);
+//    }
 
     /**
      * Show the form for creating a new resource.
@@ -373,4 +374,144 @@ class PromotionController extends BasePromotionController
             throw new \Exception(\Lang::get('message.check-expiry'));
         }
     }
+
+    public function getAllPromotions(Request $request)
+    {
+        $searchQuery = $request->input('search-query', '');
+        $sortOrder = $request->input('sort-order', 'asc');
+        $sortField = $request->input('sort-field', 'created_at');
+        $limit = $request->input('limit', 10);
+
+        $promotions = Promotion::with([
+            'promotionType:id,name',
+            'products' => function ($q) {
+                $q->select('products.id', 'products.name');
+            }
+        ])
+            ->when($searchQuery, function ($q) use ($searchQuery) {
+                $q->where(function ($query) use ($searchQuery) {
+                    $query->where('code', 'like', "%{$searchQuery}%")
+                        ->orWhereHas('products', function ($q) use ($searchQuery) {
+                            $q->where('name', 'like', "%{$searchQuery}%");
+                        })
+                        ->orWhereHas('promotionType', function ($q) use ($searchQuery) {
+                            $q->where('name', 'like', "%{$searchQuery}%");
+                        });
+                });
+            })
+            ->orderBy('promotions.' . $sortField, $sortOrder)
+            ->simplePaginate($limit);
+
+        return successResponse('', $promotions);
+    }
+
+
+    public function getPromotion($promotionId, Request $request)
+    {
+        try {
+            return Promotion::with([
+                'promotionType:id,name',
+                'products' => function ($q) {
+                    $q->select('products.id', 'products.name');
+                }
+            ])
+            ->findOrFail($promotionId);
+        } catch (\Exception $ex) {
+           return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function updatePromotionCode($promotionId, PromotionRequest $request)
+    {
+        try {
+            $promotion = Promotion::findOrFail($promotionId);
+
+            $start  = Carbon::parse($request->input('start'))->format('Y-m-d H:i:s');
+            $expiry = Carbon::parse($request->input('expiry'))->format('Y-m-d H:i:s');
+
+            // Update promotion fields
+            $promotion->update([
+                'code' => $request->input('code'),
+                'type' => $request->input('type'),
+                'value' => $request->input('type') == 2
+                    ? intval($request->input('value'))
+                    : intval($request->input('value')) . '%',
+                'uses' => $request->input('uses'),
+                'start' => $start,
+                'expiry' => $expiry,
+            ]);
+
+            // Delete old product relation
+            PromoProductRelation::where('promotion_id', $promotion->id)->delete();
+
+            // Create new product relation
+            PromoProductRelation::create([
+                'promotion_id' => $promotion->id,
+                'product_id' => $request->input('applied'),
+            ]);
+
+            return successResponse(__('message.updated-successfully'));
+
+        } catch (\Exception $ex){
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+
+    public function promotionCodeCreate(PromotionRequest $request)
+    {
+        try {
+            // Format start and expiry dates
+            $start = Carbon::parse($request->input('start'))->format('Y-m-d H:i:s');
+            $expiry = Carbon::parse($request->input('expiry'))->format('Y-m-d H:i:s');
+
+            // Create the promotion
+            $promotion = Promotion::create([
+                'code' => $request->input('code'),
+                'type' => $request->input('type'),
+                'value' => $request->input('type') == 1
+                    ? intval($request->input('value')) . '%'
+                    : intval($request->input('value')),
+                'uses' => $request->input('uses'),
+                'start' => $start,
+                'expiry' => $expiry,
+            ]);
+
+            // Create the product relation
+            PromoProductRelation::create([
+                'promotion_id' => $promotion->id,
+                'product_id' => $request->input('applied'),
+            ]);
+
+            return successResponse(__('message.created-successfully'));
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+
+    public function deleteBulkPromotions(Request $request)
+    {
+        $ids = $request->input('select', []);
+
+        if (empty($ids)) {
+            return errorResponse(__('message.select-a-row'));
+        }
+
+        try {
+            \DB::transaction(function () use ($ids) {
+                $promotions = Promotion::whereIn('id', $ids)->get();
+
+                foreach ($promotions as $promotion) {
+                    $promotion->delete();
+                }
+            });
+
+            return successResponse(__('message.deleted-successfully'));
+
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
 }

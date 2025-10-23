@@ -127,13 +127,12 @@ class OrderController extends BaseOrderController
             $sortOrder = $request->input('sort-order', 'asc');
             $sortField = $request->input('sort-field', 'created_at');
             $limit = $request->input('limit', 10);
-            $page = $request->input('page', 1);
 
             $orderSearch = new OrderSearchController();
             $query = $orderSearch->advanceOrderSearch($request);
 
             $paginated = $query->orderBy($sortField, $sortOrder)
-                ->paginate($limit, ['*'], 'page', $page);
+                ->simplePaginate($limit);
 
             // Map items
             $paginated->getCollection()->transform(function ($order) {
@@ -242,36 +241,9 @@ class OrderController extends BaseOrderController
             $installationLogs = $licenseController->getInstallationLogsDetails($order->serial_key);
 
             $installationDetails = [];
-//            $data=array_map(function($installationLogs) use ($orderId){
-//                $installationPath = $installationLogs['installation_domain'] ?? null;
-//                $installationIp = $installationLogs['installation_ip'] ?? null;
-//                $lastActive = $installationLogs['installation_last_active_date'] ?? null;
-//                $installationStatus = $installationLogs['installation_status'] ?? null;
-//
-//                // Sync with database
-//                if ($installationPath || $installationIp) {
-//                    InstallationDetail::updateOrCreate(
-//                        [
-//                            'installation_path' => $installationPath,
-//                            'installation_ip' => $installationIp,
-//                        ],
-//                        [
-//                            'last_active' => $lastActive,
-//                            'order_id' => $orderId,
-//                            'installation_status' => $installationStatus,
-//                        ]
-//                    );
-//                }
-//                return[
-//                    'path' => $installationLogs['installation_domain'] ?? null,
-//                    'ip' => $installationLogs['installation_ip'] ?? null,
-//                    'version' => $installationLogs['version_number'] ?? null,
-//                    'status' => $installationLogs['installation_status'] ?? null,
-//                    'last_active_date'=>$installationLogs['installation_last_active_date'] ?? null,
-//                ];
-//            },$installationLogs);
 
             foreach ($installationLogs as $log) {
+
                 $installationPath = $log['installation_domain'] ?? null;
                 $installationIp = $log['installation_ip'] ?? null;
                 $lastActive = $log['installation_last_active_date'] ?? null;
@@ -301,8 +273,8 @@ class OrderController extends BaseOrderController
                 ];
             }
 
-//          return successResponse('',$data);
             return successResponse('', $installationDetails);
+
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -545,12 +517,14 @@ class OrderController extends BaseOrderController
                 ->onQueue('reports');
 
             return successResponse(__('message.system_generating_report'));
+
         } catch (\Exception $e) {
             \Logger::exception($e);
 
             return errorResponse($e->getMessage());
         }
     }
+
 
     public function getPaymentByOrderId(Request $request, $orderId)
     {
@@ -559,7 +533,6 @@ class OrderController extends BaseOrderController
             $sortOrder = $request->input('sort-order', 'asc');
             $sortField = $request->input('sort-field', 'created_at');
             $limit = $request->input('limit', 10);
-            $page = $request->input('page', 1);
 
             $order = Order::with([
                 'user:id,first_name,last_name,email',
@@ -581,7 +554,7 @@ class OrderController extends BaseOrderController
                     });
                 })
                 ->orderBy($sortField, $sortOrder)
-                ->paginate($limit, ['*'], 'page', $page);
+                ->simplePaginate($limit);
 
             $payments->getCollection()->transform(function ($payment) {
                 return [
@@ -595,7 +568,9 @@ class OrderController extends BaseOrderController
                 ];
             });
 
+
             return successResponse('', $payments);
+
         } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -604,29 +579,29 @@ class OrderController extends BaseOrderController
     public function getOrderInvoices(Request $request, $orderId)
     {
         $searchQuery = $request->input('search-query', '');
-        $sortOrder = $request->input('sort-order', 'asc');
-        $sortField = $request->input('sort-field', 'created_at');
-        $limit = $request->input('limit', 10);
-        $page = $request->input('page', 1);
+        $sortOrder   = $request->input('sort-order', 'asc');
+        $sortField   = $request->input('sort-field', 'created_at');
+        $limit       = $request->input('limit', 10);
 
         $order = Order::with('user:id,first_name,last_name,email')->findOrFail($orderId);
 
         $invoices = $order->invoices()
             ->with(['invoiceItem:id,invoice_id,product_name'])
             ->orderBy($sortField, $sortOrder)
-            ->paginate($limit, ['*'], 'page', $page);
+            ->simplePaginate($limit);
 
         $invoices->getCollection()->transform(function ($invoice) {
             return [
-                'id' => $invoice->id,
-                'number' => $invoice->number,
-                'amount' => currencyFormat($invoice->grand_total, $invoice->currency),
-                'status' => $invoice->status,
-                'date' => $invoice->date,
-                'products' => $invoice->invoiceItem->pluck('product_name')->toArray(),
+                'id'            => $invoice->id,
+                'number'        => $invoice->number,
+                'amount'        => currencyFormat($invoice->grand_total, $invoice->currency),
+                'status'        => $invoice->status,
+                'date'          => $invoice->date,
+                'products'      => $invoice->invoiceItem->pluck('product_name')->toArray(),
             ];
         });
 
         return successResponse('', $invoices);
     }
+
 }

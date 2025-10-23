@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Product;
 
 use App\Facades\Attach;
+use App\Http\Controllers\AutoUpdate\AutoUpdateController;
 use App\Http\Controllers\Controller;
+use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
 use App\Model\Payment\TaxProductRelation;
@@ -349,4 +351,112 @@ class ExtendedBaseProductController extends Controller
         $product->add_to_contact = $add_to_contact;
         $product->save();
     }
+
+
+    public function getProductUploads(Request $request, $productId)
+    {
+        $searchQuery = $request->input('search-query', '');
+        $sortOrder = $request->input('sort-order', 'asc');
+        $sortField = $request->input('sort-field', 'created_at');
+        $limit = $request->input('limit', 10);
+
+        try {
+            $productUpload = ProductUpload::where('product_id', $productId)
+                ->when($searchQuery, function ($query) use ($searchQuery) {
+                    return $query->where('title', 'like', '%' . $searchQuery . '%')
+                        ->orWhere('description', 'like', '%' . $searchQuery . '%')
+                        ->orWhere('version', 'like', '%' . $searchQuery . '%')
+                        ->orWhere('file', 'like', '%' . $searchQuery . '%')
+                        ->orWhere('release_type', 'like', '%' . $searchQuery . '%');
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
+
+            return successResponse('', $productUpload);
+
+        }catch (\Exception $e){
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    public function deleteBulkProductUpload(Request $request)
+    {
+        $ids = $request->input('product_upload_ids', []);
+
+        if (empty($ids)) {
+            return errorResponse(__('message.select-a-row'));
+        }
+
+        try {
+            $storagePath = Setting::find(1)->value('file_storage');
+            $productUploads = ProductUpload::whereIn('id', $ids)->get();
+
+            foreach ($productUploads as $upload) {
+                $filePath = $storagePath . '/' . $upload->file;
+
+                if (!empty($upload->file) && Attach::exists($filePath)) {
+                    Attach::delete($filePath);
+                }
+            }
+
+            ProductUpload::whereIn('id', $ids)->delete();
+
+            return successResponse(__('message.deleted-successfully'));
+
+        } catch (\Exception $e) {
+            return errorResponse(__('message.errors_occurs_delete_product') . ' ' . $e->getMessage());
+        }
+    }
+
+    public function getProductUpload(Request $request, $productUploadId)
+    {
+        try {
+           return successResponse('',
+               ProductUpload::with('product:id,name')
+                   ->findOrFail($productUploadId)
+           );
+        }catch (\Exception $e){
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    public function updateProductUpload(Request $request, $productUploadId)
+    {
+        $request->validate([
+            'title' => 'required',
+            'version' => 'required',
+            'dependencies' => 'required',
+        ], [
+            'title.required' => __('validation.extend_product.title_required'),
+            'version.required' => __('validation.extend_product.version_required'),
+            'dependencies.required' => __('validation.extend_product.dependencies_required'),
+        ]);
+
+        try {
+            $fileUpload = ProductUpload::with('product:id,name,product_sku')
+                ->findOrFail($productUploadId);
+
+            $fileUpload->update([
+                'title' => $request->title,
+                'description' => $request->description,
+                'version' => $request->version,
+                'dependencies' => json_encode($request->dependencies),
+                'is_private' => $request->boolean('is_private'),
+                'is_restricted' => $request->boolean('is_restricted'),
+                'release_type' => $request->release_type,
+            ]);
+
+            if (StatusSetting::value('license_status') == 1) {
+                $productSku = $fileUpload->product->product_sku;
+                (new AutoUpdateController())
+                    ->editVersion($request->version, $productSku);
+            }
+
+            return successResponse(__('message.product_updated_successfully'));
+
+        } catch (\Exception $ex){
+            return errorResponse($ex->getMessage());
+        }
+    }
+
 }

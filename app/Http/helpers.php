@@ -195,22 +195,23 @@ function tooltip($tootipText = '')
              </label>';
 }
 
-function getStatusLabel($status, $badge = 'badge')
+function getStatusLabel($status)
 {
     switch ($status) {
         case 'Success':
-            return '<span class='.'"'.$badge.' '.$badge.'-success">'.__('message.amount_received').'</span>';
+            return __('message.amount_received');
 
         case 'Pending':
-            return '<span class='.'"'.$badge.' '.$badge.'-danger">'.__('message.unpaid').'</span>';
+            return __('message.unpaid');
 
         case 'renewed':
-            return '<span class='.'"'.$badge.' '.$badge.'-primary">'.__('message.renewed').'</span>';
+            return __('message.renewed');
 
         default:
-            return '<span class='.'"'.$badge.' '.$badge.'-warning">'.__('message.partially_paid').'</span>';
+            return __('message.partially_paid');
     }
 }
+
 
 function getCountryByCode($code)
 {
@@ -1015,6 +1016,22 @@ function toFormatDateAndTime($datetime)
 
     // Return in UTC
     return $carbon->clone()->setTimezone('UTC');
+}
+
+/**
+ * Convert days to human-readable format using match.
+ *
+ * @param int $days
+ * @return string|null
+ */
+function formatDays(int $days)
+{
+    return match (true) {
+        $days <= 0 => null,
+        $days < 30 => "$days Days",
+        $days < 365 => intval($days / 30) . (intval($days / 30) > 1 ? ' Months' : ' Month'),
+        default => intval($days / 365) . (intval($days / 365) > 1 ? ' Years' : ' Year'),
+    };
 }
 
 /**
