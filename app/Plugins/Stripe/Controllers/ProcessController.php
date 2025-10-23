@@ -45,7 +45,7 @@ class ProcessController extends Controller
             if (! $cart->count()) {
                 $this->cart->clear();
             } else {
-                $invoice->grand_total = \Cart::getTotal();
+                $invoice->grand_total = $this->cart->getTotal();
             }
             if ($request->input('payment_gateway') == 'Stripe') {
                 if (! \Schema::hasTable('stripe')) {
