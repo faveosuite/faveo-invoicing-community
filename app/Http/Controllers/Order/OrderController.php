@@ -244,7 +244,6 @@ class OrderController extends BaseOrderController
             $installationDetails = [];
 
             foreach ($installationLogs as $log) {
-
                 $installationPath = $log['installation_domain'] ?? null;
                 $installationIp = $log['installation_ip'] ?? null;
                 $lastActive = $log['installation_last_active_date'] ?? null;
@@ -275,7 +274,6 @@ class OrderController extends BaseOrderController
             }
 
             return successResponse('', $installationDetails);
-
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -518,14 +516,12 @@ class OrderController extends BaseOrderController
                 ->onQueue('reports');
 
             return successResponse(__('message.system_generating_report'));
-
         } catch (\Exception $e) {
             \Logger::exception($e);
 
             return errorResponse($e->getMessage());
         }
     }
-
 
     public function getPaymentByOrderId(Request $request, $orderId)
     {
@@ -569,9 +565,7 @@ class OrderController extends BaseOrderController
                 ];
             });
 
-
             return successResponse('', $payments);
-
         } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -580,9 +574,9 @@ class OrderController extends BaseOrderController
     public function getOrderInvoices(Request $request, $orderId)
     {
         $searchQuery = $request->input('search-query', '');
-        $sortOrder   = $request->input('sort-order', 'asc');
-        $sortField   = $request->input('sort-field', 'created_at');
-        $limit       = $request->input('limit', 10);
+        $sortOrder = $request->input('sort-order', 'asc');
+        $sortField = $request->input('sort-field', 'created_at');
+        $limit = $request->input('limit', 10);
 
         $order = Order::with('user:id,first_name,last_name,email')->findOrFail($orderId);
 
@@ -593,16 +587,15 @@ class OrderController extends BaseOrderController
 
         $invoices->getCollection()->transform(function ($invoice) {
             return [
-                'id'            => $invoice->id,
-                'number'        => $invoice->number,
-                'amount'        => currencyFormat($invoice->grand_total, $invoice->currency),
-                'status'        => $invoice->status,
-                'date'          => $invoice->date,
-                'products'      => $invoice->invoiceItem->pluck('product_name')->toArray(),
+                'id' => $invoice->id,
+                'number' => $invoice->number,
+                'amount' => currencyFormat($invoice->grand_total, $invoice->currency),
+                'status' => $invoice->status,
+                'date' => $invoice->date,
+                'products' => $invoice->invoiceItem->pluck('product_name')->toArray(),
             ];
         });
 
         return successResponse('', $invoices);
     }
-
 }

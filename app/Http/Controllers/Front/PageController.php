@@ -1140,7 +1140,7 @@ class PageController extends Controller
             'status' => 'required|boolean',
         ]);
 
-         Demo_page::updateOrCreate([],
+        Demo_page::updateOrCreate([],
             ['status' => $request->boolean('status')]
         );
 
@@ -1173,11 +1173,11 @@ class PageController extends Controller
 
         $defaultPageId = DefaultPage::pluck('page_id')->first();
 
-        if (empty($ids)){
+        if (empty($ids)) {
             return errorResponse(__('message.select-a-row'));
         }
 
-        if(in_array($defaultPageId, $ids)){
+        if (in_array($defaultPageId, $ids)) {
             return errorResponse(__('message.can-not-delete-default-page'));
         }
 
@@ -1214,7 +1214,7 @@ class PageController extends Controller
     {
         try {
             return successResponse('', FrontendPage::with('parent:id,name')->findOrFail($pageId));
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -1243,15 +1243,13 @@ class PageController extends Controller
                 : url('my-invoices');
 
             DefaultPage::findOrFail(1)->update([
-                'page_id'  => $defaultPageId ?? 1,
+                'page_id' => $defaultPageId ?? 1,
                 'page_url' => $defaultUrl,
             ]);
 
             return successResponse(__('message.updated-successfully'), $page);
-
         } catch (\Throwable $ex) {
             return errorResponse($ex->getMessage());
         }
     }
-
 }

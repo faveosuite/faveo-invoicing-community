@@ -170,20 +170,20 @@ class ReportController extends Controller
 
         $reports->getCollection()->transform(function ($report) {
             $fileType = strtoupper(pathinfo($report->file, PATHINFO_EXTENSION)) ?: 'XLSX';
-            $type = $report->name ? ucfirst($report->name) . ' Report' : 'Report';
+            $type = $report->name ? ucfirst($report->name).' Report' : 'Report';
+
             return [
-              'id' => $report->id,
-              'file' => $report->file,
-              'format' => $fileType,
-              'type' => $type,
-              'user' => $report->user,
-              'created_at' => $report->created_at,
+                'id' => $report->id,
+                'file' => $report->file,
+                'format' => $fileType,
+                'type' => $type,
+                'user' => $report->user,
+                'created_at' => $report->created_at,
             ];
         });
 
         return successResponse('', $reports);
     }
-
 
     public function deleteBulkReports(Request $request)
     {
@@ -194,7 +194,6 @@ class ReportController extends Controller
         }
 
         try {
-
             \DB::transaction(function () use ($ids) {
                 $reports = ExportDetail::where('user_id', auth()->id())
                     ->whereIn('id', $ids)->get();
@@ -209,7 +208,6 @@ class ReportController extends Controller
             });
 
             return successResponse(__('message.deleted-successfully'));
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
@@ -217,7 +215,7 @@ class ReportController extends Controller
 
     public function getReportsSettings(Request $request)
     {
-         return successResponse('', ReportSetting::first());
+        return successResponse('', ReportSetting::first());
     }
 
     public function updateReportsSettings(Request $request)
@@ -229,10 +227,9 @@ class ReportController extends Controller
         $settings = ReportSetting::first();
 
         $settings->update([
-            'records' => $validated['records']
+            'records' => $validated['records'],
         ]);
 
         return successResponse(__('message.settings_updated_successfully'));
     }
-
 }

@@ -749,7 +749,6 @@ class ProductController extends BaseProductController
         return successResponse('', $plans);
     }
 
-
     public function getAllProducts(Request $request)
     {
         $searchQuery = $request->input('search-query', '');
@@ -757,17 +756,17 @@ class ProductController extends BaseProductController
         $sortField = $request->input('sort-field', 'created_at');
         $limit = $request->input('limit', 10);
 
-        $products = Product::select('id', 'name', 'image', 'group', 'type' , 'created_at')
+        $products = Product::select('id', 'name', 'image', 'group', 'type', 'created_at')
             ->with([
                 'groupRelation',
-                'licenseType'
+                'licenseType',
             ])
         ->orderBy($sortField, $sortOrder)
         ->simplePaginate($limit);
 
         $products->getCollection()->transform(function ($product) {
             $permissions = LicensePermissionsController::getPermissionsForProduct($product->id);
-            $download_url = (is_array($permissions) && !empty($permissions['downloadPermission']))
+            $download_url = (is_array($permissions) && ! empty($permissions['downloadPermission']))
                 ? url("product/download/{$product->id}")
                 : null;
 
@@ -781,7 +780,7 @@ class ProductController extends BaseProductController
                     'edit_url' => url('products/'.$product->id.'/edit'),
                     'download_url' => $download_url,
                 ],
-                'created_at' => $product->created_at
+                'created_at' => $product->created_at,
             ];
         });
 
@@ -797,8 +796,7 @@ class ProductController extends BaseProductController
         }
 
         try {
-            \DB::transaction(function() use ($ids) {
-
+            \DB::transaction(function () use ($ids) {
                 $products = Product::whereIn('id', $ids)->get();
                 $licenseStatus = StatusSetting::value('license_status');
 
@@ -816,29 +814,25 @@ class ProductController extends BaseProductController
 
             return successResponse(__('message.deleted-successfully'));
         } catch (\Exception $e) {
-            return errorResponse(__('message.errors_occurs_delete_product') . ' ' . $e->getMessage());
+            return errorResponse(__('message.errors_occurs_delete_product').' '.$e->getMessage());
         }
     }
-
-
 
     public function getProduct(Request $request, $productId)
     {
         try {
-           $product = Product::with([
-               'groupRelation:id,name',
-               'licenseType:id,name',
-               'taxes',
-               'planRelation',
-           ])->findOrFail($productId);
+            $product = Product::with([
+                'groupRelation:id,name',
+                'licenseType:id,name',
+                'taxes',
+                'planRelation',
+            ])->findOrFail($productId);
 
-           return successResponse('', $product);
-
-        }catch (\Exception $e){
+            return successResponse('', $product);
+        } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
-
 
     public function productUploadCreate(Request $request, $productId)
     {
@@ -857,8 +851,7 @@ class ProductController extends BaseProductController
         try {
             $product = Product::findOrFail($productId);
 
-             \DB::transaction(function () use ($request, $validated, $product) {
-
+            \DB::transaction(function () use ($request, $validated, $product) {
                 // Save the product upload
                 $productUpload = ProductUpload::create([
                     'product_id' => $product->id,
@@ -884,11 +877,9 @@ class ProductController extends BaseProductController
                             '1'
                         );
                 }
-
             });
 
             return successResponse(__('message.product_upload_created_successfully'));
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
@@ -897,32 +888,31 @@ class ProductController extends BaseProductController
     public function productCreate(Request $request)
     {
         $validated = $request->validate([
-            'name'                 => 'required|unique:products,name',
-            'type'                 => 'required',
-            'description'          => 'required',
-            'product_description'  => 'required',
-            'image'                => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-            'product_sku'          => 'required|unique:products,product_sku',
-            'group'                => 'required',
-            'show_agent'           => 'required',
+            'name' => 'required|unique:products,name',
+            'type' => 'required',
+            'description' => 'required',
+            'product_description' => 'required',
+            'image' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
+            'product_sku' => 'required|unique:products,product_sku',
+            'group' => 'required',
+            'show_agent' => 'required',
         ], [
-            'product_sku.unique'    => __('validation.product_sku_unique'),
-            'name.unique'           => __('validation.product_name_unique'),
-            'show_agent.required'   => __('validation.product_show_agent_required'),
+            'product_sku.unique' => __('validation.product_sku_unique'),
+            'name.unique' => __('validation.product_name_unique'),
+            'show_agent.required' => __('validation.product_show_agent_required'),
         ]);
 
         try {
-            \DB::transaction(function() use ($request, $validated) {
-
+            \DB::transaction(function () use ($request, $validated) {
                 // Handle Image Upload
                 if ($request->hasFile('image')) {
                     $validated['image'] = basename(Attach::put('common/images/', $request->file('image'), null, true));
                 }
 
-                $validated['show_agent']          = $request->boolean('show_agent');
-                $validated['highlight']           = $request->boolean('highlight');
-                $validated['add_to_contact']      = $request->boolean('add_to_contact');
-                $validated['can_modify_agent']    = $request->boolean('can_modify_agent');
+                $validated['show_agent'] = $request->boolean('show_agent');
+                $validated['highlight'] = $request->boolean('highlight');
+                $validated['add_to_contact'] = $request->boolean('add_to_contact');
+                $validated['can_modify_agent'] = $request->boolean('can_modify_agent');
                 $validated['can_modify_quantity'] = $request->boolean('can_modify_quantity');
 
                 // Filter only fillable fields
@@ -933,11 +923,11 @@ class ProductController extends BaseProductController
 
                 // Insert Taxes
                 collect($request->input('tax', []))
-                    ->map(fn($taxId) => [
-                        'product_id'   => $product->id,
+                    ->map(fn ($taxId) => [
+                        'product_id' => $product->id,
                         'tax_class_id' => $taxId,
                     ])
-                    ->whenNotEmpty(fn($taxData) => TaxProductRelation::insert($taxData));
+                    ->whenNotEmpty(fn ($taxData) => TaxProductRelation::insert($taxData));
 
                 // Handle Licensing
                 if (StatusSetting::value('license_status')) {
@@ -949,29 +939,26 @@ class ProductController extends BaseProductController
                         $validated['product_sku']
                     );
                 }
-
             });
 
             return successResponse(__('message.saved-successfully'));
-
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
 
-
     public function updateProduct($productId, Request $request)
     {
         $validated = $request->validate([
-            'name'                 => 'required',
-            'type'                 => 'required',
-            'description'          => 'required',
-            'product_description'  => 'required',
-            'image'                => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-            'file'                 => 'sometimes|file',
-            'product_sku'          => 'required',
-            'group'                => 'required',
-            'show_agent'           => 'required',
+            'name' => 'required',
+            'type' => 'required',
+            'description' => 'required',
+            'product_description' => 'required',
+            'image' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
+            'file' => 'sometimes|file',
+            'product_sku' => 'required',
+            'group' => 'required',
+            'show_agent' => 'required',
         ], [
             'name.required' => __('validation.product_controller.name_required'),
             'type.required' => __('validation.product_controller.type_required'),
@@ -985,8 +972,7 @@ class ProductController extends BaseProductController
         ]);
 
         try {
-            \DB::transaction(function() use ($validated, $request, $productId) {
-
+            \DB::transaction(function () use ($validated, $request, $productId) {
                 $product = Product::findOrFail($productId);
 
                 // Handle image upload
@@ -995,10 +981,10 @@ class ProductController extends BaseProductController
                 }
 
                 // Cart-related flags
-                $validated['show_agent']          = $request->boolean('show_agent');
-                $validated['highlight']           = $request->boolean('highlight');
-                $validated['add_to_contact']      = $request->boolean('add_to_contact');
-                $validated['can_modify_agent']    = $request->boolean('can_modify_agent');
+                $validated['show_agent'] = $request->boolean('show_agent');
+                $validated['highlight'] = $request->boolean('highlight');
+                $validated['add_to_contact'] = $request->boolean('add_to_contact');
+                $validated['can_modify_agent'] = $request->boolean('can_modify_agent');
                 $validated['can_modify_quantity'] = $request->boolean('can_modify_quantity');
 
                 // Update product with only fillable fields
@@ -1007,11 +993,11 @@ class ProductController extends BaseProductController
 
                 // Handle taxes in the same elegant style as create()
                 collect($request->input('tax', []))
-                    ->map(fn($taxId) => [
-                        'product_id'   => $product->id,
+                    ->map(fn ($taxId) => [
+                        'product_id' => $product->id,
                         'tax_class_id' => $taxId,
                     ])
-                    ->whenNotEmpty(function($taxData) use ($product) {
+                    ->whenNotEmpty(function ($taxData) use ($product) {
                         TaxProductRelation::where('product_id', $product->id)->delete();
                         TaxProductRelation::insert($taxData);
                     });
@@ -1032,11 +1018,8 @@ class ProductController extends BaseProductController
             });
 
             return successResponse(__('message.updated-successfully'));
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
-
-
 }
