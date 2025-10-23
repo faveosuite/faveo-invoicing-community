@@ -165,7 +165,7 @@ class Product extends BaseModel
 
     public function groupRelation()
     {
-        return $this->belongsTo(ProductGroup::class, 'group',  'id');
+        return $this->belongsTo(ProductGroup::class, 'group', 'id');
     }
 
     public function plan()

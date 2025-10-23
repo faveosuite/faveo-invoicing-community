@@ -387,14 +387,13 @@ class DashboardController extends Controller
         ];
     }
 
-
     private function getUsersWithMobileAndEmailActivation(int $days)
     {
         return User::where('mobile_verified', 1)
             ->where('email_verified', 1)
             ->whereBetween('created_at', [
                 Carbon::now()->subDays($days)->startOfDay(),
-                Carbon::now()->endOfDay()
+                Carbon::now()->endOfDay(),
             ])
             ->get();
     }
@@ -412,11 +411,11 @@ class DashboardController extends Controller
             ->with([
                 'user:id,first_name,last_name',
                 'order:id,number',
-                'product:id,name'
+                'product:id,name',
             ])
             ->whereBetween('update_ends_at', [
                 Carbon::now()->subDays($days)->startOfDay(),
-                Carbon::now()->endOfDay()
+                Carbon::now()->endOfDay(),
             ])
             ->orderBy('days_expired')
             ->get();
@@ -437,18 +436,17 @@ class DashboardController extends Controller
             ->with([
                 'user:id,first_name,last_name',
                 'order:id,number',
-                'product:id,name'
+                'product:id,name',
             ])
             ->whereBetween('update_ends_at', [
                 Carbon::now()->startOfDay(),
-                Carbon::now()->addDays($days)->endOfDay()
+                Carbon::now()->addDays($days)->endOfDay(),
             ])
             ->orderBy('days_to_expire')
             ->get();
 
         return $subscriptions;
     }
-
 
     public function getClientsUsingOldVersion()
     {
@@ -470,7 +468,7 @@ class DashboardController extends Controller
             })
             ->with([
                 'user:id,first_name,last_name',
-                'product:id,name'
+                'product:id,name',
             ])
             ->whereHas('order', function ($query) {
                 $query->where('price_override', '>', 0);
@@ -478,7 +476,6 @@ class DashboardController extends Controller
             ->orderBy('id', 'desc')
             ->get();
     }
-
 
     public function getRecentPaidOrders(int $days)
     {
@@ -492,17 +489,16 @@ class DashboardController extends Controller
         )
             ->with([
                 'user:id,first_name,last_name',
-                'productRelation:id,name'
+                'productRelation:id,name',
             ])
             ->where('price_override', '>', 0)
             ->whereBetween('created_at', [
                 Carbon::now()->subDays($days)->startOfDay(),
-                Carbon::now()->endOfDay()
+                Carbon::now()->endOfDay(),
             ])
             ->orderBy('id', 'desc')
             ->get();
     }
-
 
     public function getTotalSalesByCurrency()
     {
@@ -517,7 +513,6 @@ class DashboardController extends Controller
             });
         });
     }
-
 
     public function getYearlySalesByCurrency()
     {
@@ -535,7 +530,6 @@ class DashboardController extends Controller
                 return $invoice->payment->sum('amount');
             });
         });
-
     }
 
     public function getMonthlySalesByCurrency()
@@ -554,7 +548,6 @@ class DashboardController extends Controller
                 return $invoice->payment->sum('amount');
             });
         });
-
     }
 
     public function getAllPendingPayments()
@@ -568,13 +561,13 @@ class DashboardController extends Controller
         $totals = $invoices->groupBy('currency')->map(function ($invoicesGroup) {
             return $invoicesGroup->sum(function ($invoice) {
                 $paidAmount = $invoice->payment->sum('amount');
+
                 return $invoice->grand_total - $paidAmount;
             });
         });
 
         return $totals;
     }
-
 
     public function getLastNoOfDaysInstallation(int $days)
     {
@@ -595,10 +588,9 @@ class DashboardController extends Controller
         return [
             'total_subscription' => $totalSubscription,
             'inactive_subscription' => $inactiveSubscription,
-            'rate' => $rate
+            'rate' => $rate,
         ];
     }
-
 
     private function getConversionRateByDays(int $days)
     {
@@ -618,7 +610,7 @@ class DashboardController extends Controller
         return [
             'all_orders' => $allOrders,
             'paid_orders' => $paidOrders,
-            'rate' => $rate
+            'rate' => $rate,
         ];
     }
 
@@ -629,7 +621,7 @@ class DashboardController extends Controller
 
         // Fetch invoices with user info and payment sum
         $invoices = Invoice::with([
-            'user:id,first_name,last_name'
+            'user:id,first_name,last_name',
         ])
             ->withSum('payment', 'amount')
             ->whereBetween('date', [$fromDate, $toDate])
@@ -644,25 +636,23 @@ class DashboardController extends Controller
                 'status',
             ]);
 
-
         return $invoices->map(function ($invoice) {
             $paidAmount = $invoice->payment_sum_amount ?? 0;
             $balance = $invoice->grand_total - $paidAmount;
 
             return [
-                'id'           => $invoice->id,
-                'number'       => $invoice->number,
-                'date'         => $invoice->date,
-                'grand_total'  => currencyFormat($invoice->grand_total, $invoice->currency),
-                'currency'     => $invoice->currency,
-                'status'       => getStatusLabel($invoice->status),
-                'paid_amount'  => currencyFormat($paidAmount, $invoice->currency),
-                'balance'      => currencyFormat($balance, $invoice->currency),
-                'user'  => $invoice->user
+                'id' => $invoice->id,
+                'number' => $invoice->number,
+                'date' => $invoice->date,
+                'grand_total' => currencyFormat($invoice->grand_total, $invoice->currency),
+                'currency' => $invoice->currency,
+                'status' => getStatusLabel($invoice->status),
+                'paid_amount' => currencyFormat($paidAmount, $invoice->currency),
+                'balance' => currencyFormat($balance, $invoice->currency),
+                'user' => $invoice->user,
             ];
         });
     }
-
 
     public function getSoldProduct(?int $days = null)
     {
@@ -686,6 +676,4 @@ class DashboardController extends Controller
             ->orderByDesc('latest_order_created_at')
             ->get();
     }
-
-
 }

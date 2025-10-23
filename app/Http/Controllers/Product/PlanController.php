@@ -389,28 +389,28 @@ class PlanController extends ExtendedPlanController
 
         $plans = Plan::with([
             'planPrice:id,plan_id,currency',
-            'productRelation:id,name'
+            'productRelation:id,name',
         ])
             ->when($searchQuery, function ($query, $searchQuery) {
                 $query->where(function ($q) use ($searchQuery) {
                     $daysRange = $this->parsePeriodToDaysRange($searchQuery);
 
                     $q->where('name', 'like', "%$searchQuery%")
-                        ->when($daysRange, fn($q2) => $q2->orWhereBetween('days', $daysRange))
-                        ->orWhereHas('productRelation', fn($q3) => $q3->where('name', 'like', "%$searchQuery%")
+                        ->when($daysRange, fn ($q2) => $q2->orWhereBetween('days', $daysRange))
+                        ->orWhereHas('productRelation', fn ($q3) => $q3->where('name', 'like', "%$searchQuery%")
                         )
-                        ->orWhereHas('planPrice', fn($q4) => $q4->where('currency', 'like', "%$searchQuery%")
+                        ->orWhereHas('planPrice', fn ($q4) => $q4->where('currency', 'like', "%$searchQuery%")
                         );
                 });
             })
             ->orderBy($sortField, $sortOrder)
             ->simplePaginate($limit);
 
-        $plans->getCollection()->transform(fn($plan) => [
+        $plans->getCollection()->transform(fn ($plan) => [
             'id' => $plan->id,
             'name' => $plan->name,
             'product' => $plan->productRelation?->name,
-            'period' => formatDays((int)$plan->days),
+            'period' => formatDays((int) $plan->days),
             'currencies' => $plan->planPrice->pluck('currency')->toArray(),
             'created_at' => $plan->created_at,
         ]);
@@ -418,12 +418,10 @@ class PlanController extends ExtendedPlanController
         return successResponse('', $plans);
     }
 
-
-
     /**
      * Convert human-readable period into a days range.
      *
-     * @param string $period
+     * @param  string  $period
      * @return array|null [minDays, maxDays] or null if invalid
      */
     protected function parsePeriodToDaysRange(string $period): ?array
@@ -431,7 +429,7 @@ class PlanController extends ExtendedPlanController
         $period = trim(strtolower($period));
 
         if (preg_match('/(\d+)\s*(day|days|month|months|year|years)/', $period, $matches)) {
-            $value = (int)$matches[1];
+            $value = (int) $matches[1];
             $unit = $matches[2];
 
             return match ($unit) {
@@ -444,7 +442,6 @@ class PlanController extends ExtendedPlanController
 
         return null;
     }
-
 
     public function planCreate(PlanRequest $request)
     {
@@ -496,7 +493,7 @@ class PlanController extends ExtendedPlanController
         try {
             $plan = Plan::with([
                 'planPrice',
-                'productRelation:id,name'
+                'productRelation:id,name',
             ])->findOrFail($planId);
 
             $firstPrice = $plan->planPrice->first();
@@ -509,11 +506,10 @@ class PlanController extends ExtendedPlanController
             }
 
             return successResponse('', $plan);
-        } catch (\Exception $ex){
+        } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
-
 
     public function updatePlan($planID, PlanRequest $request)
     {
@@ -551,7 +547,7 @@ class PlanController extends ExtendedPlanController
             }
 
             return successResponse(__('message.saved-successfully'));
-        } catch (\Exception $ex){
+        } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -574,12 +570,8 @@ class PlanController extends ExtendedPlanController
             });
 
             return successResponse(__('message.deleted-successfully'));
-
         } catch (\Throwable $ex) {
             return errorResponse($ex->getMessage());
         }
     }
-
-
-
 }
