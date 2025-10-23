@@ -526,7 +526,6 @@ class PageController extends Controller
                 $description = self::getPriceDescription($product->id);
                 $status = Product::find($product->id);
             }
-
             return view('themes.default1.common.template.shoppingcart', compact('templates', 'headline', 'tagline', 'description', 'status'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
@@ -599,8 +598,8 @@ class PageController extends Controller
                     'url' => $this->generateProductUrl($product, $orderButton, $highlight),
                 ];
             }
+            dd($trasform);
             $data = PricingTemplate::findOrFail(1)->data;
-
             return $this->transformTemplate('cart', $data, $trasform);
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
@@ -614,10 +613,16 @@ class PageController extends Controller
                 return '<button class="btn '.$orderButton.' btn-modern buttonsale" data-toggle="modal" data-target="#tenancy" data-mydata="'.$product->id.'">
                                 <span style="white-space: nowrap;">'.__('message.order_now').'</span>
                             </button>';
+                //for vue
+//                return['class'=>$orderButton,'product_id'=>$product->id,'type'=>'cloud','button'=>__('message.order_now')];
             } else {
+                //for vue
+//                return ['class'=>$orderButton,'type'=>'multioption','button'=>__('message.order_now')];
                 return '<input type="submit" value="Order Now" class="btn '.$orderButton.' btn-modern buttonsale"></form>';
             }
         } else {
+            //for vue
+//            return ['url'=>'https://www.faveohelpdesk.com/contact-us/', 'button'=>__('message.contact_sales') ,'class'=>$orderButton,'type'=>'normal'];
             return '<a class="btn '.$orderButton.' btn-modern sales buttonsale" href="https://www.faveohelpdesk.com/contact-us/">'.__('message.contact_sales').'</a>';
         }
     }
@@ -742,6 +747,8 @@ class PageController extends Controller
                     $format = currencyFormat(min([$prices[0]]), $code = $prices[2]);
                     $finalPrice = str_replace($prices[1], '', $format);
                     $cost = '<span class="price-unit" id="'.$planId.'">'.$prices[1].'</span>'.$finalPrice;
+                    //For vue
+//                    $cost=['currency'=>$prices[1], 'price'=>$finalPrice,'planId'=>$planId];
                 }
             }
 
@@ -773,6 +780,8 @@ class PageController extends Controller
                             $priceDescription = 'free';
                         } else {
                             $priceDescription = $description->no_of_agents ? 'per month for <strong>'.' '.$description->no_of_agents.' '.'agent</strong>' : 'per month';
+                            //for vue
+//                            $priceDescription = $description->no_of_agents?$description->no_of_agents:'per month';
                         }
 
                         break;

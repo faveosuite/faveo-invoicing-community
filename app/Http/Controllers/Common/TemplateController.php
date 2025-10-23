@@ -220,11 +220,11 @@ class TemplateController extends Controller
             }
             $priceList = $this->getPriceList($id);
             $plan_options = '';
-
+            $plan_options1=[];
             foreach ($priceList as $planId => $planPrice) {
                 $plan_options .= '<option value="'.$planId.'" data-price="'.$planPrice.'" data-description="'.$plans[$planId]['description'].'">'.$plans[$planId]['price'].'</option>';
+//                $plan_options1[$planId] =['planId'=>$planId,'price'=>$planPrice,'description'=>$plans[$planId]['description'],'processedPrice'=>$plans[$planId]['price']];
             }
-
             $plan_class = ($plans && $status->status != 1) ? 'stylePlan' : 'planhide';
             $plan_form = '<select name="subscription" class="'.$plan_class.'">'.$plan_options.'</select>';
 
@@ -265,6 +265,8 @@ class TemplateController extends Controller
                     $format = ($prices[0] != '0') ? currencyFormat(min([$prices[0]]), $code = $prices[2]) : currencyFormat(min([$prices[3]]), $code = $prices[2]);
                     $finalPrice = str_replace($prices[1], '', $format);
                     $cost = '<span class="price-unit">'.$prices[1].'</span>'.$finalPrice;
+                    //For vue
+//                    $cost=['currency'=>$prices[1], 'price'=>$finalPrice];
                 }
             }
 

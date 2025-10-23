@@ -7,6 +7,7 @@ use App\Auto_renewal;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\Order\RenewController;
+use App\Model\Common\ChatScript;
 use App\Model\Common\CreditActivity;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
@@ -32,6 +33,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Razorpay\Api\Api;
+use App\Model\CloudDataCenters;
+use App\Model\Common\SocialMedia;
+use App\Demo_page;
+use App\Facades\Cart;
+
 
 class ClientController extends BaseClientController
 {
@@ -1737,5 +1743,65 @@ class ClientController extends BaseClientController
         } catch(Exception $ex) {
             return errorResponse($ex->getMessage());
         }
+    }
+
+
+    public function masterData(){
+        $dataCenters = CloudDataCenters::all();
+        $setting = Setting::where('id', 1)->first();
+        $scripts = ChatScript::where('on_every_page', 1)->get();
+        $status =  StatusSetting::select('v3_v2_recaptcha_status','recaptcha_status','v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms','cloud_button')->first();
+        $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
+        $social = SocialMedia::get();
+        $pages = \App\Model\Front\FrontendPage::where('publish', 1)->orderBy('created_at','asc')->get();
+//        $cloud = \App\Model\Common\StatusSetting::where('id','1')->value('cloud_button');
+        $Demo_page_status = Demo_page::first()->value('status');
+        $cart=new Cart();
+        $localeMap = [
+            'ar' => 'ae',
+            'bsn' => 'bs',
+            'de' => 'de',
+            'en' => 'us',
+            'en-gb' => 'gb',
+            'es' => 'es',
+            'fr' => 'fr',
+            'id' => 'id',
+            'it' => 'it',
+            'kr' => 'kr',
+            'mt' => 'mt',
+            'nl' => 'nl',
+            'no' => 'no',
+            'pt' => 'pt',
+            'ru' => 'ru',
+            'vi' => 'vn',
+            'zh-hans' => 'cn',
+            'zh-hant' => 'cn',
+            'ja' => 'jp',
+            'ta' => 'in',
+            'hi' => 'in',
+            'he' => 'il',
+            'tr' => 'tr',
+        ];
+        $currentLanguage = app()->getLocale();
+        $flagClass = 'flag-icon flag-icon-' . $localeMap[$currentLanguage];
+        $cloudSubDomain=CloudSubDomain();
+        $cloudPopUpDetails=CloudPopUpDetails();
+        $productGroup=\App\Model\Product\ProductGroup::where('hidden','!=', 1)->first();
+        return successResponse('success',[
+            'dataCenters' => $dataCenters,
+            'setting' => $setting,
+            'cloudSubDomain' => $cloudSubDomain,
+            'flagClass'=>$flagClass,
+            'cloudPopUpDetails' => $cloudPopUpDetails,
+            'status'=>$status,
+            'cart'=>$cart->getContent(),
+            'Demo_page_status'=>$Demo_page_status,
+            'scripts'=>$scripts,
+            'pages'=>$pages,
+            'apiKeys'=>$apiKeys,
+            'social'=>$social,
+            'productGroup'=>$productGroup,
+        ]);
+
     }
 }

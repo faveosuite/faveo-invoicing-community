@@ -62,12 +62,13 @@
 </style>
 <?php
  $dataCenters = \App\Model\CloudDataCenters::all();
+
 ?>
 <?php
 $setting = \App\Model\Common\Setting::where('id', 1)->first();
 $everyPageScripts = '';
 $scripts = \App\Model\Common\ChatScript::where('on_every_page', 1)->get();
-
+//Tawk implementation code
 foreach($scripts as $script) {
     if (strpos($script->script, '<script>') === false && strpos($script->script, '</script>') === false) {
         $everyPageScripts .= "<script>{$script->script}</script>";
@@ -108,7 +109,7 @@ foreach($scripts as $script) {
     <link rel="stylesheet" href="{{asset('client/porto/css-2/owl.theme.default.min.css')}}">
     <link rel="stylesheet" href="{{asset('client/porto/css-2/magnific-popup.min.css')}}">
     <link rel="stylesheet" href="{{asset('admin/css-1/flag-icons.min.css')}}">
-
+{{--  Arabic and Hebrew laguage starts from right to left that is the reason this styles are required   --}}
 @if(in_array(app()->getLocale(), ['ar', 'he']))
     <link rel="stylesheet" href="{{asset('client/porto/css-2/all.rtl.min.css')}}">
     <link rel="stylesheet" href="{{asset('admin/css-1/sweet-alert-rtl.css')}}">
@@ -392,7 +393,9 @@ $days = $pay->where('product','117')->value('days');
                                                     <?php
                                                     $cloud = \App\Model\Common\StatusSetting::where('id','1')->value('cloud_button');
                                                     $Demo_page = App\Demo_page::first();
-                                                     $cart=new App\Facades\Cart(); ?>
+
+                                                     $cart=new App\Facades\Cart();
+                                                     ?>
 
 
                                                 @if($cloud == 1)
