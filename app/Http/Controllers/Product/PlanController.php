@@ -383,4 +383,207 @@ class PlanController extends ExtendedPlanController
             return response()->json($result);
         }
     }
+
+    public function getAllPlans(Request $request)
+    {
+        $searchQuery = $request->input('search-query', '');
+        $sortOrder = $request->input('sort-order', 'asc');
+        $sortField = $request->input('sort-field', 'created_at');
+        $limit = $request->input('limit', 10);
+
+        $plans = Plan::with([
+            'planPrice:id,plan_id,currency',
+            'productRelation:id,name'
+        ])
+            ->when($searchQuery, function ($query, $searchQuery) {
+                $query->where(function ($q) use ($searchQuery) {
+                    $daysRange = $this->parsePeriodToDaysRange($searchQuery);
+
+                    $q->where('name', 'like', "%$searchQuery%")
+                        ->when($daysRange, fn($q2) => $q2->orWhereBetween('days', $daysRange))
+                        ->orWhereHas('productRelation', fn($q3) => $q3->where('name', 'like', "%$searchQuery%")
+                        )
+                        ->orWhereHas('planPrice', fn($q4) => $q4->where('currency', 'like', "%$searchQuery%")
+                        );
+                });
+            })
+            ->orderBy($sortField, $sortOrder)
+            ->simplePaginate($limit);
+
+        $plans->getCollection()->transform(fn($plan) => [
+            'id' => $plan->id,
+            'name' => $plan->name,
+            'product' => $plan->productRelation?->name,
+            'period' => formatDays((int)$plan->days),
+            'currencies' => $plan->planPrice->pluck('currency')->toArray(),
+            'created_at' => $plan->created_at,
+        ]);
+
+        return successResponse('', $plans);
+    }
+
+
+
+    /**
+     * Convert human-readable period into a days range.
+     *
+     * @param string $period
+     * @return array|null [minDays, maxDays] or null if invalid
+     */
+    protected function parsePeriodToDaysRange(string $period): ?array
+    {
+        $period = trim(strtolower($period));
+
+        if (preg_match('/(\d+)\s*(day|days|month|months|year|years)/', $period, $matches)) {
+            $value = (int)$matches[1];
+            $unit = $matches[2];
+
+            return match ($unit) {
+                'day', 'days' => [$value, $value],            // exact day
+                'month', 'months' => [$value * 30, $value * 30 + 29], // 1 Month = 30–59, 2 Months = 60–89, etc.
+                'year', 'years' => [$value * 365, $value * 365 + 364], // 1 Year = 365–729, etc.
+                default => null,
+            };
+        }
+
+        return null;
+    }
+
+
+    public function planCreate(PlanRequest $request)
+    {
+        try {
+            // prevent creating duplicate plans for certain products
+            if (in_array(cloudPopupProducts(), $request->product) &&
+                Plan::whereProduct($request->product)->where('days', $request->days)->exists()
+            ) {
+                return errorResponse('Plan already exists');
+            }
+
+            // Create the plan
+            $plan = Plan::create($request->validated());
+
+            // Attach period if days is provided
+            if ($request->filled('days')) {
+                if ($periodId = Period::where('days', $request->days)->value('id')) {
+                    $plan->periods()->attach($periodId);
+                }
+            }
+
+            // Insert pricing data
+            if ($request->filled('add_price')) {
+                $priceData = collect($request->add_price)->map(function ($addPrice, $key) use ($request, $plan) {
+                    return [
+                        'plan_id' => $plan->id,
+                        'country_id' => $request->country_id[$key],
+                        'currency' => $request->currency[$key],
+                        'add_price' => $addPrice,
+                        'renew_price' => $request->renew_price[$key],
+                        'offer_price' => $request->offer_price[$key] ?: null,
+                        'price_description' => $request->price_description,
+                        'product_quantity' => $request->product_quantity,
+                        'no_of_agents' => $request->no_of_agents,
+                    ];
+                })->toArray();
+
+                $plan->planPrice()->insert($priceData);
+            }
+
+            return successResponse(__('message.saved-successfully'));
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function getPlan($planId)
+    {
+        try {
+            $plan = Plan::with([
+                'planPrice',
+                'productRelation:id,name'
+            ])->findOrFail($planId);
+
+            $firstPrice = $plan->planPrice->first();
+            $plan->no_of_agents = $firstPrice?->no_of_agents;
+            $plan->product_quantity = $firstPrice?->product_quantity;
+
+            // Remove these fields from each planPrice item
+            foreach ($plan->planPrice as $price) {
+                unset($price->no_of_agents, $price->product_quantity);
+            }
+
+            return successResponse('', $plan);
+        } catch (\Exception $ex){
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+
+    public function updatePlan($planID, PlanRequest $request)
+    {
+        try {
+            $plan = Plan::findOrFail($planID);
+
+            $plan->fill($request->validated())->save();
+
+            // Update period if days is provided
+            if ($request->filled('days')) {
+                if ($periodId = Period::where('days', $request->days)->value('id')) {
+                    $plan->periods()->sync([$periodId]); // sync replaces existing periods
+                }
+            }
+
+            // Update plan prices
+            if ($request->filled('add_price')) {
+                $plan->planPrice()->delete();
+
+                $priceData = collect($request->add_price)->map(function ($addPrice, $key) use ($request, $plan) {
+                    return [
+                        'plan_id' => $plan->id,
+                        'country_id' => $request->country_id[$key],
+                        'currency' => $request->currency[$key],
+                        'add_price' => $addPrice,
+                        'renew_price' => $request->renew_price[$key],
+                        'offer_price' => $request->offer_price[$key] ?? null,
+                        'price_description' => $request->price_description,
+                        'product_quantity' => $request->product_quantity,
+                        'no_of_agents' => $request->no_of_agents,
+                    ];
+                })->toArray();
+
+                $plan->planPrice()->insert($priceData);
+            }
+
+            return successResponse(__('message.saved-successfully'));
+        } catch (\Exception $ex){
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function deleteBulkPlans(Request $request)
+    {
+        $ids = $request->input('select', []);
+
+        if (empty($ids)) {
+            return errorResponse(__('message.select-a-row'));
+        }
+
+        try {
+            \DB::transaction(function () use ($ids) {
+                $plans = Plan::whereIn('id', $ids)->get();
+
+                foreach ($plans as $plan) {
+                    $plan->delete();
+                }
+            });
+
+            return successResponse(__('message.deleted-successfully'));
+
+        } catch (\Throwable $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+
+
 }
