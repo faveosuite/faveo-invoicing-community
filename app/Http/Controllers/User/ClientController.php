@@ -18,6 +18,7 @@ use App\ReportColumn;
 use App\Traits\PaymentsAndInvoices;
 use App\User;
 use App\UserLinkReport;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Storage;
@@ -751,14 +752,13 @@ class ClientController extends AdvanceSearchController
         $sortField = $request->input('sort-field', 'created_at');
         $limit = $request->input('limit', 10);
 
-        $users = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'country', 'created_at')
-            ->where(function ($query) use ($searchQuery) {
-                $query->where('email', 'like', '%'.$searchQuery.'%')
-                    ->orWhere(\DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%'.$searchQuery.'%')
-                    ->orWhere('mobile', 'like', '%'.$searchQuery.'%')
-                    ->orWhere('country', 'like', '%'.$searchQuery.'%')
-                    ->orWhere('created_at', 'like', '%'.$searchQuery.'%');
-            })
+        $query = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'country', 'created_at');
+
+        $query = $this->applyUsersFilters($query, $request);
+
+        $query = $this->applyUsersSearch($query, $searchQuery);
+
+        $users = $query
             ->orderBy($sortField, $sortOrder)
             ->simplePaginate($limit);
 
@@ -868,4 +868,69 @@ class ClientController extends AdvanceSearchController
             return errorResponse($e->getMessage());
         }
     }
+
+
+    private function applyUsersFilters($query, Request $request)
+    {
+        return $query
+            ->when($request->filled('company'), fn($q) =>
+            $q->where('company', 'like', '%'.$request->company.'%')
+            )
+            ->when($request->filled('country'), fn($q) =>
+            $q->where('country', $request->country)
+            )
+            ->when($request->filled('industry'), fn($q) =>
+            $q->where('bussiness', $request->industry)
+            )
+            ->when($request->filled('role'), fn($q) =>
+            $q->where('role', $request->role)
+            )
+            ->when($request->filled('position'), fn($q) =>
+            $q->where('position', $request->position)
+            )
+            ->when($request->filled('actmanager'), fn($q) =>
+            $q->where('account_manager', $request->actmanager)
+            )
+            ->when($request->filled('salesmanager'), fn($q) =>
+            $q->where('manager', $request->salesmanager)
+            )
+            ->when($request->filled('mobile_verified'), fn($q) =>
+            $q->where('mobile_verified', $request->mobile_verified)
+            )
+            ->when($request->filled('email_verified'), fn($q) =>
+            $q->where('email_verified', $request->email_verified)
+            )
+            ->when($request->filled('is_2fa_enabled'), fn($q) =>
+            $q->where('is_2fa_enabled', $request->is_2fa_enabled)
+            )
+            ->when($request->hasAny(['reg_from', 'reg_till']), function ($q) use ($request) {
+                $from = $request->filled('reg_from')
+                    ? Carbon::parse($request->input('reg_from'))->startOfDay()
+                    : Carbon::minValue();
+
+                $till = $request->filled('reg_till')
+                    ? Carbon::parse($request->input('reg_till'))->endOfDay()
+                    : Carbon::now()->endOfDay();
+
+                $q->whereBetween('created_at', [$from, $till]);
+            });
+
+    }
+
+
+    private function applyUsersSearch($query, $search)
+    {
+        return $query->when($search, function ($q) use ($search) {
+            $q->where(function ($subQuery) use ($search) {
+                $subQuery->where('email', 'like', '%'.$search.'%')
+                    ->orWhere(\DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%'.$search.'%')
+                    ->orWhere('mobile', 'like', '%'.$search.'%')
+                    ->orWhere('country', 'like', '%'.$search.'%');
+            });
+        });
+    }
+
+
+
+
 }
