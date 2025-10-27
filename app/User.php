@@ -257,7 +257,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return "{$this->first_name} {$this->last_name}";
     }
 
-    public function countryRelation(){
-        return $this->hasOne(Country::class,'country_code_char2','country');
+    public function countryRelation()
+    {
+        return $this->hasOne(Country::class, 'country_code_char2', 'country');
     }
 }

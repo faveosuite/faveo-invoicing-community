@@ -162,7 +162,6 @@ class OrderSearchController extends Controller
         });
     }
 
-
     public function applyOrdersSearch($query, $search)
     {
         return $query->when($search, function ($q) use ($search) {
@@ -198,6 +197,4 @@ class OrderSearchController extends Controller
             });
         });
     }
-
-
 }
