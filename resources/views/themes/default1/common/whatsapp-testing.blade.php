@@ -32,6 +32,7 @@
         if (response.authResponse) {
             const code = response.authResponse.code;
             console.log('response1: ', code); // remove after testing
+
             // your code goes here
         } else {
             console.log('response2: ', response); // remove after testing
