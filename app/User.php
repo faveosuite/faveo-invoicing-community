@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Facades\Attach;
+use App\Model\Common\Country;
 use App\Model\Common\Timezone;
 use App\Traits\SystemActivityLogsTrait;
 use Carbon\Carbon;
@@ -278,5 +279,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function getFullNameAttribute()
     {
         return "{$this->first_name} {$this->last_name}";
+    }
+
+    public function countryRelation(){
+        return $this->hasOne(Country::class,'country_code_char2','country');
     }
 }
