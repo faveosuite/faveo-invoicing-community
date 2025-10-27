@@ -869,39 +869,28 @@ class ClientController extends AdvanceSearchController
         }
     }
 
-
     private function applyUsersFilters($query, Request $request)
     {
         return $query
-            ->when($request->filled('company'), fn($q) =>
-            $q->where('company', 'like', '%'.$request->company.'%')
+            ->when($request->filled('company'), fn ($q) => $q->where('company', 'like', '%'.$request->company.'%')
             )
-            ->when($request->filled('country'), fn($q) =>
-            $q->where('country', $request->country)
+            ->when($request->filled('country'), fn ($q) => $q->where('country', $request->country)
             )
-            ->when($request->filled('industry'), fn($q) =>
-            $q->where('bussiness', $request->industry)
+            ->when($request->filled('industry'), fn ($q) => $q->where('bussiness', $request->industry)
             )
-            ->when($request->filled('role'), fn($q) =>
-            $q->where('role', $request->role)
+            ->when($request->filled('role'), fn ($q) => $q->where('role', $request->role)
             )
-            ->when($request->filled('position'), fn($q) =>
-            $q->where('position', $request->position)
+            ->when($request->filled('position'), fn ($q) => $q->where('position', $request->position)
             )
-            ->when($request->filled('actmanager'), fn($q) =>
-            $q->where('account_manager', $request->actmanager)
+            ->when($request->filled('actmanager'), fn ($q) => $q->where('account_manager', $request->actmanager)
             )
-            ->when($request->filled('salesmanager'), fn($q) =>
-            $q->where('manager', $request->salesmanager)
+            ->when($request->filled('salesmanager'), fn ($q) => $q->where('manager', $request->salesmanager)
             )
-            ->when($request->filled('mobile_verified'), fn($q) =>
-            $q->where('mobile_verified', $request->mobile_verified)
+            ->when($request->filled('mobile_verified'), fn ($q) => $q->where('mobile_verified', $request->mobile_verified)
             )
-            ->when($request->filled('email_verified'), fn($q) =>
-            $q->where('email_verified', $request->email_verified)
+            ->when($request->filled('email_verified'), fn ($q) => $q->where('email_verified', $request->email_verified)
             )
-            ->when($request->filled('is_2fa_enabled'), fn($q) =>
-            $q->where('is_2fa_enabled', $request->is_2fa_enabled)
+            ->when($request->filled('is_2fa_enabled'), fn ($q) => $q->where('is_2fa_enabled', $request->is_2fa_enabled)
             )
             ->when($request->hasAny(['reg_from', 'reg_till']), function ($q) use ($request) {
                 $from = $request->filled('reg_from')
@@ -914,9 +903,7 @@ class ClientController extends AdvanceSearchController
 
                 $q->whereBetween('created_at', [$from, $till]);
             });
-
     }
-
 
     private function applyUsersSearch($query, $search)
     {
@@ -929,8 +916,4 @@ class ClientController extends AdvanceSearchController
             });
         });
     }
-
-
-
-
 }
