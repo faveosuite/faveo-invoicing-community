@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Facades\Attach;
+use App\Model\Common\Country;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -254,5 +255,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function getFullNameAttribute()
     {
         return "{$this->first_name} {$this->last_name}";
+    }
+
+    public function countryRelation(){
+        return $this->hasOne(Country::class,'country_code_char2','country');
     }
 }

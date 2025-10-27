@@ -26,7 +26,9 @@ class OrderSearchController extends Controller
                 },
                 'productRelation',
                 'installationDetail',
-                'subscription',
+                'subscription' => function ($q) {
+                    $q->with('plan');
+                },
             ]);
 
             // Filters
@@ -159,4 +161,43 @@ class OrderSearchController extends Controller
             }
         });
     }
+
+
+    public function applyOrdersSearch($query, $search)
+    {
+        return $query->when($search, function ($q) use ($search) {
+            $q->where(function ($q) use ($search) {
+                // Search in order-level columns
+                $q->where('number', 'like', "%{$search}%")
+                    ->orWhere('order_status', 'like', "%{$search}%")
+
+                    // Search in user-related fields
+                    ->orWhereHas('user', function ($uq) use ($search) {
+                        $uq->where('email', 'like', "%{$search}%")
+                            ->orWhere('mobile', 'like', "%{$search}%")
+                            ->orWhere('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('country', 'like', "%{$search}%")
+                            ->orWhere(\DB::raw('CONCAT(first_name, " ", last_name)'), 'like', "%{$search}%");
+                    })
+
+                    // Search in product relation (product name)
+                    ->orWhereHas('productRelation', function ($pq) use ($search) {
+                        $pq->where('name', 'like', "%{$search}%");
+                    })
+
+                    // Search in subscription & plan
+                    ->orWhereHas('subscription', function ($sq) use ($search) {
+                        $sq->where('version', 'like', "%{$search}%")
+                            ->orWhere('updated_at', 'like', "%{$search}%")
+                            ->orWhere('update_ends_at', 'like', "%{$search}%")
+                            ->orWhereHas('plan', function ($pq) use ($search) {
+                                $pq->where('name', 'like', "%{$search}%");
+                            });
+                    });
+            });
+        });
+    }
+
+
 }

@@ -131,13 +131,14 @@ class OrderController extends BaseOrderController
             $orderSearch = new OrderSearchController();
             $query = $orderSearch->advanceOrderSearch($request);
 
+            $query = $orderSearch->applyOrdersSearch($query, $searchQuery);
+
             $paginated = $query->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
             // Map items
             $paginated->getCollection()->transform(function ($order) {
                 $user = $order->user;
-                $plan = Plan::find($order->subscription->plan_id)->name ?? null;
                 $installedVersions = $order->installationDetail ? $order->installationDetail->pluck('version')->toArray() : [];
                 $latestVersion = count($installedVersions) ? max($installedVersions) : null;
 
@@ -150,7 +151,7 @@ class OrderController extends BaseOrderController
                 return [
                     'id' => $order->id,
                     'product_name' => $order->productRelation->name,
-                    'plan' => $plan,
+                    'plan' => $order->subscription->plan?->name,
                     'version' => $latestVersion ? getVersionAndLabel($latestVersion, $order->product) : null,
                     'agents' => $licenseAgents,
                     'number' => $order->number,
