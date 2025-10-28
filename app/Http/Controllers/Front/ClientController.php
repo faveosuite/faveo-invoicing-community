@@ -32,8 +32,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Razorpay\Api\Api;
-use Illuminate\Support\Facades\Http;
-
 
 class ClientController extends BaseClientController
 {
