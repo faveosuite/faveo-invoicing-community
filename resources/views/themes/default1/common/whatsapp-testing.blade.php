@@ -1,3 +1,5 @@
+@extends('themes.default1.layouts.master')
+
 <!-- SDK loading -->
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
 
@@ -23,7 +25,7 @@
                     url: '{{url("save-waba-id")}}',
                     type : 'post',
                     data: {
-                        "waba_id": data.waba_id,"phone_number_id":data.phone_number_id,"business_id":data.business_id,
+                        "waba_id": data.data.waba_id,"phone_number_id":data.data.phone_number_id,"business_id":data.data.business_id,
                     },
                     success: function (data) {
                         console.log(data);
@@ -76,6 +78,10 @@
         });
     }
 </script>
+@section('content')
 
 <!-- Launch button  -->
 <button onclick="launchWhatsAppSignup()" style="background-color: #1877f2; border: 0; border-radius: 4px; color: #fff; cursor: pointer; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: bold; height: 40px; padding: 0 24px;">Login with Facebook</button>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+@stop
