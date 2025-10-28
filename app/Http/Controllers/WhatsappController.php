@@ -82,8 +82,8 @@ Class WhatsappController extends Controller{
 
     public function saveWabaId(Request $request){
         try {
-            $wabaId = $request->input('wabaId');
-            $phoneNumberId = $request->input('phoneNumberId');
+            $wabaId = $request->input('waba_id');
+            $phoneNumberId = $request->input('phone_number_id')?$request->input('phone_number_id'):'';
             $business_id = $request->input('business_id');
             WhatsappIntegrationUser::create(['user_id' => \Auth::user()->id, 'waba_id' => $wabaId,
                             'phone_number_id' => $phoneNumberId, 'business_id' => $business_id]);
