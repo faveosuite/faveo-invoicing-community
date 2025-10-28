@@ -266,7 +266,6 @@ class ClientController extends BaseClientController
      */
     public function invoices(Request $request)
     {
-
         try {
             $amt = Payment::where('user_id', \Auth::user()->id)->where('payment_method', 'Credit Balance')->where('payment_status', 'success')->value('amt_to_credit');
             $formattedValue = currencyFormat($amt, getCurrencyForClient(\Auth::user()->country), true);
