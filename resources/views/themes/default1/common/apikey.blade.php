@@ -1424,8 +1424,6 @@
                     $('#whatsapp-app-secret').val(response['data']['app_secret']);
                     $('#whatsapp-config-id').val(response['data']['config_id']);
                     $('#whatsapp-verify-token').val(response['data']['verify_token']);
-                    $('#whatsapp-callback-url').val(response['data']['callback_url']);
-
                     $('#whatsapp-integration').modal('show');
                 },
             });
@@ -3432,20 +3430,17 @@
                 type:@json(trans('message.git_password_s')),
                 config:@json(trans('message.git_password_s')),
                 token:@json(trans('message.git_password_s')),
-                url:@json(trans('message.git_password_s')),
 
             };
             var app_id=$('#whatsapp-app-id');
             var app_secret=$('#whatsapp-app-secret');
             var config_id=$('#whatsapp-config-id');
             var token=$('#whatsapp-verify-token');
-            var callback_url=$('#whatsapp-callback-url');
             const userFields = {
                 name:app_id,
                 type:app_secret,
                 config:config_id,
                 token:token,
-                url:callback_url,
             };
 
 
@@ -3482,7 +3477,7 @@
                 type : 'post',
                 data: {
                     "status": whatsappStatus,
-                    "app_id": app_id.val(),"app_secret" : app_secret.val(),'config_id':config_id.val(),'verify_token':token.val(),'callback_url':callback_url.val(),
+                    "app_id": app_id.val(),"app_secret" : app_secret.val(),'config_id':config_id.val(),'verify_token':token.val(),
                 },
                 success: function (data) {
                     setTimeout(function () {
