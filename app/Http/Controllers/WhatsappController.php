@@ -151,10 +151,10 @@ Class WhatsappController extends Controller{
 
     public function whatsappSave(Request $request){
         try {
-            [$app_id, $app_secret, $config_id, $verify_token, $callback_url] = array_values(
-                $request->only(['app_id', 'app_secret', 'config_id', 'verify_token', 'callback_url'])
+            [$app_id, $app_secret, $config_id, $verify_token] = array_values(
+                $request->only(['app_id', 'app_secret', 'config_id', 'verify_token'])
             );
-            WhatsappIntegration::UpdateorCreate(['id' => 1], ['app_id' => $app_id, 'app_secret' => $app_secret, 'config_id' => $config_id, 'verify_token' => $verify_token, 'callback_url' => $callback_url]);
+            WhatsappIntegration::UpdateorCreate(['id' => 1], ['app_id' => $app_id, 'app_secret' => $app_secret, 'config_id' => $config_id, 'verify_token' => $verify_token]);
             return successResponse(__('message.updated-successfully'));
         }catch (\Exception $exception){
             return errorResponse($exception->getMessage());
