@@ -132,15 +132,14 @@ Class WhatsappController extends Controller{
     public function whatsappIntegration()
     {
         try {
-            [$app_id, $app_secret, $config_id, $verify_token, $callback_url] =
-                array_values(WhatsappIntegration::first()?->only(['app_id', 'app_secret', 'config_id', 'verify_token', 'callback_url']) ?? [null, null, null, null, null]);
+            [$app_id, $app_secret, $config_id, $verify_token] =
+                array_values(WhatsappIntegration::first()?->only(['app_id', 'app_secret', 'config_id', 'verify_token']) ?? [null, null, null, null]);
 
             $data = [
                 'app_id' => $app_id,
                 'app_secret' => $app_secret,
                 'config_id' => $config_id,
                 'verify_token' => $verify_token,
-                'callback_url' => $callback_url,
             ];
 
             return successResponse('', $data);
