@@ -49,12 +49,10 @@ Class WhatsappController extends Controller{
             $access_token = $content['access_token'];
 
             $getToken = Http::get('https://graph.facebook.com/v21.0/oauth/access_token', [
-                'query' => [
                     'grant_type' => 'fb_exchange_token',
                     'client_id' => $app_id,
                     'client_secret' => $app_secret,
                     'fb_exchange_token' => $access_token,
-                ]
             ]);
 
             $content = $getToken->json();
