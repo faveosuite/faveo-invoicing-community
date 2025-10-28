@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('waba_id');
             $table->string('phone_number_id');
+            $table->string('business_id');
             $table->string('phone_number');
             $table->string('access_token');
             $table->integer('user_id');
