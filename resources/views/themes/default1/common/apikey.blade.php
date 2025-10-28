@@ -597,6 +597,54 @@
         </div>
     </div>
 
+
+    <div class="modal fade" id="whatsapp-integration" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ __('message.pipedrive') }}</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="alertMessage-whatsapp"></div>
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! html()->label('App_Id', 'app_id')->class('required') !!}
+                        {!! html()->text('app_id')->class('form-control whatsapp-app-id')->id('whatsapp-app-id') !!}
+                        <h6 id="pipedrive_keycheck"></h6>
+                    </div>
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! html()->label('App_Secret', 'app_id')->class('required') !!}
+                        {!! html()->text('app_Secret')->class('form-control whatsapp-app-secret')->id('whatsapp-app-secret') !!}
+                        <h6 id="pipedrive_keycheck"></h6>
+                    </div>
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! html()->label('Config_Id', 'config_id')->class('required') !!}
+                        {!! html()->text('config_id')->class('form-control whatsapp-config-id')->id('whatsapp-config-id') !!}
+                        <h6 id="pipedrive_keycheck"></h6>
+                    </div>
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! html()->label('Verify_Token', 'verify_token')->class('required') !!}
+                        {!! html()->text('verify_token')->class('form-control whatsapp-verify-token')->id('whatsapp-verify-token') !!}
+                        <h6 id="pipedrive_keycheck"></h6>
+                    </div>
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! html()->label('Callback_Url', 'callback_url')->class('required') !!}
+                        {!! html()->text('callback_url')->class('form-control whatsapp-callback-url')->id('whatsapp-callback-url') !!}
+                        <h6 id="pipedrive_keycheck"></h6>
+                    </div>
+
+
+                </div>
+
+                <div class="modal-footer justify-content-between">
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
+                    <button type="submit" class="form-group btn btn-primary"  id="whatsapp-submit"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="emailValidation" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -999,6 +1047,22 @@
             });
         });
 
+        $(document).on('click', '#whatsapp-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("whatsapp-integration")}}',
+                type : 'get',
+                success: function (response) {
+                    $('#whatsapp-app-id').val(response['data']['app_id']);
+                    $('#whatsapp-app-secret').val(response['data']['app_secret']);
+                    $('#whatsapp-config-id').val(response['data']['config_id']);
+                    $('#whatsapp-verify-token').val(response['data']['verify_token']);
+                    $('#whatsapp-callback-url').val(response['data']['callback_url']);
+
+                    $('#whatsapp-integration').modal('show');
+                },
+            });
+        });
 
         $(document).on('click', '#twitter-edit-button', function() {
             $.ajax({
@@ -1303,6 +1367,40 @@
             });
 
         });
+
+        $(document).on('change', '.whatsapp_status input[type="checkbox"]', function() {
+            console.log('hii');
+            if ($('#whatsapp_status').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "whatsapp_status": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
+                    $('#alertMessage12').html(result);
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
 
         $(document).on('change', '.gcaptcha input[type="checkbox"]', function() {
             if ($('#captcha').prop("checked")) {
@@ -1969,6 +2067,9 @@
                 },
             });
         });
+
+
+
 
         <!------------------------------------------------------------------------------------------------------------------->
         /*
@@ -2739,6 +2840,99 @@
                     $("#submit").html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function () {
                         $('#alertMessage1').slideUp(2000);
+                    }, 6000);
+                },
+            })
+        });
+
+
+        $("#whatsapp-submit").on('click',function (e){ //When Submit button is clicked
+            if ($('#whatsapp-status').prop('checked')) {//if button is on
+                var whatsappStatus = 1;
+
+            } else {
+
+                var whatsappStatus = 0;
+            }
+
+
+
+            const userRequiredFields = {
+                name:@json(trans('message.git_username_s')),
+                type:@json(trans('message.git_password_s')),
+                config:@json(trans('message.git_password_s')),
+                token:@json(trans('message.git_password_s')),
+                url:@json(trans('message.git_password_s')),
+
+            };
+            var app_id=$('#whatsapp-app-id');
+            var app_secret=$('#whatsapp-app-secret');
+            var config_id=$('#whatsapp-config-id');
+            var token=$('#whatsapp-verify-token');
+            var callback_url=$('#whatsapp-callback-url');
+            const userFields = {
+                name:app_id,
+                type:app_secret,
+                config:config_id,
+                token:token,
+                url:callback_url,
+            };
+
+
+            // Clear previous errors
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.next().next('.error').remove();
+
+            });
+
+            let isValid = true;
+
+            const showError = (field, message) => {
+                field.addClass('is-invalid');
+                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+            };
+
+            // Validate required fields
+            Object.keys(userFields).forEach(field => {
+                if (!userFields[field].val()) {
+                    showError(userFields[field], userRequiredFields[field]);
+                    isValid = false;
+                }
+            });
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                preventDefault();
+            }
+
+            $("#whatsapp-submit").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
+            $.ajax ({
+                url: '{{url("whatsapp-integration-save")}}',
+                type : 'post',
+                data: {
+                    "status": whatsappStatus,
+                    "app_id": app_id.val(),"app_secret" : app_secret.val(),'config_id':config_id.val(),'verify_token':token.val(),'callback_url':callback_url.val(),
+                },
+                success: function (data) {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage-whatsapp').show();
+                    var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>' + data.message + '</div>';
+                    $('#alertMessage-whatsapp').html(result);
+                    $("#whatsapp-submit").html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
+                    setInterval(function () {
+                        $('#alertMessage-whatsapp').slideUp(3000);
+                    }, 1000);
+                },
+                error:function(data){
+                    $('#alertMessage-whatsapp').show();
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> {{ __('message.error') }} </strong>' + data.responseJSON.message + '</div>';
+                    $('#alertMessage-whatsapp').html(result);
+                    $("#whatsapp-submit").html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
+                    setInterval(function () {
+                        $('#alertMessage-whatsapp').slideUp(2000);
                     }, 6000);
                 },
             })
