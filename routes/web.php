@@ -67,7 +67,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('save-access-token',[\App\Http\Controllers\WhatsappController::class,'saveAccessToken']);
     Route::post('save-waba-id',[\App\Http\Controllers\WhatsappController::class,'saveWabaId']);
     Route::match(['get','post'],'faveo-whatsapp',[\App\Http\Controllers\WhatsappController::class,'whatsappWebhook']);
-    Route::get('whatsapp-integration',[\App\Http\Controllers\WhatsappController::class,'whatsappIntegration']);
+    Route::get('whatsapp-integration-info',[\App\Http\Controllers\WhatsappController::class,'whatsappIntegration']);
     Route::post('whatsapp-integration-save',[\App\Http\Controllers\WhatsappController::class,'whatsappSave']);
     Route::post('store_toggle_state', [Common\TemplateController::class, 'toggle'])->withoutMiddleware(['auth', 'admin']);
     Route::get('pricing', [Front\CartController::class, 'cart'])->name('pricing');
