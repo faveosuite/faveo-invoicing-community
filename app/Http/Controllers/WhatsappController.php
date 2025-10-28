@@ -5,22 +5,24 @@ namespace App\Http\Controllers;
 use App\WhatsappIntegration;
 use App\WhatsappIntegrationUser;
 use GuzzleHttp\Client;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
-Class WhatsappController extends Controller{
-
+class WhatsappController extends Controller
+{
     protected $client;
 
-    public function __construct(){
-        $this->client= new Client();
+    public function __construct()
+    {
+        $this->client = new Client();
     }
 
-    public function index(){
+    public function index()
+    {
         [$app_id, $config_id] =
-            array_values(WhatsappIntegration::first()?->only(['app_id','config_id']) ?? [null, null, null, null, null]);
+            array_values(WhatsappIntegration::first()?->only(['app_id', 'config_id']) ?? [null, null, null, null, null]);
 
-        return view('themes.default1.common.whatsapp-testing',compact('app_id','config_id'));
+        return view('themes.default1.common.whatsapp-testing', compact('app_id', 'config_id'));
     }
 
 //    public function enterToken(Request $request){
@@ -30,7 +32,8 @@ Class WhatsappController extends Controller{
 //
 //    }
 
-    public function saveAccessToken(Request $request){
+    public function saveAccessToken(Request $request)
+    {
         try {
             [$app_id, $app_secret] = array_values(WhatsappIntegration::select(['app_id', 'app_secret'])->first()->toArray());
             //To get the Token
@@ -44,7 +47,6 @@ Class WhatsappController extends Controller{
 
             $content = $response->json();
 
-
             //Exchange the token to get permanent token
             $access_token = $content['access_token'];
 
@@ -54,23 +56,24 @@ Class WhatsappController extends Controller{
                     'client_id' => $app_id,
                     'client_secret' => $app_secret,
                     'fb_exchange_token' => $access_token,
-                ]
+                ],
             ]);
 
             $content = $getToken->json();
 
-            WhatsappIntegrationUser::updateOrCreate(['user_id' => \Auth::user()->id], ['access_token' => $content['access_token'],'user_id'=>\Auth::user()->id]);
+            WhatsappIntegrationUser::updateOrCreate(['user_id' => \Auth::user()->id], ['access_token' => $content['access_token'], 'user_id' => \Auth::user()->id]);
             $this->saveNumber($content['access_token']);
+
             return successResponse(__('message.updated-successfully'));
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
 
-
-    public function saveNumber($access_token){
-        $phone_number_id=WhatsappIntegrationUser::where('user_id',\Auth::user()->id)->value('phone_number_id');
-        if($phone_number_id) {
+    public function saveNumber($access_token)
+    {
+        $phone_number_id = WhatsappIntegrationUser::where('user_id', \Auth::user()->id)->value('phone_number_id');
+        if ($phone_number_id) {
             $data = Http::get("https://graph.facebook.com/v21.0/{$phone_number_id}", [
                 'fields' => 'display_phone_number',
                 'access_token' => $access_token,
@@ -80,20 +83,23 @@ Class WhatsappController extends Controller{
         }
     }
 
-    public function saveWabaId(Request $request){
+    public function saveWabaId(Request $request)
+    {
         try {
             $wabaId = $request->input('wabaId');
             $phoneNumberId = $request->input('phoneNumberId');
             $business_id = $request->input('business_id');
             WhatsappIntegrationUser::create(['user_id' => \Auth::user()->id, 'waba_id' => $wabaId,
-                            'phone_number_id' => $phoneNumberId, 'business_id' => $business_id]);
+                'phone_number_id' => $phoneNumberId, 'business_id' => $business_id]);
+
             return successResponse(__('message.updated-successfully'));
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
 
-    public function whatsappWebhook(Request $request){
+    public function whatsappWebhook(Request $request)
+    {
         // Handle GET request (Verification)
         if ($request->isMethod('get')) {
             $verify_token = WhatsappIntegration::select('verify_token')->first();
@@ -112,7 +118,7 @@ Class WhatsappController extends Controller{
             $data = $request->all();
             \Log::debug('WhatsApp Webhook event:', [$data]);
 
-            if(!empty($data['entry'][0]['id'])) {
+            if (! empty($data['entry'][0]['id'])) {
                 $wabaId = $data['entry'][0]['id'];
                 $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('url');
                 $response = $this->client->post($url, ['json' => $data, // sends as JSON
@@ -126,7 +132,6 @@ Class WhatsappController extends Controller{
         }
 
         return response('Method Not Allowed', 405);
-
     }
 
     public function whatsappIntegration()
@@ -143,22 +148,22 @@ Class WhatsappController extends Controller{
             ];
 
             return successResponse('', $data);
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
 
-
-    public function whatsappSave(Request $request){
+    public function whatsappSave(Request $request)
+    {
         try {
             [$app_id, $app_secret, $config_id, $verify_token, $callback_url] = array_values(
                 $request->only(['app_id', 'app_secret', 'config_id', 'verify_token', 'callback_url'])
             );
             WhatsappIntegration::UpdateorCreate(['id' => 1], ['app_id' => $app_id, 'app_secret' => $app_secret, 'config_id' => $config_id, 'verify_token' => $verify_token, 'callback_url' => $callback_url]);
+
             return successResponse(__('message.updated-successfully'));
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
-
 }
