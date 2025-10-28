@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('app_id');
             $table->string('app_secret');
             $table->string('verify_token');
-            $table->string('callback_url');
             $table->string('config_id');
             $table->timestamps();
         });

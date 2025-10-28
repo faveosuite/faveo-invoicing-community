@@ -697,11 +697,6 @@
                         {!! html()->text('verify_token')->class('form-control whatsapp-verify-token')->id('whatsapp-verify-token') !!}
                         <h6 id="pipedrive_keycheck"></h6>
                     </div>
-                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! html()->label('Callback_Url', 'callback_url')->class('required') !!}
-                        {!! html()->text('callback_url')->class('form-control whatsapp-callback-url')->id('whatsapp-callback-url') !!}
-                        <h6 id="pipedrive_keycheck"></h6>
-                    </div>
 
 
                 </div>
