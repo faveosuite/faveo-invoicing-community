@@ -5,7 +5,7 @@
     // SDK initialization
     window.fbAsyncInit = function() {
         FB.init({
-            appId: '802421802601961',
+            appId: {{$app_id}},
             autoLogAppEvents: true,
             xfbml: true,
             version: 'v24.0'
@@ -19,7 +19,19 @@
             const data = JSON.parse(event.data);
             if (data.type === 'WA_EMBEDDED_SIGNUP') {
                 console.log('message event: ', data);
-                // your code goes here
+                $.ajax ({
+                    url: '{{url("save-waba-id")}}',
+                    type : 'post',
+                    data: {
+                        "waba_id": data.waba_id,"phone_number_id":data.phone_number_id,"business_id":data.business_id,
+                    },
+                    success: function (data) {
+                        console.log(data);
+                    },
+                    error:function(data){
+                        console.log(data);
+                    },
+                })
             }
         } catch {
             console.log('message event: ', event.data);
@@ -31,11 +43,23 @@
     const fbLoginCallback = (response) => {
         if (response.authResponse) {
             const code = response.authResponse.code;
-            console.log('response1: ', code); // remove after testing
-
+            console.log('response1: ', code);
+            $.ajax ({
+                url: '{{url("save-access-token")}}',
+                type : 'post',
+                data: {
+                    "code": code,
+                },
+                success: function (data) {
+                    console.log(data);
+                },
+                error:function(data){
+                    console.log(data);
+                },
+            })
             // your code goes here
         } else {
-            console.log('response2: ', response); // remove after testing
+            console.log('response2: ', response);
             // your code goes here
         }
     }
@@ -43,7 +67,7 @@
     // Launch method and callback registration
     const launchWhatsAppSignup = () => {
         FB.login(fbLoginCallback, {
-            config_id: '1613294093413891',
+            config_id: {{$config_id}},
             response_type: 'code',
             override_default_response_type: true,
             extras: {
