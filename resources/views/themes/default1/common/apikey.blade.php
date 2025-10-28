@@ -1417,7 +1417,7 @@
         $(document).on('click', '#whatsapp-edit-button', function() {
             $.ajax({
 
-                url : '{{url("whatsapp-integration")}}',
+                url : '{{url("whatsapp-integration-info")}}',
                 type : 'get',
                 success: function (response) {
                     $('#whatsapp-app-id').val(response['data']['app_id']);
