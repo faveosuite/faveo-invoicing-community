@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
 use App\WhatsappIntegration;
 use App\WhatsappIntegrationUser;
 use GuzzleHttp\Client;
@@ -29,6 +30,44 @@ Class WhatsappController extends Controller{
 //        return view('themes.default1.common.whatsapp-index',compact('app_id','app_secret','config_id'));
 //
 //    }
+
+
+    public function index1(){
+        return view('themes.default1.common.whatsapp-index');
+    }
+
+
+    public function whatsappTable(){
+        $query = WhatsappIntegrationUser::select('*');
+        return \DataTables::of($query)
+            ->orderColumn('UserName', '-created_at $1')
+            ->orderColumn('PhoneNumber', '-created_at $1')
+            ->orderColumn('WabaId', '-created_at $1')
+            ->orderColumn('PhoneNumberId', '-created_at $1')
+            ->orderColumn('BusinessId', '-created_at $1')
+            ->addColumn('UserName', function ($model) {
+                $user = User::select('first_name', 'last_name')->find($model->user_id);
+                return $user ? "{$user->first_name} {$user->last_name}" : '';
+            })
+            ->addColumn('PhoneNumber', function ($model) {
+                return $model->phone_number;
+            })
+            ->addColumn('WabaId', function ($model) {
+                return $model->waba_id;
+            })
+            ->addColumn('PhoneNumberId', function ($model) {
+                return $model->phone_number_id;
+            })
+            ->addColumn('BusinessId', function ($model) {
+                return $model->business_id;
+            })
+            ->addColumn('created_at', function ($model) {
+                return  getDateHtml($model->created_at);
+            })
+
+            ->rawColumns(['UserName', 'PhoneNumber', 'WabaId', 'PhoneNumberId','BusinessId','created_at'])
+            ->make(true);
+    }
 
     public function saveAccessToken(Request $request){
         try {
