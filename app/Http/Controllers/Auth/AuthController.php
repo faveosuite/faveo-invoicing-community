@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\License\LicenseController;
 use App\Jobs\AddUserToExternalService;
 use App\Model\Common\StatusSetting;
+use App\Model\Common\TemplateType;
 use App\Model\User\AccountActivate;
 use App\User;
 use App\VerificationAttempt;
@@ -409,7 +410,7 @@ class AuthController extends BaseAuthController
         $template = $templates
                 ->join('template_types', 'templates.type', '=', 'template_types.id')
                 ->where('template_types.name', '=', 'sales_manager_email')
-                ->select('templates.data', 'templates.name')
+                ->select('templates.data', 'templates.name', 'type')
                 ->first();
         $template_data = $template->data;
         $template_name = $template->name;
@@ -427,7 +428,7 @@ class AuthController extends BaseAuthController
             'reply_email' => $setting->company_email,
         ];
         $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($from, $to, $template_data, $template_name, 'sales-manager-mail', $replace, $template->type()->value('name'), $bcc);
+        $mail->SendEmail($from, $to, $template_data, $template_name, 'sales-manager-mail', $replace, TemplateType::where('id', $template->type)->value('name'), $bcc);
     }
 
     public function accountManagerMail($user, $bcc = [])
@@ -446,7 +447,7 @@ class AuthController extends BaseAuthController
         $template = $templates
                 ->join('template_types', 'templates.type', '=', 'template_types.id')
                 ->where('template_types.name', '=', 'account_manager_email')
-                ->select('templates.data', 'templates.name')
+                ->select('templates.data', 'templates.name', 'type')
                 ->first();
         $template_data = $template->data;
         $template_name = $template->name;
@@ -464,7 +465,7 @@ class AuthController extends BaseAuthController
             'reply_email' => $setting->company_email,
         ];
         $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($from, $to, $template_data, $template_name, 'account-manager-mail', $replace, $template->type()->value('name'), $bcc);
+        $mail->SendEmail($from, $to, $template_data, $template_name, 'account-manager-mail', $replace,  TemplateType::where('id', $template->type)->value('name'), $bcc);
     }
 
     public function verify()

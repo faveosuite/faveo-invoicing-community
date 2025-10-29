@@ -858,6 +858,7 @@
                         }
                     },
                     columns: this.getColumns(type),
+                    order: [[ this.getCreatedAtColumnIndex(type), "desc" ]], // Default order by created_at DESC
                     language: {
                         processing: '<div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin"></i></div>',
                         emptyTable: `{{ __("log::lang.no_logs_found_for_category") }}`,
@@ -1009,7 +1010,24 @@
                 }
             },
 
-            deleteLogs() {
+            // New helper: return the column index (0-based) of the created_at column for each table type
+            getCreatedAtColumnIndex(type) {
+                switch(type) {
+                    case 'cron':
+                        // cron columns: command(0), description(1), duration(2), created_at(3), status(4)
+                        return 3;
+                    case 'exception':
+                        // exception columns: file(0), line(1), message(2), trace(3), created_at(4)
+                        return 4;
+                    case 'mail':
+                        // mail columns: sender_mail(0), receiver_mail(1), carbon_copy(2), blind_carbon_copy(3), subject(4), created_at(5), updated_at(6), status(7), action(8)
+                        return 5;
+                    default:
+                        return 0;
+                }
+            },
+
+                        deleteLogs() {
                 const toDate = document.getElementById('deleteToDate').value;
                 const deleteToDateEl = $('#deleteToDate');
                 const logTypesErrorEl = $('#logTypesError');
