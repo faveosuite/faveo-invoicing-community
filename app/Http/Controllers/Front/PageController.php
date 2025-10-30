@@ -527,6 +527,7 @@ class PageController extends Controller
                 $description = self::getPriceDescription($product->id);
                 $status = Product::find($product->id);
             }
+
             return view('themes.default1.common.template.shoppingcart', compact('templates', 'headline', 'tagline', 'description', 'status'));
         } catch (\Exception $ex) {
             \Logger::exception($ex);
@@ -601,6 +602,7 @@ class PageController extends Controller
             }
             dd($trasform);
             $data = PricingTemplate::findOrFail(1)->data;
+
             return $this->transformTemplate('cart', $data, $trasform);
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
