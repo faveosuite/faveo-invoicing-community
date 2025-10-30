@@ -34,6 +34,8 @@ class CspPolicy extends Policy
                 'www.googletagmanager.com',
                 'www.gstatic.com',
                 'unpkg.com',
+                'https://code.jquery.com',
+                'https://cdn.jsdelivr.net',
                 'https://connect.facebook.net',
                 'https://www.facebook.com/platform',
             ])
@@ -52,6 +54,7 @@ class CspPolicy extends Policy
                 'stackpath.bootstrapcdn.com',
                 'www.tinymce.com',
                 'unpkg.com',
+                'https://cdn.jsdelivr.net',
                 'https://www.facebook.com/platform/',
                 'https://www.facebook.com/',
             ])
