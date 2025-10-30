@@ -245,7 +245,7 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        'UserCart'=>App\Cart\UserCart::class,
+        'UserCart' => App\Cart\UserCart::class,
         'Activity' => Spatie\Activitylog\ActivitylogFacade::class,
         'Bugsnag' => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
         'Cart' => Darryldecode\Cart\Facades\CartFacade::class,

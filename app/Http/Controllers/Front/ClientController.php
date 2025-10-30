@@ -4,12 +4,16 @@ namespace App\Http\Controllers\Front;
 
 use App\ApiKey;
 use App\Auto_renewal;
+use App\Demo_page;
+use App\Facades\Cart;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\Order\RenewController;
+use App\Model\CloudDataCenters;
 use App\Model\Common\ChatScript;
 use App\Model\Common\CreditActivity;
 use App\Model\Common\Setting;
+use App\Model\Common\SocialMedia;
 use App\Model\Common\StatusSetting;
 use App\Model\Github\Github;
 use App\Model\Order\Invoice;
@@ -36,11 +40,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Razorpay\Api\Api;
-use App\Model\CloudDataCenters;
-use App\Model\Common\SocialMedia;
-use App\Demo_page;
-use App\Facades\Cart;
-
 
 class ClientController extends BaseClientController
 {
@@ -1619,6 +1618,7 @@ class ClientController extends BaseClientController
             $query->where('update_ends_at', '<', now());
         })
         ->count();
+
 //        return successResponse('',['pendingInvoiceCount'=>$pendingInvoicesCount,'ordersCount'=>$ordersCount,'renewalCount'=>$renewalCount]);
         return view('themes.default1.front.clients.index', compact('pendingInvoicesCount', 'ordersCount', 'renewalCount'));
     }
@@ -1837,18 +1837,18 @@ class ClientController extends BaseClientController
         }
     }
 
-
-    public function masterData(){
+    public function masterData()
+    {
         $dataCenters = CloudDataCenters::all();
         $setting = Setting::where('id', 1)->first();
         $scripts = ChatScript::where('on_every_page', 1)->get();
-        $status =  StatusSetting::select('v3_v2_recaptcha_status','recaptcha_status','v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms','cloud_button')->first();
+        $status = StatusSetting::select('v3_v2_recaptcha_status', 'recaptcha_status', 'v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms', 'cloud_button')->first();
         $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
         $social = SocialMedia::get();
-        $pages = \App\Model\Front\FrontendPage::where('publish', 1)->orderBy('created_at','asc')->get();
+        $pages = \App\Model\Front\FrontendPage::where('publish', 1)->orderBy('created_at', 'asc')->get();
 //        $cloud = \App\Model\Common\StatusSetting::where('id','1')->value('cloud_button');
         $Demo_page_status = Demo_page::first()->value('status');
-        $cart=new Cart();
+        $cart = new Cart();
         $localeMap = [
             'ar' => 'ae',
             'bsn' => 'bs',
@@ -1875,25 +1875,25 @@ class ClientController extends BaseClientController
             'tr' => 'tr',
         ];
         $currentLanguage = app()->getLocale();
-        $flagClass = 'flag-icon flag-icon-' . $localeMap[$currentLanguage];
-        $cloudSubDomain=CloudSubDomain();
-        $cloudPopUpDetails=CloudPopUpDetails();
-        $productGroup=\App\Model\Product\ProductGroup::where('hidden','!=', 1)->first();
-        return successResponse('success',[
+        $flagClass = 'flag-icon flag-icon-'.$localeMap[$currentLanguage];
+        $cloudSubDomain = CloudSubDomain();
+        $cloudPopUpDetails = CloudPopUpDetails();
+        $productGroup = \App\Model\Product\ProductGroup::where('hidden', '!=', 1)->first();
+
+        return successResponse('success', [
             'dataCenters' => $dataCenters,
             'setting' => $setting,
             'cloudSubDomain' => $cloudSubDomain,
-            'flagClass'=>$flagClass,
+            'flagClass' => $flagClass,
             'cloudPopUpDetails' => $cloudPopUpDetails,
-            'status'=>$status,
-            'cart'=>$cart->getContent(),
-            'Demo_page_status'=>$Demo_page_status,
-            'scripts'=>$scripts,
-            'pages'=>$pages,
-            'apiKeys'=>$apiKeys,
-            'social'=>$social,
-            'productGroup'=>$productGroup,
+            'status' => $status,
+            'cart' => $cart->getContent(),
+            'Demo_page_status' => $Demo_page_status,
+            'scripts' => $scripts,
+            'pages' => $pages,
+            'apiKeys' => $apiKeys,
+            'social' => $social,
+            'productGroup' => $productGroup,
         ]);
-
     }
 }
