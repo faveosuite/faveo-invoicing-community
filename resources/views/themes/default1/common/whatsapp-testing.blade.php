@@ -1,5 +1,34 @@
 @extends('themes.default1.layouts.master')
 
+
+<div class="modal fade" id="emailValidation" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Email Validation Provider</h4>
+            </div>
+            <div class="modal-body">
+                <div id="alertMessage22"></div>
+                <div class="form-group" id="emailToDisp">
+                    {!! html()->label(Lang::get('message.validation-provider'), 'user')->class('required') !!}
+                    <select name="manager" id="provider" class="form-control">
+                        <option value="reoon">{{Lang::get('message.reoon')}}</option>
+                    </select>
+                    <div class="input-group-append"></div>
+                </div>
+                <div class="form-group" id="emailToRender">
+                </div>
+
+            </div>
+
+            <div class="modal-footer justify-content-between">
+                <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
+                <button type="submit" class="form-group btn btn-primary"  id="submitEmail"><i class="fa fa-save">&nbsp;</i>{!!Lang::get("message.save")!!}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- SDK loading -->
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
 
@@ -69,6 +98,7 @@
 
     // Launch method and callback registration
     const launchWhatsAppSignup = () => {
+
         FB.login(fbLoginCallback, {
             config_id: {{$config_id}},
             response_type: 'code',

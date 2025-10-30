@@ -133,7 +133,7 @@ Class WhatsappController extends Controller{
     public function whatsappWebhook(Request $request){
         // Handle GET request (Verification)
         if ($request->isMethod('get')) {
-            $verify_token = WhatsappIntegration::select('verify_token')->first();
+            $verify_token = WhatsappIntegration::value('verify_token');
 
             $mode = $request->query('hub_mode');
             $token = $request->query('hub_verify_token');
@@ -147,8 +147,6 @@ Class WhatsappController extends Controller{
         }
         if ($request->isMethod('post')) {
             $data = $request->all();
-            \Log::debug('WhatsApp Webhook event:', [$data]);
-
             if(!empty($data['entry'][0]['id'])) {
                 $wabaId = $data['entry'][0]['id'];
                 $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('url');
