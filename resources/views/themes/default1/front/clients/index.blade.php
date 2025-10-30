@@ -124,7 +124,6 @@ $updated_ends_at = 'expired';
             method: "GET",
             success: function (response) {
                 var data = response.data;
-                console.log(data);
             },
         })
 </script>
