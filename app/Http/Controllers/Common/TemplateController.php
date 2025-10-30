@@ -220,7 +220,7 @@ class TemplateController extends Controller
             }
             $priceList = $this->getPriceList($id);
             $plan_options = '';
-            $plan_options1=[];
+            $plan_options1 = [];
             foreach ($priceList as $planId => $planPrice) {
                 $plan_options .= '<option value="'.$planId.'" data-price="'.$planPrice.'" data-description="'.$plans[$planId]['description'].'">'.$plans[$planId]['price'].'</option>';
 //                $plan_options1[$planId] =['planId'=>$planId,'price'=>$planPrice,'description'=>$plans[$planId]['description'],'processedPrice'=>$plans[$planId]['price']];

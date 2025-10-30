@@ -247,9 +247,10 @@ class WidgetController extends Controller
 
             if ($widget) {
                 $data[$widgetType] = $this->renderWidget($widget, $set, $social, $mailchimpKey);
-                $data1[$widgetType] = ['widget'=>$widget,'settings'=>$set,'socialMedia'=>$social,'mailchimpKey'=>$mailchimpKey];
+                $data1[$widgetType] = ['widget' => $widget, 'settings' => $set, 'socialMedia' => $social, 'mailchimpKey' => $mailchimpKey];
             }
         }
+
         return successResponse('success', $data);
     }
 
@@ -267,19 +268,19 @@ class WidgetController extends Controller
         $tweetDetails = $widget->allow_tweets == 1 ? '<div id="tweets" class="twitter"></div>' : '';
 
         $socialMedia = '';
-        $socialMedia1=[];
+        $socialMedia1 = [];
         if ($widget->allow_social_media) {
             // Social Media Icons
             $socialMedia .= '<ul class="list list-unstyled">';
             if ($set->company_email) {
-                $socialMedia1['email']=$set->company_email;
+                $socialMedia1['email'] = $set->company_email;
                 $socialMedia .= '<li class="d-flex align-items-center mb-4">
                                     <i class="fa-regular fa-envelope fa-xl"></i>&nbsp;&nbsp;
                                     <a href="mailto:'.$set->company_email.'" class="d-inline-flex align-items-center text-decoration-none text-color-grey text-color-hover-primary font-weight-semibold text-4-5">'.$set->company_email.'</a>
                                 </li>';
             }
             if ($set->phone) {
-                $socialMedia1['phone']=$set->phone;
+                $socialMedia1['phone'] = $set->phone;
                 $socialMedia .= '<li class="d-flex align-items-center mb-4">
                                     <i class="fas fa-phone text-4 p-relative top-2"></i>&nbsp;
                                     <a href="tel:'.$set->phone.'" class="d-inline-flex align-items-center text-decoration-none text-color-grey text-color-hover-primary font-weight-semibold text-4-5">+'.$set->phone_code.' '.$set->phone.'</a>
@@ -290,8 +291,8 @@ class WidgetController extends Controller
             // Social Icons
             $socialMedia .= '<ul class="social-icons social-icons-clean social-icons-medium">';
             foreach ($social as $media) {
-                $socialMedia1['socialMediaName']=$media->name;
-                $socialMedia1['socialMediaUrl']=$media->link;
+                $socialMedia1['socialMediaName'] = $media->name;
+                $socialMedia1['socialMediaUrl'] = $media->link;
                 $socialMedia .= '<li class="social-icons-'.strtolower($media->name).'">
                                     <a href="'.$media->link.'" target="_blank" data-bs-toggle="tooltip" title="'.ucfirst($media->name).'">
                                         <i class="fab fa-'.strtolower($media->name).' text-color-grey-lighten"></i>
@@ -316,11 +317,11 @@ class WidgetController extends Controller
                                                             <label>'.__('message.contact_leave').'</label>
                                                             <input type="text" name="mailhoneypot_field" value="">
                                                         </div>';
-            $socialMedia1['mailchimpStatus']=1;
+            $socialMedia1['mailchimpStatus'] = 1;
             if ($status->recaptcha_status === 1 || $status->v3_recaptcha_status === 1) {
-                $socialMedia1['recaptchaStatus']=1;
+                $socialMedia1['recaptchaStatus'] = 1;
                 if ($status->recaptcha_status === 1) {
-                    $socialMedia1['recaptchaType']='v2';
+                    $socialMedia1['recaptchaType'] = 'v2';
                     $mailchimpSection .= '
             <div class="mb-3">
                 <div id="mailchimp_recaptcha"></div>
@@ -329,7 +330,7 @@ class WidgetController extends Controller
             </div>
         ';
                 } elseif ($status->v3_recaptcha_status === 1) {
-                    $socialMedia1['recaptchaType']='v3';
+                    $socialMedia1['recaptchaType'] = 'v3';
                     $mailchimpSection .= '
                 <input type="hidden" id="g-recaptcha-mailchimp" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="mailChimp">
         ';
@@ -345,10 +346,11 @@ class WidgetController extends Controller
 
         // Add class if 'menu' class exists in the widget content
         if ($hasMenuClass) {
-            $socialMedia1['widgetContent']=$widget->content;
+            $socialMedia1['widgetContent'] = $widget->content;
             $widget->content = str_replace('<ul', '<ul class="list list-styled columns-lg-2 px-2"', $widget->content);
         }
-$socialMedia1['tweetDetails']=$tweetDetails;
+        $socialMedia1['tweetDetails'] = $tweetDetails;
+
 //        return $socialMedia1;
         return '<div class="col-lg-4">
                     <div class="widget-container">

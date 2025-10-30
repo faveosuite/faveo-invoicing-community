@@ -197,7 +197,7 @@ class Google2FAController extends Controller
                 $user->save();
             });
         } catch (\Exception $e) {
-            return errorResponse('fails',[$e->getMessage()]);
+            return errorResponse('fails', [$e->getMessage()]);
 //            return redirect('recovery-code')->with('fails', $e->getMessage());
         }
     }
