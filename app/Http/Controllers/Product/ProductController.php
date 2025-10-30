@@ -25,10 +25,11 @@ use App\Traits\Upload\ChunkUpload;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\DataTables;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
+
 // use Input;
 
 class ProductController extends BaseProductController
@@ -472,7 +473,7 @@ class ProductController extends BaseProductController
 
 //       To Delete the uploaded files when it is removed from the tinymce
         $product = $this->product->where('id', $id)->first();
-        $this->removeUploads($product->product_description,$request->input('product_description'));
+        $this->removeUploads($product->product_description, $request->input('product_description'));
         try {
             $licenseStatus = StatusSetting::pluck('license_status')->first();
             if ($licenseStatus) {
@@ -507,8 +508,8 @@ class ProductController extends BaseProductController
         }
     }
 
-
-    public function removeUploads($oldContent,$newContent){
+    public function removeUploads($oldContent, $newContent)
+    {
         preg_match_all('/<img[^>]+src="([^"]+)"/', $oldContent, $oldMatches);
         preg_match_all('/<img[^>]+src="([^"]+)"/', $newContent, $newMatches);
 
@@ -672,39 +673,40 @@ class ProductController extends BaseProductController
     </script>";
     }
 
-    public function uploadImage(Request $request){
-try {
-    $setting = Setting::find(1);
+    public function uploadImage(Request $request)
+    {
+        try {
+            $setting = Setting::find(1);
 
-    if ($request->hasFile('file')) {
-        $file = $request->file('file');
-        $filename = time().'_'.$file->getClientOriginalName();
-        $path = $file->storeAs('public/uploads/tinymce', $filename);
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $filename = time().'_'.$file->getClientOriginalName();
+                $path = $file->storeAs('public/uploads/tinymce', $filename);
+            }
 
-    }
+            if ($request->input('url')) {
+                $url = $request->input('url');
+                $client = new Client();
+                $response = $client->get($url, [
+                    'headers' => [
+                        'User-Agent' => 'Mozilla/5.0', // Some servers require User-Agent
+                    ],
+                ]);
+                $contents = $response->getBody()->getContents();
 
-    if($request->input('url')){
-        $url = $request->input('url');
-        $client = new Client();
-        $response = $client->get($url, [
-            'headers' => [
-                'User-Agent' => 'Mozilla/5.0' // Some servers require User-Agent
-            ]
-        ]);
-        $contents = $response->getBody()->getContents();
+                $ext = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
+                $filename = 'tinymce/'.uniqid().'.'.($ext ?: 'jpg');
+                Storage::put('public/uploads/'.$filename, $contents);
+                $path = Storage::url('public/uploads/'.$filename);
+            }
 
-        $ext = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
-        $filename = 'tinymce/' . uniqid() . '.' . ($ext ?: 'jpg');
-        Storage::put('public/uploads/' . $filename, $contents);
-        $path = Storage::url('public/uploads/' . $filename);
-    }
+            return response()->json([
+                'location' => asset(str_replace('public/', 'storage/', $path)),
+            ]);
+        } catch (\Exception $e) {
+            dd($e->getMessage());
 
-    return response()->json([
-        'location' => asset(str_replace('public/', 'storage/', $path))
-    ]);
-}catch (\Exception $e){
-    dd($e->getMessage());
-    return response()->json(['error' => 'No file uploaded.'], 500);
-}
+            return response()->json(['error' => 'No file uploaded.'], 500);
+        }
     }
 }
