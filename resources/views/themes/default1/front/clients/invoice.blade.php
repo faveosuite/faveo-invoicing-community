@@ -389,7 +389,6 @@
             $(window).on('load', function () {
                 const isFirstLogin = !localStorage.getItem('isLoggedIn');
                 const isModalFilled = localStorage.getItem('isModalFilled');
-
                 if (isFirstLogin && !isModalFilled) {
                     $('#myModal').modal({
                         backdrop: 'static',
@@ -398,6 +397,7 @@
                 }
 
                 $('#myModal form').on('submit', function () {
+                    console.log('hii');
                     localStorage.setItem('isModalFilled', 'true');
                 });
             });
