@@ -103,7 +103,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('contact-us', [Front\PageController::class, 'contactUs']);
     Route::post('contact-us', [Front\PageController::class, 'postContactUs']);
     Route::post('remove-coupon', [Front\CartController::class, 'removeCoupon']);
-    Route::post('remove-product',);
+    Route::post('remove-product');
     Route::get('confirm/payment', [RazorpayController::class, 'afterPayment']);
     Route::post('stripeUpdatePayment/confirm', [Front\ClientController::class, 'stripeUpdatePayment']);
     Route::get('get-my-payment/{orderid}/{userid}', [Front\ClientController::class, 'getPaymentByOrderId'])->name('get-my-payment');
@@ -133,13 +133,13 @@ Route::middleware('installAgora')->group(function () {
 
     Route::get('get-loginstate/{state}', [Auth\AuthController::class, 'getState']);
     Route::get('get-code', [WelcomeController::class, 'getCode']);
-    Route::get('get-currency', [WelcomeController::class, 'getCurrency'])->middleware('admin');//Not in use
+    Route::get('get-currency', [WelcomeController::class, 'getCurrency'])->middleware('admin'); //Not in use
 
     //Dashboard api's
     Route::get('client-dashboard', [Front\ClientController::class, 'index']); // use this or use the next one which will be very useful
     Route::get('client-dashboard-details', [Front\ClientController::class, 'clientDetails']);
 
-   // master api's
+    // master api's
     Route::get('master-data', [Front\ClientController::class, 'masterData'])->name('master-data');
     Route::post('demo-request', [Front\PageController::class, 'postDemoReq'])->withoutMiddleware(['auth']);
     Route::get('language/control', [LanguageController::class, 'fetchLangDropdownUsers']);
@@ -177,9 +177,8 @@ Route::middleware('installAgora')->group(function () {
     Route::get('autopaynow/{id}', [Front\ClientController::class, 'autoRenewbyid']);
 
     //cart api's
-    Route::get('cart-access',[Front\BaseClientController::class,'cartAccess']);
+    Route::get('cart-access', [Front\BaseClientController::class, 'cartAccess']);
     Route::post('cart/remove', [Front\CartController::class, 'cartRemove']);
-
 
     Route::post('strRenewal-enable', [Front\ClientController::class, 'enableAutorenewalStatus']);
     Route::post('renewal-disable', [Front\ClientController::class, 'disableAutorenewalStatus']);
@@ -190,8 +189,6 @@ Route::middleware('installAgora')->group(function () {
     Route::get('my-profile', [Front\ClientController::class, 'profile']);
     Route::patch('my-profile', [Front\ClientController::class, 'postProfile']);
     Route::patch('my-password', [Front\ClientController::class, 'postPassword']);
-
-
 
     // Post Route For Make Razorpay Payment Request
     Route::post('payment/{invoice}', [RazorpayController::class, 'payment'])->name('payment');
@@ -208,8 +205,6 @@ Route::middleware('installAgora')->group(function () {
     Route::post('/2fa/enable', [Google2FAController::class, 'enableTwoFactor']);
     Route::post('2fa/disable/{userId?}', [Google2FAController::class, 'disableTwoFactor']);
 
-
-
     Route::post('2fa/setupValidate', [Google2FAController::class, 'postSetupValidateToken']);
     Route::get('verify-password', [Google2FAController::class, 'verifyPassword']);
     Route::post('2fa-recovery-code', [Google2FAController::class, 'generateRecoveryCode']);
@@ -225,7 +220,6 @@ Route::middleware('installAgora')->group(function () {
     Route::get('get-social-media', [Common\SocialMediaController::class, 'getSocials'])->name('get-social-media');
     Route::delete('social-delete', [Common\SocialMediaController::class, 'destroy'])->name('social-delete');
 
-
     Route::get('/', [DashboardController::class, 'index']);
 
     Route::get('/auth/redirect/{provider}', [Auth\LoginController::class, 'redirectToGithub']);
@@ -233,7 +227,6 @@ Route::middleware('installAgora')->group(function () {
 
     Route::get('activate/{token}', [Auth\AuthController::class, 'activate']);
     Route::get('footer1', [Front\WidgetController::class, 'footer1'])->name('footer1')->withoutMiddleware(['auth', 'admin']);
-
 
     /*
      * Client api's completion
@@ -246,8 +239,6 @@ Route::middleware('installAgora')->group(function () {
     /*
      * Contact API
      */
-
-
 
     Route::get('contact-option', [Common\SettingsController::class, 'contactOption'])->name('contact-option');
     Route::post('verificationSettings', [Common\SettingsController::class, 'postContactOption']);

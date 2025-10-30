@@ -545,19 +545,18 @@ class BaseClientController extends Controller
         return view('themes.default1.front.clients.changeDomain-popup', compact('orderNumber'));
     }
 
-    public function cartAccess(Request $request){
+    public function cartAccess(Request $request)
+    {
         $method = $request->input('method');
-        $deliverable=match($method){
-            'clear'=>UserCart::clear(),
-            'getContent'=>UserCart::getContent(),
-            'getTotal'=>UserCart::getTotal(),
-            'isEmpty'=>UserCart::isEmpty(),
-            'getTotalQuantity'=>UserCart::getTotalQuantity(),
-            'default'=>null,
+        $deliverable = match ($method) {
+            'clear' => UserCart::clear(),
+            'getContent' => UserCart::getContent(),
+            'getTotal' => UserCart::getTotal(),
+            'isEmpty' => UserCart::isEmpty(),
+            'getTotalQuantity' => UserCart::getTotalQuantity(),
+            'default' => null,
         };
 
-        return successResponse('success',$deliverable);
+        return successResponse('success', $deliverable);
     }
-
-
 }

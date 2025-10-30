@@ -107,7 +107,7 @@ class LoginController extends Controller
             $user = Auth::user();
 
             // 3. Handle post-authentication checks (Verification)
-            if (!$this->userNeedVerified($user)) {
+            if (! $this->userNeedVerified($user)) {
                 return $this->handleUnverifiedUser($user);
             }
 
