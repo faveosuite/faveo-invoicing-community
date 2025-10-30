@@ -200,7 +200,7 @@ class OrderController extends BaseOrderController
                         ->value('last_active');
                     $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>';
                     if ($model->subscription_updated_at) {
-                        $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>'.installationStatusLabel((!empty($last_active) && ($last_active > $ExpireDate)) ? 1 : 0);
+                        $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>'.installationStatusLabel((! empty($last_active) && ($last_active > $ExpireDate)) ? 1 : 0);
                     }
                     if ($model->order_status == 'Terminated') {
                         $badge = 'badge';
@@ -517,7 +517,7 @@ class OrderController extends BaseOrderController
                     if ($order) {
                         $installation_path = \DB::table('installation_details')->where('order_id', $order->id)->where('installation_path', '!=', cloudCentralDomain())->value('installation_path');
                         if ($installation_path) {
-                            event(new UserOrderDelete($installation_path,$order->id));
+                            event(new UserOrderDelete($installation_path, $order->id));
                         }
                         $order->delete();
                     } else {
