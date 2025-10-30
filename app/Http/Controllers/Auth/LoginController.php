@@ -96,7 +96,7 @@ class LoginController extends Controller
             RateLimiter::hit("login-attempt:{$rateLimitKey}");
 
             // 2. Attempt to authenticate the user
-            if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+            if (! Auth::attempt($credentials, $request->boolean('remember'))) {
                 return back()
                     ->withInput($request->only('email_username', 'remember'))
                     ->with('fails', __('message.enter_valid_credentials'));
@@ -105,7 +105,7 @@ class LoginController extends Controller
             $user = Auth::user();
 
             // 3. Handle post-authentication checks (Verification)
-            if (!$this->userNeedVerified($user)) {
+            if (! $this->userNeedVerified($user)) {
                 return $this->handleUnverifiedUser($user);
             }
 
@@ -124,7 +124,7 @@ class LoginController extends Controller
 //            return successResponse('Logged In');
 
             return redirect()->to($this->redirectPath());
-        }catch(\Exception $ex){
+        } catch(\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }

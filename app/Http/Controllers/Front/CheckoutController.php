@@ -185,6 +185,7 @@ class CheckoutController extends InfoController
 
             User::where('id', \Auth::user()->id)->update(['billing_pay_balance' => 0]);
             $cart = $this->cart;
+
             return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain', 'amt_to_credit', 'curr', 'cart'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
