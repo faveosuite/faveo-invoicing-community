@@ -34,6 +34,8 @@ class CspPolicy extends Policy
                 'www.googletagmanager.com',
                 'www.gstatic.com',
                 'unpkg.com',
+                'https://code.jquery.com',
+                'https://cdn.jsdelivr.net',
             ])
             ->addDirective(Directive::STYLE, [
                 Keyword::REPORT_SAMPLE,
@@ -50,6 +52,7 @@ class CspPolicy extends Policy
                 'stackpath.bootstrapcdn.com',
                 'www.tinymce.com',
                 'unpkg.com',
+                'https://cdn.jsdelivr.net',
             ])
             ->addDirective(Directive::OBJECT, ['none'])
             ->addDirective(Directive::BASE, [Keyword::SELF])

@@ -197,7 +197,8 @@ class Google2FAController extends Controller
                 $user->save();
             });
         } catch (\Exception $e) {
-            return redirect('recovery-code')->with('fails', $e->getMessage());
+            return errorResponse('fails',[$e->getMessage()]);
+//            return redirect('recovery-code')->with('fails', $e->getMessage());
         }
     }
 
@@ -246,6 +247,7 @@ class Google2FAController extends Controller
         \Auth::login($user, $session->get('remember:user:id'));
         $this->convertCart();
 
+//        return successResponse('success',[(new LoginController())->redirectPath()]);
         return redirect()->to((new LoginController())->redirectPath());
     }
 

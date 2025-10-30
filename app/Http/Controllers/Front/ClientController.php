@@ -1513,7 +1513,7 @@ class ClientController extends BaseClientController
      *  Returns to client dashboard.
      *
      * @param
-     * @return \Illuminate\Contracts\View\View
+     * @return
      *
      * @throws
      */
@@ -1527,7 +1527,7 @@ class ClientController extends BaseClientController
             $query->where('update_ends_at', '<', now());
         })
         ->count();
-
+//        return successResponse('',['pendingInvoiceCount'=>$pendingInvoicesCount,'ordersCount'=>$ordersCount,'renewalCount'=>$renewalCount]);
         return view('themes.default1.front.clients.index', compact('pendingInvoicesCount', 'ordersCount', 'renewalCount'));
     }
 
