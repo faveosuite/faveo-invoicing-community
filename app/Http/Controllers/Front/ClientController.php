@@ -918,12 +918,12 @@ class ClientController extends BaseClientController
 
             $planIdOld = \App\Model\Product\Subscription::where('order_id', $id)->value('plan_id');
             $planNameReal = \App\Model\Payment\Plan::where('id', $planIdOld)->value('name');
-
+            $whatsappStatus=$product->whatsapp_integration;
             return view(
                 'themes.default1.front.clients.show-order',
                 compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date',
                     'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment', 'stripe_key', 'json', 'gateways',
-                    'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal'
+                    'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal','whatsappStatus'
                 )
             );
         } catch (Exception $ex) {
