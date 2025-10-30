@@ -85,41 +85,45 @@ class LoginController extends Controller
      * Handle a login request to the application.
      *
      * @param  LoginRequest  $request
-     * @return RedirectResponse
+     * @return
      */
     public function login(LoginRequest $request) // 2. Type-hint the LoginRequest
     {
-        // 1. Prepare credentials for both email and username login
-        $credentials = $this->buildCredentials($request);
+        try {
+            // 1. Prepare credentials for both email and username login
+            $credentials = $this->buildCredentials($request);
 
-        $rateLimitKey = $this->getLoginRateLimitKey($request->input('email_username'));
-        RateLimiter::hit("login-attempt:{$rateLimitKey}");
+            $rateLimitKey = $this->getLoginRateLimitKey($request->input('email_username'));
+            RateLimiter::hit("login-attempt:{$rateLimitKey}");
 
-        // 2. Attempt to authenticate the user
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
-            return errorResponse(__('message.enter_valid_credentials'));
+            // 2. Attempt to authenticate the user
+            if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+                return errorResponse(__('message.enter_valid_credentials'));
+            }
+
+            $user = Auth::user();
+
+            // 3. Handle post-authentication checks (Verification)
+            if (!$this->userNeedVerified($user)) {
+                return $this->handleUnverifiedUser($user);
+            }
+
+            // 4. Check if the user has 2FA enabled
+            if ($user->is_2fa_enabled) {
+                return $this->handleTwoFactorAuthentication($request, $user);
+            }
+
+            // 5. Regenerate session for security
+            Session::regenerate();
+
+            $this->convertCart();
+
+            $this->logActivityLogin($user);
+
+            return successResponse('', ['redirect' => $this->redirectPath()]
+        }catch(\Exception $ex){
+            return errorResponse($ex->getMessage());
         }
-
-        $user = Auth::user();
-
-        // 3. Handle post-authentication checks (Verification)
-        if (! $this->userNeedVerified($user)) {
-            return $this->handleUnverifiedUser($user);
-        }
-
-        // 4. Check if the user has 2FA enabled
-        if ($user->is_2fa_enabled) {
-            return $this->handleTwoFactorAuthentication($request, $user);
-        }
-
-        // 5. Regenerate session for security
-        Session::regenerate();
-
-        $this->convertCart();
-
-        $this->logActivityLogin($user);
-
-        return successResponse('', ['redirect' => $this->redirectPath()]);
     }
 
     /**
