@@ -5,7 +5,7 @@
 @section('content-header')
 
     <div class="col-sm-6 md-6">
-        <h1>{{ __('message.third_party_integrations') }}</h1>
+        <h1>WhatsApp Users</h1>
     </div>
     <div class="col-sm-6 md-6">
         <ol class="breadcrumb float-sm-right">
@@ -16,15 +16,15 @@
     </div><!-- /.col -->
 @stop
 @section('content')
-
-
-    <div class="card card-secondary card-outline" >
+<?php
+$products= App\Model\Product\Product::get();
+?>
 
         <!-- /.box-header -->
         <div class="card-body">
             <div id="alertMessage12"></div>
-            {{--            <div class="scrollit" style="height:1000px">--}}
-            <div class="row" style="height:960px">
+
+            <div class="row" style="height:760px">
                 <div class="col-md-12">
                     <table id="custom-table" class="table display" cellspacing="0" width="100%">
                         <thead>
@@ -45,6 +45,18 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#products').select2({
+            placeholder: "Select products",
+            allowClear: true
+        });
+    });
+</script>
+
 <script>
     $(document).ready(function () {
         $('#custom-table').DataTable({
