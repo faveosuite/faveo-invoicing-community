@@ -189,8 +189,7 @@ class LoginController extends Controller
         $defaultPath = ($auth && $auth->role === 'user')
             ? '/client-dashboard'
             : '/';
-
-        $defaultPath=(\Cart::getContent() !== null)?'/show/cart':$defaultPath;
+        $defaultPath=(\Cart::isEmpty() === false)?'/show/cart':$defaultPath;
         return redirect()->intended($defaultPath)->getTargetUrl();
     }
 
