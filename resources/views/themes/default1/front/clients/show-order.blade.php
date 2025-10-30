@@ -312,6 +312,14 @@
                                 </a>
                             </li>
                         @endif
+                        @if($whatsappStatus)
+                            <li class="nav-item">
+
+                                <a class="nav-link" href="#whats-app-integration" data-bs-toggle="tab" data-hash data-hash-offset="0"
+                                   data-hash-offset-lg="500" data-hash-delay="500">WhatsApp SignUp
+                                </a>
+                            </li>
+                            @endif
                     </ul>
                 </aside>
             </div>
@@ -787,8 +795,21 @@
                         </div>
                     </div>
                 </div>
+
+    <div class="tab-pane tab-pane-navigation" id="whats-app-integration" role="tabpanel">
+
+        <div class="row">
+
+            <div class="col">
+                <button onclick="launchWhatsAppSignup()" style="background-color: #1877f2; border: 0; border-radius: 4px; color: #fff; cursor: pointer; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: bold; height: 40px; padding: 0 24px;">Login with Facebook</button>
+
+
+
             </div>
         </div>
+    </div>
+    </div>
+    </div>
     </div>
 
     <div class="modal fade" id="autorenewModal" tabindex="-1" role="dialog" aria-labelledby="autorenewModalLabel" aria-hidden="true">
