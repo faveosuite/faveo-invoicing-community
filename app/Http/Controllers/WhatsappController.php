@@ -19,7 +19,7 @@ Class WhatsappController extends Controller{
 
     public function index(){
         [$app_id, $config_id] =
-            array_values(WhatsappIntegration::first()?->only(['app_id','config_id']) ?? [null, null, null, null, null]);
+            array_values(WhatsappIntegration::first()?->only(['app_id','config_id']) ?? [null, null]);
 
         return view('themes.default1.common.whatsapp-testing',compact('app_id','config_id'));
     }
@@ -131,36 +131,44 @@ Class WhatsappController extends Controller{
     }
 
     public function whatsappWebhook(Request $request){
-        // Handle GET request (Verification)
-        if ($request->isMethod('get')) {
-            $verify_token = WhatsappIntegration::value('verify_token');
+        try {
 
-            $mode = $request->query('hub_mode');
-            $token = $request->query('hub_verify_token');
-            $challenge = $request->query('hub_challenge');
+            // Handle GET request (Verification)
+            if ($request->isMethod('get')) {
+                $verify_token = WhatsappIntegration::value('verify_token');
 
-            if ($mode === 'subscribe' && $token === $verify_token) {
-                return response($challenge, 200);
+                $mode = $request->query('hub_mode');
+                $token = $request->query('hub_verify_token');
+                $challenge = $request->query('hub_challenge');
+
+                if ($mode === 'subscribe' && $token === $verify_token) {
+                    return response($challenge, 200);
+                }
+
+                return response('Forbidden', 403);
+            }
+            if ($request->isMethod('post')) {
+                $data = $request->all();
+               // if (!empty($data['entry'][0]['id'])) {
+                    $wabaId = $data['entry'][0]['id'];
+//                    $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('url');
+                    $url='https://qa.faveodemo.com/saifmaster/public/whatsapp';
+
+                    $response = $this->client->post($url, ['json' => $request, // sends as JSON
+                        'headers' => [
+                            'X-Webhook-Token' => env('WEBHOOK_TOKEN', 'secret-token'),
+                            'Accept' => 'application/json',
+                        ]]);
+                    \Log::debug('san_response',[$response->getBody()->getContents()]);
+               // }
+
+                return response('EVENT_RECEIVED', 200);
             }
 
-            return response('Forbidden', 403);
+            return response('Method Not Allowed', 405);
+        }catch (\Exception $exception){
+            \Log::debug('san_exp',[$exception->getMessage()]);
         }
-        if ($request->isMethod('post')) {
-            $data = $request->all();
-            if(!empty($data['entry'][0]['id'])) {
-                $wabaId = $data['entry'][0]['id'];
-                $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('url');
-                $response = $this->client->post($url, ['json' => $data, // sends as JSON
-                    'headers' => [
-                        'X-Webhook-Token' => env('WEBHOOK_TOKEN', 'secret-token'),
-                        'Accept' => 'application/json',
-                    ]]);
-            }
-
-            return response('EVENT_RECEIVED', 200);
-        }
-
-        return response('Method Not Allowed', 405);
 
     }
 
@@ -189,7 +197,7 @@ Class WhatsappController extends Controller{
             [$app_id, $app_secret, $config_id, $verify_token] = array_values(
                 $request->only(['app_id', 'app_secret', 'config_id', 'verify_token'])
             );
-            WhatsappIntegration::UpdateorCreate(['id' => 1], ['app_id' => $app_id, 'app_secret' => $app_secret, 'config_id' => $config_id, 'verify_token' => $verify_token]);
+            WhatsappIntegration::where('id',1)->update(['app_id' => $app_id, 'app_secret' => $app_secret, 'config_id' => $config_id, 'verify_token' => $verify_token]);
             return successResponse(__('message.updated-successfully'));
         }catch (\Exception $exception){
             return errorResponse($exception->getMessage());
