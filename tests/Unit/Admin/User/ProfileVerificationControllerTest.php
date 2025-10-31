@@ -32,7 +32,7 @@ class ProfileVerificationControllerTest extends DBTestCase
     }
 
     /**
-     * Test user can change email after verification
+     * Test user can change email after verification.
      */
     public function test_user_can_change_email_after_verification()
     {
@@ -83,7 +83,7 @@ class ProfileVerificationControllerTest extends DBTestCase
     }
 
     /**
-     * Check wrong OTP case for old email
+     * Check wrong OTP case for old email.
      */
     public function testCheckwithWrognOtpCodeForNewEmailVerification()
     {
@@ -124,7 +124,7 @@ class ProfileVerificationControllerTest extends DBTestCase
     }
 
     /**
-     * Check wrong OTP case for old email
+     * Check wrong OTP case for old email.
      */
     public function testCheckwithWrognOtpCodeForOldEmailVerification()
     {
@@ -245,7 +245,7 @@ class ProfileVerificationControllerTest extends DBTestCase
     }
 
     /**
-     * Check wrong OTP case for new email
+     * Check wrong OTP case for new email.
      */
     public function testCheckwithWrongOtpCodeForNewEmailVerification()
     {
@@ -274,7 +274,7 @@ class ProfileVerificationControllerTest extends DBTestCase
     }
 
     /**
-     * Check email already exists validation
+     * Check email already exists validation.
      */
     public function testCheckEmailExistOrNot()
     {
@@ -294,7 +294,7 @@ class ProfileVerificationControllerTest extends DBTestCase
     }
 
     /**
-     * Check mobile number already exists validation
+     * Check mobile number already exists validation.
      */
     public function testCheckMobileNoExist()
     {
