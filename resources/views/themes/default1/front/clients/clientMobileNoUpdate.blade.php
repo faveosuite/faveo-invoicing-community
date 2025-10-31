@@ -365,6 +365,7 @@
                     let mob2 = xhr.responseJSON || {};
                     let mobMsg2 = mob2.message || "{{ __('message.something_wrong') }}";
                     showValidationError(mobField2, errorBoxMob2,mobMsg2);
+                    $("#editMobileFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
                 },
             });
         }
@@ -451,7 +452,9 @@
                         .css("display", "block");
 
                     $("#otpAlertShowMsgMobile").text(authMsg);
-                    },
+                    $("#editMobileFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
+
+                },
             });
 
         }
