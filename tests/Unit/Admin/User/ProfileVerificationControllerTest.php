@@ -3,7 +3,6 @@
 namespace Tests\Unit\Admin\User;
 
 use App\Model\User\AccountActivate;
-use App\Model\User\Password;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
