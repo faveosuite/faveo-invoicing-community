@@ -11,109 +11,24 @@ use Illuminate\Support\Facades\Mail;
 use Mockery;
 use Tests\DBTestCase;
 
-class ProfileControllerTest extends DBTestCase
+class ProfileVerificationControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    protected $profileController;
+    protected $profileVerificationController;
 
     public function setUp(): void
     {
         parent::setUp();
         $this->withoutMiddleware();
         $this->getLoggedInUser('admin');
-        $this->profileController = Mockery::mock(\App\Http\Controllers\User\ProfileController::class)->makePartial();
-        $this->app->instance(\App\Http\Controllers\User\ProfileController::class, $this->profileController);
+        $this->profileVerificationController = Mockery::mock(\App\Http\Controllers\Front\ProfileVerificationController::class)->makePartial();
+        $this->app->instance(\App\Http\Controllers\Front\ProfileVerificationController::class, $this->profileVerificationController);
     }
 
     protected function createUser(array $attributes = []): User
     {
         return User::factory()->create($attributes);
-    }
-
-    public function testUpdateProfileWithoutAnyErrors()
-    {
-        $response = $this->call('PATCH', 'profile', [
-            'first_name' => 'update first',
-            'last_name' => 'update last',
-            'company' => 'update company',
-            'mobile' => '0123456789',
-            'address' => 'update address',
-            'timezone_id' => '1',
-            'user_name' => 'update name',
-            'email' => 'updated@example.com',
-            'country' => 'USA',
-        ]);
-
-        // Asserting all fields
-        $this->assertEquals('update first', $this->user->first_name);
-        $this->assertEquals('update last', $this->user->last_name);
-        $this->assertEquals('update company', $this->user->company);
-        $this->assertEquals('0123456789', $this->user->mobile);
-        $this->assertEquals('update address', $this->user->address);
-        $this->assertEquals('1', $this->user->timezone_id);
-        $this->assertEquals('update name', $this->user->user_name);
-        $this->assertEquals('updated@example.com', $this->user->email);
-    }
-
-    public function testUpdateProfileWithErrors()
-    {
-        $this->getLoggedInUser('admin');
-
-        $response = $this->call('PATCH', 'profile', [
-            'first_name' => 'update first',
-            'company' => 'update company',
-            'mobile' => '0123456789',
-            'address' => 'update address',
-            'timezone_id' => '1',
-            'user_name' => 'update name',
-        ]);
-
-        $response->assertSessionHasErrors(['email']);
-        $response->assertSessionHasErrors(['last_name']);
-    }
-
-    public function testUpdatePasswordSuccess()
-    {
-        // Manually update the password first
-        \Auth::user()->update(['password' => \Hash::make('Test@1234')]);
-
-        $response = $this->call('PATCH', 'password', [
-            'old_password' => 'Test@1234',
-            'new_password' => 'NewTest@1234',
-            'confirm_password' => 'NewTest@1234',
-        ]);
-
-        // Assert the password has been updated correctly
-        $this->assertTrue(\Hash::check('NewTest@1234', \Auth::user()->getAuthPassword()));
-
-        // Assert the old password no longer works
-        $this->assertFalse(\Hash::check('Test@1234', \Auth::user()->getAuthPassword()));
-
-        $this->assertEquals(session('success1'), 'Updated Successfully');
-    }
-
-    public function testPasswordResetLinkExpiredAfterUpdatingThePasswordFromUI()
-    {
-        $password = new \App\Model\User\Password();
-
-        $user = \Auth::user();
-        $token = str_random(40);
-        $activate = $password->create(['email' => $user->email, 'token' => $token, 'created_at' => \Carbon\Carbon::now()]);
-
-        $this->assertEquals(1, Password::where('email', $user->email)->get()->count());
-
-        \Auth::user()->update(['password' => \Hash::make('Test@1234')]);
-
-        Password::where('email', $user->email)->get();
-
-        $response = $this->call('PATCH', 'password', [
-            'old_password' => 'Test@1234',
-            'new_password' => 'NewTest@1234',
-            'confirm_password' => 'NewTest@1234',
-        ]);
-
-        $this->assertEquals(0, Password::where('email', $user->email)->get()->count());
     }
 
     public function test_user_can_change_email_after_verification()
@@ -249,7 +164,7 @@ class ProfileControllerTest extends DBTestCase
         $this->actingAs($user);
 
         // Mock sending OTP
-        $this->profileController->shouldReceive('sendOtpForNewMobileNo')
+        $this->profileVerificationController->shouldReceive('sendOtpForNewMobileNo')
             ->with('91', '8123456789', 'IN')
             ->andReturn([
                 'type' => 'success',
@@ -266,7 +181,7 @@ class ProfileControllerTest extends DBTestCase
         $response->assertStatus(200);
 
         // Mock verifying OTP
-        $this->profileController->shouldReceive('verifyOtpMobileNew')
+        $this->profileVerificationController->shouldReceive('verifyOtpMobileNew')
             ->with('91 8123456789', '123456')
             ->andReturn([
                 'type' => 'success',
@@ -277,8 +192,8 @@ class ProfileControllerTest extends DBTestCase
         $verifyResponse = $this->postJson('verify/newMobileNoOtp', [
             'mobile_to_verify' => '8123456789',
             'otp' => '123456',
-            'dial_code' => '91',
         ]);
+
         $verifyResponse->assertStatus(200);
 
         $this->postJson('/emailUpdateEditProfile', [
@@ -316,7 +231,7 @@ class ProfileControllerTest extends DBTestCase
         $this->actingAs($user);
 
         // Mock sending OTP
-        $this->profileController->shouldReceive('sendOtpForNewMobileNo')
+        $this->profileVerificationController->shouldReceive('sendOtpForNewMobileNo')
             ->with('91', '8123456789', 'IN')
             ->andReturn([
                 'type' => 'success',
@@ -333,7 +248,7 @@ class ProfileControllerTest extends DBTestCase
         $response->assertStatus(200);
 
         // Mock verifying OTP
-        $this->profileController->shouldReceive('verifyOtpMobileNew')
+        $this->profileVerificationController->shouldReceive('verifyOtpMobileNew')
             ->with('91 8123456789', '123456')
             ->andReturn([
                 'type' => 'success',

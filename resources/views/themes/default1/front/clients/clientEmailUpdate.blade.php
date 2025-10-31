@@ -285,6 +285,8 @@
                   .css("display", "block");
 
               $("#emailAlertShowMsg").text(message);
+              $("#editEmailFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
+
           },
       });
     });
