@@ -110,13 +110,13 @@ class ProfileVerificationController extends BaseAuthController
                 $q->where('name', $templateName);
             })->first();
 
-            if (!$template) {
-                throw new \Exception( __('message.something_wrong'));
+            if (! $template) {
+                throw new \Exception(__('message.something_wrong'));
             }
 
             $template_data = $template->data;
             $template_name = $template->name;
-            $website_url   = url('/contact-us');
+            $website_url = url('/contact-us');
             $type = TemplateType::where('id', $template->type)->first()->name ?? '';
 
             $replace = [
@@ -127,7 +127,6 @@ class ProfileVerificationController extends BaseAuthController
                 'app_name' => $settings->title,
                 'contact_url' => $website_url,
             ];
-
 
             $mail = new \App\Http\Controllers\Common\PhpMailController();
             $mail->SendEmail($settings->email, $email, $template_data, $template_name, $replace, $type);
@@ -294,6 +293,7 @@ class ProfileVerificationController extends BaseAuthController
 
             // Call MSG91 API
             $response = $this->makeRequest('POST', 'https://api.msg91.com/api/v5/otp', $queryParams);
+
             return $this->responseHandler($response);
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -362,7 +362,6 @@ class ProfileVerificationController extends BaseAuthController
             'otp.size' => __('validation.verify_otp.otp_size'),
         ]);
 
-
         try {
             $mobile = $request->mobile_to_verify;
             $otp = $request->otp;
@@ -374,8 +373,7 @@ class ProfileVerificationController extends BaseAuthController
 
             $response = $this->sendVerifyOTP($otp, $mobile);
 
-
-            if (!isset($response['type']) || $response['type'] !== 'success') {
+            if (! isset($response['type']) || $response['type'] !== 'success') {
                 return errorResponse($response['message'] ?? __('message.otp_invalid'));
             }
 
