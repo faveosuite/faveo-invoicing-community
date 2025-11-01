@@ -221,7 +221,6 @@ Route::middleware('installAgora')->group(function () {
         Route::delete('delete', [Common\SocialMediaController::class, 'deleteSocialMedia']);
     });
 
-
     Route::get('/', [DashboardController::class, 'index']);
 
     Route::get('/auth/redirect/{provider}', [Auth\LoginController::class, 'redirectToGithub']);
@@ -396,7 +395,6 @@ Route::middleware('installAgora')->group(function () {
         Route::get('list', [Payment\CurrencyController::class, 'getCurrencyList']);
         Route::post('update-currency', [Payment\CurrencyController::class, 'updatecurrency']);
         Route::post('dashboard-currency/{id}', [Payment\CurrencyController::class, 'setDashboardCurrency']);
-
     });
 
     /*

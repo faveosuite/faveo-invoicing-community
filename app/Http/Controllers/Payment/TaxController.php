@@ -49,7 +49,6 @@ class TaxController extends Controller
      *
      * @return \Response
      */
-
     public function getTaxOptionsApi()
     {
         try {
@@ -65,7 +64,6 @@ class TaxController extends Controller
                 'classes' => $classes,
                 'countries' => $countries,
             ]);
-
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage(), 500);
         }
@@ -78,9 +76,9 @@ class TaxController extends Controller
     {
         try {
             $searchString = $request->input('search-query', '');
-            $sortOrder    = $request->input('sort-order', 'desc');
-            $sortField    = $request->input('sort-field', 'created_at');
-            $limit        = $request->input('limit', 10);
+            $sortOrder = $request->input('sort-order', 'desc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = $request->input('limit', 10);
 
             $taxes = Tax::with('taxClass')
                 ->when($searchString, function ($query) use ($searchString) {
@@ -95,17 +93,16 @@ class TaxController extends Controller
 
             $taxes->getCollection()->transform(function ($tax) {
                 return [
-                    'id'              => $tax->id,
-                    'name'            => ucfirst($tax->name),
-                    'country'         => $tax->country,
-                    'state'           => $tax->state,
-                    'rate'            => $tax->rate ?: 'Default',
-                    'tax_class_name'  => $tax->taxClass ? ucfirst($tax->taxClass->name) : null,
+                    'id' => $tax->id,
+                    'name' => ucfirst($tax->name),
+                    'country' => $tax->country,
+                    'state' => $tax->state,
+                    'rate' => $tax->rate ?: 'Default',
+                    'tax_class_name' => $tax->taxClass ? ucfirst($tax->taxClass->name) : null,
                 ];
             });
 
-            return successResponse( __('message.tax_fetched'), ['data' => $taxes], 200);
-
+            return successResponse(__('message.tax_fetched'), ['data' => $taxes], 200);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -133,7 +130,7 @@ class TaxController extends Controller
                 ->simplePaginate($limit);
 
             // Map and format response
-           $taxable->getCollection()->map(function ($item) {
+            $taxable->getCollection()->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'state' => ucfirst($item->state),
@@ -145,13 +142,11 @@ class TaxController extends Controller
             });
 
             // Return success response
-            return successResponse('',$taxable);
-
+            return successResponse('', $taxable);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage(), 500);
         }
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -164,7 +159,7 @@ class TaxController extends Controller
         try {
             $tax = $this->tax->find($id);
 
-            if (!$tax) {
+            if (! $tax) {
                 return errorResponse(__('message.tax_record_not_found'), 404);
             }
 
@@ -185,7 +180,6 @@ class TaxController extends Controller
                 'state'         => $state,
                 'active'        => $active
             ]);
-
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -202,7 +196,7 @@ class TaxController extends Controller
         try {
             $rules = [
                 'name' => 'required',
-                'tax_classes_id' => 'required'
+                'tax_classes_id' => 'required',
             ];
 
             if ($request->tax_classes_id == 'Others') {
@@ -216,14 +210,14 @@ class TaxController extends Controller
             }
 
             $tax = $this->tax->find($id);
-            if (!$tax) {
+            if (! $tax) {
                 return errorResponse(__('message.tax_not_found'), 404);
             }
 
             $taxClassName = $request->tax_classes_id;
 
             $taxClass = TaxClass::where('name', $taxClassName)->first();
-            if (!$taxClass) {
+            if (! $taxClass) {
                 $taxClass = $this->tax_class->create(['name' => $taxClassName]);
             }
 
@@ -234,15 +228,14 @@ class TaxController extends Controller
                 $tax->update([
                     'country' => 'IN',
                     'state' => '',
-                    'rate' => ''
+                    'rate' => '',
                 ]);
             }
 
             return successResponse(__('message.tax_updated_successfully'), [
                 'tax' => $tax,
-                'tax_class' => $taxClass
+                'tax_class' => $taxClass,
             ]);
-
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -289,12 +282,10 @@ class TaxController extends Controller
             }
 
             return successResponse(__('message.deleted-successfully'));
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage(), 500);
         }
     }
-
 
     /**
      * @param  Request  $request
@@ -313,7 +304,7 @@ class TaxController extends Controller
             }
 
             return successResponse('', [
-                'states' => $states
+                'states' => $states,
             ]);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
@@ -325,7 +316,7 @@ class TaxController extends Controller
         try {
             $taxOption = $this->tax_option->find(1);
 
-            if (!$taxOption) {
+            if (! $taxOption) {
                 return errorResponse(__('message.tax_option_not_found'), 404);
             }
 
@@ -352,7 +343,7 @@ class TaxController extends Controller
         try {
             $rules = [
                 'name' => 'required',
-                'tax-name' => 'required'
+                'tax-name' => 'required',
             ];
 
             if ($request->input('name') == 'Others') {
@@ -366,7 +357,7 @@ class TaxController extends Controller
             }
 
             $taxClass = $this->tax_class->create([
-                'name' => $request->input('name')
+                'name' => $request->input('name'),
             ]);
 
             $country = $request->input('rate') ? $request->input('country') : 'IN';
@@ -381,9 +372,8 @@ class TaxController extends Controller
 
             return successResponse(__('message.created-successfully'), [
                 'tax' => $tax,
-                'tax_class' => $taxClass
+                'tax_class' => $taxClass,
             ]);
-
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage(), 500);
         }

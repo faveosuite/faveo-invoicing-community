@@ -21,10 +21,10 @@ class SocialMediaController extends Controller
         $this->social = $social;
     }
 
-     /**
-     * Get Social Media List
+    /**
+     * Get Social Media List.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function getSocialList(Request $request)
@@ -48,15 +48,14 @@ class SocialMediaController extends Controller
 
             $socials->getCollection()->transform(function ($social) {
                 return [
-                    'id'     => $social->id,
-                    'name'   => ucfirst($social->name),
-                    'link'   => $social->link,
+                    'id' => $social->id,
+                    'name' => ucfirst($social->name),
+                    'link' => $social->link,
                     'action' => hyperLinkGenerator("social-media/show/{$social->id}", __('message.edit')),
                 ];
             });
 
-            return successResponse( __('message.social_media_fetched'), $socials );
-
+            return successResponse(__('message.social_media_fetched'), $socials);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -75,12 +74,10 @@ class SocialMediaController extends Controller
             $social->save();
 
             return successResponse(__('message.saved-successfully'), $social);
-
         } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
-
 
     /**
      * Display the specified social media account.
@@ -88,18 +85,16 @@ class SocialMediaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-
     public function getSocialMedia($id)
     {
         try {
             $social = $this->social->find($id);
 
-            if (!$social) {
+            if (! $social) {
                 return errorResponse(__('message.no-record'), 404);
             }
 
-            return successResponse( __('message.social_media_fetched'),$social, 200);
-
+            return successResponse(__('message.social_media_fetched'), $social, 200);
         } catch (Exception $ex) {
             return $this->errorResponse($ex->getMessage());
         }
@@ -124,7 +119,6 @@ class SocialMediaController extends Controller
             $social->fill($request->validated())->save();
 
             return successResponse(__('message.updated-successfully'));
-
         } catch (Exception $ex) {
             return errorResponse($ex->getMessage(), 500);
         }
@@ -155,8 +149,7 @@ class SocialMediaController extends Controller
                 $social->delete();
             }
 
-            return successResponse( __('message.deleted-successfully'));
-
+            return successResponse(__('message.deleted-successfully'));
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }

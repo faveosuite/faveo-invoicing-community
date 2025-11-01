@@ -1144,11 +1144,11 @@ function formatDays(int $days)
  *
  * @param  string  $href  The URL for the hyperlink.
  * @param  string  $value  The display text for the hyperlink.
- * @return string  The generated HTML anchor tag.
+ * @return string The generated HTML anchor tag.
  */
 function hyperLinkGenerator($href, $value): string
 {
-    return "<a href='" . url($href) . "'>" . $value . "</a>";
+    return "<a href='".url($href)."'>".$value.'</a>';
 }
 
 /**
