@@ -24,72 +24,64 @@ class CurrencyController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
+     * Get Currency List
      *
-     * @return \Response
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function getCurrencyList(Request $request)
     {
-        return view('themes.default1.payment.currency.index');
-    }
+        try {
+            $searchString = $request->input('search-query', '');
+            $sortField = $request->input('sort-field', 'id');
+            $sortOrder = $request->input('sort-order', 'desc');
+            $limit = $request->input('limit', 10);
 
-    public function getCurrency()
-    {
-        $model = Currency::select('id', 'name', 'code', 'symbol', 'status');
+            // Get default currency
+            $defaultCurrency = Setting::pluck('default_currency')->first();
 
-        return \DataTables::of($model)
-            ->editColumn('name', function ($model) {
-                return e($model->name);
-            })
-            ->editColumn('code', function ($model) {
-                return '<div class="text-center">'.e($model->code).'</div>';
-            })
-            ->editColumn('symbol', function ($model) {
-                return '<div class="text-center">'.e($model->symbol).'</div>';
-            })
-            ->addColumn('dashboard', function ($model) {
-                if ($model->status == 1) {
-                    $showButton = $this->getButtonColor($model->id);
+            // Query for currencies
+            $currencyData = Currency::whereNotNull('name')
+                ->where('code', '!=', $defaultCurrency)
+                ->whereIn('id', function ($subQuery) use ($defaultCurrency) {
+                    $subQuery->selectRaw('MIN(id)')
+                        ->from('currencies')
+                        ->whereNotNull('name')
+                        ->where('code', '!=', $defaultCurrency)
+                        ->groupBy('name', 'code');
+                })
+                ->when($searchString, function ($q) use ($searchString) {
+                    $q->where(function ($inner) use ($searchString) {
+                        $inner->where('name', 'like', "%{$searchString}%")
+                            ->orWhere('code', 'like', "%{$searchString}%")
+                            ->orWhere('symbol', 'like', "%{$searchString}%");
+                    });
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
 
-                    return '<div class="dashboard-center">'.$showButton.'</div>';
-                } else {
-                    return '<div class="dashboard-center">
-                    <a class="btn btn-sm btn-secondary btn-xs disabled align-items-center" style="margin-right: 100px;">
-                        <i class="fa fa-eye" style="color:white;"></i>&nbsp;&nbsp;'.__('message.show_on_dashboard').'
-                    </a>
-                </div>';
-                }
-            })
-            ->editColumn('status', function ($model) {
-                $defaultCurrencyCode = Setting::value('default_currency');
-                $checked = $model->status == 1 ? 'checked' : '';
+            // Map data for JSON response
+             $currencyData->getCollection()->transform(function ($currency) use ($defaultCurrency) {
+                return [
+                    'id' => $currency->id,
+                    'name' => $currency->name,
+                    'code' => $currency->code,
+                    'symbol' => $currency->symbol,
+                    'status' => (bool) $currency->status,
+                    'is_default' => $currency->code === $defaultCurrency,
+                    'dashboard_currency' => (bool) $currency->dashboard_currency,
+                ];
+            });
+             $total = $currencyData->count();
 
-                // Check if default currency
-                $isDefault = $defaultCurrencyCode === $model->code;
 
-                $disabledAttr = $isDefault ? 'disabled' : '';
-                $style = $isDefault ? 'opacity: 0.6; pointer-events: none;' : '';
-                $title = $isDefault ? __('message.default-currency') : '';
-
-                return <<<HTML
-    <label class="switch toggle_event_editing" style="{$style}" title="{$title}">
-        <input type="hidden" name="module_id" class="module_id" value="{$model->id}">
-        <input type="checkbox" name="modules_settings" class="modules_settings_value" value="{$model->status}" {$checked} {$disabledAttr}>
-        <span class="slider round"></span>
-    </label>
-HTML;
-            })
-            ->filterColumn('name', function ($query, $keyword) {
-                $query->where('name', 'like', "%{$keyword}%");
-            })
-            ->filterColumn('code', function ($query, $keyword) {
-                $query->where('code', 'like', "%{$keyword}%");
-            })
-            ->filterColumn('symbol', function ($query, $keyword) {
-                $query->where('symbol', 'like', "%{$keyword}%");
-            })
-            ->rawColumns(['code', 'symbol', 'dashboard', 'status'])
-            ->make(true);
+            return successResponse(__('message.currency_list_retrieved_successfully'),[
+                'currencies' => $currencyData,
+                'total' => $total,
+            ]);
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage(), 500);
+        }
     }
 
     /**
@@ -129,7 +121,7 @@ HTML;
             $status = Currency::where('id', $status->id)->update(['dashboard_currency' => 0]);
         }
 
-        return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+        return successResponse(__('message.updated-successfully'));
     }
 
     /**
@@ -313,7 +305,11 @@ HTML;
 
                 $currency->update(['status' => $newStatus]);
 
-                return successResponse(__('message.updated-successfully'));
+                return successResponse(__('message.updated-successfully'), [
+                        'id' => $currency->id,
+                        'code' => $currency->code,
+                        'status' => $currency->status
+                    ]);
             });
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());

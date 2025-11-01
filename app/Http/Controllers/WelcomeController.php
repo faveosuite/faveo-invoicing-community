@@ -40,30 +40,29 @@ class WelcomeController extends Controller
         return $currency;
     }
 
-    public function getCountry()
-    {
-        return view('themes.default1.common.country-count');
-    }
+    /**
+     * Get country list with user count.
+     */
 
     public function countryCount()
     {
-        $users = Country::query()
-            ->select('country_name', 'country_code_char2 as code')
-            ->withCount('users');
+// Fetch countries with user count using relationship
+        $countries = Country::withCount('users')
+            ->where('country_name', '!=', '')
+            ->get(['country_name', 'country_code_char2']);
 
-        return DataTables::of($users)
-            ->addColumn('country', function ($model) {
-                return ucfirst($model->country_name);
-            })
-            ->addColumn('count', function ($model) {
-                return '<a href="'.url('clients?country='.$model->code).'">'
-                    .$model->users_count.'</a>';
-            })
-            ->orderColumn('count', 'users_count $1')
-            ->filterColumn('country', function ($query, $keyword) {
-                $query->where('country_name', 'like', "%{$keyword}%");
-            })
-            ->rawColumns(['count'])
-            ->make(true);
+        // Transform the output
+        $data = $countries->map(function ($country) {
+            return [
+                'country' => ucfirst($country->country_name ?? 'Unknown'),
+                'code'    => $country->country_code_char2 ?? '',
+                'count'   => $country->users_count ?? 0,
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data,
+        ]);
     }
 }
