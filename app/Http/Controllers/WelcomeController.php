@@ -40,34 +40,28 @@ class WelcomeController extends Controller
         return $currency;
     }
 
+    /**
+     * Get country list with user count.
+     */
     public function getCountry()
     {
-        return view('themes.default1.common.country-count');
-    }
+        // Fetch countries with user count using relationship
+        $countries = Country::withCount('users')
+            ->where('nicename', '!=', '')
+            ->get(['nicename', 'country_code_char2']);
 
-    public function countryCount()
-    {
-        $users = \App\User::leftJoin('countries', 'users.country', '=', 'countries.country_code_char2')
-        ->where('countries.nicename', '!=', '')
-                ->select('countries.nicename as country', 'countries.country_code_char2 as code', \DB::raw('COUNT(users.id) as count'))
+        // Transform the output
+        $data = $countries->map(function ($country) {
+            return [
+                'country' => ucfirst($country->nicename ?? 'Unknown'),
+                'code'    => $country->country_code_char2 ?? '',
+                'count'   => $country->users_count ?? 0,
+            ];
+        });
 
-                ->groupBy('users.country');
-
-        return DataTables::of($users)
-                            ->orderColumn('country', '-id $1')
-                            ->orderColumn('count', '-id $1')
-                            ->addColumn('country', function ($model) {
-                                return ucfirst($model->country);
-                            })
-                              ->addColumn('count', function ($model) {
-                                  return '<a href='.url('clients/'.$model->id.'?country='.$model->code).'>'
-                            .$model->count.'</a>';
-                              })
-                            ->filterColumn('country', function ($query, $keyword) {
-                                $sql = 'countries.nicename like ?';
-                                $query->whereRaw($sql, ["%{$keyword}%"]);
-                            })
-                            ->rawColumns(['country', 'count'])
-                            ->make(true);
+        return response()->json([
+            'status' => 'success',
+            'data' => $data,
+        ]);
     }
 }

@@ -2,195 +2,203 @@
 
 namespace App\Http\Controllers\Common;
 
-use App\Http\Controllers\Controller;
-use App\Model\Common\ChatScript;
-use Bugsnag;
-use Illuminate\Http\Request;
+    use App\Http\Controllers\Controller;
+    use App\Model\Common\ChatScript;
+    use Bugsnag;
+    use Illuminate\Http\Request;
 
-class ChatScriptController extends Controller
-{
-    public function __construct()
+    class ChatScriptController extends Controller
     {
-        $this->middleware('auth');
-        $this->middleware('admin');
+        public function __construct()
+        {
+            $this->middleware('auth');
+            $this->middleware('admin');
 
-        $script = new ChatScript();
-        $this->script = $script;
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        return view('themes.default1.common.chat.index');
-    }
-
-    public function getScript()
-    {
-        try {
-            return \DataTables::of($this->script->select('id', 'name'))
-                        ->addColumn('checkbox', function ($model) {
-                            return "<input type='checkbox' class='chat_checkbox' 
-                            value=".$model->id.' name=select[] id=check>';
-                        })
-                        ->orderColumn('name', '-created_at $1')
-                         ->addColumn('name', function ($model) {
-                             return $model->name;
-                         })
-
-                        ->addColumn('action', function ($model) {
-                            return '<a href='.url('chat/'.$model->id.'/edit').
-                            " class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit'
-                                 style='color:white;'> </i></a>";
-                        })
-                             ->filterColumn('name', function ($query, $keyword) {
-                                 $sql = 'name like ?';
-                                 $query->whereRaw($sql, ["%{$keyword}%"]);
-                             })
-                        ->rawColumns(['checkbox', 'name',  'action'])
-                        ->make(true);
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            $script = new ChatScript();
+            $this->script = $script;
         }
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        return view('themes.default1.common.chat.create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $this->validate($request, [
-            'name' => 'required|max:50',
-            'script' => 'required',
-            'google_analytics_tag' => 'required_if:google_analytics,1',
-
-        ], [
-            'script.required' => __('message.script_required'),
-            'google_analytics_tag.required_if' => __('message.google_analytics_tag_required_if'),
-        ]);
-
-        try {
-            $request['on_every_page'] = $request->on_registration ? 0 : 1;
-            $this->script->fill($request->input())->save();
-
-            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
-        } catch (Exception $ex) {
-            Bugsnag::notifyException($ex);
-            app('log')->error($ex->getMessage());
-
-            return redirect()->back()->with('fails', $ex->getMessage());
+        /**
+         * Display a listing of the resource.
+         *
+         * @return \Illuminate\Http\Response
+         */
+        public function index()
+        {
+            return view('themes.default1.common.chat.index');
         }
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        $chat = $this->script->where('id', $id)->first();
+        public function getScriptList(Request $request)
+        {
+            try {
+                $searchString = $request->input('search-query', '');
+                $sortOrder    = $request->input('sort-order', 'desc');
+                $sortField    = $request->input('sort-field', 'created_at');
+                $limit        = $request->input('limit', 10);
 
-        return view('themes.default1.common.chat.edit', compact('chat'));
-    }
+                $scripts = $this->script
+                    ->select('id', 'name')
+                    ->when($searchString, function ($query) use ($searchString) {
+                        $query->where('name', 'like', "%{$searchString}%");
+                    })
+                    ->orderBy($sortField, $sortOrder)
+                    ->simplePaginate($limit);
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $this->validate($request, [
-            'name' => 'required|max:50',
-            'script' => 'required',
-            'google_analytics_tag' => 'required_if:google_analytics,1',
+                $scripts->getCollection()->transform(function ($script) {
+                    return [
+                        'id'      => $script->id,
+                        'name'    => $script->name,
+                        'checkbox'=> $script->id,
+                        'action' => hyperLinkGenerator("chat/show/{$script->id}", __('message.edit')),
+                    ];
+                });
 
-        ], [
-            'script.required' => __('message.script_required'),
-            'google_analytics_tag.required_if' => __('message.google_analytics_tag_required_if'),
-        ]);
+                return successResponse(__('message.scripts_fetched'),  $scripts);
 
-        try {
-            $script = $this->script->where('id', $id)->first();
-            $script->on_every_page = $request->on_registration ? 0 : 1;
-            $script->fill($request->input())->save();
-
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request)
-    {
-        try {
-            $ids = $request->input('select');
-            if (! empty($ids)) {
-                foreach ($ids as $id) {
-                    $script = $this->script->where('id', $id)->first();
-                    if ($script) {
-                        $script->delete();
-                    } else {
-                        echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
-                </div>';
-                        //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
-                    }
-                }
-                echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').
-                    '!</b> './* @scrutinizer ignore-type */\Lang::get('message.success').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
-                </div>';
-            } else {
-                echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
-                </div>';
+            } catch (\Exception $ex) {
+                return errorResponse($ex->getMessage());
             }
-        } catch (\Exception $e) {
-            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$e->getMessage().'
-                </div>';
+        }
+
+        /**
+         * Show the form for creating a new resource.
+         *
+         * @return \Illuminate\Http\Response
+         */
+    //    public function create()
+    //    {
+    //        return view('themes.default1.common.chat.create');
+    //    }
+
+        /**
+         * Store a newly created resource in storage.
+         *
+         * @param  \Illuminate\Http\Request  $request
+         * @return \Illuminate\Http\Response
+         */
+        public function createScript(Request $request)
+        {
+                $request->validate([
+                    'name' => 'required|max:50',
+                    'script' => 'required',
+                    'google_analytics_tag' => 'required_if:google_analytics,1',
+                ], [
+                    'name.required' => __('validation.widget.name_required'),
+                    'script.required' => __('message.script_required'),
+                    'google_analytics_tag.required_if' => __('message.google_analytics_tag_required_if'),
+                ]);
+            try {
+                $request['on_every_page'] = $request->on_registration ? 0 : 1;
+
+                $this->script->fill($request->all())->save();
+
+                return successResponse(__('message.saved-successfully'));
+
+            } catch (\Exception $ex) {
+                Bugsnag::notifyException($ex);
+                app('log')->error($ex->getMessage());
+
+                return errorResponse($ex->getMessage());
+            }
+        }
+
+        /**
+         * Show the form for editing the specified resource.
+         *
+         * @param  int  $id
+         * @return \Illuminate\Http\Response
+         */
+        public function getScript($id)
+        {
+            try {
+                $chat = $this->script->find($id);
+
+                if (!$chat) {
+                    return errorResponse(__('message.no-record'), 404);
+                }
+
+                return successResponse(__('message.chat_fetched'),$chat);
+
+            } catch (\Exception $ex) {
+                return errorResponse($ex->getMessage());
+            }
+        }
+
+        /**
+         * Update the specified resource in storage.
+         *
+         * @param  \Illuminate\Http\Request  $request
+         * @param  int  $id
+         * @return \Illuminate\Http\Response
+         */
+        public function updateScript(Request $request, $id)
+        {
+                $request->validate([
+                    'name' => 'required|max:50',
+                    'script' => 'required',
+                    'google_analytics_tag' => 'required_if:google_analytics,1',
+                ], [
+                    'script.required' => __('message.script_required'),
+                    'google_analytics_tag.required_if' => __('message.google_analytics_tag_required_if'),
+                ]);
+
+                try{
+                $script = $this->script->find($id);
+
+                if (!$script) {
+                    return errorResponse(__('message.record_not_found'), 404);
+                }
+
+                // Set on_every_page value
+                $script->on_every_page = $request->on_registration ? 0 : 1;
+
+                $script->fill($request->all());
+                $script->save();
+
+                return successResponse(__('message.updated-successfully'), $script);
+
+            } catch (\Exception $ex) {
+
+                \Log::error($ex->getMessage());
+                return errorResponse($ex->getMessage(), 500);
+            }
+        }
+
+        /**
+         * Remove the specified resource from storage.
+         *
+         * @param  int  $id
+         * @return \Illuminate\Http\Response
+         */
+        public function deleteScript(Request $request)
+        {
+            try {
+                $ids = $request->input('select',[]);
+
+//                if (!is_array($ids)) {
+//                    $ids = explode(',', $ids);
+//                }
+
+                $ids = array_filter(array_unique(array_map('intval', array_map('trim', $ids))));
+
+                if (empty($ids)) {
+                    return errorResponse(__('message.select-a-row'), 400);
+                }
+
+                $scriptIds = $this->script->whereIn('id', $ids)->get();
+
+                if ($scriptIds->isEmpty()) {
+                    return errorResponse(__('message.no-record'), 404);
+                }
+                foreach ($scriptIds as $script) {
+                    $script->delete();
+                }
+                $this->script->whereIn('id', $ids)->delete();
+
+                return successResponse(__('message.deleted-successfully'));
+
+            } catch (\Exception $ex) {
+                return errorResponse($ex->getMessage(), 500);
+            }
         }
     }
-}

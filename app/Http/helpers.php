@@ -1045,3 +1045,15 @@ function formatDays(int $days)
         default => intval($days / 365).(intval($days / 365) > 1 ? ' Years' : ' Year'),
     };
 }
+
+/**
+ * Generate an HTML hyperlink.
+ *
+ * @param  string  $href  The URL for the hyperlink.
+ * @param  string  $value  The display text for the hyperlink.
+ * @return string  The generated HTML anchor tag.
+ */
+function hyperLinkGenerator($href, $value): string
+{
+    return "<a href='" . url($href) . "'>" . $value . "</a>";
+}
