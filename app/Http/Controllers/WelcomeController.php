@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Model\Common\Country;
 use Illuminate\Http\Request;
-use Yajra\DataTables\DataTables;
 
 class WelcomeController extends Controller
 {
@@ -54,8 +53,8 @@ class WelcomeController extends Controller
         $data = $countries->map(function ($country) {
             return [
                 'country' => ucfirst($country->nicename ?? 'Unknown'),
-                'code'    => $country->country_code_char2 ?? '',
-                'count'   => $country->users_count ?? 0,
+                'code' => $country->country_code_char2 ?? '',
+                'count' => $country->users_count ?? 0,
             ];
         });
 
