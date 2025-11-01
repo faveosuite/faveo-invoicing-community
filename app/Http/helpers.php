@@ -1034,6 +1034,18 @@ function formatDays(int $days)
 }
 
 /**
+ * Generate an HTML hyperlink.
+ *
+ * @param  string  $href  The URL for the hyperlink.
+ * @param  string  $value  The display text for the hyperlink.
+ * @return string  The generated HTML anchor tag.
+ */
+function hyperLinkGenerator($href, $value): string
+{
+    return "<a href='" . url($href) . "'>" . $value . "</a>";
+}
+
+/**
  * Log activity in a standard format across the system.
  *
  * @param  string  $event

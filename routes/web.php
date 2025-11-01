@@ -193,13 +193,18 @@ Route::middleware('installAgora')->group(function () {
     Route::get('recovery-code', [Google2FAController::class, 'showRecoveryCode']);
     Route::post('verify-recovery-code', [Google2FAController::class, 'verifyRecoveryCode'])->name('verify-recovery-code');
     Route::post('verify-2fa-admin', [Google2FAController::class, 'postSetupValidateToken'])->name('verify.2fa.admin');
+
     /*
      * Social Media
      */
+    Route::prefix('social-media')->group(function () {
+        Route::get('list', [Common\SocialMediaController::class, 'getSocialList']);
+        Route::get('show/{id}', [Common\SocialMediaController::class, 'getSocialMedia']);
+        Route::post('create', [Common\SocialMediaController::class, 'createSocialMedia']);
+        Route::patch('update/{id}', [Common\SocialMediaController::class, 'updateSocial']);
+        Route::delete('delete', [Common\SocialMediaController::class, 'deleteSocialMedia']);
+    });
 
-    Route::resource('social-media', Common\SocialMediaController::class);
-    Route::get('get-social-media', [Common\SocialMediaController::class, 'getSocials'])->name('get-social-media');
-    Route::delete('social-delete', [Common\SocialMediaController::class, 'destroy'])->name('social-delete');
 
     Route::get('/', [DashboardController::class, 'index']);
 
@@ -367,19 +372,25 @@ Route::middleware('installAgora')->group(function () {
     /*
      * Currency
      */
+    Route::prefix('currency')->group(function () {
+        Route::get('list', [Payment\CurrencyController::class, 'getCurrencyList']);
+        Route::post('update-currency', [Payment\CurrencyController::class, 'updatecurrency']);
+        Route::post('dashboard-currency/{id}', [Payment\CurrencyController::class, 'setDashboardCurrency']);
 
-    Route::resource('currency', Payment\CurrencyController::class);
-    Route::get('get-currency/datatable', [Payment\CurrencyController::class, 'getCurrency'])->name('get-currency.datatable');
-    Route::post('change/currency/status', [Payment\CurrencyController::class, 'updatecurrency'])->name('change.currency.status');
+    });
 
     /*
      * Tax
      */
 
-    Route::resource('tax', Payment\TaxController::class);
+    Route::get('tax-options', [Payment\TaxController::class, 'getTaxOptionsApi']);
+    Route::post('taxes/option', [Payment\TaxController::class, 'saveTaxOptionSetting'])->name('taxes/option');
+    Route::get('tax-tables', [Payment\TaxController::class, 'getTax']);
+    Route::get('tax/edit/{id}', [Payment\TaxController::class, 'editTaxApi']);
+    Route::put('tax/{id}', [Payment\TaxController::class, 'updateTaxApi']);
+    Route::post('create/tax-class', [Payment\TaxController::class, 'saveTaxClassSettingApi']);
+    Route::delete('tax/delete', [Payment\TaxController::class, 'deleteTax']);
     Route::get('get-state/{state}', [Payment\TaxController::class, 'getState']);
-    Route::get('get-tax', [Payment\TaxController::class, 'getTax'])->name('get-tax');
-
     Route::get('get-taxtable', [Payment\TaxController::class, 'getTaxTable'])->name('get-taxtable');
 
     // Route::get('get-tax', [Payment\TaxController::class, 'GetTax']);
@@ -481,10 +492,13 @@ Route::middleware('installAgora')->group(function () {
     /*
      * Chat Script
      */
-    Route::resource('chat', Common\ChatScriptController::class);
-    Route::get('get-script', [Common\ChatScriptController::class, 'getScript'])->name('get-script');
-    Route::delete('script-delete', [Common\ChatScriptController::class, 'destroy'])->name('script-delete');
-    Route::post('order/execute', [Order\OrderController::class, 'orderExecute']);
+    Route::prefix('chat')->group(function () {
+        Route::get('list', [Common\ChatScriptController::class, 'getScriptList']);
+        Route::get('show/{id}', [Common\ChatScriptController::class, 'getScript']);
+        Route::post('create', [Common\ChatScriptController::class, 'createScript']);
+        Route::put('update/{id}', [Common\ChatScriptController::class, 'updateScript']);
+        Route::delete('delete', [Common\ChatScriptController::class, 'deleteScript']);
+    });
     /*
      * Invoices
      */
@@ -528,10 +542,13 @@ Route::middleware('installAgora')->group(function () {
     /*
      * Widgets
      */
-    Route::resource('widgets', Front\WidgetController::class);
-    Route::get('get-widgets', [Front\WidgetController::class, 'getPages'])->name('get-widgets');
-    // Route::get('get-widgets', [Front\WidgetController::class, 'GetPages']);
-    Route::delete('widgets-delete', [Front\WidgetController::class, 'destroy']);
+    Route::prefix('widgets')->group(function () {
+        Route::get('list', [Front\WidgetController::class, 'getWidgetList']);
+        Route::get('show/{id}', [Front\WidgetController::class, 'getWidget']);
+        Route::put('update/{id}', [Front\WidgetController::class, 'updateWidget']);
+        Route::delete('delete', [Front\WidgetController::class, 'deleteWidget']);
+        Route::post('create', [Front\WidgetController::class, 'createWidget']);
+    });
 
     /*
      * github
@@ -591,6 +608,10 @@ Route::middleware('installAgora')->group(function () {
     Route::post('dashboard-currency/{id}', [Payment\CurrencyController::class, 'setDashboardCurrency']);
     Route::get('get-country', [WelcomeController::class, 'getCountry'])->middleware('admin');
     Route::get('country-count', [WelcomeController::class, 'countryCount'])->name('country-count')->middleware('admin');
+    Route::get('get-code', [WelcomeController::class, 'getCode']);
+    Route::get('get-currency', [WelcomeController::class, 'getCurrency'])->middleware('admin');
+//    Route::get('get-country', [WelcomeController::class, 'getCountry'])->middleware('admin');
+    Route::get('country-count', [WelcomeController::class, 'getCountry'])->name('country-count')->middleware('admin');
 
     /*
      * Third Party Apps
