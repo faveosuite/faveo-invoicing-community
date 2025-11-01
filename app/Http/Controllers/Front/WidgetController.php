@@ -21,92 +21,83 @@ class WidgetController extends Controller
         $this->widget = $widget;
     }
 
-    public function index()
+    public function getWidgetList(Request $request)
     {
         try {
-            $widgetsCount = Widgets::count();
+        $searchString = $request->input('search-query', '');
+        $sortOrder = $request->input('sort-order', 'desc');
+        $sortField = $request->input('sort-field', 'created_at');
+        $limit = $request->input('limit', 10);
 
-            return view('themes.default1.front.widgets.index', compact('widgetsCount'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
+        // Base query
+            $widgets = $this->widget
+                ->select('id', 'name', 'type', 'created_at', 'content')
+                ->when($searchString, function ($query) use ($searchString) {
+                    return $query->where(function ($q) use ($searchString) {
+                        $q->where('name', 'like', "%{$searchString}%")
+                            ->orWhere('type', 'like', "%{$searchString}%");
+                    });
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
+
+        $total = $widgets->count();
+
+
+            $widgets->getCollection()->transform(function ($widget) {
+            return [
+                'id' => $widget->id,
+                'name' => ucfirst($widget->name),
+                'type' => $widget->type,
+                'created_at' => getDateHtml($widget->created_at),
+                'content' => $widget->content,
+                'action' => hyperLinkGenerator("widgets/show/{$widget->id}", __('message.edit')),
+            ];
+        });
+
+        return successResponse( __('message.widget_fetched'), [
+            'pages' => $widgets,
+            'total' => $total,
+        ]);
+    } catch (\Exception $e) {
+        return errorResponse( $e->getMessage() );
+    }
     }
 
-    public function getPages()
-    {
-        return \DataTables::of($this->widget->select('id', 'name', 'type', 'created_at', 'content'))
-                       ->orderColumn('name', '-created_at $1')
-                       ->orderColumn('type', '-created_at $1')
-                       ->orderColumn('created_at', '-created_at $1')
-                       ->addColumn('checkbox', function ($model) {
-                           return "<input type='checkbox' class='widget_checkbox' 
-                            value=".$model->id.' name=select[] id=check>';
-                       })
-                          ->addColumn('name', function ($model) {
-                              return ucfirst($model->name);
-                          })
-                            ->addColumn('type', function ($model) {
-                                return $model->type;
-                            })
-                              ->addColumn('created_at', function ($model) {
-                                  return getDateHtml($model->created_at);
-                              })
-                        // ->showColumns('name', 'type', 'created_at')
-                        ->addColumn('content', function ($model) {
-                            return str_limit($model->content, 10, '...');
-                        })
-                        ->addColumn('action', function ($model) {
-                            return '<a href='.url('widgets/'.$model->id.'/edit')."
-                             class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit'
-                                 style='color:white;'> </i></a>";
-                        })
-                         ->filterColumn('name', function ($query, $keyword) {
-                             $sql = 'name like ?';
-                             $query->whereRaw($sql, ["%{$keyword}%"]);
-                         })
-                        ->filterColumn('type', function ($query, $keyword) {
-                            $sql = 'type like ?';
-                            $query->whereRaw($sql, ["%{$keyword}%"]);
-                        })
-                        ->rawColumns(['checkbox', 'name', 'type', 'created_at', 'content', 'action'])
-                        ->make(true);
-        // ->searchColumns('name', 'content')
-        // ->orderColumns('name')
-        // ->make();
-    }
-
-    public function create()
+    public function getWidget($id)
     {
         try {
+            $widget = $this->widget
+                ->select('id', 'name', 'type', 'publish', 'content', 'allow_mailchimp', 'allow_social_media')
+                ->find($id);
+
+            if (!$widget) {
+                return errorResponse(__('message.no-record'), 404);
+            }
+
             $mailchimpStatus = StatusSetting::pluck('mailchimp_status')->first();
-            $twitterStatus = StatusSetting::pluck('twitter_status')->first();
+            $twitterStatus   = StatusSetting::pluck('twitter_status')->first();
 
-            return view('themes.default1.front.widgets.create', compact('mailchimpStatus', 'twitterStatus'));
+            return successResponse( __('message.widget_fetched_successfully'),
+                [
+                    'widget'          => $widget,
+                    'mailchimpStatus' => $mailchimpStatus,
+                    'twitterStatus'   => $twitterStatus
+                ],
+                200
+            );
+
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse( $ex->getMessage() );
         }
     }
 
-    public function edit($id)
+    public function createWidget(Request $request)
     {
-        try {
-            $mailchimpStatus = StatusSetting::pluck('mailchimp_status')->first();
-            $twitterStatus = StatusSetting::pluck('twitter_status')->first();
-            $widget = $this->widget->where('id', $id)->first();
 
-            //dd($widget);
-            return view('themes.default1.front.widgets.edit', compact('widget', 'mailchimpStatus', 'twitterStatus'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function store(Request $request)
-    {
         $this->validate($request, [
             'name' => 'required|max:50',
             'publish' => 'required',
-            // 'content' => 'required',
             'type' => 'required|unique:widgets',
         ],
             [
@@ -116,57 +107,83 @@ class WidgetController extends Controller
                 'type.required' => __('validation.widget.type_required'),
                 'type.unique' => __('validation.widget.type_unique'),
             ]);
-
         try {
-            $mailchimpTextBox = Widgets::where('allow_mailchimp', 1)->count();
-            $allowsocialIcon = Widgets::where('allow_social_media', 1)->count();
-            if ($mailchimpTextBox && $request->allow_mailchimp == 1) {
-                throw new \Exception(__('message.mailchimp_footer_error'));
-            }
-            if ($allowsocialIcon && $request->allow_social_media == 1) {
-                throw new \Exception(__('message.social_icon_footer_warning'));
-            }
-            $this->widget->fill($request->input())->save();
 
-            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
+            $mailchimpTextBox =  $this->widget->where('allow_mailchimp', 1)->count();
+            $allowsocialIcon = $this->widget->where('allow_social_media', 1)->count();
+
+            if ($mailchimpTextBox && $request->allow_mailchimp == 1) {
+                return errorResponse(__('message.mailchimp_footer_error'));
+            }
+
+            if ($allowsocialIcon && $request->allow_social_media == 1) {
+                return errorResponse(__('message.social_icon_footer_warning'));
+            }
+
+            $this->widget->fill($request->input());
+            $this->widget->save();
+
+            return successResponse( __('message.saved-successfully'),'', 201);
+
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
-    public function update($id, Request $request)
+    public function updateWidget($id, Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required|max:50',
-            'publish' => 'required',
-            // 'content' => 'required',
-            'type' => 'required|unique:widgets,type,'.$id,
-        ],
-            [
-                'name.required' => __('validation.widget.name_required'),
-                'name.max' => __('validation.widget.name_max'),
-                'publish.required' => __('validation.widget.publish_required'),
-                'type.required' => __('validation.widget.type_required'),
-                'type.unique' => __('validation.widget.type_unique'),
+            $this->validate($request, [
+                'name' => 'required|max:50',
+                'publish' => 'required',
+                'type' => 'required|unique:widgets,type,'.$id,
+            ],
+                [
+                    'name.required' => __('validation.widget.name_required'),
+                    'name.max' => __('validation.widget.name_max'),
+                    'publish.required' => __('validation.widget.publish_required'),
+                    'type.required' => __('validation.widget.type_required'),
+                    'type.unique' => __('validation.widget.type_unique'),
+                ]);
+        try {
+            $widget = $this->widget->find($id);
+            if (!$widget) {
+                return errorResponse(__('message.no-record'), 404);
+            }
+
+            $fillableData = $request->only([
+                'name',
+                'publish',
+                'type',
+                'allow_mailchimp',
+                'allow_social_media',
+                'content'
             ]);
 
-        try {
-            $mailchimpTextBox = Widgets::where('allow_mailchimp', 1)->where('id', '!=', $id)->count();
-            $allowsocialIcon = Widgets::where('allow_social_media', 1)->where('id', '!=', $id)->count();
-            if ($mailchimpTextBox && $request->input('allow_mailchimp')) {
-                throw new \Exception(__('message.mailchimp_footer_error'));
-            }
-            if ($allowsocialIcon && $request->allow_social_media == 1) {
-                throw new \Exception(__('message.social_icon_footer_warning'));
-            }
-            $widget = $this->widget->where('id', $id)->first();
-            $widget->fill($request->input());
-            $widget->allow_tweets = 0;
-            $widget->save();  // Keeping allow_tweets set to 0 ensures that Twitter integration is disabled. If there's a future need to enable tweet fetching, it can be set to 1, and vice versa.
+            $mailchimpExists = $this->widget->where('allow_mailchimp', 1)
+                ->where('id', '!=', $id)
+                ->exists();
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            $socialExists = $this->widget->where('allow_social_media', 1)
+                ->where('id', '!=', $id)
+                ->exists();
+
+            if ($mailchimpExists && $request->allow_mailchimp == 1) {
+                return errorResponse(__('message.mailchimp_footer_error'), 400);
+            }
+
+            if ($socialExists && $request->allow_social_media == 1) {
+                return errorResponse(__('message.social_icon_footer_warning'), 400);
+            }
+
+            $widget->fill($fillableData);
+            $widget->allow_tweets = 0;
+            $widget->save();
+
+            return successResponse(__('message.updated-successfully'), ['widgets' => $widget], 200);
+
+        } catch (\Exception $e) {
+            return errorResponse( $e->getMessage() );
+
         }
     }
 
@@ -176,52 +193,34 @@ class WidgetController extends Controller
      * @param  int  $id
      * @return \Response
      */
-    public function destroy(Request $request)
+    public function deleteWidget(Request $request)
     {
         try {
-            $ids = $request->input('select');
-            if (! empty($ids)) {
-                foreach ($ids as $id) {
-                    $widget = $this->widget->where('id', $id)->first();
-                    if ($widget) {
-                        // dd($page);
-                        $widget->delete();
-                    } else {
-                        echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
-                </div>';
-                        //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
-                    }
-                }
-                echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */ \Lang::get('message.success').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
-                </div>';
-            } else {
-                echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
-                </div>';
-                //echo \Lang::get('message.select-a-row');
+            $ids = $request->input('select', []);
+
+            if (!is_array($ids)) {
+                $ids = explode(',', $ids);
             }
+
+            // Clean IDs - remove empty values & convert to integer
+            $ids = array_filter(array_map('intval', array_map('trim', $ids)));
+
+            if (empty($ids)) {
+                return errorResponse(__('message.select-a-row'), 400);
+            }
+
+            $existingIds = $this->widget->whereIn('id', $ids)->get();
+
+            if ($existingIds->isEmpty()) {
+                return errorResponse(__('message.no-record'), 404);
+            }
+            foreach ($existingIds as $exist) {
+                $exist->delete();
+            }
+            return successResponse(__('message.deleted-successfully'));
+
         } catch (\Exception $e) {
-            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$e->getMessage().'
-                </div>';
+            return errorResponse($e->getMessage());
         }
     }
 
