@@ -49,142 +49,108 @@ class TaxController extends Controller
      *
      * @return \Response
      */
-    public function index()
+
+    public function getTaxOptionsApi()
     {
         try {
-            $options = $this->tax_option->find(1);
-            if (! $options) {
-                $options = '';
-            }
+            $options = $this->tax_option->find(1) ?: '';
             $classes = $this->tax_class->pluck('name', 'id')->toArray();
-            if (count($classes) == 0) {
+
+            if (empty($classes)) {
                 $classes = $this->tax_class->get();
             }
             $countries = getSupportedCountriesForIntlInput();
-
-            return view('themes.default1.payment.tax.index', compact('options', 'classes', 'countries'));
+            return successResponse('', [
+                'options' => $options,
+                'classes' => $classes,
+                'countries' => $countries,
+            ]);
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage(), 500);
         }
     }
 
     /**
      * @return type
      */
-    public function getTax()
+    public function getTax(Request $request)
     {
-        $tax = Tax::join('tax_classes', 'tax_classes.id', '=', 'taxes.tax_classes_id')->select('taxes.id', 'taxes.name as name', 'taxes.country', 'taxes.state', 'taxes.rate', 'tax_classes.name as tax_classes_id');
+        try {
+            $searchString = $request->input('search-query', '');
+            $sortOrder    = $request->input('sort-order', 'desc');
+            $sortField    = $request->input('sort-field', 'created_at');
+            $limit        = $request->input('limit', 10);
 
-        return \DataTables::of($tax)
-                            ->orderColumn('tax_classes_id', '-taxes.id $1')
-                            ->orderColumn('name', '-taxes.id $1')
-                            ->orderColumn('country', '-taxes.id $1')
-                            ->orderColumn('rate', '-taxes.id $1')
-                            ->addColumn('checkbox', function ($model) {
-                                return "<input type='checkbox' class='tax_checkbox' 
-                                value=".$model->id.' name=select[] id=check>';
-                            })
-                            ->addColumn('tax_classes_id', function ($model) {
-                                return ucfirst($model->tax_classes_id);
-                            })
-                            ->addColumn('name', function ($model) {
-                                return ucfirst($model->name);
-                            })
+            $taxes = Tax::with('taxClass')
+                ->when($searchString, function ($query) use ($searchString) {
+                    $query->where(function ($q) use ($searchString) {
+                        $q->where('name', 'like', "%{$searchString}%")
+                            ->orWhere('country', 'like', "%{$searchString}%")
+                            ->orWhere('state', 'like', "%{$searchString}%");
+                    });
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
 
-                            // ->showColumns('name', 'level')
-                            ->addColumn('country', function ($model) {
-                                if ($this->country->where('country_code_char2', $model->country)->first()) {
-                                    return ucfirst($this->country
-                                      ->where('country_code_char2', $model->country)->first()->country_name);
-                                } else {
-                                    return '--';
-                                }
-                            })
-                            ->addColumn('state', function ($model) {
-                                if ($this->state->where('country_code', $model->state)->first()) {
-                                    return $this->state
-                                    ->where('country_code', $model->state)
-                                    ->first()->state_subdivision_name;
-                                } else {
-                                    return '--';
-                                }
-                            })
-                            ->addColumn('rate', function ($model) {
-                                if ($model->rate) {
-                                    return $model->rate;
-                                } else {
-                                    return '<p'.tooltip('Default&nbsp;GST&nbsp;set&nbsp;in&nbsp;the&nbsp;system&nbsp;will&nbsp;be&nbsp;applicable').'Default</p>';
-                                }
-                            })
+            $taxes->getCollection()->transform(function ($tax) {
+                return [
+                    'id'              => $tax->id,
+                    'name'            => ucfirst($tax->name),
+                    'country'         => $tax->country,
+                    'state'           => $tax->state,
+                    'rate'            => $tax->rate ?: 'Default',
+                    'tax_class_name'  => $tax->taxClass ? ucfirst($tax->taxClass->name) : null,
+                ];
+            });
 
-                            ->addColumn('action', function ($model) {
-                                return '<a href='.url('tax/'.$model->id.'/edit').
-                                " class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit' 
-                                style='color:white;'> </i></a>";
-                            })
-                            ->filterColumn('tax_classes_id', function ($query, $keyword) {
-                                $sql = ' tax_classes.name like ?';
-                                $query->whereRaw($sql, ["%{$keyword}%"]);
-                            })
-                             ->filterColumn('name', function ($query, $keyword) {
-                                 $sql = 'taxes.name like ?';
-                                 $query->whereRaw($sql, ["%{$keyword}%"]);
-                             })
-                            ->rawColumns(['checkbox', 'tax_classes_id', 'name', 'country', 'state', 'rate', 'action'])
-                            ->make(true);
+            return successResponse( __('message.tax_fetched'), ['data' => $taxes], 200);
+
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
     }
 
-    public function getTaxTable()
+    public function getTaxTable(Request $request)
     {
-        return \DataTables::of(TaxByState::select('id', 'state', 'c_gst', 's_gst', 'i_gst', 'ut_gst'))
-                         ->orderColumn('id', '-id $1')
-                         ->orderColumn('state', '-id $1')
-                         ->orderColumn('c_gst', '-id $1')
-                         ->orderColumn('s_gst', '-id $1')
-                         ->orderColumn('i_gst', '-id $1')
-                         ->orderColumn('ut_gst', '-id $1')
-                         ->addColumn('id', function ($model) {
-                             return $model->id;
-                         })
+        try {
+            $searchString = $request->input('search-query', '');
+            $sortField = $request->input('sort-field', 'state');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $limit = $request->input('limit', 10);
 
-                         ->addColumn('state', function ($model) {
-                             return ucfirst($model->state);
-                         })
-                         ->addColumn('c_gst', function ($model) {
-                             return ucfirst($model->c_gst);
-                         })
-                         ->addColumn('s_gst', function ($model) {
-                             return ucfirst($model->s_gst);
-                         })
-                         ->addColumn('i_gst', function ($model) {
-                             return ucfirst($model->i_gst);
-                         })
-                         ->addColumn('ut_gst', function ($model) {
-                             return ucfirst($model->ut_gst);
-                         })
-                         ->filterColumn('state', function ($query, $keyword) {
-                             $sql = 'state like ?';
-                             $query->whereRaw($sql, ["%{$keyword}%"]);
-                         })
-                          ->filterColumn('c_gst', function ($query, $keyword) {
-                              $sql = 'c_gst like ?';
-                              $query->whereRaw($sql, ["%{$keyword}%"]);
-                          })
-                          ->filterColumn('s_gst', function ($query, $keyword) {
-                              $sql = 's_gst like ?';
-                              $query->whereRaw($sql, ["%{$keyword}%"]);
-                          })
-                          ->filterColumn('i_gst', function ($query, $keyword) {
-                              $sql = 'i_gst like ?';
-                              $query->whereRaw($sql, ["%{$keyword}%"]);
-                          })
-                          ->filterColumn('ut_gst', function ($query, $keyword) {
-                              $sql = 'ut_gst like ?';
-                              $query->whereRaw($sql, ["%{$keyword}%"]);
-                          })
-                          ->rawColumns(['id', 'state',  'c_gst', 's_gst', 'i_gst', 'ut_gst'])
-                          ->make(true);
+            $taxable = TaxByState::select('id', 'state', 'c_gst', 's_gst', 'i_gst', 'ut_gst')
+                ->when($searchString, function ($query) use ($searchString) {
+                    $query->where(function ($q) use ($searchString) {
+                        $q->where('state', 'like', "%{$searchString}%")
+                            ->orWhere('c_gst', 'like', "%{$searchString}%")
+                            ->orWhere('s_gst', 'like', "%{$searchString}%")
+                            ->orWhere('i_gst', 'like', "%{$searchString}%")
+                            ->orWhere('ut_gst', 'like', "%{$searchString}%");
+                    });
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
+
+            // Map and format response
+           $taxable->getCollection()->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'state' => ucfirst($item->state),
+                    'c_gst' => $item->c_gst,
+                    's_gst' => $item->s_gst,
+                    'i_gst' => $item->i_gst,
+                    'ut_gst' => $item->ut_gst,
+                ];
+            });
+
+            // Return success response
+            return successResponse('',$taxable);
+
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage(), 500);
+        }
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -192,9 +158,15 @@ class TaxController extends Controller
      * @param  int  $id
      * @return \Response
      */
-    public function edit($id)
+    public function editTaxApi($id)
     {
         try {
+            $tax = $this->tax->find($id);
+
+            if (!$tax) {
+                return errorResponse(__('message.tax_record_not_found'), 404);
+            }
+
             $options = $this->tax_option->find(1);
             $tax = $this->tax->where('id', $id)->first();
             $taxClassName = $tax->taxClass()->find($tax->tax_classes_id)->name; //Find the Tax Class Name related to the tax
@@ -203,10 +175,18 @@ class TaxController extends Controller
             $states = findStateByRegionId($tax->country);
             $active = $tax->active;
 
-            return view('themes.default1.payment.tax.edit',
-                compact('options', 'tax', 'txClass', 'states', 'state', 'taxClassName', 'active'));
+            return successResponse( '', [
+                'options'       => $options,
+                'tax'           => $tax,
+                'tax_class'     => $txClass,
+                'tax_class_name'=> $taxClassName,
+                'states'        => $states,
+                'state'         => $state,
+                'active'        => $active
+            ]);
+
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -216,27 +196,28 @@ class TaxController extends Controller
      * @param  int  $id
      * @return \Response
      */
-    public function update($id, Request $request)
+    public function updateTaxApi($id, Request $request)
     {
-        if ($request->tax_classes_id == 'Others') {
-            $this->validate($request, [
-                'rate' => 'required|numeric',
-            ],
-                [
-                    'rate.required' => __('validation.rate.required'),
-                    'rate.numeric' => __('validation.rate.numeric'),
-                ]);
-        }
         try {
-            $v = \Validator::make($request->all(), ['name' => 'required']);
-            if ($v->fails()) {
-                return redirect()->back()
-                                        ->withErrors($v)
-                                        ->withInput();
+            $rules = [
+                'name' => 'required',
+                'tax_classes_id' => 'required'
+            ];
+
+            if ($request->tax_classes_id == 'Others') {
+                $rules['rate'] = 'required|numeric';
+            }
+
+            $validator = \Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return errorResponse($validator->errors()->first(), 422);
             }
             $taxClassesName = $request->tax_classes_id;
-            $tax = $this->tax->where('id', $id)->first();
-
+            $tax = $this->tax->find($id);
+            if (!$tax) {
+                return errorResponse(__('message.tax_not_found'), 404);
+            }
             $taxClass = TaxClass::where('id', $tax->tax_classes_id)->first();
             if (! $taxClass) {
                 $taxClass = $this->tax_class->create(['name' => $taxClassesName]);
@@ -244,18 +225,22 @@ class TaxController extends Controller
             $taxId = $taxClass->id;
             $tax->fill($request->except('tax_classes_id'))->save();
 
-            $this->tax->where('id', $id)->update(['tax_classes_id' => $taxId]);
+            $tax->where('id', $id)->update(['tax_classes_id' => $taxId]);
             if ($taxClassesName != 'Others') {
                 $country = 'IN';
                 $state = '';
                 $rate = '';
-                $this->tax->where('id', $id)
+                $tax->where('id', $id)
                 ->update(['tax_classes_id' => $taxId, 'country' => $country, 'state' => $state, 'rate' => $rate]);
             }
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+            return successResponse(__('message.tax_updated_successfully'), [
+                'tax' => $tax,
+                'tax_class' => $taxClass
+            ]);
+
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -265,63 +250,47 @@ class TaxController extends Controller
      * @param  int  $id
      * @return \Response
      */
-    public function destroy(Request $request)
+    public function deleteTax(Request $request)
     {
         try {
-            $ids = $request->input('select');
+            $ids = $request->input('select', []);
 
-            if (! empty($ids)) {
-                foreach ($ids as $id) {
-                    $tax = $this->tax->where('id', $id)->first();
-                    $taxClassId = $tax->tax_classes_id;
-                    $taxClass = $this->tax_class->where('id', $taxClassId)->first();
-                    if ($tax) {
+            $ids = array_filter(array_unique(array_map('intval', array_map('trim', $ids))));
+
+            if (empty($ids)) {
+                return errorResponse(__('message.select-a-row'), 400);
+            }
+
+            $foundAny = false;
+
+            foreach ($ids as $id) {
+                $tax = $this->tax->find($id);
+
+                if ($tax) {
+                    $foundAny = true;
+
+                    $taxClass = $this->tax_class->find($tax->tax_classes_id);
+
+                    if ($taxClass) {
                         $taxClass->tax_product_relation()->delete();
                         $taxClass->delete();
-                        $tax->delete();
-                    } else {
-                        echo "<div class='alert alert-danger alert-dismissable'>
-                        <i class='fa fa-ban'></i>
-
-                        <b>"./* @scrutinizer ignore-type */ \Lang::get('message.alert').'!
-                        </b> './* @scrutinizer ignore-type */ \Lang::get('message.failed').'
-
-                        <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            '.\Lang::get('message.no-record').'
-                    </div>';
-                        //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
                     }
+
+                    $tax->delete();
                 }
-                echo "<div class='alert alert-success alert-dismissable'>
-                        <i class='fa fa-ban'></i>
-
-                        <b>".\Lang::get('message.alert').'!</b> '.
-                        /* @scrutinizer ignore-type */ \Lang::get('message.success').'
-                        <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
-
-                    </div>';
-            } else {
-                echo "<div class='alert alert-danger alert-dismissable'>
-                        <i class='fa fa-ban'></i>
-
-                        <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                        /* @scrutinizer ignore-type */ \Lang::get('message.failed').'
-                        <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            './* @scrutinizer ignore-type */ \Lang::get('message.select-a-row').'
-
-                    </div>';
-                //echo \Lang::get('message.select-a-row');
             }
+
+            if (! $foundAny) {
+                return errorResponse(__('message.no-record'), 404);
+            }
+
+            return successResponse(__('message.deleted-successfully'));
+
         } catch (\Exception $e) {
-            echo "<div class='alert alert-danger alert-dismissable'>
-                        <i class='fa fa-ban'></i>
-                        <b>".\Lang::get('message.alert').'!</b> '.\Lang::get('message.failed').'
-                        <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            '.$e->getMessage().'
-                    </div>';
+            return errorResponse($e->getMessage(), 500);
         }
     }
+
 
     /**
      * @param  Request  $request
@@ -338,18 +307,30 @@ class TaxController extends Controller
             foreach ($states as $state) {
                 echo '<option value='.$state->iso2.'>'.$state->state_subdivision_name.'</option>';
             }
-        } catch (\Exception $ex) {
-            echo "<option value=''>".__('message.problem_while_loading').'</option>';
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return successResponse('', [
+                'states' => $states
+            ]);
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
         }
     }
 
     public function saveTaxOptionSetting(Request $request)
     {
-        $this->tax_option->find(1)->fill($request->input())->save();
+        try {
+            $taxOption = $this->tax_option->find(1);
 
-        return redirect()->back()->with('success', __('message.tax_settings_saved_successfully'));
+            if (!$taxOption) {
+                return errorResponse(__('message.tax_option_not_found'), 404);
+            }
+
+            $taxOption->fill($request->all())->save();
+
+            return successResponse(__('message.tax_settings_saved_successfully'));
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
     }
 
     /**
@@ -362,38 +343,45 @@ class TaxController extends Controller
      * @param  Request  $request
      * @return type
      */
-    public function saveTaxClassSetting(Request $request)
+    public function saveTaxClassSettingApi(Request $request)
     {
-        if ($request->input('name') == 'Others') {
-            $this->validate($request, [
-                'rate' => 'required|numeric',
-            ],
-                [
-                    'rate.required' => __('validation.rate.required'),
-                    'rate.numeric' => __('validation.rate.numeric'),
-                ]);
-        }
-
         try {
-            $v = \Validator::make($request->all(), ['name' => 'required']);
-            if ($v->fails()) {
-                return redirect()->back()
-                                        ->withErrors($v)
-                                        ->withInput();
+            $rules = [
+                'name' => 'required',
+                'tax-name' => 'required'
+            ];
+
+            if ($request->input('name') == 'Others') {
+                $rules['rate'] = 'required|numeric';
             }
-            $this->tax_class->name = $request->input('name');
-            $this->tax_class->save();
-            $country = ($request->input('rate')) ? $request->input('country') : 'IN';
 
-            $this->tax->fill($request->except('tax-name', 'name', 'country'))->save();
-            $this->tax->country = $country;
-            $this->tax->name = $request->input('tax-name');
-            $this->tax->tax_classes_id = $this->tax_class->id;
-            $this->tax->save();
+            $validator = \Validator::make($request->all(), $rules);
 
-            return redirect()->back()->with('success', \Lang::get('message.created-successfully'));
+            if ($validator->fails()) {
+                return errorResponse($validator->errors()->first(), 422);
+            }
+
+            $taxClass = $this->tax_class->create([
+                'name' => $request->input('name')
+            ]);
+
+            $country = $request->input('rate') ? $request->input('country') : 'IN';
+
+            $tax = $this->tax->create([
+                'name' => $request->input('tax-name'),
+                'rate' => $request->input('rate') ?? '',
+                'country' => $country,
+                'state' => $request->input('state') ?? '',
+                'tax_classes_id' => $taxClass->id,
+            ]);
+
+            return successResponse(__('message.created-successfully'), [
+                'tax' => $tax,
+                'tax_class' => $taxClass
+            ]);
+
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage(), 500);
         }
     }
 }
