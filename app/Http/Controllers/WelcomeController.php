@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Model\Common\Country;
 use Illuminate\Http\Request;
-use Yajra\DataTables\DataTables;
 
 class WelcomeController extends Controller
 {

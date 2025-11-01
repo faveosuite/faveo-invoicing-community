@@ -24,12 +24,12 @@ class WidgetController extends Controller
     public function getWidgetList(Request $request)
     {
         try {
-        $searchString = $request->input('search-query', '');
-        $sortOrder = $request->input('sort-order', 'desc');
-        $sortField = $request->input('sort-field', 'created_at');
-        $limit = $request->input('limit', 10);
+            $searchString = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'desc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = $request->input('limit', 10);
 
-        // Base query
+            // Base query
             $widgets = $this->widget
                 ->select('id', 'name', 'type', 'created_at', 'content')
                 ->when($searchString, function ($query) use ($searchString) {
@@ -41,27 +41,26 @@ class WidgetController extends Controller
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-        $total = $widgets->count();
-
+            $total = $widgets->count();
 
             $widgets->getCollection()->transform(function ($widget) {
-            return [
-                'id' => $widget->id,
-                'name' => ucfirst($widget->name),
-                'type' => $widget->type,
-                'created_at' => getDateHtml($widget->created_at),
-                'content' => $widget->content,
-                'action' => hyperLinkGenerator("widgets/show/{$widget->id}", __('message.edit')),
-            ];
-        });
+                return [
+                    'id' => $widget->id,
+                    'name' => ucfirst($widget->name),
+                    'type' => $widget->type,
+                    'created_at' => getDateHtml($widget->created_at),
+                    'content' => $widget->content,
+                    'action' => hyperLinkGenerator("widgets/show/{$widget->id}", __('message.edit')),
+                ];
+            });
 
-        return successResponse( __('message.widget_fetched'), [
-            'pages' => $widgets,
-            'total' => $total,
-        ]);
-    } catch (\Exception $e) {
-        return errorResponse( $e->getMessage() );
-    }
+            return successResponse(__('message.widget_fetched'), [
+                'pages' => $widgets,
+                'total' => $total,
+            ]);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
 
     public function getWidget($id)
@@ -71,30 +70,28 @@ class WidgetController extends Controller
                 ->select('id', 'name', 'type', 'publish', 'content', 'allow_mailchimp', 'allow_social_media')
                 ->find($id);
 
-            if (!$widget) {
+            if (! $widget) {
                 return errorResponse(__('message.no-record'), 404);
             }
 
             $mailchimpStatus = StatusSetting::pluck('mailchimp_status')->first();
-            $twitterStatus   = StatusSetting::pluck('twitter_status')->first();
+            $twitterStatus = StatusSetting::pluck('twitter_status')->first();
 
-            return successResponse( __('message.widget_fetched_successfully'),
+            return successResponse(__('message.widget_fetched_successfully'),
                 [
-                    'widget'          => $widget,
+                    'widget' => $widget,
                     'mailchimpStatus' => $mailchimpStatus,
-                    'twitterStatus'   => $twitterStatus
+                    'twitterStatus' => $twitterStatus,
                 ],
                 200
             );
-
         } catch (\Exception $ex) {
-            return errorResponse( $ex->getMessage() );
+            return errorResponse($ex->getMessage());
         }
     }
 
     public function createWidget(Request $request)
     {
-
         $this->validate($request, [
             'name' => 'required|max:50',
             'publish' => 'required',
@@ -108,8 +105,7 @@ class WidgetController extends Controller
                 'type.unique' => __('validation.widget.type_unique'),
             ]);
         try {
-
-            $mailchimpTextBox =  $this->widget->where('allow_mailchimp', 1)->count();
+            $mailchimpTextBox = $this->widget->where('allow_mailchimp', 1)->count();
             $allowsocialIcon = $this->widget->where('allow_social_media', 1)->count();
 
             if ($mailchimpTextBox && $request->allow_mailchimp == 1) {
@@ -123,8 +119,7 @@ class WidgetController extends Controller
             $this->widget->fill($request->input());
             $this->widget->save();
 
-            return successResponse( __('message.saved-successfully'),'', 201);
-
+            return successResponse(__('message.saved-successfully'), '', 201);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -132,21 +127,21 @@ class WidgetController extends Controller
 
     public function updateWidget($id, Request $request)
     {
-            $this->validate($request, [
-                'name' => 'required|max:50',
-                'publish' => 'required',
-                'type' => 'required|unique:widgets,type,'.$id,
-            ],
-                [
-                    'name.required' => __('validation.widget.name_required'),
-                    'name.max' => __('validation.widget.name_max'),
-                    'publish.required' => __('validation.widget.publish_required'),
-                    'type.required' => __('validation.widget.type_required'),
-                    'type.unique' => __('validation.widget.type_unique'),
-                ]);
+        $this->validate($request, [
+            'name' => 'required|max:50',
+            'publish' => 'required',
+            'type' => 'required|unique:widgets,type,'.$id,
+        ],
+            [
+                'name.required' => __('validation.widget.name_required'),
+                'name.max' => __('validation.widget.name_max'),
+                'publish.required' => __('validation.widget.publish_required'),
+                'type.required' => __('validation.widget.type_required'),
+                'type.unique' => __('validation.widget.type_unique'),
+            ]);
         try {
             $widget = $this->widget->find($id);
-            if (!$widget) {
+            if (! $widget) {
                 return errorResponse(__('message.no-record'), 404);
             }
 
@@ -156,7 +151,7 @@ class WidgetController extends Controller
                 'type',
                 'allow_mailchimp',
                 'allow_social_media',
-                'content'
+                'content',
             ]);
 
             $mailchimpExists = $this->widget->where('allow_mailchimp', 1)
@@ -180,10 +175,8 @@ class WidgetController extends Controller
             $widget->save();
 
             return successResponse(__('message.updated-successfully'), ['widgets' => $widget], 200);
-
         } catch (\Exception $e) {
-            return errorResponse( $e->getMessage() );
-
+            return errorResponse($e->getMessage());
         }
     }
 
@@ -198,7 +191,7 @@ class WidgetController extends Controller
         try {
             $ids = $request->input('select', []);
 
-            if (!is_array($ids)) {
+            if (! is_array($ids)) {
                 $ids = explode(',', $ids);
             }
 
@@ -217,8 +210,8 @@ class WidgetController extends Controller
             foreach ($existingIds as $exist) {
                 $exist->delete();
             }
-            return successResponse(__('message.deleted-successfully'));
 
+            return successResponse(__('message.deleted-successfully'));
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }

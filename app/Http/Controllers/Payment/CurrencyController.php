@@ -23,9 +23,9 @@ class CurrencyController extends Controller
     }
 
     /**
-     * Get Currency List
+     * Get Currency List.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function getCurrencyList(Request $request)
@@ -60,7 +60,7 @@ class CurrencyController extends Controller
                 ->simplePaginate($limit);
 
             // Map data for JSON response
-             $currencyData->getCollection()->transform(function ($currency) use ($defaultCurrency) {
+            $currencyData->getCollection()->transform(function ($currency) use ($defaultCurrency) {
                 return [
                     'id' => $currency->id,
                     'name' => $currency->name,
@@ -71,10 +71,9 @@ class CurrencyController extends Controller
                     'dashboard_currency' => (bool) $currency->dashboard_currency,
                 ];
             });
-             $total = $currencyData->count();
+            $total = $currencyData->count();
 
-
-            return successResponse(__('message.currency_list_retrieved_successfully'),[
+            return successResponse(__('message.currency_list_retrieved_successfully'), [
                 'currencies' => $currencyData,
                 'total' => $total,
             ]);
