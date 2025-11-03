@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('access_token');
             $table->integer('user_id');
             $table->string('user_callback_url');
+            $table->string('verify_token');
             $table->timestamps();
         });
     }
