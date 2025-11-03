@@ -76,6 +76,38 @@ Class WhatsappController extends Controller{
             ->make(true);
     }
 
+    public function whatsappClientTable(){
+        $query = WhatsappIntegrationUser::select('*')->where('user_id',\Auth::user()->id);
+        return \DataTables::of($query)
+            ->orderColumn('UserName', '-created_at $1')
+            ->orderColumn('PhoneNumber', '-created_at $1')
+            ->orderColumn('WabaId', '-created_at $1')
+            ->orderColumn('PhoneNumberId', '-created_at $1')
+            ->orderColumn('BusinessId', '-created_at $1')
+            ->addColumn('UserName', function ($model) {
+                $user = User::select('first_name', 'last_name')->find($model->user_id);
+                return $user ? "{$user->first_name} {$user->last_name}" : '';
+            })
+            ->addColumn('PhoneNumber', function ($model) {
+                return $model->phone_number;
+            })
+            ->addColumn('WabaId', function ($model) {
+                return $model->waba_id;
+            })
+            ->addColumn('PhoneNumberId', function ($model) {
+                return $model->phone_number_id;
+            })
+            ->addColumn('BusinessId', function ($model) {
+                return $model->business_id;
+            })
+            ->addColumn('created_at', function ($model) {
+                return  getDateHtml($model->created_at);
+            })
+
+            ->rawColumns(['UserName', 'PhoneNumber', 'WabaId', 'PhoneNumberId','BusinessId','created_at'])
+            ->make(true);
+    }
+
     public function saveAccessToken(Request $request){
         try {
             [$app_id, $app_secret] = array_values(WhatsappIntegration::select(['app_id', 'app_secret'])->first()->toArray());
@@ -132,9 +164,10 @@ Class WhatsappController extends Controller{
             $verify_token = \Session::get('whatsapp_token');
             $url=\Session::get('whatsapp_url');
             $access_token=$this->getToken($request->input('code'));
+            $order_id=$request->input('order_id');
             WhatsappIntegrationUser::create(['user_id' => \Auth::user()->id, 'waba_id' => $wabaId,
                             'phone_number_id' => $phoneNumberId, 'business_id' => $business_id, 'verify_token' => $verify_token,
-                'user_callback_url'=>$url,'access_token'=>$access_token]);
+                'user_callback_url'=>$url,'access_token'=>$access_token,'order_id'=>$order_id]);
             return successResponse(__('message.updated-successfully'));
         }catch (\Exception $exception){
             return errorResponse($exception->getMessage());
