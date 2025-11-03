@@ -131,9 +131,43 @@ Class WhatsappController extends Controller{
             $business_id = $request->input('business_id');
             $verify_token = \Session::get('whatsapp_token');
             $url=\Session::get('whatsapp_url');
+            $access_token=$this->getToken($request->input('code'));
             WhatsappIntegrationUser::create(['user_id' => \Auth::user()->id, 'waba_id' => $wabaId,
-                            'phone_number_id' => $phoneNumberId, 'business_id' => $business_id, 'verify_token' => $verify_token,'user_callback_url'=>$url]);
+                            'phone_number_id' => $phoneNumberId, 'business_id' => $business_id, 'verify_token' => $verify_token,
+                'user_callback_url'=>$url,'access_token'=>$access_token]);
             return successResponse(__('message.updated-successfully'));
+        }catch (\Exception $exception){
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function getToken($code){
+        try {
+            [$app_id, $app_secret] = array_values(WhatsappIntegration::select(['app_id', 'app_secret'])->first()->toArray());
+            //To get the Token
+
+            $response = Http::get('https://graph.facebook.com/v21.0/oauth/access_token', [
+                'client_id' => $app_id,
+                'client_secret' => $app_secret,
+                'code' => $code,
+            ]);
+
+            $content = $response->json();
+
+
+            //Exchange the token to get permanent token
+            $access_token = $content['access_token'];
+
+            $getToken = Http::get('https://graph.facebook.com/v21.0/oauth/access_token', [
+                'grant_type' => 'fb_exchange_token',
+                'client_id' => $app_id,
+                'client_secret' => $app_secret,
+                'fb_exchange_token' => $access_token,
+            ]);
+
+            $content = $getToken->json();
+
+            return $content['access_token'];
         }catch (\Exception $exception){
             return errorResponse($exception->getMessage());
         }
