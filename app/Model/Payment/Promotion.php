@@ -22,7 +22,7 @@ class Promotion extends BaseModel
     ];
 
     protected $logUrl = [
-        'segments' => ['promotions', ':id' , 'edit']
+        'segments' => ['promotions', ':id', 'edit'],
     ];
 
     protected function getMappings(): array

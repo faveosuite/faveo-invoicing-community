@@ -26,7 +26,7 @@ class CloudDataCenters extends BaseModel
     ];
 
     protected $logUrl = [
-        'segments' => ['view', 'tenant']
+        'segments' => ['view', 'tenant'],
     ];
 
     protected function getMappings(): array

@@ -22,7 +22,7 @@ class Widgets extends BaseModel
     ];
 
     protected $logUrl = [
-        'segments' => ['widgets', ':id' ,'edit']
+        'segments' => ['widgets', ':id', 'edit'],
     ];
 
     protected function getMappings(): array

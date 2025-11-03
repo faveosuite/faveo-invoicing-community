@@ -19,8 +19,8 @@ class ProductGroup extends BaseModel
     protected $logAttributes = ['name', 'headline', 'tagline', 'available_payment', 'hidden', 'cart_link', 'pricing_templates_id', 'status'];
 
     protected $logUrl = [
-        'segments' => [ 'groups', ':id' , 'edit']
-        ];
+        'segments' => ['groups', ':id', 'edit'],
+    ];
 
     public function config()
     {

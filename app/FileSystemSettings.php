@@ -25,8 +25,8 @@ class FileSystemSettings extends Model
     ];
 
     protected $logUrl = [
-        'segments' => ['file-storage']
-        ];
+        'segments' => ['file-storage'],
+    ];
 
     protected function getMappings(): array
     {

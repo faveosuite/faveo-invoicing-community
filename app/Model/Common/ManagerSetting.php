@@ -24,8 +24,8 @@ class ManagerSetting extends Model
     ];
 
     protected $logUrl = [
-        'segments' =>[ 'system-managers']
-        ];
+        'segments' => ['system-managers'],
+    ];
 
     protected function getMappings(): array
     {

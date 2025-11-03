@@ -34,7 +34,7 @@ class PipedriveField extends Model
     ];
 
     protected $logUrl = [
-         'segments' => ['pipedrive/mapping/1']
+        'segments' => ['pipedrive/mapping/1'],
     ];
 
     protected function getMappings(): array
