@@ -801,8 +801,9 @@
         <div class="row">
 
             <div class="col">
-                <button onclick="launchWhatsAppSignup()" style="background-color: #1877f2; border: 0; border-radius: 4px; color: #fff; cursor: pointer; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: bold; height: 40px; padding: 0 24px;">Login with Facebook</button>
+{{--                <button onclick="launchWhatsAppSignup()" style="background-color: #1877f2; border: 0; border-radius: 4px; color: #fff; cursor: pointer; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: bold; height: 40px; padding: 0 24px;">Login with Facebook</button>--}}
 
+                <button id="get-url" style="background-color: #1877f2; border: 0; border-radius: 4px; color: #fff; cursor: pointer; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: bold; height: 40px; padding: 0 24px;">Login with Facebook</button>
 
 
             </div>
@@ -853,6 +854,52 @@
             </div>
         </div>
     </div>
+
+
+
+    <div class="modal fade" id="Whatsapp-url" tabindex="-1" role="dialog" aria-labelledby="autorenewModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h4 class="modal-title" id="autorenewModalLabel">{{ __('message.auto_renewal')}}</h4>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row">
+
+                        <div class="form-group col">
+
+                            <label class="form-label">Webhook URL <span class="text-danger"> *</span></label>
+                            <div class="custom-select-1">
+                                {!! html()->text('webhook_url')->class('form-control'.($errors->has('webhook_url') ? ' is-invalid' : ''))->id('webhook_url')->placeholder('https://example.com') !!}
+                            </div>
+
+                            <label class="form-label mt-3">VerifyToken <span class="text-danger"> *</span></label>
+                            <div class="custom-select-1">
+                                {!! html()->text('verify_token')->class('form-control'.($errors->has('verify_token') ? ' is-invalid' : ''))->id('verify_token') !!}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('message.close')}}</button>
+
+                    <button type="button" class="btn btn-primary" id="whatsapp_close" data-bs-dismiss="modal">{{ __('message.save')}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <div class="modal fade" id="cloudDomainModal" tabindex="-1" role="dialog" aria-labelledby="cloudDomainModalLabel" aria-hidden="true">
 
@@ -1197,6 +1244,28 @@
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
 
     <script>
+
+            $('#whatsapp_close').on('click',function(){
+            var url=$('#webhook_url').val();
+            var token=$('#verify_token').val();
+            $.ajax({
+            data: {'url' : url, "token": token},
+            url: '{{url("url-save")}}',
+            method: 'POST',
+            dataType: 'json',
+            success: function(data) {
+                $('#Whatsapp-url').modal('show');
+                launchWhatsAppSignup();
+            },
+            error: function(error) {
+            console.error('Error:', error);
+        }
+        });
+        })
+        $('#get-url').on('click',function(){
+            $('#Whatsapp-url').modal('show');
+        });
+
         // SDK initialization
         window.fbAsyncInit = function() {
             FB.init({
