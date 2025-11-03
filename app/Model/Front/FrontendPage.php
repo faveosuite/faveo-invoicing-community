@@ -18,7 +18,7 @@ class FrontendPage extends BaseModel
     protected $logNameColumn = 'name';
 
     protected $logAttributes = [
-        'parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type', 'created_at'
+        'parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type', 'created_at',
     ];
 
     protected $logUrl = ['pages', 'edit'];
@@ -35,7 +35,7 @@ class FrontendPage extends BaseModel
             'type' => ['Type', fn ($value) => $value],
             'created_at' => [
                 'Publishing Date',
-                fn($value) => \Carbon\Carbon::parse($value)->format('d M Y, h:i A')
+                fn ($value) => \Carbon\Carbon::parse($value)->format('d M Y, h:i A'),
             ],
         ];
     }
