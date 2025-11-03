@@ -3,6 +3,16 @@
     {{ __('log::lang.system_logs') }}
 @stop
 @section('content-header')
+    <div class="col-sm-6">
+        <h1>{{ __('log::lang.system_logs') }}</h1>
+    </div>
+    <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="{{ url('/') }}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ url('settings') }}">{{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('log::lang.system_logs') }}</li>
+        </ol>
+    </div>
 @stop
 
 @section('content')
@@ -380,7 +390,7 @@
                 <div class="card-body">
                     <div class="table-container">
                         <!-- Cron Logs Table -->
-                        <table id="cron-table" class="table table-hover w-100">
+                        <table id="cron-table" class="table table-hover" style="width:100%">
                             <thead>
                             <tr>
                                 <th>{{ __('log::lang.command') }}</th>
@@ -393,7 +403,7 @@
                         </table>
 
                         <!-- Exception Logs Table -->
-                        <table id="exception-table" class="table table-hover w-100">
+                        <table id="exception-table" class="table table-hover" style="width:100%">
                             <thead>
                             <tr>
                                 <th>{{ __('log::lang.file') }}</th>
@@ -406,13 +416,11 @@
                         </table>
 
                         <!-- Mail Logs Table -->
-                        <table id="mail-table" class="table table-hover w-100">
+                        <table id="mail-table" class="table table-hover" style="width:100%">
                             <thead>
                             <tr>
                                 <th>{{ __('log::lang.sender_mail') }}</th>
                                 <th>{{ __('log::lang.receiver_mail') }}</th>
-                                <th>{{ __('log::lang.cc') }}</th>
-                                <th>{{ __('log::lang.bcc') }}</th>
                                 <th>{{ __('log::lang.subject') }}</th>
                                 <th>{{ __('log::lang.created_at') }}</th>
                                 <th>{{ __('log::lang.updated_at') }}</th>
@@ -447,10 +455,6 @@
                         <pre class="code-block" id="codeContent"></pre>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">{{ __('log::lang.close') }}</button>
-                    <div class="ml-auto"></div>
-                </div>
             </div>
         </div>
     </div>
@@ -468,7 +472,6 @@
                     {{ __('log::lang.are_you_sure_you_want_to_retry_this_mail') }}
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('log::lang.cancel') }}</button>
                     <button type="button" class="btn btn-primary" id="confirmRetryBtn">{{ __('log::lang.retry') }}</button>
                 </div>
             </div>
@@ -490,12 +493,6 @@
                     <div id="emailBody">
                         <!-- Email content will load here -->
                     </div>
-                </div>
-
-                <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                        {{ __('log::lang.cancel') }}
-                    </button>
                 </div>
             </div>
         </div>
@@ -565,7 +562,6 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('log::lang.cancel') }}</button>
                     <button type="submit" class="btn btn-primary" id="confirmDeleteBtn">{{ __('log::lang.delete_logs') }}</button>
                 </div>
             </div>
@@ -629,7 +625,7 @@
                         }
                     });
                 });
-                
+
                 // Delete logs functionality
                 document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
                     this.deleteLogs();
@@ -930,16 +926,16 @@
                 switch(type) {
                     case 'cron':
                         return [
-                            { data: 'command', defaultContent: '', width: '200px' },
-                            { data: 'description', defaultContent: '', width: '250px' },
-                            { data: 'duration', defaultContent: '', width: '100px' },
+                            { data: 'command', defaultContent: '', width: '300px' },
+                            { data: 'description', defaultContent: '', width: '600px' },
+                            { data: 'duration', defaultContent: '', width: '250px' },
                             { data: 'created_at', defaultContent: '', width: '150px' },
-                            { data: 'status', defaultContent: '', width: '100px' },
+                            { data: 'status', defaultContent: '', width: '200px' },
                         ];
                     case 'exception':
                         return [
-                            { data: 'file', defaultContent: '', className: 'text-start log-file', width: '200px' },
-                            { data: 'line', defaultContent: '', className: 'text-center log-line', width: '70px' },
+                            { data: 'file', defaultContent: '', className: 'text-start log-file', width: '420px' },
+                            { data: 'line', defaultContent: '', className: 'text-center log-line', width: '100px' },
                             {
                                 data: 'message',
                                 render: function(data) {
@@ -953,47 +949,73 @@
                                 },
                                 defaultContent: '',
                                 className: 'text-start log-message',
-                                width: '300px'
+                                width: '420px'
                             },
                             {
                                 data: 'trace',
                                 render: function(data) {
                                     if (!data) return '';
                                     const decoded = decodeHtmlEntities(data);
-                                    if (data.length > 50) {
-                                        const short = data.substr(0, 50);
+                                    if (data.length > 100) {
+                                        const short = data.substr(0, 100);
                                         return `${short}... <span class="read-more text-primary" data-full="${encodeURIComponent(decoded)}" style="cursor:pointer;"><u>{{ __("log::lang.read_more") }}</u></span>`;
                                     }
                                     return data;
                                 },
                                 defaultContent: '',
                                 className: 'text-start log-trace',
-                                width: '300px'
+                                width: '420px'
                             },
                             { data: 'created_at', defaultContent: '', className: 'text-center log-created', width: '150px' }
                         ];
                     case 'mail':
                         return [
-                            { data: 'sender_mail', defaultContent: '---', width: '150px' },
-                            { data: 'receiver_mail', defaultContent: '---', width: '150px' },
-                            { data: 'carbon_copy', defaultContent: '---', width: '100px' },
-                            { data: 'blind_carbon_copy', defaultContent: '---', width: '100px' },
+                            {
+                                data: 'sender_mail',
+                                defaultContent: '---',
+                                width: '320px',
+                                render: function (data, type, row) {
+                                    if (!data) return '---';
+
+                                    const maxLength = 35;
+                                    const displayText = data.length > maxLength
+                                        ? data.substring(0, maxLength) + '...'
+                                        : data;
+
+                                    return `<span data-toggle="tooltip" data-placement="top" title="${data}">${displayText}</span>`;
+                                }
+                            },
+                            {
+                                data: 'receiver_mail',
+                                defaultContent: '---',
+                                width: '320px',
+                                render: function (data, type, row) {
+                                    if (!data) return '---';
+
+                                    const maxLength = 35;
+                                    const displayText = data.length > maxLength
+                                        ? data.substring(0, maxLength) + '...'
+                                        : data;
+
+                                    return `<span data-toggle="tooltip" dataa-placement="top" title="${data}">${displayText}</span>`;
+                                }
+                            },
                             {
                                 data: 'subject',
                                 defaultContent: '',
-                                width: '250px',
+                                width: '360px',
                                 render: function(data, type, row) {
                                     return `<a href="#" class="view-body" data-body="${encodeURIComponent(row.body)}">${data}</a>`;
                                 }
                             },
                             { data: 'created_at', render: data => data, defaultContent: '', width: '150px' },
                             { data: 'updated_at', render: data => data, defaultContent: '', width: '150px' },
-                            { data: 'status', defaultContent: '', width: '100px' },
+                            { data: 'status', defaultContent: '', width: '120px' },
                             {
                                 data: 'is_retry',
                                 orderable: false,
                                 searchable: false,
-                                width: '80px',
+                                width: '100px',
                                 render: function(status, type, row) {
                                     return `<button class="btn btn-light btn-sm retry-log-btn"
                                     data-id="${row.id}"
@@ -1020,8 +1042,8 @@
                         // exception columns: file(0), line(1), message(2), trace(3), created_at(4)
                         return 4;
                     case 'mail':
-                        // mail columns: sender_mail(0), receiver_mail(1), carbon_copy(2), blind_carbon_copy(3), subject(4), created_at(5), updated_at(6), status(7), action(8)
-                        return 5;
+                        // mail columns: sender_mail(0), receiver_mail(1), subject(2), created_at(3), updated_at(4), status(5), action(6)
+                        return 3;
                     default:
                         return 0;
                 }

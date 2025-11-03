@@ -15,7 +15,7 @@ class ChatScript extends Model
 
     protected $logName = 'chat-script';
 
-    protected $logNameColumn = 'settings';
+    protected $logNameColumn = 'name';
 
     protected $logAttributes = [
         'name', 'script', 'on_registration', 'on_every_page', 'google_analytics', 'google_analytics_tag',

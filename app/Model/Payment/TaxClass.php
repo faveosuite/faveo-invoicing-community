@@ -15,7 +15,7 @@ class TaxClass extends BaseModel
 
     protected $logName = 'taxes';
 
-    protected $logNameColumn = 'Settings';
+    protected $logNameColumn = 'name';
 
     protected $logAttributes = [
         'name',

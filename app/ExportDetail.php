@@ -24,6 +24,7 @@ class ExportDetail extends Model
         'user_id', 'file', 'file_path', 'name',
     ];
 
+    protected $logNameColumn = 'file';
     protected $requireLogUrl = false;
 
     protected $logUrl = [];

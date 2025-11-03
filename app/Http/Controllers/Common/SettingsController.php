@@ -598,21 +598,42 @@ class SettingsController extends BaseSettingsController
     public function settingsActivity(Request $request, Activity $activities)
     {
         $validator = \Validator::make($request->all(), [
-            'from' => 'nullable',
-            'till' => 'nullable|after:from',
+            'from' => 'nullable|date',
+            'till' => 'nullable|date|after:from',
         ]);
+
         if ($validator->fails()) {
-            $request->from = '';
-            $request->till = '';
-
-            return redirect('settings/activitylog')->with('fails', __('message.start_date_before_end_date'));
+            return redirect('settings/activitylog')
+                ->with('fails', __('message.start_date_before_end_date'));
         }
-        try {
-            $activity = $activities->all();
-            $from = $request->input('from');
-            $till = $request->input('till');
 
-            return view('themes.default1.common.Activity-Log', compact('activity', 'from', 'till'));
+        try {
+            $from = $request->input('log_from');
+            $till = $request->input('log_till');
+
+            // Get distinct module names from activity logs
+            $modules = $activities->query()
+                ->select('log_name')
+                ->distinct()
+                ->pluck('log_name')
+                ->filter()
+                ->values();
+
+            // Get distinct events from activity logs
+            $events = $activities->query()
+                ->select('event')
+                ->distinct()
+                ->pluck('event')
+                ->filter()
+                ->values();
+
+            // Get users who performed actions (join with users table)
+            $users = User::select('id', 'first_name', 'last_name', 'email')
+                ->whereIn('id', $activities->query()->distinct()->pluck('causer_id'))
+                ->orderBy('first_name')
+                ->get();
+
+            return view('themes.default1.common.Activity-Log', compact('from', 'till', 'modules', 'events', 'users'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -632,79 +653,42 @@ class SettingsController extends BaseSettingsController
     public function getActivity(Request $request)
     {
         try {
-            $from = $request->input('log_from');
-            $till = $request->input('log_till');
-            $query = $this->advanceSearch($from, $till);
+            $baseQuery = $this->getBaseQueryForSystemLogs();
+            $baseQuery = $this->filterQuery($baseQuery);
 
-            return \DataTables::of($query->take(50))
-             ->setTotalRecords($query->count())
-              ->orderColumn('name', '-created_at $1')
-              ->orderColumn('description', '-created_at $1')
-              ->orderColumn('role', '-created_at $1')
-              ->orderColumn('new', '-created_at $1')
-              ->orderColumn('old', '-created_at $1')
-              ->orderColumn('created_at', '-created_at $1')
+            // Manual search (global)
+            if ($search = $request->input('search.value')) {
+                $baseQuery->where(function ($query) use ($search) {
+                    $query->where('log_name', 'like', "%{$search}%")
+                        ->orWhere('event', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhereHas('causer', function ($q) use ($search) {
+                            $q->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%")
+                                ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);;
+                        });
+                });
+            }
 
-             ->addColumn('checkbox', function ($model) {
-                 return "<input type='checkbox' class='activity' value=".$model->id.' name=select[] id=check>';
-             })
-                           ->addColumn('name', function ($model) {
-                               return ucfirst($model->log_name);
-                           })
-                             ->addColumn('description', function ($model) {
-                                 return ucfirst($model->description);
-                             })
-                          ->addColumn('username', function ($model) {
-                              $causer_id = $model->causer_id;
-                              $names = User::where('id', $causer_id)->pluck('last_name', 'first_name');
-                              foreach ($names as $key => $value) {
-                                  $fullName = $key.' '.$value;
+            return \DataTables::of($baseQuery)
+                ->addColumn('module', fn($row) => $row->log_name ?? '---')
+                ->addColumn('event', fn($row) => ucfirst($row->event ?? '---'))
+                ->addColumn('role', fn($row) => optional($row->causer)->role ?? '---')
+                ->addColumn('detailed_properties', fn($row) => $this->formatProperties($row->properties, $row->event))
+                ->addColumn('performed_by', fn($row) => $this->generateLinkForPerformedBy($row->causer) ?? __('message.system'))
+                ->addColumn('created_at', fn($row) => $row->created_at ? getDateHtml($row->created_at) : '---')
+                ->addColumn('description', fn($row) => $row->description ?? '---')
+                ->orderColumn('module', 'log_name $1')
+                ->orderColumn('event', 'event $1')
+                ->orderColumn('role', 'role $1')
+                ->orderColumn('description', 'description $1')
+                ->orderColumn('created_at', 'created_at $1')
+                ->rawColumns(['performed_by', 'created_at', 'description'])
+                ->make(true);
 
-                                  return $fullName;
-                              }
-                          })
-                              ->addColumn('role', function ($model) {
-                                  $causer_id = $model->causer_id;
-                                  $role = User::where('id', $causer_id)->pluck('role');
-
-                                  return json_decode($role);
-                              })
-                               ->addColumn('new', function ($model) {
-                                   $properties = $model->properties;
-                                   $newEntry = $this->getNewEntry($properties, $model);
-
-                                   return $newEntry;
-                               })
-                                ->addColumn('old', function ($model) {
-                                    $data = $model->properties;
-                                    $oldEntry = $this->getOldEntry($data, $model);
-
-                                    return $oldEntry;
-                                })
-                                ->addColumn('created_at', function ($model) {
-                                    return getDateHtml($model->created_at);
-                                })
-
-                                    ->filterColumn('log_name', function ($query, $keyword) {
-                                        $sql = 'log_name like ?';
-                                        $query->whereRaw($sql, ["%{$keyword}%"]);
-                                    })
-
-                                ->filterColumn('description', function ($query, $keyword) {
-                                    $sql = 'description like ?';
-                                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                                })
-
-                            ->filterColumn('causer_id', function ($query, $keyword) {
-                                $sql = 'first_name like ?';
-                                $query->whereRaw($sql, ["%{$keyword}%"]);
-                            })
-
-                            ->rawColumns(['name', 'description',
-                                'username', 'role', 'new', 'old', 'created_at', ])
-                            ->make(true);
         } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            return errorResponse($e->getMessage());
         }
     }
 

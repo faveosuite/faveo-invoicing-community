@@ -15,7 +15,7 @@ class Promotion extends BaseModel
 
     protected $logName = 'promotions';
 
-    protected $logNameColumn = 'Settings';
+    protected $logNameColumn = 'code';
 
     protected $logAttributes = [
         'code', 'type', 'uses', 'value', 'start', 'expiry',

@@ -11,17 +11,17 @@ class FrontendPage extends BaseModel
 
     protected $table = 'frontend_pages';
 
-    protected $fillable = ['parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type'];
+    protected $fillable = ['parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type', 'created_at'];
 
     protected $logName = 'pages';
 
-    protected $logNameColumn = 'Settings';
+    protected $logNameColumn = 'name';
 
     protected $logAttributes = [
-        'parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type',
+        'parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type', 'created_at'
     ];
 
-    protected $logUrl = ['system-managers'];
+    protected $logUrl = ['pages', 'edit'];
 
     protected function getMappings(): array
     {
@@ -33,6 +33,10 @@ class FrontendPage extends BaseModel
             'url' => ['URL', fn ($value) => $value],
             'publish' => ['Publish status', fn ($value) => $value ? __('message.active') : __('message.inactive')],
             'type' => ['Type', fn ($value) => $value],
+            'created_at' => [
+                'Publishing Date',
+                fn($value) => \Carbon\Carbon::parse($value)->format('d M Y, h:i A')
+            ],
         ];
     }
 

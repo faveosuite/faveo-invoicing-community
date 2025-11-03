@@ -9,6 +9,7 @@ use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\ActivityLogDay;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Traits\ApiKeySettings;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Spatie\Activitylog\Models\Activity;
@@ -113,35 +114,89 @@ class BaseSettingsController extends PaymentSettingsController
         }
     }
 
-    public function advanceSearch($from = '', $till = '', $delFrom = '', $delTill = '')
+    protected function getBaseQueryForSystemLogs()
     {
-        $join = new Activity();
-        if ($from) {
-            $from = $this->getDateFormat($from);
-            $tills = $this->getDateFormat();
-            $tillDate = (new OrderSearchController())->getTillDate($from, $till, $tills);
-            $join = $join->whereBetween('created_at', [$from, $tillDate]);
-        }
-        if ($till) {
-            $till = $this->getDateFormat($till);
-            $froms = Activity::first()->created_at;
-            $fromDate = (new OrderSearchController())->getFromDate($from, $froms);
-            $join = $join->whereBetween('created_at', [$fromDate, $till]);
-        }
-        $join = $join
-        ->select(
-            'id',
-            'log_name',
-            'description',
-            'subject_id',
-            'subject_type',
-            'causer_id',
-            'properties',
-            'created_at'
-        );
-
-        return $join;
+        return Activity::with(['causer:id,user_name,role,first_name,last_name,email'])->select('log_name', 'description', 'event', 'causer_type', 'causer_id', 'created_at', 'properties');
     }
+
+
+    protected function filterQuery($baseQuery)
+    {
+        $from = request()->input('log_from');
+        $till = request()->input('log_till');
+
+        return $baseQuery
+            ->when(request()->filled('module'), function ($query) {
+                $modules = (array) request()->module;
+                $query->whereIn('log_name', $modules);
+            })
+            ->when(request()->filled('event'), function ($query) {
+                $events = (array) request()->event;
+                $query->whereIn('event', $events);
+            })
+            ->when(request()->filled('performed_by'), function ($query) {
+                $performedBy = (array) request()->performed_by;
+                $query->whereIn('causer_id', $performedBy);
+            })
+            ->when($from || $till, function ($query) use ($from, $till) {
+                $from = $from
+                    ? Carbon::parse($from)->startOfDay()
+                    : Carbon::minValue();
+
+                $till = $till
+                    ? Carbon::parse($till)->endOfDay()
+                    : Carbon::now();
+
+                if ($from->lessThanOrEqualTo($till)) {
+                    $query->whereBetween('created_at', [$from, $till]);
+                }
+            });
+    }
+
+    /**
+     * This function is used to create a detailed description for the logs.
+     * In the properties column of the activity_log table, the data is stored in the below format
+     * {"attributes":{"Status":"Active"},"old":{"Status":"Inactive"}}
+     * where old represents the old data and attributes represents the new data
+     */
+    protected function formatProperties($properties, $event)
+    {
+        $formatted = [];
+
+        if ($event === 'updated') {
+            $old = $properties['old'];
+            $attributes = $properties['attributes'] ?? [];
+            foreach ($old as $key => $value) {
+                $formatted[] = trans('message.updated') . " " . ucfirst($key) . " " . trans('message.from') . " " . (empty($value) ? 'null' : $value) . " " . trans('message.to') . " " . ($attributes[$key] ?? 'null');
+            }
+        } elseif ($event === 'created') {
+            $attributes = $properties['attributes'];
+            foreach ($attributes as $key => $value) {
+                if (!empty($value)) {
+                    if (is_string($value)  || is_integer($value) ) {
+                        $formatted[] = trans('message.set') . " " . ucfirst($key) . " " . trans('message.to') . " " . $value;
+                    }
+                }
+            }
+        }
+        return $formatted;
+    }
+
+    /**
+     * This function will create a hyper link for the agent/admin who is performing the action
+     */
+    protected function generateLinkForPerformedBy($causer)
+    {
+        if (empty($causer) || empty($causer['id'])) {
+            return null;
+        }
+
+        $name = trim(($causer['first_name'] ?? '') . ' ' . ($causer['last_name'] ?? ''));
+        $url  = url('clients/' . $causer['id']);
+
+        return sprintf('<a href="%s">%s</a>', e($url), e($name ?: 'Unknown User'));
+    }
+
 
     public function getScheduler(StatusSetting $status)
     {

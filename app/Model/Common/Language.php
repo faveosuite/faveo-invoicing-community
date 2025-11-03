@@ -20,7 +20,7 @@ class Language extends Model
 
     protected $logName = 'language';
 
-    protected $logNameColumn = 'Settings';
+    protected $logNameColumn = 'name';
 
     protected $logAttributes = [
         'name',
