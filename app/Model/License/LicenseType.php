@@ -15,7 +15,7 @@ class LicenseType extends Model
 
     protected $logName = 'license_types';
 
-    protected $logNameColumn = 'Settings';
+    protected $logNameColumn = 'name';
 
     protected $logAttributes = [
         'id', 'name',

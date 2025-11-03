@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Facades\Attach;
+use App\Model\Common\Timezone;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -235,7 +236,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             'address' => ['Address', fn ($value) => $value],
             'country' => ['Country', fn ($value) => $value],
             'currency' => ['Currency', fn ($value) => $value],
-            'timezone_id' => ['Timezone', fn ($value) => $value],
+            'timezone_id' => ['Timezone', fn ($value) => Timezone::find($value)?->name ?? $value],
             'mobile_code' => ['Mobile code', fn ($value) => $value],
             'bussiness' => ['Business', fn ($value) => $value],
             'company_type' => ['Company type', fn ($value) => $value],

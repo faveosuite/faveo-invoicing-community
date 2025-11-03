@@ -31,7 +31,7 @@ trait SystemActivityLogsTrait
             ->logOnly($this->logAttributes ?? [])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName(trans('message.'.$this->getLogName()));
+            ->useLogName(__('message.'.$this->getLogName(),[],'en'));
     }
 
     /**
@@ -90,21 +90,40 @@ trait SystemActivityLogsTrait
         $logUrl = $this->getLogUrl($activity->subject_id) ?? '#';
         $name = $activity->subject->{$logColumn} ?? $logColumn;
 
-        if ($eventName === 'deleted') {
-            $activity->description = trans('message.log_description', [
-                'module' => trans('message.'.$logName),
-                'name' => $name,
-                'event' => $eventName,
-            ]);
-        } else {
-            $displayName = $this->requireLogUrl ?? true
-                ? "<a href='{$logUrl}'>{$name}</a>"
-                : '';
+        $eventName = $this->resolveDeletedEventName($activity, $eventName);
 
-            $activity->description = trans('message.'.$logName).' '.
-                $displayName.' '.
-                trans('message.has_been')." {$eventName}";
+        $displayName = in_array($eventName, ['deleted', 'suspended'])
+            ? "<strong>{$name}</strong>"
+            : ($this->requireLogUrl
+                ? "<a href='{$logUrl}'><strong>{$name}</strong></a>"
+                : "<strong>{$name}</strong>");
+
+        $activity->description =  __('message.log_description', [
+            'module' => __('message.'.$logName, [], 'en'),
+            'name' => $displayName,
+            'event' => $eventName,
+        ], 'en');
+    }
+
+    /**
+     * ✅ Determine the delete event name for logging.
+     * Distinguishes between:
+     * - Soft delete → "suspended"
+     * - Force delete → "deleted"
+     */
+    private function resolveDeletedEventName(Activity $activity, string $eventName): string
+    {
+        if ($eventName === 'deleted') {
+            if (
+                method_exists($activity->subject, 'isForceDeleting') &&
+                !$activity->subject->isForceDeleting()
+            ) {
+                return 'suspended';
+            }
+            return 'deleted';
         }
+
+        return $eventName;
     }
 
     /**
@@ -133,12 +152,16 @@ trait SystemActivityLogsTrait
 
         $segments = array_map(fn ($part) => trim($part, '/'), $segments);
 
-        if (count($segments) > 1 && $id !== null) {
-            $segments = array_merge(
-                [$segments[0]], // first segment
-                [$id],          // ID in between
-                array_slice($segments, 1) // rest of segments
-            );
+        if ($id !== null) {
+            if (count($segments) > 1) {
+                $segments = array_merge(
+                    [$segments[0]],
+                    [$id],
+                    array_slice($segments, 1)
+                );
+            } else {
+                $segments[] = $id;
+            }
         }
 
         $path = implode('/', $segments);

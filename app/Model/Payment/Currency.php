@@ -15,7 +15,7 @@ class Currency extends BaseModel
 
     protected $logName = 'currency';
 
-    protected $logNameColumn = 'Settings';
+    protected $logNameColumn = 'name';
 
     protected $logAttributes = [
         'code', 'symbol', 'name', 'status',
