@@ -36,8 +36,8 @@ class Setting extends Model
     ];
 
     protected $logUrl = [
-        'segments' => ['settings/system']
-        ];
+        'segments' => ['settings/system'],
+    ];
 
     protected function getMappings(): array
     {

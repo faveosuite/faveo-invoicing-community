@@ -34,8 +34,8 @@ class Invoice extends BaseModel
     protected $logUrl = [
         'segments' => ['invoices', 'show'],
         'params' => [
-            'invoiceid' => ':id'
-        ]
+            'invoiceid' => ':id',
+        ],
     ];
 
     protected function getMappings(): array

@@ -22,8 +22,8 @@ class Tax extends BaseModel
     ];
 
     protected $logUrl = [
-        'segments' => ['tax', ':id' , 'edit']
-        ];
+        'segments' => ['tax', ':id', 'edit'],
+    ];
 
     protected function getMappings(): array
     {

@@ -38,8 +38,8 @@ class Product extends BaseModel
     ];
 
     protected $logUrl = [
-       'segments' => ['products',':id','edit']
-        ];
+        'segments' => ['products', ':id', 'edit'],
+    ];
 
     protected function getMappings(): array
     {

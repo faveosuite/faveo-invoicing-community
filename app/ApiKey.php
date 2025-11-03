@@ -33,8 +33,8 @@ class ApiKey extends Model
     ];
 
     protected $logUrl = [
-        'segments' => ['/third-party-integration']
-        ];
+        'segments' => ['/third-party-integration'],
+    ];
 
     protected function getMappings(): array
     {

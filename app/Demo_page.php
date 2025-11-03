@@ -23,8 +23,8 @@ class Demo_page extends Model
     ];
 
     protected $logUrl = [
-        'segments' => ['demo','page']
-        ];
+        'segments' => ['demo', 'page'],
+    ];
 
     protected function getMappings(): array
     {

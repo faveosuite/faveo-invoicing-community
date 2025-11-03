@@ -30,8 +30,8 @@ class Language extends Model
     ];
 
     protected $logUrl = [
-        'segments' => ['languages']
-        ];
+        'segments' => ['languages'],
+    ];
 
     protected function getMappings(): array
     {

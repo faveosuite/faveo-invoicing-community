@@ -22,8 +22,8 @@ class Currency extends BaseModel
     ];
 
     protected $logUrl = [
-         'segments' => ['currency']
-        ];
+        'segments' => ['currency'],
+    ];
 
     protected function getMappings(): array
     {

@@ -22,8 +22,8 @@ class ProductUpload extends Model
     ];
 
     protected $logUrl = [
-        'segments' => ['edit-upload', ':id']
-        ];
+        'segments' => ['edit-upload', ':id'],
+    ];
 
     protected function getMappings(): array
     {
