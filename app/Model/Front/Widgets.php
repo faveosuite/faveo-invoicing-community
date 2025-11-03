@@ -15,7 +15,7 @@ class Widgets extends BaseModel
 
     protected $logName = 'widgets';
 
-    protected $logNameColumn = 'Settings';
+    protected $logNameColumn = 'name';
 
     protected $logAttributes = [
         'name', 'type', 'publish', 'content', 'allow_tweets', 'allow_mailchimp', 'allow_social_media',

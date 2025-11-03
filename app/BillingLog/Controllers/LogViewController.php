@@ -9,6 +9,7 @@ use App\BillingLog\Model\MailLog;
 use DataTables;
 use Illuminate\Http\Request;
 use Illuminate\Support\HtmlString;
+use Spatie\Activitylog\Models\Activity;
 
 class LogViewController
 {
@@ -106,7 +107,8 @@ class LogViewController
             'cron' => CronLog::class,
             'exception' => ExceptionLog::class,
             'mail' => MailLog::class,
-            'failed_jobs' => 'failed_jobs', // Use table name for DB query
+            'systemLogs' => Activity::class,
+            'failed_jobs' => 'failed_jobs',
         ];
 
         foreach ($logTypes as $type) {

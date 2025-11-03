@@ -15,7 +15,7 @@ class ThirdPartyApp extends Model
 
     protected $logName = 'third_party_apps';
 
-    protected $logNameColumn = 'settings';
+    protected $logNameColumn = 'app_name';
 
     protected $logAttributes = [
         'app_name', 'app_key', 'app_secret',

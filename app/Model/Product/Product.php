@@ -26,7 +26,7 @@ class Product extends BaseModel
 
     protected $logName = 'product';
 
-    protected $logNameColumn = 'Settings';
+    protected $logNameColumn = 'name';
 
     protected $logAttributes = [
         'name', 'description', 'type', 'group', 'file', 'image', 'require_domain', 'category',

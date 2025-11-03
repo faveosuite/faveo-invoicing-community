@@ -16,7 +16,7 @@ class CloudProducts extends BaseModel
 
     protected $logName = 'cloud';
 
-    protected $logNameColumn = 'Settings';
+    protected $logNameColumn = 'cloud_product';
 
     protected $logAttributes = [
         'cloud_product', 'cloud_free_plan', 'cloud_product_key', 'trial_status',

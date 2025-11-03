@@ -2733,4 +2733,12 @@ return [
     'cloud' => 'Cloud',
     'attach_helper_no_default_disk' => 'There is no default disk set for file storage. Please set a default disk in the file storage settings.',
 
+    'set' => 'Set',
+    'detailed_log_info' => 'Detailed Log Info',
+    'read_more_caps' => 'Read More.',
+    'performed_by' => 'Performed By',
+    'event' => 'Event',
+    'created' => 'Created',
+    'deleted' => 'Deleted',
+
 ];
