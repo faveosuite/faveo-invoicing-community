@@ -42,28 +42,31 @@
             version: 'v24.0'
         });
     };
-
+   var fbData=null;
+   var fbToken=null;
     // Session logging message event listener
     window.addEventListener('message', (event) => {
         if (!event.origin.endsWith('facebook.com')) return;
         try {
             const data = JSON.parse(event.data);
             if (data.type === 'WA_EMBEDDED_SIGNUP') {
-                console.log('message event: ', data);
-                $.ajax ({
-                    url: '{{url("save-waba-id")}}',
-                    type : 'post',
-                    data: {
-                        "waba_id": data.data.waba_id,"phone_number_id":data.data.phone_number_id,"business_id":data.data.business_id,
-                    },
-                    success: function (data) {
-                        console.log(data);
+                {{--console.log('message event: ', data);--}}
+                {{--$.ajax ({--}}
+                {{--    url: '{{url("save-waba-id")}}',--}}
+                {{--    type : 'post',--}}
+                {{--    data: {--}}
+                {{--        "waba_id": data.data.waba_id,"phone_number_id":data.data.phone_number_id,"business_id":data.data.business_id,--}}
+                {{--    },--}}
+                {{--    success: function (data) {--}}
+                {{--        console.log(data);--}}
 
-                    },
-                    error:function(data){
-                        console.log(data);
-                    },
-                })
+                {{--    },--}}
+                {{--    error:function(data){--}}
+                {{--        console.log(data);--}}
+                {{--    },--}}
+                {{--})--}}
+                fbdata=data;
+                getAllData();
             }
         } catch {
             console.log('message event: ', event.data);
@@ -75,24 +78,46 @@
     const fbLoginCallback = (response) => {
         if (response.authResponse) {
             const code = response.authResponse.code;
-            console.log('response1: ', code);
+            fbToken=code;
+            getAllData();
+            // console.log('response1: ', code);
+            {{--$.ajax ({--}}
+            {{--    url: '{{url("save-access-token")}}',--}}
+            {{--    type : 'post',--}}
+            {{--    data: {--}}
+            {{--        "code": code,--}}
+            {{--    },--}}
+            {{--    success: function (data) {--}}
+            {{--        console.log(data);--}}
+            {{--    },--}}
+            {{--    error:function(data){--}}
+            {{--        console.log(data);--}}
+            {{--    },--}}
+            {{--})--}}
+            // your code goes here
+        } else {
+            console.log('response2: ', response);
+            // your code goes here
+        }
+    }
+
+    function getAllData(){
+        if(fbData && fbToken){
+            var data=fbData;
             $.ajax ({
-                url: '{{url("save-access-token")}}',
+                url: '{{url("save-waba-id")}}',
                 type : 'post',
                 data: {
-                    "code": code,
+                    "waba_id": data.data.waba_id,"phone_number_id":data.data.phone_number_id,"business_id":data.data.business_id,'code':fbToken,
                 },
                 success: function (data) {
                     console.log(data);
+
                 },
                 error:function(data){
                     console.log(data);
                 },
             })
-            // your code goes here
-        } else {
-            console.log('response2: ', response);
-            // your code goes here
         }
     }
 
