@@ -22,7 +22,7 @@ class ChatScript extends Model
     ];
 
     protected $logUrl = [
-        'segments' => ['chat', ':id' ,'edit'],
+        'segments' => ['chat', ':id', 'edit'],
     ];
 
     protected function getMappings(): array

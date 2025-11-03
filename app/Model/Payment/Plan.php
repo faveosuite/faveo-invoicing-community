@@ -25,7 +25,7 @@ class Plan extends BaseModel
     ];
 
     protected $logUrl = [
-        'segments' => ['plans', ':id' , 'edit']
+        'segments' => ['plans', ':id', 'edit'],
     ];
 
     protected function getMappings(): array

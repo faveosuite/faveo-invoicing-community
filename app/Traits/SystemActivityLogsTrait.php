@@ -150,19 +150,19 @@ trait SystemActivityLogsTrait
         }
 
         $segments = array_map(
-            fn($s) => $s === ':id' && $id !== null ? $id : $s,
+            fn ($s) => $s === ':id' && $id !== null ? $id : $s,
             (array) $this->logUrl['segments']
         );
 
         $params = array_map(
-            fn($v) => $v === ':id' && $id !== null ? $id : $v,
+            fn ($v) => $v === ':id' && $id !== null ? $id : $v,
             $this->logUrl['params'] ?? []
         );
 
         $url = url(implode('/', array_filter($segments)));
 
         if ($params) {
-            $url .= '?' . http_build_query($params);
+            $url .= '?'.http_build_query($params);
         }
 
         return $url;
