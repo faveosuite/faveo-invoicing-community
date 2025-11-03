@@ -36,6 +36,13 @@ Class WhatsappController extends Controller{
         return view('themes.default1.common.whatsapp-index');
     }
 
+    public function urlSave(Request $request){
+        $token=$request->input('token');
+        $url=$request->input('url');
+        \Session::put('whatsapp_token',$token);
+        \Session::put('whatsapp_url',$url);
+        return successResponse('success');
+    }
 
     public function whatsappTable(){
         $query = WhatsappIntegrationUser::select('*');
@@ -122,8 +129,10 @@ Class WhatsappController extends Controller{
             $wabaId = $request->input('waba_id');
             $phoneNumberId = $request->input('phone_number_id')?$request->input('phone_number_id'):'';
             $business_id = $request->input('business_id');
+            $verify_token = \Session::get('whatsapp_token');
+            $url=\Session::get('whatsapp_url');
             WhatsappIntegrationUser::create(['user_id' => \Auth::user()->id, 'waba_id' => $wabaId,
-                            'phone_number_id' => $phoneNumberId, 'business_id' => $business_id]);
+                            'phone_number_id' => $phoneNumberId, 'business_id' => $business_id, 'verify_token' => $verify_token,'user_callback_url'=>$url]);
             return successResponse(__('message.updated-successfully'));
         }catch (\Exception $exception){
             return errorResponse($exception->getMessage());
@@ -153,7 +162,7 @@ Class WhatsappController extends Controller{
                     $wabaId = $data['entry'][0]['id'];
                     $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('url');
 
-                    $response = $this->client->post($url, ['body' => $request, // sends as JSON
+                    $response = $this->client->post($url, ['json' => $data,
                         'headers' => [
                             'Accept' => 'application/json',
                         ]]);
