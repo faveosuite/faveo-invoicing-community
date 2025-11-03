@@ -31,7 +31,7 @@ trait SystemActivityLogsTrait
             ->logOnly($this->logAttributes ?? [])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName(__('message.'.$this->getLogName(),[],'en'));
+            ->useLogName(__('message.'.$this->getLogName(), [], 'en'));
     }
 
     /**
@@ -98,7 +98,7 @@ trait SystemActivityLogsTrait
                 ? "<a href='{$logUrl}'><strong>{$name}</strong></a>"
                 : "<strong>{$name}</strong>");
 
-        $activity->description =  __('message.log_description', [
+        $activity->description = __('message.log_description', [
             'module' => __('message.'.$logName, [], 'en'),
             'name' => $displayName,
             'event' => $eventName,
@@ -109,17 +109,18 @@ trait SystemActivityLogsTrait
      * ✅ Determine the delete event name for logging.
      * Distinguishes between:
      * - Soft delete → "suspended"
-     * - Force delete → "deleted"
+     * - Force delete → "deleted".
      */
     private function resolveDeletedEventName(Activity $activity, string $eventName): string
     {
         if ($eventName === 'deleted') {
             if (
                 method_exists($activity->subject, 'isForceDeleting') &&
-                !$activity->subject->isForceDeleting()
+                ! $activity->subject->isForceDeleting()
             ) {
                 return 'suspended';
             }
+
             return 'deleted';
         }
 
