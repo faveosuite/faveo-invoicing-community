@@ -1400,42 +1400,48 @@
                 }
             }
 
-            function getAllData(){
-                if(fbData && fbToken){
-                    var data=fbData;
-                    $.ajax ({
+            function getAllData() {
+                if (fbData && fbToken) {
+                    var data = fbData;
+                    $.ajax({
                         url: '{{url("save-waba-id")}}',
-                        type : 'post',
+                        type: 'post',
                         data: {
-                            "waba_id": data.data.waba_id,"phone_number_id":data.data.phone_number_id,"business_id":data.data.business_id,'code':fbToken,"order_id":{!! $order->id !!}
+                            "waba_id": data.data.waba_id,
+                            "phone_number_id": data.data.phone_number_id,
+                            "business_id": data.data.business_id,
+                            'code': fbToken,
+                            "order_id": {!! $order->id !!}
                         },
                         success: function (data) {
                             $('#alertMessage-22').show();
-                            var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> ' + @json(__('message.success')) + '! </strong>' + response.message + '.</div>';
-                            $('#alertMessage-22').html(result+ ".");
+                            var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> ' + @json(__('message.success')) +'! </strong>' + response.message + '.</div>';
+                            $('#alertMessage-22').html(result + ".");
                             $("#pay").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
-                            setTimeout(function() {
-                                    $('#alertMessage-22').slideUp(3000, function() {
-                                        setTimeout(function() {
-                                            location.reload();
-                                        }, 1000);
-                                    });
+                            setTimeout(function () {
+                                $('#alertMessage-22').slideUp(3000, function () {
+                                    setTimeout(function () {
+                                        location.reload();
+                                    }, 1000);
+                                });
+                            })
                         },
-                        error:function(data){
-                                $('#alertMessage-22').show();
-                                var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> ' + @json(__('message.success')) + '! </strong>' + response.message + '.</div>';
-                                $('#alertMessage-22').html(result+ ".");
-                                $("#pay").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
-                                setTimeout(function() {
-                                    $('#alertMessage-22').slideUp(3000, function() {
-                                        setTimeout(function() {
-                                            location.reload();
-                                        }, 1000);
-                                    });                        },
+                        error: function (data) {
+                            $('#alertMessage-22').show();
+                            var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> ' + @json(__('message.success')) +'! </strong>' + response.message + '.</div>';
+                            $('#alertMessage-22').html(result + ".");
+                            $("#pay").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
+                            setTimeout(function () {
+                                $('#alertMessage-22').slideUp(3000, function () {
+                                    setTimeout(function () {
+                                        location.reload();
+                                    }, 1000);
+                                });
+                            })
+                        },
                     })
                 }
             }
-
         // Launch method and callback registration
         const launchWhatsAppSignup = () => {
 
