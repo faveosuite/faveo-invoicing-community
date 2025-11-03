@@ -2719,4 +2719,12 @@ return [
     'has_been' => 'ha sido',
     'cloud' => 'Nube',
     'attach_helper_no_default_disk' => 'No hay un disco predeterminado configurado para el almacenamiento de archivos. Por favor, configure un disco predeterminado en los ajustes de almacenamiento de archivos.',
+
+    'set' => 'Establecer',
+    'detailed_log_info' => 'Información detallada del registro',
+    'read_more_caps' => 'Leer más',
+    'performed_by' => 'Realizado por',
+    'event' => 'Evento',
+    'created' => 'Creado',
+    'deleted' => 'Eliminado',
 ];

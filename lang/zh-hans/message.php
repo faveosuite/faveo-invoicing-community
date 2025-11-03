@@ -2714,4 +2714,12 @@ return [
     'has_been' => '已被',
     'cloud' => '云',
     'attach_helper_no_default_disk' => '文件存储没有设置默认磁盘。请在文件存储设置中设置默认磁盘。',
+
+    'set' => '设置',
+    'detailed_log_info' => '详细日志信息',
+    'read_more_caps' => '阅读更多',
+    'performed_by' => '执行者',
+    'event' => '事件',
+    'created' => '已创建',
+    'deleted' => '已删除',
 ];

@@ -21,7 +21,9 @@ class ThirdPartyApp extends Model
         'app_name', 'app_key', 'app_secret',
     ];
 
-    protected $logUrl = ['third-party-keys'];
+    protected $logUrl = [
+        'segments' => ['third-party-keys']
+        ];
 
     protected function getMappings(): array
     {

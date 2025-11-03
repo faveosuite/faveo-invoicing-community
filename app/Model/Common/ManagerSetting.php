@@ -23,7 +23,9 @@ class ManagerSetting extends Model
         'auto_assign',
     ];
 
-    protected $logUrl = ['system-managers'];
+    protected $logUrl = [
+        'segments' =>[ 'system-managers']
+        ];
 
     protected function getMappings(): array
     {

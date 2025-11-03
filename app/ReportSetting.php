@@ -22,7 +22,9 @@ class ReportSetting extends Model
         'records',
     ];
 
-    protected $logUrl = ['records/column'];
+    protected $logUrl = [
+        'segments' => ['records', 'column']
+        ];
 
     protected function getMappings(): array
     {

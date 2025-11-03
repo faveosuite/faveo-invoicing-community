@@ -2714,4 +2714,12 @@ return [
     'has_been' => 'è stato',
     'cloud' => 'Cloud',
     'attach_helper_no_default_disk' => 'Non è stato impostato alcun disco predefinito per l’archiviazione dei file. Si prega di impostare un disco predefinito nelle impostazioni di archiviazione dei file.',
+
+    'set' => 'Imposta',
+    'detailed_log_info' => 'Informazioni dettagliate del registro',
+    'read_more_caps' => 'Leggi di più',
+    'performed_by' => 'Eseguito da',
+    'event' => 'Evento',
+    'created' => 'Creato',
+    'deleted' => 'Eliminato',
 ];

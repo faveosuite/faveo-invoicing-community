@@ -21,7 +21,9 @@ class Currency extends BaseModel
         'code', 'symbol', 'name', 'status',
     ];
 
-    protected $logUrl = ['currency'];
+    protected $logUrl = [
+         'segments' => ['currency']
+        ];
 
     protected function getMappings(): array
     {

@@ -2708,4 +2708,12 @@ return [
     'has_been' => 'a été',
     'cloud' => 'Cloud',
     'attach_helper_no_default_disk' => "Aucun disque par défaut n'est configuré pour le stockage des fichiers. Veuillez définir un disque par défaut dans les paramètres de stockage.",
+
+    'set' => 'Définir',
+    'detailed_log_info' => 'Informations détaillées du journal',
+    'read_more_caps' => 'Lire plus',
+    'performed_by' => 'Effectué par',
+    'event' => 'Événement',
+    'created' => 'Créé',
+    'deleted' => 'Supprimé',
 ];

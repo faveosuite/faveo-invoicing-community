@@ -2725,4 +2725,12 @@ return [
     'has_been' => 'har blitt',
     'cloud' => 'Sky',
     'attach_helper_no_default_disk' => 'Det er ingen standarddisk satt for fillagring. Vennligst sett en standarddisk i fillagringsinnstillingene.',
+
+    'set' => 'Angi',
+    'detailed_log_info' => 'Detaljert logginformasjon',
+    'read_more_caps' => 'Les mer',
+    'performed_by' => 'Utført av',
+    'event' => 'Hendelse',
+    'created' => 'Opprettet',
+    'deleted' => 'Slettet',
 ];

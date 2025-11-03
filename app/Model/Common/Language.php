@@ -29,7 +29,9 @@ class Language extends Model
         'status',
     ];
 
-    protected $logUrl = ['languages'];
+    protected $logUrl = [
+        'segments' => ['languages']
+        ];
 
     protected function getMappings(): array
     {

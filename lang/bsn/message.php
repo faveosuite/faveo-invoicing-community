@@ -2650,4 +2650,12 @@ return [
     'has_been' => 'je',
     'cloud' => 'Oblak',
     'attach_helper_no_default_disk' => 'Nema zadani disk za pohranu datoteka. Molimo postavite zadani disk u postavkama pohrane datoteka.',
+
+    'set' => 'Postavi',
+    'detailed_log_info' => 'Detaljne informacije o zapisu',
+    'read_more_caps' => 'Pročitaj više',
+    'performed_by' => 'Izveo',
+    'event' => 'Događaj',
+    'created' => 'Kreirano',
+    'deleted' => 'Obrisano',
 ];

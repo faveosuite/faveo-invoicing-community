@@ -33,7 +33,9 @@ class PipedriveField extends Model
         'local_field_id',
     ];
 
-    protected $logUrl = ['pipedrive/mapping/1'];
+    protected $logUrl = [
+         'segments' => ['pipedrive/mapping/1']
+    ];
 
     protected function getMappings(): array
     {

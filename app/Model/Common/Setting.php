@@ -35,7 +35,9 @@ class Setting extends Model
         'company_email', 'favicon_title_client', 'default_currency', 'default_symbol', 'file_storage', 'cin_no', 'gstin', 'zip', 'from_name', 'phone_code', 'knowledge_base_url', 'content',
     ];
 
-    protected $logUrl = ['settings/system'];
+    protected $logUrl = [
+        'segments' => ['settings/system']
+        ];
 
     protected function getMappings(): array
     {

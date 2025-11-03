@@ -21,7 +21,9 @@ class Widgets extends BaseModel
         'name', 'type', 'publish', 'content', 'allow_tweets', 'allow_mailchimp', 'allow_social_media',
     ];
 
-    protected $logUrl = ['widgets', 'edit'];
+    protected $logUrl = [
+        'segments' => ['widgets', ':id' ,'edit']
+    ];
 
     protected function getMappings(): array
     {

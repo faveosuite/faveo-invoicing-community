@@ -21,7 +21,9 @@ class FaveoCloud extends Model
         'cloud_central_domain', 'cloud_cname',
     ];
 
-    protected $logUrl = ['view/tenant'];
+    protected $logUrl = [
+        'segments' => ['view/tenant']
+        ];
 
     protected function getMappings(): array
     {

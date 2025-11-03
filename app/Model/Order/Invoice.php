@@ -31,7 +31,12 @@ class Invoice extends BaseModel
 
     protected $logNameColumn = 'number';
 
-    protected $logUrl = ['invoices'];
+    protected $logUrl = [
+        'segments' => ['invoices', 'show'],
+        'params' => [
+            'invoiceid' => ':id'
+        ]
+    ];
 
     protected function getMappings(): array
     {

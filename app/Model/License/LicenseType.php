@@ -21,7 +21,9 @@ class LicenseType extends Model
         'id', 'name',
     ];
 
-    protected $logUrl = ['license-type'];
+    protected $logUrl = [
+        'segments' => [ 'license-type' ]
+    ];
 
     protected function getMappings(): array
     {

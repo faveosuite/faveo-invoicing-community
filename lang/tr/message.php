@@ -2732,4 +2732,12 @@ return [
     'has_been' => 'edildi',
     'cloud' => 'Bulut',
     'attach_helper_no_default_disk' => 'Dosya depolama için varsayılan bir disk ayarlanmadı. Lütfen dosya depolama ayarlarında bir varsayılan disk ayarlayın.',
+
+    'set' => 'Ayarla',
+    'detailed_log_info' => 'Ayrıntılı Günlük Bilgisi',
+    'read_more_caps' => 'Daha fazla oku',
+    'performed_by' => 'Gerçekleştiren',
+    'event' => 'Olay',
+    'created' => 'Oluşturuldu',
+    'deleted' => 'Silindi',
 ];

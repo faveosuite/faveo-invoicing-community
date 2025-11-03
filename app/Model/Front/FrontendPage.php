@@ -21,7 +21,9 @@ class FrontendPage extends BaseModel
         'parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type', 'created_at',
     ];
 
-    protected $logUrl = ['pages', 'edit'];
+    protected $logUrl = [
+        'segments' => ['pages', ':id' ,'edit']
+    ];
 
     protected function getMappings(): array
     {

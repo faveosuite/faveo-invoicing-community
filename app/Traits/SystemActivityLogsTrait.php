@@ -94,7 +94,7 @@ trait SystemActivityLogsTrait
 
         $displayName = in_array($eventName, ['deleted', 'suspended'])
             ? "<strong>{$name}</strong>"
-            : ($this->requireLogUrl
+            : ($this->requireLogUrl ?? true
                 ? "<a href='{$logUrl}'><strong>{$name}</strong></a>"
                 : "<strong>{$name}</strong>");
 
@@ -145,28 +145,26 @@ trait SystemActivityLogsTrait
      */
     protected function getLogUrl($id = null): ?string
     {
-        if (empty($this->logUrl)) {
+        if (empty($this->logUrl['segments'])) {
             return null;
         }
 
-        $segments = is_array($this->logUrl) ? $this->logUrl : [$this->logUrl];
+        $segments = array_map(
+            fn($s) => $s === ':id' && $id !== null ? $id : $s,
+            (array) $this->logUrl['segments']
+        );
 
-        $segments = array_map(fn ($part) => trim($part, '/'), $segments);
+        $params = array_map(
+            fn($v) => $v === ':id' && $id !== null ? $id : $v,
+            $this->logUrl['params'] ?? []
+        );
 
-        if ($id !== null) {
-            if (count($segments) > 1) {
-                $segments = array_merge(
-                    [$segments[0]],
-                    [$id],
-                    array_slice($segments, 1)
-                );
-            } else {
-                $segments[] = $id;
-            }
+        $url = url(implode('/', array_filter($segments)));
+
+        if ($params) {
+            $url .= '?' . http_build_query($params);
         }
 
-        $path = implode('/', $segments);
-
-        return url($path);
+        return $url;
     }
 }

@@ -21,7 +21,9 @@ class Tax extends BaseModel
         'level', 'name', 'country', 'state', 'rate', 'active', 'tax_classes_id', 'compound',
     ];
 
-    protected $logUrl = ['tax', 'edit'];
+    protected $logUrl = [
+        'segments' => ['tax', ':id' , 'edit']
+        ];
 
     protected function getMappings(): array
     {

@@ -2723,4 +2723,12 @@ return [
     'has_been' => 'היה',
     'cloud' => 'ענן',
     'attach_helper_no_default_disk' => 'אין דיסק ברירת מחדל לאחסון קבצים. נא להגדיר דיסק ברירת מחדל בהגדרות אחסון הקבצים.',
+
+    'set' => 'הגדר',
+    'detailed_log_info' => 'מידע מפורט על יומן',
+    'read_more_caps' => 'קרא עוד',
+    'performed_by' => 'בוצע על ידי',
+    'event' => 'אירוע',
+    'created' => 'נוצר',
+    'deleted' => 'נמחק',
 ];

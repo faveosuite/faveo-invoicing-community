@@ -37,7 +37,9 @@ class Product extends BaseModel
         'deny_after_subscription', 'version', 'subscription', 'product_sku', 'perpetual_license', 'product_description', 'invoice_hidden',
     ];
 
-    protected $logUrl = ['products', 'edit'];
+    protected $logUrl = [
+       'segments' => ['products',':id','edit']
+        ];
 
     protected function getMappings(): array
     {
