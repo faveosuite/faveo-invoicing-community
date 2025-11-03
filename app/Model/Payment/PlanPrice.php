@@ -22,7 +22,9 @@ class PlanPrice extends Model
         'plan_id', 'currency', 'add_price', 'renew_price', 'price_description', 'product_quantity', 'no_of_agents', 'country_id', 'offer_price',
     ];
 
-    protected $logUrl = ['plans'];
+    protected $logUrl = [
+        'segments' => ['plans']
+    ];
 
     protected function getMappings(): array
     {

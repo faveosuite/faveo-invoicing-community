@@ -21,7 +21,9 @@ class EmailMobileValidationProviders extends Model
         'provider,api_key', 'api_secret', 'mode', 'accepted_output',
     ];
 
-    protected $logUrl = ['third-party-integration'];
+    protected $logUrl = [
+        'segments' => [ 'third-party-integration' ]
+    ];
 
     protected function getMappings(): array
     {

@@ -2741,4 +2741,12 @@ return [
     'has_been' => '되었습니다',
     'cloud' => '클라우드',
     'attach_helper_no_default_disk' => '파일 저장용 기본 디스크가 설정되지 않았습니다. 파일 저장 설정에서 기본 디스크를 설정하십시오.',
+
+    'set' => '설정',
+    'detailed_log_info' => '상세 로그 정보',
+    'read_more_caps' => '더 읽기',
+    'performed_by' => '수행자',
+    'event' => '이벤트',
+    'created' => '생성됨',
+    'deleted' => '삭제됨',
 ];

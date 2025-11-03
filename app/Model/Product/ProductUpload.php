@@ -21,7 +21,9 @@ class ProductUpload extends Model
         'product_id', 'title', 'description', 'version', 'file', 'is_private', 'is_restricted', 'release_type',
     ];
 
-    protected $logUrl = ['edit-upload/', '/'];
+    protected $logUrl = [
+        'segments' => ['edit-upload', ':id']
+        ];
 
     protected function getMappings(): array
     {

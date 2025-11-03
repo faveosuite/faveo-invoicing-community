@@ -21,7 +21,9 @@ class ChatScript extends Model
         'name', 'script', 'on_registration', 'on_every_page', 'google_analytics', 'google_analytics_tag',
     ];
 
-    protected $logUrl = ['chat', 'edit'];
+    protected $logUrl = [
+        'segments' => ['chat', ':id' ,'edit'],
+    ];
 
     protected function getMappings(): array
     {

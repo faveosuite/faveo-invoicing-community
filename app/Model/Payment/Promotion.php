@@ -21,7 +21,9 @@ class Promotion extends BaseModel
         'code', 'type', 'uses', 'value', 'start', 'expiry',
     ];
 
-    protected $logUrl = ['promotions', 'edit'];
+    protected $logUrl = [
+        'segments' => ['promotions', ':id' , 'edit']
+    ];
 
     protected function getMappings(): array
     {

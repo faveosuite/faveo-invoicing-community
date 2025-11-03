@@ -21,7 +21,9 @@ class DefaultPage extends Model
         'page_id', 'page_url',
     ];
 
-    protected $logUrl = ['/pages', '/edit'];
+    protected $logUrl = [
+        'segments' => ['pages', ':id',  'edit']
+    ];
 
     protected function getMappings(): array
     {

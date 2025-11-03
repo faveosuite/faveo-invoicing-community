@@ -2722,4 +2722,12 @@ return [
     'has_been' => 'đã được',
     'cloud' => 'Đám mây',
     'attach_helper_no_default_disk' => 'Không có ổ đĩa mặc định nào được đặt cho lưu trữ tệp. Vui lòng đặt ổ đĩa mặc định trong cài đặt lưu trữ tệp.',
+
+    'set' => 'Đặt',
+    'detailed_log_info' => 'Thông tin nhật ký chi tiết',
+    'read_more_caps' => 'Đọc thêm',
+    'performed_by' => 'Thực hiện bởi',
+    'event' => 'Sự kiện',
+    'created' => 'Đã tạo',
+    'deleted' => 'Đã xóa',
 ];

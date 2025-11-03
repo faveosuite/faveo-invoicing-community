@@ -24,7 +24,9 @@ class FileSystemSettings extends Model
         'disk', 'local_file_storage_path',
     ];
 
-    protected $logUrl = ['file-storage'];
+    protected $logUrl = [
+        'segments' => ['file-storage']
+        ];
 
     protected function getMappings(): array
     {

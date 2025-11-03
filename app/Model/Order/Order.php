@@ -25,7 +25,9 @@ class Order extends BaseModel
 
     protected $logNameColumn = 'number';
 
-    protected $logUrl = ['orders', '/'];
+    protected $logUrl = [
+        'segments' => ['orders', ':id']
+    ];
 
     protected function getMappings(): array
     {

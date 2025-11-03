@@ -2699,4 +2699,12 @@ return [
     'has_been' => 'foi',
     'cloud' => 'Nuvem',
     'attach_helper_no_default_disk' => 'Não há disco padrão definido para armazenamento de arquivos. Por favor, defina um disco padrão nas configurações de armazenamento de arquivos.',
+
+    'set' => 'Definir',
+    'detailed_log_info' => 'Informações detalhadas do log',
+    'read_more_caps' => 'Leia mais',
+    'performed_by' => 'Executado por',
+    'event' => 'Evento',
+    'created' => 'Criado',
+    'deleted' => 'Excluído',
 ];

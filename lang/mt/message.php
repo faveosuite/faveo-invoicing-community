@@ -2646,4 +2646,12 @@
      'has_been' => 'kien',
      'cloud' => 'Cloud',
      'attach_helper_no_default_disk' => 'Ma hemm l-ebda disk default issettjat għall-ħażna tal-fajls. Jekk jogħġbok issettja disk default fil-parametri tal-ħażna tal-fajls.',
+
+     'set' => 'Issettja',
+     'detailed_log_info' => 'Informazzjoni dettaljata tal-log',
+     'read_more_caps' => 'Aqra iktar',
+     'performed_by' => 'Imwettaq minn',
+     'event' => 'Avveniment',
+     'created' => 'Maħluq',
+     'deleted' => 'Imħassar',
  ];
