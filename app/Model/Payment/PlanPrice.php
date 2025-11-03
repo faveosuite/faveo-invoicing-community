@@ -23,7 +23,7 @@ class PlanPrice extends Model
     ];
 
     protected $logUrl = [
-        'segments' => ['plans']
+        'segments' => ['plans'],
     ];
 
     protected function getMappings(): array

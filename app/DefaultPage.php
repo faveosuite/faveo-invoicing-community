@@ -22,7 +22,7 @@ class DefaultPage extends Model
     ];
 
     protected $logUrl = [
-        'segments' => ['pages', ':id',  'edit']
+        'segments' => ['pages', ':id',  'edit'],
     ];
 
     protected function getMappings(): array

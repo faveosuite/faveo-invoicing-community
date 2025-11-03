@@ -22,7 +22,7 @@ class FrontendPage extends BaseModel
     ];
 
     protected $logUrl = [
-        'segments' => ['pages', ':id' ,'edit']
+        'segments' => ['pages', ':id', 'edit'],
     ];
 
     protected function getMappings(): array
