@@ -149,18 +149,16 @@ Class WhatsappController extends Controller{
             }
             if ($request->isMethod('post')) {
                 $data = $request->all();
-               // if (!empty($data['entry'][0]['id'])) {
+                if (!empty($data['entry'][0]['id'])) {
                     $wabaId = $data['entry'][0]['id'];
-//                    $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('url');
-                    $url='https://qa.faveodemo.com/saifmaster/public/whatsapp';
+                    $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('url');
 
-                    $response = $this->client->post($url, ['json' => $request, // sends as JSON
+                    $response = $this->client->post($url, ['body' => $request, // sends as JSON
                         'headers' => [
-                            'X-Webhook-Token' => env('WEBHOOK_TOKEN', 'secret-token'),
                             'Accept' => 'application/json',
                         ]]);
-                    \Log::debug('san_response',[$response->getBody()->getContents()]);
-               // }
+                    \Log::debug('WhatsappIntegrationUser', ['response' => $response->getBody()->getContents(),'url' => $url]);
+                }
 
                 return response('EVENT_RECEIVED', 200);
             }
