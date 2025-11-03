@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Common;
 
 use App\ApiKey;
 use App\Http\Controllers\Common\PHPController as PaymentSettingsController;
-use App\Http\Controllers\Order\OrderSearchController;
 use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\ActivityLogDay;
 use App\Model\Mailjob\ExpiryMailDay;
@@ -119,7 +118,6 @@ class BaseSettingsController extends PaymentSettingsController
         return Activity::with(['causer:id,user_name,role,first_name,last_name,email'])->select('log_name', 'description', 'event', 'causer_type', 'causer_id', 'created_at', 'properties');
     }
 
-
     protected function filterQuery($baseQuery)
     {
         $from = request()->input('log_from');
@@ -157,7 +155,7 @@ class BaseSettingsController extends PaymentSettingsController
      * This function is used to create a detailed description for the logs.
      * In the properties column of the activity_log table, the data is stored in the below format
      * {"attributes":{"Status":"Active"},"old":{"Status":"Inactive"}}
-     * where old represents the old data and attributes represents the new data
+     * where old represents the old data and attributes represents the new data.
      */
     protected function formatProperties($properties, $event)
     {
@@ -167,23 +165,24 @@ class BaseSettingsController extends PaymentSettingsController
             $old = $properties['old'];
             $attributes = $properties['attributes'] ?? [];
             foreach ($old as $key => $value) {
-                $formatted[] = trans('message.updated') . " " . ucfirst($key) . " " . trans('message.from') . " " . (empty($value) ? 'null' : $value) . " " . trans('message.to') . " " . ($attributes[$key] ?? 'null');
+                $formatted[] = trans('message.updated').' '.ucfirst($key).' '.trans('message.from').' '.(empty($value) ? 'null' : $value).' '.trans('message.to').' '.($attributes[$key] ?? 'null');
             }
         } elseif ($event === 'created') {
             $attributes = $properties['attributes'];
             foreach ($attributes as $key => $value) {
-                if (!empty($value)) {
-                    if (is_string($value)  || is_integer($value) ) {
-                        $formatted[] = trans('message.set') . " " . ucfirst($key) . " " . trans('message.to') . " " . $value;
+                if (! empty($value)) {
+                    if (is_string($value) || is_integer($value)) {
+                        $formatted[] = trans('message.set').' '.ucfirst($key).' '.trans('message.to').' '.$value;
                     }
                 }
             }
         }
+
         return $formatted;
     }
 
     /**
-     * This function will create a hyper link for the agent/admin who is performing the action
+     * This function will create a hyper link for the agent/admin who is performing the action.
      */
     protected function generateLinkForPerformedBy($causer)
     {
@@ -191,12 +190,11 @@ class BaseSettingsController extends PaymentSettingsController
             return null;
         }
 
-        $name = trim(($causer['first_name'] ?? '') . ' ' . ($causer['last_name'] ?? ''));
-        $url  = url('clients/' . $causer['id']);
+        $name = trim(($causer['first_name'] ?? '').' '.($causer['last_name'] ?? ''));
+        $url = url('clients/'.$causer['id']);
 
         return sprintf('<a href="%s">%s</a>', e($url), e($name ?: 'Unknown User'));
     }
-
 
     public function getScheduler(StatusSetting $status)
     {

@@ -50,14 +50,14 @@ class ProductGroup extends BaseModel
     protected function getMappings(): array
     {
         return [
-            'name' => ['Name' , fn($value) => $value],
-            'headline' => ['Headline' , fn($value) => $value],
-            'tagline' => ['Tagline' , fn($value) => $value],
-            'available_payment' => ['Available Payment' , fn($value) => $value],
-            'hidden' => ['Hidden' , fn($value) => $value],
-            'cart_link' => ['Cart Link' , fn($value) => $value],
-            'pricing_templates_id' => ['Pricing Template' , fn($value) => $value],
-            'status' => ['Status' , fn($value) => $value],
+            'name' => ['Name', fn ($value) => $value],
+            'headline' => ['Headline', fn ($value) => $value],
+            'tagline' => ['Tagline', fn ($value) => $value],
+            'available_payment' => ['Available Payment', fn ($value) => $value],
+            'hidden' => ['Hidden', fn ($value) => $value],
+            'cart_link' => ['Cart Link', fn ($value) => $value],
+            'pricing_templates_id' => ['Pricing Template', fn ($value) => $value],
+            'status' => ['Status', fn ($value) => $value],
         ];
     }
 }

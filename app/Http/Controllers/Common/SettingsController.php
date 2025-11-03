@@ -664,19 +664,19 @@ class SettingsController extends BaseSettingsController
                             $q->where('first_name', 'like', "%{$search}%")
                                 ->orWhere('last_name', 'like', "%{$search}%")
                                 ->orWhere('email', 'like', "%{$search}%")
-                                ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);;
+                                ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
                         });
                 });
             }
 
             return \DataTables::of($baseQuery)
-                ->addColumn('module', fn($row) => $row->log_name ?? '---')
-                ->addColumn('event', fn($row) => ucfirst($row->event ?? '---'))
-                ->addColumn('role', fn($row) => optional($row->causer)->role ?? '---')
-                ->addColumn('detailed_properties', fn($row) => $this->formatProperties($row->properties, $row->event))
-                ->addColumn('performed_by', fn($row) => $this->generateLinkForPerformedBy($row->causer) ?? __('message.system'))
-                ->addColumn('created_at', fn($row) => $row->created_at ? getDateHtml($row->created_at) : '---')
-                ->addColumn('description', fn($row) => $row->description ?? '---')
+                ->addColumn('module', fn ($row) => $row->log_name ?? '---')
+                ->addColumn('event', fn ($row) => ucfirst($row->event ?? '---'))
+                ->addColumn('role', fn ($row) => optional($row->causer)->role ?? '---')
+                ->addColumn('detailed_properties', fn ($row) => $this->formatProperties($row->properties, $row->event))
+                ->addColumn('performed_by', fn ($row) => $this->generateLinkForPerformedBy($row->causer) ?? __('message.system'))
+                ->addColumn('created_at', fn ($row) => $row->created_at ? getDateHtml($row->created_at) : '---')
+                ->addColumn('description', fn ($row) => $row->description ?? '---')
                 ->orderColumn('module', 'log_name $1')
                 ->orderColumn('event', 'event $1')
                 ->orderColumn('role', 'role $1')
@@ -684,7 +684,6 @@ class SettingsController extends BaseSettingsController
                 ->orderColumn('created_at', 'created_at $1')
                 ->rawColumns(['performed_by', 'created_at', 'description'])
                 ->make(true);
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
