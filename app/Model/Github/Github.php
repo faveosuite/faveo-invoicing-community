@@ -21,7 +21,9 @@ class Github extends BaseModel
         'client_id', 'client_secret', 'username', 'password',
     ];
 
-    protected $logUrl = ['third-party-integration'];
+    protected $logUrl = [
+        'segments' => [ 'third-party-integration' ]
+    ];
 
     protected function getMappings(): array
     {

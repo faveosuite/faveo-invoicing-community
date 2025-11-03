@@ -2715,4 +2715,12 @@ return [
     'has_been' => 'telah',
     'cloud' => 'Cloud',
     'attach_helper_no_default_disk' => 'Tidak ada disk default yang ditetapkan untuk penyimpanan file. Silakan tetapkan disk default di pengaturan penyimpanan file.',
+
+    'set' => 'Atur',
+    'detailed_log_info' => 'Informasi Log Terperinci',
+    'read_more_caps' => 'Baca selengkapnya',
+    'performed_by' => 'Dilakukan oleh',
+    'event' => 'Peristiwa',
+    'created' => 'Dibuat',
+    'deleted' => 'Dihapus',
 ];

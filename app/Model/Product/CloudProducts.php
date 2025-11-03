@@ -22,7 +22,9 @@ class CloudProducts extends BaseModel
         'cloud_product', 'cloud_free_plan', 'cloud_product_key', 'trial_status',
     ];
 
-    protected $logUrl = ['view/tenant'];
+    protected $logUrl = [
+        'segments' => ['view/tenant']
+    ];
 
     protected function getMappings(): array
     {

@@ -2687,4 +2687,12 @@ return [
     'has_been' => 'is',
     'cloud' => 'Cloud',
     'attach_helper_no_default_disk' => 'Er is geen standaardschijf ingesteld voor bestandsopslag. Stel een standaardschijf in in de bestandsopslaginstellingen.',
+
+    'set' => 'Instellen',
+    'detailed_log_info' => 'Gedetailleerde loginformatie',
+    'read_more_caps' => 'Lees meer',
+    'performed_by' => 'Uitgevoerd door',
+    'event' => 'Gebeurtenis',
+    'created' => 'Aangemaakt',
+    'deleted' => 'Verwijderd',
 ];

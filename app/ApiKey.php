@@ -32,7 +32,9 @@ class ApiKey extends Model
         'require_pipedrive_user_verification', 'verification_preference',
     ];
 
-    protected $logUrl = ['/third-party-integration'];
+    protected $logUrl = [
+        'segments' => ['/third-party-integration']
+        ];
 
     protected function getMappings(): array
     {

@@ -2724,4 +2724,12 @@ return [
     'has_been' => 'されました',
     'cloud' => 'クラウド',
     'attach_helper_no_default_disk' => 'ファイルストレージ用のデフォルトディスクが設定されていません。ファイルストレージ設定でデフォルトディスクを設定してください。',
+
+    'set' => '設定',
+    'detailed_log_info' => '詳細ログ情報',
+    'read_more_caps' => '続きを読む',
+    'performed_by' => '実行者',
+    'event' => 'イベント',
+    'created' => '作成済み',
+    'deleted' => '削除済み',
 ];

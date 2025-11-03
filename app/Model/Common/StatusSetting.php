@@ -46,7 +46,9 @@ class StatusSetting extends Model
         'email_validation_status',
     ];
 
-    protected $logUrl = ['third-party-integration'];
+    protected $logUrl = [
+        'segments' => [ 'third-party-integration' ]
+    ];
 
     protected function getMappings(): array
     {

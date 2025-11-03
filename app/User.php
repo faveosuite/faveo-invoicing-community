@@ -58,7 +58,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         'address', 'country', 'currency', 'timezone_id', 'mobile_code', 'bussiness',
         'company_type', 'company_size', 'ip', 'mobile_verified', 'email_verified', 'position', 'skype', 'google2fa_activation_date', 'backup_code', 'code_usage_count', 'gstin', 'language'];
 
-    protected $logUrl = ['/clients'];
+    protected $logUrl = [
+        'segments' => ['clients', ':id']
+        ];
 
     /**
      * The attributes excluded from the model's JSON form.

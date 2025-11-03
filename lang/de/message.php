@@ -2717,4 +2717,12 @@ return [
     'has_been' => 'wurde',
     'cloud' => 'Cloud',
     'attach_helper_no_default_disk' => 'Es ist kein Standardlaufwerk für die Dateispeicherung festgelegt. Bitte legen Sie in den Dateispeichereinstellungen ein Standardlaufwerk fest.',
+
+    'set' => 'Festlegen',
+    'detailed_log_info' => 'Detaillierte Protokollinformationen',
+    'read_more_caps' => 'Mehr lesen',
+    'performed_by' => 'Ausgeführt von',
+    'event' => 'Ereignis',
+    'created' => 'Erstellt',
+    'deleted' => 'Gelöscht',
 ];

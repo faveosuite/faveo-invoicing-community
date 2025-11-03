@@ -25,7 +25,9 @@ class CloudDataCenters extends BaseModel
         'longitude',
     ];
 
-    protected $logUrl = ['tax', 'edit'];
+    protected $logUrl = [
+        'segments' => ['view', 'tenant']
+    ];
 
     protected function getMappings(): array
     {
