@@ -1272,6 +1272,7 @@
 
         options.modal = {
             ondismiss: function() {
+                location.reload();
             },
             // Boolean indicating whether pressing escape key
             // should close the checkout form. (default: true)
