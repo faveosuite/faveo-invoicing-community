@@ -812,11 +812,12 @@
                 <table id="shownumber-table" class="table table-striped table-bordered mw-auto" cellspacing="0" width="100%" styleClass="borderless">
                     <thead>
                     <tr>
-                        <th>UserName</th>
+{{--                        <th>UserName</th>--}}
                         <th>PhoneNumber</th>
                         <th>WabaId</th>
                         <th>PhoneNumberId</th>
                         <th>BusinessId</th>
+                        <th>Access Token</th>
                         <th>CreatedAt</th>
                     </tr>
                     </thead>
@@ -894,12 +895,13 @@
                             <label class="form-label">Webhook URL <span class="text-danger"> *</span></label>
                             <div class="custom-select-1">
                                 {!! html()->text('webhook_url')->class('form-control'.($errors->has('webhook_url') ? ' is-invalid' : ''))->id('webhook_url')->placeholder('https://example.com') !!}
+                                <div class="space"></div>
                             </div>
 
-                            <label class="form-label mt-3">VerifyToken <span class="text-danger"> *</span></label>
-                            <div class="custom-select-1">
-                                {!! html()->text('verify_token')->class('form-control'.($errors->has('verify_token') ? ' is-invalid' : ''))->id('verify_token') !!}
-                            </div>
+{{--                            <label class="form-label mt-3">VerifyToken <span class="text-danger"> *</span></label>--}}
+{{--                            <div class="custom-select-1">--}}
+{{--                                {!! html()->text('verify_token')->class('form-control'.($errors->has('verify_token') ? ' is-invalid' : ''))->id('verify_token') !!}--}}
+{{--                            </div>--}}
                         </div>
 
                     </div>
@@ -909,7 +911,7 @@
 
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('message.close')}}</button>
 
-                    <button type="button" class="btn btn-primary" id="whatsapp_close" data-bs-dismiss="modal">{{ __('message.save')}}</button>
+                    <button type="button" class="btn btn-primary" id="whatsapp_close">{{ __('message.save')}}</button>
                 </div>
             </div>
         </div>
@@ -1259,6 +1261,8 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
 
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+
+
     <script>
             $('#shownumber-table').DataTable({
                 processing: true,
@@ -1300,35 +1304,115 @@
                 ],
 
                 columns: [
-                    { data: 'UserName', name: 'UserName', orderable: true, searchable: true },
+                    // { data: 'UserName', name: 'UserName', orderable: true, searchable: true },
                     { data: 'PhoneNumber', name: 'PhoneNumber', orderable: true, searchable: true },
                     { data: 'WabaId', name: 'WabaId', orderable: false, searchable: false },
                     { data: 'PhoneNumberId', name: 'PhoneNumberId', orderable: false, searchable: false },
                     { data: 'BusinessId', name: 'BusinessId', orderable: false, searchable: false },
+                    { data: 'access_token', name: 'Access Token', orderable: false, searchable: false },
+
                     { data: 'created_at', name: 'CreatedAt', orderable: false, searchable: false }
 
                 ]
             });
 
+            $(document).on('click', '.copy-btn', function() {
+                const button = $(this);
+                const token = button.data('token');
+                const message = button.siblings('.copy-msg');
+
+                navigator.clipboard.writeText(token).then(() => {
+                    message.fadeIn(200).delay(1000).fadeOut(400);
+                });
+            });
+
+            $('#whatsapp_close').on('click',function(e){
+
+                const userRequiredFields = {
+                    name:'Please Enter Webhook URL. ',
 
 
-            $('#whatsapp_close').on('click',function(){
-            var url=$('#webhook_url').val();
-            var token=$('#verify_token').val();
-            $.ajax({
-            data: {'url' : url, "token": token},
-            url: '{{url("url-save")}}',
-            method: 'POST',
-            dataType: 'json',
-            success: function(data) {
-                $('#Whatsapp-url').modal('close');
-                launchWhatsAppSignup();
-            },
-            error: function(error) {
-            console.error('Error:', error);
-        }
-        });
+                };
+                var webhook_url=$('#webhook_url');
+
+                const userFields = {
+                    name:webhook_url,
+
+                };
+
+
+                // Clear previous errors
+                Object.values(userFields).forEach(field => {
+                    field.removeClass('is-invalid');
+                    field.next().next('.error').remove();
+
+                });
+
+                let isValid = true;
+
+                const showError = (field, message) => {
+                    field.addClass('is-invalid');
+                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                };
+
+                // Validate required fields
+                Object.keys(userFields).forEach(field => {
+                    if (!userFields[field].val()) {
+                        showError(userFields[field], userRequiredFields[field]);
+                        isValid = false;
+                    }
+                });
+
+                if (isValid && !isValidURL(userFields.name.val())) {
+                    showError(userFields.name,'Please enter a Valid URL',);
+                    isValid = false;
+                }
+
+                // If validation fails, prevent form submission
+                if (!isValid) {
+                    e.preventDefault();
+                }else{
+                    var url=webhook_url.val();
+                    // var token=$('#verify_token').val();
+                    $.ajax({
+                        data: {'url' : url,},
+                        url: '{{url("url-save")}}',
+                        method: 'POST',
+                        dataType: 'json',
+                        success: function(data) {
+                                $('#Whatsapp-url').modal('hide');
+                            launchWhatsAppSignup();
+                        },
+                        error: function(error) {
+                            console.error('Error:', error);
+                        }
+                    });
+                }
         })
+            function isValidURL(str) {
+                try {
+                    new URL(str);
+                    return true;
+                } catch (_) {
+                    return false;
+                }
+            }
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            // Add input event listeners for all fields
+            ['webhook_url'].forEach(id => {
+
+                document.getElementById(id).addEventListener('input', function () {
+                    removeErrorMessage(this);
+
+                });
+            });
         $('#get-url').on('click',function(){
             $('#Whatsapp-url').modal('show');
         });

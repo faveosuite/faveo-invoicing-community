@@ -37,9 +37,7 @@ Class WhatsappController extends Controller{
     }
 
     public function urlSave(Request $request){
-        $token=$request->input('token');
         $url=$request->input('url');
-        \Session::put('whatsapp_token',$token);
         \Session::put('whatsapp_url',$url);
         return successResponse('success');
     }
@@ -71,8 +69,10 @@ Class WhatsappController extends Controller{
             ->addColumn('created_at', function ($model) {
                 return  getDateHtml($model->created_at);
             })
-
-            ->rawColumns(['UserName', 'PhoneNumber', 'WabaId', 'PhoneNumberId','BusinessId','created_at'])
+            ->addColumn('access_token', function ($model) {
+                return $model->access_token;
+            })
+            ->rawColumns(['UserName', 'PhoneNumber', 'WabaId', 'PhoneNumberId','BusinessId','access_token','created_at'])
             ->make(true);
     }
 
@@ -84,10 +84,10 @@ Class WhatsappController extends Controller{
             ->orderColumn('WabaId', '-created_at $1')
             ->orderColumn('PhoneNumberId', '-created_at $1')
             ->orderColumn('BusinessId', '-created_at $1')
-            ->addColumn('UserName', function ($model) {
-                $user = User::select('first_name', 'last_name')->find($model->user_id);
-                return $user ? "{$user->first_name} {$user->last_name}" : '';
-            })
+//            ->addColumn('UserName', function ($model) {
+//                $user = User::select('first_name', 'last_name')->find($model->user_id);
+//                return $user ? "{$user->first_name} {$user->last_name}" : '';
+//            })
             ->addColumn('PhoneNumber', function ($model) {
                 return $model->phone_number;
             })
@@ -95,7 +95,20 @@ Class WhatsappController extends Controller{
                 return $model->waba_id;
             })
             ->addColumn('PhoneNumberId', function ($model) {
-                return $model->phone_number_id;
+//                return $model->phone_number_id;
+                $token = e($model->phone_number_id); // escape for safety
+
+                return '
+        <div class="d-flex align-items-center">
+            <input type="password" class="form-control form-control-sm" 
+                   value="'.$token.'" readonly style="width: 60px; margin-right: 8px;" />
+            <button type="button" class="btn btn-sm btn-outline-secondary copy-btn" 
+                    data-token="'.$token.'">
+                Copy
+            </button>
+            <span class="copy-msg text-success ms-2" style="display:none;">Copied!</span>
+        </div>
+    ';
             })
             ->addColumn('BusinessId', function ($model) {
                 return $model->business_id;
@@ -103,8 +116,22 @@ Class WhatsappController extends Controller{
             ->addColumn('created_at', function ($model) {
                 return  getDateHtml($model->created_at);
             })
+            ->addColumn('access_token', function ($model) {
+                $token = e($model->access_token); // escape for safety
 
-            ->rawColumns(['UserName', 'PhoneNumber', 'WabaId', 'PhoneNumberId','BusinessId','created_at'])
+                return '
+        <div class="d-flex align-items-center">
+            <input type="password" class="form-control form-control-sm" 
+                   value="'.$token.'" readonly style="width: 60px; margin-right: 8px;" />
+            <button type="button" class="btn btn-sm btn-outline-secondary copy-btn" 
+                    data-token="'.$token.'">
+                Copy
+            </button>
+            <span class="copy-msg text-success ms-2" style="display:none;">Copied!</span>
+        </div>
+    ';
+            })
+            ->rawColumns(['UserName', 'PhoneNumber', 'WabaId', 'PhoneNumberId','BusinessId','access_token','created_at'])
             ->make(true);
     }
 
@@ -161,13 +188,13 @@ Class WhatsappController extends Controller{
             $wabaId = $request->input('waba_id');
             $phoneNumberId = $request->input('phone_number_id')?$request->input('phone_number_id'):'';
             $business_id = $request->input('business_id');
-            $verify_token = \Session::get('whatsapp_token');
             $url=\Session::get('whatsapp_url');
             $access_token=$this->getToken($request->input('code'));
             $order_id=$request->input('order_id');
             WhatsappIntegrationUser::create(['user_id' => \Auth::user()->id, 'waba_id' => $wabaId,
-                            'phone_number_id' => $phoneNumberId, 'business_id' => $business_id, 'verify_token' => $verify_token,
+                            'phone_number_id' => $phoneNumberId, 'business_id' => $business_id,
                 'user_callback_url'=>$url,'access_token'=>$access_token,'order_id'=>$order_id]);
+            \Session::forget('whatsapp_url');
             return successResponse(__('message.updated-successfully'));
         }catch (\Exception $exception){
             return errorResponse($exception->getMessage());
