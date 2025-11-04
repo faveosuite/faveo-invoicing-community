@@ -33,8 +33,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Razorpay\Api\Api;
-use Illuminate\Support\Facades\Http;
-
 
 class ClientController extends BaseClientController
 {
@@ -919,14 +917,15 @@ class ClientController extends BaseClientController
 
             $planIdOld = \App\Model\Product\Subscription::where('order_id', $id)->value('plan_id');
             $planNameReal = \App\Model\Payment\Plan::where('id', $planIdOld)->value('name');
-            $whatsappStatus=$product->whatsapp_integration;
+            $whatsappStatus = $product->whatsapp_integration;
             [$app_id, $config_id] =
-                array_values(WhatsappIntegration::first()?->only(['app_id','config_id']) ?? [null, null]);
+                array_values(WhatsappIntegration::first()?->only(['app_id', 'config_id']) ?? [null, null]);
+
             return view(
                 'themes.default1.front.clients.show-order',
                 compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date',
                     'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment', 'stripe_key', 'json', 'gateways',
-                    'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal','whatsappStatus','app_id','config_id'
+                    'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal', 'whatsappStatus', 'app_id', 'config_id'
                 )
             );
         } catch (Exception $ex) {
