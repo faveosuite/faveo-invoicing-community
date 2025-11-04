@@ -1498,7 +1498,7 @@
                             'code': fbToken,
                             "order_id": {!! $order->id !!}
                         },
-                        success: function (data) {
+                        success: function (response) {
                             $('#alertMessage-22').show();
                             var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> ' + @json(__('message.success')) +'! </strong>' + response.message + '.</div>';
                             $('#alertMessage-22').html(result + ".");
@@ -1511,7 +1511,7 @@
                                 });
                             })
                         },
-                        error: function (data) {
+                        error: function (response) {
                             $('#alertMessage-22').show();
                             var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> ' + @json(__('message.success')) +'! </strong>' + response.message + '.</div>';
                             $('#alertMessage-22').html(result + ".");
