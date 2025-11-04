@@ -233,13 +233,10 @@
             setupEvents() {
                 this.elements.captchaVersion.addEventListener('change', () => this.toggleCaptchaSettings());
                 this.elements.failoverAction.addEventListener('change', () => this.handleFailoverChange());
-                this.elements.v3SiteKey.addEventListener('input', () => {
-                    this.renderPreviews();
-                });
-                this.elements.v2SiteKey.addEventListener('input', () => {
-                    this.renderPreviews();
-                });
-                document.querySelectorAll('input[name="theme"], input[name="size"], input[name="badge_position"]').forEach(input => input.addEventListener('change', () => this.renderPreviews()));
+                const debouncedRender = this.debounce(() => this.renderPreviews(), 1000);
+                this.elements.v3SiteKey.addEventListener('input', debouncedRender);
+                this.elements.v2SiteKey.addEventListener('input', debouncedRender);
+                document.querySelectorAll('input[name="theme"], input[name="size"], input[name="badge_position"]').forEach(input => input.addEventListener('change', debouncedRender));
                 this.elements.form.addEventListener('submit', e => this.handleSubmit(e));
                 window.addEventListener('beforeunload', () => this.clearAllPreviews());
             }
@@ -499,6 +496,14 @@
 
             isV2FailoverSelected() {
                 return this.elements.failoverAction.value === 'v2_checkbox';
+            }
+
+            debounce(fn, delay) {
+                let timeout;
+                return (...args) => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => fn.apply(this, args), delay);
+                };
             }
 
             async tokenValidation(version) {
