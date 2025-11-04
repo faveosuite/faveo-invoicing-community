@@ -334,7 +334,7 @@
 
                                         <div class="form-group {{ $errors->has('add_to_contact') ? 'has-error' : '' }}">
                                             <!-- first name -->
-                                            {!! html()->label('WhatsApp SignUp Flow')->for('whatsapp_integration') !!}
+                                            {!! html()->label('Embedded SignUp Flow')->for('whatsapp_integration') !!}
                                             {!! html()->hidden('whatsapp_integration', 0) !!}
                                                 <?php
                                                 $value=  "";
@@ -342,7 +342,7 @@
                                                     $value = 'true';
                                                 }
                                                 ?>
-                                            <p>{!! html()->checkbox('whatsapp_integration', $value, 1) !!}  Check if you want to display embedded signup flow for this product in client order page</p>
+                                            <p>{!! html()->checkbox('whatsapp_integration', $value, 1) !!}  Enable this option to display the embedded signup flow for the selected product on the client order page.</p>
 
                                         </div>
 

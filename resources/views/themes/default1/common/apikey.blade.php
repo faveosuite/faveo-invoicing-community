@@ -608,22 +608,22 @@
                     <div id="alertMessage-whatsapp"></div>
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! html()->label('App_Id', 'app_id')->class('required') !!}
+                        {!! html()->label('App Id', 'app_id')->class('required') !!}
                         {!! html()->text('app_id')->class('form-control whatsapp-app-id')->id('whatsapp-app-id') !!}
                         <h6 id="pipedrive_keycheck"></h6>
                     </div>
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! html()->label('App_Secret', 'app_id')->class('required') !!}
+                        {!! html()->label('App Secret', 'app_id')->class('required') !!}
                         {!! html()->text('app_Secret')->class('form-control whatsapp-app-secret')->id('whatsapp-app-secret') !!}
                         <h6 id="pipedrive_keycheck"></h6>
                     </div>
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! html()->label('Config_Id', 'config_id')->class('required') !!}
+                        {!! html()->label('Config Id', 'config_id')->class('required') !!}
                         {!! html()->text('config_id')->class('form-control whatsapp-config-id')->id('whatsapp-config-id') !!}
                         <h6 id="pipedrive_keycheck"></h6>
                     </div>
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! html()->label('Verify_Token', 'verify_token')->class('required') !!}
+                        {!! html()->label('Verify Token', 'verify_token')->class('required') !!}
                         {!! html()->text('verify_token')->class('form-control whatsapp-verify-token')->id('whatsapp-verify-token') !!}
                         <h6 id="pipedrive_keycheck"></h6>
                     </div>
@@ -2851,10 +2851,10 @@
 
 
             const userRequiredFields = {
-                name:@json(trans('message.git_username_s')),
-                type:@json(trans('message.git_password_s')),
-                config:@json(trans('message.git_password_s')),
-                token:@json(trans('message.git_password_s')),
+                name:'Please Enter App Id. ',
+                type:'Please Enter App Secret',
+                config:'Please Enter Config Id',
+                token:'Please Enter Verify Token',
 
             };
             var app_id=$('#whatsapp-app-id');
