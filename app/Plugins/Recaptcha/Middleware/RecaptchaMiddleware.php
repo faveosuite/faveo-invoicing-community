@@ -15,7 +15,7 @@ class RecaptchaMiddleware
     {
         // Early exit if reCAPTCHA is disabled
         $statusSetting = StatusSetting::query()->first();
-        if (! $statusSetting || ! $statusSetting->recaptcha_status) {
+        if (auth()->check() || ! $statusSetting?->recaptcha_status) {
             return $next($request);
         }
 

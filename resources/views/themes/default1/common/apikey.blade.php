@@ -1717,13 +1717,14 @@
             'nocaptcha_secret','nocaptcha_sitekey','mobile_authkey'
             ,'sender','template_id','consumer_key','consumer_secret',
             'access_token','token_secret','git_username',
-        'git_password','git_client','git_secret',
-        'zoho_key','pipedrive_key','terms_url','mailchimp_authkey','list_id','subscribe_status'].forEach(id => {
-
-            document.getElementById(id).addEventListener('input', function () {
-                removeErrorMessage(this);
-
-            });
+            'git_password','git_client','git_secret',
+            'zoho_key','pipedrive_key','terms_url','mailchimp_authkey','list_id','subscribe_status'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('input', function () {
+                    removeErrorMessage(this);
+                });
+            }
         });
 
         //Auto Update
