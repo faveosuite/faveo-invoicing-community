@@ -802,7 +802,7 @@
         <div class="row mb-4">
             <div class="col">
                 <button id="get-url" style="background-color: #1877f2; border: 0; border-radius: 4px; color: #fff; cursor: pointer; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: bold; height: 40px; padding: 0 24px;">
-                    Login with Facebook
+                    Add New Number
                 </button>
             </div>
         </div>
@@ -1321,7 +1321,7 @@
             method: 'POST',
             dataType: 'json',
             success: function(data) {
-                $('#Whatsapp-url').modal('show');
+                $('#Whatsapp-url').modal('close');
                 launchWhatsAppSignup();
             },
             error: function(error) {
@@ -1342,14 +1342,15 @@
                 version: 'v24.0'
             });
         };
-
+            var fbData=null;
+            var fbToken=null;
         // Session logging message event listener
             window.addEventListener('message', (event) => {
                 if (!event.origin.endsWith('facebook.com')) return;
                 try {
                     const data = JSON.parse(event.data);
                     if (data.type === 'WA_EMBEDDED_SIGNUP') {
-                        {{--console.log('message event: ', data);--}}
+                        console.log('message event: ', data);
                                 {{--$.ajax ({--}}
                                 {{--    url: '{{url("save-waba-id")}}',--}}
                                 {{--    type : 'post',--}}
@@ -1364,7 +1365,7 @@
                                 {{--        console.log(data);--}}
                                 {{--    },--}}
                                 {{--})--}}
-                            fbdata=data;
+                            fbData = data;
                         getAllData();
                     }
                 } catch {
@@ -1376,10 +1377,9 @@
             // Response callback
             const fbLoginCallback = (response) => {
                 if (response.authResponse) {
-                    const code = response.authResponse.code;
-                    fbToken=code;
+                    fbToken=response.authResponse.code;
                     getAllData();
-                    // console.log('response1: ', code);
+                    console.log('response1: ', code);
                     {{--$.ajax ({--}}
                     {{--    url: '{{url("save-access-token")}}',--}}
                     {{--    type : 'post',--}}
