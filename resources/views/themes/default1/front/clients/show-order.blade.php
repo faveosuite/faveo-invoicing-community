@@ -1269,8 +1269,7 @@
                 serverSide: true,
                 stateSave: false,
 
-                ajax: "{{ url('whatsapp-client-table') }}", // Calls the separate function
-
+                ajax: "{{ url('whatsapp-client-table/'.$order->id) }}", // Calls the separate function
                 oLanguage: {
                     sLengthMenu: "_MENU_ Records per page",
                     sSearch: "<span style='right: 180px;'>Search:</span> ",

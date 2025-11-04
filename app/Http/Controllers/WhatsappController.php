@@ -76,8 +76,8 @@ Class WhatsappController extends Controller{
             ->make(true);
     }
 
-    public function whatsappClientTable(){
-        $query = WhatsappIntegrationUser::select('*')->where('user_id',\Auth::user()->id);
+    public function whatsappClientTable($orderid){
+        $query = WhatsappIntegrationUser::select('*')->where('user_id',\Auth::user()->id)->where('order_id',$orderid);
         return \DataTables::of($query)
             ->orderColumn('UserName', '-created_at $1')
             ->orderColumn('PhoneNumber', '-created_at $1')
