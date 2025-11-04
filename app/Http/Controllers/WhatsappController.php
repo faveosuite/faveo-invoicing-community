@@ -190,15 +190,30 @@ Class WhatsappController extends Controller{
             $business_id = $request->input('business_id');
             $url=\Session::get('whatsapp_url');
             $access_token=$this->getToken($request->input('code'));
+            $phone_number=$this->getNumber($phoneNumberId,$access_token);
             $order_id=$request->input('order_id');
             WhatsappIntegrationUser::create(['user_id' => \Auth::user()->id, 'waba_id' => $wabaId,
                             'phone_number_id' => $phoneNumberId, 'business_id' => $business_id,
-                'user_callback_url'=>$url,'access_token'=>$access_token,'order_id'=>$order_id]);
+                'user_callback_url'=>$url,'access_token'=>$access_token,'order_id'=>$order_id,'phone_number'=>$phone_number]);
             \Session::forget('whatsapp_url');
+
             return successResponse(__('message.updated-successfully'));
         }catch (\Exception $exception){
             return errorResponse($exception->getMessage());
         }
+    }
+
+    public function getNumber($phone_number_id,$access_token){
+        if($phone_number_id) {
+        $data = Http::get("https://graph.facebook.com/v21.0/{$phone_number_id}", [
+            'fields' => 'display_phone_number',
+            'access_token' => $access_token,
+        ]);
+        $content = $data->json();
+        \Log::debug('getNumber', [$content]);
+        return $content['display_phone_number'];
+    }
+        return null;
     }
 
     public function getToken($code){
