@@ -2778,4 +2778,19 @@ return [
 
     'auto_renewal_disable' => 'Auto-renewal is currently not available. Please contact the administrator for assistance.',
     'auto_renewal_tooltip' => 'Enable or disable auto-renewal for all users.',
-];
+    'whatsapp_product_explanation' =>'Enable this option to display the embedded signup flow for the selected product on the client order page.',
+    'whatsapp_product_heading'=>'Embedded SignUp Flow',
+    'whatsapp_users'=>'WhatsApp Users',
+    'phone_number'=>'Phone Number',
+    'waba_id'=>'Waba ID',
+    'phone_number_id'=>'Phone Number ID',
+    'business_id'=>'Business ID',
+    'create_at'=>'Create At',
+    'app_id'=>'App Id',
+    'config_id'=>'Config Id',
+    'verify_token'=>'Verify Token',
+    'whatsapp_thirdParty_explanation'=>'The Whatsapp Configuration is to enable embedded signup flow to register user phone number.',
+    'whatsapp_config'=>'Whatsapp Configuration',
+    'add_new_number'=>'Add New Number',
+    'whatsapp_access_token'=>'Access Token',
+    ];

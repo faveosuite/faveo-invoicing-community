@@ -364,7 +364,7 @@ class SettingsController extends BaseSettingsController
                         <span class="slider round"></span>
                     </label>', 'action' => $mobileValidationAction,
                 ],
-                ['options'=>'Whatsapp configuration','description'=>"The Whatsapp Configuration is to enable embedded signup flow to register user phone number. ",'status'=>'<label class="switch toggle_event_editing whatsapp_status">
+                ['options'=>\Lang::get('message.whatsapp_config'),'description'=> \Lang::get('message.whatsapp_thirdParty_explanation'),'status'=>'<label class="switch toggle_event_editing whatsapp_status">
                         <input type="checkbox" value="'.($whatsappStatus ? '1' : '0').'"  name="whatsapp_status"
                                class="checkbox11 whatsapp_status" id="whatsapp_status"'.($whatsappStatus ? 'checked' : '').'>
                         <span class="slider round"></span>

@@ -802,7 +802,7 @@
         <div class="row mb-4">
             <div class="col">
                 <button id="get-url" style="background-color: #1877f2; border: 0; border-radius: 4px; color: #fff; cursor: pointer; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: bold; height: 40px; padding: 0 24px;">
-                    Add New Number
+                    {{ __('message.add_new_number')}}
                 </button>
             </div>
         </div>
@@ -813,12 +813,12 @@
                     <thead>
                     <tr>
 {{--                        <th>UserName</th>--}}
-                        <th>PhoneNumber</th>
-                        <th>WabaId</th>
-                        <th>PhoneNumberId</th>
-                        <th>BusinessId</th>
-                        <th>Access Token</th>
-                        <th>CreatedAt</th>
+                        <th>{{__('message.phone_number')}}</th>
+                        <th>{{__('message.waba_id')}}</th>
+                        <th>{{__('message.phone_number_id')}}</th>
+                        <th>{{__('message.business_id')}}</th>
+                        <th>{{__('message.whatsapp_access_token')}}</th>
+                        <th>{{__('message.create_at')}}</th>
                     </tr>
                     </thead>
                 </table>
