@@ -157,6 +157,7 @@ class PromotionControllerTest extends DBTestCase
             'price' => $planPrice->add_price,
             'quantity' => 1,
             'attributes' => [],
+            'associatedModel' => $product,
         ]);
         $promotion = $this->classObject->checkCode('FAVEOCOUPON');
         foreach (\Cart::getContent() as $cart) {
