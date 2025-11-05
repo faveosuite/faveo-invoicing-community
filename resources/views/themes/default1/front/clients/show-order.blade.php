@@ -1299,16 +1299,16 @@
                 // Apply 'no-sort' class only to specific targets (3rd and 4th columns)
                 columnDefs: [
                     {
-                        targets: [2, 3], // Status and Action columns
-                        orderable: false
+                        // targets: [2, 3], // Status and Action columns
+                        // orderable: false
                     }
                 ],
 
                 columns: [
                     // { data: 'UserName', name: 'UserName', orderable: true, searchable: true },
+                    { data: 'PhoneNumberId', name: 'PhoneNumberId', orderable: true , searchable: true },
                     { data: 'PhoneNumber', name: 'PhoneNumber', orderable: true, searchable: true },
-                    { data: 'WabaId', name: 'WabaId', orderable: false, searchable: false },
-                    { data: 'PhoneNumberId', name: 'PhoneNumberId', orderable: false, searchable: false },
+                    { data: 'WabaId', name: 'WabaId', orderable: true, searchable: true },
                     { data: 'BusinessId', name: 'BusinessId', orderable: false, searchable: false },
                     { data: 'access_token', name: 'Access Token', orderable: false, searchable: false },
 
