@@ -896,7 +896,7 @@
                                 <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="" data-original-title="The Webhook URL can be found under the Additional Configuration section of the WhatsApp settings in the Admin Panel."></i>
                             </label>
                             <div class="custom-select-1">
-                                {!! html()->text('webhook_url')->class('form-control'.($errors->has('webhook_url') ? ' is-invalid' : ''))->id('webhook_url')->placeholder('https://example.com') !!}
+                                {!! html()->text('webhook_url')->class('form-control')->id('webhook_url')->placeholder('https://example.com') !!}
                                 <div class="space"></div>
                             </div>
 
