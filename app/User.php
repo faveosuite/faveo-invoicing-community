@@ -249,7 +249,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->hasMany(UserLinkReport::class);
     }
 
-    public function whatsappUsers(){
+    public function whatsappUsers()
+    {
         $this->hasMany(WhatsappIntegrationUser::class);
     }
 }
