@@ -1,17 +1,17 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    Whatsapp-Users
+    {{ __('message.whatsapp_users') }}
 @stop
 @section('content-header')
 
     <div class="col-sm-6 md-6">
-        <h1>WhatsApp Users</h1>
+        <h1>{{ __('message.whatsapp_users') }}</h1>
     </div>
     <div class="col-sm-6 md-6">
         <ol class="breadcrumb float-sm-right">
             <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home')}}</a></li>
             <li class="breadcrumb-item"><a href="{{url('settings')}}"> {{ __('message.settings')}}</a></li>
-            <li class="breadcrumb-item active">Whatsapp-Users</li>
+            <li class="breadcrumb-item active">{{ __('message.whatsapp_users') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -29,12 +29,12 @@ $products= App\Model\Product\Product::get();
                     <table id="custom-table" class="table display" cellspacing="0" width="100%">
                         <thead>
                         <tr>
-                            <th>UserName</th>
-                            <th>PhoneNumber</th>
-                            <th>WabaId</th>
-                            <th>PhoneNumberId</th>
-                            <th>BusinessId</th>
-                            <th>CreatedAt</th>
+                            <th>{{__('message.user_name')}}</th>
+                            <th>{{__('message.phone_number')}}</th>
+                            <th>{{__('message.waba_id')}}</th>
+                            <th>{{__('message.phone_number_id')}}</th>
+                            <th>{{__('message.business_id')}}</th>
+                            <th>{{__('message.create_at')}}</th>
                         </tr>
                         </thead>
                     </table>
@@ -107,6 +107,16 @@ $products= App\Model\Product\Product::get();
                 { data: 'created_at', name: 'CreatedAt', orderable: false, searchable: false }
 
             ]
+        });
+    });
+
+    $(document).on('click', '.copy-btn', function() {
+        const button = $(this);
+        const token = button.data('token');
+        const message = button.siblings('.copy-msg');
+
+        navigator.clipboard.writeText(token).then(() => {
+            message.fadeIn(200).delay(1000).fadeOut(400);
         });
     });
 </script>
