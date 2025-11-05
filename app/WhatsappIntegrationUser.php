@@ -11,6 +11,6 @@ class WhatsappIntegrationUser extends Model
     protected $fillable=['waba_id','phone_number_id','phone_number','user_id','access_token','user_callback_url','business_id','order_id'];
 
     public function user(){
-        return $this->belongsTo(User::class,'user_id','id');
+        return $this->belongsTo(User::class);
     }
 }
