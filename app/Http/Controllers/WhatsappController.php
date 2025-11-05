@@ -233,7 +233,7 @@ Class WhatsappController extends Controller{
         \Log::debug('getNumber', [$content]);
         return $content['display_phone_number'];
     }
-        return null;
+        return '';
     }
 
     public function getToken($code){
@@ -263,6 +263,20 @@ Class WhatsappController extends Controller{
             $content = $getToken->json();
 
             return $content['access_token'];
+        }catch (\Exception $exception){
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function deregister(Request $request){
+        try {
+            $whatsappUser = WhatsappIntegrationUser::where('id', $request->input('id'))->first();
+            $phoneNumberId = $whatsappUser->phone_number_id;
+            $response = Http::post("https://graph.facebook.com/v21.0/{$phoneNumberId}/deregister", [
+                'access_token' => $whatsappUser->access_token,
+            ]);
+            $content = $response->json();
+            return successResponse(__('message.updated-successfully'));
         }catch (\Exception $exception){
             return errorResponse($exception->getMessage());
         }
