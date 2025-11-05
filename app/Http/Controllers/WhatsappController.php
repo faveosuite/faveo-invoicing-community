@@ -42,38 +42,58 @@ Class WhatsappController extends Controller{
         return successResponse('success');
     }
 
-    public function whatsappTable(){
-        $query = WhatsappIntegrationUser::select('*');
-        return \DataTables::of($query)
-            ->orderColumn('UserName', '-created_at $1')
-            ->orderColumn('PhoneNumber', '-created_at $1')
-            ->orderColumn('WabaId', '-created_at $1')
-            ->orderColumn('PhoneNumberId', '-created_at $1')
-            ->orderColumn('BusinessId', '-created_at $1')
-            ->addColumn('UserName', function ($model) {
-                $user = User::select('first_name', 'last_name')->find($model->user_id);
-                return $user ? "{$user->first_name} {$user->last_name}" : '';
-            })
-            ->addColumn('PhoneNumber', function ($model) {
-                return $model->phone_number;
-            })
-            ->addColumn('WabaId', function ($model) {
-                return $model->waba_id;
-            })
-            ->addColumn('PhoneNumberId', function ($model) {
-                return $model->phone_number_id;
-            })
-            ->addColumn('BusinessId', function ($model) {
-                return $model->business_id;
-            })
-            ->addColumn('created_at', function ($model) {
-                return  getDateHtml($model->created_at);
-            })
-            ->addColumn('access_token', function ($model) {
-                return $model->access_token;
-            })
-            ->rawColumns(['UserName', 'PhoneNumber', 'WabaId', 'PhoneNumberId','BusinessId','access_token','created_at'])
-            ->make(true);
+    public function whatsappTable(Request $request){
+        try {
+            $query = WhatsappIntegrationUser::select('*')->with('user');
+            return \DataTables::of($query)
+                ->orderColumn('UserName', '-created_at $1')
+                ->orderColumn('PhoneNumber', '-created_at $1')
+                ->orderColumn('WabaId', '-created_at $1')
+                ->orderColumn('PhoneNumberId', '-created_at $1')
+                ->orderColumn('BusinessId', '-created_at $1')
+                ->addColumn('UserName', function ($model) {
+                    return '<a href=' . url('clients/' . $model->user->id) . '>' . ucfirst($model->user->first_name) . '<a>';
+
+//                return $user ? "{$user->first_name} {$user->last_name}" : '';
+                })
+                ->addColumn('PhoneNumber', function ($model) {
+                    return $model->phone_number;
+                })
+                ->addColumn('WabaId', function ($model) {
+                    return $model->waba_id;
+                })
+                ->addColumn('PhoneNumberId', function ($model) {
+                    return $model->phone_number_id;
+                })
+                ->addColumn('BusinessId', function ($model) {
+                    return $model->business_id;
+                })
+                ->addColumn('created_at', function ($model) {
+                    return getDateHtml($model->created_at);
+                })
+                ->addColumn('access_token', function ($model) {
+                    return $model->access_token;
+                })
+                ->filterColumn('UserName', function ($model, $keyword) {
+                    $model->whereHas('user',function ($query) use ($keyword) {
+                        $query->where('first_name', 'like', "%$keyword%");
+                    });
+
+                })
+                ->filterColumn('WabaId', function ($model, $keyword) {
+                    $model->where('waba_id', 'like', "%$keyword%");
+                })
+                ->filterColumn('PhoneNumber', function ($model, $keyword) {
+                    $model->where('phone_number', 'like', "%$keyword%");
+                })
+                ->filterColumn('PhoneNumberId', function ($model, $keyword) {
+                    $model->where('phone_number_id', 'like', "%$keyword%");
+                })
+                ->rawColumns(['PhoneNumberId', 'UserName', 'PhoneNumber', 'WabaId', 'BusinessId', 'access_token', 'created_at'])
+                ->make(true);
+        }catch (\Exception $exception){
+            return errorResponse($exception->getMessage());
+        }
     }
 
     public function whatsappClientTable($orderid){
@@ -104,7 +124,7 @@ Class WhatsappController extends Controller{
                    value="'.$token.'" readonly style="width: 60px; margin-right: 8px;" />
             <button type="button" class="btn btn-sm btn-outline-secondary copy-btn" 
                     data-token="'.$token.'">
-                Copy
+                  <i class="fas fa-copy"></i>
             </button>
             <span class="copy-msg text-success ms-2" style="display:none;">Copied!</span>
         </div>
@@ -125,7 +145,7 @@ Class WhatsappController extends Controller{
                    value="'.$token.'" readonly style="width: 60px; margin-right: 8px;" />
             <button type="button" class="btn btn-sm btn-outline-secondary copy-btn" 
                     data-token="'.$token.'">
-                Copy
+               <i class="fas fa-copy"></i>
             </button>
             <span class="copy-msg text-success ms-2" style="display:none;">Copied!</span>
         </div>

@@ -101,8 +101,8 @@ $products= App\Model\Product\Product::get();
             columns: [
                 { data: 'UserName', name: 'UserName', orderable: true, searchable: true },
                 { data: 'PhoneNumber', name: 'PhoneNumber', orderable: true, searchable: true },
-                { data: 'WabaId', name: 'WabaId', orderable: false, searchable: false },
-                { data: 'PhoneNumberId', name: 'PhoneNumberId', orderable: false, searchable: false },
+                { data: 'WabaId', name: 'WabaId', orderable: true, searchable: true },
+                { data: 'PhoneNumberId', name: 'PhoneNumberId', orderable: true, searchable: true },
                 { data: 'BusinessId', name: 'BusinessId', orderable: false, searchable: false },
                 { data: 'created_at', name: 'CreatedAt', orderable: false, searchable: false }
 
