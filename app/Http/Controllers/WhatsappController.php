@@ -63,7 +63,19 @@ Class WhatsappController extends Controller{
                     return $model->waba_id;
                 })
                 ->addColumn('PhoneNumberId', function ($model) {
-                    return $model->phone_number_id;
+                    $token = e($model->phone_number_id); // escape for safety
+
+                    return '
+    <div class="d-flex align-items-center">
+        <input type="password" class="form-control form-control-sm" 
+               value="' . $token . '" readonly style="width: 60px; margin-right: 8px;" />
+        <button type="button" class="btn btn-sm btn-outline-secondary copy-btn" 
+                data-token="' . $token . '">
+            <i class="fas fa-copy"></i>
+        </button>
+        <span class="copy-msg text-success ms-2" style="display:none;">' . __("message.copied") . '</span>
+    </div>
+';
                 })
                 ->addColumn('BusinessId', function ($model) {
                     return $model->business_id;
@@ -119,16 +131,16 @@ Class WhatsappController extends Controller{
                 $token = e($model->phone_number_id); // escape for safety
 
                 return '
-        <div class="d-flex align-items-center">
-            <input type="password" class="form-control form-control-sm" 
-                   value="'.$token.'" readonly style="width: 60px; margin-right: 8px;" />
-            <button type="button" class="btn btn-sm btn-outline-secondary copy-btn" 
-                    data-token="'.$token.'">
-                  <i class="fas fa-copy"></i>
-            </button>
-            <span class="copy-msg text-success ms-2" style="display:none;">Copied!</span>
-        </div>
-    ';
+    <div class="d-flex align-items-center">
+        <input type="password" class="form-control form-control-sm" 
+               value="' . $token . '" readonly style="width: 60px; margin-right: 8px;" />
+        <button type="button" class="btn btn-sm btn-outline-secondary copy-btn" 
+                data-token="' . $token . '">
+            <i class="fas fa-copy"></i>
+        </button>
+        <span class="copy-msg text-success ms-2" style="display:none;">' . __("message.copied") . '</span>
+    </div>
+';
             })
             ->addColumn('BusinessId', function ($model) {
                 return $model->business_id;
@@ -140,16 +152,25 @@ Class WhatsappController extends Controller{
                 $token = e($model->access_token); // escape for safety
 
                 return '
-        <div class="d-flex align-items-center">
-            <input type="password" class="form-control form-control-sm" 
-                   value="'.$token.'" readonly style="width: 60px; margin-right: 8px;" />
-            <button type="button" class="btn btn-sm btn-outline-secondary copy-btn" 
-                    data-token="'.$token.'">
-               <i class="fas fa-copy"></i>
-            </button>
-            <span class="copy-msg text-success ms-2" style="display:none;">Copied!</span>
-        </div>
-    ';
+    <div class="d-flex align-items-center">
+        <input type="password" class="form-control form-control-sm" 
+               value="' . $token . '" readonly style="width: 60px; margin-right: 8px;" />
+        <button type="button" class="btn btn-sm btn-outline-secondary copy-btn" 
+                data-token="' . $token . '">
+            <i class="fas fa-copy"></i>
+        </button>
+        <span class="copy-msg text-success ms-2" style="display:none;">' . __("message.copied") . '</span>
+    </div>
+';
+            })
+            ->filterColumn('WabaId', function ($model, $keyword) {
+                $model->where('waba_id', 'like', "%$keyword%");
+            })
+            ->filterColumn('PhoneNumber', function ($model, $keyword) {
+                $model->where('phone_number', 'like', "%$keyword%");
+            })
+            ->filterColumn('PhoneNumberId', function ($model, $keyword) {
+                $model->where('phone_number_id', 'like', "%$keyword%");
             })
             ->rawColumns(['UserName', 'PhoneNumber', 'WabaId', 'PhoneNumberId','BusinessId','access_token','created_at'])
             ->make(true);
