@@ -2695,4 +2695,5 @@ return [
     'event' => 'Gebeurtenis',
     'created' => 'Aangemaakt',
     'deleted' => 'Verwijderd',
+    'refresh' => 'Vernieuwen',
 ];

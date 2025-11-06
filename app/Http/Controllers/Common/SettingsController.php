@@ -656,7 +656,7 @@ class SettingsController extends BaseSettingsController
             return \DataTables::of($baseQuery)
                 ->addColumn('module', fn ($row) => $row->log_name ?? '---')
                 ->addColumn('event', fn ($row) => ucfirst($row->event ?? '---'))
-                ->addColumn('role', fn ($row) => optional($row->causer)->role ?? '---')
+                ->addColumn('role', fn ($row) => ucfirst(optional($row->causer)->role ?? '---'))
                 ->addColumn('detailed_properties', fn ($row) => $this->formatProperties($row->properties, $row->event))
                 ->addColumn('performed_by', fn ($row) => $this->generateLinkForPerformedBy($row->causer) ?? __('message.system'))
                 ->addColumn('created_at', fn ($row) => $row->created_at ? getDateHtml($row->created_at) : '---')

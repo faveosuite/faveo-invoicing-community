@@ -2654,4 +2654,5 @@
      'event' => 'Avveniment',
      'created' => 'Maħluq',
      'deleted' => 'Imħassar',
+     'refresh' => 'Aġġorna',
  ];

@@ -2735,4 +2735,5 @@ return [
     'event' => 'Hendelse',
     'created' => 'Opprettet',
     'deleted' => 'Slettet',
+    'refresh' => 'Oppdater',
 ];

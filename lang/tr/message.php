@@ -2742,4 +2742,5 @@ return [
     'event' => 'Olay',
     'created' => 'Oluşturuldu',
     'deleted' => 'Silindi',
+    'refresh' => 'Yenile',
 ];

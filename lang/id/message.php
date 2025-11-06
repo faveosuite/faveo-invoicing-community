@@ -2723,4 +2723,5 @@ return [
     'event' => 'Peristiwa',
     'created' => 'Dibuat',
     'deleted' => 'Dihapus',
+    'refresh' => 'Segarkan',
 ];

@@ -2690,4 +2690,5 @@ return [
     'event' => '事件',
     'created' => '已建立',
     'deleted' => '已刪除',
+    'refresh' => '重新整理',
 ];
