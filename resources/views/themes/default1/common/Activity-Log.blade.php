@@ -351,7 +351,7 @@
             <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#deleteSystemLogModal">
                 <i class="fas fa-trash-alt"></i>
             </button>
-     <button id="refresh-table-btn" class="btn btn-link p-2" data-toggle="tooltip" title="{{ __('message.refresh_table') }}" style="text-decoration: none;">
+     <button id="refresh-table-btn" class="btn btn-link p-2" data-toggle="tooltip" title="{{ __('message.refresh') }}" style="text-decoration: none;">
          <i class="fas fa-sync-alt text-secondary" id="refresh-icon" style="font-size: 1.2rem; transition: transform 0.5s ease;"></i>
      </button>
  `);
