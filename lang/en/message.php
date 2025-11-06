@@ -2795,6 +2795,6 @@ return [
     'event' => 'Event',
     'created' => 'Created',
     'deleted' => 'Deleted',
-    'refresh' => 'Refresh'
+    'refresh' => 'Refresh',
 
 ];
