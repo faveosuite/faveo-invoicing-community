@@ -516,12 +516,12 @@ class TenantController extends Controller
             if ($response->status == 'success') {
                 $this->deleteCronForTenant($request->input('id'));
                 \DB::table('free_trial_allowed')->where('domain', $request->input('id'))->delete();
-                if(!empty($request->orderId)) {
+                if (! empty($request->orderId)) {
                     $order = Order::where('id', $request->get('orderId'))->first();
                     $sub = $order->subscription()->first();
                     $sub->is_deleted = 1;
                     $sub->save();
-                  //  $order->delete();
+                    //  $order->delete();
                 }
 //                (empty($request->orderId)) ?: Order::where('number', $request->get('orderId'))->delete();
                 (new LicenseController())->reissueDomain($request->input('id'));
