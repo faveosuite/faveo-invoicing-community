@@ -1054,7 +1054,7 @@ tinymce.init({
                     'insertdatetime media nonbreaking save table contextmenu directionality',
                     'emoticons template paste textcolor colorpicker textpattern imagetools'
                 ],
-                toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | wordcount',
+                toolbar1: 'bold italic | wordcount',
                 toolbar2: 'print preview media | forecolor backcolor emoticons',
                 image_advtab: true,
                 templates: [
