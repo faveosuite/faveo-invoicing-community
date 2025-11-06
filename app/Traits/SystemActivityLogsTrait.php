@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Spatie\Activitylog\LogOptions;
@@ -41,6 +42,7 @@ trait SystemActivityLogsTrait
     {
         $this->generateDescriptionForLogs($activity, $eventName);
         $this->tapActivityLogs($activity);
+        $this->setCauser($activity);
     }
 
     /**
@@ -63,6 +65,15 @@ trait SystemActivityLogsTrait
         $activity->properties = $properties;
     }
 
+    protected function setCauser(Activity $activity)
+    {
+        $userId = $activity->subject->{$this->causerID} ?? null;
+
+        if ($user = User::find($userId)) {
+            $activity->causer()->associate($user);
+        }
+    }
+
     /**
      * Format attributes using mappings.
      */
@@ -70,9 +81,16 @@ trait SystemActivityLogsTrait
     {
         foreach ($mappings as $key => [$newKey, $transform]) {
             if (Arr::has($attributes, $key)) {
+                $value = $attributes[$key];
+
+                if (is_string($value)) {
+                    $value = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+                }
+
                 $attributes[$newKey] = is_callable($transform)
-                    ? $transform($attributes[$key])
-                    : $attributes[$key];
+                    ? $transform($value)
+                    : $value;
+
                 unset($attributes[$key]);
             }
         }

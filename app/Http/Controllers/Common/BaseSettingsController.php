@@ -160,25 +160,40 @@ class BaseSettingsController extends PaymentSettingsController
     {
         $formatted = [];
 
-        if ($event === 'updated') {
-            $old = $properties['old'];
-            $attributes = $properties['attributes'] ?? [];
-            foreach ($old as $key => $value) {
-                $formatted[] = trans('message.updated').' '.ucfirst($key).' '.trans('message.from').' '.(empty($value) ? 'null' : $value).' '.trans('message.to').' '.($attributes[$key] ?? 'null');
+        $old = $properties['old'] ?? [];
+        $attributes = $properties['attributes'] ?? [];
+
+        // Helper to clean and escape values
+        $escape = function ($value) {
+            if (is_array($value) || is_object($value)) {
+                $value = json_encode($value); // handle JSON fields
             }
-        } elseif ($event === 'created') {
-            $attributes = $properties['attributes'];
+            return htmlspecialchars(strip_tags((string) $value), ENT_QUOTES, 'UTF-8');
+        };
+
+        if ($event === 'updated') {
+            foreach ($old as $key => $value) {
+                $from = empty($value) ? 'null' : $escape($value);
+                $to = isset($attributes[$key]) ? $escape($attributes[$key]) : 'null';
+
+                $formatted[] = trans('message.updated') . ' ' . ucfirst($key) . ' '
+                    . trans('message.from') . ' ' . $from . ' '
+                    . trans('message.to') . ' ' . $to;
+            }
+        }
+
+        if ($event === 'created') {
             foreach ($attributes as $key => $value) {
-                if (! empty($value)) {
-                    if (is_string($value) || is_integer($value)) {
-                        $formatted[] = trans('message.set').' '.ucfirst($key).' '.trans('message.to').' '.$value;
-                    }
+                if (! empty($value) && $value !== '--') {
+                    $formatted[] = trans('message.set') . ' ' . ucfirst($key) . ' '
+                        . trans('message.to') . ' ' . $escape($value);
                 }
             }
         }
 
         return $formatted;
     }
+
 
     /**
      * This function will create a hyper link for the agent/admin who is performing the action.

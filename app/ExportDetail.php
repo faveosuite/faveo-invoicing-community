@@ -29,6 +29,8 @@ class ExportDetail extends Model
 
     protected $logUrl = [];
 
+    protected $causerID = 'user_id';
+
     protected function getMappings(): array
     {
         return [
