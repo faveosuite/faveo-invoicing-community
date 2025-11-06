@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Spatie\Activitylog\ActivityLogger;
 use Spatie\Activitylog\ActivityLogStatus;
 
-function getLocation($ip=null)
+function getLocation($ip = null)
 {
     try {
         $location = \GeoIP::getLocation($ip);

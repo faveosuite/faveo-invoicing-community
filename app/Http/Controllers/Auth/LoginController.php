@@ -190,7 +190,8 @@ class LoginController extends Controller
         $defaultPath = ($auth && $auth->role === 'user')
             ? '/client-dashboard'
             : '/';
-        $defaultPath=(\Cart::isEmpty() === false)?'/show/cart':$defaultPath;
+        $defaultPath = (\Cart::isEmpty() === false) ? '/show/cart' : $defaultPath;
+
         return redirect()->intended($defaultPath)->getTargetUrl();
     }
 
@@ -332,7 +333,7 @@ class LoginController extends Controller
         $contents = \Cart::getContent();
         foreach ($contents as $content) {
             $cartcont = new \App\Http\Controllers\Front\CartController();
-            $price = $cartcont->planCost($content->associatedModel->id, \Auth::user()->id,$content->id);
+            $price = $cartcont->planCost($content->associatedModel->id, \Auth::user()->id, $content->id);
             if ($content->attributes->domain != '') {
                 $price = $price * $content->attributes->agents;
             }
