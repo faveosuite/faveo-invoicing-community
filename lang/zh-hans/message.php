@@ -2724,4 +2724,5 @@ return [
     'event' => '事件',
     'created' => '已创建',
     'deleted' => '已删除',
+    'refresh' => '刷新',
 ];

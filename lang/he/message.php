@@ -2733,4 +2733,5 @@ return [
     'event' => 'אירוע',
     'created' => 'נוצר',
     'deleted' => 'נמחק',
+    'refresh' => 'רענן',
 ];

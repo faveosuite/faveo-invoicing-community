@@ -2749,4 +2749,5 @@ return [
     'event' => '이벤트',
     'created' => '생성됨',
     'deleted' => '삭제됨',
+    'refresh' => '새로 고침',
 ];

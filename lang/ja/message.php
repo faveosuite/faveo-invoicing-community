@@ -2732,4 +2732,5 @@ return [
     'event' => 'イベント',
     'created' => '作成済み',
     'deleted' => '削除済み',
+    'refresh' => '更新',
 ];

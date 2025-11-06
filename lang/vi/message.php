@@ -2730,4 +2730,5 @@ return [
     'event' => 'Sự kiện',
     'created' => 'Đã tạo',
     'deleted' => 'Đã xóa',
+    'refresh' => 'Làm mới',
 ];

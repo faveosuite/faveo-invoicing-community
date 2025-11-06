@@ -2725,4 +2725,5 @@ return [
     'event' => 'Ereignis',
     'created' => 'Erstellt',
     'deleted' => 'Gelöscht',
+    'refresh' => 'Aktualisieren',
 ];

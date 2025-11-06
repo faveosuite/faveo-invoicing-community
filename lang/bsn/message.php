@@ -2660,4 +2660,5 @@ return [
     'event' => 'Događaj',
     'created' => 'Kreirano',
     'deleted' => 'Obrisano',
+    'refresh' => 'Osvježi',
 ];
