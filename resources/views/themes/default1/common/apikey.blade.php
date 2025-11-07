@@ -95,7 +95,31 @@
             background: transparent !important;
             box-shadow: none !important;
         }
+        .modal.right .modal-dialog {
+            position: fixed;
+            right: 0;
+            margin: 0;
+            width: 33%;
+            max-width: none;
+            height: 100%;
+            transform: translateX(100%);
+            transition: transform 0.4s ease-out;
+        }
 
+        .modal.right.show .modal-dialog {
+            transform: translateX(0);
+        }
+
+        .modal.right .modal-content {
+            height: 100%;
+            border: 0;
+            border-radius: 0;
+        }
+
+        .modal.right .modal-body {
+            overflow-y: auto;
+            height: calc(100vh - 120px);
+        }
 
     </style>
 
@@ -602,6 +626,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Email Validation Provider</h4>
+                    <button class="orm-group btn btn-primary" id="emailValidation-logs-button">Email Validation Logs</button>
+
                 </div>
                 <div class="modal-body">
                     <div id="alertMessage22"></div>
@@ -614,7 +640,6 @@
                     </div>
                     <div class="form-group" id="emailToRender">
                     </div>
-
                 </div>
 
             <div class="modal-footer justify-content-between">
@@ -624,6 +649,38 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade right" id="emailValidationLogs" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Email Validation Logs</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table id="installationDetail-table" class="table display" cellspacing="0" width="100%">
+                            <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Method</th>
+                                <th>Status</th>
+                                <th>Result</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+{{--                    <button type="button" class="btn btn-default" data-dismiss="modal">--}}
+{{--                        <i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}--}}
+{{--                    </button>--}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
     <div class="modal fade" id="mobileValidation" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog">
@@ -654,6 +711,22 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="email-part-result" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Email Validation Result</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                </div>
+                <div class="modal-body" id="email-result"></div>
+                <div class="modal-footer justify-content-between">
+{{--                    <button type="button" id="close" class="btn btn-default pull-left" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>--}}
+                </div>
+            </div>
+        </div>
+    </div>
     {{--    {!! Form::close() !!}--}}
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -661,6 +734,97 @@
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
 
     <script>
+            $('#installationDetail-table').DataTable({
+            processing: true,
+            serverSide: true,
+            stateSave: false,
+            order: [[3, "asc"]],
+            ajax: {
+            "url":  "{{Url('get-email-validation-logs')}}",
+            error: function(xhr) {
+            if(xhr.status == 401) {
+            alert('{{ __('message.session_expired')}}')
+            window.location.href = '/login';
+        }
+        }
+
+        },
+
+            "oLanguage": {
+            "sLengthMenu": "_MENU_ Records per page",
+            "sSearch"    : "Search: ",
+            "sProcessing": '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading')}}</div></div>'
+        },
+            language: {
+            paginate: {
+            first:      "{{ __('message.paginate_first') }}",
+            last:       "{{ __('message.paginate_last') }}",
+            next:       "{{ __('message.paginate_next') }}",
+            previous:   "{{ __('message.paginate_previous') }}"
+        },
+            emptyTable:     "{{ __('message.empty_table') }}",
+            info:           "{{ __('message.datatable_info') }}",
+            zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+            infoEmpty:      "{{ __('message.info_empty') }}",
+            infoFiltered:   "{{ __('message.info_filtered') }}",
+            lengthMenu:     "{{ __('message.length_menu') }}",
+            loadingRecords: "{{ __('message.loading_records') }}",
+            search:         "{{ __('message.table_search') }}",
+
+        },
+
+            columns: [
+
+        {data: 'email', name: 'Email'},
+        {data: 'method', name: 'Method'},
+        {data: 'status', name: 'Status'},
+        {data: 'result', name: 'result'},
+
+            ],
+            "fnDrawCallback": function( oSettings ) {
+            $(function () {
+            $('[data-toggle="tooltip"]').tooltip({
+            container : 'body'
+        });
+        });
+            $('.loader').css('display', 'none');
+        },
+            "fnPreDrawCallback": function(oSettings, json) {
+            $('.loader').css('display', 'block');
+        },
+        });
+
+
+          $(document).on('click','#show-results',function(){
+              console.log('hii');
+              var id=this.getAttribute('data-id');
+              console.log(id);
+              $.ajax({
+                  url : '{{url("get-email-validation-results")}}',
+                  type : 'get',
+                  data:{'id':id},
+                  success: function (response) {
+                      var data=response['data'];
+                       renderEmailResult(data);
+                       $('#email-part-result').modal('show');
+                      //
+                      // $('#pipedrv').modal('show');
+                  },
+              });
+          })
+
+            function renderEmailResult(data) {
+                let html = '';
+
+                for (const [key, label] of Object.entries(data)) {
+
+                    html += `<p><strong>${key}:</strong> ${label}</p>`;
+                }
+
+                $('#email-result').html(html);
+            }
+
+
         $(document).on('click', '#submitMobile', function (e) {
             const userRequiredFields = {
                 manager:@json(trans('message.mobileApikey_error')),
@@ -1063,6 +1227,22 @@
                 },
             });
         });
+
+        $(document).on('click', '#emailValidation-logs-button', function() {
+            $("#emailValidationLogs").modal('show');
+
+            {{--$.ajax({--}}
+            {{--    url: "{{url('emailData')}}",--}}
+            {{--    type: 'post',--}}
+            {{--    data: {--}}
+            {{--        'value': 'reoon',--}}
+            {{--    },--}}
+            {{--    success: function (response) {--}}
+            {{--        $('#emailToRender').html(response['data']);--}}
+            {{--        $("#emailValidationLogs").modal('show');--}}
+            {{--    }--}}
+            {{--})--}}
+        })
 
         $(document).on('click', '#emailValidation-edit-button', function() {
             $.ajax({

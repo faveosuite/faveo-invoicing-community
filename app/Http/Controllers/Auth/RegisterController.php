@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\EmailValidationResults;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ProfileRequest;
 use App\Jobs\AddUserToExternalService;
@@ -54,31 +55,41 @@ class RegisterController extends Controller
 
     public function emailVerification($email)
     {
-        $map = [
-            'safe' => 1,
-            'catch_all' => 2,
-            'unknown' => 4,
-        ];
+        try {
+            $map = [
+                'safe' => 1,
+                'catch_all' => 2,
+                'unknown' => 4,
+                'invalid' => 8,
+                'disabled' => 16,
+                'disposable' => 32,
+                'inbox_full' => 64,
+                'role_account' => 128,
+                'spamtrap' => 256,
+            ];
 
-        ['api_key' => $apikey, 'mode' => $mode,'accepted_output' => $accepted_output] = EmailMobileValidationProviders::where('provider', 'reoon')
-            ->select('api_key', 'mode', 'accepted_output')
-            ->first()
-            ->toArray();
+            ['api_key' => $apikey, 'mode' => $mode, 'accepted_output' => $accepted_output] = EmailMobileValidationProviders::where('provider', 'reoon')
+                ->select('api_key', 'mode', 'accepted_output')
+                ->first()
+                ->toArray();
 
-        $response = Http::get('https://emailverifier.reoon.com/api/v1/verify', [
-            'email' => $email,
-            'key' => $apikey,
-            'mode' => $mode,
-        ]);
-        $content = $response->json();
-        $status = $content['status'];
-        $statusBit = $map[$status] ?? 0;
+            $response = Http::get('https://emailverifier.reoon.com/api/v1/verify', [
+                'email' => $email,
+                'key' => $apikey,
+                'mode' => $mode,
+            ]);
+            $content = $response->json();
+            $status = $content['status'];
+            $statusBit = $map[$status] ?? 0;
+            EmailValidationResults::create(['email' => $email, 'status' => $status, 'method' => $content['verification_mode'], 'result' => json_encode($content)]);
+            if (($statusBit & $accepted_output) || $content['status'] == 'valid' || isset($content['reason']) && $content['reason'] == 'Not enough credits available. Please recharge.') {
+                return true;
+            }
 
-        if (($statusBit & $accepted_output) || $content['status'] == 'valid' || isset($content['reason']) && $content['reason'] == 'Not enough credits available. Please recharge.') {
-            return true;
+            return false;
+        }catch (\Exception $exception){
+            \Log::error($exception->getMessage());
         }
-
-        return false;
     }
 
     private function vonagePhoneVerification($provider, $phone)
