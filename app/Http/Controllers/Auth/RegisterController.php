@@ -87,7 +87,7 @@ class RegisterController extends Controller
             }
 
             return false;
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             \Log::error($exception->getMessage());
         }
     }
