@@ -2721,6 +2721,12 @@ return [
 
     'period_is_required' => 'Seleziona un periodo.',
     'continue_verify_social_login' => 'Clicca su "Validate" per procedere e confermare la tua identità',
+
+    'mode' => 'Modalità',
+    'registration' => 'Registrazione',
+    'email_validation_logs' => 'Registri di validazione email',
+    'email_validation_result' => 'Risultato validazione email',
+    'email_validation_provider' => 'Fornitore di validazione email',
     'log_description' => ':module :name è stato :event',
     'has_been' => 'è stato',
     'cloud' => 'Cloud',

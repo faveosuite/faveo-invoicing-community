@@ -2712,6 +2712,7 @@ return [
     'word_count' => 'Harap buat deskripsi singkat Anda tetap dalam 50 kata.',
     'auto_renewal_disable' => 'Perpanjangan otomatis saat ini tidak tersedia. Silakan hubungi administrator untuk bantuan.',
     'auto_renewal_tooltip' => 'Aktifkan atau nonaktifkan perpanjangan otomatis untuk semua pengguna.',
+
     'invalid_code_2fa' => 'Kode tidak valid. Silakan coba lagi.',
     '6_digit_auth_code' => 'Masukkan kode autentikasi 6 digit Anda',
     '6_code_numer' => 'Kode harus berupa angka 6 digit.',
@@ -2720,6 +2721,12 @@ return [
     'valid_username' => 'Silakan masukkan nama pengguna yang valid',
     'set_auth_invoicing' => 'Semua sudah siap. Mulai sekarang, Anda akan menggunakan aplikasi Authenticator untuk masuk ke akun Faveo Invoicing Anda.',
     'continue_verify_social_login' => 'Klik "Validate" untuk melanjutkan dan mengonfirmasi identitas Anda',
+
+    'mode' => 'Mode',
+    'registration' => 'Pendaftaran',
+    'email_validation_logs' => 'Log Validasi Email',
+    'email_validation_result' => 'Hasil Validasi Email',
+    'email_validation_provider' => 'Penyedia Validasi Email',
     'log_description' => ':module :name telah :event',
     'has_been' => 'telah',
     'cloud' => 'Cloud',

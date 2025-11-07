@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Common;
 
+use App\EmailValidationResults;
 use App\Model\Common\MsgDeliveryReports;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
@@ -480,9 +481,26 @@ class CronController extends BaseCronController
         }
     }
 
+    public function reoonLogsDeletion()
+    {
+        if (! $this->shouldDeleteReooLogs()) {
+            return;
+        }
+        $days = ExpiryMailDay::value('reoon_logs_days');
+        $logs = $this->getOldReoonLogs($days);
+        foreach ($logs as $log) {
+            $log->delete();
+        }
+    }
+
     private function shouldDeleteInvoices()
     {
         return StatusSetting::value('invoice_deletion_status') == 1;
+    }
+
+    private function shouldDeleteReooLogs()
+    {
+        return StatusSetting::value('reoon_deletion_status') == 1;
     }
 
     private function getOldInvoices($days)
@@ -495,6 +513,15 @@ class CronController extends BaseCronController
             ->get();
 
         return $oldInvoices;
+    }
+
+    private function getOldReoonLogs($days)
+    {
+        $date = Carbon::now()->subDays($days)->toDateString();
+        $oldLogs = EmailValidationResults::whereDate('created_at', '<=', $date)
+            ->get();
+
+        return $oldLogs;
     }
 
     private function canDeleteInvoice($invoice)

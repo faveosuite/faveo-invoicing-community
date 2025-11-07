@@ -349,7 +349,7 @@ class PromotionController extends BasePromotionController
                 return 'success';
             }
             $used_number = $this->invoice->where('coupon_code', $code)->count();
-            if ($uses >= $used_number) {
+            if ($uses > $used_number) {
                 return 'success';
             } else {
                 return 'fails';
