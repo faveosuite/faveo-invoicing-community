@@ -1139,9 +1139,11 @@ class SettingsController extends BaseSettingsController
         return successResponse(trans('message.success'), $response);
     }
 
-    public function getEmailValidationLogs(){
+    public function getEmailValidationLogs()
+    {
         try {
             $query = EmailValidationResults::query();
+
             return \DataTables::of($query)
                 ->orderColumn('email', '-created_at $1')
                 ->orderColumn('method', '-created_at $1')
@@ -1162,7 +1164,6 @@ class SettingsController extends BaseSettingsController
                     return $query->created_at;
                 })
 
-
                 ->filterColumn('email', function ($query, $keyword) {
                     $query->whereRaw('email like ?', ["%{$keyword}%"]);
                 })
@@ -1175,17 +1176,18 @@ class SettingsController extends BaseSettingsController
                 })
                 ->rawColumns(['email', 'method', 'status', 'result', 'created_at'])
                 ->make(true);
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             dd($e->getMessage());
         }
     }
 
-    public function getEmailValidationResults(Request $request){
+    public function getEmailValidationResults(Request $request)
+    {
         $id = $request->input('id');
-        $result=json_decode(EmailValidationResults::where('id',$id)->value('result'));
-       return successResponse(trans('message.success'), $result);
-    }
+        $result = json_decode(EmailValidationResults::where('id', $id)->value('result'));
 
+        return successResponse(trans('message.success'), $result);
+    }
 
     private function setStatus($current)
     {
@@ -1195,10 +1197,10 @@ class SettingsController extends BaseSettingsController
             'unknown' => 4,
             'invalid' => 8,
             'disabled' => 16,
-            'disposable'=>32,
-            'inbox_full'=>64,
-            'role_account'=>128,
-            'spamtrap'=>256,
+            'disposable' => 32,
+            'inbox_full' => 64,
+            'role_account' => 128,
+            'spamtrap' => 256,
         ];
 
         $statusOptions = '';
