@@ -40,6 +40,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\invoiceDeletion::class,
         \App\Console\Commands\CleanupMsg91Reports::class,
         DeleteLogs::class,
+        \App\Console\Commands\ReoonLogsDeletion::class,
     ];
 
     /**
@@ -58,6 +59,7 @@ class Kernel extends ConsoleKernel
         $this->execute($schedule, 'postExpirymail');
         $this->execute($schedule, 'invoice');
         $this->execute($schedule, 'msg91Reports');
+        $this->execute($schedule, 'reoon');
         $this->execute($schedule, 'systemLogs');
 
         // Schedule the cloudEmail method
@@ -98,6 +100,9 @@ class Kernel extends ConsoleKernel
             if (\Schema::hasColumn('status_settings', 'msg91_report_delete_status')) {
                 $msgDeletionStatus = StatusSetting::value('msg91_report_delete_status');
             }
+            if (\Schema::hasColumn('status_settings', 'reoon_deletion_status')) {
+                $reoonStatus = StatusSetting::pluck('reoon_deletion_status')->first();
+            }
             if (\Schema::hasColumn('status_settings', 'system_log_status')) {
                 $systemLogsStatus = StatusSetting::pluck('system_log_status')->first();
             }
@@ -133,6 +138,10 @@ class Kernel extends ConsoleKernel
                 case 'msg91Reports':
                     if (isset($msgDeletionStatus) && $msgDeletionStatus) {
                         return $this->getCondition($schedule->command('cleanup:msg-reports'), $command);
+                    }
+                case 'reoon':
+                    if (isset($reoonStatus) && $reoonStatus) {
+                        return $this->getCondition($schedule->command('reoon:logs-deletion'), $command);
                     }
                 case 'systemLogs':
                     if (isset($systemLogsStatus) && $systemLogsStatus) {

@@ -316,6 +316,9 @@ trait ApiKeySettings
             $invoice_dailyAt = \Request::get('invoice-dailyAt');
             $msg91_commands = \Request::get('msg91-commands');
             $msg91_dailyAt = \Request::get('msg91-dailyAt');
+            $reoon_commands = \Request::get('reoon-commands');
+            $reoon_dailyAt = \Request::get('reoon-dailyAt');
+
             $system_commands = \Request::get('systemlogs-commands');
             $system_dailyAt = \Request::get('systemlogs-dailyAt');
 
@@ -327,8 +330,11 @@ trait ApiKeySettings
             $cloud_command = $this->getCommand($cloud_commands, $cloud_dailyAt);
             $invoice_command = $this->getCommand($invoice_commands, $invoice_dailyAt);
             $msg91_command = $this->getCommand($msg91_commands, $msg91_dailyAt);
+            $reoon_command = $this->getCommand($reoon_commands, $reoon_dailyAt);
             $system_command = $this->getCommand($system_commands, $system_dailyAt);
-            $jobs = ['expiryMail' => $expiry_command, 'deleteLogs' => $activity_command, 'subsExpirymail' => $subexpiry_command, 'postExpirymail' => $postexpiry_command, 'cloud' => $cloud_command, 'invoice' => $invoice_command, 'msg91Reports' => $msg91_command, 'systemLogs' => $system_command];
+
+            $jobs = ['expiryMail' => $expiry_command, 'deleteLogs' => $activity_command, 'subsExpirymail' => $subexpiry_command, 'postExpirymail' => $postexpiry_command,
+                'cloud' => $cloud_command, 'invoice' => $invoice_command, 'msg91Reports' => $msg91_command, 'reoon' => $reoon_command, 'systemLogs' => $system_command];
 
             $this->storeCommand($jobs);
         }

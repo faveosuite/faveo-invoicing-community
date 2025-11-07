@@ -59,19 +59,22 @@
 
                 <!-- /.box-header -->
 
-                {!! html()->form('PATCH', url('cron-days'))->id('cronForm')->open() !!}
-                <?php
-                $mailStatus = \App\Model\Common\StatusSetting::pluck('expiry_mail')->first();
-                $activityStatus =\App\Model\Common\StatusSetting::pluck('activity_log_delete')->first();
-                $Autorenewal_status = \App\Model\Common\StatusSetting::pluck('subs_expirymail')->first();
-                $postExpiry_status = \App\Model\Common\StatusSetting::pluck('post_expirymail')->first();
-                $cloudStatus = \App\Model\Common\StatusSetting::pluck('cloud_mail_status')->first();
-                $invoiceStatus = \App\Model\Common\StatusSetting::pluck('invoice_deletion_status')->first();
-                $msg91Status = \App\Model\Common\StatusSetting::pluck('msg91_report_delete_status')->first();
-                $systemLogStatus = \App\Model\Common\StatusSetting::pluck('system_log_status')->first();
-                ?>
-                <div class="card-header">
-                    <h3 class="card-title">{{Lang::get('message.set_cron_period')}}  </h3>
+         {!! html()->form('PATCH', url('cron-days'))->id('cronForm')->open() !!}
+         <?php
+                   $mailStatus = \App\Model\Common\StatusSetting::pluck('expiry_mail')->first();
+                   $activityStatus =\App\Model\Common\StatusSetting::pluck('activity_log_delete')->first();
+                   $Autorenewal_status = \App\Model\Common\StatusSetting::pluck('subs_expirymail')->first();
+                   $postExpiry_status = \App\Model\Common\StatusSetting::pluck('post_expirymail')->first();
+                   $cloudStatus = \App\Model\Common\StatusSetting::pluck('cloud_mail_status')->first();
+                   $invoiceStatus = \App\Model\Common\StatusSetting::pluck('invoice_deletion_status')->first();
+                   $msg91Status = \App\Model\Common\StatusSetting::pluck('msg91_report_delete_status')->first();
+         $reoonStatus=\App\Model\Common\StatusSetting::pluck('reoon_deletion_status')->first();
+         $systemLogStatus = \App\Model\Common\StatusSetting::pluck('system_log_status')->first();
+
+
+         ?>
+         <div class="card-header">
+             <h3 class="card-title">{{Lang::get('message.set_cron_period')}}  </h3>
 
 
                 </div>
@@ -226,17 +229,36 @@
 
 
 
+              <div class="col-md-6">
+                  <div class="form-group">
+                      <label>{{ __('message.delete_msg_reports') }}</label>
+                      @if ($msg91Status == 0)
+                          <select name="msg91_days" class="form-control selectpicker"   style="width: 100%; color:black;" disabled>
+                              <option value="">{{ __('message.please_enable_cron_deletion') }}</option>
+                          </select>
+                      @else
+                          <select name="msg91_days" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" style="width: 100%;">
+                              @foreach ($msg91Days as $key=>$value)
+                                  <option value="{{$key}}" <?php echo (in_array($key, $msgDeletionDays)) ?  "selected" : "" ;  ?>>{{$value}}</option>
+                              @endforeach
+                          </select>
+                      @endif
+                  </div>
+
+
+              <!-- /.form-group -->
+            </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>{{ __('message.delete_msg_reports') }}</label>
-                                @if ($msg91Status == 0)
-                                    <select name="msg91_days" class="form-control selectpicker"   style="width: 100%; color:black;" disabled>
-                                        <option value="">{{ __('message.please_enable_cron_deletion') }}</option>
+                                <label>Delete Reoon Logs Older than..</label><i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="The cron is to trigger the deletion of reoon logs."></i>
+                                @if ($reoonStatus == 0)
+                                    <select name="reoon_days" class="form-control selectpicker"   style="width: 100%; color:black;" disabled>
+                                        <option value="">Please Enable Reoon Logs Deletion Cron</option>
                                     </select>
                                 @else
-                                    <select name="msg91_days" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" style="width: 100%;">
-                                        @foreach ($msg91Days as $key=>$value)
-                                            <option value="{{$key}}" <?php echo (in_array($key, $msgDeletionDays)) ?  "selected" : "" ;  ?>>{{$value}}</option>
+                                    <select name="reoon_days" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" style="width: 100%;">
+                                        @foreach ($reoonDays as $key=>$value)
+                                            <option value="{{$key}}" <?php echo (in_array($key, $ReeonLogDeletionDays)) ?  "selected" : "" ;  ?>>{{$value}}</option>
                                         @endforeach
                                     </select>
                                 @endif
@@ -247,43 +269,42 @@
                         </div>
 
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label>{{ __('message.system_logs_deletion_older_than') }}</label>
-                                @if ($systemLogStatus == 0)
-                                    <select name="system_logs_days" class="form-control selectpicker"   style="width: 100%; color:black;" disabled>
-                                        <option value="">{{ __('message.please_enable_system_logs_deletion') }}</option>
-                                    </select>
-                                @else
-                                    <select name="system_logs_days" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" style="width: 100%;">
-                                        @foreach ($systemLogsDays as $key=>$value)
-                                            <option value="{{$key}}" <?php echo (in_array($key, $systemLogsDeletionDays)) ?  "selected" : "" ;  ?>>{{$value}}</option>
-                                        @endforeach
-                                    </select>
-                                @endif
-                            </div>
+                        <div class="form-group">
+                            <label>{{ __('message.system_logs_deletion_older_than') }}</label>
+                            @if ($systemLogStatus == 0)
+                                <select name="system_logs_days" class="form-control selectpicker"   style="width: 100%; color:black;" disabled>
+                                    <option value="">{{ __('message.please_enable_system_logs_deletion') }}</option>
+                                </select>
+                            @else
+                                <select name="system_logs_days" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" style="width: 100%;">
+                                    @foreach ($systemLogsDays as $key=>$value)
+                                        <option value="{{$key}}" <?php echo (in_array($key, $systemLogsDeletionDays)) ?  "selected" : "" ;  ?>>{{$value}}</option>
+                                    @endforeach
+                                </select>
+                            @endif
                         </div>
-
                     </div>
-                    <!-- /.row -->
-                </div>
-                <div class="card-footer">
-                    @if ( $mailStatus || $activityStatus || $cloudStatus ==1)
-                        <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
-                    @else
-                        <button type="submit" class="btn btn-primary pull-right disabled" id="submit"><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
-                    @endif
-                </div>
-                {!! html()->form()->close() !!}
-                <!-- /.box-body -->
-
-            </div>
-            <!-- /.tab-pane -->
-
-
-            <!-- nav-tabs-custom -->
-        </div>
-        <!-- /.col -->
+          </div>
+          <!-- /.row -->
+     </div>
+         <div class="card-footer">
+             @if ( $mailStatus || $activityStatus || $cloudStatus ==1)
+                 <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+             @else
+                 <button type="submit" class="btn btn-primary pull-right disabled" id="submit"><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+             @endif
+         </div>
+         {!! html()->form()->close() !!}
+        <!-- /.box-body -->
+       
+      </div>
+                <!-- /.tab-pane -->
+            
+         
+        <!-- nav-tabs-custom -->
     </div>
+    <!-- /.col -->
+</div>
 
 
 
@@ -376,4 +397,5 @@
     </script>
 
 @stop
+
 

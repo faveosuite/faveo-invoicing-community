@@ -2717,6 +2717,7 @@ return [
     'word_count' => 'Por favor, mantenga su descripción breve dentro de 50 palabras.',
     'auto_renewal_disable' => 'La renovación automática no está disponible actualmente. Por favor, contacte con el administrador para obtener ayuda.',
     'auto_renewal_tooltip' => 'Habilitar o deshabilitar la renovación automática para todos los usuarios.',
+
     'invalid_code_2fa' => 'Nevažeći kod. Molimo pokušajte ponovo.',
     '6_digit_auth_code' => 'Unesite svoj 6-cifreni autentifikacijski kod',
     '6_code_numer' => 'Kod mora biti 6-cifreni broj.',
@@ -2725,6 +2726,12 @@ return [
     'valid_username' => 'Por favor, introduzca un nombre de usuario válido',
     'set_auth_invoicing' => 'Todo está listo. A partir de ahora, usarás la aplicación Authenticator para iniciar sesión en tu cuenta de Faveo Invoicing.',
     'continue_verify_social_login' => 'Haga clic en "Validate" para proceder y confirmar su identidad',
+
+    'mode' => 'Modo',
+    'registration' => 'Registro',
+    'email_validation_logs' => 'Registros de validación de correo electrónico',
+    'email_validation_result' => 'Resultado de validación de correo electrónico',
+    'email_validation_provider' => 'Proveedor de validación de correo electrónico',
     'log_description' => ':module :name ha sido :event',
     'has_been' => 'ha sido',
     'cloud' => 'Nube',
