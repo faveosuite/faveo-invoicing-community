@@ -256,7 +256,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                     'account_manager' => 'Account Manager',
                     'manager' => 'Sales Manager',
                     default => null,
-                }
+                },
             ],
             'skype' => ['Skype', fn ($value) => $value],
             'google2fa_activation_date' => ['2FA activation date', fn ($value) => Carbon::parse($value)->toDateTimeString()],
