@@ -47,7 +47,7 @@
                     <span id="otp-message" data-msg="{{ __('message.otp_sent_new_email') }}">
                     </span>
                 </div>
-                <div id="otpSuccess" class="alert alert-danger alert-dismissible " role="alert" style="display:block; padding: 10px 12px; font-size: 14px;">
+                <div id="otpSuccess" class="" role="alert" style="display:block; padding: 10px 12px; font-size: 14px;">
                     <span id="otpAlertShowMsg"></span>
                 </div>
 
@@ -105,7 +105,7 @@
 
                 <form id="otpVerificationFormOld">
                     @csrf
-                    <div class="form-group mb-3">
+                    <div class="footpVerificationFormOldrm-group mb-3">
                         <label for="otpCode">{{ __('message.enter_otp_code') }}</label>
                         <input type="text" class="form-control" id="otpCodeOld" name="otp_code">
                         <input type="hidden" id="otpOldEmail" name="email_to_verify" value="{{ $user->email }}">
@@ -356,12 +356,10 @@
             let otpValueNew = $('#otpCodeNew');
             let otpCodeValue = otpValueNew.val().trim();
             let errorBox2 = $('#otpErrorNew');
-            let successBox2 = $('#otpSuccessNew');
 
             // Reset UI states
             otpValueNew.removeClass('is-invalid');
             errorBox2.text('');
-            successBox2.hide();
 
             if (!otpCodeValue) {
                 showValidationError(otpValueNew, errorBox2, "{{ __('message.otp_code_required') }}");
@@ -378,7 +376,8 @@
             let formData = {
                 _token: $('input[name="_token"]').val(),
                 otp: $('#otpCodeNew').val(),
-                email_to_verify: $('#otpNewEmail').val()
+                email_to_verify: $('#otpNewEmail').val(),
+                verify_type: 'new_email',
             };
 
             $('#otpSuccess').hide();
@@ -395,8 +394,8 @@
                     if(response.success){
                     let oldEmail = "{{ auth()->user()->email }}";
 
-                    $("#otpAlertShowMsg").text(response.message);
-
+                        $('#otpSuccess').removeClass().addClass('alert alert-success alert-dismissible').show();
+                        $('#otpAlertShowMsg').text(response.message);
                         sendOtpToOldEmail(oldEmail,csrfToken,errorBox2);
                     }
                     else {
@@ -405,9 +404,17 @@
                     }
                 },
                 error: function (xhr) {
+                    let statusCode = xhr.status;
                     let errorRes2 = xhr.responseJSON || {};
                     let message2 = errorRes2.message || "{{ __('message.something_wrong') }}";
-                    showValidationError(otpValueNew, errorBox2, message2);
+
+                    if (statusCode === 429) {
+                        $('#otpSuccess').removeClass().addClass('alert alert-danger alert-dismissible').show();
+                        $('#otpAlertShowMsg').text(message2);
+                       autoHidePopup('#otpSuccess', 5000);
+                    } else {
+                        showValidationError(otpValueNew, errorBox2, message2);
+                    }
                     $("#verifyOtpBtn").prop("disabled", false).text("{{ __('message.verify') }}");
 
                 },
@@ -489,7 +496,8 @@
             let formData = {
                 _token: $('input[name="_token"]').val(),
                 otp: $('#otpCodeOld').val(),
-                email_to_verify: $('#otpOldEmail').val()
+                email_to_verify: $('#otpOldEmail').val(),
+                verify_type: 'old_email',
             };
 
             $('#otpErrorOld').text('');
@@ -500,7 +508,6 @@
                 type: "POST",
                 data: formData,
                 success: function (response) {
-
                     if (response.success) {
                         changeEmailFinal();
                     } else {
@@ -508,9 +515,17 @@
                     }
                 },
                 error: function (xhr) {
+                    let statusCodeold = xhr.status;
                     let errorRes3 = xhr.responseJSON || {};
                     let message3 = errorRes3.message || "{{ __('message.something_wrong') }}";
-                    showValidationError(otpValueOld, errorBox3, message3);
+
+                    if (statusCodeold === 429) {
+                        $('#otpSuccessOld').removeClass().addClass('alert alert-danger alert-dismissible').show();
+                        $('#otpAlertShowMsgOld').text(message3);
+                        autoHidePopup('#otpSuccessOld', 5000);
+                    } else {
+                        showValidationError(otpValueOld, errorBox3, message3);
+                    }
                 }
             });
         });
@@ -592,6 +607,7 @@
                             .css("display", "block");
 
                         msgSpan.text(response.message);
+                        autoHidePopup(alertOtpResent, 5000);
                         let button = document.getElementById(btnId);
                         let display = document.getElementById(timerId);
                         if (button && display) {
@@ -604,10 +620,11 @@
                     let resMsg= res.message || "{{ __('message.something_wrong') }}";
                     alertOtpResent
                         .removeClass()
-                        .addClass("alert alert-success alert-dismissible fade show")
+                        .addClass("alert alert-danger alert-dismissible fade show")
                         .css("display", "block");
 
                     msgSpan.text(resMsg);
+                    autoHidePopup(alertOtpResent, 5000);
                 },
                 complete: function () {
                     verifyBtn.prop("disabled", false).text("{{ __('message.verify') }}");
@@ -638,6 +655,20 @@
                     updateTimer(display, countdown);
                 }
             }, 1000);
+        }
+
+        function autoHidePopup(selectorOrElement, duration = 5000) {
+            const popup = typeof selectorOrElement === 'string'
+                ? $(selectorOrElement)
+                : selectorOrElement;
+
+            if (!popup.length) return;
+
+            setTimeout(() => {
+                popup.fadeOut('slow', function () {
+                    popup.find('span').text('');
+                });
+            }, duration);
         }
 
     });

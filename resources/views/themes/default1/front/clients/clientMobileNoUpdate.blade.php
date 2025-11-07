@@ -4,18 +4,17 @@
             <div class="modal-dialog modal-dialog-centered" style="max-width: 570px;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="editMobileModalLabel">
+                        <h4 class="modal-title" id="editMobileModalLabel">
                             {{ __('message.update_mobile_no') }}
-                        </h5>
+                        </h4>
                         <button type="button" class="btn-close closeandrefresh" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
                     <div class="modal-body">
-                        <div id="mobileAlertShow" class="alert alert-danger alert-dismissible fade show d-none" role="alert" style="display:block; padding: 10px 12px; font-size: 14px;">
+                        <div id="mobileAlertShow" class="" role="alert" style="display: none">
                             <span id="mobileAlertShowMsg"></span>
                         </div>
 
-                        <div id="editMobileSuccess" class="alert alert-success d-none" role="alert"></div>
 
                         <form id="editMobileForm">
                             @csrf
@@ -45,7 +44,7 @@
                 <div class="modal-content">
                     <!-- Header -->
                     <div class="modal-header">
-                        <h5 class="modal-title">{{ __('message.otp_code_verification') }}</h5>
+                        <h4 class="modal-title">{{ __('message.otp_code_verification') }}</h4>
                         <button type="button" class="btn-close closeandrefresh" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
@@ -55,7 +54,7 @@
                             <span id="otp-message-mobile" data-msg="{{ __('message.otp_sent_mobile_no') }}">
                             </span>
                         </div>
-                        <div id="otpMobileAlert" class="alert d-none" role="alert" style="display:block; padding: 10px 12px; font-size: 14px;">
+                        <div id="otpMobileAlert" class="" role="alert" style="display:block; padding: 10px 12px; font-size: 14px;">
                             <span id="otpMobileAlertMsg"></span>
                         </div>
 
@@ -96,21 +95,21 @@
             </div>
         </div>
 
-        <!--For Confirmation verification through existing mobile number -->
+        <!--For Confirmation verification through existing email address -->
         <div class="modal fade" id="confirmationFromEmailModal" tabindex="-1" role="dialog" aria-labelledby="otpVerificationModalForNewMobile" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" style="max-width: 570px;">
                 <div id="otpAlertErrorMobile" class="alert alert-danger d-none"></div>
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">{{ __('message.otp_code_verification') }}</h5>
+                        <h4 class="modal-title">{{ __('message.otp_code_verification') }}</h4>
                         <button type="button" class="btn-close closeandrefresh" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-warning" id="otpInfo" role="alert">
                             <i class="fa fa-info-circle me-2"></i>
-                            <span>{{ __('message.otp_sent_to_email_for_mobile_change', ['email' => $user->email]) }}</span>
+                            <span>{!! __('message.otp_sent_to_email_for_mobile_change', ['email' => $user->email]) !!}</span>
                         </div>
-                        <div id="otpSuccessMobile" class="alert d-none" role="alert" style="display:block; padding: 10px 12px; font-size: 14px;">
+                        <div id="otpSuccessMobile" class="" role="alert" style="display:block; padding: 10px 12px; font-size: 14px;">
                             <span id="otpAlertShowMsgMobile"></span>
                         </div>
 
@@ -157,9 +156,9 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="successModalLabelMobile">
+                        <h4 class="modal-title" id="successModalLabelMobile">
                             {{ __('message.mobile_no_changed_successfully') }}
-                        </h5>
+                        </h4>
                         <button type="button" class="btn-close closeandrefresh white-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body text-center">
@@ -186,6 +185,14 @@
 <style>
     .modal-footer.center-footer {
         justify-content: center !important;
+    }
+    .modal-title {
+        text-transform: none !important;
+    }
+    .alert {
+        display: block;
+        padding: 10px 12px;
+        font-size: 14px;
     }
 </style>
 
@@ -364,7 +371,9 @@
                 error: function (xhr) {
                     let mob2 = xhr.responseJSON || {};
                     let mobMsg2 = mob2.message || "{{ __('message.something_wrong') }}";
-                    showValidationError(mobField2, errorBoxMob2,mobMsg2);
+                    $('#mobileAlertShow').removeClass().addClass('alert alert-danger alert-dismissible fade show').show();
+                    $('#mobileAlertShowMsg').text(mobMsg2);
+                    autoHidePopup('#mobileAlertShow', 5000);
                     $("#editMobileFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
                 },
             });
@@ -398,7 +407,8 @@
                 data: {
                     _token: csrfToken,
                     mobile_to_verify: fullMobile,
-                    otp: otp
+                    otp: otp,
+                    verify_mobile: 'new_mobile_no_rate',
                 },
                 beforeSend: function () {
                     // Disable button and show loading message
@@ -415,9 +425,18 @@
                 },
                 error: function (xhr) {
                     $("#verifyOtpMobileBtn").prop("disabled", false).text("{{ __('message.verify') }}");
+                    let statusCodeMob = xhr.status;
                     let mob2 = xhr.responseJSON || {};
                     let mobMsg2 = mob2.message || "{{ __('message.something_wrong') }}";
-                    showValidationError(mobField2, errorBoxMob2,mobMsg2);
+
+                    if (statusCodeMob === 429) {
+                        $('#otpMobileAlert').removeClass().addClass('alert alert-danger alert-dismissible fade show').show();
+                        $('#otpMobileAlertMsg').text(mobMsg2);
+                        autoHidePopup('#otpMobileAlert', 5000);
+
+                    } else {
+                        showValidationError(mobField2, errorBoxMob2,mobMsg2);
+                    }
                 },
             });
         });
@@ -488,6 +507,8 @@
                     _token: csrfToken,
                     otp: mobileVal3,
                     email_to_verify: "{{ $user->email }}",
+                    verify_type: 'mobile_email',
+
                 },
                 beforeSend: function () {
                     // Disable button and show loading message
@@ -503,7 +524,15 @@
                 error: function (xhr) {
                     let mob3 = xhr.responseJSON || {};
                     let mobMsg3 = mob3.message || "{{ __('message.2fa_verifying') }}";
-                    showValidationError(mobField3, errorBoxMob3, mobMsg3);
+                    let statusCodeOldEmail = xhr.status;
+
+                    if (statusCodeOldEmail === 429) {
+                        $('#otpSuccessMobile').removeClass().addClass('alert alert-danger alert-dismissible fade show').show();
+                        $('#otpAlertShowMsgMobile').text(mobMsg3);
+                    } else {
+                        showValidationError(mobField3, errorBoxMob3, mobMsg3);
+                    }
+                    autoHidePopup('#otpSuccessMobile', 5000);
                     $("#verifyOtpMobileBtnEmail").prop("disabled", false).text("{{ __('message.verify') }}");
 
                 },
@@ -581,6 +610,7 @@
 
                             $("#otpMobileAlertMsg").text(response.message);
                         }, 400);
+                        autoHidePopup(alertMobOtpSuccess, 5000);
 
                         //Restart timer after resend
                         startTimer(
@@ -600,6 +630,7 @@
                         .css("display", "block");
 
                     $("#otpMobileAlertMsg").text(mobMsg2);
+                    autoHidePopup(alertBoxMob, 5000);
                 },
             });
         }
@@ -644,6 +675,7 @@
                             .css("display", "block");
 
                         $("#otpAlertShowMsgMobile").text(response.message);
+                        autoHidePopup(alertBox, 5000);
                     }, 200);
 
                     //Restart timer after resend
@@ -662,6 +694,7 @@
                         .css("display", "block");
 
                     $("#otpAlertShowMsgMobile").text(msg);
+                    autoHidePopup(alertBox, 5000);
                 },
                 complete: function() {
                     $("#verifyOtpMobileBtnEmail").prop("disabled", false).text("{{ __('message.verify') }}");
@@ -693,6 +726,20 @@
                     updateTimer(display, countdown);
                 }
             }, 1000);
+        }
+
+        function autoHidePopup(selectorOrElement, duration = 5000) {
+            const popup = typeof selectorOrElement === 'string'
+                ? $(selectorOrElement)
+                : selectorOrElement;
+
+            if (!popup.length) return;
+
+            setTimeout(() => {
+                popup.fadeOut('slow', function () {
+                    popup.find('span').text('');
+                });
+            }, duration);
         }
     });
 

@@ -140,6 +140,20 @@ class ProfileVerificationController extends BaseAuthController
      */
     public function verifyOtpForEditEmail(Request $request)
     {
+        $verificationType = $request->input('verify_type');
+
+        $keyPrefix = match ($verificationType) {
+            'new_email' => 'new_email',
+            'old_email' => 'old_email',
+            'mobile_confirmation' => 'mobile_email',
+            default => null,
+        };
+
+        $rateLimit = rateLimitForKeyIp($keyPrefix, 5, 30, $request->ip());
+        if ($rateLimit['status']) {
+            return errorResponse( __('message.too_many_attempts_for_change_email_mobile', ['time' => $rateLimit['remainingTime']]), 429);
+        }
+
         $request->validate([
             'email_to_verify' => 'required|email',
             'otp' => 'required|string|size:6',
@@ -248,9 +262,10 @@ class ProfileVerificationController extends BaseAuthController
             $dialCode = $request->dial_code;
             $mobileNo = $request->mobile_to_verify;
             $countryIso = $request->country_iso;
-            // Call sendOtp for new number (no DB user reference)
-            if (! $this->sendOtpForNewMobileNo($dialCode, $mobileNo, $countryIso)) {
-                return errorResponse(__('message.otp_verification.send_failure'));
+            $responseNewMobileOtp = $this->sendOtpForNewMobileNo($dialCode, $mobileNo, $countryIso);
+
+            if ($responseNewMobileOtp['type'] === 'error') {
+                return errorResponse($responseNewMobileOtp['message']);
             }
 
             return successResponse(
@@ -296,7 +311,6 @@ class ProfileVerificationController extends BaseAuthController
 
             return $this->responseHandler($response);
         } catch (\Exception $e) {
-            dd($e->getMessage());
             \Log::error('sendOtpForNewMobileNo error: '.$e->getMessage());
 
             return errorResponse($e->getMessage());
@@ -352,6 +366,12 @@ class ProfileVerificationController extends BaseAuthController
      */
     public function verifyOtpMobileNew(Request $request)
     {
+        $mobileVerificationType = $request->input('verify_mobile');
+        $rateLimit = rateLimitForKeyIp($mobileVerificationType, 5, 30, $request->ip());
+        if ($rateLimit['status']) {
+            return errorResponse( __('message.too_many_attempts_for_change_email_mobile', ['time' => $rateLimit['remainingTime']]), 429);
+        }
+
         $request->validate([
             'mobile_to_verify' => 'required|string',
             'otp' => 'required|string|size:6',
