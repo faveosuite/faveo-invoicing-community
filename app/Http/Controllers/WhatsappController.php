@@ -18,10 +18,14 @@ Class WhatsappController extends Controller{
     }
 
     public function index(){
-        [$app_id, $config_id] =
-            array_values(WhatsappIntegration::first()?->only(['app_id','config_id']) ?? [null, null]);
+        try {
+            [$app_id, $config_id] =
+                array_values(WhatsappIntegration::first()?->only(['app_id', 'config_id']) ?? [null, null]);
 
-        return view('themes.default1.common.whatsapp-testing',compact('app_id','config_id'));
+            return view('themes.default1.common.whatsapp-testing', compact('app_id', 'config_id'));
+        }catch (\Exception $e){
+            return $e->getMessage();
+        }
     }
 
 //    public function enterToken(Request $request){
@@ -176,53 +180,53 @@ Class WhatsappController extends Controller{
             ->make(true);
     }
 
-    public function saveAccessToken(Request $request){
-        try {
-            [$app_id, $app_secret] = array_values(WhatsappIntegration::select(['app_id', 'app_secret'])->first()->toArray());
-            //To get the Token
-            $code = $request->input('code');
+//    public function saveAccessToken(Request $request){
+//        try {
+//            [$app_id, $app_secret] = array_values(WhatsappIntegration::select(['app_id', 'app_secret'])->first()->toArray());
+//            //To get the Token
+//            $code = $request->input('code');
+//
+//            $response = Http::get('https://graph.facebook.com/v21.0/oauth/access_token', [
+//                'client_id' => $app_id,
+//                'client_secret' => $app_secret,
+//                'code' => $code,
+//            ]);
+//
+//            $content = $response->json();
+//
+//
+//            //Exchange the token to get permanent token
+//            $access_token = $content['access_token'];
+//
+//            $getToken = Http::get('https://graph.facebook.com/v21.0/oauth/access_token', [
+//                    'grant_type' => 'fb_exchange_token',
+//                    'client_id' => $app_id,
+//                    'client_secret' => $app_secret,
+//                    'fb_exchange_token' => $access_token,
+//            ]);
+//
+//            $content = $getToken->json();
+//
+//            WhatsappIntegrationUser::updateOrCreate(['user_id' => \Auth::user()->id], ['access_token' => $content['access_token'],'user_id'=>\Auth::user()->id]);
+//            $this->saveNumber($content['access_token']);
+//            return successResponse(__('message.updated-successfully'));
+//        }catch (\Exception $exception){
+//            return errorResponse($exception->getMessage());
+//        }
+//    }
 
-            $response = Http::get('https://graph.facebook.com/v21.0/oauth/access_token', [
-                'client_id' => $app_id,
-                'client_secret' => $app_secret,
-                'code' => $code,
-            ]);
 
-            $content = $response->json();
-
-
-            //Exchange the token to get permanent token
-            $access_token = $content['access_token'];
-
-            $getToken = Http::get('https://graph.facebook.com/v21.0/oauth/access_token', [
-                    'grant_type' => 'fb_exchange_token',
-                    'client_id' => $app_id,
-                    'client_secret' => $app_secret,
-                    'fb_exchange_token' => $access_token,
-            ]);
-
-            $content = $getToken->json();
-
-            WhatsappIntegrationUser::updateOrCreate(['user_id' => \Auth::user()->id], ['access_token' => $content['access_token'],'user_id'=>\Auth::user()->id]);
-            $this->saveNumber($content['access_token']);
-            return successResponse(__('message.updated-successfully'));
-        }catch (\Exception $exception){
-            return errorResponse($exception->getMessage());
-        }
-    }
-
-
-    public function saveNumber($access_token){
-        $phone_number_id=WhatsappIntegrationUser::where('user_id',\Auth::user()->id)->value('phone_number_id');
-        if($phone_number_id) {
-            $data = Http::get("https://graph.facebook.com/v21.0/{$phone_number_id}", [
-                'fields' => 'display_phone_number',
-                'access_token' => $access_token,
-            ]);
-            $content = $data->json();
-            WhatsappIntegrationUser::where('phone_number_id', $phone_number_id)->update(['phone_number' => $content['display_phone_number']]);
-        }
-    }
+//    public function saveNumber($access_token){
+//        $phone_number_id=WhatsappIntegrationUser::where('user_id',\Auth::user()->id)->value('phone_number_id');
+//        if($phone_number_id) {
+//            $data = Http::get("https://graph.facebook.com/v21.0/{$phone_number_id}", [
+//                'fields' => 'display_phone_number',
+//                'access_token' => $access_token,
+//            ]);
+//            $content = $data->json();
+//            WhatsappIntegrationUser::where('phone_number_id', $phone_number_id)->update(['phone_number' => $content['display_phone_number']]);
+//        }
+//    }
 
     public function saveWabaId(Request $request){
         try {
