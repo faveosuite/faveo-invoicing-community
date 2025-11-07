@@ -151,7 +151,7 @@ class ProfileVerificationController extends BaseAuthController
 
         $rateLimit = rateLimitForKeyIp($keyPrefix, 5, 30, $request->ip());
         if ($rateLimit['status']) {
-            return errorResponse( __('message.too_many_attempts_for_change_email_mobile', ['time' => $rateLimit['remainingTime']]), 429);
+            return errorResponse(__('message.too_many_attempts_for_change_email_mobile', ['time' => $rateLimit['remainingTime']]), 429);
         }
 
         $request->validate([
@@ -369,7 +369,7 @@ class ProfileVerificationController extends BaseAuthController
         $mobileVerificationType = $request->input('verify_mobile');
         $rateLimit = rateLimitForKeyIp($mobileVerificationType, 5, 30, $request->ip());
         if ($rateLimit['status']) {
-            return errorResponse( __('message.too_many_attempts_for_change_email_mobile', ['time' => $rateLimit['remainingTime']]), 429);
+            return errorResponse(__('message.too_many_attempts_for_change_email_mobile', ['time' => $rateLimit['remainingTime']]), 429);
         }
 
         $request->validate([
