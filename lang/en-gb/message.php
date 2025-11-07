@@ -2697,6 +2697,7 @@ return [
     'status.required' => 'Please specify the status.',
     'status.boolean' => 'The status must be either true (enabled) or false (disabled).',
     'manager_settings_updated_successfully' => 'Manager settings were successfully updated.',
+
     'user_position_prohibited_if' => 'The position field is not allowed when the role is set to user.',
 
     'system_logs_deletion' => 'System Logs Deletion',
@@ -2710,6 +2711,7 @@ return [
     'cloud_plan_error' => 'Please remove the cloud product or link it to an alternative plan.',
     'auto_renewal_disable' => 'Auto-renewal is currently not available. Please contact the administrator for assistance.',
     'auto_renewal_tooltip' => 'Enable or disable auto-renewal for all users.',
+
     'invalid_code_2fa' => 'Invalid code. Please try again.',
     '6_digit_auth_code' => 'Enter your 6-digit authentication code',
     '6_code_numer' => 'Code must be a 6-digit number.',
@@ -2718,6 +2720,12 @@ return [
     'valid_username' => 'Please enter a valid username',
     'set_auth_invoicing' => 'You\'re all set. From now on, you\'ll use the Authenticator app to sign in to your Faveo Invoicing account.',
     'continue_verify_social_login' => 'Click "Validate" to proceed and confirm your identity',
+
+    'mode' => 'Mode',
+    'registration' => 'Registration',
+    'email_validation_logs' => 'Email Validation Logs',
+    'email_validation_result' => 'Email Validation Result',
+    'email_validation_provider' => 'Email Validation Provider',
     'log_description' => ':module :name has been :event',
     'has_been' => 'has been',
     'cloud' => 'Cloud',

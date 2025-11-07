@@ -2721,6 +2721,7 @@ return [
     'cloud_plan_error' => 'Lütfen bulut ürününü kaldırın veya alternatif bir plana bağlayın.',
     'auto_renewal_disable' => 'Otomatik yenileme şu anda kullanılamıyor. Lütfen yardım için yöneticiyle iletişime geçin.',
     'auto_renewal_tooltip' => 'Tüm kullanıcılar için otomatik yenilemeyi etkinleştirin veya devre dışı bırakın.',
+
     'invalid_code_2fa' => 'Geçersiz kod. Lütfen tekrar deneyin.',
     '6_digit_auth_code' => '6 haneli doğrulama kodunuzu girin',
     '6_code_numer' => 'Kod 6 haneli bir sayı olmalıdır.',
@@ -2729,6 +2730,12 @@ return [
     'valid_username' => 'Lütfen geçerli bir kullanıcı adı girin',
     'set_auth_invoicing' => 'Her şey hazır. Artık Faveo Invoicing hesabınıza giriş yapmak için Authenticator uygulamasını kullanacaksınız.',
     'continue_verify_social_login' => 'Devam etmek ve kimliğinizi doğrulamak için "Validate" e tıklayın',
+
+    'mode' => 'Mod',
+    'registration' => 'Kayıt',
+    'email_validation_logs' => 'E-posta Doğrulama Günlükleri',
+    'email_validation_result' => 'E-posta Doğrulama Sonucu',
+    'email_validation_provider' => 'E-posta Doğrulama Sağlayıcısı',
     'log_description' => ':module :name :event edildi',
     'has_been' => 'edildi',
     'cloud' => 'Bulut',

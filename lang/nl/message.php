@@ -2681,6 +2681,7 @@ return [
     'cloud_plan_error' => 'Verwijder het cloudproduct of koppel het aan een alternatief plan.',
     'auto_renewal_disable' => 'Automatisch verlengen is momenteel niet beschikbaar. Neem contact op met de beheerder voor hulp.',
     'auto_renewal_tooltip' => 'Schakel automatisch verlengen in of uit voor alle gebruikers.',
+
     'continue_verify_social_login' => 'Klik op "Validate" om verder te gaan en uw identiteit te bevestigen',
     'log_description' => ':module :name is :event',
     'has_been' => 'is',
@@ -2739,4 +2740,10 @@ return [
     'something_went_wrong_while_updating_email' => 'Er is iets misgegaan bij het bijwerken van het e-mailadres. Probeer het later alstublieft opnieuw.',
     'something_wrong_try_again_later' => 'Er is iets misgegaan. Probeer het later alstublieft opnieuw.',
     'something_went_wrong_while_updating_mobile' => 'Er is iets misgegaan bij het bijwerken van het mobiele nummer. Probeer het later alstublieft opnieuw.',
+
+    'mode' => 'Modus',
+    'registration' => 'Registratie',
+    'email_validation_logs' => 'E-mailvalidatielogboeken',
+    'email_validation_result' => 'E-mailvalidatieresultaat',
+    'email_validation_provider' => 'E-mailvalidatieprovider',
 ];

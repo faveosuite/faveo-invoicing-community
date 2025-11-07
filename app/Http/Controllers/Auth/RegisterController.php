@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\EmailValidationResults;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ProfileRequest;
 use App\Jobs\AddUserToExternalService;
@@ -54,31 +55,41 @@ class RegisterController extends Controller
 
     public function emailVerification($email)
     {
-        $map = [
-            'safe' => 1,
-            'catch_all' => 2,
-            'unknown' => 4,
-        ];
+        try {
+            $map = [
+                'safe' => 1,
+                'catch_all' => 2,
+                'unknown' => 4,
+                'invalid' => 8,
+                'disabled' => 16,
+                'disposable' => 32,
+                'inbox_full' => 64,
+                'role_account' => 128,
+                'spamtrap' => 256,
+            ];
 
-        ['api_key' => $apikey, 'mode' => $mode,'accepted_output' => $accepted_output] = EmailMobileValidationProviders::where('provider', 'reoon')
-            ->select('api_key', 'mode', 'accepted_output')
-            ->first()
-            ->toArray();
+            ['api_key' => $apikey, 'mode' => $mode, 'accepted_output' => $accepted_output] = EmailMobileValidationProviders::where('provider', 'reoon')
+                ->select('api_key', 'mode', 'accepted_output')
+                ->first()
+                ->toArray();
 
-        $response = Http::get('https://emailverifier.reoon.com/api/v1/verify', [
-            'email' => $email,
-            'key' => $apikey,
-            'mode' => $mode,
-        ]);
-        $content = $response->json();
-        $status = $content['status'];
-        $statusBit = $map[$status] ?? 0;
+            $response = Http::get('https://emailverifier.reoon.com/api/v1/verify', [
+                'email' => $email,
+                'key' => $apikey,
+                'mode' => $mode,
+            ]);
+            $content = $response->json();
+            $status = $content['status'];
+            $statusBit = $map[$status] ?? 0;
+           $emailResult= EmailValidationResults::create(['email' => $email, 'status' => $status, 'method' => $content['verification_mode'], 'result' => json_encode($content),'registration'=>'Completed']);
+            if (($statusBit & $accepted_output) || $content['status'] == 'valid' || isset($content['reason']) && $content['reason'] == 'Not enough credits available. Please recharge.' || $content['status']=='error') {
+                return ['status'=>true,'id'=>$emailResult->id];
+            }
 
-        if (($statusBit & $accepted_output) || $content['status'] == 'valid' || isset($content['reason']) && $content['reason'] == 'Not enough credits available. Please recharge.') {
-            return true;
+            return ['status'=>false,'id'=>$emailResult->id];
+        }catch (\Exception $exception){
+            \Log::error($exception->getMessage());
         }
-
-        return false;
     }
 
     private function vonagePhoneVerification($provider, $phone)
@@ -150,7 +161,9 @@ class RegisterController extends Controller
 
             if ($emailValidationStatus) {
                 $emailVerifier = $this->emailVerification($request->input('email'));
-                if (! $emailVerifier) {
+                if (! $emailVerifier['status']) {
+                    $user=$this->getUserDetails($request);
+                    EmailValidationResults::where('id',$emailVerifier['id'])->update($user);
                     return errorResponse(\Lang::get('message.email_provided_wrong'));
                 }
             }
@@ -196,6 +209,7 @@ class RegisterController extends Controller
 
             ];
 
+
             $userInput = User::create($user);
 
             $need_verify = $this->getEmailMobileStatusResponse();
@@ -219,6 +233,32 @@ class RegisterController extends Controller
 
             return errorResponse($ex->getMessage());
         }
+    }
+
+
+    public function getUserDetails($request){
+        $location = getLocation();
+        $state_code = $location['iso_code'].'-'.$location['state'];
+
+        $state = getStateByCode($state_code);
+        $user = [
+            'state' => $state['id'],
+            'town' => $location['city'],
+            'mobile' => ltrim($request->input('mobile'), '0'),
+            'mobile_code' => $request->input('mobile_code'),
+            'mobile_country_iso' => $request->input('mobile_country_iso'),
+            'country' => $request->input('country'),
+            'company' => strip_tags($request->input('company')),
+            'address' => strip_tags($request->input('address')),
+            'email' => strip_tags($request->input('email')),
+            'first_name' => strip_tags($request->input('first_name')),
+            'last_name' => strip_tags($request->input('last_name')),
+            'registration'=>'Not Completed',
+            'ip' => $location['ip'],
+            'timezone_id' => getTimezoneByName($location['timezone']),
+        ];
+
+        return $user;
     }
 
     /**

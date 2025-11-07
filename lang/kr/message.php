@@ -2728,6 +2728,7 @@ return [
     'cloud_plan_error' => '클라우드 제품을 삭제하거나 다른 요금제에 연결해 주세요.',
     'auto_renewal_disable' => '자동 갱신은 현재 사용할 수 없습니다. 관리자에게 문의하십시오.',
     'auto_renewal_tooltip' => '모든 사용자의 자동 갱신을 활성화하거나 비활성화합니다.',
+
     'invalid_code_2fa' => '잘못된 코드입니다. 다시 시도해주세요.',
     '6_digit_auth_code' => '6자리 인증 코드를 입력하세요',
     '6_code_numer' => '코드는 6자리 숫자여야 합니다.',
@@ -2736,6 +2737,12 @@ return [
     'valid_username' => '유효한 사용자 이름을 입력하세요',
     'set_auth_invoicing' => '모든 준비가 완료되었습니다. 이제부터 Faveo Invoicing 계정에 로그인할 때 Authenticator 앱을 사용하게 됩니다.',
     'continue_verify_social_login' => '계속 진행하려면 "Validate" 버튼을 클릭하여 본인 확인을 완료하세요',
+
+    'mode' => '모드',
+    'registration' => '등록',
+    'email_validation_logs' => '이메일 검증 로그',
+    'email_validation_result' => '이메일 검증 결과',
+    'email_validation_provider' => '이메일 검증 제공자',
     'log_description' => ':module :name 이(가) :event 되었습니다',
     'has_been' => '되었습니다',
     'cloud' => '클라우드',

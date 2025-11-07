@@ -2697,6 +2697,7 @@ return [
     'cloud_plan_error' => 'Veuillez supprimer le produit cloud ou le lier à un plan alternatif.',
     'auto_renewal_disable' => "Le renouvellement automatique n'est actuellement pas disponible. Veuillez contacter l'administrateur pour obtenir de l'aide.",
     'auto_renewal_tooltip' => 'Activer ou désactiver le renouvellement automatique pour tous les utilisateurs.',
+
     'invalid_code_2fa' => 'Code invalide. Veuillez réessayer.',
     '6_digit_auth_code' => 'Entrez votre code d\'authentification à 6 chiffres',
     '6_code_numer' => 'Le code doit être un nombre à 6 chiffres.',
@@ -2705,6 +2706,12 @@ return [
     'valid_username' => 'Veuillez entrer un nom d\'utilisateur valide',
     'set_auth_invoicing' => 'Tout est prêt. Désormais, vous utiliserez l\'application Authenticator pour vous connecter à votre compte Faveo Invoicing.',
     'continue_verify_social_login' => 'Cliquez sur "Validate" pour continuer et confirmer votre identité',
+
+    'mode' => 'Mode',
+    'registration' => 'Inscription',
+    'email_validation_logs' => 'Journaux de validation d’e-mail',
+    'email_validation_result' => 'Résultat de la validation d’e-mail',
+    'email_validation_provider' => 'Fournisseur de validation d’e-mail',
     'log_description' => ':module :name a été :event',
     'has_been' => 'a été',
     'cloud' => 'Cloud',

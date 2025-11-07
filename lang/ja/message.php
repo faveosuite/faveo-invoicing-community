@@ -2711,6 +2711,7 @@ return [
     'cloud_plan_error' => 'クラウド製品を削除するか、別のプランにリンクしてください。',
     'auto_renewal_disable' => '自動更新は現在利用できません。管理者にお問い合わせください。',
     'auto_renewal_tooltip' => 'すべてのユーザーに対して自動更新を有効または無効にします。',
+
     'invalid_code_2fa' => '無効なコードです。もう一度お試しください。',
     '6_digit_auth_code' => '6桁の認証コードを入力してください',
     '6_code_numer' => 'コードは6桁の数字である必要があります。',
@@ -2719,6 +2720,12 @@ return [
     'valid_username' => '有効なユーザー名を入力してください',
     'set_auth_invoicing' => '準備完了です。今後、Faveo Invoicingアカウントにサインインする際は、Authenticatorアプリを使用してください。',
     'continue_verify_social_login' => '続行して「Validate」をクリックして、あなたの身元を確認してください',
+
+    'mode' => 'モード',
+    'registration' => '登録',
+    'email_validation_logs' => 'メール検証ログ',
+    'email_validation_result' => 'メール検証結果',
+    'email_validation_provider' => 'メール検証プロバイダー',
     'log_description' => ':module :name が :event されました',
     'has_been' => 'されました',
     'cloud' => 'クラウド',

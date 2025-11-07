@@ -2633,6 +2633,7 @@
      'cloud_plan_error' => 'Jekk jogħġbok neħħi l-prodott cloud jew għaqqdu ma’ pjan alternattiv.',
      'auto_renewal_disable' => 'Ir-rinnovar awtomatiku bħalissa mhux disponibbli. Jekk jogħġbok ikkuntattja lill-amministratur għall-għajnuna.',
      'auto_renewal_tooltip' => 'Attiva jew iddiżattiva r-rinnovar awtomatiku għal kull utent.',
+
      'invalid_code_2fa' => 'Kodiċi mhux validu. Jekk jogħġbok erġa\' pprova.',
      '6_digit_auth_code' => 'Daħħal il-kodiċi ta\' awtentikazzjoni ta\' 6 ċifri tiegħek',
      '6_code_numer' => 'Il-kodiċi għandu jkun numru ta\' 6 ċifri.',
@@ -2641,6 +2642,12 @@
      'valid_username' => 'Jekk jogħġbok daħħal username validu',
      'set_auth_invoicing' => 'Int lest. Minn issa ’l quddiem, se tuża l-App Authenticator biex tidħol fil-kont Faveo Invoicing tiegħek.',
      'continue_verify_social_login' => 'Ikklikkja "Validate" biex tkompli u tikkonferma l-identità tiegħek',
+
+     'mode' => 'Modalità',
+     'registration' => 'Reġistrazzjoni',
+     'email_validation_logs' => 'Rekords ta’ Validazzjoni tal-Email',
+     'email_validation_result' => 'Riżultat tal-Validazzjoni tal-Email',
+     'email_validation_provider' => 'Fornitur tal-Validazzjoni tal-Email',
      'log_description' => ':module :name kien :event',
      'has_been' => 'kien',
      'cloud' => 'Cloud',

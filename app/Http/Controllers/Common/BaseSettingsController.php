@@ -269,6 +269,14 @@ class BaseSettingsController extends PaymentSettingsController
             '1' => '1 day',
         ];
 
+        $reoonDays=[
+            '30' => '30 days',
+            '15' => '15 days',
+            '10' => '10 days',
+            '5' => '5 days',
+            '1' => '1 day',
+        ];
+
         $msg91Days = ['720' => '720 Days', '365' => '365 days', '180' => '180 Days',
             '150' => '150 Days', '60' => '60 Days', '30' => '30 Days', '15' => '15 Days', '5' => '5 Days', '2' => '2 Days', '0' => 'Delete All Reports', ];
 
@@ -291,6 +299,7 @@ class BaseSettingsController extends PaymentSettingsController
         $beforeCloudDay[] = ExpiryMailDay::first()->cloud_days;
         $invoiceDeletionDay[] = ExpiryMailDay::first()->invoice_days;
         $msgDeletionDays[] = ExpiryMailDay::first()->msg91_days;
+        $ReeonLogDeletionDays[]=ExpiryMailDay::first()->reoon_logs_days;
         $systemLogsDeletionDays[] = ExpiryMailDay::first()->system_logs_days;
 
         return view('themes.default1.common.cron.cron', compact(
@@ -315,6 +324,8 @@ class BaseSettingsController extends PaymentSettingsController
             'invoiceDeletionDay',
             'msg91Days',
             'msgDeletionDays',
+            'ReeonLogDeletionDays',
+            'reoonDays',
             'systemLogsDays',
             'systemLogsDeletionDays'
         ));
@@ -346,6 +357,7 @@ class BaseSettingsController extends PaymentSettingsController
         $allStatus->cloud_mail_status = $request->cloud_cron ? $request->cloud_cron : 0;
         $allStatus->invoice_deletion_status = $request->invoice_cron ? $request->invoice_cron : 0;
         $allStatus->msg91_report_delete_status = $request->msg91_cron ? $request->msg91_cron : 0;
+        $allStatus->reoon_deletion_status=$request->reoon_cron?$request->reoon_cron:0;
         $allStatus->system_log_status = $request->systemlogs_cron ? $request->systemlogs_cron : 0;
         $allStatus->save();
         $this->saveConditions();
@@ -367,7 +379,8 @@ class BaseSettingsController extends PaymentSettingsController
 
         // $cloudDays = is_array($request->input('cloud_days')) ? $request->input('cloud_days') : [$request->input('cloud_days')];
 
-        \DB::table('expiry_mail_days')->update(['cloud_days' => $request->input('cloud_days'), 'invoice_days' => $request->input('invoice_days'), 'msg91_days' => $request->input('msg91_days'), 'system_logs_days' => $request->input('system_logs_days')]);
+        \DB::table('expiry_mail_days')->update(['cloud_days' => $request->input('cloud_days'), 'invoice_days' => $request->input('invoice_days'),
+            'msg91_days' => $request->input('msg91_days'), 'reoon_logs_days' => $request->input('reoon_days'), 'system_logs_days' => $request->input('system_logs_days')]);
         ActivityLogDay::findOrFail(1)->update(['days' => $request->logdelday]);
 
         return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
