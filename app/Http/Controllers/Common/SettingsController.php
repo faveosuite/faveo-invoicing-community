@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Common;
 
 use App\ApiKey;
 use App\Email_log;
+use App\EmailValidationResults;
 use App\Facades\Attach;
 use App\Http\Controllers\BillingInstaller\InstallerController;
 use App\Http\Requests\Common\SettingsRequest;
+use App\Model\Common\Country;
 use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\Setting;
+use App\Model\Common\State;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Github\Github;
@@ -1111,12 +1114,114 @@ class SettingsController extends BaseSettingsController
         return successResponse(trans('message.success'), $response);
     }
 
+    public function getEmailValidationLogs(){
+        try {
+            $query = EmailValidationResults::query();
+            return \DataTables::of($query)
+                ->orderColumn('email', function ($query, $order) {
+                    $query->orderBy('email', $order);
+                        })
+                ->orderColumn('method', function ($query, $order) {
+                    $query->orderBy('method', $order);
+                })
+                ->orderColumn('status', function ($query, $order) {
+                    $query->orderBy('status', $order);
+                })
+                ->orderColumn('registration', function ($query, $order) {
+                    $query->orderBy('registration', $order);
+                })
+                ->orderColumn('created_at', function ($query, $order) {
+                    $query->orderBy('created_at', $order);
+                })
+                ->addColumn('email', function ($query) {
+                    return $query->email;
+                })
+                ->addColumn('method', function ($query) {
+                    return ucfirst($query->method);
+                })
+                ->addColumn('status', function ($query) {
+                    return ucfirst($query->status);
+                })
+                ->addColumn('result', function ($query) {
+                    return  '<button  class="btn btn-light-scale-2 btn-sm text-dark" id="show-results" data-id='.$query->id.' data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"><i class="fa fa-eye"></i></button>';
+
+                })
+                ->addColumn('registration', function ($query) {
+                    return $query->registration;
+                })
+                ->addColumn('created_at', function ($query) {
+                    return getDateHtml($query->created_at);
+                })
+
+                ->filterColumn('email', function ($query, $keyword) {
+                    $query->whereRaw('email like ?', ["%{$keyword}%"]);
+                })
+
+                ->filterColumn('method', function ($query, $keyword) {
+                    $query->whereRaw('method like ?', ["%{$keyword}%"]);
+                })
+                ->filterColumn('status', function ($query, $keyword) {
+                    $query->whereRaw('status like ?', ["%{$keyword}%"]);
+                })
+                ->rawColumns(['email', 'method', 'status', 'result', 'created_at'])
+                ->make(true);
+        }catch (\Exception $e){
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    public function getEmailValidationResults(Request $request){
+        try {
+            $id = $request->input('id');
+            $result = EmailValidationResults::where('id', $id)->first();
+
+            $cont1 = json_decode($result->result,true);
+            $cont2 = ['name' => $result->first_name . ' ' . $result->last_name,
+                'mobile Number' => '+' . $result->mobile_code . $result->mobile,
+                'email' => $result->email,
+                'company Name' => $result->company,
+                'address' => $result->address,
+                'country' => Country::where('country_code_char2', $result->country)->value('country_name'),
+                'state' => State::where('state_subdivision_code', $result->state)->value('state_subdivision_name'),
+                'city' => $result->town,];
+            $final = ($result->first_name && $result->last_name)?array_merge($cont2, $cont1):$cont1;
+            return successResponse(trans('message.success'), $final);
+        }catch (\Exception $e){
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    public function getEmailValidationUserResults(Request $request){
+        try {
+            $id = $request->input('id');
+            $result = EmailValidationResults::where('id', $id)->first();
+            $content = ['name' => $result->first_name .' '.$result->last_name,
+                'mobile Number' => '+' . $result->mobile_code . $result->mobile,
+                'email' => $result->email,
+                'company Name' => $result->company,
+                'address' => $result->address,
+                'country'=>Country::where('country_code_char2',$result->country)->value('country_name'),
+                'state' => State::where('state_subdivision_code',$result->state)->value('state_subdivision_name'),
+                'city' => $result->town,];
+            return successResponse(trans('message.success'), $content);
+        }catch (\Exception $e){
+            dd($e->getMessage());
+        }
+
+    }
+
     private function setStatus($current)
     {
         $map = [
             'safe' => 1,
             'catch_all' => 2,
             'unknown' => 4,
+            'invalid' => 8,
+            'disabled' => 16,
+            'disposable'=>32,
+            'inbox_full'=>64,
+            'role_account'=>128,
+            'spamtrap'=>256,
         ];
 
         $statusOptions = '';

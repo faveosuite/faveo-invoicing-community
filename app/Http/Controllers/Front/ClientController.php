@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Front;
 
 use App\ApiKey;
 use App\Auto_renewal;
+use App\EmailValidationResults;
+use App\Http\Controllers\Common\CronController;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\Order\RenewController;

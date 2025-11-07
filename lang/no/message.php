@@ -2718,6 +2718,7 @@ return [
     'msg_service_down' => 'Vi opplever for øyeblikket problemer med vår OTP-tjeneste. Vennligst prøv igjen om en liten stund. Vi jobber med å løse problemet så raskt som mulig.',
     'cloud_plan_error' => 'Vennligst fjern skyproduktet eller koble det til en alternativ plan.',
 
+
     'period_is_required' => 'Vennligst velg en periode.',
     'short_description' => 'Kort beskrivelse',
     'add_short_description' => 'Vennligst skriv inn en kort beskrivelse.',
@@ -2732,6 +2733,12 @@ return [
     'continue_verify_social_login' => 'Klikk på "Validate" for å fortsette og bekrefte din identitet',
     'auto_renewal_disable' => 'Automatisk fornyelse er for øyeblikket ikke tilgjengelig. Vennligst kontakt administratoren for hjelp.',
     'auto_renewal_tooltip' => 'Aktiver eller deaktiver automatisk fornyelse for alle brukere.',
+
+    'mode' => 'Modus',
+    'registration' => 'Registrering',
+    'email_validation_logs' => 'E-postvalideringslogger',
+    'email_validation_result' => 'E-postvalideringsresultat',
+    'email_validation_provider' => 'E-postvalideringsleverandør',
     'log_description' => ':module :name har blitt :event',
     'has_been' => 'har blitt',
     'cloud' => 'Sky',

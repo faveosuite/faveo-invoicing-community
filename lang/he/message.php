@@ -2721,6 +2721,7 @@ return [
 
     'auto_renewal_disable' => 'חידוש אוטומטי אינו זמין כעת. אנא פנה למנהל לקבלת עזרה.',
     'auto_renewal_tooltip' => 'אפשר או בטל חידוש אוטומטי עבור כל המשתמשים.',
+
     'invalid_code_2fa' => 'קוד שגוי. אנא נסה שוב.',
     '6_digit_auth_code' => 'הזן את קוד האימות בן 6 הספרות שלך',
     '6_code_numer' => 'הקוד חייב להיות מספר בן 6 ספרות.',
@@ -2734,6 +2735,11 @@ return [
     'cloud' => 'ענן',
     'attach_helper_no_default_disk' => 'אין דיסק ברירת מחדל לאחסון קבצים. נא להגדיר דיסק ברירת מחדל בהגדרות אחסון הקבצים.',
 
+    'mode' => 'מצב',
+    'registration' => 'הרשמה',
+    'email_validation_logs' => 'יומני אימות אימייל',
+    'email_validation_result' => 'תוצאת אימות אימייל',
+    'email_validation_provider' => 'ספק אימות אימייל',
     'set' => 'הגדר',
     'detailed_log_info' => 'מידע מפורט על יומן',
     'read_more_caps' => 'קרא עוד',

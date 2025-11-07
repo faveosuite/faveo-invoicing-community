@@ -211,6 +211,7 @@ class Google2FAController extends Controller
 
         // Clear session identifiers
         $session = $request->session();
+        $remember = $session->get('remember:user:id', false);
         $session->forget(['2fa:user:id', 'remember:user:id']);
 
         // If it's part of password reset flow
@@ -221,11 +222,15 @@ class Google2FAController extends Controller
         }
 
         // Normal login flow
-        \Auth::login($user, $session->get('remember:user:id'));
+        \Auth::login($user, $remember);
 
         $loginController = new LoginController();
         $loginController->logActivityLogin($user);
         $loginController->convertCart();
+        (new LoginController())->logActivityLogin($user);
+
+
+        $this->convertCart();
 
         return successResponse('', ['redirect' => (new LoginController())->redirectPath()]);
     }

@@ -2712,6 +2712,7 @@ return [
     'word_count' => '请将您的简短描述控制在 50 个词以内。',
     'auto_renewal_disable' => '自动续订目前不可用。请联系管理员以获取帮助。',
     'auto_renewal_tooltip' => '为所有用户启用或禁用自动续订。',
+
     'invalid_code_2fa' => '无效的代码。请再试一次。',
     '6_digit_auth_code' => '请输入您的6位认证代码',
     '6_code_numer' => '代码必须是6位数字。',
@@ -2720,6 +2721,12 @@ return [
     'valid_username' => '请输入有效的用户名',
     'set_auth_invoicing' => '一切就绪。从现在开始，您将使用身份验证器应用程序登录您的 Faveo Invoicing 帐户。',
     'continue_verify_social_login' => '点击“Validate”以继续并确认您的身份',
+
+    'mode' => '模式',
+    'registration' => '注册',
+    'email_validation_logs' => '电子邮件验证日志',
+    'email_validation_result' => '电子邮件验证结果',
+    'email_validation_provider' => '电子邮件验证服务提供商',
     'log_description' => ':module :name 已被 :event',
     'has_been' => '已被',
     'cloud' => '云',
