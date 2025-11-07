@@ -65,11 +65,11 @@
                             <div class="mt-2">
                                 <div class="form-check form-check-inline">
                                     {{ html()->label(Lang::get('message.active'), 'active') }}
-                                    {{ html()->radio('active', 1)->class('ml-1') }}
+                                    {{ html()->radio('active', $active == 1 ,1)->class('ml-1') }}
                                 </div>
                                 <div class="form-check form-check-inline ml-3">
                                     {{ html()->label(Lang::get('message.inactive'), 'inactive') }}
-                                    {{ html()->radio('active', 0)->class('ml-1') }}
+                                    {{ html()->radio('active',  $active == 0 , 0)->class('ml-1') }}
                                 </div>
                             </div>
                         </div>

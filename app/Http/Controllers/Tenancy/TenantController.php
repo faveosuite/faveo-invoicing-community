@@ -106,10 +106,14 @@ class TenantController extends Controller
     public function enableCloud(Request $request)
     {
         try {
-            $request->input('debug') == 'true' ? StatusSetting::where('id', '1')->update(['cloud_button' => '1']) : StatusSetting::where('id', '1')->update(['cloud_button' => '0']);
+            $statusSetting = StatusSetting::findOrFail(1);
+            $statusSetting->update([
+                'cloud_button' => $request->debug == 'true' ? '1' : '0'
+            ]);
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch(\Exception $ex) {
+            return redirect()->back()->with('success', __('message.updated-successfully'));
+
+        } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
@@ -460,7 +464,7 @@ class TenantController extends Controller
                 ];
 
                 logActivity(
-                    'Cloud instance '.$faveoCloud.' created successfully for user '.$userEmail,
+                    "Cloud instance <b>{$faveoCloud}</b> created successfully for user <b>{$userEmail}</b>",
                     'created',
                     'Cloud'
                 );
@@ -528,7 +532,7 @@ class TenantController extends Controller
                 (new LicenseController())->reissueDomain($request->input('id'));
 
                 logActivity(
-                    'Cloud instance '.$request->input('id').' deleted by '.$user,
+                    "Cloud instance <b>{$request->input('id')}</b> deleted by <b>{$user}</b>",
                     'deleted',
                     'Cloud'
                 );
@@ -632,7 +636,7 @@ class TenantController extends Controller
                             \DB::table('free_trial_allowed')->where('domain', $installation_path)->delete();
 
                             logActivity(
-                                'Cloud instance '.$installation_path.' deleted by '.$user,
+                                "Cloud instance <b>{$installation_path}</b> deleted by </b>{$user}</b>",
                                 'deleted',
                                 'Cloud'
                             );

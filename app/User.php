@@ -5,6 +5,7 @@ namespace App;
 use App\Facades\Attach;
 use App\Model\Common\Timezone;
 use App\Traits\SystemActivityLogsTrait;
+use Carbon\Carbon;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -242,14 +243,23 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             'mobile_code' => ['Mobile code', fn ($value) => $value],
             'bussiness' => ['Business', fn ($value) => $value],
             'company_type' => ['Company type', fn ($value) => $value],
-            'company_size' => ['Company size', fn ($value) => $value],
+            'company_size' => ['Company size', fn ($value) => match ($value) {
+                '10001' => '10001+',
+                default => $value,
+            }],
             'ip' => ['IP address', fn ($value) => $value],
             'mobile_verified' => ['Mobile verified', fn ($value) => $value === 1 ? trans('message.active') : trans('message.inactive')],
             'email_verified' => ['Email verified', fn ($value) => $value === 1 ? trans('message.active') : trans('message.inactive')],
-            'position' => ['Position', fn ($value) => $value],
+            'position' => [
+                'Position',
+                fn ($value) => match ($value) {
+                    'account_manager' => 'Account Manager',
+                    'manager' => 'Sales Manager',
+                    default => null,
+                }
+            ],
             'skype' => ['Skype', fn ($value) => $value],
-            'google2fa_activation_date' => ['2FA activation date', fn ($value) => $value],
-            'backup_code' => ['Backup code', fn ($value) => $value],
+            'google2fa_activation_date' => ['2FA activation date', fn ($value) => Carbon::parse($value)->toDateTimeString()],
             'code_usage_count' => ['Code usage count', fn ($value) => $value],
             'language' => ['Language', fn ($value) => $value],
         ];
