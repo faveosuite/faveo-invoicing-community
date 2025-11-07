@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Common;
 
 use App\ApiKey;
 use App\Email_log;
+use App\EmailValidationResults;
 use App\Facades\Attach;
 use App\Http\Controllers\BillingInstaller\InstallerController;
 use App\Http\Requests\Common\SettingsRequest;
@@ -1138,12 +1139,61 @@ class SettingsController extends BaseSettingsController
         return successResponse(trans('message.success'), $response);
     }
 
+    public function getEmailValidationLogs(){
+        try {
+            $query = EmailValidationResults::query();
+            return \DataTables::of($query)
+                ->orderColumn('email', '-created_at $1')
+                ->orderColumn('method', '-created_at $1')
+                ->orderColumn('status', '-created_at $1')
+                ->addColumn('email', function ($query) {
+                    return $query->email;
+                })
+                ->addColumn('method', function ($query) {
+                    return $query->method;
+                })
+                ->addColumn('status', function ($query) {
+                    return $query->status;
+                })
+                ->addColumn('result', function ($query) {
+                    return  '<button  class="btn btn-light-scale-2 btn-sm text-dark" id="show-results" data-id='.$query->id.' data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"><i class="fa fa-eye"></i></button>';
+                })
+                ->addColumn('created_at', function ($query) {
+                    return $query->created_at;
+                })
+
+
+//            ->filterColumn('number', function ($query, $keyword) {
+//                $sql = 'number like ?';
+//                $query->whereRaw($sql, ["%{$keyword}%"]);
+//            })
+
+                ->rawColumns(['email', 'method', 'status', 'result', 'created_at'])
+                ->make(true);
+        }catch (\Exception $e){
+            dd($e->getMessage());
+        }
+    }
+
+    public function getEmailValidationResults(Request $request){
+        $id = $request->input('id');
+        $result=json_decode(EmailValidationResults::where('id',$id)->value('result'));
+       return successResponse(trans('message.success'), $result);
+    }
+
+
     private function setStatus($current)
     {
         $map = [
             'safe' => 1,
             'catch_all' => 2,
             'unknown' => 4,
+            'invalid' => 8,
+            'disabled' => 16,
+            'disposable'=>32,
+            'inbox_full'=>64,
+            'role_account'=>128,
+            'spamtrap'=>256,
         ];
 
         $statusOptions = '';
