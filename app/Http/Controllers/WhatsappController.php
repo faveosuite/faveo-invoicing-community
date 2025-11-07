@@ -12,9 +12,15 @@ use Illuminate\Http\Request;
 Class WhatsappController extends Controller{
 
     protected $client;
+    protected $base_url;
+    protected $api_version;
 
+    protected $endpoint;
     public function __construct(){
         $this->client= new Client();
+        $this->base_url=config('whatsappurl.base_url');
+        $this->api_version=config('whatsappurl.api_version');
+        $this->endpoint=config('whatsappurl.endpoints');
     }
 
     public function index(){
@@ -250,7 +256,8 @@ Class WhatsappController extends Controller{
 
     public function getNumber($phone_number_id,$access_token){
         if($phone_number_id) {
-        $data = Http::get("https://graph.facebook.com/v21.0/{$phone_number_id}", [
+            $url=$this->base_url.'/'.$this->api_version.'/'.$phone_number_id;
+        $data = Http::get($url, [
             'fields' => 'display_phone_number',
             'access_token' => $access_token,
         ]);
@@ -265,8 +272,8 @@ Class WhatsappController extends Controller{
         try {
             [$app_id, $app_secret] = array_values(WhatsappIntegration::select(['app_id', 'app_secret'])->first()->toArray());
             //To get the Token
-
-            $response = Http::get('https://graph.facebook.com/v21.0/oauth/access_token', [
+            $url=$this->base_url.'/'.$this->api_version.'/'.$this->endpoint['access_token'];
+            $response = Http::get($url, [
                 'client_id' => $app_id,
                 'client_secret' => $app_secret,
                 'code' => $code,
@@ -278,7 +285,7 @@ Class WhatsappController extends Controller{
             //Exchange the token to get permanent token
             $access_token = $content['access_token'];
 
-            $getToken = Http::get('https://graph.facebook.com/v21.0/oauth/access_token', [
+            $getToken = Http::get($url, [
                 'grant_type' => 'fb_exchange_token',
                 'client_id' => $app_id,
                 'client_secret' => $app_secret,
@@ -297,7 +304,8 @@ Class WhatsappController extends Controller{
         try {
             $whatsappUser = WhatsappIntegrationUser::where('id', $request->input('id'))->first();
             $phoneNumberId = $whatsappUser->phone_number_id;
-            $response = Http::post("https://graph.facebook.com/v21.0/{$phoneNumberId}/deregister", [
+            $url=$this->base_url.'/'.$this->api_version.'/'.$phoneNumberId.'/'.$this->endpoint['deregister'];
+            $response = Http::post($url, [
                 'access_token' => $whatsappUser->access_token,
             ]);
             $content = $response->json();
