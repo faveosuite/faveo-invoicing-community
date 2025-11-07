@@ -14,17 +14,16 @@ class SocialMedia extends BaseModel
 
     protected $fillable = ['class', 'fa_class', 'name', 'link'];
 
-
     protected $logName = 'social_media';
 
     protected $logNameColumn = 'name';
 
     protected $logAttributes = [
-        'name', 'link'
+        'name', 'link',
     ];
 
     protected $logUrl = [
-        'segments' => ['social-media',':id','edit'],
+        'segments' => ['social-media', ':id', 'edit'],
     ];
 
     protected function getMappings(): array

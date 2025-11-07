@@ -44,7 +44,7 @@ class StatusSetting extends Model
         'v3_v2_recaptcha_status',
         'msg91_report_delete_status',
         'email_validation_status',
-        'cloud_button'
+        'cloud_button',
     ];
 
     protected $logUrl = [
@@ -89,7 +89,7 @@ class StatusSetting extends Model
             return url('contact-option');
         }
 
-        if($this->wasChanged($cloud)){
+        if ($this->wasChanged($cloud)) {
             return url('view/tenant');
         }
 
@@ -105,13 +105,12 @@ class StatusSetting extends Model
             return 'contact_options';
         }
 
-        if($this->wasChanged($cloud)){
+        if ($this->wasChanged($cloud)) {
             return 'cloud';
         }
 
         return 'api_key';
     }
-
 
     protected static function newFactory()
     {

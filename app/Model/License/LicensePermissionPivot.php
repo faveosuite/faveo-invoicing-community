@@ -18,7 +18,7 @@ class LicensePermissionPivot extends Pivot
     protected $logNameColumn = 'license_permission_id';
 
     protected $logAttributes = [
-        'license_permission_id', 'status'
+        'license_permission_id', 'status',
     ];
 
     protected $logUrl = [
@@ -28,17 +28,16 @@ class LicensePermissionPivot extends Pivot
     protected function getMappings(): array
     {
         return [
-            'license_permission_id'  => ['License Permission', fn ($value) => LicensePermission::find($value)?->permissions],
+            'license_permission_id' => ['License Permission', fn ($value) => LicensePermission::find($value)?->permissions],
         ];
     }
 
     public function getLogNameColumn()
     {
         $licenseType = LicenseType::find($this->license_type_id);
-        $permission  = LicensePermission::find($this->license_permission_id);
+        $permission = LicensePermission::find($this->license_permission_id);
 
-        return $licenseType?->name . ' (' . $permission?->permissions . ')'
+        return $licenseType?->name.' ('.$permission?->permissions.')'
             ?? $this->license_permission_id;
     }
-
 }

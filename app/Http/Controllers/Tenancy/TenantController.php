@@ -108,11 +108,10 @@ class TenantController extends Controller
         try {
             $statusSetting = StatusSetting::findOrFail(1);
             $statusSetting->update([
-                'cloud_button' => $request->debug == 'true' ? '1' : '0'
+                'cloud_button' => $request->debug == 'true' ? '1' : '0',
             ]);
 
             return redirect()->back()->with('success', __('message.updated-successfully'));
-
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

@@ -21,7 +21,7 @@ class CloudPopUp extends Model
     protected $logAttributes = [
         'cloud_top_message',
         'cloud_label_field',
-        'cloud_label_radio'
+        'cloud_label_radio',
     ];
 
     protected $logUrl = [
