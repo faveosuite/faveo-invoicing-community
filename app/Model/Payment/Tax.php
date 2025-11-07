@@ -30,7 +30,7 @@ class Tax extends BaseModel
         return [
             'level' => ['Tax Level', fn ($value) => $value === 1 ? 'Country' : ($value === 2 ? 'State' : 'City')],
             'name' => ['Tax Name', fn ($value) => $value],
-            'country' => ['Country', fn ($value) => \App\Model\Common\Country::find($value)?->nicename],
+            'country' => ['Country', fn ($value) => \App\Model\Common\Country::where('country_code_char2', $value)->value('nicename')],
             'state' => ['State', fn ($value) => $value ? \App\Model\Common\State::find($value)?->name : 'All States'],
             'rate' => ['Tax Rate (%)', fn ($value) => $value],
             'active' => ["{$this->name} tax status", fn ($value) => $value === 1 ? __('message.active') : __('message.inactive')],

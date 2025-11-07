@@ -18,7 +18,7 @@ class ApiKey extends Model
 
     protected $logName = 'api_key';
 
-    protected $logNameColumn = 'apikeys';
+    protected $logNameColumn = 'Settings';
 
     protected $logAttributes = [
         'rzp_key', 'rzp_secret', 'apilayer_key', 'bugsnag_api_key',
@@ -68,5 +68,27 @@ class ApiKey extends Model
             'require_pipedrive_user_verification' => ['Require Pipedrive User Verification', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
             'verification_preference' => ['Verification Preference', fn ($value) => $value],
         ];
+    }
+
+    public function getLogUrl($id = null): ?string
+    {
+        $fields = ['verification_preference'];
+
+        if ($this->wasChanged($fields)) {
+            return url('contact-option');
+        }
+
+        return url('third-party-integration');
+    }
+
+    public function getLogName()
+    {
+        $fields = ['verification_preference'];
+
+        if ($this->wasChanged($fields)) {
+            return 'contact_options';
+        }
+
+        return 'api_key';
     }
 }

@@ -4,6 +4,7 @@ namespace App\Model\Order;
 
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
+use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -43,7 +44,7 @@ class Invoice extends BaseModel
         return [
             'user_id' => ['User', fn ($value) => \App\User::find($value)?->user_name],
             'number' => ['Invoice Number', fn ($value) => $value],
-            'date' => ['Invoice Date', fn ($value) => $value],
+            'date' => ['Invoice Date', fn ($value) => Carbon::parse($value)->toDateTimeString()],
             'coupon_code' => ['Coupon Code', fn ($value) => $value],
             'grand_total' => ['Grand Total', fn ($value) => $value],
             'currency' => ['Currency', fn ($value) => $value],

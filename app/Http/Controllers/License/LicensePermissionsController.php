@@ -116,11 +116,9 @@ class LicensePermissionsController extends Controller
     public function addPermission(Request $request)
     {
         try {
-            $license = $request->input('licenseId');
-            //Delete all the relation before Updating
-            \DB::table('license_license_permissions')->where('license_type_id', $license)->delete();
             $licenseType = LicenseType::find($request->input('licenseId'));
-            $licenseType->permissions()->attach($request->input('permissionid'));
+
+            $licenseType->permissions()->sync($request->input('permissionid'));
 
             return successResponse(__('message.permissions_updated_successfully'));
         } catch (\Exception $ex) {

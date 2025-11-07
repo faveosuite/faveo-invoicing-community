@@ -201,9 +201,10 @@ class TaxController extends Controller
             $txClass = $this->tax_class->where('id', $tax->tax_classes_id)->first();
             $state = getStateByCode($tax->state);
             $states = findStateByRegionId($tax->country);
+            $active = $tax->active;
 
             return view('themes.default1.payment.tax.edit',
-                compact('options', 'tax', 'txClass', 'states', 'state', 'taxClassName'));
+                compact('options', 'tax', 'txClass', 'states', 'state', 'taxClassName', 'active'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

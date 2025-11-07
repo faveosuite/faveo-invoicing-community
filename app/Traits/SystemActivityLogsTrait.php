@@ -104,7 +104,7 @@ trait SystemActivityLogsTrait
     private function generateDescriptionForLogs(Activity $activity, string $eventName): void
     {
         $logName = $this->getLogName();
-        $logColumn = $this->logNameColumn ?? 'id';
+        $logColumn = $this->getLogNameColumn();
         $logUrl = $this->getLogUrl($activity->subject_id) ?? '#';
         $name = $activity->subject->{$logColumn} ?? $logColumn;
 
@@ -151,6 +151,11 @@ trait SystemActivityLogsTrait
     private function getLogName(): string
     {
         return $this->logName ?? $this->getTable();
+    }
+
+    private function getLogNameColumn(): string
+    {
+        return $this->logNameColumn ?? 'id';
     }
 
     /**

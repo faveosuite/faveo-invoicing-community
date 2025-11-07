@@ -15,7 +15,7 @@ class StatusSetting extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['expiry_mail', 'subs_expirymail', 'activity_log_delete', 'license_status', 'github_status', 'mailchimp_status', 'twitter_status', 'msg91_status', 'emailverification_status', 'recaptcha_status', 'v3_recaptcha_status', 'update_status', 'zoho_status', 'rzp_status', 'mailchimp_product_status', 'mailchimp_ispaid_status', 'terms', 'pipedrive_status', 'domain_check', 'v3_v2_recaptcha_status', 'msg91_report_delete_status', 'email_validation_status'];
+    protected $fillable = ['expiry_mail', 'subs_expirymail', 'activity_log_delete', 'license_status', 'github_status', 'mailchimp_status', 'twitter_status', 'msg91_status', 'emailverification_status', 'recaptcha_status', 'v3_recaptcha_status', 'update_status', 'zoho_status', 'rzp_status', 'mailchimp_product_status', 'mailchimp_ispaid_status', 'terms', 'pipedrive_status', 'domain_check', 'v3_v2_recaptcha_status', 'msg91_report_delete_status', 'email_validation_status', 'cloud_button'];
 
     protected $logName = 'api_key';
 
@@ -44,6 +44,7 @@ class StatusSetting extends Model
         'v3_v2_recaptcha_status',
         'msg91_report_delete_status',
         'email_validation_status',
+        'cloud_button'
     ];
 
     protected $logUrl = [
@@ -75,8 +76,42 @@ class StatusSetting extends Model
             'v3_v2_recaptcha_status' => ['V3/V2 Recaptcha Status', fn ($value) => $value === 1 ? __('message.enable') : __('message.disable')],
             'msg91_report_delete_status' => ['Msg91 Report Delete Status', fn ($value) => $value === 1 ? __('message.enable') : __('message.disable')],
             'email_validation_status' => ['Email Validation Status', fn ($value) => $value === 1 ? __('message.enable') : __('message.disable')],
+            'cloud_button' => ['Cloud Free Trial', fn ($value) => $value === 1 ? __('message.enable') : __('message.disable')],
         ];
     }
+
+    public function getLogUrl($id = null): ?string
+    {
+        $fields = ['emailverification_status', 'msg91_status'];
+        $cloud = ['cloud_button'];
+
+        if ($this->wasChanged($fields)) {
+            return url('contact-option');
+        }
+
+        if($this->wasChanged($cloud)){
+            return url('view/tenant');
+        }
+
+        return url('third-party-integration');
+    }
+
+    public function getLogName()
+    {
+        $fields = ['emailverification_status', 'msg91_status'];
+        $cloud = ['cloud_button'];
+
+        if ($this->wasChanged($fields)) {
+            return 'contact_options';
+        }
+
+        if($this->wasChanged($cloud)){
+            return 'cloud';
+        }
+
+        return 'api_key';
+    }
+
 
     protected static function newFactory()
     {
