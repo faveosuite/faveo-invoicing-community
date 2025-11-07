@@ -1163,11 +1163,16 @@ class SettingsController extends BaseSettingsController
                 })
 
 
-//            ->filterColumn('number', function ($query, $keyword) {
-//                $sql = 'number like ?';
-//                $query->whereRaw($sql, ["%{$keyword}%"]);
-//            })
+                ->filterColumn('email', function ($query, $keyword) {
+                    $query->whereRaw('email like ?', ["%{$keyword}%"]);
+                })
 
+                ->filterColumn('method', function ($query, $keyword) {
+                    $query->whereRaw('method like ?', ["%{$keyword}%"]);
+                })
+                ->filterColumn('status', function ($query, $keyword) {
+                    $query->whereRaw('status like ?', ["%{$keyword}%"]);
+                })
                 ->rawColumns(['email', 'method', 'status', 'result', 'created_at'])
                 ->make(true);
         }catch (\Exception $e){

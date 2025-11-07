@@ -99,10 +99,10 @@
             position: fixed;
             right: 0;
             margin: 0;
-            width: 33%;
+            width: 30%;
             max-width: none;
             height: 100%;
-            transform: translateX(100%);
+            transform: translateX(90%);
             transition: transform 0.4s ease-out;
         }
 
@@ -735,6 +735,7 @@
                                 <th>Email</th>
                                 <th>Method</th>
                                 <th>Status</th>
+                                <th>Create At</th>
                                 <th>Result</th>
                             </tr>
                             </thead>
@@ -848,9 +849,10 @@
 
             columns: [
 
-        {data: 'email', name: 'Email'},
-        {data: 'method', name: 'Method'},
-        {data: 'status', name: 'Status'},
+        {data: 'email', name: 'email' ,searchable:true, orderable:true},
+        {data: 'method', name: 'method' ,searchable:true, orderable:true},
+        {data: 'status', name: 'status',searchable:true, orderable:true},
+        {data:'created_at',name:'created_at',searchable:true, orderable:true},
         {data: 'result', name: 'result'},
 
             ],
@@ -891,7 +893,7 @@
 
                 for (const [key, label] of Object.entries(data)) {
 
-                    html += `<p><strong>${key}:</strong> ${label}</p>`;
+                    html += `<p><strong>${key.toUpperCase()}:</strong> ${label}</p>`;
                 }
 
                 $('#email-result').html(html);
