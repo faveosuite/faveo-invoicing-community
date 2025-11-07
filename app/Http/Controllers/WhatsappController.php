@@ -342,7 +342,6 @@ Class WhatsappController extends Controller{
                         'headers' => [
                             'Accept' => 'application/json',
                         ]]);
-                    \Log::debug('WhatsappIntegrationUser', ['response' => $response->getBody()->getContents(),'url' => $url]);
                 }
 
                 return response('EVENT_RECEIVED', 200);
