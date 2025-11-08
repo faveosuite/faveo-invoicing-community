@@ -42,6 +42,12 @@ class CloudProducts extends BaseModel
         ];
     }
 
+    public function getLogNameColumn()
+    {
+        return \App\Model\Product\Product::find($this->cloud_product)?->name
+            ?? $this->cloud_product;
+    }
+
     public function product()
     {
         return $this->belongsTo(Product::class, 'cloud_product');
