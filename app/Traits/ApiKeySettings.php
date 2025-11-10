@@ -63,7 +63,7 @@ trait ApiKeySettings
             'githubstatus' => ['key' => 'github_status',        'lang' => __('message.github_status')],
             'email_validation_status' => ['key' => 'email_validation_status', 'lang' => __('message.email_validation_status')],
             'mobile_validation_status' => ['key' => 'mobile_validation_status', 'lang' => __('message.mobile_validation_status')],
-            'whatsapp_status'=>['key'=>'whatsapp_status', 'lang'=>'Whatsapp Status updated successfully'],
+            'whatsapp_status' => ['key' => 'whatsapp_status', 'lang' => 'Whatsapp Status updated successfully'],
         ]);
 
         try {
