@@ -81,12 +81,12 @@ class RegisterController extends Controller
             $content = $response->json();
             $status = $content['status'];
             $statusBit = $map[$status] ?? 0;
-            EmailValidationResults::create(['email' => $email, 'status' => $status, 'method' => $content['verification_mode'], 'result' => json_encode($content)]);
-            if (($statusBit & $accepted_output) || $content['status'] == 'valid' || isset($content['reason']) && $content['reason'] == 'Not enough credits available. Please recharge.') {
-                return true;
+           $emailResult= EmailValidationResults::create(['email' => $email, 'status' => $status, 'method' => $content['verification_mode'], 'result' => json_encode($content),'registration'=>'Completed']);
+            if (($statusBit & $accepted_output) || $content['status'] == 'valid' || isset($content['reason']) && $content['reason'] == 'Not enough credits available. Please recharge.' || $content['status']=='error') {
+                return ['status'=>true,'id'=>$emailResult->id];
             }
 
-            return false;
+            return ['status'=>false,'id'=>$emailResult->id];
         }catch (\Exception $exception){
             \Log::error($exception->getMessage());
         }
@@ -162,7 +162,9 @@ class RegisterController extends Controller
 
             if ($emailValidationStatus) {
                 $emailVerifier = $this->emailVerification($request->input('email'));
-                if (! $emailVerifier) {
+                if (! $emailVerifier['status']) {
+                    $user=$this->getUserDetails($request);
+                    EmailValidationResults::where('id',$emailVerifier['id'])->update($user);
                     return errorResponse(\Lang::get('message.email_provided_wrong'));
                 }
             }
@@ -208,6 +210,7 @@ class RegisterController extends Controller
 
             ];
 
+
             $userInput = User::create($user);
 
             activity()->log('User <strong>'.$user['first_name'].' '.$user['last_name'].'</strong> was created');
@@ -231,6 +234,32 @@ class RegisterController extends Controller
 
             return errorResponse($ex->getMessage());
         }
+    }
+
+
+    public function getUserDetails($request){
+        $location = getLocation();
+        $state_code = $location['iso_code'].'-'.$location['state'];
+
+        $state = getStateByCode($state_code);
+        $user = [
+            'state' => $state['id'],
+            'town' => $location['city'],
+            'mobile' => ltrim($request->input('mobile'), '0'),
+            'mobile_code' => $request->input('mobile_code'),
+            'mobile_country_iso' => $request->input('mobile_country_iso'),
+            'country' => $request->input('country'),
+            'company' => strip_tags($request->input('company')),
+            'address' => strip_tags($request->input('address')),
+            'email' => strip_tags($request->input('email')),
+            'first_name' => strip_tags($request->input('first_name')),
+            'last_name' => strip_tags($request->input('last_name')),
+            'registration'=>'Not Completed',
+            'ip' => $location['ip'],
+            'timezone_id' => getTimezoneByName($location['timezone']),
+        ];
+
+        return $user;
     }
 
     /**
