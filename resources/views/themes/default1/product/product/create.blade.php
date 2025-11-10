@@ -306,12 +306,12 @@
                                     convert_urls: false,
                                     directionality: '{{isRtlForLang() ? 'rtl' : 'ltr'}}',
                                     plugins: [
-                                        'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+                                        'advlist autolink lists link image charmap print preview hr anchor pagebreak wordcount',
                                         'searchreplace wordcount visualblocks visualchars code fullscreen',
-                                        'insertdatetime media nonbreaking save table contextmenu directionality',
+                                        'insertdatetime media nonbreaking save contextmenu directionality',
                                         'emoticons template paste textcolor colorpicker textpattern imagetools'
                                     ],
-                                    toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+                                    toolbar1: 'bold italic | wordcount',
                                     toolbar2: 'print preview media | forecolor backcolor emoticons',
                                     image_advtab: true,
                                     templates: [
@@ -329,6 +329,16 @@
                                                     editorContainer.style.border = "1px solid #dc3545";
                                                 } else {
                                                     editorContainer.style.border = '1px solid silver';
+                                                }
+                                            });
+                                            const maxWords =15;
+
+                                            editor.on('keydown', function(e) {
+                                                let content = editor.getContent({ format: 'text' });
+                                                let words = content.trim().split(/\s+/);
+
+                                                if (words.length > maxWords && e.key !== 'Backspace' && e.key !== 'Delete') {
+                                                    e.preventDefault();
                                                 }
                                             });
                                         }

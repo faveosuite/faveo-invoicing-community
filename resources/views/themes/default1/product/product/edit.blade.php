@@ -1066,7 +1066,7 @@ tinymce.init({
                     '//www.tinymce.com/css/codepen.min.css'
                 ],
                 setup: function(editor) {
-                    const maxWords = 50;
+                    const maxWords = 15;
 
                     editor.on('keydown', function(e) {
                         let content = editor.getContent({ format: 'text' });
