@@ -8,9 +8,11 @@ use App\EmailValidationResults;
 use App\Facades\Attach;
 use App\Http\Controllers\BillingInstaller\InstallerController;
 use App\Http\Requests\Common\SettingsRequest;
+use App\Model\Common\Country;
 use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\Setting;
+use App\Model\Common\State;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Github\Github;
@@ -1138,7 +1140,15 @@ class SettingsController extends BaseSettingsController
                     return $query->status;
                 })
                 ->addColumn('result', function ($query) {
+                    if($query->state){
+                        return  '<button  class="btn btn-light-scale-2 btn-sm text-dark" id="show-results" data-id='.$query->id.' data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"><i class="fa fa-eye"></i></button>
+                                 <button  class="btn btn-light-scale-2 btn-sm text-dark" id="show-user-results" data-id='.$query->id.' data-toggle="tooltip" data-placement="top" title="Click here to view User Details"><i class="fa fa-eye"></i></button>';
+                    }
                     return  '<button  class="btn btn-light-scale-2 btn-sm text-dark" id="show-results" data-id='.$query->id.' data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"><i class="fa fa-eye"></i></button>';
+
+                })
+                ->addColumn('registration', function ($query) {
+                    return $query->registration;
                 })
                 ->addColumn('created_at', function ($query) {
                     return $query->created_at;
@@ -1168,6 +1178,24 @@ class SettingsController extends BaseSettingsController
        return successResponse(trans('message.success'), $result);
     }
 
+    public function getEmailValidationUserResults(Request $request){
+        try {
+            $id = $request->input('id');
+            $result = EmailValidationResults::where('id', $id)->first();
+            $content = ['name' => $result->first_name .' '.$result->last_name,
+                'mobile Number' => '+' . $result->mobile_code . $result->mobile,
+                'email' => $result->email,
+                'company Name' => $result->company,
+                'address' => $result->address,
+                'country'=>Country::where('country_code_char2',$result->country)->value('country_name'),
+                'state' => State::where('state_subdivision_code',$result->state)->value('state_subdivision_name'),
+                'city' => $result->town,];
+            return successResponse(trans('message.success'), $content);
+        }catch (\Exception $e){
+            dd($e->getMessage());
+        }
+
+    }
 
     private function setStatus($current)
     {

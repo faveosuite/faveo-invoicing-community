@@ -99,7 +99,7 @@
             position: fixed;
             right: 0;
             margin: 0;
-            width: 30%;
+            width: 70%;
             max-width: none;
             height: 100%;
             transform: translateX(90%);
@@ -665,6 +665,7 @@
                                 <th>Email</th>
                                 <th>Method</th>
                                 <th>Status</th>
+                                <th>Registration</th>
                                 <th>Create At</th>
                                 <th>Result</th>
                             </tr>
@@ -779,6 +780,7 @@
         {data: 'email', name: 'email' ,searchable:true, orderable:true},
         {data: 'method', name: 'method' ,searchable:true, orderable:true},
         {data: 'status', name: 'status',searchable:true, orderable:true},
+          {data: 'registration', name:'registration', searchable:true, orderable:true},
         {data:'created_at',name:'created_at',searchable:true, orderable:true},
         {data: 'result', name: 'result'},
 
@@ -798,9 +800,7 @@
 
 
           $(document).on('click','#show-results',function(){
-              console.log('hii');
               var id=this.getAttribute('data-id');
-              console.log(id);
               $.ajax({
                   url : '{{url("get-email-validation-results")}}',
                   type : 'get',
@@ -814,6 +814,24 @@
                   },
               });
           })
+
+
+            $(document).on('click','#show-user-results',function(){
+                var id=this.getAttribute('data-id');
+                $.ajax({
+                    url : '{{url("get-email-validation-user-results")}}',
+                    type : 'get',
+                    data:{'id':id},
+                    success: function (response) {
+                        var data=response['data'];
+                        renderEmailResult(data);
+                        $('#email-part-result').modal('show');
+                        //
+                        // $('#pipedrv').modal('show');
+                    },
+                });
+            })
+
 
             function renderEmailResult(data) {
                 let html = '';
