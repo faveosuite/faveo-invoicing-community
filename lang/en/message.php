@@ -2778,7 +2778,7 @@ return [
 
     'auto_renewal_disable' => 'Auto-renewal is currently not available. Please contact the administrator for assistance.',
     'auto_renewal_tooltip' => 'Enable or disable auto-renewal for all users.',
-    'whatsapp_product_explanation' =>'Enable this option to display the embedded signup flow for the selected product on the client order page.',
+    'whatsapp_product_explanation' =>'Enable this option to display the embedded WhatsApp signup flow for the selected product on the client order page.',
     'whatsapp_product_heading'=>'Embedded SignUp Flow',
     'whatsapp_users'=>'WhatsApp Users',
     'phone_number'=>'Phone Number',
