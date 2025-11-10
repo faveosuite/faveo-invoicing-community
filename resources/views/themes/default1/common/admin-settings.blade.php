@@ -460,18 +460,6 @@
                 </div>
                 <!--/.col-md-2-->
 
-                 <div class="col-md-2 col-sm-6">
-                    <div class="settingiconblue">
-                        <div class="settingdivblue">
-                            <a class="icons-color" href="{{url('queue')}}">
-                                <span class="fa-stack fa-2x">
-                                    <i class="fa fa-upload fa-stack-1x"></i>
-                                </span>
-                            </a>
-                        </div>
-                        <div class="text-center text-sm fw_400">{{ __('message.queues') }}</div>
-                    </div>
-                </div>
 
                 @if($isRedisConfigured)
                  <div class="col-md-2 col-sm-6">
@@ -620,6 +608,20 @@
                         <div class="text-center text-sm fw_400">{{ __('message.country_list') }}</div>
                     </div>
                 </div>
+
+            <div class="col-md-2 col-sm-6">
+                <div class="settingiconblue">
+                    <div class="settingdivblue">
+                        <a class="icons-color" href="{{url('queue')}}">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-upload fa-stack-1x"></i>
+                                </span>
+                        </a>
+                    </div>
+                    <div class="text-center text-sm fw_400">{{ __('message.queues') }}</div>
+                </div>
+            </div>
+
 
 
         </div>
