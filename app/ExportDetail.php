@@ -18,7 +18,7 @@ class ExportDetail extends Model
         return $this->belongsTo(\App\User::class);
     }
 
-    protected $logName = 'export';
+    protected $logName = 'reports';
 
     protected $logAttributes = [
         'user_id', 'file', 'file_path', 'name',

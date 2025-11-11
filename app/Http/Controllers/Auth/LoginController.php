@@ -424,7 +424,7 @@ class LoginController extends Controller
         logActivity(
             $message,
             'login',
-            'authentication',
+            'Authentication',
             $user,
         );
     }

@@ -13,7 +13,7 @@ class TaxClass extends BaseModel
 
     protected $fillable = ['name'];
 
-    protected $logName = 'taxes';
+    protected $logName = 'tax';
 
     protected $logNameColumn = 'name';
 

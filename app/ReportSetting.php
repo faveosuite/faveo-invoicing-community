@@ -14,7 +14,7 @@ class ReportSetting extends Model
 
     protected $fillable = ['records'];
 
-    protected $logName = 'report_settings';
+    protected $logName = 'reports';
 
     protected $logNameColumn = 'settings';
 

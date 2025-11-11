@@ -13,7 +13,7 @@ class Tax extends BaseModel
 
     protected $fillable = ['level', 'name', 'country', 'state', 'rate', 'active', 'tax_classes_id', 'compound'];
 
-    protected $logName = 'taxes';
+    protected $logName = 'tax';
 
     protected $logNameColumn = 'name';
 
@@ -31,7 +31,12 @@ class Tax extends BaseModel
             'level' => ['Tax Level', fn ($value) => $value === 1 ? 'Country' : ($value === 2 ? 'State' : 'City')],
             'name' => ['Tax Name', fn ($value) => $value],
             'country' => ['Country', fn ($value) => \App\Model\Common\Country::where('country_code_char2', $value)->value('nicename')],
-            'state' => ['State', fn ($value) => $value ? \App\Model\Common\State::find($value)?->name : 'All States'],
+            'state' => [
+                'State',
+                fn ($value) => $value
+                    ? \App\Model\Common\State::where('state_subdivision_code', $value)->value('state_subdivision_name')
+                    : 'All States',
+            ],
             'rate' => ['Tax Rate (%)', fn ($value) => $value],
             'active' => ["{$this->name} tax status", fn ($value) => $value === 1 ? __('message.active') : __('message.inactive')],
             'tax_classes_id' => ['Tax Class', fn ($value) => $value ? \App\Model\Payment\TaxClass::find($value)?->name : 'No Class'],

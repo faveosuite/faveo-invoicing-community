@@ -18,7 +18,7 @@ class ProductUpload extends Model
     protected $logNameColumn = 'Settings';
 
     protected $logAttributes = [
-        'product_id', 'title', 'description', 'version', 'file', 'is_private', 'is_restricted', 'release_type',
+        'product_id', 'title', 'version', 'file', 'is_private', 'is_restricted', 'release_type',
     ];
 
     protected $logUrl = [
@@ -30,7 +30,6 @@ class ProductUpload extends Model
         return [
             'product_id' => ['Product', fn ($value) => Product::find($value)?->name],
             'title' => ['Title', fn ($value) => $value],
-            'description' => ['Description', fn ($value) => $value],
             'version' => ['Version', fn ($value) => $value],
             'file' => ['File', fn ($value) => $value],
             'is_private' => ['Is Private', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],

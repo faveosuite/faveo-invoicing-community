@@ -635,43 +635,62 @@ class SettingsController extends BaseSettingsController
     public function getActivity(Request $request)
     {
         try {
-            $baseQuery = $this->getBaseQueryForSystemLogs();
+            $baseQuery = Activity::query()
+                ->leftJoin('users', 'activity_log.causer_id', '=', 'users.id')
+                ->select(
+                    'activity_log.id',
+                    'activity_log.log_name',
+                    'activity_log.description',
+                    'activity_log.event',
+                    'activity_log.causer_type',
+                    'activity_log.causer_id',
+                    'activity_log.created_at',
+                    'activity_log.properties',
+                    'users.first_name',
+                    'users.last_name',
+                    'users.email',
+                    'users.role as user_role'
+                )
+                ->with(['causer:id,user_name,role,first_name,last_name,email']);
+
             $baseQuery = $this->filterQuery($baseQuery);
 
-            // Manual search (global)
             if ($search = $request->input('search.value')) {
                 $baseQuery->where(function ($query) use ($search) {
-                    $query->where('log_name', 'like', "%{$search}%")
-                        ->orWhere('event', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%")
-                        ->orWhereHas('causer', function ($q) use ($search) {
-                            $q->where('first_name', 'like', "%{$search}%")
-                                ->orWhere('last_name', 'like', "%{$search}%")
-                                ->orWhere('email', 'like', "%{$search}%")
-                                ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
-                        });
+                    $query->where('activity_log.log_name', 'like', "%{$search}%")
+                        ->orWhere('activity_log.event', 'like', "%{$search}%")
+                        ->orWhere('activity_log.description', 'like', "%{$search}%")
+                        ->orWhere('users.first_name', 'like', "%{$search}%")
+                        ->orWhere('users.last_name', 'like', "%{$search}%")
+                        ->orWhere('users.email', 'like', "%{$search}%")
+                        ->orWhere('users.role', 'like', "%{$search}%")
+                        ->orWhereRaw("CONCAT(users.first_name, ' ', users.last_name) LIKE ?", ["%{$search}%"]);
                 });
             }
 
             return \DataTables::of($baseQuery)
-                ->addColumn('module', fn ($row) => $row->log_name ?? '---')
-                ->addColumn('event', fn ($row) => ucfirst($row->event ?? '---'))
-                ->addColumn('role', fn ($row) => ucfirst(optional($row->causer)->role ?? '---'))
-                ->addColumn('detailed_properties', fn ($row) => $this->formatProperties($row->properties, $row->event))
-                ->addColumn('performed_by', fn ($row) => $this->generateLinkForPerformedBy($row->causer) ?? __('message.system'))
-                ->addColumn('created_at', fn ($row) => $row->created_at ? getDateHtml($row->created_at) : '---')
-                ->addColumn('description', fn ($row) => $row->description ?? '---')
-                ->orderColumn('module', 'log_name $1')
-                ->orderColumn('event', 'event $1')
-                ->orderColumn('role', 'role $1')
-                ->orderColumn('description', 'description $1')
-                ->orderColumn('created_at', 'created_at $1')
+                ->addColumn('module', fn($row) => $row->log_name ?? '---')
+                ->addColumn('event', fn($row) => ucfirst($row->event ?? '---'))
+                ->addColumn('role', fn($row) => ucfirst($row->user_role ?? '---'))
+                ->addColumn('detailed_properties', fn($row) => $this->formatProperties($row->properties, $row->event))
+                ->addColumn('performed_by', fn($row) => $this->generateLinkForPerformedBy($row->causer) ?? __('message.system'))
+                ->addColumn('created_at', fn($row) => $row->created_at ? getDateHtml($row->created_at) : '---')
+                ->addColumn('description', fn($row) => $row->description ?? '---')
+
+
+                ->orderColumn('module', 'activity_log.log_name $1')
+                ->orderColumn('event', 'activity_log.event $1')
+                ->orderColumn('role', 'users.role $1')
+                ->orderColumn('description', 'activity_log.description $1')
+                ->orderColumn('created_at', 'activity_log.created_at $1')
+
                 ->rawColumns(['performed_by', 'created_at', 'description'])
                 ->make(true);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
+
 
     public function getMails(Request $request)
     {

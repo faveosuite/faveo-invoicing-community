@@ -18,7 +18,7 @@ class Widgets extends BaseModel
     protected $logNameColumn = 'name';
 
     protected $logAttributes = [
-        'name', 'type', 'publish', 'content', 'allow_tweets', 'allow_mailchimp', 'allow_social_media',
+        'name', 'type', 'publish', 'allow_tweets', 'allow_mailchimp', 'allow_social_media',
     ];
 
     protected $logUrl = [
@@ -31,7 +31,6 @@ class Widgets extends BaseModel
             'name' => ['Name', fn ($value) => $value],
             'type' => ['Type', fn ($value) => $value],
             'publish' => ['Publish status', fn ($value) => $value ? __('message.active') : __('message.inactive')],
-            'content' => ['Content', fn ($value) => $value],
             'allow_tweets' => ['Allow Tweets', fn ($value) => $value ? __('message.active') : __('message.inactive')],
             'allow_mailchimp' => ['Allow Mailchimp', fn ($value) => $value ? __('message.active') : __('message.inactive')],
             'allow_social_media' => ['Allow Social Media', fn ($value) => $value ? __('message.active') : __('message.inactive')],

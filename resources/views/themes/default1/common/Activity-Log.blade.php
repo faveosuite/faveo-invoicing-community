@@ -256,9 +256,9 @@
                 },
                 order: [[ 5, "desc" ]],
                 columns: [
-                    { data: 'module', orderable: false },
+                    { data: 'module'},
                     { data: 'event'},
-                    { data: 'role', orderable: false },
+                    { data: 'role'},
                     { data: 'performed_by'},
                     {
                         data: 'description',

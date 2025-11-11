@@ -29,12 +29,12 @@ class Product extends BaseModel
     protected $logNameColumn = 'name';
 
     protected $logAttributes = [
-        'name', 'description', 'type', 'group', 'file', 'image', 'require_domain', 'category',
+        'name', 'type', 'group', 'file', 'image', 'require_domain', 'category',
         'can_modify_agent',  'can_modify_quantity', 'show_agent', 'tax_apply', 'show_product_quantity', 'hidden',  'auto_terminate',
         'setup_order_placed', 'setup_first_payment', 'setup_accept_manually',
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
         'github_repository',
-        'deny_after_subscription', 'version', 'subscription', 'product_sku', 'perpetual_license', 'product_description', 'invoice_hidden',
+        'deny_after_subscription', 'version', 'subscription', 'product_sku', 'perpetual_license', 'invoice_hidden',
     ];
 
     protected $logUrl = [
@@ -70,7 +70,6 @@ class Product extends BaseModel
             'subscription' => ['Subscription', fn ($value) => $value],
             'product_sku' => ['Product SKU', fn ($value) => $value],
             'perpetual_license' => ['Perpetual License', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'product_description' => ['Product Description', fn ($value) => $value],
             'invoice_hidden' => ['Hide on Invoice', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
         ];
     }
