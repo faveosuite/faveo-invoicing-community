@@ -669,14 +669,13 @@ class SettingsController extends BaseSettingsController
             }
 
             return \DataTables::of($baseQuery)
-                ->addColumn('module', fn($row) => $row->log_name ?? '---')
-                ->addColumn('event', fn($row) => ucfirst($row->event ?? '---'))
-                ->addColumn('role', fn($row) => ucfirst($row->user_role ?? '---'))
-                ->addColumn('detailed_properties', fn($row) => $this->formatProperties($row->properties, $row->event))
-                ->addColumn('performed_by', fn($row) => $this->generateLinkForPerformedBy($row->causer) ?? __('message.system'))
-                ->addColumn('created_at', fn($row) => $row->created_at ? getDateHtml($row->created_at) : '---')
-                ->addColumn('description', fn($row) => $row->description ?? '---')
-
+                ->addColumn('module', fn ($row) => $row->log_name ?? '---')
+                ->addColumn('event', fn ($row) => ucfirst($row->event ?? '---'))
+                ->addColumn('role', fn ($row) => ucfirst($row->user_role ?? '---'))
+                ->addColumn('detailed_properties', fn ($row) => $this->formatProperties($row->properties, $row->event))
+                ->addColumn('performed_by', fn ($row) => $this->generateLinkForPerformedBy($row->causer) ?? __('message.system'))
+                ->addColumn('created_at', fn ($row) => $row->created_at ? getDateHtml($row->created_at) : '---')
+                ->addColumn('description', fn ($row) => $row->description ?? '---')
 
                 ->orderColumn('module', 'activity_log.log_name $1')
                 ->orderColumn('event', 'activity_log.event $1')
@@ -690,7 +689,6 @@ class SettingsController extends BaseSettingsController
             return errorResponse($e->getMessage());
         }
     }
-
 
     public function getMails(Request $request)
     {
