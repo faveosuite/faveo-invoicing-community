@@ -17,10 +17,13 @@ return new class extends Migration
             $table->string('phone_number_id');
             $table->string('business_id');
             $table->string('phone_number');
+            $table->integer('user_id')->unsigned();
+            $table->foreign('user_id')->references('id')->on('users');
             $table->string('access_token');
-            $table->foreignId('user_id')->constrained();
             $table->string('user_callback_url');
             $table->timestamps();
+
+
         });
     }
 
