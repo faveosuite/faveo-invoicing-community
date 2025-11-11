@@ -68,6 +68,7 @@
                    $cloudStatus = \App\Model\Common\StatusSetting::pluck('cloud_mail_status')->first();
                    $invoiceStatus = \App\Model\Common\StatusSetting::pluck('invoice_deletion_status')->first();
                    $msg91Status = \App\Model\Common\StatusSetting::pluck('msg91_report_delete_status')->first();
+                   $reoonStatus=\App\Model\Common\StatusSetting::pluck('reoon_deletion_status')->first();
                   ?>
          <div class="card-header">
              <h3 class="card-title">{{Lang::get('message.set_cron_period')}}  </h3>
@@ -244,6 +245,26 @@
 
               <!-- /.form-group -->
             </div>
+
+              <div class="col-md-6">
+                  <div class="form-group">
+                      <label>Delete Reoon Logs Older than..</label><i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="The cron is to trigger the deletion of reoon logs."></i>
+                      @if ($reoonStatus == 0)
+                          <select name="reoon_days" class="form-control selectpicker"   style="width: 100%; color:black;" disabled>
+                              <option value="">Please Enable Reoon Logs Deletion Cron</option>
+                          </select>
+                      @else
+                          <select name="reoon_days" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" style="width: 100%;">
+                              @foreach ($reoonDays as $key=>$value)
+                                  <option value="{{$key}}" <?php echo (in_array($key, $ReeonLogDeletionDays)) ?  "selected" : "" ;  ?>>{{$value}}</option>
+                              @endforeach
+                          </select>
+                      @endif
+                  </div>
+
+
+                  <!-- /.form-group -->
+              </div>
           
           </div>
           <!-- /.row -->

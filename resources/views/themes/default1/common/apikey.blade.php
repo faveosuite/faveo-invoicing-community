@@ -911,7 +911,7 @@
 
                 for (const [key, label] of Object.entries(data)) {
 
-                    html += `<p><strong>${key.toUpperCase()}:</strong> ${label}</p>`;
+                    html += `<p><strong>${key.charAt(0).toUpperCase()+key.slice(1)}:</strong> ${label}</p>`;
                 }
 
                 $('#email-result').html(html);

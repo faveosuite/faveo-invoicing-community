@@ -377,10 +377,58 @@
                             !!}
                         </div>
                     </div>
+
                 </div>
             </div><!-- /.info-box-content -->
 
         </div><!-- /.info-box -->
+
+
+        <div class="col-md-6">
+            <div class="info-box">
+                <span class="info-box-icon bg-info" style="height: 70px;"><i class="fas fa-file-invoice"></i></span>
+                <!-- Apply any bg-* class to to the icon to color it -->
+                <div class="info-box-content" style="display: block;">
+
+                    <div class="col-md-6">
+
+                        <div class="form-group">
+
+                            <div class="form-group">
+                                {!! html()->label(
+                                    'Reoon Logs Deletion'.
+                                    ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="The cron is to trigger the deletion of reoon logs."></i>'
+                                )->for('reoon_fetching')->class('required') !!}
+
+                                <br>
+
+                                {!! html()->checkbox('reoon_cron', $condition->checkActiveJob()['reoonLogs'], 1)
+                                    ->id('reoon_fetching')
+                                !!}
+                                &nbsp; {{ Lang::get('message.enable_invoice_deletion') }}
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-md-6" id="reoon">
+                        {!! html()->select('reoon-commands', $commands, $condition->getConditionValue('reoonLogs')['condition'])
+                            ->class('form-control')
+                            ->id('reoon-command')
+                        !!}
+
+                        <div id="reoon-daily-at">
+                            {!! html()->text('reoon-dailyAt', $condition->getConditionValue('reoonLogs')['at'])
+                                ->class('form-control time-picker')
+                                ->placeholder('HH:MM')
+                            !!}
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /.info-box-content -->
+
+        </div><!-- /.info-box -->
+
+
     </div>
 </div>
 <div class="card-footer">
@@ -431,6 +479,8 @@
             { checkbox: 'postsub_fetching', section: 'postsubfetching', select: 'postsubfetching-command', daily: 'postsubfetching-daily-at' },
             { checkbox: 'invoice_fetching', section: 'invoice', select: 'invoice-command', daily: 'invoice-daily-at' },
             { checkbox: 'msg91_fetching', section: 'msg91', select: 'msg91-command', daily: 'msg91-daily-at' },
+            { checkbox: 'reoon_fetching', section: 'reoon', select: 'reoon-command', daily: 'reoon-daily-at' },
+
         ];
 
         config.forEach(({ checkbox, section, select, daily }) => {
