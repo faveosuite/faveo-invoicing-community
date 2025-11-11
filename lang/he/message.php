@@ -2753,10 +2753,10 @@ return [
     'mobile_no_changed_successfully' => 'מספר הנייד שונה בהצלחה',
     'mobile_no_updated_successfully' => 'מספר הנייד עודכן בהצלחה!',
     'your_mobile_no_changed_successfully' => 'המספר הנייד שלכם שונה בהצלחה ל-:',
-    'too_many_attempts_for_change_email_mobile'=> 'יותר מדי ניסיונות. אנא נסו שוב לאחר :time.',
+    'too_many_attempts_for_change_email_mobile' => 'יותר מדי ניסיונות. אנא נסו שוב לאחר :time.',
     'enter_new_email' => 'אנא הזינו כתובת דוא"ל חדשה',
     'otp_code_send_success' => 'קוד האימות נשלח. אנא בדקו את תיבת הדואר הנכנס שלכם.',
-    'something_went_wrong_while_updating_email'=> 'אירעה שגיאה בעת עדכון כתובת הדוא"ל. אנא נסו שוב מאוחר יותר.',
+    'something_went_wrong_while_updating_email' => 'אירעה שגיאה בעת עדכון כתובת הדוא"ל. אנא נסו שוב מאוחר יותר.',
     'something_wrong_try_again_later' => 'אירעה שגיאה. אנא נסו שוב מאוחר יותר.',
-    'something_went_wrong_while_updating_mobile'=> 'אירעה שגיאה בעת עדכון מספר הנייד. אנא נסו שוב מאוחר יותר.',
+    'something_went_wrong_while_updating_mobile' => 'אירעה שגיאה בעת עדכון מספר הנייד. אנא נסו שוב מאוחר יותר.',
 ];

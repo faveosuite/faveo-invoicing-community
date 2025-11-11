@@ -10,7 +10,6 @@ use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\User\AccountActivate;
 use App\User;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ProfileVerificationController extends BaseAuthController
@@ -41,6 +40,7 @@ class ProfileVerificationController extends BaseAuthController
             if ($newEmailOrExisting === $user->email) {
                 $emailType = $isMobile ? 'mobile' : 'old_email';
                 $this->sendActivationForEdit($user, $user->email, $method, $emailType);
+
                 return successResponse(__('message.otp_code_sent_exist'));
             }
 
@@ -49,7 +49,7 @@ class ProfileVerificationController extends BaseAuthController
 
             if ($existing && $method !== 'GET') {
                 // Check if the OTP is still valid (within 10 minutes)
-                if (!$existing->updated_at->addMinutes(10)->isPast()) {
+                if (! $existing->updated_at->addMinutes(10)->isPast()) {
                     return successResponse(__('message.email_verification.already_sent'), '', 208);
                 }
 
@@ -206,7 +206,7 @@ class ProfileVerificationController extends BaseAuthController
 
             return successResponse(__('message.new_email_updated'), ['email' => $user->email]);
         } catch (\Throwable $e) {
-            return errorResponse( __('message.something_went_wrong_while_updating_email'));
+            return errorResponse(__('message.something_went_wrong_while_updating_email'));
         }
     }
 
@@ -238,7 +238,7 @@ class ProfileVerificationController extends BaseAuthController
                 ]
             );
         } catch (\Exception $e) {
-            return errorResponse( __('message.something_wrong_try_again_later'));
+            return errorResponse(__('message.something_wrong_try_again_later'));
         }
     }
 
@@ -357,7 +357,7 @@ class ProfileVerificationController extends BaseAuthController
                 ]
             );
         } catch (\Exception $e) {
-            return errorResponse( __('message.something_wrong_try_again_later'));
+            return errorResponse(__('message.something_wrong_try_again_later'));
         }
     }
 
@@ -433,7 +433,7 @@ class ProfileVerificationController extends BaseAuthController
                     'mobile_code' => $user->mobile_code,
                 ]);
         } catch (\Exception $e) {
-            return errorResponse( __('message.something_went_wrong_while_updating_mobile'));
+            return errorResponse(__('message.something_went_wrong_while_updating_mobile'));
         }
     }
 

@@ -2750,7 +2750,7 @@ return [
     'otp_sent_to_email_for_mobile_change' => '<b>:email</b> にOTPが送信されました。携帯番号変更を確認するためにOTPを入力してください。',
     'mobile_no_changed_successfully' => '携帯番号が正常に変更されました',
     'mobile_no_updated_successfully' => '携帯番号が正常に更新されました！',
-    'your_mobile_no_changed_successfully'=> 'あなたの携帯番号は、以下に正常に変更されました：',
+    'your_mobile_no_changed_successfully' => 'あなたの携帯番号は、以下に正常に変更されました：',
     'too_many_attempts_for_change_email_mobile' => '試行回数が多すぎます。:time 後に再試行してください。',
     'enter_new_email' => '新しいメールアドレスを入力してください',
     'otp_code_send_success' => '確認コードが送信されました。受信トレイをご確認ください。',
