@@ -22,8 +22,6 @@ return new class extends Migration
             $table->string('access_token');
             $table->string('user_callback_url');
             $table->timestamps();
-
-
         });
     }
 
