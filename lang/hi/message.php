@@ -2760,10 +2760,10 @@ return [
     'mobile_no_changed_successfully' => 'मोबाइल नंबर सफलतापूर्वक बदल गया',
     'mobile_no_updated_successfully' => 'मोबाइल नंबर सफलतापूर्वक अपडेट हुआ!',
     'your_mobile_no_changed_successfully' => 'आपका मोबाइल नंबर सफलतापूर्वक बदल गया है:',
-    'too_many_attempts_for_change_email_mobile'=> 'बहुत अधिक प्रयास। कृपया :time के बाद पुनः प्रयास करें।',
+    'too_many_attempts_for_change_email_mobile' => 'बहुत अधिक प्रयास। कृपया :time के बाद पुनः प्रयास करें।',
     'enter_new_email' => 'कृपया नया ई-मेल पता दर्ज करें',
     'otp_code_send_success' => 'वेरिफिकेशन कोड भेजा गया है। कृपया अपना इनबॉक्स देखें।',
-    'something_went_wrong_while_updating_email'=> 'ई-मेल पता अपडेट करते समय कुछ गलत हो गया। कृपया बाद में पुनः प्रयास करें।',
+    'something_went_wrong_while_updating_email' => 'ई-मेल पता अपडेट करते समय कुछ गलत हो गया। कृपया बाद में पुनः प्रयास करें।',
     'something_wrong_try_again_later' => 'कुछ गलत हो गया। कृपया बाद में पुनः प्रयास करें।',
-    'something_went_wrong_while_updating_mobile'=> 'मोबाइल नंबर अपडेट करते समय कुछ गलत हो गया। कृपया बाद में पुनः प्रयास करें।',
+    'something_went_wrong_while_updating_mobile' => 'मोबाइल नंबर अपडेट करते समय कुछ गलत हो गया। कृपया बाद में पुनः प्रयास करें।',
 ];
