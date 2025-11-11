@@ -55,7 +55,7 @@ class Kernel extends ConsoleKernel
         $this->execute($schedule, 'postExpirymail');
         $this->execute($schedule, 'invoice');
         $this->execute($schedule, 'msg91Reports');
-
+        $this->execute($schedule, 'reoon');
         // Schedule the cloudEmail method
         //Should not be touched unless you are changing something with cloud
         $schedule->call(function () {
@@ -89,6 +89,7 @@ class Kernel extends ConsoleKernel
             $logDeleteStatus = StatusSetting::pluck('activity_log_delete')->first();
             $RenewalexpiryMailStatus = StatusSetting::pluck('subs_expirymail')->first();
             $postExpirystatus = StatusSetting::pluck('post_expirymail')->first();
+            $reoonStatus=StatusSetting::pluck('reoon_deletion_status')->first();
             $invoiceDeletionstatus = StatusSetting::pluck('invoice_deletion_status')->first();
             $delLogDays = ActivityLogDay::pluck('days')->first();
             if (\Schema::hasColumn('status_settings', 'msg91_report_delete_status')) {
@@ -126,6 +127,11 @@ class Kernel extends ConsoleKernel
                 case 'msg91Reports':
                     if (isset($msgDeletionStatus) && $msgDeletionStatus) {
                         return $this->getCondition($schedule->command('cleanup:msg-reports'), $command);
+                    }
+                case 'reoon':
+                    if ($reoonStatus) {
+                        return $this->getCondition($schedule->command('reoon:logs-deletion'), $command);
+
                     }
             }
         }
