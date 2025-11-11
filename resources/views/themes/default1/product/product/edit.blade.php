@@ -1071,7 +1071,7 @@ tinymce.init({
                     '//www.tinymce.com/css/codepen.min.css'
                 ],
                 setup: function(editor) {
-                    const maxWords = 5;
+                    const maxWords = 50;
                     editor.on('keydown paste input', function(e) {
                         let content = editor.getContent({ format: 'text' }).trim();
                         let words = content === '' ? [] : content.split(/\s+/);
