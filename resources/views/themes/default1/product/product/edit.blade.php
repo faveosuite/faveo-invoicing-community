@@ -1071,27 +1071,54 @@ tinymce.init({
                     '//www.tinymce.com/css/codepen.min.css'
                 ],
                 setup: function(editor) {
-                    const maxWords = 15;
-
+                    const maxWords = 5;
                     editor.on('keydown paste input', function(e) {
-                        setTimeout(function() {  // Wait for paste/input to update content
-                            let content = editor.getContent({ format: 'text' });
-                            let words = content.trim().split(/\s+/);
-                            let editorContainer = editor.getContainer();
+                        let content = editor.getContent({ format: 'text' }).trim();
+                        let words = content === '' ? [] : content.split(/\s+/);
 
-                            if (words.length > maxWords) {
-                                editorContainer.style.border = "1px solid #dc3545";
-                                $('#des-short').text("{{ __('message.word_count') }}");
+                        const allowedKeys = [
+                            'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight',
+                            'ArrowUp', 'ArrowDown', 'Home', 'End', 'Tab'
+                        ];
 
-                                // Truncate excess words
-                                let trimmedContent = words.slice(0, maxWords).join(" ");
-                                editor.setContent(trimmedContent);
-                            } else {
-                                editorContainer.style.border = '1px solid silver';
-                                $('#des-short').text('');
+                        if (words.length > maxWords && e.type === 'keydown' && !allowedKeys.includes(e.key)) {
+                            e.preventDefault();
+                            editor.getContainer().style.border = "1px solid #dc3545";
+                            $('#des-short').text("{{ __('message.word_count') }}");
+                            return false;
+                        }
+
+                        // Handle paste separately (truncate pasted content)
+                        if (e.type === 'paste') {
+                            e.preventDefault();
+
+                            let clipboardData = (e.clipboardData || window.clipboardData);
+                            let pastedText = clipboardData.getData('text');
+
+                            let pastedWords = pastedText.trim().split(/\s+/);
+
+                            let available = maxWords - words.length;
+
+                            if (available > 0) {
+                                let wordsToPaste = pastedWords.slice(0, available).join(" ");
+
+                                editor.insertContent(" " + wordsToPaste);
                             }
-                        }, 0);
+
+                            editor.getContainer().style.border = "1px solid #dc3545";
+                            $('#des-short').text("{{ __('message.word_count') }}");
+
+                            return false;
+                        }
+
+                        if (words.length < maxWords) {
+                            editor.getContainer().style.border = '1px solid silver';
+                            $('#des-short').text('');
+                        }
                     });
+
+
+
                 }
             });
             tinymce.init({
