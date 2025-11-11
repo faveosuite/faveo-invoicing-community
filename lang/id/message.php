@@ -2743,10 +2743,10 @@ return [
     'mobile_no_changed_successfully' => 'Nomor ponsel berhasil diubah',
     'mobile_no_updated_successfully' => 'Nomor ponsel berhasil diperbarui!',
     'your_mobile_no_changed_successfully' => 'Nomor ponsel Anda berhasil diubah menjadi:',
-    'too_many_attempts_for_change_email_mobile'=> 'Terlalu banyak upaya. Silakan coba lagi setelah :time.',
+    'too_many_attempts_for_change_email_mobile' => 'Terlalu banyak upaya. Silakan coba lagi setelah :time.',
     'enter_new_email' => 'Silakan masukkan alamat email baru',
     'otp_code_send_success' => 'Kode verifikasi telah dikirim. Silakan periksa kotak masuk Anda.',
-    'something_went_wrong_while_updating_email'=> 'Terjadi kesalahan saat memperbarui alamat email. Silakan coba lagi nanti.',
+    'something_went_wrong_while_updating_email' => 'Terjadi kesalahan saat memperbarui alamat email. Silakan coba lagi nanti.',
     'something_wrong_try_again_later' => 'Terjadi kesalahan. Silakan coba lagi nanti.',
-    'something_went_wrong_while_updating_mobile'=> 'Terjadi kesalahan saat memperbarui nomor ponsel. Silakan coba lagi nanti.',
+    'something_went_wrong_while_updating_mobile' => 'Terjadi kesalahan saat memperbarui nomor ponsel. Silakan coba lagi nanti.',
 ];
