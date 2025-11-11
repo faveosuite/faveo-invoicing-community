@@ -30,6 +30,11 @@
             word-wrap: break-word; /* Break long words if needed */
             vertical-align: top;
         }
+        .custom-error-class{
+            margin-top: 4px;
+            font-size: 80%;
+            color: #dc3545;
+        }
 
     </style>
 
@@ -156,7 +161,7 @@
                             @error('short_description')
                             <span class="error-message"> {{$message}}</span>
                             @enderror
-                            <h6 id= "descheck"></h6>
+                            <h6 class="custom-error-class" id= "des-short"></h6>
 
                         </div>
 
@@ -1068,13 +1073,24 @@ tinymce.init({
                 setup: function(editor) {
                     const maxWords = 15;
 
-                    editor.on('keydown', function(e) {
-                        let content = editor.getContent({ format: 'text' });
-                        let words = content.trim().split(/\s+/);
+                    editor.on('keydown paste input', function(e) {
+                        setTimeout(function() {  // Wait for paste/input to update content
+                            let content = editor.getContent({ format: 'text' });
+                            let words = content.trim().split(/\s+/);
+                            let editorContainer = editor.getContainer();
 
-                        if (words.length > maxWords && e.key !== 'Backspace' && e.key !== 'Delete') {
-                            e.preventDefault();
-                        }
+                            if (words.length > maxWords) {
+                                editorContainer.style.border = "1px solid #dc3545";
+                                $('#des-short').text("{{ __('message.word_count') }}");
+
+                                // Truncate excess words
+                                let trimmedContent = words.slice(0, maxWords).join(" ");
+                                editor.setContent(trimmedContent);
+                            } else {
+                                editorContainer.style.border = '1px solid silver';
+                                $('#des-short').text('');
+                            }
+                        }, 0);
                     });
                 }
             });
@@ -1402,7 +1418,6 @@ tinymce.init({
 
                 const showError = (field, message) => {
 
-                    console.log(field);
                     field.addClass('is-invalid');
                     field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
                 };
