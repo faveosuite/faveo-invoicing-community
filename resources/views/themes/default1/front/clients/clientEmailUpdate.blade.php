@@ -4,7 +4,7 @@
     <div class="modal-dialog modal-dialog-centered" style="max-width: 570px;">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{{ __('message.update_email_address') }}</h5>
+                <h4 class="modal-title">{{ __('message.update_email_address') }}</h4>
                 <button type="button" class="btn-close closeandrefresh" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -14,7 +14,7 @@
                 <form id="editEmailForm">
                     @csrf
                     <div class="form-group mb-3">
-                        <label for="newEmail">{{ __('message.emailSettings_details.email') }}</label>
+                        <label for="newEmail">{{ __('message.enter_new_email') }}</label>
                         <input type="text" class="form-control" id="newEmail" name="email_to_verify">
                         <span id="editEmailError" class="invalid-feedback"></span>
                     </div>
@@ -38,7 +38,7 @@
     <div class="modal-dialog modal-dialog-centered" style="max-width: 570px;">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{{ __('message.otp_code_verification') }}</h5>
+                <h4 class="modal-title">{{ __('message.otp_code_verification') }}</h4>
                 <button type="button" class="btn-close closeandrefresh" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -69,7 +69,7 @@
                                     <i class="fa fa-refresh"></i>
                                     {{ __('message.get_new_otp_code') }}
                                 </button>
-                                <div id="timerEmail" class="ms-2"></div>
+                                <div id="timerEmail" class="ms-1"></div>
                             </div>
                             <div class="col-6 px-0 text-end">
                                 <button type="submit" id="verifyOtpBtn"  class="btn btn-primary btn-lg">
@@ -91,13 +91,13 @@
         <div id="otpAlertError" class="alert alert-danger d-none"></div>
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{{ __('message.otp_code_verification') }}</h5>
+                <h4 class="modal-title">{{ __('message.otp_code_verification') }}</h4>
                 <button type="button" class="btn-close closeandrefresh" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="alert alert-warning" id="otpInfo" role="alert">
                     <i class="fa fa-info-circle me-2"></i>
-                    <span>{{ __('message.otp_sent_to_old_email', ['email' => $user->email]) }}</span>
+                    <span>{!! __('message.otp_sent_to_old_email', ['email' => e($user->email)]) !!}</span>
                 </div>
                 <div id="otpSuccessOld" class="alert d-none " role="alert" style="display:block; padding: 10px 12px; font-size: 14px;">
                     <span id="otpAlertShowMsgOld"></span>
@@ -121,7 +121,7 @@
                                     <i class="fa fa-refresh"></i>
                                     {{ __('message.get_new_otp_code') }}
                                 </button>
-                                <div id="timerEmailOld" class="ms-2"></div>
+                                <div id="timerEmailOld" class="ms-1"></div>
                             </div>
                             <div class="col-6 px-0 text-end">
                                 <button type="submit" id="verifyOtpBtnOld"  class="btn btn-primary btn-lg">
@@ -140,9 +140,9 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="successModalLabel">
+                <h4 class="modal-title" id="successModalLabel">
                     {{ __('message.email_changed_successfully') }}
-                </h5>
+                </h4>
                 <button type="button" class="btn-close closeandrefresh white-close" data-bs-dismiss="modal" aria-label="Close"></button>
 
             </div>
@@ -266,7 +266,10 @@
                   }
 
                   let template = document.getElementById('otp-message').dataset.msg;
-                  document.getElementById('otp-message').innerText = template.replace(':email', emailVal);
+                  let safeEmail = $('<div>').text(emailVal).html();
+                  let rendered = template.replace(':email', `<b>${safeEmail}</b>`);
+                  $('#otp-message').html(rendered);
+
 
               }
               else {
@@ -283,8 +286,9 @@
                   .removeClass()
                   .addClass("alert alert-danger alert-dismissible fade show")
                   .css("display", "block");
-
               $("#emailAlertShowMsg").text(message);
+              autoHidePopup(alertBox, 5000);
+
               $("#editEmailFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
 
           },
@@ -305,32 +309,42 @@
             url: "{{ url('emailUpdateEditProfile') }}",
             type: "POST",
             data: { _token: csrfToken, email_to_verify: email },
-            success: function (response) {
-                if (response.success) {
-                    $("#editEmailFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
-                    $('#otpNewEmail').val(email);
+            success: function (response, textStatus, jqXHR) {
+                const statusCodeForEmail = jqXHR.status;
 
-                    // close email modal
-                    $('#editEmailModal').modal('hide');
+                $("#editEmailFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
+                $("#otpNewEmail").val(email);
 
+                // Close email modal
+                $("#editEmailModal").modal("hide");
 
-                    let alertOtpBox = $("#otpSuccess");
-                    $('#otpSuccess').hide();
+                setTimeout(() => {
+                    $("#otpVerificationModal").modal("show");
 
-                    setTimeout(() => {
-                        $('#otpVerificationModal')  .modal('show');
+                    // Show success message for status 208 (already sent within 10 minutes)
+                    if (statusCodeForEmail === 208) {
+                        $('#otpSuccess')
+                            .removeClass()
+                            .addClass('alert alert-success alert-dismissible')
+                            .show();
+                        $('#otpAlertShowMsg').text(response.message);
+                        autoHidePopup('#otpSuccess', 5000);
+                    }
 
-                        const button = document.getElementById("otpButtonn");
-                        const display = document.getElementById("timerEmail");
-                        startTimer(button, display, RESEND_DURATION);
+                    // Start resend timer
+                    const button = document.getElementById("otpButtonn");
+                    const display = document.getElementById("timerEmail");
+                    startTimer(button, display, RESEND_DURATION);
 
-                    }, 400);
-                } else {
-                    errorBox.text(response.message || "{{ __('message.something_wrong') }}");
-                }
+                }, 400);
             },
-            error: function () {
-                showServerError(errorBox, "{{ __('message.something_wrong') }}");
+            error: function (xhr) {
+                $("#editEmailFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
+
+                let errorRes = xhr.responseJSON || {};
+                let message = errorRes.message || "{{ __('message.something_wrong') }}";
+
+                showValidationError(null, errorBox, message);
             }
         });
     }
@@ -396,6 +410,7 @@
 
                         $('#otpSuccess').removeClass().addClass('alert alert-success alert-dismissible').show();
                         $('#otpAlertShowMsg').text(response.message);
+                        autoHidePopup('#otpSuccess', 5000);
                         sendOtpToOldEmail(oldEmail,csrfToken,errorBox2);
                     }
                     else {

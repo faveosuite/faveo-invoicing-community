@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\ApiKey;
 use App\Http\Controllers\Auth\BaseAuthController;
+use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
@@ -18,13 +19,6 @@ class ProfileVerificationController extends BaseAuthController
     {
         $this->middleware('auth');
     }
-
-    /**
-     * Create new Auto renewal and update auto-renewal status.
-     *
-     * @param  Request  $request
-     * @return array{type:string,message:string}|JsonResponse
-     */
 
     /**
      * Send verification code to new email or existing email based on the method.
@@ -43,27 +37,33 @@ class ProfileVerificationController extends BaseAuthController
             $isMobile = $request->is_mobile;
             $user = auth()->user();
 
-            if ($newEmailOrExisting === $user->email && ! $isMobile) {
-                $this->sendActivationForEdit($user, $user->email, $method, 'old_email');
-
-                return successResponse(__('message.otp_code_sent_exist'));
-            }
-            if ($newEmailOrExisting === $user->email && $isMobile) {
-                $this->sendActivationForEdit($user, $user->email, $method, 'mobile');
-
+            // Handle existing user email
+            if ($newEmailOrExisting === $user->email) {
+                $emailType = $isMobile ? 'mobile' : 'old_email';
+                $this->sendActivationForEdit($user, $user->email, $method, $emailType);
                 return successResponse(__('message.otp_code_sent_exist'));
             }
 
-            if (AccountActivate::where('email', $newEmailOrExisting)->first() && $method !== 'GET') {
-                return successResponse(__('message.email_verification.already_sent'));
+            // Check for existing activation record
+            $existing = AccountActivate::where('email', $newEmailOrExisting)->first();
+
+            if ($existing && $method !== 'GET') {
+                // Check if the OTP is still valid (within 10 minutes)
+                if (!$existing->updated_at->addMinutes(10)->isPast()) {
+                    return successResponse(__('message.email_verification.already_sent'), '', 208);
+                }
+
+                // Delete expired record
+                $existing->delete();
             }
 
+            // Send new activation email
             $this->sendActivationForEdit($user, $newEmailOrExisting, $method, 'new_email');
 
             return successResponse(
                 $method === 'GET'
                     ? __('message.verification_code_resent')
-                    : __('message.email_verification.send_success')
+                    : __('message.otp_code_send_success')
             );
         } catch (\Exception $exception) {
             return errorResponse(__('message.email_verification.send_failure'));
@@ -97,7 +97,7 @@ class ProfileVerificationController extends BaseAuthController
             }
 
             // Get settings
-            $settings = \App\Model\Common\Setting::find(1);
+            $settings = Setting::find(1);
             $templateName = match ($mode) {
                 'new_email' => 'verify_new_email',
                 'old_email' => 'confirm_old_email',
@@ -149,7 +149,7 @@ class ProfileVerificationController extends BaseAuthController
             default => null,
         };
 
-        $rateLimit = rateLimitForKeyIp($keyPrefix, 5, 30, $request->ip());
+        $rateLimit = rateLimitForKeyIp($keyPrefix, 5, 1, $request->ip());
         if ($rateLimit['status']) {
             return errorResponse(__('message.too_many_attempts_for_change_email_mobile', ['time' => $rateLimit['remainingTime']]), 429);
         }
@@ -205,8 +205,8 @@ class ProfileVerificationController extends BaseAuthController
             $user->save();
 
             return successResponse(__('message.new_email_updated'), ['email' => $user->email]);
-        } catch (\Exception $e) {
-            return errorResponse($e->getMessage());
+        } catch (\Throwable $e) {
+            return errorResponse( __('message.something_went_wrong_while_updating_email'));
         }
     }
 
@@ -238,7 +238,7 @@ class ProfileVerificationController extends BaseAuthController
                 ]
             );
         } catch (\Exception $e) {
-            return errorResponse($e->getMessage());
+            return errorResponse( __('message.something_wrong_try_again_later'));
         }
     }
 
@@ -357,7 +357,7 @@ class ProfileVerificationController extends BaseAuthController
                 ]
             );
         } catch (\Exception $e) {
-            return errorResponse($e->getMessage());
+            return errorResponse( __('message.something_wrong_try_again_later'));
         }
     }
 
@@ -433,7 +433,7 @@ class ProfileVerificationController extends BaseAuthController
                     'mobile_code' => $user->mobile_code,
                 ]);
         } catch (\Exception $e) {
-            return errorResponse($e->getMessage());
+            return errorResponse( __('message.something_went_wrong_while_updating_mobile'));
         }
     }
 

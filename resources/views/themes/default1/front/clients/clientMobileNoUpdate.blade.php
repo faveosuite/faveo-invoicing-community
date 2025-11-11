@@ -321,7 +321,9 @@
                         sendOtpToNewMobile(cleanPhone, dialCode, isoCode);
                     }
                     let template = document.getElementById('otp-message-mobile').dataset.msg;
-                    document.getElementById('otp-message-mobile').innerText = template.replace(':mobile', fullMobileInfo);
+                    let safeMobile = $('<div>').text(fullMobileInfo).html();
+                    let rendered = template.replace(':mobile', `<b>${safeMobile}</b>`);
+                    document.getElementById('otp-message-mobile').innerHTML = rendered;
                 },
                 error: function (xhr) {
                     let mobileErr1 = xhr.responseJSON || {};
