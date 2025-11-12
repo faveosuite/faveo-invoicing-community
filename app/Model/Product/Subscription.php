@@ -72,7 +72,7 @@ class Subscription extends Model
 
     public function getLogUrl($id = null): ?string
     {
-        return url('orders/' . ($this->order_id));
+        return url('orders/'.$this->order_id);
     }
 
     // public function getEndsAtAttribute($value)
