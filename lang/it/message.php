@@ -2735,7 +2735,7 @@ return [
     'otp_code_required' => 'Il codice OTP è richiesto',
     'otp_code_invalid' => 'L’OTP deve essere esattamente di 6 cifre e numerico',
     'invalid_otp_try_again' => 'OTP non valido, per favore riprova',
-    'failed_sent_otp' => "Invio OTP fallito",
+    'failed_sent_otp' => 'Invio OTP fallito',
     'update_mobile_no' => 'Aggiorna numero di cellulare',
     'enter_new_mobile_no' => 'Per favore, inserisci un numero di cellulare',
     'otp_sent_mobile_no' => 'È stato inviato un OTP a :mobile per la verifica. Inserisci l’OTP per verificare il tuo nuovo numero di cellulare',
