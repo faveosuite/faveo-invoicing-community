@@ -241,7 +241,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             'currency' => ['Currency', fn ($value) => $value],
             'timezone_id' => ['Timezone', fn ($value) => Timezone::find($value)?->name ?? $value],
             'mobile_code' => ['Mobile code', fn ($value) => $value],
-            'bussiness' => ['Business', fn ($value) => $value],
+            'bussiness' => ['Industry type', fn ($value) => $value],
             'company_type' => ['Company type', fn ($value) => $value],
             'company_size' => ['Company size', fn ($value) => match ($value) {
                 '10001' => '10001+',
