@@ -558,7 +558,6 @@
                         $('#otpVerificationModalForOldEmail').modal('hide');
                         $('#editEmailModal').modal('hide');
 
-                        // ✅ Update new email from DB response
                         $("#finalNewEmailDisplay").text(res.data.email);
 
                         $("#emailUpdatedAlert").show();

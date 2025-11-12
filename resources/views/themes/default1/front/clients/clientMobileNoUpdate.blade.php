@@ -283,6 +283,10 @@
                 showValidationError(mobField, errorBox, "{{ __('message.login_validation.mobile_required') }}");
                 return;
             }
+            if (!validatePhoneNumber(mobField[0])) {
+                showValidationError(mobField, errorBox, "{{ __('message.user_edit_details.add_valid_phone') }}");
+                return;
+            }
 
             // Extract dial code & ISO
             let dialCode   = mobInput.getAttribute('data-dial-code') || "";
