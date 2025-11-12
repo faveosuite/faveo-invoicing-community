@@ -65,19 +65,16 @@
                                 <input type="text" class="form-control" id="otpCodeMobile" name="otp_code" maxlength="6">
                                 <input type="hidden" id="existEmail" name="existEmail" value="{{$user->email}}">
                                 <span id="otpErrorMobile" class="invalid-feedback"></span>
-                                <span class="font-italic">
-                                    {{ __('message.enter_otp_code_new_mobile_no') }}
-                                </span>
                             </div>
 
                             <div class="col-12 mt-4">
                                 <div class="row">
                                     <div class="col-6 px-0 d-flex align-items-center">
                                         <button id="otpMobileResendBtn" type="button"
-                                                class="btn btn-link p-0"
+                                                class="btn btn-link p-0 fs-6"
                                                 style="color: gray; pointer-events: none; text-decoration: none;">
                                             <i class="fa fa-refresh"></i>
-                                            {{ __('message.get_new_otp_code') }}
+                                            {{ __('message.resend_otp') }}
                                         </button>
                                         <div id="timerMobile" class="ms-2"></div>
                                     </div>
@@ -124,17 +121,16 @@
                                 <input type="hidden" id="otpCountryIso" name="country_iso">
 
                                 <span id="otpErrorEmail" class="invalid-feedback mb-2"></span>
-                                <span class="font-italic">{{ __('message.enter_otp_old_email') }}</span>
 
                             </div>
                             <div class="col-12 mt-4">
                                 <div class="row">
                                     <div class="col-6 px-0 d-flex align-items-center">
                                         <button id="resendOtpBtnMobile" type="button"
-                                                class="btn btn-link p-0"
+                                                class="btn btn-link p-0 fs-6"
                                                 style="color: gray; pointer-events: none; text-decoration: none;">
                                             <i class="fa fa-refresh"></i>
-                                            {{ __('message.get_new_otp_code') }}
+                                            {{ __('message.resend_otp') }}
                                         </button>
                                         <div id="timerMobileEmail" class="ms-2"></div>
                                     </div>
