@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Requests\ValidateSecretRequest;
-use App\Model\Payment\Plan;
 use App\Rules\Honeypot;
 use App\User;
 use Illuminate\Foundation\Validation\ValidatesRequests;
