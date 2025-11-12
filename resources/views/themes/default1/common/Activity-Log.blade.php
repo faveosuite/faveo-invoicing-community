@@ -259,7 +259,7 @@
                     { data: 'module'},
                     { data: 'event'},
                     { data: 'role'},
-                    { data: 'performed_by'},
+                    { data: 'performed_by', orderable: false},
                     {
                         data: 'description',
                         orderable: false,

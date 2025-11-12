@@ -83,10 +83,6 @@ trait SystemActivityLogsTrait
             if (Arr::has($attributes, $key)) {
                 $value = $attributes[$key];
 
-                if (is_string($value)) {
-                    $value = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
-                }
-
                 $attributes[$newKey] = is_callable($transform)
                     ? $transform($value)
                     : $value;

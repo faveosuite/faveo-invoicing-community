@@ -29,8 +29,6 @@ class Subscription extends Model
         'user_id', 'plan_id', 'order_id', 'deny_after_subscription', 'version', 'product_id', 'support_ends_at', 'version_updated_at', 'is_subscribed', 'is_deleted',
     ];
 
-    protected $requireLogUrl = false;
-
     protected function getMappings(): array
     {
         return [
@@ -70,6 +68,11 @@ class Subscription extends Model
     public function order()
     {
         return $this->belongsTo(\App\Model\Order\Order::class);
+    }
+
+    public function getLogUrl($id = null): ?string
+    {
+        return url('orders/' . ($this->order_id));
     }
 
     // public function getEndsAtAttribute($value)

@@ -680,7 +680,6 @@ class SettingsController extends BaseSettingsController
                 ->orderColumn('module', 'activity_log.log_name $1')
                 ->orderColumn('event', 'activity_log.event $1')
                 ->orderColumn('role', 'users.role $1')
-                ->orderColumn('performed_by', 'COALESCE(CONCAT(users.first_name, " ", users.last_name), "System") $1')
                 ->orderColumn('description', 'activity_log.description $1')
                 ->orderColumn('created_at', 'activity_log.created_at $1')
 
