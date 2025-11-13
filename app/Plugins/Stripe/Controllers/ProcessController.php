@@ -114,10 +114,10 @@ class ProcessController extends Controller
                 $status = $pay['status'];
                 $processingFee = $this->getProcessingFee($payment_method, $invoice->currency);
                 $this->updateFinalPrice($processingFee);
+                $displayProcessingFee = $invoice->grand_total;
                 $invoice->grand_total = rounding($invoice->grand_total * (1 + $processingFee / 100));
                 $amount = rounding(\Cart::getTotal());
                 \View::addNamespace('plugins', $path);
-                $displayProcessingFee = $invoice->grand_total;
 
                 echo view('plugins::middle-page', compact('invoice', 'amount', 'invoice_no', 'payment_method', 'invoice',
                     'regularPayment', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee'))->render();
@@ -267,7 +267,7 @@ class ProcessController extends Controller
             $api = new Api($rzp_key, $rzp_secret);
             $orderData = [
                 'receipt' => '3456',
-                'amount' => round($cartTotal * 100),
+                'amount' => calculateUnitCost($invoice->currency, $cartTotal),
                 'currency' => $invoice->currency,
                 'payment_capture' => 0,
             ];

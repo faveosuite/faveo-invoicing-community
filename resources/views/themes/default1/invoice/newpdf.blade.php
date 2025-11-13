@@ -173,7 +173,7 @@
                                  <table class="table">
                                      <tr>
                                          <th>{{ __('message.sub_total') }}:</th>
-                                         <td">{{currencyFormat($item->subtotal,$code=$symbol)}}</td>
+                                         <td>{{currencyFormat($item->subtotal,$code=$symbol)}}</td>
                                      </tr>
                                      <?php
                                     $invoice = \DB::table('invoices')->where('id',$item->invoice_id)->first();

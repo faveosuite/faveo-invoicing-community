@@ -376,11 +376,28 @@ function currencyFormat($amount = null, $currency = null, $includeSymbol = true,
         $amount = rounding($amount);
     }
 
-    if ($currency === 'INR') {
-        return getIndianCurrencySymbol($currency).getIndianCurrencyFormat($amount);
+    $locale = app()->getLocale();
+
+    $precision = getCurrencyPrecision($currency);
+
+    if (!$includeSymbol) {
+        return Number::format(
+            $amount,
+            precision: $precision,
+            locale: $locale
+        );
     }
 
-    return app('currency')->format($amount, $currency, $includeSymbol);
+    return Number::currency($amount, $currency, $locale);
+}
+
+
+function getCurrencyPrecision($currency)
+{
+    $formatter = new NumberFormatter('en', NumberFormatter::CURRENCY);
+    $formatter->setTextAttribute(NumberFormatter::CURRENCY_CODE, $currency);
+
+    return $formatter->getAttribute(NumberFormatter::FRACTION_DIGITS);
 }
 
 function rounding($price)
