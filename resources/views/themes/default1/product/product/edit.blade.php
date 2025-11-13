@@ -931,6 +931,7 @@
 {{--            });--}}
 
 
+            let uploadInProgress = false;
 
 tinymce.init({
     selector: '#textarea1',
@@ -952,39 +953,41 @@ tinymce.init({
     toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image code',
     toolbar2: 'print preview media | forecolor backcolor emoticons',
 
-    // Local file picker
+    // File picker callback for selecting local files
     file_picker_callback: function(cb, value, meta) {
-        if (meta.filetype === 'image') {
-            let input = document.createElement('input');
-            input.setAttribute('type', 'file');
-            input.setAttribute('accept', 'image/*');
+        let input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
 
-            input.onchange = function() {
-                let file = this.files[0];
-                let formData = new FormData();
-                formData.append('file', file);
+        input.onchange = function() {
+            let file = this.files[0];
+            let formData = new FormData();
+            formData.append('file', file);
 
-                $.ajax({
-                    url: '{{ url("upload-image") }}',
-                    type: 'POST',
-                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function(result) {
-                        cb(result.location, { title: file.name });
-                    },
-                    error: function(xhr, status, error) {
-                        alert("Image upload failed: " + error);
-                    }
-                });
-            };
+            $.ajax({
+                url: '{{ url("upload-image") }}',
+                type: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(result) {
+                    // Pass uploaded image URL to TinyMCE callback
+                    cb(result.location, { title: file.name });
+                },
+                error: function(xhr, status, error) {
+                    console.error("Image upload failed:", error);
+                    alert("Image upload failed: " + error);
+                }
+            });
+        };
 
-            input.click();
-        }
+        input.click();
     },
 
-    // Drag & drop / paste handler
+
     images_upload_handler: function (blobInfo, success, failure) {
         if (uploadInProgress) return failure('Upload already in progress');
         uploadInProgress = true;
@@ -1013,37 +1016,7 @@ tinymce.init({
         });
     },
 
-    // Intercept content before inserting into editor
-    setup: function(editor) {
-        editor.on('BeforeSetContent', function(e) {
-            // Find all <img> tags with external URLs
-            let div = document.createElement('div');
-            div.innerHTML = e.content;
-            let imgs = div.querySelectorAll('img');
 
-            imgs.forEach(function(img) {
-                let src = img.getAttribute('src');
-                if (src && src.startsWith('http')) {
-                    // Send external URL to server to download
-                    fetch('{{ url("upload-image") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: JSON.stringify({ url: src })
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.location) {
-                                img.setAttribute('src', data.location); // replace src with local path
-                                editor.setContent(div.innerHTML);
-                            }
-                        });
-                }
-            });
-        });
-    }
 });
 
 
