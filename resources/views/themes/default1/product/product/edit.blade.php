@@ -1073,50 +1073,76 @@ tinymce.init({
                 ],
                 setup: function(editor) {
                     const maxWords = 50;
-                    editor.on('keydown paste input', function(e) {
+
+
+                    // if(words.length>maxWords){
+                    {{--    editor.getContainer().style.border = "1px solid #dc3545";--}}
+                    {{--    $('#des-short').text("{{ __('message.word_count') }}");--}}
+                    {{--    $('#submit').prop('disabled',true);--}}
+                    {{--}--}}
+                    editor.on('keydown paste input cut', function(e) {
+                        // Small delay ensures TinyMCE updates its content before checking
+                        setTimeout(function() {
+                            let content = editor.getContent({ format: 'text' }).trim();
+                            let words = content === '' ? [] : content.split(/\s+/);
+
+                            const allowedKeys = [
+                                'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight',
+                                'ArrowUp', 'ArrowDown', 'Home', 'End', 'Tab'
+                            ];
+
+                            // Prevent typing beyond limit
+                            if (words.length > maxWords && e.type === 'keydown' && !allowedKeys.includes(e.key)) {
+                                e.preventDefault();
+                                editor.getContainer().style.border = "1px solid #dc3545";
+                                $('#des-short').text("{{ __('message.word_count') }}");
+                                return false;
+                            }
+
+                            // Handle paste (truncate)
+                            if (e.type === 'paste') {
+                                e.preventDefault();
+
+                                let clipboardData = (e.clipboardData || window.clipboardData);
+                                let pastedText = clipboardData.getData('text');
+                                let pastedWords = pastedText.trim().split(/\s+/);
+
+                                let available = maxWords - words.length;
+
+                                if (available > 0) {
+                                    let wordsToPaste = pastedWords.slice(0, available).join(" ");
+                                    editor.insertContent(" " + wordsToPaste);
+                                }
+
+                                editor.getContainer().style.border = "1px solid #dc3545";
+                                $('#des-short').text("{{ __('message.word_count') }}");
+                                return false;
+                            }
+
+                            // ✅ Reset if under limit after delete/cut
+                            if (words.length <= maxWords) {
+                                editor.getContainer().style.border = '1px solid silver';
+                                $('#submit').prop('disabled',false);
+                                $('#des-short').text('');
+                            }
+                        }, 0); // Delay 0ms — allows TinyMCE to finish updating
+                    });
+
+// ✅ Handle preloaded content on editor load
+                    editor.on('init', function() {
                         let content = editor.getContent({ format: 'text' }).trim();
                         let words = content === '' ? [] : content.split(/\s+/);
 
-                        const allowedKeys = [
-                            'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight',
-                            'ArrowUp', 'ArrowDown', 'Home', 'End', 'Tab'
-                        ];
-
-                        if (words.length > maxWords && e.type === 'keydown' && !allowedKeys.includes(e.key)) {
-                            e.preventDefault();
+                        if (words.length > maxWords) {
                             editor.getContainer().style.border = "1px solid #dc3545";
+                            $('#submit').prop('disabled',true);
                             $('#des-short').text("{{ __('message.word_count') }}");
-                            return false;
-                        }
-
-                        // Handle paste separately (truncate pasted content)
-                        if (e.type === 'paste') {
-                            e.preventDefault();
-
-                            let clipboardData = (e.clipboardData || window.clipboardData);
-                            let pastedText = clipboardData.getData('text');
-
-                            let pastedWords = pastedText.trim().split(/\s+/);
-
-                            let available = maxWords - words.length;
-
-                            if (available > 0) {
-                                let wordsToPaste = pastedWords.slice(0, available).join(" ");
-
-                                editor.insertContent(" " + wordsToPaste);
-                            }
-
-                            editor.getContainer().style.border = "1px solid #dc3545";
-                            $('#des-short').text("{{ __('message.word_count') }}");
-
-                            return false;
-                        }
-
-                        if (words.length < maxWords) {
+                        } else {
                             editor.getContainer().style.border = '1px solid silver';
                             $('#des-short').text('');
                         }
                     });
+
 
 
 
