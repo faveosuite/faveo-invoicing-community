@@ -188,7 +188,7 @@ class CloudActivitiesTest extends DBTestCase
         $response = $this->call('POST', 'get-agent-inc-dec-cost', ['number' => 3, 'oldAgents' => 5, 'orderId' => $order->id]);
         $content = $response->json();
         $response->assertStatus(200);
-        $this->assertEquals($content['priceToPay'], '₹0');
+        $this->assertEquals($content['priceToPay'], '₹0.00');
     }
 
     #[\PHPUnit\Framework\Attributes\Group('Cloud domain Change')]
@@ -264,9 +264,9 @@ class CloudActivitiesTest extends DBTestCase
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(130)]);
         $response = $this->call('POST', 'get-cloud-upgrade-cost', ['agents' => 5, 'plan' => $plan2->id, 'orderId' => $order->id]);
         $content = $response->json();
-        $this->assertEquals('₹10,038', $content['price_to_be_paid']);
-        $this->assertEquals('₹24,807', $content['pricenewplan']);
-        $this->assertEquals('₹5,000', $content['priceperagent']);
+        $this->assertEquals('₹10,038.00', $content['price_to_be_paid']);
+        $this->assertEquals('₹24,807.00', $content['pricenewplan']);
+        $this->assertEquals('₹5,000.00', $content['priceperagent']);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('Cloud plan Change')]
@@ -306,9 +306,9 @@ class CloudActivitiesTest extends DBTestCase
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(130)]);
         $response = $this->call('POST', 'get-cloud-upgrade-cost', ['agents' => 5, 'plan' => $plan2->id, 'orderId' => $order->id]);
         $content = $response->json();
-        $this->assertEquals('₹0', $content['price_to_be_paid']);
-        $this->assertEquals('₹0', $content['pricenewplan']);
-        $this->assertEquals('₹3,000', $content['priceperagent']);
+        $this->assertEquals('₹0.00', $content['price_to_be_paid']);
+        $this->assertEquals('₹0.00', $content['pricenewplan']);
+        $this->assertEquals('₹3,000.00', $content['priceperagent']);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('Cloud plan Change')]
@@ -347,7 +347,7 @@ class CloudActivitiesTest extends DBTestCase
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(130)]);
         $response = $this->call('POST', 'get-cloud-upgrade-cost', ['agents' => 5, 'plan' => $plan2->id, 'orderId' => $order->id]);
         $content = $response->json();
-        $this->assertEquals('₹9,730', $content['discount']);
+        $this->assertEquals('₹9,730.00', $content['discount']);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('Cloud plan Change')]
