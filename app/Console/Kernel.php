@@ -89,11 +89,13 @@ class Kernel extends ConsoleKernel
             $logDeleteStatus = StatusSetting::pluck('activity_log_delete')->first();
             $RenewalexpiryMailStatus = StatusSetting::pluck('subs_expirymail')->first();
             $postExpirystatus = StatusSetting::pluck('post_expirymail')->first();
-            $reoonStatus=StatusSetting::pluck('reoon_deletion_status')->first();
             $invoiceDeletionstatus = StatusSetting::pluck('invoice_deletion_status')->first();
             $delLogDays = ActivityLogDay::pluck('days')->first();
             if (\Schema::hasColumn('status_settings', 'msg91_report_delete_status')) {
                 $msgDeletionStatus = StatusSetting::value('msg91_report_delete_status');
+            }
+            if (\Schema::hasColumn('status_settings', 'reoon_deletion_status')) {
+                $reoonStatus=StatusSetting::pluck('reoon_deletion_status')->first();
             }
             if ($delLogDays == null) {
                 $delLogDays = 99999999;
@@ -129,7 +131,7 @@ class Kernel extends ConsoleKernel
                         return $this->getCondition($schedule->command('cleanup:msg-reports'), $command);
                     }
                 case 'reoon':
-                    if ($reoonStatus) {
+                    if (isset($reoonStatus) && $reoonStatus) {
                         return $this->getCondition($schedule->command('reoon:logs-deletion'), $command);
 
                     }
