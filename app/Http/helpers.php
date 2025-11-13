@@ -380,7 +380,7 @@ function currencyFormat($amount = null, $currency = null, $includeSymbol = true,
 
     $precision = getCurrencyPrecision($currency);
 
-    if (!$includeSymbol) {
+    if (! $includeSymbol) {
         return Number::format(
             $amount,
             precision: $precision,
@@ -390,7 +390,6 @@ function currencyFormat($amount = null, $currency = null, $includeSymbol = true,
 
     return Number::currency($amount, $currency, $locale);
 }
-
 
 function getCurrencyPrecision($currency)
 {
