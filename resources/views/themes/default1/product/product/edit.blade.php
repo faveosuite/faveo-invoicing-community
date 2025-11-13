@@ -698,6 +698,8 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
 
     <script>
+        let uploadInProgress = false;
+
         $(function(){
             tinymce.init({
                 selector: '#product-description',
@@ -787,8 +789,11 @@
                     input.click();
                 },
 
-                // Optional: handle drag-and-drop or paste uploads
+
                 images_upload_handler: function (blobInfo, success, failure) {
+                    if (uploadInProgress) return failure('Upload already in progress');
+                    uploadInProgress = true;
+
                     let formData = new FormData();
                     formData.append('file', blobInfo.blob(), blobInfo.filename());
 
@@ -802,13 +807,17 @@
                         processData: false,
                         contentType: false,
                         success: function(data) {
-                            success(data.location);
+                            uploadInProgress = false;
+                            if (data && data.location) success(data.location);
+                            else failure('Invalid response');
                         },
                         error: function(xhr, status, error) {
+                            uploadInProgress = false;
                             failure("Image upload failed: " + error);
                         }
                     });
                 }
+
             });
 
 
@@ -1054,10 +1063,10 @@ tinymce.init({
                 convert_urls: false,
                 directionality: '{{ isRtlForLang() ? "rtl" : "ltr" }}',
                 plugins: [
-                    'advlist autolink lists link image charmap print preview hr anchor pagebreak wordcount',
+                    'advlist autolink lists link charmap print preview hr anchor pagebreak wordcount',
                     'searchreplace wordcount visualblocks visualchars code fullscreen',
-                    'insertdatetime media nonbreaking save contextmenu directionality',
-                    'emoticons template paste textcolor colorpicker textpattern imagetools'
+                    'insertdatetime nonbreaking save contextmenu directionality',
+                    'emoticons template paste textcolor colorpicker textpattern '
                 ],
                 toolbar1: 'bold italic | wordcount',
                 toolbar2: 'print preview media | forecolor backcolor emoticons',

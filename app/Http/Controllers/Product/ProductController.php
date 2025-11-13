@@ -704,8 +704,6 @@ class ProductController extends BaseProductController
                 'location' => asset(str_replace('public/', 'storage/', $path)),
             ]);
         } catch (\Exception $e) {
-            dd($e->getMessage());
-
             return response()->json(['error' => 'No file uploaded.'], 500);
         }
     }
