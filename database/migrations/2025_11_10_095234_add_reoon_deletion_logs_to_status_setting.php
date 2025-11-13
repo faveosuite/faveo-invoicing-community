@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('status_settings', function (Blueprint $table) {
-            $table->boolean('reoon_deletion_status')->default('1')->after('invoice_deletion_status');
+            $table->boolean('reoon_deletion_status')->after('invoice_deletion_status');
         });
     }
 
