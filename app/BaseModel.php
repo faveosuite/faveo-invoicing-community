@@ -15,11 +15,12 @@ use Illuminate\Database\Eloquent\Model;
  */
 class BaseModel extends Model
 {
-    protected $purifyExcept=[
+    protected $purifyExcept = [
         'short_description',
         'description',
         'product_description',
     ];
+
     public function setAttribute($property, $value)
     {
         // require_once base_path('vendor'.DIRECTORY_SEPARATOR.'htmlpurifier'
