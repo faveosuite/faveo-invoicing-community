@@ -942,8 +942,15 @@ tinymce.init({
     entity_encoding: "raw",
     automatic_uploads: true,
     file_picker_types: 'image',
-    plugins: 'image code link',
-    toolbar: 'undo redo | bold italic | alignleft aligncenter | image code',
+    plugins: [
+        'advlist autolink lists link image code charmap print preview hr anchor pagebreak',
+        'searchreplace wordcount visualblocks visualchars code fullscreen',
+        'insertdatetime media nonbreaking save table contextmenu directionality',
+        'emoticons template paste textcolor colorpicker textpattern imagetools'
+    ],
+
+    toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image code',
+    toolbar2: 'print preview media | forecolor backcolor emoticons',
 
     // Local file picker
     file_picker_callback: function(cb, value, meta) {
@@ -978,19 +985,31 @@ tinymce.init({
     },
 
     // Drag & drop / paste handler
-    images_upload_handler: function(blobInfo, success, failure) {
+    images_upload_handler: function (blobInfo, success, failure) {
+        if (uploadInProgress) return failure('Upload already in progress');
+        uploadInProgress = true;
+
         let formData = new FormData();
         formData.append('file', blobInfo.blob(), blobInfo.filename());
 
         $.ajax({
             url: '{{ url("upload-image") }}',
             type: 'POST',
-            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
             data: formData,
             processData: false,
             contentType: false,
-            success: function(data) { success(data.location); },
-            error: function(xhr, status, error) { failure("Image upload failed: " + error); }
+            success: function(data) {
+                uploadInProgress = false;
+                if (data && data.location) success(data.location);
+                else failure('Invalid response');
+            },
+            error: function(xhr, status, error) {
+                uploadInProgress = false;
+                failure("Image upload failed: " + error);
+            }
         });
     },
 
