@@ -2716,6 +2716,7 @@ return [
     'cloud_plan_error' => 'Lütfen bulut ürününü kaldırın veya alternatif bir plana bağlayın.',
     'short_description' => 'Kısa açıklama',
     'add_short_description' => 'Lütfen kısa bir açıklama girin.',
+    'word_count' => 'Lütfen kısa açıklamanızı 50 kelime içinde tutun.',
     'auto_renewal_disable' => 'Otomatik yenileme şu anda kullanılamıyor. Lütfen yardım için yöneticiyle iletişime geçin.',
     'auto_renewal_tooltip' => 'Tüm kullanıcılar için otomatik yenilemeyi etkinleştirin veya devre dışı bırakın.',
 

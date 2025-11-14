@@ -724,15 +724,11 @@
                     'advlist autolink lists link image code charmap print preview hr anchor pagebreak',
                     'searchreplace wordcount visualblocks visualchars code fullscreen',
                     'insertdatetime media nonbreaking save table contextmenu directionality',
-                    'emoticons template paste textcolor colorpicker textpattern imagetools'
+                    'emoticons paste textcolor colorpicker textpattern imagetools'
                 ],
 
                 toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image code',
                 toolbar2: 'print preview media | forecolor backcolor emoticons',
-                templates: [
-                    {title: 'Test template 1', content: 'Test 1'},
-                    {title: 'Test template 2', content: 'Test 2'}
-                ],
                 content_css: [
                     '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',
                     '//www.tinymce.com/css/codepen.min.css'
@@ -947,7 +943,7 @@ tinymce.init({
         'advlist autolink lists link image code charmap print preview hr anchor pagebreak',
         'searchreplace wordcount visualblocks visualchars code fullscreen',
         'insertdatetime media nonbreaking save table contextmenu directionality',
-        'emoticons template paste textcolor colorpicker textpattern imagetools'
+        'emoticons paste textcolor colorpicker textpattern imagetools'
     ],
 
     toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image code',
@@ -1058,15 +1054,11 @@ tinymce.init({
                     'advlist autolink lists link charmap print preview hr anchor pagebreak wordcount',
                     'searchreplace wordcount visualblocks visualchars code fullscreen',
                     'insertdatetime nonbreaking save contextmenu directionality',
-                    'emoticons template paste textcolor colorpicker textpattern '
+                    'emoticons paste textcolor colorpicker textpattern '
                 ],
                 toolbar1: 'bold italic | wordcount',
                 toolbar2: 'print preview media | forecolor backcolor emoticons',
                 image_advtab: true,
-                templates: [
-                    {title: 'Test template 1', content: 'Test 1'},
-                    {title: 'Test template 2', content: 'Test 2'}
-                ],
                 content_css: [
                     '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',
                     '//www.tinymce.com/css/codepen.min.css'
@@ -1096,6 +1088,8 @@ tinymce.init({
                                 e.preventDefault();
                                 editor.getContainer().style.border = "1px solid #dc3545";
                                 $('#des-short').text("{{ __('message.word_count') }}");
+                                $('#submit').prop('disabled',true);
+
                                 return false;
                             }
 
@@ -1112,10 +1106,11 @@ tinymce.init({
                                 if (available > 0) {
                                     let wordsToPaste = pastedWords.slice(0, available).join(" ");
                                     editor.insertContent(" " + wordsToPaste);
+
                                 }
 
-                                editor.getContainer().style.border = "1px solid #dc3545";
-                                $('#des-short').text("{{ __('message.word_count') }}");
+                                {{--editor.getContainer().style.border = "1px solid #dc3545";--}}
+                                {{--$('#des-short').text("{{ __('message.word_count') }}");--}}
                                 return false;
                             }
 
@@ -1160,15 +1155,11 @@ tinymce.init({
                     'advlist autolink lists link image charmap print preview hr anchor pagebreak',
                     'searchreplace wordcount visualblocks visualchars code fullscreen',
                     'insertdatetime media nonbreaking save table contextmenu directionality',
-                    'emoticons template paste textcolor colorpicker textpattern imagetools'
+                    'emoticons paste textcolor colorpicker textpattern imagetools'
                 ],
                 toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
                 toolbar2: 'print preview media | forecolor backcolor emoticons',
                 image_advtab: true,
-                templates: [
-                    {title: 'Test template 1', content: 'Test 1'},
-                    {title: 'Test template 2', content: 'Test 2'}
-                ],
                 content_css: [
                     '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',
                     '//www.tinymce.com/css/codepen.min.css'

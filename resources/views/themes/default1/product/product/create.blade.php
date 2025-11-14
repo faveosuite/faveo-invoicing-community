@@ -177,15 +177,11 @@
                                         'advlist autolink lists link image code charmap print preview hr anchor pagebreak',
                                         'searchreplace wordcount visualblocks visualchars code fullscreen',
                                         'insertdatetime media nonbreaking save table contextmenu directionality',
-                                        'emoticons template paste textcolor colorpicker textpattern imagetools'
+                                        'emoticons paste textcolor colorpicker textpattern imagetools'
                                     ],
 
                                     toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image code',
                                     toolbar2: 'print preview media | forecolor backcolor emoticons',
-                                    templates: [
-                                        {title: 'Test template 1', content: 'Test 1'},
-                                        {title: 'Test template 2', content: 'Test 2'}
-                                    ],
                                     content_css: [
                                         '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',
                                         '//www.tinymce.com/css/codepen.min.css'
@@ -294,63 +290,66 @@
                                         'advlist autolink lists link charmap print preview hr anchor pagebreak wordcount',
                                         'searchreplace wordcount visualblocks visualchars code fullscreen',
                                         'insertdatetime nonbreaking save contextmenu directionality',
-                                        'emoticons template paste textcolor colorpicker textpattern '
+                                        'emoticons paste textcolor colorpicker textpattern '
                                     ],
                                     toolbar1: 'bold italic | wordcount',
                                     toolbar2: 'print preview media | forecolor backcolor emoticons',
                                     image_advtab: true,
-                                    templates: [
-                                        {title: 'Test template 1', content: 'Test 1'},
-                                        {title: 'Test template 2', content: 'Test 2'}
-                                    ],
                                     content_css: [
                                         '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',
                                         '//www.tinymce.com/css/codepen.min.css'
                                     ],
                                     setup: function (editor) {
                                         const maxWords = 50;
-                                        editor.on('keydown paste input', function(e) {
-                                            let content = editor.getContent({ format: 'text' }).trim();
-                                            let words = content === '' ? [] : content.split(/\s+/);
+                                        editor.on('keydown paste input cut', function(e) {
+                                            // Small delay ensures TinyMCE updates its content before checking
+                                            setTimeout(function() {
+                                                let content = editor.getContent({ format: 'text' }).trim();
+                                                let words = content === '' ? [] : content.split(/\s+/);
 
-                                            const allowedKeys = [
-                                                'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight',
-                                                'ArrowUp', 'ArrowDown', 'Home', 'End', 'Tab'
-                                            ];
-                                            if (words.length > maxWords && e.type === 'keydown' && !allowedKeys.includes(e.key)) {
-                                                e.preventDefault();
-                                                editor.getContainer().style.border = "1px solid #dc3545";
-                                                $('#des-short').text("{{ __('message.word_count') }}");
-                                                return false;
-                                            }
+                                                const allowedKeys = [
+                                                    'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight',
+                                                    'ArrowUp', 'ArrowDown', 'Home', 'End', 'Tab'
+                                                ];
 
-                                            // Handle paste separately (truncate pasted content)
-                                            if (e.type === 'paste') {
-                                                e.preventDefault();
+                                                // Prevent typing beyond limit
+                                                if (words.length > maxWords && e.type === 'keydown' && !allowedKeys.includes(e.key)) {
+                                                    e.preventDefault();
+                                                    editor.getContainer().style.border = "1px solid #dc3545";
+                                                    $('#des-short').text("{{ __('message.word_count') }}");
+                                                    $('#submit').prop('disabled',true);
 
-                                                let clipboardData = (e.clipboardData || window.clipboardData);
-                                                let pastedText = clipboardData.getData('text');
-
-                                                let pastedWords = pastedText.trim().split(/\s+/);
-
-                                                let available = maxWords - words.length;
-
-                                                if (available > 0) {
-                                                    let wordsToPaste = pastedWords.slice(0, available).join(" ");
-
-                                                    editor.insertContent(" " + wordsToPaste);
+                                                    return false;
                                                 }
 
-                                                editor.getContainer().style.border = "1px solid #dc3545";
-                                                $('#des-short').text("{{ __('message.word_count') }}");
+                                                // Handle paste (truncate)
+                                                if (e.type === 'paste') {
+                                                    e.preventDefault();
 
-                                                return false;
-                                            }
+                                                    let clipboardData = (e.clipboardData || window.clipboardData);
+                                                    let pastedText = clipboardData.getData('text');
+                                                    let pastedWords = pastedText.trim().split(/\s+/);
 
-                                            if (words.length < maxWords) {
-                                                editor.getContainer().style.border = '1px solid silver';
-                                                $('#des-short').text('');
-                                            }
+                                                    let available = maxWords - words.length;
+
+                                                    if (available > 0) {
+                                                        let wordsToPaste = pastedWords.slice(0, available).join(" ");
+                                                        editor.insertContent(" " + wordsToPaste);
+
+                                                    }
+
+                                                    {{--editor.getContainer().style.border = "1px solid #dc3545";--}}
+                                                    {{--$('#des-short').text("{{ __('message.word_count') }}");--}}
+                                                        return false;
+                                                }
+
+                                                // ✅ Reset if under limit after delete/cut
+                                                if (words.length <= maxWords) {
+                                                    editor.getContainer().style.border = '1px solid silver';
+                                                    $('#submit').prop('disabled',false);
+                                                    $('#des-short').text('');
+                                                }
+                                            }, 0); // Delay 0ms — allows TinyMCE to finish updating
                                         });
                                     }
                                 });
@@ -527,15 +526,12 @@
                                         'advlist autolink lists link image code charmap print preview hr anchor pagebreak',
                                         'searchreplace wordcount visualblocks visualchars code fullscreen',
                                         'insertdatetime media nonbreaking save table contextmenu directionality',
-                                        'emoticons template paste textcolor colorpicker textpattern imagetools'
+                                        'emoticons paste textcolor colorpicker textpattern imagetools'
                                     ],
 
                                     toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image code',
                                     toolbar2: 'print preview media | forecolor backcolor emoticons',
-                                    templates: [
-                                        {title: 'Test template 1', content: 'Test 1'},
-                                        {title: 'Test template 2', content: 'Test 2'}
-                                    ],
+
                                     content_css: [
                                         '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',
                                         '//www.tinymce.com/css/codepen.min.css'

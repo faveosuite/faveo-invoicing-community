@@ -2547,6 +2547,7 @@ return [
     'cloud_plan_error' => 'يرجى إزالة المنتج السحابي أو ربطه بخطة بديلة.',
     'short_description' => 'وصف قصير',
     'add_short_description' => 'الرجاء إدخال وصف قصير.',
+    'word_count' => 'يرجى الحفاظ على الوصف القصير ضمن 50 كلمة.',
 
     'continue_verify_social_login' => 'انقر على "Validate" للمتابعة وتأكيد هويتك',
     'auto_renewal_disable' => 'التجديد التلقائي غير متاح حالياً. يرجى الاتصال بالمسؤول للحصول على المساعدة.',
