@@ -300,12 +300,14 @@
                                         '//www.tinymce.com/css/codepen.min.css'
                                     ],
                                     setup: function (editor) {
-                                        const maxWords = 50;
-                                        editor.on('keydown paste input cut', function(e) {
+                                        const maxWords = 49;
+                                        editor.on('change input NodeChange SetContent', function(e) {
+
                                             // Small delay ensures TinyMCE updates its content before checking
                                             setTimeout(function() {
                                                 let content = editor.getContent({ format: 'text' }).trim();
                                                 let words = content === '' ? [] : content.split(/\s+/);
+
 
                                                 const allowedKeys = [
                                                     'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight',
@@ -313,7 +315,7 @@
                                                 ];
 
                                                 // Prevent typing beyond limit
-                                                if (words.length > maxWords && e.type === 'keydown' && !allowedKeys.includes(e.key)) {
+                                                if (words.length > maxWords && !allowedKeys.includes(e.key)) {
                                                     e.preventDefault();
                                                     editor.getContainer().style.border = "1px solid #dc3545";
                                                     $('#des-short').text("{{ __('message.word_count') }}");
@@ -351,6 +353,7 @@
                                                 }
                                             }, 0); // Delay 0ms — allows TinyMCE to finish updating
                                         });
+
                                     }
                                 });
                             </script>
