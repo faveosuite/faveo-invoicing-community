@@ -481,11 +481,12 @@ class CronController extends BaseCronController
         }
     }
 
-    public function reoonLogsDeletion(){
-        if(! $this->shouldDeleteReooLogs()){
+    public function reoonLogsDeletion()
+    {
+        if (! $this->shouldDeleteReooLogs()) {
             return;
         }
-        $days=ExpiryMailDay::value('reoon_logs_days');
+        $days = ExpiryMailDay::value('reoon_logs_days');
         $logs = $this->getOldReoonLogs($days);
         foreach ($logs as $log) {
             $log->delete();
@@ -497,9 +498,9 @@ class CronController extends BaseCronController
         return StatusSetting::value('invoice_deletion_status') == 1;
     }
 
-    private function shouldDeleteReooLogs(){
+    private function shouldDeleteReooLogs()
+    {
         return StatusSetting::value('reoon_deletion_status') == 1;
-
     }
 
     private function getOldInvoices($days)
@@ -551,7 +552,6 @@ class CronController extends BaseCronController
             $invoice->delete();
         });
     }
-
 
     public function msgDeletions()
     {

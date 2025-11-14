@@ -318,7 +318,6 @@ trait ApiKeySettings
             $reoon_commands = \Request::get('reoon-commands');
             $reoon_dailyAt = \Request::get('reoon-dailyAt');
 
-
             $activity_command = $this->getCommand($activity_commands, $activity_dailyAt);
             $expiry_command = $this->getCommand($expiry_commands, $expiry_dailyAt);
             $subexpiry_command = $this->getCommand($subexpiry_commands, $subexpiry_dailyAt);
@@ -330,7 +329,7 @@ trait ApiKeySettings
             $reoon_command = $this->getCommand($reoon_commands, $reoon_dailyAt);
 
             $jobs = ['expiryMail' => $expiry_command, 'deleteLogs' => $activity_command, 'subsExpirymail' => $subexpiry_command, 'postExpirymail' => $postexpiry_command,
-                'cloud' => $cloud_command, 'invoice' => $invoice_command, 'msg91Reports' => $msg91_command, 'reoon' => $reoon_command,];
+                'cloud' => $cloud_command, 'invoice' => $invoice_command, 'msg91Reports' => $msg91_command, 'reoon' => $reoon_command, ];
 
             $this->storeCommand($jobs);
         }

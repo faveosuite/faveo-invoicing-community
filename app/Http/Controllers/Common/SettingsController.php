@@ -1123,9 +1123,11 @@ class SettingsController extends BaseSettingsController
         return successResponse(trans('message.success'), $response);
     }
 
-    public function getEmailValidationLogs(){
+    public function getEmailValidationLogs()
+    {
         try {
             $query = EmailValidationResults::query();
+
             return \DataTables::of($query)
                 ->orderColumn('email', '-created_at $1')
                 ->orderColumn('method', '-created_at $1')
@@ -1140,12 +1142,12 @@ class SettingsController extends BaseSettingsController
                     return $query->status;
                 })
                 ->addColumn('result', function ($query) {
-                    if($query->state){
+                    if ($query->state) {
                         return  '<button  class="btn btn-light-scale-2 btn-sm text-dark" id="show-results" data-id='.$query->id.' data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"><i class="fa fa-eye"></i></button>
                                  <button  class="btn btn-light-scale-2 btn-sm text-dark" id="show-user-results" data-id='.$query->id.' data-toggle="tooltip" data-placement="top" title="Click here to view User Details"><i class="fa fa-eye"></i></button>';
                     }
-                    return  '<button  class="btn btn-light-scale-2 btn-sm text-dark" id="show-results" data-id='.$query->id.' data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"><i class="fa fa-eye"></i></button>';
 
+                    return  '<button  class="btn btn-light-scale-2 btn-sm text-dark" id="show-results" data-id='.$query->id.' data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"><i class="fa fa-eye"></i></button>';
                 })
                 ->addColumn('registration', function ($query) {
                     return $query->registration;
@@ -1153,7 +1155,6 @@ class SettingsController extends BaseSettingsController
                 ->addColumn('created_at', function ($query) {
                     return $query->created_at;
                 })
-
 
                 ->filterColumn('email', function ($query, $keyword) {
                     $query->whereRaw('email like ?', ["%{$keyword}%"]);
@@ -1167,34 +1168,37 @@ class SettingsController extends BaseSettingsController
                 })
                 ->rawColumns(['email', 'method', 'status', 'result', 'created_at'])
                 ->make(true);
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             dd($e->getMessage());
         }
     }
 
-    public function getEmailValidationResults(Request $request){
+    public function getEmailValidationResults(Request $request)
+    {
         $id = $request->input('id');
-        $result=json_decode(EmailValidationResults::where('id',$id)->value('result'));
-       return successResponse(trans('message.success'), $result);
+        $result = json_decode(EmailValidationResults::where('id', $id)->value('result'));
+
+        return successResponse(trans('message.success'), $result);
     }
 
-    public function getEmailValidationUserResults(Request $request){
+    public function getEmailValidationUserResults(Request $request)
+    {
         try {
             $id = $request->input('id');
             $result = EmailValidationResults::where('id', $id)->first();
-            $content = ['name' => $result->first_name .' '.$result->last_name,
-                'mobile Number' => '+' . $result->mobile_code . $result->mobile,
+            $content = ['name' => $result->first_name.' '.$result->last_name,
+                'mobile Number' => '+'.$result->mobile_code.$result->mobile,
                 'email' => $result->email,
                 'company Name' => $result->company,
                 'address' => $result->address,
-                'country'=>Country::where('country_code_char2',$result->country)->value('country_name'),
-                'state' => State::where('state_subdivision_code',$result->state)->value('state_subdivision_name'),
-                'city' => $result->town,];
+                'country' => Country::where('country_code_char2', $result->country)->value('country_name'),
+                'state' => State::where('state_subdivision_code', $result->state)->value('state_subdivision_name'),
+                'city' => $result->town, ];
+
             return successResponse(trans('message.success'), $content);
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             dd($e->getMessage());
         }
-
     }
 
     private function setStatus($current)
@@ -1205,10 +1209,10 @@ class SettingsController extends BaseSettingsController
             'unknown' => 4,
             'invalid' => 8,
             'disabled' => 16,
-            'disposable'=>32,
-            'inbox_full'=>64,
-            'role_account'=>128,
-            'spamtrap'=>256,
+            'disposable' => 32,
+            'inbox_full' => 64,
+            'role_account' => 128,
+            'spamtrap' => 256,
         ];
 
         $statusOptions = '';
