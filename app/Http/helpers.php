@@ -114,7 +114,7 @@ function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = 'M j, Y
         $user = Auth::user();
 
         $tz = Cache::remember(
-            'user_timezone_' . ($user->id ?? 'guest'),
+            'user_timezone_'.($user->id ?? 'guest'),
             5,
             function () use ($user) {
                 return $user->timezone->name ?? 'UTC';
@@ -124,7 +124,6 @@ function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = 'M j, Y
         $timezone = new DateTimeZone($tz);
 
         return $date->setTimezone($timezone)->format($format);
-
     } catch (\Exception $e) {
         return $dateTimeString;
     }
@@ -402,7 +401,6 @@ function currencyFormat($amount = null, $currency = null, $includeSymbol = true,
         }
 
         return Number::currency($amount, $currency, $locale);
-
     } catch (\Throwable $e) {
         return $amount;
     }
@@ -1040,7 +1038,7 @@ function getUserStateWithCountry($country = null, $state = null)
     }
 
     $country = $country ?? $user->country ?? '';
-    $state   = $state ?? $user->state ?? '';
+    $state = $state ?? $user->state ?? '';
 
     return trim("{$country}-{$state}", '-');
 }
