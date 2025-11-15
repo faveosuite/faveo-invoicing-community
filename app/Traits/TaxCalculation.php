@@ -301,7 +301,6 @@ trait TaxCalculation
             $tax = $price * ($rate / 100);
 
             return $tax;
-
         } catch (\Throwable $ex) {
             return 0;
         }

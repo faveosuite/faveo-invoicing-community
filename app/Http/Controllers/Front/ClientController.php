@@ -447,36 +447,33 @@ class ClientController extends BaseClientController
             $data = $this->prepareInvoiceData($invoice);
 
             return view('themes.default1.front.clients.show-invoice', array_merge(['invoice' => $invoice], $data));
-
         } catch (\Exception $ex) {
             return redirect()->route('my-invoices')->with('fails', $ex->getMessage());
         }
     }
 
-
-
     public function prepareInvoiceData($invoice, $user = null)
     {
         $payments = $invoice->payment;
-        $user     = $user ?? \Auth::user();
-        $items    = $invoice->invoiceItem()->get();
-        $order    = $this->order->getOrderLink($invoice->orderRelation()->value('order_id'), 'my-order');
-        $set      = Setting::find(1);
-        $date     = getDateHtml($invoice->date);
-        $symbol   = $invoice->currency;
+        $user = $user ?? \Auth::user();
+        $items = $invoice->invoiceItem()->get();
+        $order = $this->order->getOrderLink($invoice->orderRelation()->value('order_id'), 'my-order');
+        $set = Setting::find(1);
+        $date = getDateHtml($invoice->date);
+        $symbol = $invoice->currency;
 
         switch ($invoice->status) {
             case 'Success':
                 $statusClass = 'text-success';
-                $statusText  = 'PAID';
+                $statusText = 'PAID';
                 break;
             case 'partially paid':
                 $statusClass = 'text-warning';
-                $statusText  = 'Partially paid';
+                $statusText = 'Partially paid';
                 break;
             default:
                 $statusClass = 'text-fail';
-                $statusText  = 'Unpaid';
+                $statusText = 'Unpaid';
         }
 
         // ==== CALCULATIONS ====
@@ -492,7 +489,7 @@ class ClientController extends BaseClientController
                 $taxAmt += floatval($item->subtotal);
             }
 
-            $taxName[] = $item->tax_name . '@' . $item->tax_percentage;
+            $taxName[] = $item->tax_name.'@'.$item->tax_percentage;
         }
 
         $taxName = array_unique($taxName);
@@ -500,16 +497,18 @@ class ClientController extends BaseClientController
         $gstSplit = [];
 
         foreach ($taxName as $tax) {
-            list($name, $percentage) = explode('@', $tax);
-            if ($name == 'null') continue;
+            [$name, $percentage] = explode('@', $tax);
+            if ($name == 'null') {
+                continue;
+            }
 
             $split = bifurcateTax($name, $percentage, $user->currency, $user->state, $taxAmt);
 
             $gstSplit[] = [
-                'name'       => $name,
+                'name' => $name,
                 'percentage' => $percentage,
-                'labels'     => explode('<br>', $split['html']),
-                'values'     => explode('<br>', $split['tax']),
+                'labels' => explode('<br>', $split['html']),
+                'values' => explode('<br>', $split['tax']),
             ];
         }
 
@@ -517,7 +516,7 @@ class ClientController extends BaseClientController
 
         $taxDeducted = array_sum(
             array_map(
-                fn($v) => (float) preg_replace('/[^0-9.\-]/', '', $v),
+                fn ($v) => (float) preg_replace('/[^0-9.\-]/', '', $v),
                 array_merge(...$values)
             )
         );
@@ -550,7 +549,6 @@ class ClientController extends BaseClientController
             'processingFeeAmount'
         );
     }
-
 
     /**
      * Get list of all the versions from Filesystem.

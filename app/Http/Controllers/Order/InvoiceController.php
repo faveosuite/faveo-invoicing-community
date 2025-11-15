@@ -566,8 +566,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 'invoiceItems' => $data['items'],
             ], $data));
 
-            return $pdf->download($user->first_name . '-invoice.pdf');
-
+            return $pdf->download($user->first_name.'-invoice.pdf');
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

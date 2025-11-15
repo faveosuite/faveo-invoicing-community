@@ -111,8 +111,7 @@ class CheckoutController extends InfoController
      */
     public function checkoutForm(Request $request)
     {
-        if (!auth()->check()) {
-
+        if (! auth()->check()) {
             \Session::put('content', Cart::getContent());
 
             if ($request->has('domain')) {
@@ -308,11 +307,11 @@ class CheckoutController extends InfoController
             $state = $this->getState();
 
             if ($paynow === false) {//When regular payment
-                if(\Session::get('generated_invoice_token') !== $request->input('checkout_token')){
+                if (\Session::get('generated_invoice_token') !== $request->input('checkout_token')) {
                     $invoice = $invoice_controller->generateInvoice();
                     \Session::put('generated_invoice_token', $request->input('checkout_token'));
                     \Session::put('generated_invoice', $invoice->id);
-                }else{
+                } else {
                     $invoiceId = \Session::get('generated_invoice');
                     $invoice = $this->invoice->find($invoiceId);
                 }
