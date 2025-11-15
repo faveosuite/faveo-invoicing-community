@@ -19,7 +19,7 @@ class HelpersTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        Cache::shouldReceive('remember')->once()->withArgs(['timezone_'.$this->user->id, 5, \Closure::class])->andReturn('Asia/Kolkata');
+        Cache::shouldReceive('remember')->once()->withArgs(['user_timezone_'.$this->user->id, 5, \Closure::class])->andReturn('Asia/Kolkata');
 
         getTimeInLoggedInUserTimeZone(Carbon::now()->startOfMillennium());
     }
@@ -55,7 +55,7 @@ class HelpersTest extends DBTestCase
         $this->user->country = 'IN';
         $this->withoutMiddleware();
 
-        $a = bifurcateTax('CGST+SGST', '18%', 'INR', 'IN-KA', '1000');
+        $a = bifurcateTax('CGST+SGST', '18%', 'INR', 'KA', '1000');
         $this->assertEquals($a, ['html' => 'CGST@9%<br>SGST@9%', 'tax' => '₹90.00<br>₹90.00']);
     }
 
@@ -75,7 +75,7 @@ class HelpersTest extends DBTestCase
         $this->user->country = 'IN';
         $this->withoutMiddleware();
 
-        $a = bifurcateTax('CGST+UTGST', '18%', 'INR', 'IN-AN', '1000');
+        $a = bifurcateTax('CGST+UTGST', '18%', 'INR', 'AN', '1000');
         $this->assertEquals($a, ['html' => 'CGST@9%<br>UTGST@9%', 'tax' => '₹90.00<br>₹90.00']);
     }
 

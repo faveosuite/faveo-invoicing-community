@@ -55,8 +55,8 @@ class TaxCalculationTest extends DBTestCase
     #[Group('tax')]
     public function test_calculateTax_whenIntraStateGstAppliedOnProduct_taxValueAndNameIsReturned()
     {
-        $user = User::factory()->create(['state' => 'IN-KA', 'country' => 'IN']);
-        $setting = Setting::factory()->create(['state' => 'IN-KA', 'country' => 'IN']);
+        $user = User::factory()->create(['state' => 'KA', 'country' => 'IN']);
+        $setting = Setting::factory()->create(['state' => 'KA', 'country' => 'IN']);
         $this->withoutMiddleware();
         $this->call('POST', 'taxes/class', ['name' => 'Intra State GST', 'tax-name' => 'CGST+SGST', 'active' => 1]);
         $this->call('POST', 'license-type', ['name' => 'Download Perpetual']);
@@ -65,7 +65,7 @@ class TaxCalculationTest extends DBTestCase
         $product = Product::factory()->create(['type' => $licenseType->id, 'product_sku' => 'test']);
         TaxOption::where('id', 1)->update(['tax_enable' => 1]);
         TaxProductRelation::create(['product_id' => $product->id, 'tax_class_id' => $taxClass->id]);
-        $tax = $this->classObject->calculateTax($product->id, $user->state, $user->country, true);
+        $tax = $this->classObject->calculateTax($product->id, getUserStateWithCountry($user->country, $user->state), $user->country, true);
         $this->assertEquals($tax['name'], 'CGST+SGST');
         $this->assertEquals($tax['value'], '18%');
     }

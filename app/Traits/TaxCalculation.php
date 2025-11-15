@@ -25,7 +25,7 @@ trait TaxCalculation
             if (TaxOption::findOrFail(1)->inclusive == 0) {
                 $tax_enable = TaxOption::findOrFail(1)->tax_enable;
                 //Check the state of user for calculating GST(cgst,igst,utgst,sgst)
-                $indian_state = TaxByState::where('state_code', getUserStateWithCountry())->first();
+                $indian_state = TaxByState::where('state_code', $user_state)->first();
                 $origin_state = Setting::first()->state; //Get the State of origin
                 $origin_country = Setting::first()->country; //Get the State of origin
                 $tax_class_id = TaxProductRelation::where('product_id', $productid)->pluck('tax_class_id')->toArray();

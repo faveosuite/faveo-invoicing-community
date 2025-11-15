@@ -345,7 +345,7 @@ class BaseCartControllerTest extends DBTestCase
         ]);
         $checkoutController = new CheckoutController();
         $checkoutController->getAttributes(\Cart::getContent());
-        $response = $this->withSession(['nothingLeft' => 0, 'discount' => 300, 'priceRemaining' => 1, 'priceToBePaid' => 0])->call('post', 'checkout-and-pay', ['cost' => 0, 'payment_gateway' => '', 'invoice_id' => 0]);
+        $response = $this->withSession(['nothingLeft' => 0, 'discount' => 300, 'priceRemaining' => 1, 'priceToBePaid' => 0])->call('post', 'checkout-and-pay', ['cost' => 0, 'payment_gateway' => '', 'invoice_id' => 0, 'checkout_token' => \Str::uuid()]);
         $response->assertStatus(302);
         $response->assertRedirect('checkout');
         $amount = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');

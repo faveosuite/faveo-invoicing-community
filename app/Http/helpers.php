@@ -125,7 +125,7 @@ function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = 'M j, Y
 
         return $date->setTimezone($timezone)->format($format);
     } catch (\Exception $e) {
-        return $dateTimeString;
+        throw new Exception($e);
     }
 }
 
@@ -484,7 +484,7 @@ function getIndianCurrencyFormat($number)
 function bifurcateTax($taxName, $taxValue, $currency, $state, $price = '')
 {
     if (\Auth::user()->country == 'IN') {
-        $gst = TaxByState::where('state_code', getUserStateWithCountry())->select('c_gst', 's_gst', 'ut_gst')->first();
+        $gst = TaxByState::where('state_code', getUserStateWithCountry('IN', $state))->select('c_gst', 's_gst', 'ut_gst')->first();
         if ($taxName == 'CGST+SGST') {
             $html = 'CGST@'.$gst->c_gst.'%<br>SGST@'.$gst->s_gst.'%';
 
@@ -1032,10 +1032,6 @@ function deleteUserSessions(int $userId, string $password): void
 function getUserStateWithCountry($country = null, $state = null)
 {
     $user = auth()->user();
-
-    if (! $user) {
-        return null;
-    }
 
     $country = $country ?? $user->country ?? '';
     $state = $state ?? $user->state ?? '';
