@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\Front\CartController;
+use App\Http\Controllers\Front\ClientController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Http\Requests\InvoiceRequest;
 use App\Jobs\ReportExport;
@@ -267,19 +268,17 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     public function show(Request $request)
     {
         try {
-            $invoice = Invoice::leftJoin('order_invoice_relations', 'invoices.id', '=', 'order_invoice_relations.invoice_id')
+            $invoice = Invoice::findOrFail($request->input('invoiceid'));
 
-            ->select('invoices.id', 'invoices.user_id', 'invoices.created_at', 'invoices.date', 'invoices.currency', 'invoices.number', 'invoices.discount', 'invoices.grand_total', 'invoices.processing_fee', 'order_invoice_relations.order_id')
-            ->where('invoices.id', '=', $request->input('invoiceid'))
-            ->first();
             if (User::onlyTrashed()->find($invoice->user_id)) {
                 throw new \Exception(__('message.user_suspended'));
             }
-            $invoiceItems = $invoice->invoiceItem()->get();
-            $user = $this->user->find($invoice->user_id);
-            $order = Order::getOrderLink($invoice->order_id, 'orders');
 
-            return view('themes.default1.invoice.show', compact('invoiceItems', 'invoice', 'user', 'order'));
+            $user = $this->user->findOrFail($invoice->user_id);
+
+            $invoiceData = (new ClientController())->prepareInvoiceData($invoice, $user);
+
+            return view('themes.default1.invoice.show', array_merge(['invoice' => $invoice], $invoiceData));
         } catch (\Exception $ex) {
             app('log')->warning($ex->getMessage());
 
@@ -546,33 +545,29 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         try {
             $id = $request->input('invoiceid');
             if (! $id) {
-                return redirect()->back()->with('fails', \Lang::get('message.no-invoice-id'));
+                return redirect()->back()->with('fails', __('message.no-invoice-id'));
             }
-            $invoice = $this->invoice->where('id', $id)->first();
 
-            $user = $this->user->find($invoice->user_id);
+            $invoice = $this->invoice->find($id);
 
-            if (! $user || ($user->id != \Auth::user()->id && \Auth::user()->role != 'admin')) {
+            if (! $invoice) {
+                return redirect()->back()->with('fails', __('message.invalid-invoice-id'));
+            }
+
+            $user = \Auth::user();
+            if ($invoice->user_id != $user->id && $user->role != 'admin') {
                 return redirect()->back()->with('fails', __('message.invalid_user'));
             }
 
-            if (! $invoice) {
-                return redirect()->back()->with('fails', \Lang::get('message.invalid-invoice-id'));
-            }
-            $invoiceItems = $this->invoiceItem->where('invoice_id', $id)->get();
-            if ($invoiceItems->count() == 0) {
-                return redirect()->back()->with('fails', \Lang::get('message.invalid-invoice-id'));
-            }
+            $data = (new ClientController())->prepareInvoiceData($invoice);
 
-            $order = $this->order->getOrderLink($invoice->orderRelation()->value('order_id'), 'my-order');
-            // $order = Order::getOrderLink($invoice->order_id);
-            $currency = $invoice->currency;
-            $gst = TaxOption::select('tax_enable', 'Gst_No')->first();
-            $symbol = $invoice->currency;
-            // ini_set('max_execution_time', '0');
-            $pdf = \PDF::loadView('themes.default1.invoice.newpdf', compact('invoiceItems', 'invoice', 'user', 'currency', 'symbol', 'gst', 'order'));
+            $pdf = \PDF::loadView('themes.default1.invoice.newpdf', array_merge([
+                'invoice' => $invoice,
+                'invoiceItems' => $data['items'],
+            ], $data));
 
-            return $pdf->download($user->first_name.'-invoice.pdf');
+            return $pdf->download($user->first_name . '-invoice.pdf');
+
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

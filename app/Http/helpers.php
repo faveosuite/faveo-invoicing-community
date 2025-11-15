@@ -108,13 +108,26 @@ function successResponse($message = '', $data = '', $statusCode = 200)
  */
 function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = 'M j, Y, g:i a')
 {
-    // caching for 4 seconds so for consecutive queries, it will be readily available. And even if someone updates their
-    // timezone, it will start showing the new timezone after 4 seconds
-    $timezone = Cache::remember('timezone_'.Auth::user()->id, 5, function () {
-        return Auth::user()->timezone->name;
-    });
+    try {
+        $date = new DateTime($dateTimeString, new DateTimeZone('UTC'));
 
-    return (new DateTime($dateTimeString))->setTimezone(new DateTimeZone($timezone))->format($format);
+        $user = Auth::user();
+
+        $tz = Cache::remember(
+            'user_timezone_' . ($user->id ?? 'guest'),
+            5,
+            function () use ($user) {
+                return $user->timezone->name ?? 'UTC';
+            }
+        );
+
+        $timezone = new DateTimeZone($tz);
+
+        return $date->setTimezone($timezone)->format($format);
+
+    } catch (\Exception $e) {
+        return $dateTimeString;
+    }
 }
 
 /**
@@ -370,25 +383,29 @@ function getCurrencyForClient($countryCode)
     return $country && isset($country->currency) ? $country->currency->code : Setting::value('default_currency');
 }
 
-function currencyFormat($amount = null, $currency = null, $includeSymbol = true, $shouldRound = true)
+function currencyFormat($amount = null, $currency = null, $includeSymbol = true, $shouldRound = false)
 {
-    if ($shouldRound) {
-        $amount = rounding($amount);
+    try {
+        if ($shouldRound) {
+            $amount = rounding($amount);
+        }
+
+        $locale = app()->getLocale();
+        $precision = getCurrencyPrecision($currency);
+
+        if (! $includeSymbol) {
+            return Number::format(
+                $amount,
+                precision: $precision,
+                locale: $locale
+            );
+        }
+
+        return Number::currency($amount, $currency, $locale);
+
+    } catch (\Throwable $e) {
+        return $amount;
     }
-
-    $locale = app()->getLocale();
-
-    $precision = getCurrencyPrecision($currency);
-
-    if (! $includeSymbol) {
-        return Number::format(
-            $amount,
-            precision: $precision,
-            locale: $locale
-        );
-    }
-
-    return Number::currency($amount, $currency, $locale);
 }
 
 function getCurrencyPrecision($currency)
@@ -469,7 +486,7 @@ function getIndianCurrencyFormat($number)
 function bifurcateTax($taxName, $taxValue, $currency, $state, $price = '')
 {
     if (\Auth::user()->country == 'IN') {
-        $gst = TaxByState::where('state_code', $state)->select('c_gst', 's_gst', 'ut_gst')->first();
+        $gst = TaxByState::where('state_code', getUserStateWithCountry())->select('c_gst', 's_gst', 'ut_gst')->first();
         if ($taxName == 'CGST+SGST') {
             $html = 'CGST@'.$gst->c_gst.'%<br>SGST@'.$gst->s_gst.'%';
 
@@ -1012,4 +1029,18 @@ function deleteUserSessions(int $userId, string $password): void
     // Clean directory keeping only selected sessions
     $keepFiles = $sessionsToKeep->map(fn ($file) => $file->getFilename())->all();
     File::cleanDirectoryFiles($sessionPath, $keepFiles);
+}
+
+function getUserStateWithCountry($country = null, $state = null)
+{
+    $user = auth()->user();
+
+    if (! $user) {
+        return null;
+    }
+
+    $country = $country ?? $user->country ?? '';
+    $state   = $state ?? $user->state ?? '';
+
+    return trim("{$country}-{$state}", '-');
 }

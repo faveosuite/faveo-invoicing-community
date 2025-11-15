@@ -966,7 +966,7 @@ class CloudExtraActivities extends Controller
             }
         }
         // Call the currencyFormat function or perform necessary formatting
-        $formattedValue = currencyFormat($amount, $currency, true);
+        $formattedValue = currencyFormat($amount, $currency, true, true);
 
         return response()->json(['formatted_value' => $formattedValue]);
     }

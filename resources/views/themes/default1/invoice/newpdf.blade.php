@@ -1,285 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>{{ __('message.pdf_invoice') }}</title>
+    <link rel="stylesheet" href="{{ asset('admin/css/bootstrap.min.css')}}">
 
-        
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <title>{{ __('message.pdf_invoice') }}</title>
-        <link rel="stylesheet" href="{{asset('admin/css/bootstrap.min.css')}}">
-    </head>  
+
     <style>
-        .invoice-col{float:left;width:33.3333333%}
-        .float-right{float:right!important}
-        .table-striped tbody tr:nth-of-type(odd){background-color:rgba(0,0,0,.05)}
-        
-        .table-responsive{border:0}
-        
-        
+        body { font-family: DejaVu Sans; color:#000; margin:0; padding:0; }
+        .container { width: 100%; padding: 20px; }
 
-        body {
-            font-family: DejaVu Sans;
+        /* Header table */
+        .header-table { width:100%; border-collapse: collapse; margin-bottom:20px; }
+        .header-table td { vertical-align:top; }
+
+        /* Info columns */
+        .info-table { width:100%; border-collapse: collapse; margin-bottom:20px; }
+        .info-col { width:50%; vertical-align:top; font-size:12px; }
+
+        /* Items */
+        .items-table { width:100%; border-collapse: collapse; font-size:13px; margin-bottom:20px; }
+        .items-table th {
+            border-bottom:2px solid #000;
+            padding:8px;
+            text-align:left;
+        }
+        .items-table td {
+            border-bottom:1px solid #000;
+            padding:8px;
         }
 
-    </style> 
-        <body>
-         <div class="content-wrapper">
-        <section class="content">
-            
+        .right { text-align:right; }
+        .center { text-align:center; }
 
-                  <div class="container-fluid">
-                     <div class="row">
+        /* Summary */
+        .summary-table { width:50%; float:right; border-collapse: collapse; font-size:13px; }
+        .summary-table td, .summary-table th {
+            padding:6px;
+        }
+        .total-row th, .total-row td {
+            border-top: 1px solid #ccc !important; /* light gray */
+            font-weight: bold;
+        }
 
-            <div class="col-12">
+        footer {
+            clear:both;
+            border-top:1px solid #000;
+            text-align:center;
+            margin-top:30px;
+            padding-top:10px;
+            font-size:12px;
+        }
+    </style>
+</head>
 
-                <?php 
-                use App\Model\Order\Order;
-                $set = App\Model\Common\Setting::where('id', '1')->first(); 
-                $date = getDateHtml($invoice->date);
-                 $symbol = $invoice->currency;
-                $itemsSubtotal = 0;
-                 $taxAmt = 0;
-                ?>
+<body>
 
-                    <!-- title row -->
+<div class="container">
 
-                    <div class="row">
-                        <div class="col-12">
-                            <h4 style="position:relative;top: 2%;">
-                                @if($set->logo)
-                                <img alt="Logo" width="100" height="50" src="{{ $set->logo }}">
-                                    @else
-                                    {{ucfirst($set->company)}}
-                                @endif
-                            <!--<small  style="height: 50px;color: red;" class="float-right">Date: {!! $date !!}</small>-->
-                        <p class="float-right" style=" position: relative;
-                          top: 3.5px;left: 3px;">{!! $date !!}</p><p class="float-right">{{ __('message.date') }}:</p>
-                            </h4>
-                        </div><!-- /.col -->
-                    </div>
+    <!-- HEADER -->
+    <table class="header-table">
+        <tr>
+            <td>
+                @if(!empty($set->logo))
+                    <img alt="Logo" src="{{ $set->logo }}" width="100" height="50">
+                @else
+                    <strong style="font-size:18px">{{ ucfirst($set->company) }}</strong>
+                @endif
+            </td>
 
-                    <!-- info row -->
-                    <div class="row">
-                        <div class="col-sm-4 invoice-col">
-                            {{ __('message.from') }}
-                            <address>
+            <td class="right" style="font-size:12px;">
+                <div><strong>{{ __('message.date') }}:</strong> {!! $date !!}</div>
+                <div><strong>{{ __('message.invoice') }}:</strong> #{{ $invoice->number }}</div>
+            </td>
+        </tr>
+    </table>
 
-                                <strong style="word-wrap: break-word;">{{$set->company}}</strong><br>
-                                {{$set->address}}<br>
-                                {{$set->city}}<br/>
-                                @if(key_exists('name',getStateByCode($set->country, $set->state)))
-                                {{getStateByCode($set->country, $set->state)['name']}}
-                                @endif
-                                {{$set->zip}}<br/>
-                                <strong>{{ __('message.country') }} :</strong> {{getCountryByCode($set->country)}}<br/>
-                                <strong>{{ __('message.mobile') }} :</strong> <b>+</b>{{$set->phone_code}} {{$set->phone}}<br/>
-                                <strong>{{ __('message.email') }} :</strong> {{$set->company_email}}
-                            </address>
-                            
-                            
-                             @if($set->gstin)
-                            <b>GSTIN:</b>  &nbsp; #{{$set->gstin}}
-                            <br>
-                            @endif
+    <!-- FROM / TO -->
+    <table class="info-table">
+        <tr>
+            <td class="info-col">
+                <strong>{{ __('message.from') }}</strong><br>
+                {{ $set->company }}<br>
+                @if($set->address) {{ $set->address }}<br>@endif
+                @if($set->city) {{ $set->city }}<br>@endif
+                {{ getStateByCode($set->country,$set->state)['name'] ?? '' }} {{ $set->zip }}<br>
+                <strong>{{ __('message.country') }} :</strong> {{ getCountryByCode($set->country) }}<br>
+                <strong>{{ __('message.mobile') }} :</strong> +{{ $set->phone_code }} {{ $set->phone }}<br>
+                <strong>{{ __('message.email') }} :</strong> {{ $set->company_email }}<br>
 
-                            @if($set->cin_no)
-                            <b>CIN:</b>  #{{$set->cin_no}}
-                            <br>
-                            @endif
+                @if($set->gstin) <strong>GSTIN :</strong> {{ $set->gstin }}<br>@endif
+                @if($set->cin_no) <strong>CIN :</strong> {{ $set->cin_no }}<br>@endif
+            </td>
 
-                        </div><!-- /.col -->
-                         <div class="col-sm-4 float-right" style=" position: relative;
-                        top: 1px;left: 5%;">
-                            <b>{{ __('message.invoice') }}   #{{$invoice->number}}</b><br>
-                            <br>
+            <td class="info-col">
+                <strong>{{ __('message.to') }}</strong><br>
+                {{ $user->first_name }} {{ $user->last_name }}<br>
+                @if($user->address) {{ $user->address }}<br>@endif
+                @if($user->town) {{ $user->town }}<br>@endif
+                {{ getStateByCode($user->country,$user->state)['name'] ?? '' }} {{ $user->zip }}<br>
+                <strong>{{ __('message.country') }} :</strong> {{ getCountryByCode($user->country) }}<br>
+                <strong>{{ __('message.mobile') }} :</strong>
+                @if($user->mobile_code)+{{ $user->mobile_code }} @endif{{ $user->mobile }}<br>
+                <strong>{{ __('message.email') }} :</strong> {{ $user->email }}<br>
 
+                @if($user->gstin) <strong>GSTIN :</strong> {{ $user->gstin }}<br>@endif
+            </td>
+        </tr>
+    </table>
 
+    <!-- ITEMS -->
+    <table class="table table-striped table-hover items-table">
+        <thead class="thead-dark">
+        <tr>
+            <th>{{ __('message.order_no') }}</th>
+            <th>{{ __('message.product') }}</th>
+            <th>{{ __('message.price') }}</th>
+            <th>{{ __('message.agents') }}</th>
+            <th>{{ __('message.quantity') }}</th>
+            <th>{{ __('message.sub_total') }}</th>
+        </tr>
+        </thead>
 
-                        </div><!-- /.col -->
-                        <div class="col-sm-4">
-                            &nbsp;&nbsp;&nbsp;{{ __('message.to') }}
-                            <address>
-                                
-                                <strong>{{$user->first_name}} {{$user->last_name}}</strong><br>
-                                {{$user->address}}<br>
-                                {{$user->town}}<br>
-                                @if(key_exists('name',getStateByCode($user->country, $user->state)))
-                                {{getStateByCode($user->country, $user->state)['name']}}
-                                @endif
-                                {{$user->zip}}<br>
-                                <strong>{{ __('message.country') }} :</strong> {{getCountryByCode($user->country)}}<br>
-                                <strong>{{ __('message.mobile') }} :</strong> @if($user->mobile_code)<b>+</b>{{$user->mobile_code}} @endif{{$user->mobile}}<br/>
-                                <strong>{{ __('message.email') }} :</strong> {{$user->email}}
-                            </address>
-                        </div><!-- /.col -->
-                       
-                </div>
-
-                    <!-- Table row -->
-                    <div class="row">
-                        <div class="col-12 table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>{{ __('message.order_no') }}</th>
-                                        <th>{{ __('message.product') }}</th>
-                                        <th>{{ __('message.price') }}</th>
-                                        <th>{{ __('message.agents') }}</th>
-                                        <th>{{ __('message.quantity') }}</th>
-                                        <th>{{ __('message.sub_total') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-
-                                    @foreach($invoiceItems as $item)
-                                    <tr>
-                                        @php
-                                            $period_id =\DB::table('plans_periods_relation')->where('plan_id',$item->plan_id)->latest()->value('period_id');
-                                             $plan = \DB::table('periods')->where('id',$period_id)->latest()->value('name');
-
-                                         $taxName[] =  $item->tax_name.'@'.$item->tax_percentage;
-                                        if ($item->tax_name != 'null') {
-                                            $taxAmt +=  $item->subtotal;
-                                         }
-                                        $orderForThisItem = $item->order()->first();
-                                        $itemsSubtotal += $item->subtotal;
-                                        @endphp
-                                        @if($orderForThisItem)
-                                        <td> {!! Order::getOrderLink($orderForThisItem->id) !!} </td>
-                                            @elseif($order != '--')
-                                            <td>{!! $order !!} </td>
-                                            @else
-                                            <td>--</td>
-                                           
-                                        @endif
-
-                                        <td>{{$item->product_name}} {{$plan}}</td>
-                                         <td>{{currencyFormat($item->regular_price,$code=$symbol)}}</td>
-                                         <td>{{($item->agents)?$item->agents:'Unlimited'}}</td>
-                                        <td>{{$item->quantity}}</td>
-                                       <td> {{currencyFormat($item->subtotal,$code=$symbol)}}</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div><!-- /.col -->
-                    </div><!-- /.row -->
-
-                    <div class="row">
-                        <!-- accepted payments column -->
-            
-                        <div class="col-6"></div>
-                        <div class="col-6" style="width: 50%;margin-left: 50%">
-                              <div class="table-responsive">
-                                 <table class="table">
-                                     <tr>
-                                         <th>{{ __('message.sub_total') }}:</th>
-                                         <td>{{currencyFormat($item->subtotal,$code=$symbol)}}</td>
-                                     </tr>
-                                     <?php
-                                    $invoice = \DB::table('invoices')->where('id',$item->invoice_id)->first();
-                                    ?>
-
-                                     @if($invoice->credits)
-                                         <tr>
-                                             <th>{{ __('message.discount') }}</th>
-                                             <td>{{currencyFormat($invoice->credits,$code=$symbol)}} (Credits)</td>
-                                         </tr>
-                                     @endif
-
-                                    @if($invoice->discount)
-                                <tr>
-                                    <th>{{ __('message.discount') }}</th>
-                                    <td>{{currencyFormat($invoice->discount,$code=$symbol)}} ({{$invoice->coupon_code}})</td>
-                                </tr>
-                                @endif
-                                
-
-                                 <?php
-                                    $order = \App\Model\Order\Order::where('invoice_item_id',$item->id)->first();
-                                    if($order != null) {
-                                        $productId = $order->product;
-                                    } else {
-                                        $productId =  App\Model\Product\Product::where('name',$item->product_name)->pluck('id')->first();
-                                    }
-                                    $taxName = array_unique($taxName);
-                                    ?>
-                                     @foreach($taxName as $tax)
-                                      <?php
-                                    $taxDetails = explode('@', $tax);
-                                    ?>
-                                    @if ($taxDetails[0]!= 'null')
-                                            
-                                       
-                                            <tr>
-                                                 <?php
-                                                $bifurcateTax = bifurcateTax($taxDetails[0],$taxDetails[1],$symbol, \Auth::user()->state, $taxAmt);
-                                                ?>
-                                                 @foreach(explode('<br>', $bifurcateTax['html']) as $index => $part)
-                                    <tr>
-                                        <th>
-                                            <strong>
-                                                <?php
-                                                $parts = explode('@', $part);
-                                                $cgst = $parts[0];
-                                                $percentage = $parts[1];
-                                                ?>
-                                                <span class="font-weight-bold text-color-grey">{{ $cgst }}</span>
-                                                <span style="font-weight: normal;color: grey;">({{ $percentage }})</span><br>
-                                            </strong>
-                                        </th>
-                                        <td class="text-color-grey moveright">
-                                            <?php
-                                            $taxParts = explode('<br>', $bifurcateTax['tax']);
-                                            echo $taxParts[$index]; // Output tax amount corresponding to current index
-                                            ?>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                            </tr>
-                                     
-                                       
-                                    @endif
-                                     @endforeach
-                                    <?php
-                                    $processingFee = $invoice->processing_fee ? floatval(filter_var($invoice->processing_fee, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION)) : 0;
-                                    $processingFee = currencyFormat(($processingFee / 100) * $itemsSubtotal, $invoice->currency);
-                                    ?>
+        <tbody>
+        @foreach($invoiceItems as $item)
+            <tr>
+                <td>{!! $order ?? '--' !!}</td>
+                <td>{{ $item->product_name }}</td>
+                <td>{{ currencyFormat($item->regular_price,$symbol) }}</td>
+                <td>{{ $item->agents ?: 'Unlimited' }}</td>
+                <td>{{ $item->quantity }}</td>
+                <td>{{ currencyFormat($item->subtotal,$symbol) }}</td>
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
 
 
-                                @if($invoice->processing_fee != null && $invoice->processing_fee != '0%')
-                                <tr>
-                                    <th class="font-weight-bold text-color-grey">{{ __('message.processing_fee') }} <span style="font-weight: normal;">({{$invoice->processing_fee}})</span></th>
-                                    <td class="text-color-grey">{{ $processingFee }}</td>
-                                </tr>
-                                @endif
-                                    <tr>
-                                    <th>{{ __('message.total') }}:</th>
-                                    <td>{{currencyFormat($invoice->grand_total,$code=$symbol)}}</td>
-                                </tr>
-                               
-                            </table>
-                           
-                        </div><!-- /.col -->
-                    </div><!-- /.row -->
+    <!-- SUMMARY -->
+    <table class="summary-table">
+        <tr>
+            <th>{{ __('message.sub_total') }}</th>
+            <td class="right">{{ currencyFormat($itemsSubtotal, $symbol) }}</td>
+        </tr>
 
-                   
+        @if($invoice->credits)
+            <tr>
+                <th>{{ __('message.discount') }}</th>
+                <td class="right">{{ currencyFormat($invoice->credits,$symbol) }}</td>
+            </tr>
+        @endif
 
+        @if($invoice->discount)
+            <tr>
+                <th>{{ __('message.discount') }}</th>
+                <td class="right">{{ currencyFormat($invoice->discount,$symbol) }} ({{ $invoice->coupon_code }})</td>
+            </tr>
+        @endif
 
-            </div>
-       
+        @foreach($gstSplit as $tax)
+            @foreach($tax['labels'] as $i => $label)
+                <tr>
+                    <th>{{ $label }}</th>
+                    <td class="right">{{ $tax['values'][$i] }}</td>
+                </tr>
+            @endforeach
+        @endforeach
 
-    </div>
-</div>
+        @if($processingFeeAmount > 0)
+            <tr>
+                <th>{{ __('message.processing_fee') }}</th>
+                <td class="right">{{ currencyFormat($processingFeeAmount,$symbol) }}</td>
+            </tr>
+        @endif
+
+        <tr class="total-row">
+            <th>{{ __('message.total') }}</th>
+            <td class="right">{{ currencyFormat($invoice->grand_total,$symbol) }}</td>
+        </tr>
+    </table>
+
+    <!-- FOOTER -->
+{{--    <footer>--}}
+{{--        {{ $set->company }} | {{ $set->company_email }} | +{{ $set->phone_code }} {{ $set->phone }}--}}
+{{--    </footer>--}}
+
 </div>
 
-</section>
- 
-</div>
-        <!-- /.content-wrapper -->
 </body>
-
-        <!-- ./wrapper -->
-
-
-   
 </html>

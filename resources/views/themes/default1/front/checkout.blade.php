@@ -369,7 +369,6 @@ $cartSubtotalWithoutCondition = 0;
                                                                 $cartTotal = $amt_to_credit;
                                                             }
                                                             ?>
-                                                        -{{$dd=currencyFormat($cartTotal, $item->attributes->currency)}}
                                                     </span>
                                                     </td>
                                                 </tr>
@@ -394,12 +393,13 @@ $cartSubtotalWithoutCondition = 0;
                                             ?>
                                         <td class="text-end" id="balance-content">
                                             <strong><span class="amount text-color-grey text-5">
-                                                {{ currencyFormat($cartTotal, $code = $item->attributes->currency) }}
+                                                {{ currencyFormat($cartTotal, $code = $item->attributes->currency, null, true) }}
                                             </span></strong>
                                         </td>
                                     </tr>
                                     {!! html()->form('POST', url('checkout-and-pay'))->id('checkoutsubmitform')->open() !!}
-                                @if(\Session::has('priceRemaining'))
+                                    {!! html()->hidden('checkout_token', \Str::uuid()) !!}
+                                    @if(\Session::has('priceRemaining'))
                                  @if(\Session::get('discount')>0 )
                                     <tr>
                                         <td class="border-top-0">

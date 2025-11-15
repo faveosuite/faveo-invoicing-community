@@ -23,7 +23,7 @@ class InfoController extends Controller
                 ->value('state_subdivision_name');
         }
 
-        return TaxByState::where('state_code', $user->state)
+        return TaxByState::where('state_code', getUserStateWithCountry())
             ->value('state');
     }
 

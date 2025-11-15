@@ -111,19 +111,18 @@ class CheckoutController extends InfoController
      */
     public function checkoutForm(Request $request)
     {
-        if (! \Auth::user()) {//If User is not Logged in then send him to login Page
-            $url = $request->segments(); //The requested url (chekout).Save it in Session
-            \Session::put('session-url', $url[0]);
-            $content = Cart::getContent();
-            $domain = $request->input('domain');
-            if ($domain) {
-                foreach ($domain as $key => $value) {
-                    \Session::put('domain'.$key, $value); //Store all the domains Entered in Cart Page in Session
+        if (!auth()->check()) {
+
+            \Session::put('content', Cart::getContent());
+
+            if ($request->has('domain')) {
+                foreach ($request->input('domain') as $key => $value) {
+                    \Session::put("domain{$key}", $value);
                 }
             }
-            \Session::put('content', $content);
 
-            return redirect('login')->with('fails', __('message.please_login'));
+            return redirect()->guest(route('login'))
+                ->with('fails', __('message.please_login'));
         }
 
         // if (\Cart::isEmpty()) {//During renewal when payment fails due to some reason
@@ -309,7 +308,14 @@ class CheckoutController extends InfoController
             $state = $this->getState();
 
             if ($paynow === false) {//When regular payment
-                $invoice = $invoice_controller->generateInvoice();
+                if(\Session::get('generated_invoice_token') !== $request->input('checkout_token')){
+                    $invoice = $invoice_controller->generateInvoice();
+                    \Session::put('generated_invoice_token', $request->input('checkout_token'));
+                    \Session::put('generated_invoice', $invoice->id);
+                }else{
+                    $invoiceId = \Session::get('generated_invoice');
+                    $invoice = $this->invoice->find($invoiceId);
+                }
                 $amount = (\Session::has('nothingLeft')) ? \Session::get('nothingLeft') : intval(Cart::getSubTotal());
 
                 if ($amount) {//If payment is for paid product

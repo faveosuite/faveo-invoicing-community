@@ -88,7 +88,7 @@ class RazorpayController extends Controller
         if (\Auth::user()->country != 'IN') {
             $state = State::where('country_code', $country)->where('iso2', $stateCode)->pluck('state_subdivision_name')->first();
         } else {
-            $state = TaxByState::where('state_code', \Auth::user()->state)->pluck('state')->first();
+            $state = TaxByState::where('state_code', getUserStateWithCountry())->pluck('state')->first();
         }
 
         return $state;

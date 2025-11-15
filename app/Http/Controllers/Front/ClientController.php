@@ -439,44 +439,118 @@ class ClientController extends BaseClientController
             if (! $invoice) {
                 throw new \Exception(__('message.invoice_not_found'));
             }
-            $payments = $invoice->payment;
-            $user = \Auth::user();
-            if ($invoice->user_id != $user->id) {
+
+            if ($invoice->user_id != \Auth::id()) {
                 throw new \Exception(__('message.invalid_invoice_modification'));
             }
-            $items = $invoice->invoiceItem()->get();
-            $order = $this->order->getOrderLink($invoice->orderRelation()->value('order_id'), 'my-order');
-            $currency = getCurrencyForClient($user->country);
-            $symbol = Currency::where('code', $currency)->value('symbol');
 
-            $set = Setting::where('id', '1')->first();
-            $date = getDateHtml($invoice->date);
-            $symbol = $invoice->currency;
+            $data = $this->prepareInvoiceData($invoice);
 
-            $statusClass = '';
-            $statusText = '';
+            return view('themes.default1.front.clients.show-invoice', array_merge(['invoice' => $invoice], $data));
 
-            switch ($invoice->status) {
-                case 'Success':
-                    $statusClass = 'text-success';
-                    $statusText = 'PAID';
-                    break;
-                case 'partially paid':
-                    $statusClass = 'text-warning';
-                    $statusText = 'Partially paid';
-                    break;
-                default:
-                    $statusClass = 'text-fail';
-                    $statusText = 'Unpaid';
-                    break;
-            }
-
-            return view('themes.default1.front.clients.show-invoice', compact('invoice', 'items',
-                'user', 'currency', 'symbol', 'order', 'payments', 'set', 'date', 'statusClass', 'statusText'));
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             return redirect()->route('my-invoices')->with('fails', $ex->getMessage());
         }
     }
+
+
+
+    public function prepareInvoiceData($invoice, $user = null)
+    {
+        $payments = $invoice->payment;
+        $user     = $user ?? \Auth::user();
+        $items    = $invoice->invoiceItem()->get();
+        $order    = $this->order->getOrderLink($invoice->orderRelation()->value('order_id'), 'my-order');
+        $set      = Setting::find(1);
+        $date     = getDateHtml($invoice->date);
+        $symbol   = $invoice->currency;
+
+        switch ($invoice->status) {
+            case 'Success':
+                $statusClass = 'text-success';
+                $statusText  = 'PAID';
+                break;
+            case 'partially paid':
+                $statusClass = 'text-warning';
+                $statusText  = 'Partially paid';
+                break;
+            default:
+                $statusClass = 'text-fail';
+                $statusText  = 'Unpaid';
+        }
+
+        // ==== CALCULATIONS ====
+
+        $itemsSubtotal = 0;
+        $taxAmt = 0;
+        $taxName = [];
+
+        foreach ($items as $item) {
+            $itemsSubtotal += floatval($item->subtotal);
+
+            if ($item->tax_name != 'null') {
+                $taxAmt += floatval($item->subtotal);
+            }
+
+            $taxName[] = $item->tax_name . '@' . $item->tax_percentage;
+        }
+
+        $taxName = array_unique($taxName);
+
+        $gstSplit = [];
+
+        foreach ($taxName as $tax) {
+            list($name, $percentage) = explode('@', $tax);
+            if ($name == 'null') continue;
+
+            $split = bifurcateTax($name, $percentage, $user->currency, $user->state, $taxAmt);
+
+            $gstSplit[] = [
+                'name'       => $name,
+                'percentage' => $percentage,
+                'labels'     => explode('<br>', $split['html']),
+                'values'     => explode('<br>', $split['tax']),
+            ];
+        }
+
+        $values = array_column($gstSplit, 'values');
+
+        $taxDeducted = array_sum(
+            array_map(
+                fn($v) => (float) preg_replace('/[^0-9.\-]/', '', $v),
+                array_merge(...$values)
+            )
+        );
+
+        $processingFeeAmount = 0;
+
+        if ($invoice->processing_fee && $invoice->processing_fee != '0%') {
+            $percent = floatval(filter_var(
+                $invoice->processing_fee,
+                FILTER_SANITIZE_NUMBER_FLOAT,
+                FILTER_FLAG_ALLOW_FRACTION
+            ));
+
+            $processingFeeAmount = ($percent / 100) * ($itemsSubtotal + $taxDeducted);
+        }
+
+        return compact(
+            'payments',
+            'user',
+            'items',
+            'order',
+            'set',
+            'date',
+            'symbol',
+            'statusClass',
+            'statusText',
+            'itemsSubtotal',
+            'taxAmt',
+            'gstSplit',
+            'processingFeeAmount'
+        );
+    }
+
 
     /**
      * Get list of all the versions from Filesystem.

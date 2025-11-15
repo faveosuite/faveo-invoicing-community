@@ -25,7 +25,7 @@ trait TaxCalculation
             if (TaxOption::findOrFail(1)->inclusive == 0) {
                 $tax_enable = TaxOption::findOrFail(1)->tax_enable;
                 //Check the state of user for calculating GST(cgst,igst,utgst,sgst)
-                $indian_state = TaxByState::where('state_code', $user_state)->first();
+                $indian_state = TaxByState::where('state_code', getUserStateWithCountry())->first();
                 $origin_state = Setting::first()->state; //Get the State of origin
                 $origin_country = Setting::first()->country; //Get the State of origin
                 $tax_class_id = TaxProductRelation::where('product_id', $productid)->pluck('tax_class_id')->toArray();
@@ -292,18 +292,18 @@ trait TaxCalculation
     public static function taxValue($rate, $price)
     {
         try {
-            $result = 0;
-            if ($rate) {
-                $rate = str_replace('%', '', $rate);
-                $tax = intval($price) * (intval($rate) / 100);
-                $result = $tax;
-
-                $result = rounding($result);
+            if (! $rate || ! is_numeric($price)) {
+                return 0;
             }
 
-            return $result;
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            $rate = floatval(str_replace('%', '', $rate));
+
+            $tax = $price * ($rate / 100);
+
+            return $tax;
+
+        } catch (\Throwable $ex) {
+            return 0;
         }
     }
 }
