@@ -143,7 +143,7 @@ class LoginTest extends DBTestCase
     public function test_login_should_fail_when_the_user_not_present()
     {
         User::factory()->create(['password' => \Hash::make('password')]);
-        StatusSetting::create(['emailverification_status' => 1, 'msg91_status' => 0, 'v3_recaptcha_status' => 0, 'recaptcha_status' => 0]);
+        StatusSetting::create(['emailverification_status' => 1, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
         $response = $this->postJson('/login', ['email_username' => 'santhanuchakrapa@gmail.com', 'password1' => 'password', 'login' => [
             'pot_field' => '',     // valid
@@ -159,7 +159,7 @@ class LoginTest extends DBTestCase
     public function test_login_fails_when_password_is_wrong()
     {
         $user = User::factory()->create(['password' => \Hash::make('password')]);
-        StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'v3_recaptcha_status' => 0, 'recaptcha_status' => 0]);
+        StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
         $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'passwor', 'login' => [
             'pot_field' => '',     // valid
@@ -175,7 +175,7 @@ class LoginTest extends DBTestCase
     public function test_when_2fa_is_enabled()
     {
         $user = User::factory()->create(['password' => \Hash::make('password'), 'is_2fa_enabled' => 1]);
-        StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'v3_recaptcha_status' => 0, 'recaptcha_status' => 0]);
+        StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
         $response = $this->postJson('/login', [
             'email_username' => $user->email,
