@@ -201,7 +201,7 @@ class BaseSettingsController extends PaymentSettingsController
             '1' => '1 day',
         ];
 
-        $reoonDays=[
+        $reoonDays = [
             '30' => '30 days',
             '15' => '15 days',
             '10' => '10 days',
@@ -228,7 +228,8 @@ class BaseSettingsController extends PaymentSettingsController
         $beforeCloudDay[] = ExpiryMailDay::first()->cloud_days;
         $invoiceDeletionDay[] = ExpiryMailDay::first()->invoice_days;
         $msgDeletionDays[] = ExpiryMailDay::first()->msg91_days;
-        $ReeonLogDeletionDays[]=ExpiryMailDay::first()->reoon_logs_days;
+        $ReeonLogDeletionDays[] = ExpiryMailDay::first()->reoon_logs_days;
+
         return view('themes.default1.common.cron.cron', compact(
             'cronPath',
             'warn',
@@ -282,7 +283,7 @@ class BaseSettingsController extends PaymentSettingsController
         $allStatus->cloud_mail_status = $request->cloud_cron ? $request->cloud_cron : 0;
         $allStatus->invoice_deletion_status = $request->invoice_cron ? $request->invoice_cron : 0;
         $allStatus->msg91_report_delete_status = $request->msg91_cron ? $request->msg91_cron : 0;
-        $allStatus->reoon_deletion_status=$request->reoon_cron?$request->reoon_cron:0;
+        $allStatus->reoon_deletion_status = $request->reoon_cron ? $request->reoon_cron : 0;
         $allStatus->save();
         $this->saveConditions();
 
