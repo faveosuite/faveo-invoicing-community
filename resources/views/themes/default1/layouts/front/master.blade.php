@@ -1190,14 +1190,14 @@ setTimeout(function() {
 <script>
     function removeItem(id) {
         $.ajax({
-            type: "post",
-            data:{
-                "id": id,
-                "_token": "{!! csrf_token() !!}",
+            type: "POST",
+            url: "{{ url('cart/remove') }}",
+            data: {
+                id: id,
+                _token: "{!! csrf_token() !!}"
             },
-            url: "{{url('cart/remove/')}}",
             success: function (data) {
-                location.reload();
+                window.location.href = "{{ url('show/cart') }}";
             }
         });
     }

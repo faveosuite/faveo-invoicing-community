@@ -65,7 +65,7 @@ class TaxCalculationTest extends DBTestCase
         $product = Product::factory()->create(['type' => $licenseType->id, 'product_sku' => 'test']);
         TaxOption::where('id', 1)->update(['tax_enable' => 1]);
         TaxProductRelation::create(['product_id' => $product->id, 'tax_class_id' => $taxClass->id]);
-        $tax = $this->classObject->calculateTax($product->id, getUserStateWithCountry($user->country, $user->state), $user->country, true);
+        $tax = $this->classObject->calculateTax($product->id, $user->state, $user->country, true);
         $this->assertEquals($tax['name'], 'CGST+SGST');
         $this->assertEquals($tax['value'], '18%');
     }

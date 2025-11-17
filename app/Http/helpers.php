@@ -484,7 +484,7 @@ function getIndianCurrencyFormat($number)
 function bifurcateTax($taxName, $taxValue, $currency, $state, $price = '')
 {
     if (\Auth::user()->country == 'IN') {
-        $gst = TaxByState::where('state_code', getUserStateWithCountry('IN', $state))->select('c_gst', 's_gst', 'ut_gst')->first();
+        $gst = TaxByState::where('state_code',$state)->select('c_gst', 's_gst', 'ut_gst')->first();
         if ($taxName == 'CGST+SGST') {
             $html = 'CGST@'.$gst->c_gst.'%<br>SGST@'.$gst->s_gst.'%';
 

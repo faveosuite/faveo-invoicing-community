@@ -318,6 +318,7 @@ class CheckoutController extends InfoController
                 $amount = (\Session::has('nothingLeft')) ? \Session::get('nothingLeft') : intval(Cart::getSubTotal());
 
                 if ($amount) {//If payment is for paid product
+                    \Cart::removeCartCondition('Processing fee');
                     \Event::dispatch(new \App\Events\PaymentGateway(['request' => $request, 'invoice' => $invoice]));
                 } else {
                     $show = true;
@@ -361,6 +362,7 @@ class CheckoutController extends InfoController
                     $check = \Session::get('nothingLeft');
                 }
                 if ($amount) {//If payment is for paid product
+                    \Cart::removeCartCondition('Processing fee');
                     \Event::dispatch(new \App\Events\PaymentGateway(['request' => $request, 'invoice' => $invoice]));
                 } else {
                     $show = false;
