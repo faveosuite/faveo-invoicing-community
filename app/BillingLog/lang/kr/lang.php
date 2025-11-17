@@ -93,4 +93,8 @@ return [
     'delete_logs_entries' => '로그 항목 삭제 기준:',
     'sent' => '전송됨',
     'failed_jobs' => '실패한 작업',
+    'verify_new_email' => '새 이메일 확인',
+    'confirm_old_email' => '기존 이메일 확인',
+    'confirm_mobile_number_change' => '휴대폰 번호 변경 확인',
+
 ];

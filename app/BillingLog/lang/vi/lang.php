@@ -97,4 +97,7 @@ return [
     'delete_logs_entries' => 'Xóa các mục nhật ký trước',
     'sent' => 'Đã gửi',
     'failed_jobs' => 'Công việc thất bại',
+    'verify_new_email' => 'Xác minh email mới',
+    'confirm_old_email' => 'Xác nhận email cũ',
+    'confirm_mobile_number_change' => 'Xác nhận thay đổi số điện thoại',
 ];

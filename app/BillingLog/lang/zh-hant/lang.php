@@ -97,4 +97,7 @@ return [
     'delete_logs_entries' => '刪除之前的日誌項目',
     'sent' => '已發送',
     'failed_jobs' => '失敗的任務',
+    'verify_new_email' => '驗證新電子郵件',
+    'confirm_old_email' => '確認舊電子郵件',
+    'confirm_mobile_number_change' => '確認更改手機號碼',
 ];

@@ -97,4 +97,7 @@ return [
     'delete_logs_entries' => 'Удалить записи журналов до',
     'sent' => 'Отправлено',
     'failed_jobs' => 'Неудачные задания',
+    'verify_new_email' => 'Подтвердить новый email',
+    'confirm_old_email' => 'Подтвердить старый email',
+    'confirm_mobile_number_change' => 'Подтвердить изменение мобильного номера',
 ];

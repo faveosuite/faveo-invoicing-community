@@ -97,4 +97,7 @@ return [
     'delete_logs_entries' => 'Protokolleinträge löschen vor',
     'sent' => 'Gesendet',
     'failed_jobs' => 'Fehlgeschlagene Aufträge',
+    'verify_new_email' => 'Neue E-Mail bestätigen',
+    'confirm_old_email' => 'Alte E-Mail bestätigen',
+    'confirm_mobile_number_change' => 'Änderung der Mobilnummer bestätigen',
 ];

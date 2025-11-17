@@ -97,4 +97,7 @@ return [
     'delete_logs_entries' => 'Eliminar entradas de registros anteriores a',
     'sent' => 'Enviado',
     'failed_jobs' => 'Trabajos fallidos',
+    'verify_new_email' => 'Verificar nuevo correo electrónico',
+    'confirm_old_email' => 'Confirmar correo electrónico antiguo',
+    'confirm_mobile_number_change' => 'Confirmar cambio de número móvil',
 ];

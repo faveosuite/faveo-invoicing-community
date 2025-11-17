@@ -93,4 +93,7 @@ return [
     'delete_logs_entries' => 'इससे पहले लॉग प्रविष्टियाँ हटाएं',
     'sent' => 'भेज दिया गया',
     'failed_jobs' => 'असफल कार्य',
+    'verify_new_email' => 'नए ईमेल को सत्यापित करें',
+    'confirm_old_email' => 'पुराने ईमेल की पुष्टि करें',
+    'confirm_mobile_number_change' => 'मोबाइल नंबर परिवर्तन की पुष्टि करें',
 ];
