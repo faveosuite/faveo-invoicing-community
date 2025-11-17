@@ -93,4 +93,7 @@ return [
     'delete_logs_entries' => 'Önceki günlük girişlerini sil',
     'sent' => 'Gönderildi',
     'failed_jobs' => 'Başarısız İşler',
+    'verify_new_email' => 'Yeni e-postayı doğrulayın',
+    'confirm_old_email' => 'Eski e-postayı onaylayın',
+    'confirm_mobile_number_change' => 'Mobil numara değişikliğini onaylayın',
 ];

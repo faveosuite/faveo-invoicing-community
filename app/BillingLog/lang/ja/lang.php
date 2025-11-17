@@ -97,4 +97,8 @@ return [
     'delete_logs_entries' => '削除するログエントリの期間',
     'sent' => '送信済み',
     'failed_jobs' => '失敗したジョブ',
+    'verify_new_email' => '新しいメールを確認してください',
+    'confirm_old_email' => '古いメールを確認してください',
+    'confirm_mobile_number_change' => '携帯番号の変更を確認してください',
+
 ];

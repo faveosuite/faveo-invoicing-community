@@ -93,4 +93,7 @@ return [
     'delete_logs_entries' => 'Logboekvermeldingen verwijderen voor',
     'sent' => 'Verzonden',
     'failed_jobs' => 'Mislukte Taken',
+    'verify_new_email' => 'Nieuw e-mailadres verifiëren',
+    'confirm_old_email' => 'Oud e-mailadres bevestigen',
+    'confirm_mobile_number_change' => 'Wijziging van mobiel nummer bevestigen',
 ];

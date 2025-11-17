@@ -97,4 +97,7 @@ return [
     'delete_logs_entries' => 'מחק רשומות יומן לפני',
     'sent' => 'נשלח',
     'failed_jobs' => 'משימות שנכשלו',
+    'verify_new_email' => 'אמת אימייל חדש',
+    'confirm_old_email' => 'אשר אימייל ישן',
+    'confirm_mobile_number_change' => 'אשר שינוי מספר נייד',
 ];

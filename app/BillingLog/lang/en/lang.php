@@ -98,4 +98,7 @@ return [
     'delete_logs_entries' => 'Delete logs entries before',
     'sent' => 'Sent',
     'failed_jobs' => 'Failed Jobs',
+    'verify_new_email' => 'Verify New Email',
+    'confirm_old_email' => 'Confirm Old Email',
+    'confirm_mobile_number_change' => 'Confirm Mobile Number Change',
 ];

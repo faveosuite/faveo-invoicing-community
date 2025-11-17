@@ -97,4 +97,7 @@ return [
     'delete_logs_entries' => 'حذف إدخالات السجلات قبل',
     'sent' => 'أرسلت',
     'failed_jobs' => 'وظائف فشلت',
+    'verify_new_email' => 'تحقق من البريد الإلكتروني الجديد',
+    'confirm_old_email' => 'تأكيد البريد الإلكتروني القديم',
+    'confirm_mobile_number_change' => 'تأكيد تغيير رقم الجوال',
 ];

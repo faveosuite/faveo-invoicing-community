@@ -97,4 +97,7 @@ return [
     'delete_logs_entries' => '删除早于以下时间的日志条目',
     'sent' => '已发送',
     'failed_jobs' => '失败的任务',
+    'verify_new_email' => '验证新邮箱',
+    'confirm_old_email' => '确认旧邮箱',
+    'confirm_mobile_number_change' => '确认更改手机号',
 ];

@@ -97,4 +97,7 @@ return [
     'delete_logs_entries' => 'Hapus entri log sebelum',
     'sent' => 'Terkirim',
     'failed_jobs' => 'Pekerjaan Gagal',
+    'verify_new_email' => 'Verifikasi email baru',
+    'confirm_old_email' => 'Konfirmasi email lama',
+    'confirm_mobile_number_change' => 'Konfirmasi perubahan nomor ponsel',
 ];

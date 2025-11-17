@@ -93,4 +93,7 @@ return [
     'delete_logs_entries' => 'Slett loggoppføringer før',
     'sent' => 'Sendt',
     'failed_jobs' => 'Mislykkede jobber',
+    'verify_new_email' => 'Bekreft ny e-post',
+    'confirm_old_email' => 'Bekreft gammel e-post',
+    'confirm_mobile_number_change' => 'Bekreft endring av mobilnummer',
 ];
