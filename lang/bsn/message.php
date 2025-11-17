@@ -2641,4 +2641,10 @@ return [
     'valid_username' => 'Molimo unesite važeće korisničko ime',
     'set_auth_invoicing' => 'Sve je spremno. Od sada ćete koristiti aplikaciju Authenticator za prijavu na vaš Faveo Invoicing nalog.',
     'continue_verify_social_login' => 'Kliknite na "Validate" da nastavite i potvrdite svoj identitet',
+
+    'mode' => 'Način',
+    'registration' => 'Registracija',
+    'email_validation_logs' => 'Logovi validacije e-pošte',
+    'email_validation_result' => 'Rezultat validacije e-pošte',
+    'email_validation_provider' => 'Pružatelj validacije e-pošte',
 ];

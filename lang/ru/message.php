@@ -2715,4 +2715,10 @@ return [
     'valid_username' => 'Пожалуйста, введите действительное имя пользователя',
     'set_auth_invoicing' => 'Всё готово. С этого момента вы будете использовать приложение Authenticator для входа в ваш аккаунт Faveo Invoicing.',
     'continue_verify_social_login' => 'Нажмите "Validate", чтобы продолжить и подтвердить вашу личность',
+
+    'mode' => 'Режим',
+    'registration' => 'Регистрация',
+    'email_validation_logs' => 'Журналы проверки электронной почты',
+    'email_validation_result' => 'Результат проверки электронной почты',
+    'email_validation_provider' => 'Поставщик проверки электронной почты',
 ];

@@ -2708,4 +2708,9 @@ return [
     'auth_code_required' => 'Potrebno je unijeti kod za autentifikaciju.',
     'valid_username' => 'Bitte geben Sie einen gültigen Benutzernamen ein',
     'continue_verify_social_login' => 'Klicken Sie auf "Validate", um fortzufahren und Ihre Identität zu bestätigen',
+    'mode' => 'Modus',
+    'registration' => 'Registrierung',
+    'email_validation_logs' => 'E-Mail-Validierungsprotokolle',
+    'email_validation_result' => 'E-Mail-Validierungsergebnis',
+    'email_validation_provider' => 'E-Mail-Validierungsanbieter',
 ];

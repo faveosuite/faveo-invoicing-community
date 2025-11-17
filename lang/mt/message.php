@@ -2637,4 +2637,10 @@
      'valid_username' => 'Jekk jogħġbok daħħal username validu',
      'set_auth_invoicing' => 'Int lest. Minn issa ’l quddiem, se tuża l-App Authenticator biex tidħol fil-kont Faveo Invoicing tiegħek.',
      'continue_verify_social_login' => 'Ikklikkja "Validate" biex tkompli u tikkonferma l-identità tiegħek',
+
+     'mode' => 'Modalità',
+     'registration' => 'Reġistrazzjoni',
+     'email_validation_logs' => 'Rekords ta’ Validazzjoni tal-Email',
+     'email_validation_result' => 'Riżultat tal-Validazzjoni tal-Email',
+     'email_validation_provider' => 'Fornitur tal-Validazzjoni tal-Email',
  ];

@@ -2706,4 +2706,10 @@ return [
     'valid_username' => 'தயவுசெய்து சரியான பயனர் பெயரை உள்ளிடவும்',
     'set_auth_invoicing' => 'நீங்கள் அனைத்தும் தயாராகிவிட்டீர்கள். இப்போது முதல், நீங்கள் உங்கள் Faveo Invoicing கணக்கில் உள்நுழைய Authenticator செயலியைப் பயன்படுத்துவீர்கள்.',
     'continue_verify_social_login' => 'தொடரவும் உங்கள் அடையாளத்தை உறுதிப்படுத்தவும் "Validate" ஐ கிளிக் செய்யவும்',
+
+    'mode' => 'முறை',
+    'registration' => 'பதிவு',
+    'email_validation_logs' => 'மின்னஞ்சல் சரிபார்ப்பு பதிவுகள்',
+    'email_validation_result' => 'மின்னஞ்சல் சரிபார்ப்பு முடிவு',
+    'email_validation_provider' => 'மின்னஞ்சல் சரிபார்ப்பு வழங்குநர்',
 ];

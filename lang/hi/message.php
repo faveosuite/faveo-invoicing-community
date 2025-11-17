@@ -2723,4 +2723,11 @@ return [
     'valid_username' => 'कृपया एक मान्य उपयोगकर्ता नाम दर्ज करें',
     'set_auth_invoicing' => 'आप तैयार हैं। अब से, आप अपने Faveo Invoicing खाते में साइन इन करने के लिए ऑथेंटिकेटर ऐप का उपयोग करेंगे।',
     'continue_verify_social_login' => 'जारी रखने और अपनी पहचान की पुष्टि करने के लिए "Validate" पर क्लिक करें',
+
+    'mode' => 'मोड',
+    'registration' => 'पंजीकरण',
+    'email_validation_logs' => 'ईमेल सत्यापन लॉग',
+    'email_validation_result' => 'ईमेल सत्यापन परिणाम',
+    'email_validation_provider' => 'ईमेल सत्यापन प्रदाता',
+
 ];

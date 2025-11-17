@@ -2706,4 +2706,10 @@ return [
     'valid_username' => 'Silakan masukkan nama pengguna yang valid',
     'set_auth_invoicing' => 'Semua sudah siap. Mulai sekarang, Anda akan menggunakan aplikasi Authenticator untuk masuk ke akun Faveo Invoicing Anda.',
     'continue_verify_social_login' => 'Klik "Validate" untuk melanjutkan dan mengonfirmasi identitas Anda',
+
+    'mode' => 'Mode',
+    'registration' => 'Pendaftaran',
+    'email_validation_logs' => 'Log Validasi Email',
+    'email_validation_result' => 'Hasil Validasi Email',
+    'email_validation_provider' => 'Penyedia Validasi Email',
 ];

@@ -2678,4 +2678,10 @@ return [
     'auto_renewal_tooltip' => 'Schakel automatisch verlengen in of uit voor alle gebruikers.',
 
     'continue_verify_social_login' => 'Klik op "Validate" om verder te gaan en uw identiteit te bevestigen',
+
+    'mode' => 'Modus',
+    'registration' => 'Registratie',
+    'email_validation_logs' => 'E-mailvalidatielogboeken',
+    'email_validation_result' => 'E-mailvalidatieresultaat',
+    'email_validation_provider' => 'E-mailvalidatieprovider',
 ];

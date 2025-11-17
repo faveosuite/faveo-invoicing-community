@@ -2712,4 +2712,10 @@ return [
     'valid_username' => 'Por favor, introduzca un nombre de usuario válido',
     'set_auth_invoicing' => 'Todo está listo. A partir de ahora, usarás la aplicación Authenticator para iniciar sesión en tu cuenta de Faveo Invoicing.',
     'continue_verify_social_login' => 'Haga clic en "Validate" para proceder y confirmar su identidad',
+
+    'mode' => 'Modo',
+    'registration' => 'Registro',
+    'email_validation_logs' => 'Registros de validación de correo electrónico',
+    'email_validation_result' => 'Resultado de validación de correo electrónico',
+    'email_validation_provider' => 'Proveedor de validación de correo electrónico',
 ];

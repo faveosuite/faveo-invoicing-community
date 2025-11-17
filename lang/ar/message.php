@@ -2549,4 +2549,9 @@ return [
     'continue_verify_social_login' => 'انقر على "Validate" للمتابعة وتأكيد هويتك',
     'auto_renewal_disable' => 'التجديد التلقائي غير متاح حالياً. يرجى الاتصال بالمسؤول للحصول على المساعدة.',
     'auto_renewal_tooltip' => 'تمكين أو تعطيل التجديد التلقائي لجميع المستخدمين.',
+    'mode' => 'الوضع',
+    'registration' => 'التسجيل',
+    'email_validation_logs' => 'سجلات التحقق من البريد الإلكتروني',
+    'email_validation_result' => 'نتيجة التحقق من البريد الإلكتروني',
+    'email_validation_provider' => 'مزود التحقق من البريد الإلكتروني',
 ];

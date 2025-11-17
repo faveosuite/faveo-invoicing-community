@@ -2714,4 +2714,10 @@ return [
     'valid_username' => '有効なユーザー名を入力してください',
     'set_auth_invoicing' => '準備完了です。今後、Faveo Invoicingアカウントにサインインする際は、Authenticatorアプリを使用してください。',
     'continue_verify_social_login' => '続行して「Validate」をクリックして、あなたの身元を確認してください',
+
+    'mode' => 'モード',
+    'registration' => '登録',
+    'email_validation_logs' => 'メール検証ログ',
+    'email_validation_result' => 'メール検証結果',
+    'email_validation_provider' => 'メール検証プロバイダー',
 ];

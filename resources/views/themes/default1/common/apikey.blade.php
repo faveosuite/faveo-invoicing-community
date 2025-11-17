@@ -95,31 +95,67 @@
             background: transparent !important;
             box-shadow: none !important;
         }
+        /*.modal.right .modal-dialog {*/
+        /*    position: fixed;*/
+        /*    right: 0;*/
+        /*    margin: 0;*/
+        /*    width: 70%;*/
+        /*    max-width: none;*/
+        /*    height: 100%;*/
+        /*    transform: translateX(90%);*/
+        /*    transition: transform 0.4s ease-out;*/
+        /*}*/
+
+        /*.modal.right.show .modal-dialog {*/
+        /*    transform: translateX(0);*/
+        /*}*/
+
+        /*.modal.right .modal-content {*/
+        /*    height: 100%;*/
+        /*    border: 0;*/
+        /*    border-radius: 0;*/
+        /*}*/
+
         .modal.right .modal-dialog {
-            position: fixed;
-            right: 0;
-            margin: 0;
+            margin: 30px auto auto auto;   /* add gap at top */
             width: 70%;
             max-width: none;
-            height: 100%;
-            transform: translateX(90%);
-            transition: transform 0.4s ease-out;
+            position: relative;
+            transform: none !important;    /* remove slide animation */
         }
 
         .modal.right.show .modal-dialog {
-            transform: translateX(0);
+            transform: none !important;
         }
 
         .modal.right .modal-content {
-            height: 100%;
             border: 0;
-            border-radius: 0;
+            border-radius: 6px;
         }
 
-        .modal.right .modal-body {
-            overflow-y: auto;
-            height: calc(100vh - 120px);
+
+        /*.modal.right .modal-body {*/
+        /*    overflow-y: auto;*/
+        /*    height: calc(100vh - 120px);*/
+        /*}*/
+
+        /* Fix DataTables Button width in AdminLTE */
+        .dt-buttons {
+            display: inline-flex !important;
+            gap: 6px;
         }
+
+        .dt-buttons .dt-button {
+            /*width: auto !important;*/
+            display: inline-block !important;
+            padding: 6px 12px !important;
+            margin: 0px 15px 15px 25px !important;
+        }
+
+        .dt-buttons .dt-button.btn {
+            width: auto !important; /* override bootstrap .btn-block conflicts */
+        }
+
 
     </style>
 
@@ -625,8 +661,8 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Email Validation Provider</h4>
-                    <button class="orm-group btn btn-primary" id="emailValidation-logs-button">Email Validation Logs</button>
+                    <h4 class="modal-title">{{__('message.email_validation_provider')}}</h4>
+                    <button class="orm-group btn btn-primary" id="emailValidation-logs-button">{{__('message.email_validation_logs')}}</button>
 
                 </div>
                 <div class="modal-body">
@@ -654,7 +690,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Email Validation Logs</h4>
+                    <h4 class="modal-title">{{__('message.email_validation_logs')}}</h4>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
@@ -662,12 +698,12 @@
                         <table id="installationDetail-table" class="table display" cellspacing="0" width="100%">
                             <thead>
                             <tr>
-                                <th>Email</th>
-                                <th>Method</th>
-                                <th>Status</th>
-                                <th>Registration</th>
-                                <th>Create At</th>
-                                <th>Result</th>
+                                <th>{{__('message.email')}}</th>
+                                <th>{{__('message.mode')}}</th>
+                                <th>{{__('message.status')}}</th>
+                                <th>{{__('message.registration')}}</th>
+                                <th>{{__('message.created_at')}}</th>
+                                <th>{{__('message.action')}}</th>
                             </tr>
                             </thead>
                         </table>
@@ -718,7 +754,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Email Validation Result</h4>
+                    <h4 class="modal-title">{{__('message.email_validation_result')}}</h4>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
 
                 </div>
@@ -733,14 +769,20 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+{{--    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">--}}
+
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+
 
     <script>
             $('#installationDetail-table').DataTable({
             processing: true,
             serverSide: true,
             stateSave: false,
-            order: [[3, "asc"]],
+            order: [[1, "asc"]],
             ajax: {
             "url":  "{{Url('get-email-validation-logs')}}",
             error: function(xhr) {
@@ -751,12 +793,23 @@
         }
 
         },
+                dom: 'Blfrtip',
+                buttons: [
+                    {
+                        text: '{{__('message.refresh_table')}}',
+                        className: 'btn btn-primary', // add your styles
+                        action: function (e, dt, node, config) {
+                            dt.ajax.reload();
+                        }
+                    }
+                ],
 
             "oLanguage": {
             "sLengthMenu": "_MENU_ Records per page",
             "sSearch"    : "Search: ",
-            "sProcessing": '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading')}}</div></div>'
-        },
+            "sProcessing": ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">{!! __('message.loading') !!}</div></div>'
+
+            },
             language: {
             paginate: {
             first:      "{{ __('message.paginate_first') }}",

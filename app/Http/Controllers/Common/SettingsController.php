@@ -1127,23 +1127,31 @@ class SettingsController extends BaseSettingsController
         try {
             $query = EmailValidationResults::query();
             return \DataTables::of($query)
-                ->orderColumn('email', '-created_at $1')
-                ->orderColumn('method', '-created_at $1')
-                ->orderColumn('status', '-created_at $1')
+                ->orderColumn('email', function ($query, $order) {
+                    $query->orderBy('email', $order);
+                        })
+                ->orderColumn('method', function ($query, $order) {
+                    $query->orderBy('method', $order);
+                })
+                ->orderColumn('status', function ($query, $order) {
+                    $query->orderBy('status', $order);
+                })
+                ->orderColumn('registration', function ($query, $order) {
+                    $query->orderBy('registration', $order);
+                })
+                ->orderColumn('created_at', function ($query, $order) {
+                    $query->orderBy('created_at', $order);
+                })
                 ->addColumn('email', function ($query) {
                     return $query->email;
                 })
                 ->addColumn('method', function ($query) {
-                    return $query->method;
+                    return ucfirst($query->method);
                 })
                 ->addColumn('status', function ($query) {
-                    return $query->status;
+                    return ucfirst($query->status);
                 })
                 ->addColumn('result', function ($query) {
-                    if($query->state){
-                        return  '<button  class="btn btn-light-scale-2 btn-sm text-dark" id="show-results" data-id='.$query->id.' data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"><i class="fa fa-eye"></i></button>
-                                 <button  class="btn btn-light-scale-2 btn-sm text-dark" id="show-user-results" data-id='.$query->id.' data-toggle="tooltip" data-placement="top" title="Click here to view User Details"><i class="fa fa-eye"></i></button>';
-                    }
                     return  '<button  class="btn btn-light-scale-2 btn-sm text-dark" id="show-results" data-id='.$query->id.' data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"><i class="fa fa-eye"></i></button>';
 
                 })
@@ -1151,9 +1159,8 @@ class SettingsController extends BaseSettingsController
                     return $query->registration;
                 })
                 ->addColumn('created_at', function ($query) {
-                    return $query->created_at;
+                    return getDateHtml($query->created_at);
                 })
-
 
                 ->filterColumn('email', function ($query, $keyword) {
                     $query->whereRaw('email like ?', ["%{$keyword}%"]);
@@ -1168,14 +1175,29 @@ class SettingsController extends BaseSettingsController
                 ->rawColumns(['email', 'method', 'status', 'result', 'created_at'])
                 ->make(true);
         }catch (\Exception $e){
-            dd($e->getMessage());
+            return errorResponse($e->getMessage());
         }
     }
 
     public function getEmailValidationResults(Request $request){
-        $id = $request->input('id');
-        $result=json_decode(EmailValidationResults::where('id',$id)->value('result'));
-       return successResponse(trans('message.success'), $result);
+        try {
+            $id = $request->input('id');
+            $result = EmailValidationResults::where('id', $id)->first();
+
+            $cont1 = json_decode($result->result,true);
+            $cont2 = ['name' => $result->first_name . ' ' . $result->last_name,
+                'mobile Number' => '+' . $result->mobile_code . $result->mobile,
+                'email' => $result->email,
+                'company Name' => $result->company,
+                'address' => $result->address,
+                'country' => Country::where('country_code_char2', $result->country)->value('country_name'),
+                'state' => State::where('state_subdivision_code', $result->state)->value('state_subdivision_name'),
+                'city' => $result->town,];
+            $final = ($result->first_name && $result->last_name)?array_merge($cont2, $cont1):$cont1;
+            return successResponse(trans('message.success'), $final);
+        }catch (\Exception $e){
+            return errorResponse($e->getMessage());
+        }
     }
 
     public function getEmailValidationUserResults(Request $request){

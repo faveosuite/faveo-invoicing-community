@@ -2717,4 +2717,9 @@ return [
     'set_auth_invoicing' => 'אתה מוכן. מכאן והלאה, תשתמש באפליקציית האותנטיקטור כדי להיכנס לחשבון Faveo Invoicing שלך.',
     'continue_verify_social_login' => 'לחץ על "Validate" כדי להמשיך ולאמת את זהותך',
 
+    'mode' => 'מצב',
+    'registration' => 'הרשמה',
+    'email_validation_logs' => 'יומני אימות אימייל',
+    'email_validation_result' => 'תוצאת אימות אימייל',
+    'email_validation_provider' => 'ספק אימות אימייל',
 ];
