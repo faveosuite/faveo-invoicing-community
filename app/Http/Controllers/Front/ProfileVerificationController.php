@@ -129,7 +129,7 @@ class ProfileVerificationController extends BaseAuthController
             ];
 
             $mail = new \App\Http\Controllers\Common\PhpMailController();
-            $mail->SendEmail($settings->email, $email, $template_data, $template_name, $templateName , $replace, $type);
+            $mail->SendEmail($settings->email, $email, $template_data, $template_name, $templateName, $replace, $type);
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
         }
