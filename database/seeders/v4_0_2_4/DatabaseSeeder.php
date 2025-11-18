@@ -6,6 +6,7 @@ use App\Model\Common\ManagerSetting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use Illuminate\Database\Seeder;
+use App\Model\Common\PricingTemplate;
 
 class DatabaseSeeder extends Seeder
 {
