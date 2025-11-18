@@ -52,8 +52,6 @@ foreach($scripts as $script) {
         }
 
 
-        
-
         .wizard-inner
         {
             display:none;

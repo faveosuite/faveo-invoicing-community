@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\ApiKey;
+use App\Facades\Cart;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\CartController;
 use App\Http\Requests\Auth\LoginRequest;
@@ -199,6 +200,7 @@ class LoginController extends Controller
             : '/';
         $defaultPath = (\Cart::isEmpty() === false) ? '/show/cart' : $defaultPath;
 
+//        return successResponse('success',['role'=>$auth->role]);
         return redirect()->intended($defaultPath)->getTargetUrl();
     }
 
@@ -335,12 +337,12 @@ class LoginController extends Controller
      */
     public function convertCart()
     {
-        $contents = \Cart::getContent();
+        $cart = new Cart();
+        $contents=$cart->getContent();
         $user = \Auth::user();
         $currencyCode = getCurrencyForClient($user->country);
         $currencySymbol = Currency::where('code', $currencyCode)->value('symbol');
         $cartController = new CartController();
-
         foreach ($contents as $content) {
             try {
                 $plan = Plan::find($content->id);
@@ -348,28 +350,27 @@ class LoginController extends Controller
                 // If plan or product is missing, throw to remove it
                 throw_if(! $plan || ! $plan->product, new \Exception('Invalid plan or product.'));
 
-                $price = $cartController->planCost($plan->product, $user->id, $content->id);
+                $price = $cartController->planCost($plan->product, $user->id, $content['id']);
 
-                if (! empty($content->attributes->domain)) {
-                    $price *= $content->attributes->agents;
+                if (! empty($content['attributes']['domain'])) {
+                    $price = $price * $content['attributes']['agents'];
                 }
 
-                \Cart::update($content->id, [
+                $cart->update($content['id'], [
                     'price' => $price,
                     'attributes' => [
                         'currency' => $currencyCode,
-                        'symbol' => $currencySymbol,
-                        'agents' => $content->attributes->agents,
-                        'domain' => $content->attributes->domain,
+                        'symbol' =>$currencySymbol,
+                        'agents' => $content['attributes']['agents'],
+                        'domain' => $content['attributes']['domain'],
                     ],
                 ]);
             } catch (\Exception $e) {
                 // Remove item if any exception occurs (missing plan/product or pricing failure)
-                \Cart::remove($content->id);
+                $cart->remove($content['id']);
                 continue;
             }
         }
-
         Session::forget('toggleState');
     }
 
