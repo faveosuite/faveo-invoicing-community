@@ -423,7 +423,7 @@ function rounding($price)
         $rule = $tax_rule->findOrFail(1);
         $rounding = $rule->rounding;
         if ($rounding) {
-            return round((int) $price);
+            return round($price);
         } else {
             return round($price, 2);
         }
