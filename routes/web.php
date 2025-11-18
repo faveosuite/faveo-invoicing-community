@@ -297,7 +297,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('twitterkeys', [Common\SettingsController::class, 'twitterkeys']);
 
     /**
-     * System Settings
+     * System Settings.
      */
     Route::get('systemSettings/list', [Common\SettingsController::class, 'settingsSystem']);
     Route::post('systemSettings/update', [Common\SettingsController::class, 'postSettingsSystem']);
@@ -505,7 +505,7 @@ Route::middleware('installAgora')->group(function () {
     Route::delete('groups-delete', [Product\GroupController::class, 'destroy'])->name('groups-delete');
 
     /**
-     * Templates
+     * Templates.
      */
     Route::prefix('template')->group(function () {
         Route::get('list', [Common\TemplateController::class, 'getTemplates']);
@@ -514,7 +514,7 @@ Route::middleware('installAgora')->group(function () {
     });
 
     /**
-     * Queue
+     * Queue.
      */
     Route::get('queue/list', [Jobs\QueueController::class, 'getQueueData']);
     Route::get('queue/{id}', [Jobs\QueueController::class, 'edit'])->name('queue.edit');
@@ -523,7 +523,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('queue/{id}/form', [Jobs\QueueController::class, 'getFormById'])->name('queue.form');
 
     /**
-     * Chat Script
+     * Chat Script.
      */
     Route::prefix('chat')->group(function () {
         Route::get('list', [Common\ChatScriptController::class, 'getScriptList']);
@@ -629,9 +629,6 @@ Route::middleware('installAgora')->group(function () {
     Route::get('file-storage', [Common\SettingsController::class, 'showFileStorage']);
     Route::post('file-storage-path', [Common\SettingsController::class, 'updateStoragePath']);
     Route::get('expired-subscriptions', [Common\CronController::class, 'eachSubscription']);
-
-
-
 
     Route::get('generate-keys', [HomeController::class, 'createEncryptionKeys']);
 
@@ -746,7 +743,6 @@ Route::middleware('installAgora')->group(function () {
 //        it receive the reports form the MSG91
         Route::post('msg91/reports/{app_key}/{app_secret}', [Common\MSG91Controller::class, 'handleReports'])->withoutMiddleware(['admin', 'auth']);
     });
-
 
     //preview image
     Route::get('preview-file', [FileManagerController::class, 'previewFile']);
@@ -868,6 +864,5 @@ Route::get('reports/setting', [ReportController::class, 'getReportsSettings']);
 Route::patch('reports/setting', [ReportController::class, 'updateReportsSettings']);
 
 Route::get('dashboard', [DashboardController::class, 'dashboard']);
-
 
 Route::get('module-settings', [Common\SettingsController::class, 'getModuleSettings']);

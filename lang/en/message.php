@@ -2831,7 +2831,7 @@ return [
     'template_update_success' => 'Template updated successfully',
     'queue_data_fetched_successfully' => 'Queue data fetched successfully',
     'something_went_wrong_fetching_queue' => 'Something went wrong while fetching queue data',
-    'error_fetch_system_settings'  => 'Something went wrong while fetching the system settings. Please try again later.',
+    'error_fetch_system_settings' => 'Something went wrong while fetching the system settings. Please try again later.',
 
     'auto_renewal_disable' => 'Auto-renewal is currently not available. Please contact the administrator for assistance.',
     'auto_renewal_tooltip' => 'Enable or disable auto-renewal for all users.',
