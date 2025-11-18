@@ -451,7 +451,7 @@ class PipedriveController extends Controller
         try {
             $group_name = PipedriveGroups::where('id', $group_id)->value('group_name');
 
-            if (!$group_name) {
+            if (! $group_name) {
                 return errorResponse('Invalid group ID provided.');
             }
 
@@ -509,9 +509,9 @@ class PipedriveController extends Controller
                 ],
             ];
 
-            return successResponse( __('message.pipedrive_fetched_successfully'), $data);
+            return successResponse(__('message.pipedrive_fetched_successfully'), $data);
         } catch (\Throwable $e) {
-            return errorResponse( __('message.unable_to_fetch_pipedrive_data'));
+            return errorResponse(__('message.unable_to_fetch_pipedrive_data'));
         }
     }
 

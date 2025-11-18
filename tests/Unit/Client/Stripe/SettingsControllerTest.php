@@ -24,8 +24,7 @@ use Tests\DBTestCase;
 
 class SettingsControllerTest extends DBTestCase
 {
-
-  use DatabaseTransactions;
+    use DatabaseTransactions;
 
     public function setUp(): void
     {
@@ -43,11 +42,10 @@ class SettingsControllerTest extends DBTestCase
         \Storage::fake('local');
 
         Setting::factory()->create(['id' => 1]);
-
     }
 
     /**
-     * Setup required seeds for every test
+     * Setup required seeds for every test.
      */
 
     // Helper method to set up the mock for the Stripe client
@@ -230,13 +228,12 @@ class SettingsControllerTest extends DBTestCase
         $this->assertEquals('created', $result['status']);
     }
 
-   // Testcases for fetching system settings in admin panel
+    // Testcases for fetching system settings in admin panel
     public function test_it_fetches_system_settings_successfully()
     {
         $response = $this->getJson('/systemSettings/list');
 
         $response->assertStatus(200);
-
     }
 
     public function test_it_returns_error_when_settings_not_found()
@@ -251,38 +248,38 @@ class SettingsControllerTest extends DBTestCase
     // Testcases for updating system settings
     public function test_it_updates_settings_with_new_payload_data()
     {
-        $logo      = UploadedFile::fake()->image('brand-logo.png');
+        $logo = UploadedFile::fake()->image('brand-logo.png');
         $adminLogo = UploadedFile::fake()->image('panel-logo.png');
-        $favIcon   = UploadedFile::fake()->image('favicon.png');
+        $favIcon = UploadedFile::fake()->image('favicon.png');
 
         Attach::shouldReceive('put')
-            ->andReturnUsing(fn($path, $file) => $path . '/' . $file->hashName());
+            ->andReturnUsing(fn ($path, $file) => $path.'/'.$file->hashName());
 
         $payload = [
-            'company'                => 'ABC Solutions',
-            'company_email'          => 'support@abc.io',
-            'title'                  => 'ABC Billing',
-            'website'                => 'https://abc.io/',
-            'phone'                  => '9388383888',
-            'phone_code'             => '44',
-            'phone_country_iso'      => 'GB',
-            'address'                => '221B Baker Street',
-            'city'                   => 'London',
-            'zip'                    => 'NW16XE',
-            'knowledge_base_url'     => 'https://docs.abc.io',
-            'language'               => 'fr',
-            'country'                => 'UK',
-            'cin_no'                 => 'CIN998877',
-            'gstin'                  => 'GST556677',
-            'state'                  => 'UK-LND',
-            'default_currency'       => 'EUR',
-            'favicon_title'          => 'abc Billing',
-            'favicon_title_client'   => 'abc Client Portal',
+            'company' => 'ABC Solutions',
+            'company_email' => 'support@abc.io',
+            'title' => 'ABC Billing',
+            'website' => 'https://abc.io/',
+            'phone' => '9388383888',
+            'phone_code' => '44',
+            'phone_country_iso' => 'GB',
+            'address' => '221B Baker Street',
+            'city' => 'London',
+            'zip' => 'NW16XE',
+            'knowledge_base_url' => 'https://docs.abc.io',
+            'language' => 'fr',
+            'country' => 'UK',
+            'cin_no' => 'CIN998877',
+            'gstin' => 'GST556677',
+            'state' => 'UK-LND',
+            'default_currency' => 'EUR',
+            'favicon_title' => 'abc Billing',
+            'favicon_title_client' => 'abc Client Portal',
 
             // New file inputs
-            'logo'                   => $logo,
-            'admin-logo'             => $adminLogo,
-            'fav-icon'               => $favIcon,
+            'logo' => $logo,
+            'admin-logo' => $adminLogo,
+            'fav-icon' => $favIcon,
         ];
 
         $response = $this->postJson('/systemSettings/update', $payload);
@@ -293,20 +290,20 @@ class SettingsControllerTest extends DBTestCase
             ]);
 
         $this->assertDatabaseHas('settings', [
-            'id'                => 1,
-            'company'           => 'ABC Solutions',
-            'company_email'     => 'support@abc.io',
-            'title'             => 'ABC Billing',
-            'website'           => 'https://abc.io/',
-            'phone'             => '9388383888',
-            'phone_code'        => '44',
+            'id' => 1,
+            'company' => 'ABC Solutions',
+            'company_email' => 'support@abc.io',
+            'title' => 'ABC Billing',
+            'website' => 'https://abc.io/',
+            'phone' => '9388383888',
+            'phone_code' => '44',
             'phone_country_iso' => 'GB',
-            'address'           => '221B Baker Street',
-            'city'              => 'London',
-            'country'           => 'UK',
-            'state'             => 'UK-LND',
-            'default_symbol'    => '€',
-            'content'           => 'fr',
+            'address' => '221B Baker Street',
+            'city' => 'London',
+            'country' => 'UK',
+            'state' => 'UK-LND',
+            'default_symbol' => '€',
+            'content' => 'fr',
         ]);
     }
 
@@ -328,23 +325,23 @@ class SettingsControllerTest extends DBTestCase
     {
         Currency::create([
             'code' => 'USD',
-            'symbol' => '$'
+            'symbol' => '$',
         ]);
 
         $payload = [
-            'company'                => 'ABC Solutions',
-            'company_email'          => 'support@abc.io',
-            'website'                => 'https://abc.io/',
-            'phone'                  => '9388383888',
-            'phone_code'             => '44',
-            'phone_country_iso'      => 'GB',
-            'address'                => '221B Baker Street',
-            'city'                   => 'Banglore',
-            'zip'                    => '636900',
-            'language'               => 'en',
-            'state'                  => 'IN-KA',
-            'default_currency'       => 'USD',
-            'country'                => 'IN',
+            'company' => 'ABC Solutions',
+            'company_email' => 'support@abc.io',
+            'website' => 'https://abc.io/',
+            'phone' => '9388383888',
+            'phone_code' => '44',
+            'phone_country_iso' => 'GB',
+            'address' => '221B Baker Street',
+            'city' => 'Banglore',
+            'zip' => '636900',
+            'language' => 'en',
+            'state' => 'IN-KA',
+            'default_currency' => 'USD',
+            'country' => 'IN',
         ];
 
         $response = $this->postJson('/systemSettings/update', $payload);
