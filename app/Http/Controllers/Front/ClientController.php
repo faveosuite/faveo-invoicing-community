@@ -6,6 +6,7 @@ use App\ApiKey;
 use App\Auto_renewal;
 use App\Demo_page;
 use App\Facades\Cart;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\Order\RenewController;
@@ -132,7 +133,7 @@ class ClientController extends BaseClientController
                 $mail->payment_log(\Auth::user()->email, 'stripe', 'success', Order::where('id', $orderid)->value('number'), null, $amount, 'Payment method updated');
 
                 $response = ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
-
+//            return successResponse(__('message.card_details_updated_successfully'));
                 return ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
             }
         } catch(\Exception $ex) {
@@ -140,7 +141,7 @@ class ClientController extends BaseClientController
             $mail = new \App\Http\Controllers\Common\PhpMailController();
             $mail->payment_log(\Auth::user()->email, 'stripe', 'failed', Order::where('id', $orderid)->value('number'), $result, $amount, 'Payment method updated');
             $errorMessage = __('message.something_different_payment');
-
+//            return errorResponse($errorMessage);
             return response()->json(['error' => $errorMessage], 500);
         }
     }
@@ -160,11 +161,11 @@ class ClientController extends BaseClientController
             $subscription = Subscription::where('order_id', $orderid)->first();
             $this->autoRenewalSubOps($subscription, $orderid);
             $response = ['type' => 'success', 'message' => __('message.auto_subscription_disabled')];
-
+//            return successResponse(__('message.auto_subscription_disabled'));
             return response()->json($response);
         } catch(\Exception $ex) {
             $result = $ex->getMessage();
-
+//            return errorResponse($result);
             return response()->json(compact('result'), 500);
         }
     }
@@ -228,12 +229,13 @@ class ClientController extends BaseClientController
             $mail = new \App\Http\Controllers\Common\PhpMailController();
             $mail->payment_log(\Auth::user()->email, 'Razorpay', 'success', Order::where('id', $orderid)->value('number'), null, $amount, 'Payment method updated');
 
+//            return successResponse(__('message.card_updated_successfully'));
             return redirect()->back()->with('success', __('message.card_updated_successfully'));
         } catch(\Exception $ex) {
             $result = $ex->getMessage();
             $mail = new \App\Http\Controllers\Common\PhpMailController();
             $mail->payment_log(\Auth::user()->email, 'stripe', 'failed', Order::where('id', $orderid)->value('number'), $result, $amount, 'Payment method updated');
-
+//            return errorResponse(__('message.payment_declined', ['msg' => $ex->getMessage()]));
             return redirect()->back()->with('fails', __('message.payment_declined', ['msg' => $ex->getMessage()]));
         }
     }
