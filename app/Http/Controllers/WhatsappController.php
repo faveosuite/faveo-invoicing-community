@@ -347,7 +347,7 @@ class WhatsappController extends Controller
             }
             if ($request->isMethod('post')) {
                 $data = $request->all();
-                if ($data['entry'][0]['id'] !== '') {
+                if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
                     $wabaId = $data['entry'][0]['id'];
                     $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('user_callback_url');
 
