@@ -154,6 +154,7 @@ class BaseProductController extends ExtendedBaseProductController
             return successResponse('', $field);
         } catch (\Exception $ex) {
             \Logger::exception($ex);
+
             return errorResponse($ex->getMessage());
         }
     }
