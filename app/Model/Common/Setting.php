@@ -6,6 +6,7 @@ use App\Facades\Attach;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Model\Payment\Currency;
 
 class Setting extends Model
 {
@@ -125,5 +126,25 @@ class Setting extends Model
     public function getFavIconAttribute($value)
     {
         return $this->getImage($value, 'common/images', asset('images/faveo.png'));
+    }
+
+    public function defaultCurrency()
+    {
+        return $this->belongsTo(Currency::class, 'default_currency', 'code');
+    }
+
+    public function country()
+    {
+        return $this->belongsTo(Country::class, 'country', 'country_code_char2');
+    }
+
+    public function state()
+    {
+        return $this->belongsTo(State::class, 'state', 'state_subdivision_code');
+    }
+
+    public function language()
+    {
+        return $this->belongsTo(Language::class, 'content', 'locale');
     }
 }

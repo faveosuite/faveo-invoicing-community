@@ -333,37 +333,28 @@ class BaseSettingsController extends PaymentSettingsController
 
     public function postSchedular(StatusSetting $status, Request $request)
     {
-        $allStatus = $status->whereId('1')->first();
-        if ($request->expiry_cron) {
-            $allStatus->expiry_mail = $request->expiry_cron;
-        } else {
-            $allStatus->expiry_mail = 0;
-        }
-        if ($request->activity) {
-            $allStatus->activity_log_delete = $request->activity;
-        } else {
-            $allStatus->activity_log_delete = 0;
-        }
-        if ($request->subs_expirymail) {
-            $allStatus->subs_expirymail = $request->subs_expirymail;
-        } else {
-            $allStatus->subs_expirymail = 0;
-        }
-        if ($request->postsubs_expirymail) {
-            $allStatus->post_expirymail = $request->postsubs_expirymail;
-        } else {
-            $allStatus->post_expirymail = 0;
-        }
-        $allStatus->cloud_mail_status = $request->cloud_cron ? $request->cloud_cron : 0;
-        $allStatus->invoice_deletion_status = $request->invoice_cron ? $request->invoice_cron : 0;
-        $allStatus->msg91_report_delete_status = $request->msg91_cron ? $request->msg91_cron : 0;
-        $allStatus->reoon_deletion_status = $request->reoon_cron ? $request->reoon_cron : 0;
-        $allStatus->system_log_status = $request->systemlogs_cron ? $request->systemlogs_cron : 0;
-        $allStatus->save();
-        $this->saveConditions();
+        try {
+            $allStatus = $status->findOrFail(1);
 
-        /* redirect to Index page with Success Message */
-        return redirect('job-scheduler')->with('success', \Lang::get('message.updated-successfully'));
+            $allStatus->expiry_mail              = $request->expiry_cron ?? 0;
+            $allStatus->activity_log_delete      = $request->activity ?? 0;
+            $allStatus->subs_expirymail          = $request->subs_expirymail ?? 0;
+            $allStatus->post_expirymail          = $request->postsubs_expirymail ?? 0;
+            $allStatus->cloud_mail_status        = $request->cloud_cron ?? 0;
+            $allStatus->invoice_deletion_status  = $request->invoice_cron ?? 0;
+            $allStatus->msg91_report_delete_status = $request->msg91_cron ?? 0;
+            $allStatus->system_log_status = $request->systemlogs_cron ?? 0;
+            $allStatus->reoon_deletion_status = $request->reoon_cron ?? 0;
+
+            $allStatus->save();
+
+            $this->saveConditions();
+
+            return successResponse(__('message.updated-successfully'));
+
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage(), 500);
+        }
     }
 
     //Save the Cron Days for expiry Mails and Activity Log

@@ -20,67 +20,61 @@ class QueueController extends Controller
         $this->queue = new QueueService();
     }
 
-    public function index()
+    public function getQueueData(Request $request)
     {
         try {
+            $searchString = $request->input('search-query', '');
+            $sortField = $request->input('sort_field', 'updated_at');
+            $sortOrder = $request->input('sort_order', 'desc');
+            $limit = (int) $request->input('limit', 10);
+
             $cronPath = base_path('artisan');
-            $queue = new QueueService();
-            $activeQueue = $queue->where('status', 1)->first();
             $paths = $this->getPHPBinPath();
 
-            return view('themes.default1.queue.index', compact('activeQueue', 'paths', 'cronPath'));
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
+            $queueService = new QueueService();
+            $activeQueue = $queueService->where('status', 1)->first();
 
-    // public function monitorQueues()
-    // {
+            $queueData = $this->queue
+                ->select('id', 'name', 'status')
+                ->when($searchString, function ($query, $searchString) {
+                    $query->where('name', 'like', "%{$searchString}%");
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
 
-    // }
+            $queueData->getCollection()->transform(function ($queue) {
+                return [
+                    'id' => $queue->id,
+                    'QueueDetails' => $queue->getQueueDetails(),
+                ];
+            });
 
-    public function getQueues()
-    {
-        try {
-            $allQueues = $this->queue->select('id', 'name', 'status');
+            $data = [
+                'cron_path' => $cronPath,
+                'php_paths' => $paths,
+                'active_queue' => $activeQueue,
+                'queues' => $queueData,
+            ];
 
-            return \DataTables::of($allQueues)
-            ->orderColumn('name', '-id $1')
-            ->orderColumn('status', '-id $1')
-        ->addColumn('name', function ($model) {
-            return $model->getName();
-        })
-        ->addColumn('status', function ($model) {
-            return $model->getStatus();
-        })
-        ->addColumn('action', function ($model) {
-            return $model->getAction();
-        })
-          ->filterColumn('name', function ($query, $keyword) {
-              $sql = 'name like ?';
-              $query->whereRaw($sql, ["%{$keyword}%"]);
-          })
-        ->rawColumns(['checkbox', 'name', 'status', 'action'])
-        ->make(true);
+            return successResponse(__('message.queue_data_fetched_successfully'), $data);
+
         } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse(__('message.something_went_wrong_fetching_queue'));
         }
     }
 
     public function edit($id)
     {
         try {
-            $queues = new QueueService();
-            $queue = $queues->find($id);
-            if (! $queue) {
-                throw new Exception(__('message.sorry_cannot_find_request'));
-            }
+            $queueIdData = $this->queue->find($id);
 
-            return view('themes.default1.queue.edit', compact('queue'));
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            if (!$queueIdData) {
+                return errorResponse(__('message.no-record'), 404);
+            }
+          return successResponse('', $queueIdData);
+
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -88,34 +82,35 @@ class QueueController extends Controller
     {
         try {
             $values = $request->except('_token');
-            $queues = new QueueService();
-            $queue = $queues->find($id);
+            $queue = $this->queue->find($id);
 
-            if (! $queue) {
-                throw new Exception(__('message.sorry_cannot_find_request'));
+            if (!$queue) {
+                return errorResponse(__('message.sorry_cannot_find_request'), 404);
             }
-            $setting = new FaveoQueue();
-            $settings = $setting->where('service_id', $id)->get();
-            if ($settings->count() > 0) {
-                foreach ($settings as $set) {
-                    $set->delete();
-                }
-            }
-            if (count($values) > 0) {
+
+            if (!empty($values)) {
                 foreach ($values as $key => $value) {
-                    $setting->create([
-                        'service_id' => $id,
-                        'key' => $key,
-                        'value' => $value,
-                    ]);
+                    FaveoQueue::updateOrCreate(
+                        [
+                            'service_id' => $id,
+                            'key'        => $key,
+                        ],
+                        [
+                            'value'      => $value,
+                        ]
+                    );
                 }
             }
+            return successResponse(__('message.updated-successfully'), [
+                'service_id' => $id,
+                'updated_fields' => $values
+            ]);
 
-            return redirect()->back()->with('success', __('message.updated'));
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+        } catch (\Exception $ex) {
+            return errorResponse(__('message.something_went_wrong'), 500);
         }
     }
+
 
     public function getForm(Request $request)
     {
@@ -125,26 +120,35 @@ class QueueController extends Controller
         return $form;
     }
 
-    public function activate(Request $request, QueueService $queue)
+    public function activate(Request $request, $queue)
     {
         try {
-            $activeQueue = QueueService::where('status', 1)->first();
+            $queue = QueueService::findOrFail($queue);
 
-            if ($queue->isActivate() == false && $queue->id != 1 && $queue->id != 2) {
-                return redirect()->back()->with('fails', __('message.activate_configure_first', ['name' => $queue->name]));
+            if (!$queue->isActivate() && !in_array($queue->id, [1, 2])) {
+                return errorResponse(__('message.activate_configure_first', ['name' => $queue->name]), 422);
             }
+
+            $activeQueue = QueueService::where('status', 1)
+                ->where('id', '!=', $queue->id)
+                ->first();
+
             if ($activeQueue) {
-                $activeQueue->status = 0;
-                $activeQueue->save();
+                $activeQueue->update(['status' => 0]);
             }
-            $queue->status = 1;
-            $queue->save();
-            // $this->updateSnapShotJob($queue);
-            $result = __('message.activated_successfully', ['name' => $queue->name]);
 
-            return redirect()->back()->with('success', $result);
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            $queue->update(['status' => 1]);
+
+            return successResponse(__('message.activated_successfully', ['name' => $queue->name]), [
+                'activated_queue' => [
+                    'id' => $queue->id,
+                    'name' => $queue->name,
+                    'status' => $queue->status,
+                ],
+            ]);
+
+        } catch (\Exception $ex) {
+            return errorResponse(__('message.something_went_wrong'), 500);
         }
     }
 
@@ -162,84 +166,81 @@ class QueueController extends Controller
 
     public function getIdByShortName($short)
     {
-        $id = '';
-        $queues = new QueueService();
-        $queue = $queues->where('short_name', $short)->first();
-        if ($queue) {
-            $id = $queue->id;
-        }
-
-        return $id;
+        $queue = QueueService::where('short_name', $short)->first();
+        return $queue ? $queue->id : null;
     }
 
     public function getFormById($id)
     {
-        $errors = session('errors');
-        $driverErrorMessage = $errors ? $errors->first('driver') : '';
-        $hostErrorMessage = $errors ? $errors->first('host') : '';
-        $queueErrorMessage = $errors ? $errors->first('queue') : '';
         try {
             $short = $this->getShortNameById($id);
-            $form = '';
-            switch ($short) {
-                case 'beanstalkd':
-                    $form .= "<div class='row'>";
-                    $form .= $this->form($short, __('message.driver'), 'driver', 'col-md-6 form-group', __('message.placeholder_beanstalkd'));
-                    $form .= $this->form($short, __('message.host'), 'host', 'col-md-6 form-group', __('message.placeholder_localhost'));
-                    $form .= $this->form($short, __('message.queue'), 'queue', 'col-md-6 form-group', __('message.placeholder_default'));
-                    $form .= '</div>';
 
-                    return $form;
-                case 'sqs':
-                    $form .= "<div class='row'>";
-                    $form .= $this->form($short, __('message.driver'), 'driver', 'col-md-6 form-group', __('message.placeholder_sqs'));
-                    $form .= $this->form($short, __('message.db_key'), 'key', 'col-md-6 form-group', __('message.placeholder_your-public-key'));
-                    $form .= $this->form($short, __('message.secret'), 'secret', 'col-md-6 form-group', __('message.placeholder_your-queue-url'));
-                    $form .= $this->form($short, __('message.region'), 'region', 'col-md-6 form-group', __('message.placeholder_us-east-1'));
-                    $form .= '</div>';
-
-                    return $form;
-                case 'iron':
-                    $form .= "<div class='row'>";
-                    $form .= $this->form($short, __('message.driver'), 'driver', 'col-md-6 form-group', __('message.placeholder_iron'));
-                    $form .= $this->form($short, __('message.host'), 'host', 'col-md-6 form-group', __('message.placeholder_mq_aws'));
-                    $form .= $this->form($short, __('message.db_token'), 'token', 'col-md-6 form-group', __('message.placeholder_your-token'));
-                    $form .= $this->form($short, __('message.db_project'), 'project', 'col-md-6 form-group', __('message.placeholder_your-project-id'));
-                    $form .= $this->form($short, __('message.queue'), 'queue', 'col-md-6 form-group', __('message.placeholder_your-queue-name'));
-                    $form .= '</div>';
-
-                    return $form;
-                case 'redis':
-                    if (! extension_loaded('redis')) {
-                        return errorResponse(\Lang::get('message.extension_required_error', ['extension' => 'redis']), 500);
-                    }
-                    $form .= "<div class='row'>";
-                    $form .= $this->form($short, __('message.driver'), 'driver', 'col-md-6 form-group', __('message.redis_place'));
-                    $form .= $this->form($short, __('message.queue'), 'queue', 'col-md-6 form-group', __('message.default_place'));
-                    $form .= '</div>';
-
-                    return $form;
-                default:
-                    return $form;
+            if (!$short) {
+                return errorResponse( __('message.invalid_queue_id'), 404);
             }
-        } catch (Exception $e) {
-            return errorResponse($e->getMessage());
+
+            // Redis extension check
+            if ($short === 'redis' && !extension_loaded('redis')) {
+                return errorResponse(
+                    __('message.extension_required_error', ['extension' => 'redis']),
+                    500
+                );
+            }
+
+            // Build field structure based on queue type
+            $fields = match ($short) {
+                'beanstalkd' => [
+                    $this->buildField($short, __('message.driver'), 'driver', __('message.placeholder_beanstalkd')),
+                    $this->buildField($short, __('message.host'), 'host', __('message.placeholder_localhost')),
+                    $this->buildField($short, __('message.queue'), 'queue', __('message.placeholder_default')),
+                ],
+
+                'sqs' => [
+                    $this->buildField($short, __('message.driver'), 'driver', __('message.placeholder_sqs')),
+                    $this->buildField($short, __('message.db_key'), 'key', __('message.placeholder_your-public-key')),
+                    $this->buildField($short, __('message.secret'), 'secret', __('message.placeholder_your-queue-url')),
+                    $this->buildField($short, __('message.region'), 'region', __('message.placeholder_us-east-1')),
+                ],
+
+                'iron' => [
+                    $this->buildField($short, __('message.driver'), 'driver', __('message.placeholder_iron')),
+                    $this->buildField($short, __('message.host'), 'host', __('message.placeholder_mq_aws')),
+                    $this->buildField($short, __('message.db_token'), 'token', __('message.placeholder_your-token')),
+                    $this->buildField($short, __('message.db_project'), 'project', __('message.placeholder_your-project-id')),
+                    $this->buildField($short, __('message.queue'), 'queue', __('message.placeholder_your-queue-name')),
+                ],
+
+                'redis' => [
+                    $this->buildField($short, __('message.driver'), 'driver', __('message.redis_place')),
+                    $this->buildField($short, __('message.queue'), 'queue', __('message.default_place')),
+                ],
+
+                default => [],
+            };
+
+            return successResponse(__('message.form_loaded_successfully'), [
+                'queue_id' => $id,
+                'driver' => $short,
+                'fields' => $fields,
+            ]);
+
+        } catch (\Throwable $e) {
+            return errorResponse(__('message.something_went_wrong'), 500);
         }
     }
 
-    public function form($short, $label, $name, $class, $placeholder = '')
+    public function buildField($short, $label, $name, $placeholder = '')
     {
-        $queueid = $this->getIdByShortName($short);
-        $queues = new QueueService();
-        $queue = $queues->find($queueid);
-        if ($queue) {
-            $form = "<div class='".$class."'>".html()->label($label)->for($name)."<span class='text-red'> *</span>".
-                html()->text($name, $queue->getExtraField($name))->class('form-control')->placeholder($placeholder).'</div>';
-        } else {
-            $form = "<div class='".$class."'>".html()->label($label)->for($name)."<span class='text-red'> *</span>".
-                html()->text($name)->class('form-control')->placeholder($placeholder).'</div>';
-        }
+        $queueId = $this->getIdByShortName($short);
+        $queue = QueueService::find($queueId);
 
-        return $form;
+        return [
+            'label' => $label,
+            'name' => $name,
+            'required' => true,
+            'placeholder' => $placeholder,
+            'value' => $queue ? $queue->getExtraField($name) : '',
+            'type' => 'text',
+        ];
     }
 }
