@@ -343,6 +343,7 @@ function getCurrencySymbolAndPriceForPlans($countryCode, $plan)
         $userPlan = $plan->planPrice->where('country_id', $country->country_id)->first() ?: $plan->planPrice->where('country_id', 0)->first();
         $currency = $userPlan->currency;
         $currency_symbol = Currency::where('code', $currency)->value('symbol');
+
         return compact('currency', 'currency_symbol', 'userPlan');
     } catch (\Exception $ex) {
         return redirect()->back()->with('fails', $ex->getMessage());
