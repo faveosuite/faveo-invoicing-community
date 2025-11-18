@@ -236,7 +236,7 @@ class MSG91Controller extends Controller
         $app = ThirdPartyApp::find($thirdPartyId);
 
         if (! $app) {
-            return errorResponse( __('message.third_party_not_found'));
+            return errorResponse(__('message.third_party_not_found'));
         }
 
         return successResponse('', [

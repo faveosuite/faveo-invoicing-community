@@ -3,9 +3,9 @@
 namespace App\Model\Common;
 
 use App\Facades\Attach;
+use App\Model\Payment\Currency;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Model\Payment\Currency;
 
 class Setting extends Model
 {
