@@ -1181,7 +1181,7 @@ class SettingsController extends BaseSettingsController
                 'email' => $result->email,
                 'company Name' => $result->company,
                 'address' => $result->address,
-                'country' => Country::where('country_code_char2', $result->country)->value('country_name'),
+                'country' => Country::where('country_code_char2', $result->country)->value('nicename'),
                 'state' => State::where('state_subdivision_code', $result->state)->value('state_subdivision_name'),
                 'city' => $result->town,];
             $final = ($result->first_name && $result->last_name)?array_merge($cont2, $cont1):$cont1;
@@ -1200,7 +1200,7 @@ class SettingsController extends BaseSettingsController
                 'email' => $result->email,
                 'company Name' => $result->company,
                 'address' => $result->address,
-                'country'=>Country::where('country_code_char2',$result->country)->value('country_name'),
+                'country'=>Country::where('country_code_char2',$result->country)->value('nicename'),
                 'state' => State::where('state_subdivision_code',$result->state)->value('state_subdivision_name'),
                 'city' => $result->town,];
             return successResponse(trans('message.success'), $content);
