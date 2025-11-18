@@ -207,7 +207,7 @@
                                                     $productPrice = $item->price;
                                                     $agents = $item->attributes['agents'] ?? 0;
 
-                                                    if($isAllowedtoEdit && $agents != 0) {
+                                                    if($isAllowedtoEdit['agent'] && $agents != 0) {
                                                         $productPrice = $productPrice / $agents;
                                                     }
 
