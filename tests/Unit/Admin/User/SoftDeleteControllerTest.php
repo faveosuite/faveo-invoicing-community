@@ -41,7 +41,7 @@ class SoftDeleteControllerTest extends DBTestCase
         $user = User::factory()->create();
         WhatsappIntegrationUser::create(['user_id' => $user->id, 'waba_id' => 'wiuefh32843ry9',
             'phone_number_id' => 'fisufhiewfuhiu23', 'business_id' => 'fiowehfiu233',
-            'user_callback_url'=>'iwehfowihfwef','access_token'=>'fiowehfoiwhef','order_id'=>'fiowhefowiefh','phone_number'=>'khfwiohfoihwefoifh']);
+            'user_callback_url' => 'iwehfowihfwef', 'access_token' => 'fiowehfoiwhef', 'order_id' => 'fiowhefowiefh', 'phone_number' => 'khfwiohfoihwefoifh']);
         $user->delete();
         $this->expectOutputRegex('/Deleted Successfully/');
         $response = $this->call('DELETE', 'permanent-delete-client', ['select' => [$user->id]]);
