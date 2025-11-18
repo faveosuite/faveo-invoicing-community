@@ -69,9 +69,9 @@
                 @endif
             </td>
 
-            <td class="right" style="font-size:12px;">
-                <div><strong>{{ __('message.date') }}:</strong> {!! $date !!}</div>
-{{--                <div><strong>{{ __('message.invoice') }}:</strong> #{{ $invoice->number }}</div>--}}
+            <td class="right row" style="font-size:12px;">
+                <strong style="vertical-align: middle;">{{ __('message.date') }}:</strong>
+                <span style="vertical-align: middle; margin-bottom: 0!important;">{!! $date !!}</span>
             </td>
         </tr>
     </table>
