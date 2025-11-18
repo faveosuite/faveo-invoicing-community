@@ -1064,7 +1064,7 @@ tinymce.init({
                     '//www.tinymce.com/css/codepen.min.css'
                 ],
                 setup: function(editor) {
-                    const maxWords = 49;
+                    const maxWords = 24;
 
 
                     // if(words.length>maxWords){
