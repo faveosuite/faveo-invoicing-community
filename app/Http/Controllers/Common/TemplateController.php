@@ -30,47 +30,41 @@ class TemplateController extends Controller
         $this->type = $type;
     }
 
-    public function index()
+    public function getTemplates(Request $request)
     {
         try {
-            return view('themes.default1.common.template.inbox');
+            $searchString = $request->input('search-query', '');
+            $sortField = $request->input('sort_field', 'id');
+            $sortOrder = $request->input('sort_order', 'desc');
+            $limit = $request->input('limit', 10);
+
+            $templateData = $this->template
+                ->select('id', 'name', 'type')
+                ->when($searchString, function ($query) use ($searchString) {
+                    $query->where(function ($q) use ($searchString) {
+                        $q->where('name', 'like', "%{$searchString}%")
+                            ->orWhere('type', 'like', "%{$searchString}%");
+                    });
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
+
+            $templateData->getCollection()->transform(function ($template) {
+                $typeName = $this->type->where('id', $template->type)->value('name') ?? '';
+
+                return [
+                    'id' => $template->id,
+                    'name' => $template->name,
+                    'type' => $typeName,
+                    'edit_url' => hyperLinkGenerator("template/edit/{$template->id}", __('message.edit')),
+                ];
+            });
+
+            return successResponse( __('message.templates_fetched_successfully'), $templateData);
+
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse( __('message.something_went_wrong_fetch_templates'));
         }
-    }
-
-    public function getTemplates()
-    {
-        return \DataTables::of($this->template->select('id', 'name', 'type'))
-                        ->orderColumn('name', '-id $1')
-                        ->orderColumn('type', '-created_at $1')
-                        ->orderColumn('action', '-created_at $1')
-                        ->addColumn('checkbox', function ($model) {
-                            return "<input type='checkbox' class='template_checkbox' 
-                            value=".$model->id.' name=select[] id=check>';
-                        })
-
-                         ->addColumn('name', function ($model) {
-                             return $model->name;
-                         })
-                        ->addColumn('type', function ($model) {
-                            return $this->type->where('id', $model->type)->value('name');
-                        })
-                        ->addColumn('action', function ($model) {
-                            return '<a href='.url('template/'.$model->id.'/edit').
-                            " class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit'
-                                 style='color:white;'> </i></a>";
-                        })
-                         ->filterColumn('name', function ($query, $keyword) {
-                             $sql = 'name like ?';
-                             $query->whereRaw($sql, ["%{$keyword}%"]);
-                         })
-                         ->filterColumn('type', function ($query, $keyword) {
-                             $sql = 'type like ?';
-                             $query->whereRaw($sql, ["%{$keyword}%"]);
-                         })
-                        ->rawColumns(['name', 'type', 'action'])
-                        ->make(true);
     }
 
     public function create()
@@ -106,46 +100,62 @@ class TemplateController extends Controller
         }
     }
 
-    public function edit($id)
+    public function showTemplate($id)
     {
         try {
-            $controller = new ProductController();
-            $url = $controller->GetMyUrl();
             $shortcodes = config('transform');
             $tooltips = config('shortcodes');
 
-            $i = $this->template->orderBy('created_at', 'desc')->first()->id + 1;
-            $cartUrl = $url.'/'.$i;
-            $template = $this->template->where('id', $id)->first();
+            $template = $this->template->find($id);
+
+            if (!$template) {
+                return errorResponse( __('message.template_not_found'));
+            }
             $type = $this->type->pluck('name', 'id')->toArray();
             $templateType = TemplateType::find($template->type);
-            $shortcodeName = $templateType->name;
+            $shortcodeName = $templateType ? $templateType->name : null;
             $codes = null;
-            if (array_key_exists($shortcodeName, $shortcodes)) {
+            if ($shortcodeName && array_key_exists($shortcodeName, $shortcodes)) {
                 $codes = $shortcodes[$shortcodeName];
             }
 
-            return view('themes.default1.common.template.edit', compact('type', 'template', 'cartUrl', 'codes', 'tooltips'));
+            $templateIdData = [
+                'type' => $type,
+                'template' => $template,
+                'codes' => $codes,
+                'tooltips' => $tooltips,
+            ];
+
+            return successResponse( __('message.templates_fetched_successfully'), $templateIdData);
+
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse( __('message.something_went_wrong_fetch_particular_template'));
         }
     }
 
-    public function update($id, Request $request)
+    public function updateTemplate($id, Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required',
-            'data' => 'required',
-            'type' => 'required',
-        ]);
-
+        $request->validate([
+                'name' => 'required',
+                'data' => 'required',
+                'type' => 'required',
+            ], [
+                'name.required' => __('validation.auth_controller.name_required'),
+                'data.required' => __('message.content_required'),
+                'type.required' => __('message.template_type_required'),
+            ]);
         try {
-            $template = $this->template->where('id', $id)->first();
-            $template->fill($request->input())->save();
+            $template = $this->template->find($id);
+            if (!$template) {
+                return errorResponse(__('message.template_not_found'));
+            }
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+            $template->fill($request->all())->save();
+
+            return successResponse( __('message.template_update_success'), $template);
+
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse(__('message.template_update_error'));
         }
     }
 
