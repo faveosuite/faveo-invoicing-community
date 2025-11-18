@@ -57,7 +57,6 @@ class QueueController extends Controller
             ];
 
             return successResponse(__('message.queue_data_fetched_successfully'), $data);
-
         } catch (\Exception $ex) {
             return errorResponse(__('message.something_went_wrong_fetching_queue'));
         }
@@ -68,11 +67,11 @@ class QueueController extends Controller
         try {
             $queueIdData = $this->queue->find($id);
 
-            if (!$queueIdData) {
+            if (! $queueIdData) {
                 return errorResponse(__('message.no-record'), 404);
             }
-          return successResponse('', $queueIdData);
 
+            return successResponse('', $queueIdData);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -84,33 +83,32 @@ class QueueController extends Controller
             $values = $request->except('_token');
             $queue = $this->queue->find($id);
 
-            if (!$queue) {
+            if (! $queue) {
                 return errorResponse(__('message.sorry_cannot_find_request'), 404);
             }
 
-            if (!empty($values)) {
+            if (! empty($values)) {
                 foreach ($values as $key => $value) {
                     FaveoQueue::updateOrCreate(
                         [
                             'service_id' => $id,
-                            'key'        => $key,
+                            'key' => $key,
                         ],
                         [
-                            'value'      => $value,
+                            'value' => $value,
                         ]
                     );
                 }
             }
+
             return successResponse(__('message.updated-successfully'), [
                 'service_id' => $id,
-                'updated_fields' => $values
+                'updated_fields' => $values,
             ]);
-
         } catch (\Exception $ex) {
             return errorResponse(__('message.something_went_wrong'), 500);
         }
     }
-
 
     public function getForm(Request $request)
     {
@@ -125,7 +123,7 @@ class QueueController extends Controller
         try {
             $queue = QueueService::findOrFail($queue);
 
-            if (!$queue->isActivate() && !in_array($queue->id, [1, 2])) {
+            if (! $queue->isActivate() && ! in_array($queue->id, [1, 2])) {
                 return errorResponse(__('message.activate_configure_first', ['name' => $queue->name]), 422);
             }
 
@@ -146,7 +144,6 @@ class QueueController extends Controller
                     'status' => $queue->status,
                 ],
             ]);
-
         } catch (\Exception $ex) {
             return errorResponse(__('message.something_went_wrong'), 500);
         }
@@ -167,6 +164,7 @@ class QueueController extends Controller
     public function getIdByShortName($short)
     {
         $queue = QueueService::where('short_name', $short)->first();
+
         return $queue ? $queue->id : null;
     }
 
@@ -175,12 +173,12 @@ class QueueController extends Controller
         try {
             $short = $this->getShortNameById($id);
 
-            if (!$short) {
-                return errorResponse( __('message.invalid_queue_id'), 404);
+            if (! $short) {
+                return errorResponse(__('message.invalid_queue_id'), 404);
             }
 
             // Redis extension check
-            if ($short === 'redis' && !extension_loaded('redis')) {
+            if ($short === 'redis' && ! extension_loaded('redis')) {
                 return errorResponse(
                     __('message.extension_required_error', ['extension' => 'redis']),
                     500
@@ -223,7 +221,6 @@ class QueueController extends Controller
                 'driver' => $short,
                 'fields' => $fields,
             ]);
-
         } catch (\Throwable $e) {
             return errorResponse(__('message.something_went_wrong'), 500);
         }

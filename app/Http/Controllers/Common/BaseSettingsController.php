@@ -336,12 +336,12 @@ class BaseSettingsController extends PaymentSettingsController
         try {
             $allStatus = $status->findOrFail(1);
 
-            $allStatus->expiry_mail              = $request->expiry_cron ?? 0;
-            $allStatus->activity_log_delete      = $request->activity ?? 0;
-            $allStatus->subs_expirymail          = $request->subs_expirymail ?? 0;
-            $allStatus->post_expirymail          = $request->postsubs_expirymail ?? 0;
-            $allStatus->cloud_mail_status        = $request->cloud_cron ?? 0;
-            $allStatus->invoice_deletion_status  = $request->invoice_cron ?? 0;
+            $allStatus->expiry_mail = $request->expiry_cron ?? 0;
+            $allStatus->activity_log_delete = $request->activity ?? 0;
+            $allStatus->subs_expirymail = $request->subs_expirymail ?? 0;
+            $allStatus->post_expirymail = $request->postsubs_expirymail ?? 0;
+            $allStatus->cloud_mail_status = $request->cloud_cron ?? 0;
+            $allStatus->invoice_deletion_status = $request->invoice_cron ?? 0;
             $allStatus->msg91_report_delete_status = $request->msg91_cron ?? 0;
             $allStatus->system_log_status = $request->systemlogs_cron ?? 0;
             $allStatus->reoon_deletion_status = $request->reoon_cron ?? 0;
@@ -351,7 +351,6 @@ class BaseSettingsController extends PaymentSettingsController
             $this->saveConditions();
 
             return successResponse(__('message.updated-successfully'));
-
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage(), 500);
         }
