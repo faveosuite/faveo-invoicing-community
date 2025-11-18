@@ -95,33 +95,32 @@
             background: transparent !important;
             box-shadow: none !important;
         }
+
+
         /*.modal.right .modal-dialog {*/
-        /*    position: fixed;*/
-        /*    right: 0;*/
-        /*    margin: 0;*/
+        /*    margin: 30px auto auto auto;   !* add gap at top *!*/
         /*    width: 70%;*/
         /*    max-width: none;*/
-        /*    height: 100%;*/
-        /*    transform: translateX(90%);*/
-        /*    transition: transform 0.4s ease-out;*/
+        /*    position: relative;*/
+        /*    transform: none !important;    !* remove slide animation *!*/
         /*}*/
 
         /*.modal.right.show .modal-dialog {*/
-        /*    transform: translateX(0);*/
+        /*    transform: none !important;*/
         /*}*/
 
         /*.modal.right .modal-content {*/
-        /*    height: 100%;*/
         /*    border: 0;*/
-        /*    border-radius: 0;*/
+        /*    border-radius: 6px;*/
         /*}*/
 
+        /* Existing rules for the modal container and positioning */
         .modal.right .modal-dialog {
-            margin: 30px auto auto auto;   /* add gap at top */
+            margin: 30px auto auto auto;
             width: 70%;
             max-width: none;
             position: relative;
-            transform: none !important;    /* remove slide animation */
+            transform: none !important;
         }
 
         .modal.right.show .modal-dialog {
@@ -131,8 +130,27 @@
         .modal.right .modal-content {
             border: 0;
             border-radius: 6px;
+
+            /* 1. Set a fixed height for the entire modal content */
+            /* Adjust this height (e.g., 90vh) to your desired size.
+               Using 'vh' (viewport height) is common for large, fixed-size modals. */
+            height: 90vh;
+            display: flex; /* Helps manage the internal layout */
+            flex-direction: column; /* Stacks header, body, and footer vertically */
         }
 
+        /* --- NEW / MODIFIED RULES FOR SCROLLING --- */
+
+        .modal.right .modal-body {
+            /* 2. Important: Allow the body to take up the remaining space */
+            flex-grow: 1;
+
+            /* 3. Set the overflow property to create the scrollbar */
+            overflow-y: auto; /* Adds a vertical scrollbar when content exceeds the body's height */
+
+            /* 4. Optional: Set a specific height if you don't use flex-grow */
+            /* max-height: calc(90vh - 100px); /* Example: 90vh of content minus ~100px for header/footer */
+        }
 
         /*.modal.right .modal-body {*/
         /*    overflow-y: auto;*/
@@ -796,8 +814,16 @@
                 dom: 'Blfrtip',
                 buttons: [
                     {
-                        text: '{{__('message.refresh_table')}}',
-                        className: 'btn btn-primary', // add your styles
+                        text: '<i class="fa fa-sync-alt text-secondary"></i> ',
+
+                        // This attribute adds the tooltip text. 'data-bs-toggle="tooltip"' is for Bootstrap 5.
+                        // Adjust the 'data-toggle' and 'title' attributes based on your framework (e.g., just 'title' for a simple browser tooltip or different attributes for custom frameworks).
+                        attr: {
+                            title: '{{ __('message.reset') }}',
+                            'data-bs-toggle': 'tooltip',
+                            'data-bs-placement': 'top'
+                        },
+                        className: '', // add your styles
                         action: function (e, dt, node, config) {
                             dt.ajax.reload();
                         }
@@ -835,7 +861,7 @@
         {data: 'status', name: 'status',searchable:true, orderable:true},
           {data: 'registration', name:'registration', searchable:true, orderable:true},
         {data:'created_at',name:'created_at',searchable:true, orderable:true},
-        {data: 'result', name: 'result'},
+        {data: 'result', name: 'result',searchable:false, orderable:false},
 
             ],
             "fnDrawCallback": function( oSettings ) {
