@@ -449,66 +449,71 @@ class PipedriveController extends Controller
      */
     public function getMapFields($group_id)
     {
-        $group_name = PipedriveGroups::where('id', $group_id)->value('group_name');
+        try {
+            $group_name = PipedriveGroups::where('id', $group_id)->value('group_name');
 
-        $groups = $this->getGroups();
+            if (!$group_name) {
+                return errorResponse('Invalid group ID provided.');
+            }
 
-        $title = match ($group_name) {
-            'Person' => Lang::get('message.contact_mapping'),
-            'Organization' => Lang::get('message.organization_mapping'),
-            'Deal' => Lang::get('message.deal_mapping'),
-            default => '',
-        };
+            $groups = $this->getGroups();
 
-        $localFields = PipedriveLocalFields::get();
-        $localFieldsArray = $localFields->toArray();
+            $title = match ($group_name) {
+                'Person' => Lang::get('message.contact_mapping'),
+                'Organization' => Lang::get('message.organization_mapping'),
+                'Deal' => Lang::get('message.deal_mapping'),
+                default => '',
+            };
 
-        $pipedriveFields = PipedriveField::with(['pipedriveOptions', 'localField'])
-            ->where('pipedrive_group_id', $group_id)
-            ->get()
-            ->map(function ($field) use ($localFields, $localFieldsArray) {
-                // Determine selected field
-                $selectedField = [];
+            $localFields = PipedriveLocalFields::get();
+            $localFieldsArray = $localFields->toArray();
 
-                // Priority 1: Match local_field_id
-                if ($field->local_field_id !== null) {
-                    $matchedLocal = $localFields->firstWhere('id', $field->local_field_id);
-                    if ($matchedLocal) {
-                        $selectedField = [
-                            'id' => $matchedLocal->id,
-                            'value' => $matchedLocal->field_name,
-                        ];
+            $pipedriveFields = PipedriveField::with(['pipedriveOptions', 'localField'])
+                ->where('pipedrive_group_id', $group_id)
+                ->get()
+                ->map(function ($field) use ($localFields, $localFieldsArray) {
+                    $selectedField = [];
+
+                    if ($field->local_field_id !== null) {
+                        $matchedLocal = $localFields->firstWhere('id', $field->local_field_id);
+                        if ($matchedLocal) {
+                            $selectedField = [
+                                'id' => $matchedLocal->id,
+                                'value' => $matchedLocal->field_name,
+                            ];
+                        }
                     }
-                }
 
-                // Priority 2: Check pipedrive options if no local field match
-                if (empty($selectedField) && $field->pipedriveOptions->isNotEmpty()) {
-                    $activeOption = $field->pipedriveOptions->firstWhere('status', 1);
-                    if ($activeOption) {
-                        $selectedField = [
-                            'id' => $activeOption->id,
-                            'value' => $activeOption->value,
-                        ];
+                    if (empty($selectedField) && $field->pipedriveOptions->isNotEmpty()) {
+                        $activeOption = $field->pipedriveOptions->firstWhere('status', 1);
+                        if ($activeOption) {
+                            $selectedField = [
+                                'id' => $activeOption->id,
+                                'value' => $activeOption->value,
+                            ];
+                        }
                     }
-                }
 
-                $field->selected_field = $selectedField;
-                $field->local_field_options = $localFieldsArray;
+                    $field->selected_field = $selectedField;
+                    $field->local_field_options = $localFieldsArray;
 
-                return $field;
-            });
+                    return $field;
+                });
 
-        $pipedriveData = [
-            'local_fields' => $localFieldsArray,
-            'pipedrive_fields' => $pipedriveFields,
-        ];
+            $data = [
+                'group_id' => $group_id,
+                'title' => $title,
+                'groups' => $groups,
+                'pipedriveData' => [
+                    'local_fields' => $localFieldsArray,
+                    'pipedrive_fields' => $pipedriveFields,
+                ],
+            ];
 
-        return view('themes.default1.common.pipedrive.settings', compact(
-            'group_id',
-            'title',
-            'groups',
-            'pipedriveData'
-        ));
+            return successResponse( __('message.pipedrive_fetched_successfully'), $data);
+        } catch (\Throwable $e) {
+            return errorResponse( __('message.unable_to_fetch_pipedrive_data'));
+        }
     }
 
     /**

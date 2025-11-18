@@ -42,25 +42,34 @@ class WelcomeController extends Controller
     /**
      * Get country list with user count.
      */
-    public function getCountry()
+    public function getCountry(Request $request)
     {
-        // Fetch countries with user count using relationship
-        $countries = Country::withCount('users')
-            ->where('nicename', '!=', '')
-            ->get(['nicename', 'country_code_char2']);
+        try {
+            $searchQuery = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'nicename');
+            $limit = $request->input('limit', 10);
 
-        // Transform the output
-        $data = $countries->map(function ($country) {
-            return [
-                'country' => ucfirst($country->nicename ?? 'Unknown'),
-                'code' => $country->country_code_char2 ?? '',
-                'count' => $country->users_count ?? 0,
-            ];
-        });
+            $countryList = Country::withCount('users')
+                ->where('nicename', '!=', '')
+                ->when($searchQuery, function ($query, $searchQuery) {
+                    $query->where('nicename', 'like', "%{$searchQuery}%");
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $data,
-        ]);
+            $countryList->getCollection()->transform(function ($country) {
+                return [
+                    'id' => $country->country_id,
+                    'country' => ucfirst($country->nicename ?? ''),
+                    'code' => $country->country_code_char2 ?? '',
+                    'count' => $country->users_count ?? 0,
+                ];
+            });
+
+            return successResponse('', $countryList);
+        } catch (\Exception $e) {
+            return errorResponse(__('message.something_went_wrong'), 500);
+        }
     }
 }

@@ -10,12 +10,13 @@ use Swift_SmtpTransport;
 class EmailSettingsController extends Controller
 {
     protected $emailConfig;
+    protected $error;
 
     protected function checkSConnection(Setting $emailConfig)
     {
         try {
             $this->emailConfig = $emailConfig;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->error = $e;
 
             return false;
@@ -27,9 +28,9 @@ class EmailSettingsController extends Controller
         try {
             $set = $settings->find(1);
 
-            return view('themes.default1.common.setting.email', compact('set'));
+            return successResponse('',$set);
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse( $ex->getMessage());
         }
     }
 
@@ -79,7 +80,7 @@ class EmailSettingsController extends Controller
     {
         try {
             $this->emailConfig = $emailConfig;
-            $this->emailConfig;
+
             //if sending protocol is mail, no connection check is required
             if ($this->emailConfig->driver == 'mail') {
                 return $this->checkMailConnection();
@@ -93,7 +94,7 @@ class EmailSettingsController extends Controller
             }
 
             return $this->checkServices();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->error = $e;
 
             return false;
@@ -161,7 +162,7 @@ class EmailSettingsController extends Controller
             $mailer->getTransport()->start();
 
             return true;
-        } catch (\TransportExceptionInterface $e) {
+        } catch (\Swift_TransportException $e) {
             $this->error = $e;
 
             return false;

@@ -28,44 +28,6 @@ class QueueService extends Model
         return $value;
     }
 
-    public function getName()
-    {
-        $name = $this->attributes['name'];
-        $id = $this->attributes['id'];
-        if ($name == 'Sync' or $name == 'Database') {
-            $html = $name;
-        } else {
-            $html = '<a href='.url('queue/'.$id).'>'.$name.'</a>';
-        }
-
-        return $html;
-    }
-
-    public function getStatus()
-    {
-        $status = $this->attributes['status'];
-        $html = "<span class='badge badge-primary' style='background-color:crimson !important;'>".__('message.inactive').'</span>';
-        if ($status == 1) {
-            $html = "<span class='badge badge-primary' style='background-color:darkcyan !important;'>".__('message.active').'</span>';
-        }
-
-        return $html;
-    }
-
-    public function getAction()
-    {
-        $id = $this->attributes['id'];
-        $status = $this->attributes['status'];
-        $html = '<form method="post" action='.url('queue/'.$id.'/activate').'>'.'<input type="hidden" name="_token" value='.\Session::token().'>'.'
-                                <button type="submit"  class="btn btn-secondary btn-sm btn-xs"><i class="fa fa-check-circle">&nbsp;&nbsp;</i>'.\Lang::get('message.activate').'</button></form>';
-
-        if ($status == 1) {
-            $html = "<a href='#' class='btn btn-secondary btn-sm btn-xs disabled' ><i class='fa fa-check-circle'>&nbsp;&nbsp;</i>".\Lang::get('message.activate').'</a>';
-        }
-
-        return $html;
-    }
-
     public function isActivate()
     {
         $check = true;
@@ -75,5 +37,29 @@ class QueueService extends Model
         }
 
         return $check;
+    }
+
+    public function getQueueDetails(){
+
+        $id = $this->attributes['id'];
+        $name = $this->attributes['name'];
+        $status = $this->attributes['status'];
+
+        return [
+            'id' => $id,
+            'name' => [
+                'text' => $name,
+                'link' => ($name == 'Sync' || $name == 'Database') ? null : url("queue/{$id}")
+            ],
+            'status' => [
+                'code' => (int) $status,
+                'label' => $status == 1 ? __('message.active') : __('message.inactive'),
+            ],
+            'action' => [
+                'type' => $status == 1 ? 'activated' : 'activate',
+                'url' => url("queue/{$id}/activate"),
+                'disabled' => (bool) $status,
+            ],
+        ];
     }
 }

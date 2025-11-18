@@ -216,9 +216,6 @@ Route::middleware('installAgora')->group(function () {
     /*
      * Client api's completion
      *
-     *
-     *
-     *
      */
 
     /*
@@ -228,12 +225,55 @@ Route::middleware('installAgora')->group(function () {
     Route::get('contact-option', [Common\SettingsController::class, 'contactOption'])->name('contact-option');
     Route::post('verificationSettings', [Common\SettingsController::class, 'postContactOption']);
 
+    /*
+     * Email Api keys
+     */
     Route::post('emailData', [Common\SettingsController::class, 'emailData']);
     Route::post('emailCheckboxData', [Common\SettingsController::class, 'emailCheckboxData']);
-
-    Route::post('mobileData', [Common\SettingsController::class, 'mobileData']);
     Route::post('email-settings-save', [Common\SettingsController::class, 'emailSettingsSave']);
+
+    /*
+     * Github Api keys
+     */
+    Route::post('githubkeys', [Common\SettingsController::class, 'githubkeys']);
+    Route::post('github-setting', [Github\GithubController::class, 'postSettings']);
+
+    /*
+     * Mobile Api keys
+     */
+    Route::post('mobileData', [Common\SettingsController::class, 'mobileData']);
     Route::post('mobile-settings-save', [Common\SettingsController::class, 'mobileSettingsSave']);
+
+    /*
+     * Google ReCaptcha Api Keys
+     */
+    Route::post('captchaDetails', [Common\BaseSettingsController::class, 'captchaDetails'])->name('captchaDetails');
+    Route::post('googleCaptcha', [Common\SettingsController::class, 'googleCaptcha']);
+
+    /*
+     * Mailchimp Api keys
+     */
+    Route::post('mailchimpkeys', [Common\SettingsController::class, 'mailchimpKeys']);
+    Route::post('updateMailchimpDetails', [Common\BaseSettingsController::class, 'updateMailchimpDetails'])->name('updateMailchimpDetails');
+
+    /*
+     * Mobile Verification Api (Msg91)
+     */
+    Route::post('mobileVerification', [Common\SettingsController::class, 'mobileVerification']);
+    Route::get('msgThirdPartyUpdate/{thirdPartyId}', [MSG91Controller::class, 'getThirdPartyMsgDetails']);
+    Route::post('updatemobileDetails', [Common\BaseSettingsController::class, 'updateMobileDetails'])->name('updatemobileDetails');
+
+    /*
+     * Pipedrive Api keys
+     */
+    Route::post('pipedrivekeys', [Common\SettingsController::class, 'pipedrivekeys']);
+    Route::post('updatepipedriveDetails', [Common\BaseSettingsController::class, 'updatepipedriveDetails'])->name('updatepipedriveDetails');
+
+    /*
+     * Terms Api Keys
+     */
+    Route::post('termsUrl', [Common\SettingsController::class, 'termsUrl']);
+    Route::post('updateTermsDetails', [Common\BaseSettingsController::class, 'updateTermsDetails'])->name('updateTermsDetails');
 
     /*
      * Profile Process
@@ -251,17 +291,15 @@ Route::middleware('installAgora')->group(function () {
     Route::get('settings', [Common\SettingsController::class, 'settings']);
     Route::get('/datatable/data', [Common\SettingsController::class, 'getDataTableData'])->name('datatable.data');
     Route::post('licensekeys', [Common\SettingsController::class, 'licensekeys']);
-    Route::post('googleCaptcha', [Common\SettingsController::class, 'googleCaptcha']);
-    Route::post('mobileVerification', [Common\SettingsController::class, 'mobileVerification']);
-    Route::post('termsUrl', [Common\SettingsController::class, 'termsUrl']);
     Route::post('zohokeys', [Common\SettingsController::class, 'zohokeys']);
-    Route::post('pipedrivekeys', [Common\SettingsController::class, 'pipedrivekeys']);
     Route::post('twitterkeys', [Common\SettingsController::class, 'twitterkeys']);
-    Route::post('githubkeys', [Common\SettingsController::class, 'githubkeys']);
-    Route::post('mailchimpkeys', [Common\SettingsController::class, 'mailchimpKeys']);
 
-    Route::get('settings/system', [Common\SettingsController::class, 'settingsSystem']);
-    Route::patch('settings/system', [Common\SettingsController::class, 'postSettingsSystem']);
+    /**
+     * System Settings
+     */
+    Route::get('systemSettings/list', [Common\SettingsController::class, 'settingsSystem']);
+    Route::post('systemSettings/update', [Common\SettingsController::class, 'postSettingsSystem']);
+
     Route::get('settings/email', [Common\EmailSettingsController::class, 'settingsEmail'])->middleware('auth');
     Route::patch('settings/email', [Common\EmailSettingsController::class, 'postSettingsEmail']);
     Route::get('settings/template', [Common\SettingsController::class, 'settingsTemplate']);
@@ -293,14 +331,9 @@ Route::middleware('installAgora')->group(function () {
     Route::post('licenseDetails', [Common\BaseSettingsController::class, 'licenseDetails'])->name('licenseDetails');
     Route::post('licenseStatus', [Common\BaseSettingsController::class, 'licenseStatus'])->name('licenseStatus');
     Route::post('updateDetails', [Common\BaseSettingsController::class, 'updateDetails'])->name('updateDetails');
-    Route::post('captchaDetails', [Common\BaseSettingsController::class, 'captchaDetails'])->name('captchaDetails');
-    Route::post('updatemobileDetails', [Common\BaseSettingsController::class, 'updateMobileDetails'])->name('updatemobileDetails');
     Route::post('updateemailDetails', [Common\BaseSettingsController::class, 'updateEmailDetails'])->name('updateemailDetails');
     Route::post('updatetwitterDetails', [Common\BaseSettingsController::class, 'updateTwitterDetails'])->name('updatetwitterDetails');
-    Route::post('updateMailchimpDetails', [Common\BaseSettingsController::class, 'updateMailchimpDetails'])->name('updateMailchimpDetails');
-    Route::post('updateTermsDetails', [Common\BaseSettingsController::class, 'updateTermsDetails'])->name('updateTermsDetails');
     Route::post('updatezohoDetails', [Common\BaseSettingsController::class, 'updateZohoDetails'])->name('updatezohoDetails');
-    Route::post('updatepipedriveDetails', [Common\BaseSettingsController::class, 'updatepipedriveDetails'])->name('updatepipedriveDetails');
     Route::post('mailchimp-prod-status', [Common\BaseSettingsController::class, 'updateMailchimpProductStatus'])->name('mailchimp-prod-status');
     Route::post('mailchimp-paid-status', [Common\BaseSettingsController::class, 'updateMailchimpIsPaidStatus'])->name('mailchimp-paid-status');
     Route::post('updatedomainCheckDetails', [Common\BaseSettingsController::class, 'updatedomainCheckDetails'])->name('updatedomainCheckDetails');
@@ -467,28 +500,25 @@ Route::middleware('installAgora')->group(function () {
     Route::get('get-groups', [Product\GroupController::class, 'getGroups'])->name('get-groups');
     Route::delete('groups-delete', [Product\GroupController::class, 'destroy'])->name('groups-delete');
 
-    /*
+    /**
      * Templates
      */
-
-    Route::resource('template', Common\TemplateController::class);
-    Route::get('get-templates', [Common\TemplateController::class, 'getTemplates'])->name('get-templates');
-    // Route::get('get-templates', [Common\TemplateController::class, 'GetTemplates']);
-    Route::delete('templates-delete', [Common\TemplateController::class, 'destroy'])->name('templates-delete');
+    Route::prefix('template')->group(function () {
+        Route::get('list', [Common\TemplateController::class, 'getTemplates']);
+        Route::get('edit/{id}', [Common\TemplateController::class, 'showTemplate']);
+        Route::put('update/{id}', [Common\TemplateController::class, 'updateTemplate']);
+    });
 
     /**
-     * Queue.
+     * Queue
      */
-    Route::get('queue', [Jobs\QueueController::class, 'index'])->name('queue');
-    Route::get('get-queue', [Jobs\QueueController::class, 'getQueues'])->name('get-queue');
+    Route::get('queue/list', [Jobs\QueueController::class, 'getQueueData']);
     Route::get('queue/{id}', [Jobs\QueueController::class, 'edit'])->name('queue.edit');
     Route::post('queue/{id}', [Jobs\QueueController::class, 'update'])->name('queue.update');
-
     Route::post('queue/{queue}/activate', [Jobs\QueueController::class, 'activate']);
-    Route::get('form/queue', [Jobs\QueueController::class, 'getForm'])->name('queue.form');
-    // Route::get('queue-monitoring', [Jobs\QueueController::class, 'monitorQueues']]);
+    Route::get('queue/{id}/form', [Jobs\QueueController::class, 'getFormById'])->name('queue.form');
 
-    /*
+    /**
      * Chat Script
      */
     Route::prefix('chat')->group(function () {
@@ -556,7 +586,6 @@ Route::middleware('installAgora')->group(function () {
     Route::get('github-releases', [Github\GithubController::class, 'listRepositories']);
     Route::get('github-downloads', [Github\GithubController::class, 'getDownloadCount']);
 //    Route::get('github', [Github\GithubController::class, 'getSettings']);
-    Route::post('github-setting', [Github\GithubController::class, 'postSettings']);
 
     /*
      * download
@@ -597,20 +626,15 @@ Route::middleware('installAgora')->group(function () {
     Route::post('file-storage-path', [Common\SettingsController::class, 'updateStoragePath']);
     Route::get('expired-subscriptions', [Common\CronController::class, 'eachSubscription']);
 
-    /*
-
 
 
 
     Route::get('generate-keys', [HomeController::class, 'createEncryptionKeys']);
 
-    Route::post('dashboard-currency/{id}', [Payment\CurrencyController::class, 'setDashboardCurrency']);
     Route::get('get-country', [WelcomeController::class, 'getCountry'])->middleware('admin');
-    Route::get('country-count', [WelcomeController::class, 'countryCount'])->name('country-count')->middleware('admin');
+
     Route::get('get-code', [WelcomeController::class, 'getCode']);
     Route::get('get-currency', [WelcomeController::class, 'getCurrency'])->middleware('admin');
-//    Route::get('get-country', [WelcomeController::class, 'getCountry'])->middleware('admin');
-    Route::get('country-count', [WelcomeController::class, 'getCountry'])->name('country-count')->middleware('admin');
 
     /*
      * Third Party Apps
@@ -718,7 +742,6 @@ Route::middleware('installAgora')->group(function () {
         Route::post('msg91/reports/{app_key}/{app_secret}', [Common\MSG91Controller::class, 'handleReports'])->withoutMiddleware(['admin', 'auth']);
     });
 
-    Route::get('msgThirdPartyUpdate/{thirdPartyId}', [MSG91Controller::class, 'getThirdPartyMsgDetails']);
 
     //preview image
     Route::get('preview-file', [FileManagerController::class, 'previewFile']);
@@ -830,3 +853,6 @@ Route::get('reports/setting', [ReportController::class, 'getReportsSettings']);
 Route::patch('reports/setting', [ReportController::class, 'updateReportsSettings']);
 
 Route::get('dashboard', [DashboardController::class, 'dashboard']);
+
+
+Route::get('module-settings', [Common\SettingsController::class, 'getModuleSettings']);
