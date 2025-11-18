@@ -2,23 +2,54 @@
 
 namespace Tests\Unit\Client\Stripe;
 
+use App\Facades\Attach;
 use App\Http\Controllers\RazorpayController;
+use App\Model\Common\Setting;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
 use Cartalyst\Stripe\Laravel\Facades\Stripe;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Mockery;
 use Tests\DBTestCase;
 
 class SettingsControllerTest extends DBTestCase
 {
+
+  use DatabaseTransactions;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->withoutMiddleware();
+        $this->getLoggedInUser('admin');
+
+        // Fake disk to avoid errors
+        \DB::table('settings_filesystem')->insert([
+            'disk' => 'local',
+            'local_file_storage_path' => 'uploads',
+        ]);
+
+        \Storage::fake('local');
+
+        Setting::factory()->create(['id' => 1]);
+
+    }
+
+    /**
+     * Setup required seeds for every test
+     */
+
     // Helper method to set up the mock for the Stripe client
     protected function setupStripeClientMock($expectedArguments, $status)
     {
@@ -197,5 +228,126 @@ class SettingsControllerTest extends DBTestCase
         $controller = new RazorpayController();
         $result = $controller->handleRzpAutoPay($cost, $days, $product_name, $invoice, $currency, $subscription, $user, $order, $endDate, $product);
         $this->assertEquals('created', $result['status']);
+    }
+
+   // Testcases for fetching system settings in admin panel
+    public function test_it_fetches_system_settings_successfully()
+    {
+        $response = $this->getJson('/systemSettings/list');
+
+        $response->assertStatus(200);
+
+    }
+
+    public function test_it_returns_error_when_settings_not_found()
+    {
+        Setting::where('id', 1)->delete();
+
+        $response = $this->getJson('/systemSettings/list');
+
+        $response->assertStatus(400);
+    }
+
+    // Testcases for updating system settings
+    public function test_it_updates_settings_with_new_payload_data()
+    {
+        $logo      = UploadedFile::fake()->image('brand-logo.png');
+        $adminLogo = UploadedFile::fake()->image('panel-logo.png');
+        $favIcon   = UploadedFile::fake()->image('favicon.png');
+
+        Attach::shouldReceive('put')
+            ->andReturnUsing(fn($path, $file) => $path . '/' . $file->hashName());
+
+        $payload = [
+            'company'                => 'ABC Solutions',
+            'company_email'          => 'support@abc.io',
+            'title'                  => 'ABC Billing',
+            'website'                => 'https://abc.io/',
+            'phone'                  => '9388383888',
+            'phone_code'             => '44',
+            'phone_country_iso'      => 'GB',
+            'address'                => '221B Baker Street',
+            'city'                   => 'London',
+            'zip'                    => 'NW16XE',
+            'knowledge_base_url'     => 'https://docs.abc.io',
+            'language'               => 'fr',
+            'country'                => 'UK',
+            'cin_no'                 => 'CIN998877',
+            'gstin'                  => 'GST556677',
+            'state'                  => 'UK-LND',
+            'default_currency'       => 'EUR',
+            'favicon_title'          => 'abc Billing',
+            'favicon_title_client'   => 'abc Client Portal',
+
+            // New file inputs
+            'logo'                   => $logo,
+            'admin-logo'             => $adminLogo,
+            'fav-icon'               => $favIcon,
+        ];
+
+        $response = $this->postJson('/systemSettings/update', $payload);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'message' => __('message.updated-successfully'),
+            ]);
+
+        $this->assertDatabaseHas('settings', [
+            'id'                => 1,
+            'company'           => 'ABC Solutions',
+            'company_email'     => 'support@abc.io',
+            'title'             => 'ABC Billing',
+            'website'           => 'https://abc.io/',
+            'phone'             => '9388383888',
+            'phone_code'        => '44',
+            'phone_country_iso' => 'GB',
+            'address'           => '221B Baker Street',
+            'city'              => 'London',
+            'country'           => 'UK',
+            'state'             => 'UK-LND',
+            'default_symbol'    => '€',
+            'content'           => 'fr',
+        ]);
+    }
+
+    public function test_it_returns_error_when_settings_row_missing()
+    {
+        Setting::truncate();
+
+        $payload = [
+            'company' => 'Test',
+            'default_currency' => 'USD',
+        ];
+
+        $response = $this->postJson('/systemSettings/update', $payload);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_it_updates_settings_with_only_required_fields()
+    {
+        Currency::create([
+            'code' => 'USD',
+            'symbol' => '$'
+        ]);
+
+        $payload = [
+            'company'                => 'ABC Solutions',
+            'company_email'          => 'support@abc.io',
+            'website'                => 'https://abc.io/',
+            'phone'                  => '9388383888',
+            'phone_code'             => '44',
+            'phone_country_iso'      => 'GB',
+            'address'                => '221B Baker Street',
+            'city'                   => 'Banglore',
+            'zip'                    => '636900',
+            'language'               => 'en',
+            'state'                  => 'IN-KA',
+            'default_currency'       => 'USD',
+            'country'                => 'IN',
+        ];
+
+        $response = $this->postJson('/systemSettings/update', $payload);
+        $response->assertStatus(200);
     }
 }

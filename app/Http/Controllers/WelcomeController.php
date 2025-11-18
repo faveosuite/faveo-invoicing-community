@@ -42,26 +42,34 @@ class WelcomeController extends Controller
     /**
      * Get country list with user count.
      */
-
-    public function countryCount()
+    public function getCountry(Request $request)
     {
-// Fetch countries with user count using relationship
-        $countries = Country::withCount('users')
-            ->where('country_name', '!=', '')
-            ->get(['country_name', 'country_code_char2']);
+        try {
+            $searchQuery = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'country_name');
+            $limit = $request->input('limit', 10);
 
-        // Transform the output
-        $data = $countries->map(function ($country) {
-            return [
-                'country' => ucfirst($country->country_name ?? 'Unknown'),
-                'code'    => $country->country_code_char2 ?? '',
-                'count'   => $country->users_count ?? 0,
-            ];
-        });
+            $countryList = Country::withCount('users')
+                ->where('country_name', '!=', '')
+                ->when($searchQuery, function ($query, $searchQuery) {
+                    $query->where('country_name', 'like', "%{$searchQuery}%");
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $data,
-        ]);
+            $countryList->getCollection()->transform(function ($country) {
+                return [
+                    'id' => $country->country_id,
+                    'country' => ucfirst($country->country_name ?? ''),
+                    'code' => $country->country_code_char2 ?? '',
+                    'count' => $country->users_count ?? 0,
+                ];
+            });
+
+            return successResponse('', $countryList);
+        } catch (\Exception $e) {
+            return errorResponse(__('message.something_went_wrong'), 500);
+        }
     }
 }

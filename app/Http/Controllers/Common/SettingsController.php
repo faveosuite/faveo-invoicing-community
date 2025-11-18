@@ -27,6 +27,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\DataTables;
+use App\Model\Common\Country;
 
 class SettingsController extends BaseSettingsController
 {
@@ -208,12 +209,7 @@ class SettingsController extends BaseSettingsController
 
             return successResponse('', $data);
         } catch (\Exception $e) {
-            $data = [
-                'githubFileds' => '',
-
-            ];
-
-            return successResponse('', $data);
+            return errorResponse( __('message.error_fetching_githubkeys'));
         }
     }
 
@@ -453,16 +449,16 @@ class SettingsController extends BaseSettingsController
             $defaultLang = optional(Setting::first())->content;
 
             $settings = Setting::with([
-                'defaultCurrency:id,code,name',
-                'country:country_id,country_name,country_code_char2',
-                'state:state_subdivision_id,state_subdivision_name,state_subdivision_code',
-                'language:id,name,locale',
-            ]
+                    'defaultCurrency:id,code,name',
+                    'country:country_id,country_name,country_code_char2',
+                    'state:state_subdivision_id,state_subdivision_name,state_subdivision_code',
+                    'language:id,name,locale'
+                ]
             )->findOrFail(1);
 
             return successResponse(__('message.system_setting_fetched'), $settings);
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse( __('message.error_fetch_system_settings'));
         }
     }
 
@@ -495,7 +491,7 @@ class SettingsController extends BaseSettingsController
 
             return successResponse(__('message.updated-successfully'));
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -551,12 +547,18 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $set = $settings->find(1);
+
+            if (!$set) {
+                return errorResponse( __('meessage.template_settings_found'));
+            }
             $template = new Template();
 
-            //$templates = $template->lists('name', 'id')->toArray();
-            return view('themes.default1.common.setting.template', compact('set', 'template'));
+            return successResponse('',[
+                'settings' => $set,
+                'template' => $template,
+            ]);
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse( __('message.unable_to_fetch_template_settings'));
         }
     }
 
@@ -566,9 +568,10 @@ class SettingsController extends BaseSettingsController
             $setting = $settings->find(1);
             $setting->fill($request->input())->save();
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+            return successResponse( __('message.updated-successfully'));
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            \Log::error('Template Settings API Error: ' . $ex->getMessage());
+            return errorResponse( __('message.something_wrong_while_updating_template_settings'));
         }
     }
 
@@ -1036,61 +1039,69 @@ class SettingsController extends BaseSettingsController
 
     public function emailData(Request $request)
     {
-        ['api_key' => $apikey, 'mode' => $mode, 'accepted_output' => $current] = EmailMobileValidationProviders::where('provider', $request->input('value'))
-            ->select('api_key', 'mode', 'accepted_output')
-            ->first()
-            ->toArray();
+        try {
+            $providerValue = $request->input('value');
 
-        $label2 = html()->label(__('message.emailApikey'), 'emailApikey')->class('required')->toHtml();
-        $input = html()->text('emailApikey', $apikey)->class('form-control emailapikey')->id('emailApikey')->toHtml();
-        $label1 = html()->label(__('message.emailMode'), 'emailMode')->class('required')->toHtml();
-        $input1 = html()->text('emailMode', $mode)->class('form-control emailMode')->id('emailMode')->toHtml();
-        $input3 = '<select class="form-control emailMode" id="emailMode" name="emailMode">'
-            .'<option value="quick"'.($mode == 'quick' ? ' selected' : '').'>Quick</option>'
-            .'<option value="power"'.($mode == 'power' ? ' selected' : '').'>Power</option>'
-            .'</select>';
-
-        if ($request->input('value') === 'reoon') {
-            $response = '<div>
-        <div class="form-group">'.$label2.$input.'</div>
-        <div class="form-group">'.$label1.$input3.'</div>
-         <div class="form-group" id="checkboxToRender">
-                </div>
-        
-            </div>';
-            if ($mode == 'power') {
-                $statusOptions = $this->setStatus($current);
-                $response = '<div>
-        <div class="form-group">'.$label2.$input.'</div>
-        <div class="form-group">'.$label1.$input3.'</div>
-         <div class="form-group" id="checkboxToRender">
-         <div class="form-group">
-            <label for="allowed_statuses" class="required">'.__('message.allowed_estatus').'</label>'
-                    .$statusOptions.
-                    '</div>
-                </div>
-                <span class="error invalid-feedback d-block" id="checkboxErrorMessage"></span>
-            </div>';
+            if (!$providerValue) {
+                return errorResponse(__('message.providers_value_required'), 422);
             }
-        } else {
-            $response = '';
-        }
 
-        return successResponse(trans('message.success'), $response);
+            // Fetch provider details
+            $provider = EmailMobileValidationProviders::where('provider', $providerValue)
+                ->select('api_key', 'mode', 'accepted_output')
+                ->first();
+
+            if (!$provider) {
+                return errorResponse(__('message.provider_not_found'), [], 404);
+            }
+
+            $data = [
+                'api_key' => $provider->api_key,
+                'mode' => $provider->mode,
+                'available_modes' => [
+                    ['value' => 'quick', 'label' => 'Quick'],
+                    ['value' => 'power', 'label' => 'Power']
+                ],
+                'show_checkboxes' => false,
+                'allowed_statuses' => [],
+            ];
+
+            if ($providerValue === 'reoon') {
+                $data['show_checkboxes'] = true;
+
+                if ($provider->mode === 'power') {
+                    $data['allowed_statuses'] = $this->setStatus($provider->accepted_output);
+                }
+            }
+
+            return successResponse(__('message.success'), $data);
+
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
 
     public function emailCheckboxData()
     {
-        $current = EmailMobileValidationProviders::where('provider', 'reoon')->value('accepted_output') ?? 1;
-        $statusOptions = $this->setStatus($current);
+        try {
+            // Fetch the accepted_output value for reoon
+            $current = EmailMobileValidationProviders::where('provider', 'reoon')
+                ->value('accepted_output');
 
-        $response = '<div class="form-group">
-            <label for="allowed_statuses" class="required">'.__('message.allowed_estatus').'</label>'
-            .$statusOptions.
-            '</div>
-            <span class="error invalid-feedback d-block" id="checkboxErrorMessage"></span>';
+            if (is_null($current)) {
+                return errorResponse('No accepted output found for reoon provider', [], 404);
+            }
 
-        return successResponse(trans('message.success'), $response);
+            // Return checkbox data as structured JSON
+            $data = [
+                'allowed_statuses' => $this->setStatus($current)
+            ];
+
+            return successResponse(__('message.success'), $data);
+
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
 
     public function getEmailValidationLogs()
@@ -1207,52 +1218,53 @@ class SettingsController extends BaseSettingsController
             'spamtrap' => 256,
         ];
 
-        $statusOptions = '';
+        $options = [];
+
         foreach ($map as $status => $bit) {
-            $checked = ($current & $bit) ? 'checked' : '';
-            $label = ucfirst(str_replace('_', ' ', $status));
-            $statusOptions .= '<div class="form-check">
-        <input class="form-check-input emailStatusCheckbox" type="checkbox" 
-               name="allowed_statuses[]" value="'.$bit.'" id="status_'.$status.'" '.$checked.'>
-        <label class="form-check-label" for="status_'.$status.'">'.$label.'</label>
-    </div>';
+            $options[] = [
+                'label' => ucfirst(str_replace('_', ' ', $status)),
+                'value' => $bit,
+                'checked' => ($current & $bit) ? true : false,
+            ];
         }
 
-        return $statusOptions;
+        return $options;
     }
 
     public function mobileData(Request $request)
     {
-        $provider = $request->input('value');
+        try {
+            $provider = $request->input('value');
 
-        ['api_key' => $apikey, 'mode' => $mode, 'api_secret' => $apisecret] = EmailMobileValidationProviders::where('provider', $provider)
-            ->select('api_key', 'mode', 'api_secret')
-            ->first()
-            ->toArray();
-        $label2 = html()->label(__('message.mobileApikey'), 'emailApikey')->class('required')->toHtml();
-        $input = html()->text('apikey', $apikey)->class('form-control emailapikey')->id('mobileApikey')->toHtml();
-        $label1 = html()->label(__('message.mobileApisecret'), 'apisecret')->class('required')->toHtml();
-        $input1 = html()->text('apisecret', $apisecret)->class('form-control emailMode')->id('mobileApisecret')->toHtml();
-        $label3 = html()->label(__('message.mobileMode'), 'mobileMode')->class('required')->toHtml();
-        $input3 = html()->text('mobileMode', $mode)->class('form-control mobileMode')->id('mobileMode')->toHtml();
-        $input4 = '<select class="form-control emailMode" id="mobileMode" name="mobileMode">'
-            .'<option value="basic"'.($mode == 'basic' ? ' selected' : '').'>Basic</option>'
-            .'<option value="standard"'.($mode == 'standard' ? ' selected' : '').'>Standard</option>'
-            .'<option value="advanced/async"'.($mode == 'advanced/async' ? ' selected' : '').'>Advanced</option>'
-            .'</select>';
-        if ($provider == 'vonage') {
-            $response = '<div>
-        <div class="form-group">'.$label2.$input.'</div>
-        <div class="form-group">'.$label1.$input1.'</div>
-        <div class="form-group">'.$label3.$input4.'</div>
-    </div>';
-        } else {
-            $response = '<div>
-        <div class="form-group">'.$label2.$input.'</div>
-    </div>';
+            if (!$provider) {
+                return errorResponse(__('message.providers_value_required'));
+            }
+
+            $record = EmailMobileValidationProviders::where('provider', $provider)
+                ->select('api_key', 'mode', 'api_secret')
+                ->first();
+
+            if (!$record) {
+                return errorResponse( __('message.no_configuration_found'));
+            }
+
+            $data = [
+                'provider' => $provider,
+                'api_key' => $record->api_key,
+                'api_secret' => $record->api_secret,
+                'mode' => $record->mode,
+                'available_modes' => $provider === 'vonage'
+                    ? ['basic', 'standard', 'advanced/async']
+                    : null,
+            ];
+
+            return successResponse( __('message.mobile_provider_fetched'), $data);
+
+        } catch (\Throwable $e) {
+            \Log::error('Mobile Data API Error: ' . $e->getMessage());
+
+            return errorResponse( __('message.mobile_provider_error'));
         }
-
-        return successResponse(trans('message.success'), $response);
     }
 
     public function emailSettingsSave(Request $request)
@@ -1318,59 +1330,6 @@ class SettingsController extends BaseSettingsController
             return successResponse(\Lang::get('message.mobile_validation_success_abstract'));
         }
     }
-
-//    public function getBaseQueryForSystemLogs($from = null, $till = null)
-//    {
-//        $query = Activity::with(['causer:id,user_name,first_name,last_name,email', 'causer.role'])
-//            ->select('id', 'log_name', 'description', 'event', 'causer_id', 'properties', 'created_at');
-//
-//        if ($from || $till) {
-//            $from = $from
-//                ? Carbon::parse($from)->startOfDay()
-//                : Carbon::parse(Activity::min('created_at'))->startOfDay();
-//
-//            $till = $till
-//                ? Carbon::parse($till)->endOfDay()
-//                : Carbon::now()->endOfDay();
-//            \Log::info('Activity Log Filter:', [
-//                'Applied From' => $from,
-//                'Applied Till' => $till
-//            ]);
-//
-//            // ✅ Remove extra UTC conversion
-//            $query->whereBetween('created_at', [$from, $till]);
-//            \Log::info('Generated SQL Query:', [$query->toSql(), $query->getBindings()]);
-//
-//        }
-//
-//        return $query;
-//    }
-//
-//
-//    private function searchQuery($query, $search)
-//    {
-//        if (!empty($search)) {
-//            $query->where(function ($q) use ($search) {
-//                $q->where('log_name', 'LIKE', "%$search%")
-//                    ->orWhere('description', 'LIKE', "%$search%")
-//                    ->orWhereHas('causer', function ($q) use ($search) {
-//                        $q->where('first_name', 'LIKE', "%$search%")
-//                            ->orWhere('last_name', 'LIKE', "%$search%")
-//                            ->orWhere('user_name', 'LIKE', "%$search%")
-//                            ->orWhereRaw("CONCAT(first_name,' ',last_name) LIKE ?", ["%$search%"]);
-//                    });
-//            });
-//        }
-//        return $query;
-//    }
-//
-//    private function adSearch($from, $till, $query)
-//    {
-//        if ($from && $till) {
-//            $query->whereBetween('created_at', [$from, $till]);
-//        }
-//        return $query;
-//    }
 
     public function getActivity(Request $request)
     {
@@ -1463,4 +1422,90 @@ class SettingsController extends BaseSettingsController
     {
         return "<a href='".url($href)."'>".$value.'</a>';
     }
+
+
+    public function getModuleSettings(Request $request)
+    {
+        try {
+            $statusData = [
+                'license_status'             => $this->statusSetting->value('license_status'),
+                'msg91_status'               => $this->statusSetting->value('msg91_status'),
+                'recaptcha_status'           => $this->statusSetting->value('recaptcha_status'),
+                'v3_recaptcha_status'        => $this->statusSetting->value('v3_recaptcha_status'),
+                'twitter_status'             => $this->statusSetting->value('twitter_status'),
+                'zoho_status'                => $this->statusSetting->value('zoho_status'),
+                'pipedrive_status'           => $this->statusSetting->value('pipedrive_status'),
+                'domain_check'               => $this->statusSetting->value('domain_check'),
+                'github_status'              => $this->statusSetting->first()->github_status ?? 0,
+                'mailchimp_status'           => $this->statusSetting->value('mailchimp_status'),
+                'terms'                      => $this->statusSetting->value('terms'),
+                'v3_v2_recaptcha_status'     => $this->statusSetting->value('v3_v2_recaptcha_status'),
+                'email_validation_status'    => $this->statusSetting->value('email_validation_status'),
+                'mobile_validation_status'   => $this->statusSetting->value('mobile_validation_status'),
+            ];
+
+            $modules = [
+                [
+                    'key'         => 'license',
+                    'name'        => __('message.license_heading'),
+                    'description' => __('message.license_description'),
+                    'enabled'     => (bool) $statusData['license_status'],
+                ],
+                [
+                    'key'         => 'recaptcha',
+                    'name'        => __('message.recaptcha_heading'),
+                    'description' => __('message.google_description'),
+                    'enabled'     => (bool) $statusData['v3_v2_recaptcha_status'],
+                ],
+                [
+                    'key'         => 'msg91',
+                    'name'        => __('message.msg91_heading'),
+                    'description' => __('message.msg91_description'),
+                    'enabled'     => (bool) $statusData['msg91_status'],
+                ],
+                [
+                    'key'         => 'mailchimp',
+                    'name'        => __('message.mailchimp_heading'),
+                    'description' => __('message.mailchimp_description'),
+                    'enabled'     => (bool) $statusData['mailchimp_status'],
+                ],
+                [
+                    'key'         => 'terms',
+                    'name'        => __('message.terms_heading'),
+                    'description' => __('message.terms_description'),
+                    'enabled'     => (bool) $statusData['terms'],
+                ],
+                [
+                    'key'         => 'pipedrive',
+                    'name'        => __('message.pipedrive_heading'),
+                    'description' => __('message.pipedrive_description'),
+                    'enabled'     => (bool) $statusData['pipedrive_status'],
+                ],
+                [
+                    'key'         => 'github',
+                    'name'        => __('message.github_heading'),
+                    'description' => __('message.github_description'),
+                    'enabled'     => (bool) $statusData['github_status'],
+                ],
+                [
+                    'key'         => 'email_validation',
+                    'name'        => __('message.email_provider'),
+                    'description' => __('message.email_validation_description'),
+                    'enabled'     => (bool) $statusData['email_validation_status'],
+                ],
+                [
+                    'key'         => 'mobile_validation',
+                    'name'        => __('message.mobile_provider'),
+                    'description' => __('message.mobile_validation_description'),
+                    'enabled'     => (bool) $statusData['mobile_validation_status'],
+                ],
+            ];
+
+            return successResponse(__('message.data_fetched_successfully'), $modules);
+
+        } catch (\Exception $e) {
+            return errorResponse(__('message.something_went_wrong'), [$e->getMessage()]);
+        }
+    }
+
 }
