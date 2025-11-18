@@ -959,11 +959,10 @@ class ClientController extends BaseClientController
             $userCountry = \Auth::user()->country;
             $displayCurrency = getCurrencyForClient($userCountry);
 
-            if (! isCurrencySupportedForPayments($displayCurrency,
-                Plugin::whereStatus(1)
-                ->pluck('name')
-                ->map(fn ($name) => strtolower($name))
-                ->toArray())) {
+            if (
+                Plugin::whereStatus(1)->where('name', 'razorpay')->exists()
+                && ! isCurrencySupportedForPayments($displayCurrency, 'razorpay')
+            ) {
                 throw new \Exception(__('message.unsupported_country'));
             }
 

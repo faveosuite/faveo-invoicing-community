@@ -221,7 +221,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $currency = getCurrencyForClient($user->country);
         $paymentFailData = 'Payment for'.' '.'of'.' '.$currency.' '.$total.' '.'failed by'.' '.$user->first_name.' '.$user->last_name.' '.'. User Email:'.' '.$user->email.'<br>'.'Reason:'.$exceptionMessage;
         $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($setting->email, $setting->company_email, $paymentFailData, 'payment-failed', $template->type()->value('name'));
+        $mail->SendEmail($setting->email, $setting->company_email, $paymentFailData, 'payment-failed', Template::where('name', $template)->type()->value('name'));
         $mail->payment_log($user->email, $payment, 'failed', $order->number, $exceptionMessage, $amount, 'Product renew');
     }
 
