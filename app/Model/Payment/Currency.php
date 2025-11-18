@@ -25,6 +25,7 @@ class Currency extends BaseModel
     protected $logUrl = [
         'segments' => ['currency'],
     ];
+
     protected static function booted(): void
     {
         static::addGlobalScope('active_country', function (Builder $builder) {
