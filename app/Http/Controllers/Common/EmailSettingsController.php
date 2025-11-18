@@ -28,9 +28,9 @@ class EmailSettingsController extends Controller
         try {
             $set = $settings->find(1);
 
-            return successResponse('',$set);
+            return successResponse('', $set);
         } catch (\Exception $ex) {
-            return errorResponse( $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 

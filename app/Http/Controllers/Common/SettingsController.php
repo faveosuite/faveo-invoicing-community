@@ -16,18 +16,15 @@ use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Github\Github;
 use App\Model\Mailjob\QueueService;
-use App\Model\Order\Order;
 use App\Model\Payment\Currency;
 use App\Model\Plugin;
 use App\Payment_log;
 use App\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\DataTables;
-use App\Model\Common\Country;
 
 class SettingsController extends BaseSettingsController
 {
@@ -209,7 +206,7 @@ class SettingsController extends BaseSettingsController
 
             return successResponse('', $data);
         } catch (\Exception $e) {
-            return errorResponse( __('message.error_fetching_githubkeys'));
+            return errorResponse(__('message.error_fetching_githubkeys'));
         }
     }
 
@@ -449,16 +446,16 @@ class SettingsController extends BaseSettingsController
             $defaultLang = optional(Setting::first())->content;
 
             $settings = Setting::with([
-                    'defaultCurrency:id,code,name',
-                    'country:country_id,country_name,country_code_char2',
-                    'state:state_subdivision_id,state_subdivision_name,state_subdivision_code',
-                    'language:id,name,locale'
-                ]
+                'defaultCurrency:id,code,name',
+                'country:country_id,country_name,country_code_char2',
+                'state:state_subdivision_id,state_subdivision_name,state_subdivision_code',
+                'language:id,name,locale',
+            ]
             )->findOrFail(1);
 
             return successResponse(__('message.system_setting_fetched'), $settings);
         } catch (\Exception $ex) {
-            return errorResponse( __('message.error_fetch_system_settings'));
+            return errorResponse(__('message.error_fetch_system_settings'));
         }
     }
 
@@ -548,17 +545,17 @@ class SettingsController extends BaseSettingsController
         try {
             $set = $settings->find(1);
 
-            if (!$set) {
-                return errorResponse( __('meessage.template_settings_found'));
+            if (! $set) {
+                return errorResponse(__('meessage.template_settings_found'));
             }
             $template = new Template();
 
-            return successResponse('',[
+            return successResponse('', [
                 'settings' => $set,
                 'template' => $template,
             ]);
         } catch (\Exception $ex) {
-            return errorResponse( __('message.unable_to_fetch_template_settings'));
+            return errorResponse(__('message.unable_to_fetch_template_settings'));
         }
     }
 
@@ -568,10 +565,11 @@ class SettingsController extends BaseSettingsController
             $setting = $settings->find(1);
             $setting->fill($request->input())->save();
 
-            return successResponse( __('message.updated-successfully'));
+            return successResponse(__('message.updated-successfully'));
         } catch (\Exception $ex) {
-            \Log::error('Template Settings API Error: ' . $ex->getMessage());
-            return errorResponse( __('message.something_wrong_while_updating_template_settings'));
+            \Log::error('Template Settings API Error: '.$ex->getMessage());
+
+            return errorResponse(__('message.something_wrong_while_updating_template_settings'));
         }
     }
 
@@ -1062,7 +1060,7 @@ class SettingsController extends BaseSettingsController
         try {
             $providerValue = $request->input('value');
 
-            if (!$providerValue) {
+            if (! $providerValue) {
                 return errorResponse(__('message.providers_value_required'), 422);
             }
 
@@ -1071,7 +1069,7 @@ class SettingsController extends BaseSettingsController
                 ->select('api_key', 'mode', 'accepted_output')
                 ->first();
 
-            if (!$provider) {
+            if (! $provider) {
                 return errorResponse(__('message.provider_not_found'), [], 404);
             }
 
@@ -1080,7 +1078,7 @@ class SettingsController extends BaseSettingsController
                 'mode' => $provider->mode,
                 'available_modes' => [
                     ['value' => 'quick', 'label' => 'Quick'],
-                    ['value' => 'power', 'label' => 'Power']
+                    ['value' => 'power', 'label' => 'Power'],
                 ],
                 'show_checkboxes' => false,
                 'allowed_statuses' => [],
@@ -1095,7 +1093,6 @@ class SettingsController extends BaseSettingsController
             }
 
             return successResponse(__('message.success'), $data);
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
@@ -1114,11 +1111,10 @@ class SettingsController extends BaseSettingsController
 
             // Return checkbox data as structured JSON
             $data = [
-                'allowed_statuses' => $this->setStatus($current)
+                'allowed_statuses' => $this->setStatus($current),
             ];
 
             return successResponse(__('message.success'), $data);
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
@@ -1256,7 +1252,7 @@ class SettingsController extends BaseSettingsController
         try {
             $provider = $request->input('value');
 
-            if (!$provider) {
+            if (! $provider) {
                 return errorResponse(__('message.providers_value_required'));
             }
 
@@ -1264,8 +1260,8 @@ class SettingsController extends BaseSettingsController
                 ->select('api_key', 'mode', 'api_secret')
                 ->first();
 
-            if (!$record) {
-                return errorResponse( __('message.no_configuration_found'));
+            if (! $record) {
+                return errorResponse(__('message.no_configuration_found'));
             }
 
             $data = [
@@ -1278,12 +1274,11 @@ class SettingsController extends BaseSettingsController
                     : null,
             ];
 
-            return successResponse( __('message.mobile_provider_fetched'), $data);
-
+            return successResponse(__('message.mobile_provider_fetched'), $data);
         } catch (\Throwable $e) {
-            \Log::error('Mobile Data API Error: ' . $e->getMessage());
+            \Log::error('Mobile Data API Error: '.$e->getMessage());
 
-            return errorResponse( __('message.mobile_provider_error'));
+            return errorResponse(__('message.mobile_provider_error'));
         }
     }
 
@@ -1499,89 +1494,86 @@ class SettingsController extends BaseSettingsController
         return "<a href='" . url($href) . "'>" . $value . "</a>";
     }
 
-
     public function getModuleSettings(Request $request)
     {
         try {
             $statusData = [
-                'license_status'             => $this->statusSetting->value('license_status'),
-                'msg91_status'               => $this->statusSetting->value('msg91_status'),
-                'recaptcha_status'           => $this->statusSetting->value('recaptcha_status'),
-                'v3_recaptcha_status'        => $this->statusSetting->value('v3_recaptcha_status'),
-                'twitter_status'             => $this->statusSetting->value('twitter_status'),
-                'zoho_status'                => $this->statusSetting->value('zoho_status'),
-                'pipedrive_status'           => $this->statusSetting->value('pipedrive_status'),
-                'domain_check'               => $this->statusSetting->value('domain_check'),
-                'github_status'              => $this->statusSetting->first()->github_status ?? 0,
-                'mailchimp_status'           => $this->statusSetting->value('mailchimp_status'),
-                'terms'                      => $this->statusSetting->value('terms'),
-                'v3_v2_recaptcha_status'     => $this->statusSetting->value('v3_v2_recaptcha_status'),
-                'email_validation_status'    => $this->statusSetting->value('email_validation_status'),
-                'mobile_validation_status'   => $this->statusSetting->value('mobile_validation_status'),
+                'license_status' => $this->statusSetting->value('license_status'),
+                'msg91_status' => $this->statusSetting->value('msg91_status'),
+                'recaptcha_status' => $this->statusSetting->value('recaptcha_status'),
+                'v3_recaptcha_status' => $this->statusSetting->value('v3_recaptcha_status'),
+                'twitter_status' => $this->statusSetting->value('twitter_status'),
+                'zoho_status' => $this->statusSetting->value('zoho_status'),
+                'pipedrive_status' => $this->statusSetting->value('pipedrive_status'),
+                'domain_check' => $this->statusSetting->value('domain_check'),
+                'github_status' => $this->statusSetting->first()->github_status ?? 0,
+                'mailchimp_status' => $this->statusSetting->value('mailchimp_status'),
+                'terms' => $this->statusSetting->value('terms'),
+                'v3_v2_recaptcha_status' => $this->statusSetting->value('v3_v2_recaptcha_status'),
+                'email_validation_status' => $this->statusSetting->value('email_validation_status'),
+                'mobile_validation_status' => $this->statusSetting->value('mobile_validation_status'),
             ];
 
             $modules = [
                 [
-                    'key'         => 'license',
-                    'name'        => __('message.license_heading'),
+                    'key' => 'license',
+                    'name' => __('message.license_heading'),
                     'description' => __('message.license_description'),
-                    'enabled'     => (bool) $statusData['license_status'],
+                    'enabled' => (bool) $statusData['license_status'],
                 ],
                 [
-                    'key'         => 'recaptcha',
-                    'name'        => __('message.recaptcha_heading'),
+                    'key' => 'recaptcha',
+                    'name' => __('message.recaptcha_heading'),
                     'description' => __('message.google_description'),
-                    'enabled'     => (bool) $statusData['v3_v2_recaptcha_status'],
+                    'enabled' => (bool) $statusData['v3_v2_recaptcha_status'],
                 ],
                 [
-                    'key'         => 'msg91',
-                    'name'        => __('message.msg91_heading'),
+                    'key' => 'msg91',
+                    'name' => __('message.msg91_heading'),
                     'description' => __('message.msg91_description'),
-                    'enabled'     => (bool) $statusData['msg91_status'],
+                    'enabled' => (bool) $statusData['msg91_status'],
                 ],
                 [
-                    'key'         => 'mailchimp',
-                    'name'        => __('message.mailchimp_heading'),
+                    'key' => 'mailchimp',
+                    'name' => __('message.mailchimp_heading'),
                     'description' => __('message.mailchimp_description'),
-                    'enabled'     => (bool) $statusData['mailchimp_status'],
+                    'enabled' => (bool) $statusData['mailchimp_status'],
                 ],
                 [
-                    'key'         => 'terms',
-                    'name'        => __('message.terms_heading'),
+                    'key' => 'terms',
+                    'name' => __('message.terms_heading'),
                     'description' => __('message.terms_description'),
-                    'enabled'     => (bool) $statusData['terms'],
+                    'enabled' => (bool) $statusData['terms'],
                 ],
                 [
-                    'key'         => 'pipedrive',
-                    'name'        => __('message.pipedrive_heading'),
+                    'key' => 'pipedrive',
+                    'name' => __('message.pipedrive_heading'),
                     'description' => __('message.pipedrive_description'),
-                    'enabled'     => (bool) $statusData['pipedrive_status'],
+                    'enabled' => (bool) $statusData['pipedrive_status'],
                 ],
                 [
-                    'key'         => 'github',
-                    'name'        => __('message.github_heading'),
+                    'key' => 'github',
+                    'name' => __('message.github_heading'),
                     'description' => __('message.github_description'),
-                    'enabled'     => (bool) $statusData['github_status'],
+                    'enabled' => (bool) $statusData['github_status'],
                 ],
                 [
-                    'key'         => 'email_validation',
-                    'name'        => __('message.email_provider'),
+                    'key' => 'email_validation',
+                    'name' => __('message.email_provider'),
                     'description' => __('message.email_validation_description'),
-                    'enabled'     => (bool) $statusData['email_validation_status'],
+                    'enabled' => (bool) $statusData['email_validation_status'],
                 ],
                 [
-                    'key'         => 'mobile_validation',
-                    'name'        => __('message.mobile_provider'),
+                    'key' => 'mobile_validation',
+                    'name' => __('message.mobile_provider'),
                     'description' => __('message.mobile_validation_description'),
-                    'enabled'     => (bool) $statusData['mobile_validation_status'],
+                    'enabled' => (bool) $statusData['mobile_validation_status'],
                 ],
             ];
 
             return successResponse(__('message.data_fetched_successfully'), $modules);
-
         } catch (\Exception $e) {
             return errorResponse(__('message.something_went_wrong'), [$e->getMessage()]);
         }
     }
-
 }

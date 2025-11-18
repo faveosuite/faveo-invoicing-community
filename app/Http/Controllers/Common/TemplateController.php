@@ -60,10 +60,9 @@ class TemplateController extends Controller
                 ];
             });
 
-            return successResponse( __('message.templates_fetched_successfully'), $templateData);
-
+            return successResponse(__('message.templates_fetched_successfully'), $templateData);
         } catch (\Exception $ex) {
-            return errorResponse( __('message.something_went_wrong_fetch_templates'));
+            return errorResponse(__('message.something_went_wrong_fetch_templates'));
         }
     }
 
@@ -108,8 +107,8 @@ class TemplateController extends Controller
 
             $template = $this->template->find($id);
 
-            if (!$template) {
-                return errorResponse( __('message.template_not_found'));
+            if (! $template) {
+                return errorResponse(__('message.template_not_found'));
             }
             $type = $this->type->pluck('name', 'id')->toArray();
             $templateType = TemplateType::find($template->type);
@@ -126,34 +125,32 @@ class TemplateController extends Controller
                 'tooltips' => $tooltips,
             ];
 
-            return successResponse( __('message.templates_fetched_successfully'), $templateIdData);
-
+            return successResponse(__('message.templates_fetched_successfully'), $templateIdData);
         } catch (\Exception $ex) {
-            return errorResponse( __('message.something_went_wrong_fetch_particular_template'));
+            return errorResponse(__('message.something_went_wrong_fetch_particular_template'));
         }
     }
 
     public function updateTemplate($id, Request $request)
     {
         $request->validate([
-                'name' => 'required',
-                'data' => 'required',
-                'type' => 'required',
-            ], [
-                'name.required' => __('validation.auth_controller.name_required'),
-                'data.required' => __('message.content_required'),
-                'type.required' => __('message.template_type_required'),
-            ]);
+            'name' => 'required',
+            'data' => 'required',
+            'type' => 'required',
+        ], [
+            'name.required' => __('validation.auth_controller.name_required'),
+            'data.required' => __('message.content_required'),
+            'type.required' => __('message.template_type_required'),
+        ]);
         try {
             $template = $this->template->find($id);
-            if (!$template) {
+            if (! $template) {
                 return errorResponse(__('message.template_not_found'));
             }
 
             $template->fill($request->all())->save();
 
-            return successResponse( __('message.template_update_success'), $template);
-
+            return successResponse(__('message.template_update_success'), $template);
         } catch (\Exception $ex) {
             return errorResponse(__('message.template_update_error'));
         }
