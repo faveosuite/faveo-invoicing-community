@@ -649,7 +649,7 @@ Route::middleware('installAgora')->group(function () {
     Route::prefix('api')->withoutMiddleware(['web'])->middleware(['api'])->group(function () {
         Route::post('productDownload', [Product\BaseProductController::class, 'productDownload']);
         Route::post('productExist', [Product\BaseProductController::class, 'productFileExist']);
-
+        Route::post('updateInstallationStatus', [Product\BaseProductController::class, 'updateStatus']);
 //        it receive the reports form the MSG91
         Route::post('msg91/reports/{app_key}/{app_secret}', [Common\MSG91Controller::class, 'handleReports'])->withoutMiddleware(['admin', 'auth']);
     });

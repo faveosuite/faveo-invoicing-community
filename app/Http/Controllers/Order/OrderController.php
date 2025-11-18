@@ -192,7 +192,9 @@ class OrderController extends BaseOrderController
                     return intval($license, 10);
                 })
                 ->addColumn('number', function ($model) {
-                    $ExpireDate = Carbon::now()->subDays(5)->toDateString();
+                    $days=env('INSTALLATION_DAYS_SET',5);
+
+                    $ExpireDate = Carbon::now()->subDays($days)->toDateString();
 
 //                    $installedPath = InstallationDetail::where('order_id', $model->id)->exists();
                     $last_active = InstallationDetail::where('order_id', $model->id)
