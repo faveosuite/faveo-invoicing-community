@@ -229,7 +229,6 @@ class Google2FAController extends Controller
         $loginController->convertCart();
         (new LoginController())->logActivityLogin($user);
 
-
         $this->convertCart();
 
         return successResponse('', ['redirect' => (new LoginController())->redirectPath()]);

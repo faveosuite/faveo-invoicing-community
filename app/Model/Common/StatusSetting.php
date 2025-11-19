@@ -15,7 +15,7 @@ class StatusSetting extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['expiry_mail', 'subs_expirymail', 'activity_log_delete', 'license_status', 'github_status', 'mailchimp_status', 'twitter_status', 'msg91_status', 'emailverification_status', 'recaptcha_status', 'update_status', 'zoho_status', 'rzp_status', 'mailchimp_product_status', 'mailchimp_ispaid_status', 'terms', 'pipedrive_status', 'domain_check', 'msg91_report_delete_status', 'email_validation_status', 'cloud_button','reoon_deletion_status', 'whatsapp_status', 'cloud_button'];
+    protected $fillable = ['expiry_mail', 'subs_expirymail', 'activity_log_delete', 'license_status', 'github_status', 'mailchimp_status', 'twitter_status', 'msg91_status', 'emailverification_status', 'recaptcha_status', 'update_status', 'zoho_status', 'rzp_status', 'mailchimp_product_status', 'mailchimp_ispaid_status', 'terms', 'pipedrive_status', 'domain_check', 'msg91_report_delete_status', 'email_validation_status', 'cloud_button','reoon_deletion_status', 'whatsapp_status',];
 
     protected $logName = 'api_key';
 

@@ -100,7 +100,7 @@ class Kernel extends ConsoleKernel
                 $msgDeletionStatus = StatusSetting::value('msg91_report_delete_status');
             }
             if (\Schema::hasColumn('status_settings', 'reoon_deletion_status')) {
-                $reoonStatus=StatusSetting::pluck('reoon_deletion_status')->first();
+                $reoonStatus = StatusSetting::pluck('reoon_deletion_status')->first();
             }
             if (\Schema::hasColumn('status_settings', 'system_log_status')) {
                 $systemLogsStatus = StatusSetting::pluck('system_log_status')->first();
@@ -141,7 +141,6 @@ class Kernel extends ConsoleKernel
                 case 'reoon':
                     if (isset($reoonStatus) && $reoonStatus) {
                         return $this->getCondition($schedule->command('reoon:logs-deletion'), $command);
-
                     }
                 case 'systemLogs':
                     if (isset($systemLogsStatus) && $systemLogsStatus) {
