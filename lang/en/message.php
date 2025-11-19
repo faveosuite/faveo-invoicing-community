@@ -2789,11 +2789,11 @@ return [
     'auto_renewal_disable' => 'Auto-renewal is currently not available. Please contact the administrator for assistance.',
     'auto_renewal_tooltip' => 'Enable or disable auto-renewal for all users.',
 
-    'mode'=>"Mode",
-    'registration'=>"Registration",
-    'email_validation_logs'=>'Email Validation Logs',
-    'email_validation_result'=>'Email Validation Result',
-    'email_validation_provider'=>'Email Validation Provider',
+    'mode' => 'Mode',
+    'registration' => 'Registration',
+    'email_validation_logs' => 'Email Validation Logs',
+    'email_validation_result' => 'Email Validation Result',
+    'email_validation_provider' => 'Email Validation Provider',
 
     'set' => 'Set',
     'detailed_log_info' => 'Detailed Log Info',

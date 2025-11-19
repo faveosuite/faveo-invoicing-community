@@ -1121,13 +1121,15 @@ class SettingsController extends BaseSettingsController
         return successResponse(trans('message.success'), $response);
     }
 
-    public function getEmailValidationLogs(){
+    public function getEmailValidationLogs()
+    {
         try {
             $query = EmailValidationResults::query();
+
             return \DataTables::of($query)
                 ->orderColumn('email', function ($query, $order) {
                     $query->orderBy('email', $order);
-                        })
+                })
                 ->orderColumn('method', function ($query, $order) {
                     $query->orderBy('method', $order);
                 })
@@ -1151,7 +1153,6 @@ class SettingsController extends BaseSettingsController
                 })
                 ->addColumn('result', function ($query) {
                     return  '<button  class="btn btn-light-scale-2 btn-sm text-dark" id="show-results" data-id='.$query->id.' data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"><i class="fa fa-eye"></i></button>';
-
                 })
                 ->addColumn('registration', function ($query) {
                     return $query->registration;
@@ -1172,49 +1173,52 @@ class SettingsController extends BaseSettingsController
                 })
                 ->rawColumns(['email', 'method', 'status', 'result', 'created_at'])
                 ->make(true);
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
 
-    public function getEmailValidationResults(Request $request){
+    public function getEmailValidationResults(Request $request)
+    {
         try {
             $id = $request->input('id');
             $result = EmailValidationResults::where('id', $id)->first();
 
-            $cont1 = json_decode($result->result,true);
-            $cont2 = ['name' => $result->first_name . ' ' . $result->last_name,
-                'mobile Number' => '+' . $result->mobile_code . $result->mobile,
+            $cont1 = json_decode($result->result, true);
+            $cont2 = ['name' => $result->first_name.' '.$result->last_name,
+                'mobile Number' => '+'.$result->mobile_code.$result->mobile,
                 'email' => $result->email,
                 'company Name' => $result->company,
                 'address' => $result->address,
                 'country' => Country::where('country_code_char2', $result->country)->value('nicename'),
                 'state' => State::where('state_subdivision_code', $result->state)->value('state_subdivision_name'),
-                'city' => $result->town,];
-            $final = ($result->first_name && $result->last_name)?array_merge($cont2, $cont1):$cont1;
+                'city' => $result->town, ];
+            $final = ($result->first_name && $result->last_name) ? array_merge($cont2, $cont1) : $cont1;
+
             return successResponse(trans('message.success'), $final);
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
 
-    public function getEmailValidationUserResults(Request $request){
+    public function getEmailValidationUserResults(Request $request)
+    {
         try {
             $id = $request->input('id');
             $result = EmailValidationResults::where('id', $id)->first();
-            $content = ['name' => $result->first_name .' '.$result->last_name,
-                'mobile Number' => '+' . $result->mobile_code . $result->mobile,
+            $content = ['name' => $result->first_name.' '.$result->last_name,
+                'mobile Number' => '+'.$result->mobile_code.$result->mobile,
                 'email' => $result->email,
                 'company Name' => $result->company,
                 'address' => $result->address,
-                'country'=>Country::where('country_code_char2',$result->country)->value('nicename'),
-                'state' => State::where('state_subdivision_code',$result->state)->value('state_subdivision_name'),
-                'city' => $result->town,];
+                'country' => Country::where('country_code_char2', $result->country)->value('nicename'),
+                'state' => State::where('state_subdivision_code', $result->state)->value('state_subdivision_name'),
+                'city' => $result->town, ];
+
             return successResponse(trans('message.success'), $content);
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             dd($e->getMessage());
         }
-
     }
 
     private function setStatus($current)
@@ -1225,10 +1229,10 @@ class SettingsController extends BaseSettingsController
             'unknown' => 4,
             'invalid' => 8,
             'disabled' => 16,
-            'disposable'=>32,
-            'inbox_full'=>64,
-            'role_account'=>128,
-            'spamtrap'=>256,
+            'disposable' => 32,
+            'inbox_full' => 64,
+            'role_account' => 128,
+            'spamtrap' => 256,
         ];
 
         $statusOptions = '';
