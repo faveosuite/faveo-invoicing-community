@@ -108,9 +108,9 @@ class LicensePermissionsController extends Controller
             $licenseType->permissions()->sync($request->input('permissionid'));
 
             return successResponse(__('message.permissions_updated_successfully'));
-
         } catch (\Exception $ex) {
             \Logger::exception($ex);
+
             return errorResponse($ex->getMessage());
         }
     }

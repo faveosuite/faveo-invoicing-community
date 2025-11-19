@@ -124,7 +124,7 @@ class LoginController extends Controller
             $this->logActivityLogin($user);
 
             return successResponse('', ['redirect' => $this->redirectPath()]);
-        }catch(\Exception $ex){
+        } catch(\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
