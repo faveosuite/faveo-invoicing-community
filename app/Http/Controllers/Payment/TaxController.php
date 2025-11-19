@@ -172,14 +172,14 @@ class TaxController extends Controller
             $states = findStateByRegionId($tax->country);
             $active = $tax->active;
 
-            return successResponse( '', [
-                'options'       => $options,
-                'tax'           => $tax,
-                'tax_class'     => $txClass,
-                'tax_class_name'=> $taxClassName,
-                'states'        => $states,
-                'state'         => $state,
-                'active'        => $active
+            return successResponse('', [
+                'options' => $options,
+                'tax' => $tax,
+                'tax_class' => $txClass,
+                'tax_class_name' => $taxClassName,
+                'states' => $states,
+                'state' => $state,
+                'active' => $active,
             ]);
 
         } catch (\Exception $ex) {
