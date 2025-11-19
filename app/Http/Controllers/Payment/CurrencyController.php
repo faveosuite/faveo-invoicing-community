@@ -294,7 +294,7 @@ class CurrencyController extends Controller
             return successResponse(__('message.updated-successfully'), [
                 'id' => $currency->id,
                 'code' => $currency->code,
-                'status' => $currency->status
+                'status' => $currency->status,
             ]);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage(), 500);
