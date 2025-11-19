@@ -96,25 +96,6 @@
             box-shadow: none !important;
         }
 
-
-        /*.modal.right .modal-dialog {*/
-        /*    margin: 30px auto auto auto;   !* add gap at top *!*/
-        /*    width: 70%;*/
-        /*    max-width: none;*/
-        /*    position: relative;*/
-        /*    transform: none !important;    !* remove slide animation *!*/
-        /*}*/
-
-        /*.modal.right.show .modal-dialog {*/
-        /*    transform: none !important;*/
-        /*}*/
-
-        /*.modal.right .modal-content {*/
-        /*    border: 0;*/
-        /*    border-radius: 6px;*/
-        /*}*/
-
-        /* Existing rules for the modal container and positioning */
         .modal.right .modal-dialog {
             margin: 30px auto auto auto;
             width: 70%;
@@ -131,48 +112,35 @@
             border: 0;
             border-radius: 6px;
 
-            /* 1. Set a fixed height for the entire modal content */
-            /* Adjust this height (e.g., 90vh) to your desired size.
-               Using 'vh' (viewport height) is common for large, fixed-size modals. */
             height: 90vh;
-            display: flex; /* Helps manage the internal layout */
-            flex-direction: column; /* Stacks header, body, and footer vertically */
+            display: flex;
+            flex-direction: column;
         }
 
-        /* --- NEW / MODIFIED RULES FOR SCROLLING --- */
 
         .modal.right .modal-body {
-            /* 2. Important: Allow the body to take up the remaining space */
             flex-grow: 1;
-
-            /* 3. Set the overflow property to create the scrollbar */
-            overflow-y: auto; /* Adds a vertical scrollbar when content exceeds the body's height */
-
-            /* 4. Optional: Set a specific height if you don't use flex-grow */
-            /* max-height: calc(90vh - 100px); /* Example: 90vh of content minus ~100px for header/footer */
+            overflow-y: auto;
         }
 
-        /*.modal.right .modal-body {*/
-        /*    overflow-y: auto;*/
-        /*    height: calc(100vh - 120px);*/
-        /*}*/
 
-        /* Fix DataTables Button width in AdminLTE */
+
         .dt-buttons {
+            float: right !important;
             display: inline-flex !important;
             gap: 6px;
         }
 
         .dt-buttons .dt-button {
-            /*width: auto !important;*/
             display: inline-block !important;
             padding: 6px 12px !important;
             margin: 0px 15px 15px 25px !important;
         }
 
         .dt-buttons .dt-button.btn {
-            width: auto !important; /* override bootstrap .btn-block conflicts */
+            width: auto !important;
         }
+
 
 
     </style>
@@ -819,7 +787,7 @@
                         // This attribute adds the tooltip text. 'data-bs-toggle="tooltip"' is for Bootstrap 5.
                         // Adjust the 'data-toggle' and 'title' attributes based on your framework (e.g., just 'title' for a simple browser tooltip or different attributes for custom frameworks).
                         attr: {
-                            title: '{{ __('message.reset') }}',
+                            title: '{{ __('message.refresh') }}',
                             'data-bs-toggle': 'tooltip',
                             'data-bs-placement': 'top'
                         },
