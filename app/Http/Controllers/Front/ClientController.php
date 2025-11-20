@@ -502,7 +502,7 @@ class ClientController extends BaseClientController
                 continue;
             }
 
-            $split = bifurcateTax($name, $percentage, $user->currency, $user->state, $taxAmt);
+            $split = bifurcateTax($name, $percentage, $invoice->currency, $user->state, $taxAmt);
 
             $gstSplit[] = [
                 'name' => $name,

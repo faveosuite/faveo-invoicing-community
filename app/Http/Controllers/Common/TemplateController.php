@@ -370,6 +370,7 @@ class TemplateController extends Controller
             \Session::forget('toggleState');
             \Session::put('toggleState', 'monthly');
         }
+        return successResponse('');
     }
 
     public function getPriceList($id)

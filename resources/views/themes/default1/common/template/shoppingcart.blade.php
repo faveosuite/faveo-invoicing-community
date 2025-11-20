@@ -268,6 +268,11 @@ select {
         e.stopPropagation();
     });
   $(document).ready(function() {
+      if ($('.toggle_event_editing input').prop('checked')) {
+          handleSelectedState();
+      } else {
+          handleUnselectedState();
+      }
     $('.toggle_event_editing input').on('change', function() {
       const toggleValue = $(this).prop('checked');
       if (toggleValue) {
@@ -285,7 +290,10 @@ select {
       $.ajax({
         type: 'POST',
         url: "{{ url('store_toggle_state') }}",
-        data: { toggleState: 'selected' },
+          data: {
+              toggleState: 'selected',
+              _token: $('meta[name="csrf-token"]').attr('content')
+          },
         success: function(response) {
           console.log('Selected state value sent to the controller successfully.');
         },
@@ -301,7 +309,10 @@ select {
       $.ajax({
         type: 'POST',
         url: "{{ url('store_toggle_state') }}",
-        data: { toggleState: 'unselected' },
+          data: {
+              toggleState: 'selected',
+              _token: $('meta[name="csrf-token"]').attr('content')
+          },
         success: function(response) {
           console.log('Unselected state value sent to the controller successfully.');
         },

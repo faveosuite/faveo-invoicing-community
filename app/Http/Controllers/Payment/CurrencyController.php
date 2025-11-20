@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
 use App\Model\Payment\Currency;
+use App\Model\Payment\PlanPrice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Lang;
@@ -292,18 +293,33 @@ HTML;
     public function updatecurrency(Request $request)
     {
         try {
-            $currency = Currency::findOrFail($request->input('current_id'));
+            return \DB::transaction(function () use ($request) {
 
-            Artisan::call('currency:manage', ['action' => 'add', 'currency' => $currency->code]);
-            Artisan::call('currency:cleanup');
+                $currency = Currency::findOrFail($request->input('current_id'));
 
-            $currency->status = ($request->current_status == '1') ? 0 : 1;
+                $newStatus = $request->input('current_status') == '1' ? 0 : 1;
 
-            $currency->save();
+                if ($newStatus) {
+                    Artisan::call('currency:manage', [
+                        'action'   => 'add',
+                        'currency' => $currency->code
+                    ]);
 
-            return successResponse(Lang::get('message.updated-successfully'));
+                    Artisan::call('currency:cleanup');
+                }
+
+                if (! $newStatus) {
+                    PlanPrice::where('currency', $currency->code)->delete();
+                }
+
+                $currency->update(['status' => $newStatus]);
+
+                return successResponse(__('message.updated-successfully'));
+            });
+
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
+
 }

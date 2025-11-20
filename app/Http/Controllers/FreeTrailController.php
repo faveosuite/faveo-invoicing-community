@@ -79,6 +79,12 @@ class FreeTrailController extends Controller
                         $query->where('id', $cloudProduct->cloud_free_plan);
                     }])->find($cloudProduct->cloud_product);
                     $plan_id = $product->planRelation()->where('days', '<', 30)->value('id');
+
+                    // Here we check weather the plan price is available for user currency or not
+                    if(PlanPrice::wherePlanId($plan_id)->whereCurrency(getCurrencyForClient(\Auth::user()->country))->doesntExist()){
+                        throw new \Exception(__('message.no_available_plans_for_user_currency'));
+                    }
+
                     $this->generateFreetrailInvoice($product, $plan_id);
                     $this->createFreetrailInvoiceItems($product, $plan_id);
                     $serial_key = $this->executeFreetrailOrder();

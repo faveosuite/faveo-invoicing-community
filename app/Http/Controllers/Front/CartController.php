@@ -311,7 +311,7 @@ class CartController extends BaseCartController
 
     protected function getPlanIdBasedOnProductStatus(Product $product, $plan = null)
     {
-        if ($product->status && Session::has('toggleState')) {
+        if (Session::has('toggleState')) {
             $toggle = Session::get('toggleState');
 
             $days = $toggle === 'monthly' ? [30, 31] : [365, 366];
