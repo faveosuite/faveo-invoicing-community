@@ -255,7 +255,9 @@ class WhatsappController extends Controller
                 'phone_number_id' => $phoneNumberId, 'business_id' => $business_id,
                 'user_callback_url' => $url, 'access_token' => $access_token, 'order_id' => $order_id, 'phone_number' => $phone_number]);
             \Session::forget('whatsapp_url');
-
+            $response=Http::withToken($access_token)
+                ->post("https://graph.facebook.com/v17.0/{$wabaId}/subscribed_apps");
+            \Log::debug('ToCheck',[$response->json()]);
             return successResponse(__('message.updated-successfully'));
         } catch (\Exception $exception) {
             return errorResponse($exception->getMessage());
@@ -328,6 +330,45 @@ class WhatsappController extends Controller
         }
     }
 
+//    public function whatsappWebhook(Request $request)
+//    {
+//        \Log::debug('whatsappWebhook', [$request->all()]);
+//        try {
+//            // Handle GET request (Verification)
+//            if ($request->isMethod('get')) {
+//                $verify_token = WhatsappIntegration::value('verify_token');
+//
+//                $mode = $request->query('hub_mode');
+//                $token = $request->query('hub_verify_token');
+//                $challenge = $request->query('hub_challenge');
+//
+//                if ($mode === 'subscribe' && $token === $verify_token) {
+//                    return response($challenge, 200);
+//                }
+//
+//                return response('Forbidden', 403);
+//            }
+//            if ($request->isMethod('post')) {
+//                $data = $request->all();
+//                if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
+//                    $wabaId = $data['entry'][0]['id'];
+//                    $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('user_callback_url');
+//
+//                    $response = $this->client->post($url, ['json' => $data,
+//                        'headers' => [
+//                            'Accept' => 'application/json',
+//                        ]]);
+//                }
+//
+//                return response('EVENT_RECEIVED', 200);
+//            }
+//
+//            return response('Method Not Allowed', 405);
+//        } catch (\Exception $exception) {
+//            \Log::debug('san_exp', [$exception->getMessage()]);
+//        }
+//    }
+
     public function whatsappWebhook(Request $request)
     {
         try {
@@ -346,15 +387,23 @@ class WhatsappController extends Controller
                 return response('Forbidden', 403);
             }
             if ($request->isMethod('post')) {
-                $data = $request->all();
+                $rawBody = $request->getContent();
+
+                \Log::debug('santhanu_test_raw', ['body' => $rawBody]);
+
+                // decode only if you need to read id
+                $data = json_decode($rawBody, true);
                 if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
                     $wabaId = $data['entry'][0]['id'];
                     $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('user_callback_url');
 
-                    $response = $this->client->post($url, ['json' => $data,
+                    $this->client->post($url, [
+                        'body' => $rawBody,
                         'headers' => [
-                            'Accept' => 'application/json',
-                        ]]);
+                            'Content-Type' => 'application/json',
+                            'Accept'       => 'application/json',
+                        ]
+                    ]);
                 }
 
                 return response('EVENT_RECEIVED', 200);
@@ -365,6 +414,7 @@ class WhatsappController extends Controller
             \Log::debug('san_exp', [$exception->getMessage()]);
         }
     }
+
 
     public function whatsappIntegration()
     {
