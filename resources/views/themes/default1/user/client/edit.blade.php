@@ -120,7 +120,7 @@
                     <div class="col-md-3 form-group {{ $errors->has('mobile_verified') ? 'has-error' : '' }}">
                         <!-- mobile active -->
                         {!! html()->label(Lang::get('message.mobile'))->for('mobile_verified') !!}
-                        <p>{!! html()->radio('mobile_verified', true, 1)->checked() !!}&nbsp;{{ __('message.active') }}&nbsp;&nbsp;{!! html()->radio('mobile_verified', false, 0) !!}{{ __('message.inactive') }}</p>
+                        <p>{!! html()->radio('mobile_verified', true, 1)->checked() !!}&nbsp;{{ __('message.active') }}&nbsp;&nbsp;{!! html()->radio('mobile_verified', false, 0) !!}&nbsp;{{ __('message.inactive') }}</p>
                         @error('mobile_verified')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -207,7 +207,9 @@
                     <div class="col-md-3 form-group {{ $errors->has('country') ? 'has-error' : '' }}">
                         <!-- country -->
                         {!! html()->label(Lang::get('message.country'), 'country')->class('required') !!}
-                        <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray(); ?>
+                        @php
+                            $countries = getSupportedCountriesForIntlInput();
+                        @endphp
 
                         {!! html()->select('country')->options([Lang::get('message.choose') => $countries])
     ->class('form-control select2'. ($errors->has('country') ? ' is-invalid' : ''))

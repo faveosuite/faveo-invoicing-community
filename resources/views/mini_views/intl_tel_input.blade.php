@@ -69,7 +69,6 @@
                 strictMode: true,
                 formatOnDisplay: true,
                 nationalMode: false,
-                excludeCountries: ['ax'],
                 customPlaceholder: (selectedCountryPlaceholder) => selectedCountryPlaceholder,
             });
 

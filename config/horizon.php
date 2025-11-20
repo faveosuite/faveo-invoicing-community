@@ -163,8 +163,21 @@ return [
         'production' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['reports', 'default'],
+                'queue' => ['reports', 'default', 'whatsapp'],
                 'balance' => 'simple',
+                'minProcesses' => 1,
+                'maxProcesses' => 10,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+                'tries' => 1,
+                'nice' => 0,
+                'timeout' => 30,
+            ],
+
+            'supervisor-2' => [
+                'connection' => 'redis',
+                'queue' => ['whatsapp'],
+                'balance' => 'auto',
                 'minProcesses' => 1,
                 'maxProcesses' => 10,
                 'balanceMaxShift' => 1,
@@ -178,7 +191,7 @@ return [
         'local' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['reports', 'default'],
+                'queue' => ['reports', 'default', 'whatsapp'],
                 'balance' => 'simple',
                 'minProcesses' => 1,
                 'maxProcesses' => 10,
@@ -186,6 +199,18 @@ return [
                 'balanceCooldown' => 3,
                 'tries' => 1,
                 'nice' => 0,
+            ],
+            'supervisor-2' => [
+                'connection' => 'redis',
+                'queue' => ['whatsapp'],
+                'balance' => 'auto',
+                'minProcesses' => 1,
+                'maxProcesses' => 10,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+                'tries' => 1,
+                'nice' => 0,
+                'timeout' => 30,
             ],
         ],
     ],

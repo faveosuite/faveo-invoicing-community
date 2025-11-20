@@ -114,20 +114,23 @@ function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = 'M j, Y
         $date = new DateTime($dateTimeString, new DateTimeZone('UTC'));
 
         $user = Auth::user();
+        $cacheKey = 'user_timezone_'.(Auth::id() ?? session()->getId());
 
         $tz = Cache::remember(
-            'user_timezone_'.($user->id ?? 'guest'),
+            $cacheKey,
             5,
-            function () use ($user) {
-                return $user->timezone->name ?? 'UTC';
-            }
+            fn () => $user->timezone->name ?? 'UTC'
         );
 
-        $timezone = new DateTimeZone($tz);
+        try {
+            $timezone = new DateTimeZone($tz);
+        } catch (\Exception $e) {
+            $timezone = new DateTimeZone('UTC');
+        }
 
         return $date->setTimezone($timezone)->format($format);
     } catch (\Exception $e) {
-        throw new Exception($e);
+        return $dateTimeString;
     }
 }
 
@@ -1081,4 +1084,18 @@ function getUserStateWithCountry($country = null, $state = null)
     $state = $state ?? $user->state ?? '';
 
     return trim("{$country}-{$state}", '-');
+}
+
+/**
+ *Get Supported Countries for IntlInput Plugins.
+ */
+function getSupportedCountriesForIntlInput()
+{
+    $countries = Country::pluck('country_name', 'country_code_char2')->toArray();
+
+    $unsupportedIso = ['BV', 'PN', 'GS', 'UM', 'HM'];
+
+    return collect($countries)->reject(function ($name, $iso) use ($unsupportedIso) {
+        return in_array(strtoupper($iso), $unsupportedIso);
+    })->toArray();
 }

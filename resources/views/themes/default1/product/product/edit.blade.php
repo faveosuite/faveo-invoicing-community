@@ -357,7 +357,7 @@
                                                     $value = 'true';
                                                 }
                                                 ?>
-                                            <p>{!! html()->checkbox('whatsapp_integration', $value, 1) !!}  {{Lang::get('message.whatsapp_product_explanation')}}</p>
+                                            <p>{!! html()->checkbox('whatsapp_integration', $value, 1)->id('whatsapp_checkbox') !!}  {{Lang::get('message.whatsapp_product_explanation')}}</p>
 
                                         </div>
 
@@ -434,8 +434,7 @@
                                         <select id="editTax" placeholder="{{ __('message.select_taxes') }}" name="tax[]" style="width:500px;" class="select2" multiple="true">
 
                                             @foreach($taxes as $value)
-                                                <option value={{$value['id']}} <?php echo (in_array($value['id'], $savedTaxes)) ?  "selected" : "" ;  ?>>{{$value['name'].'('.$value['name'].')'}}</option>
-
+                                                <option value={{$value['id']}} <?php echo (in_array($value['id'], $savedTaxes)) ?  "selected" : "" ;  ?>>{{$value['name'].'('.$value['tax'][0]['name'].')'}}</option>
                                             @endforeach
                                         </select>
 
@@ -570,6 +569,27 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        $('#whatsapp_checkbox').on('change',function () {
+            if ($(this).prop("checked")) {
+                if ({!! $whatsappStatus !!}) {
+                    $('#whatsapp_checkbox').prop('checked', true)
+
+                } else {
+                    swal.fire({
+                        title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.info')}}</h2>",
+                        html: "<div  class='swal2-html-container custom-content'>" +
+                            "<div class='section-sa'>" +
+                            "<p>Please enable the whatsapp configuration in third party integration and fill the required details</p>" + "</div>" +
+                            "</div>",
+                        position: 'top',
+                        confirmButtonText: "{{ __('message.ok') }}",
+                        confirmButtonColor: "#007bff",
+                        width: "600px",
+                    })
+                    $('#whatsapp_checkbox').prop('checked', false)
+                }
+            }
+        })
         $('.closebutton').on('click', function () {
             location.reload();
         })

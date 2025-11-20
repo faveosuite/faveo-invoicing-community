@@ -224,8 +224,9 @@
                         @enderror
                     </div>
 
-                    <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray();
-                     ?>
+                    @php
+                        $countries = getSupportedCountriesForIntlInput();
+                    @endphp
                     <div class="col-md-3 form-group{{ $errors->has('country') ? 'has-error' : '' }}">
                         <!-- name -->
                         {!! html()->label(Lang::get('message.country'))->class('required') !!}

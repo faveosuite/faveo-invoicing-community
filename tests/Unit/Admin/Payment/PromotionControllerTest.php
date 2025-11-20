@@ -129,7 +129,7 @@ class PromotionControllerTest extends DBTestCase
         $this->call('POST', 'promotions', ['code' => 'FAVEOCOUPON', 'type' => 2, 'value' => 10, 'uses' => 10, 'applied' => $product->id, 'start' => '08/01/2020', 'expiry' => '08/15/2050']);
         $promotion = Promotion::orderBy('id', 'desc')->first();
         \Cart::add([
-            'id' => $product->id,
+            'id' => $plan->id,
             'name' => $product->name,
             'price' => $planPrice->add_price,
             'quantity' => 1,
@@ -155,7 +155,7 @@ class PromotionControllerTest extends DBTestCase
         $this->call('POST', 'promotions', ['code' => 'FAVEOCOUPON', 'type' => 1, 'value' => 10, 'uses' => 10, 'applied' => $product->id, 'start' => '08/01/2020', 'expiry' => '08/15/2050']);
         $promotion = Promotion::orderBy('id', 'desc')->first();
         \Cart::add([
-            'id' => $product->id,
+            'id' => $plan->id,
             'name' => $product->name,
             'price' => $planPrice->add_price,
             'quantity' => 1,
@@ -185,7 +185,7 @@ class PromotionControllerTest extends DBTestCase
         $this->call('POST', 'promotions', ['code' => 'FAVEO', 'type' => 1, 'value' => 10, 'uses' => 10, 'applied' => $product1->id, 'start' => '08/01/2020', 'expiry' => '08/15/2050']);
         $promotion = Promotion::orderBy('id', 'desc')->first();
         \Cart::add([
-            'id' => $product2->id,
+            'id' => $plan1->id,
             'name' => $product2->name,
             'price' => $planPrice->add_price,
             'quantity' => 1,
@@ -209,7 +209,7 @@ class PromotionControllerTest extends DBTestCase
         $this->call('POST', 'promotions', ['code' => 'FAVEOCOUPON', 'type' => 1, 'value' => 10, 'uses' => 10, 'applied' => $product->id, 'start' => '08/01/2020', 'expiry' => '08/15/2050']);
         $promotion = Promotion::orderBy('id', 'desc')->first();
         \Cart::add([
-            'id' => $product->id,
+            'id' => $plan->id,
             'name' => $product->name,
             'price' => $planPrice->add_price,
             'quantity' => 1,
