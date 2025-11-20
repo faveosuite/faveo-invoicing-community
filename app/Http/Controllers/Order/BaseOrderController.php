@@ -188,7 +188,7 @@ class BaseOrderController extends ExtendedOrderController
                 if (\Session::get('planDays') == 'monthly') {
                     $days = $this->plan->where('product', $product)->whereIn('days', [30, 31])->first();
                 } elseif (\Session::get('planDays') == 'freeTrial') {
-                    $days = $this->plan->where('product', $product)->where('days', '<', 30)->first();
+                    $days = 14; // Assuming free trial is 14 days
                 } elseif (\Session::get('planDays') == 'yearly' || \Session::get('planDays') == null) {
                     $days = $this->plan->where('product', $product)->whereIn('days', [365, 366])->first();
                 }
@@ -212,7 +212,14 @@ class BaseOrderController extends ExtendedOrderController
                 $licenseExpiry = $expiryDate;
                 $updatesExpiry = $expiryDate;
                 $supportExpiry = $expiryDate;
-            } else {
+            }
+            elseif (\Session::has('planDays') && \Session::get('planDays') == 'freeTrial') {
+                $planid = 0;
+                $licenseExpiry = $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $days);
+                $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $days);
+                $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $days);
+            }
+            else {
                 $planid = $days->id;
                 $period = $days->periods()->where('name', 'One Time')->get();
 

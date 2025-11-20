@@ -69,9 +69,9 @@
                 @endif
             </td>
 
-            <td class="right row" style="font-size:12px;">
-                <strong style="vertical-align: middle;">{{ __('message.date') }}:</strong>
-                <span style="vertical-align: middle; margin-bottom: 0!important;">{!! $date !!}</span>
+            <td class="right" style="font-size:12px;">
+                <div><strong>{{ __('message.date') }}:</strong> {!! $date !!}</div>
+                <div><strong>{{ __('message.invoice') }}:</strong> #{{ $invoice->number }}</div>
             </td>
         </tr>
     </table>
@@ -138,47 +138,47 @@
 
 
     <!-- SUMMARY -->
-{{--    <table class="summary-table">--}}
-{{--        <tr>--}}
-{{--            <th>{{ __('message.sub_total') }}</th>--}}
-{{--            <td class="right">{{ currencyFormat($itemsSubtotal, $symbol) }}</td>--}}
-{{--        </tr>--}}
+    <table class="summary-table">
+        <tr>
+            <th>{{ __('message.sub_total') }}</th>
+            <td class="right">{{ currencyFormat($itemsSubtotal, $symbol) }}</td>
+        </tr>
 
-{{--        @if($invoice->credits)--}}
-{{--            <tr>--}}
-{{--                <th>{{ __('message.discount') }}</th>--}}
-{{--                <td class="right">{{ currencyFormat($invoice->credits,$symbol) }}</td>--}}
-{{--            </tr>--}}
-{{--        @endif--}}
+        @if($invoice->credits)
+            <tr>
+                <th>{{ __('message.discount') }}</th>
+                <td class="right">{{ currencyFormat($invoice->credits,$symbol) }}</td>
+            </tr>
+        @endif
 
-{{--        @if($invoice->discount)--}}
-{{--            <tr>--}}
-{{--                <th>{{ __('message.discount') }}</th>--}}
-{{--                <td class="right">{{ currencyFormat($invoice->discount,$symbol) }} ({{ $invoice->coupon_code }})</td>--}}
-{{--            </tr>--}}
-{{--        @endif--}}
+        @if($invoice->discount)
+            <tr>
+                <th>{{ __('message.discount') }}</th>
+                <td class="right">{{ currencyFormat($invoice->discount,$symbol) }} ({{ $invoice->coupon_code }})</td>
+            </tr>
+        @endif
 
-{{--        @foreach($gstSplit as $tax)--}}
-{{--            @foreach($tax['labels'] as $i => $label)--}}
-{{--                <tr>--}}
-{{--                    <th>{{ $label }}</th>--}}
-{{--                    <td class="right">{{ $tax['values'][$i] }}</td>--}}
-{{--                </tr>--}}
-{{--            @endforeach--}}
-{{--        @endforeach--}}
+        @foreach($gstSplit as $tax)
+            @foreach($tax['labels'] as $i => $label)
+                <tr>
+                    <th>{{ $label }}</th>
+                    <td class="right">{{ $tax['values'][$i] }}</td>
+                </tr>
+            @endforeach
+        @endforeach
 
-{{--        @if($processingFeeAmount > 0)--}}
-{{--            <tr>--}}
-{{--                <th>{{ __('message.processing_fee') }}</th>--}}
-{{--                <td class="right">{{ currencyFormat($processingFeeAmount,$symbol) }}</td>--}}
-{{--            </tr>--}}
-{{--        @endif--}}
+        @if($processingFeeAmount > 0)
+            <tr>
+                <th>{{ __('message.processing_fee') }}</th>
+                <td class="right">{{ currencyFormat($processingFeeAmount,$symbol) }}</td>
+            </tr>
+        @endif
 
-{{--        <tr class="total-row">--}}
-{{--            <th>{{ __('message.total') }}</th>--}}
-{{--            <td class="right">{{ currencyFormat($invoice->grand_total,$symbol) }}</td>--}}
-{{--        </tr>--}}
-{{--    </table>--}}
+        <tr class="total-row">
+            <th>{{ __('message.total') }}</th>
+            <td class="right">{{ currencyFormat($invoice->grand_total,$symbol) }}</td>
+        </tr>
+    </table>
 
     <!-- FOOTER -->
 {{--    <footer>--}}
