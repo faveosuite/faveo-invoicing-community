@@ -62,7 +62,6 @@ class Plan extends BaseModel
         });
     }
 
-
     public function configOptions()
     {
         return $this->hasMany(ConfigOption::class);
