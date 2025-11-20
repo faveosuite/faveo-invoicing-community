@@ -22,6 +22,7 @@ use App\Model\Payment\Currency;
 use App\Model\Plugin;
 use App\Payment_log;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
@@ -955,17 +956,16 @@ class SettingsController extends BaseSettingsController
         $join = Payment_log::query()->leftJoin('users', 'payment_logs.from', '=', 'users.email')
             ->select('payment_logs.id', 'from', 'to', 'date', 'subject', 'status', 'payment_logs.created_at', 'payment_method', 'order', 'exception', 'email', \DB::raw("CONCAT(first_name, ' ', last_name) as name"), 'users.id', 'payment_logs.id as count', 'amount', 'payment_type');
 
-        if ($from) {
-            $from = $this->DateFormat($from);
-            $tillDate = $this->DateFormat($till ?: date('Y-m-d H:i:s'));
-            $join->whereBetween('date', [$from, $tillDate]);
-        }
+        if ($from || $till) {
+            $fromDate = $from
+                ? Carbon::parse($this->DateFormat($from))->startOfDay()
+                : Carbon::parse(Payment_log::oldest('date')->value('date'))->startOfDay();
 
-        if ($till) {
-            $till = $this->DateFormat($till);
-            $fromDate = Payment_log::oldest('date')->value('date');
-            $fromDate = $this->DateFormat($from ?: $fromDate);
-            $join->whereBetween('date', [$fromDate, $till]);
+            $tillDate = $till
+                ? Carbon::parse($this->DateFormat($till))->endOfDay()
+                : Carbon::now()->endOfDay();
+
+            $join->whereBetween('date', [$fromDate, $tillDate]);
         }
 
         return $join;

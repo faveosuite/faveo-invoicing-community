@@ -255,21 +255,34 @@ class BaseClientController extends Controller
     public function getInvoicesByOrderId($orderid, $userid, $admin = null)
     {
         try {
-            $order = Order::where('id', $orderid)->where('client', $userid)->first();
+            $order = Order::where('id', $orderid)
+                ->where('client', $userid)
+                ->firstOrFail();
 
-            $relation = $order->invoiceRelation()->pluck('invoice_id')->toArray();
-            $invoice = new Invoice();
-            $invoices = $invoice->leftJoin('invoice_items', 'invoices.id', '=', 'invoice_items.invoice_id')
-                ->where('invoices.id', $relation)
-                ->where('invoice_items.id', $order->invoice_item_id)
-            ->select('invoices.number', 'invoices.created_at', 'invoices.date', 'invoices.grand_total', 'invoices.currency', 'invoices.id', 'invoices.status', 'invoice_items.product_name as products');
+            $invoiceIds = $order->invoiceRelation()->pluck('invoice_id');
 
-            if ($invoices->get()->count() == 0) {
-                $invoices = $order->invoice()
-                        ->select('number', 'created_at', 'grand_total', 'id', 'status');
+            $query = Invoice::query()
+                ->leftJoin('invoice_items', 'invoices.id', '=', 'invoice_items.invoice_id')
+                ->select(
+                    'invoices.number',
+                    'invoices.created_at',
+                    'invoices.date',
+                    'invoices.grand_total',
+                    'invoices.currency',
+                    'invoices.id',
+                    'invoices.is_renewed',
+                    'invoices.status',
+                    'invoice_items.product_name as products'
+                );
+
+            if ($invoiceIds->isNotEmpty()) {
+                $query->whereIn('invoices.id', $invoiceIds)
+                    ->whereColumn('invoice_items.invoice_id', 'invoices.id');
+            } else {
+                $query->where('invoices.id', $order->invoice_id);
             }
 
-            return \DataTables::of($invoices)
+            return \DataTables::of($query)
             ->orderColumn('number', '-invoices.id $1')
             ->orderColumn('products', '-invoices.id $1')
             ->orderColumn('date', '-invoices.id $1')
@@ -278,6 +291,9 @@ class BaseClientController extends Controller
 
              ->addColumn('number', function ($model) use ($admin) {
                  $url = $this->getInvoiceLinkUrl($model->id, $admin);
+                 if ($model->is_renewed) {
+                     return '<a href='.url($url).'>'.$model->number.'</a>&nbsp;'.getStatusLabel('renewed', 'badge');
+                 }
 
                  return '<a href='.url($url).'>'.$model->number.'</a>';
              })

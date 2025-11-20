@@ -76,6 +76,11 @@ class CartController extends BaseCartController
         \Session::forget('priceRemaining');
         \Session::forget('priceToBePaid');
         \Session::forget('discount');
+        \Session::forget('plan');
+        \Session::forget('togglePrice');
+        \Session::forget('oldPrice');
+        \Session::forget('productid');
+
         try {
             $plan = '';
             $domain = '';
@@ -88,10 +93,10 @@ class CartController extends BaseCartController
             if ($request->has('domain')) {
                 $domain = $request->input('domain').'.'.cloudSubDomain();
             }
-            if (! property_exists($subscription, Cart::getContent())) {
-                $items = $this->addProduct($id, $domain);
-                \Cart::add($items); //Add Items To the Cart Collection
-            }
+//            if (! Cart::get($id)) {
+            $items = $this->addProduct($id, $domain);
+            Cart::add($items);
+//            }
 
             return redirect('show/cart');
         } catch (\Exception $ex) {
@@ -300,6 +305,9 @@ class CartController extends BaseCartController
 
         $planID = $this->getPlanIdBasedOnProductStatus($product, $planId);
 
+        if (! $product->planRelation()->find($planID)) {
+            throw new \Exception(__('message.invalid_coupon_code'));
+        }
         $userPlan = userCurrencyAndPrice($userId, $product->planRelation()->findOrFail($planID));
 
         if (empty($userPlan['plan'])) {
@@ -389,6 +397,7 @@ class CartController extends BaseCartController
                 Session::forget('code');
                 Session::forget('oldprice');
                 Session::forget('usage');
+                \Session::forget('plan');
 
                 return redirect()->back()->with('success', \Lang::get('message.remove_coupon'));
             } else {

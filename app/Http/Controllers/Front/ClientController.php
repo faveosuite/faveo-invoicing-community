@@ -322,24 +322,23 @@ class ClientController extends BaseClientController
                     })
                         ->addColumn('orderNo', function ($model) {
                             if ($model->is_renewed) {
-                                $order = Order::find($model->order_id);
-                                if ($order) {
-                                    return $order->first()->getOrderLink($model->order_id, 'my-order');
-                                } else {
-                                    return '--';
-                                }
-                            } else {
-                                $allOrders = $model->order()->select('id', 'number')->get();
-                                $orderLinks = []; // Using an array to store links
+                                $orderLinks = $model->orderRelation
+                                    ->map(function ($relation) {
+                                        $order = Order::find($relation->order_id);
 
-                                foreach ($allOrders as $order) {
-                                    $orderLinks[] = $order->getOrderLink($order->id, 'my-order');
-                                }
+                                        return $order?->getOrderLink($order->id, 'my-order');
+                                    })
+                                    ->filter()
+                                    ->implode(', ');
 
-                                $orderArray = implode(', ', $orderLinks); // Joining the links into a single string
-
-                                return $orderArray;
+                                return $orderLinks ?: '--';
                             }
+
+                            $orderLinks = $model->order
+                                ->map(fn ($order) => $order->getOrderLink($order->id, 'my-order'))
+                                ->implode(', ');
+
+                            return $orderLinks ?: '--';
                         })
                     ->addColumn('date', function ($model) {
                         return getDateHtml($model->date);
@@ -459,6 +458,16 @@ class ClientController extends BaseClientController
         $payments = $invoice->payment;
         $user = $user ?? \Auth::user();
         $items = $invoice->invoiceItem()->get();
+
+        $orderIDs = $invoice->orderRelation()->pluck('order_id')->toArray();
+
+        $items->each(function ($item) use ($orderIDs) {
+            $order = Order::whereIn('id', $orderIDs)
+                ->where('product', $item->product_id)
+                ->first();
+
+            $item->order = $order;
+        });
         $order = $this->order->getOrderLink($invoice->orderRelation()->value('order_id'), 'my-order');
         $set = Setting::find(1);
         $date = getDateHtml($invoice->date);
@@ -1009,12 +1018,13 @@ class ClientController extends BaseClientController
             $whatsappStatus = $product->whatsapp_integration;
             [$app_id, $config_id] =
                 array_values(WhatsappIntegration::first()?->only(['app_id', 'config_id']) ?? [null, null]);
+            $actualWhatsappStatus = StatusSetting::pluck('whatsapp_status')->first();
 
             return view(
                 'themes.default1.front.clients.show-order',
                 compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date',
                     'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment', 'stripe_key', 'json', 'gateways',
-                    'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal', 'whatsappStatus', 'app_id', 'config_id', 'autorenewal_status'
+                    'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal', 'whatsappStatus', 'app_id', 'config_id', 'autorenewal_status', 'actualWhatsappStatus',
                 )
             );
         } catch (Exception $ex) {

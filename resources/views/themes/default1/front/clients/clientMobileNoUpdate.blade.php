@@ -584,7 +584,7 @@
         }
 
         // Resend OTP for new mobile number
-        function resentOtpForMobile(type) {
+        function resentOtpForMobile(type,btnResendOtpMob) {
             let fullMobile = window.AppGlobals.newMobileFull;
             let dialCode = window.AppGlobals.dialCode;
             let isoCode = window.AppGlobals.isoCode;
@@ -598,6 +598,16 @@
                     dial_code: dialCode,
                     type: type,
                     country_iso: isoCode
+                },
+                beforeSend: function () {
+                    let resendBtnOtpMob = $("#" + btnResendOtpMob);
+
+                    // Save original HTML
+                    resendBtnOtpMob[0].dataset.originalHtml = resendBtnOtpMob.html();
+
+                    // Show spinning + Resending...
+                    resendBtnOtpMob.html('<i class="fa fa-refresh fa-spin"></i> {{ __("message.resending") }}...');
+                    resendBtnOtpMob.prop("disabled", true);
                 },
                 success: function (response) {
                     if (response.success) {
@@ -614,10 +624,16 @@
                         }, 400);
                         autoHidePopup(alertMobOtpSuccess, 5000);
 
+                        let resendBtnOtpMob2 = $("#" + btnResendOtpMob);
+
+                        resendBtnOtpMob2.html(resendBtnOtpMob2[0].dataset.originalHtml);
+                        resendBtnOtpMob2.prop("disabled", true);
+
+
                         //Restart timer after resend
                         startTimer(
-                            document.getElementById("otpMobileResendBtn"),
-                            document.getElementById("timerMobile"),
+                            resendBtnOtpMob2[0],
+                            document.getElementById("timerMobile")
                         );
                     }
                 },
@@ -638,21 +654,33 @@
         }
 
         $('#otpMobileResendBtn').on('click', function (e) {
-            // if button still disabled this won't fire, but just in case:
             if (this.disabled) return;
+
             $('#otpMobileAlert').hide();
-            resentOtpForMobile('mobile');
+
+            let btn = $(this);
+
+            btn[0].dataset.originalHtml = btn.html();
+            btn.prop("disabled", true);
+
+            resentOtpForMobile('mobile','otpMobileResendBtn');
         });
 
         $('#resendOtpBtnMobile').on('click', function (e) {
-            // if button still disabled this won't fire, but just in case:
             if (this.disabled) return;
+
             $('#otpSuccessMobile').hide();
-            resendOtpCodeToAuthEmail('email');
+
+            let btn = $(this);
+
+            btn[0].dataset.originalHtml = btn.html();
+            btn.prop("disabled", true);
+
+            resendOtpCodeToAuthEmail('email','resendOtpBtnMobile');
         });
 
         // Resend OTP for confirmationFromEmailModal
-        function resendOtpCodeToAuthEmail(type) {
+        function resendOtpCodeToAuthEmail(type,btnResendOtp) {
             let alertBox = $("#otpSuccessMobile");
 
             $.ajax({
@@ -665,8 +693,16 @@
                     is_mobile: 1
                 },
                 beforeSend: function () {
-                    // Disable button and show loading message
-                    $("#verifyOtpMobileBtnEmail").prop("disabled", true).text("{{ __('message.2fa_verifying') }}");
+                    $("#verifyOtpMobileBtnEmail").prop("disabled", true);
+
+                    let resendBtnOtp = $("#" + btnResendOtp);
+
+                    // Save original HTML
+                    resendBtnOtp[0].dataset.originalHtml = resendBtnOtp.html();
+
+                    // Show spinning + Resending...
+                    resendBtnOtp.html('<i class="fa fa-refresh fa-spin"></i> {{ __("message.resending") }}...');
+                    resendBtnOtp.prop("disabled", true);
                 },
                 success: function (response) {
                     setTimeout(() => {
@@ -680,10 +716,15 @@
                         autoHidePopup(alertBox, 5000);
                     }, 200);
 
-                    //Restart timer after resend
+                    // Restore original button HTML (button was disabled)
+                    let resendBtnOtp = $("#" + btnResendOtp);
+
+                    resendBtnOtp.html(resendBtnOtp[0].dataset.originalHtml);
+                    resendBtnOtp.prop("disabled", true);
+
                     startTimer(
-                        document.getElementById("resendOtpBtnMobile"),
-                        document.getElementById("timerMobileEmail"),
+                        resendBtnOtp[0],
+                        document.getElementById("timerMobileEmail")
                     );
                 },
                 error: function (xhr) {
@@ -724,6 +765,14 @@
                     display.textContent = "";        // clear timer
                     button.style.color = "#099fdc";     // make clickable
                     button.style.pointerEvents = "auto";
+
+                    //Re-enable the button
+                    button.disabled = false;
+
+                    //Restore original HTML
+                    if (button.dataset.originalHtml) {
+                        button.innerHTML = button.dataset.originalHtml;
+                    }
                 } else {
                     updateTimer(display, countdown);
                 }

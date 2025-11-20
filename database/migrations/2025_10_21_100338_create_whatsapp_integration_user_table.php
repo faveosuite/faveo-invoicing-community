@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('phone_number_id');
             $table->string('business_id');
             $table->string('phone_number');
-            $table->longText('access_token');
+            $table->binary('access_token');
             $table->integer('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users');
             $table->string('user_callback_url');

@@ -90,7 +90,7 @@ class BaseRenewController extends Controller
         try {
             $planId = $request->input('plan');
             $userId = $request->input('user');
-            $agents = $request->input('agents', 0);
+            $agents = $request->integer('agents', 0);
 
             if (! $planId || $planId === 'Choose') {
                 return response()->json([

@@ -60,7 +60,7 @@ class TaxController extends Controller
             if (count($classes) == 0) {
                 $classes = $this->tax_class->get();
             }
-            $countries = Country::pluck('country_name', 'country_code_char2')->toArray();
+            $countries = getSupportedCountriesForIntlInput();
 
             return view('themes.default1.payment.tax.index', compact('options', 'classes', 'countries'));
         } catch (\Exception $ex) {
@@ -235,12 +235,13 @@ class TaxController extends Controller
                                         ->withInput();
             }
             $taxClassesName = $request->tax_classes_id;
-            $taxClass = TaxClass::where('name', $request->tax_classes_id)->first();
+            $tax = $this->tax->where('id', $id)->first();
+
+            $taxClass = TaxClass::where('id', $tax->tax_classes_id)->first();
             if (! $taxClass) {
                 $taxClass = $this->tax_class->create(['name' => $taxClassesName]);
             }
             $taxId = $taxClass->id;
-            $tax = $this->tax->where('id', $id)->first();
             $tax->fill($request->except('tax_classes_id'))->save();
 
             $this->tax->where('id', $id)->update(['tax_classes_id' => $taxId]);

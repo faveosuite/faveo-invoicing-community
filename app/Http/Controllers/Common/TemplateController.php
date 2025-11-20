@@ -363,16 +363,9 @@ class TemplateController extends Controller
 
     public function toggle(Request $request)
     {
-        $status = $request->toggleState;
-        if ($status == 'selected') {
-            \Session::forget('toggleState');
-            \Session::put('toggleState', 'yearly');
-        } elseif ($status == 'unselected') {
-            \Session::forget('toggleState');
-            \Session::put('toggleState', 'monthly');
-        }
-
-        return successResponse('');
+        return successResponse('',
+            \Session::put('toggleState', $request->toggleState === 'selected' ? 'yearly' : 'monthly')
+        );
     }
 
     public function getPriceList($id)

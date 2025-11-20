@@ -305,7 +305,9 @@ foreach($scripts as $script) {
 
                                 <label class="form-label text-color-dark text-3">{{ __('message.country')}} <span class="text-color-danger">*</span></label>
 
-                                <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray(); ?>
+                                @php
+                                    $countries = getSupportedCountriesForIntlInput();
+                                @endphp
                                 {!! html()->select('country', $countries, $country)
     ->class('form-select form-control h-auto py-2 selectpicker con')
     ->attribute('data-live-search-style', 'startsWith')
@@ -657,7 +659,7 @@ foreach($scripts as $script) {
                         email_or_username: "{{ __('message.username_or_email') }}"
                     },
                     password1: {
-                        required: "{{ __('message.received_password_enter') }}",
+                        required: "{{ __('message.login_password_validation') }}",
                     },
                 },
                 unhighlight: function(element) {

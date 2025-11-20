@@ -10,7 +10,6 @@ use App\Model\Payment\Currency;
 use App\Model\Payment\Period;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
-use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use Illuminate\Http\Request;
@@ -176,12 +175,9 @@ class PlanController extends ExtendedPlanController
     public function store(PlanRequest $request)
     {
         try {
-            $product_is = CloudProducts::where('cloud_product', $request->product)->value('cloud_product');
-            if ($product_is) {
-                $plans = Plan::where('product', $request->product)->where('days', $request->days)->exists();
-                if ($plans) {
-                    return back()->withErrors(['product' => 'Plan already exist']);
-                }
+            if (Plan::where('product', $request->product)
+                ->where('days', $request->days)->exists()) {
+                return back()->withErrors(['product' => __('message.plan_exist')]);
             }
             $add_prices = $request->add_price;
             $renew_prices = $request->renew_price;
@@ -225,6 +221,14 @@ class PlanController extends ExtendedPlanController
     {
         $currency = $this->currency->where('status', '1')->pluck('name', 'code')->toArray();
         $planPrices = $plan->planPrice()->get()->toArray();
+        foreach ($planPrices as $planPrice) {
+            if (! array_key_exists($planPrice['currency'], $currency)) {
+                $disabledCurrency = $this->currency->where('code', $planPrice['currency'])->first();
+                if ($disabledCurrency) {
+                    $currency[$disabledCurrency->code] = $disabledCurrency->name;
+                }
+            }
+        }
         $periods = $this->period->pluck('name', 'days')->toArray();
         $products = $this->product->pluck('name', 'id')->toArray();
         $priceDescription = $planPrices[0]['price_description'];
@@ -265,6 +269,16 @@ class PlanController extends ExtendedPlanController
     {
         $add_prices = $request->add_price;
         $renew_prices = $request->renew_price;
+        if (
+            $request->filled('days') &&
+            Plan::where('product', $plan->product)
+                ->where('days', $request->days)
+                ->where('id', '!=', $plan->id)
+                ->exists()
+        ) {
+            return redirect()->back()
+                ->with('fails', __('message.plan_exist'));
+        }
         $offer_prices = $request->input('offer_price');
         $plan->fill($request->input())->save();
         //To change the plan days,whenever we update plan
@@ -361,7 +375,7 @@ class PlanController extends ExtendedPlanController
     public function checkSubscription(Request $request)
     {
         try {
-            $product_id = $request->input('product_id');
+            $product_id = $request->integer('product_id');
             $permissions = LicensePermissionsController::getPermissionsForProduct($product_id);
             $checkSubscription = $permissions['generateUpdatesxpiryDate'] != 0 || $permissions['generateLicenseExpiryDate'] != 0
            || $permissions['generateSupportExpiryDate'] != 0 ? 1 : 0;

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
 use App\Model\Payment\Currency;
-use App\Model\Payment\PlanPrice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Lang;
@@ -305,10 +304,6 @@ HTML;
                     ]);
 
                     Artisan::call('currency:cleanup');
-                }
-
-                if (! $newStatus) {
-                    PlanPrice::where('currency', $currency->code)->delete();
                 }
 
                 $currency->update(['status' => $newStatus]);

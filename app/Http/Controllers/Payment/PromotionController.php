@@ -302,14 +302,15 @@ class PromotionController extends BasePromotionController
                 }
             }
             $validProductForPromo = $promo->relation->first()->product_id;
-            $value = $this->findCostAfterDiscount($promo->id, $validProductForPromo, \Auth::user()->id);
             $productid = '';
             foreach (\Cart::getContent() as $item) {
                 if ($item->associatedModel->id == $validProductForPromo) {
                     $productid = $item->id;
                     $original = $item->price;
+                    \Session::put('plan', $item->id);
                 }
             }
+            $value = $this->findCostAfterDiscount($promo->id, $validProductForPromo, \Auth::user()->id);
 
             if ($productid) {
                 \Session::put('usage', 1);

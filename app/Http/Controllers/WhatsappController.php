@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendWhatsappMessage;
 use App\User;
 use App\WhatsappIntegration;
 use App\WhatsappIntegrationUser;
@@ -37,6 +38,17 @@ class WhatsappController extends Controller
         }
     }
 
+    public function getWebhookUrl(Request $request)
+    {
+        $id = $request->input('id');
+
+        $cont = WhatsappIntegrationUser::where('id', $id)->first();
+        $url = $cont->user_callback_url;
+        $id = $cont->id;
+
+        return successResponse('url', ['url' => $url, 'id' => $id]);
+    }
+
 //    public function enterToken(Request $request){
 //        [$app_id,$app_secret,$config_id,$version]=array_values(WhatsappIntegration::select('app_id','app_secret','config_id')->first()->toArray());
 //
@@ -46,7 +58,9 @@ class WhatsappController extends Controller
 
     public function index1()
     {
-        return view('themes.default1.common.whatsapp-index');
+        $user_id = \Auth::user()->id;
+
+        return view('themes.default1.common.whatsapp-index', compact('user_id'));
     }
 
     public function urlSave(Request $request)
@@ -103,6 +117,17 @@ class WhatsappController extends Controller
                 ->addColumn('access_token', function ($model) {
                     return $model->access_token;
                 })
+                ->addColumn('action', function ($model) {
+                    return "<p>
+            <button data-toggle='modal'
+                data-id=".$model->id."
+                onclick=\"deleteWhatsappUser('".$model->id."')\"
+                id='delten".$model->id."'
+                class='btn btn-sm btn-dark btn-xs delTenant'>
+                <i class='fa fa-trash' style='color:white;'></i>
+            </button>
+        </p>";
+                })
                 ->filterColumn('UserName', function ($model, $keyword) {
                     $model->whereHas('user', function ($query) use ($keyword) {
                         $query->where('first_name', 'like', "%$keyword%");
@@ -117,7 +142,10 @@ class WhatsappController extends Controller
                 ->filterColumn('PhoneNumberId', function ($model, $keyword) {
                     $model->where('phone_number_id', 'like', "%$keyword%");
                 })
-                ->rawColumns(['PhoneNumberId', 'UserName', 'PhoneNumber', 'WabaId', 'BusinessId', 'access_token', 'created_at'])
+                ->filterColumn('BusinessId', function ($model, $keyword) {
+                    $model->where('business_id', 'like', "%$keyword%");
+                })
+                ->rawColumns(['PhoneNumberId', 'UserName', 'PhoneNumber', 'WabaId', 'BusinessId', 'access_token', 'created_at', 'action'])
                 ->make(true);
         } catch (\Exception $exception) {
             return errorResponse($exception->getMessage());
@@ -181,6 +209,27 @@ class WhatsappController extends Controller
     </div>
 ';
             })
+            ->addColumn('action', function ($model) {
+                return "
+    <div style='display:flex; gap:4px;'>
+        <button 
+            data-toggle='modal'
+            data-id='".$model->id."'
+            onclick=\"editWhatsappUser('".$model->id."')\"
+            class='btn btn-sm btn-info btn-xs'>
+            <i class='fa fa-edit' style='color:white;'></i>
+        </button>
+
+        <button 
+            data-toggle='modal'
+            data-id='".$model->id."'
+            onclick=\"deleteWhatsappUser('".$model->id."')\"
+            class='btn btn-sm btn-dark btn-xs'>
+            <i class='fa fa-trash' style='color:white;'></i>
+        </button>
+    </div>
+";
+            })
             ->filterColumn('WabaId', function ($model, $keyword) {
                 $model->where('waba_id', 'like', "%$keyword%");
             })
@@ -190,7 +239,10 @@ class WhatsappController extends Controller
             ->filterColumn('PhoneNumberId', function ($model, $keyword) {
                 $model->where('phone_number_id', 'like', "%$keyword%");
             })
-            ->rawColumns(['UserName', 'PhoneNumber', 'WabaId', 'PhoneNumberId', 'BusinessId', 'access_token', 'created_at'])
+            ->filterColumn('BusinessId', function ($model, $keyword) {
+                $model->where('business_id', 'like', "%$keyword%");
+            })
+            ->rawColumns(['UserName', 'PhoneNumber', 'WabaId', 'PhoneNumberId', 'BusinessId', 'access_token', 'created_at', 'action'])
             ->make(true);
     }
 
@@ -323,11 +375,14 @@ class WhatsappController extends Controller
             $response = Http::post($url, [
                 'access_token' => $whatsappUser->access_token,
             ]);
+            $whatsappUser->delete();
             $content = $response->json();
 
-            return successResponse(__('message.updated-successfully'));
+            return successResponse(__('message.deleted-successfully'));
         } catch (\Exception $exception) {
-            return errorResponse($exception->getMessage());
+            $whatsappUser->delete();
+
+            return errorResponse('Successfully Deleted From this application but in meta still it is connected.');
         }
     }
 
@@ -372,6 +427,7 @@ class WhatsappController extends Controller
 
     public function whatsappWebhook(Request $request)
     {
+        $response = '';
         try {
             // Handle GET request (Verification)
             if ($request->isMethod('get')) {
@@ -389,24 +445,33 @@ class WhatsappController extends Controller
             }
             if ($request->isMethod('post')) {
                 $rawBody = $request->getContent();
-
-                \Log::debug('santhanu_test_raw', ['body' => $rawBody]);
-
-                // decode only if you need to read id
                 $data = json_decode($rawBody, true);
-                if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
-                    $wabaId = $data['entry'][0]['id'];
-                    $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('user_callback_url');
 
-                    $this->client->post($url, [
-                        'body' => $rawBody,
-                        'headers' => [
-                            'Content-Type' => 'application/json',
-                            'Accept' => 'application/json',
-                        ],
-                    ]);
+                $change = $data['entry'][0]['changes'][0]['value'] ?? [];
+
+                if (isset($change['statuses'])) {
+                    return response()->json(['ignored' => 'status update'], 200);
                 }
 
+                if (! isset($change['messages'])) {
+                    return response()->json(['ignored' => 'not a message'], 200);
+                }
+
+                SendWhatsappMessage::dispatch($rawBody)->onQueue('whatsapp');
+
+                // decode only if you need to read id
+//                $data = json_decode($rawBody, true);
+//                if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
+//                    $wabaId = $data['entry'][0]['id'];
+//                    $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('user_callback_url');
+//                    $response=$this->client->post($url, [
+//                        'body' => $rawBody,
+//                        'headers' => [
+//                            'Content-Type' => 'application/json',
+//                            'Accept' => 'application/json',
+//                        ],
+//                    ]);
+//                }
                 return response('EVENT_RECEIVED', 200);
             }
 
@@ -442,6 +507,40 @@ class WhatsappController extends Controller
                 $request->only(['app_id', 'app_secret', 'config_id', 'verify_token'])
             );
             WhatsappIntegration::where('id', 1)->update(['app_id' => $app_id, 'app_secret' => $app_secret, 'config_id' => $config_id, 'verify_token' => $verify_token]);
+
+            return successResponse(__('message.updated-successfully'));
+        } catch (\Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function webhookUrlEdit(Request $request)
+    {
+        $url = $request->input('url');
+        $id = $request->input('id');
+        try {
+            WhatsappIntegrationUser::where('id', $id)->update(['user_callback_url' => $url]);
+
+            return successResponse(__('message.updated-successfully'));
+        } catch (\Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function directSaveWhatsapp(Request $request)
+    {
+        $validated = $request->validate([
+            'phone_number' => 'required',
+            'phone_number_id' => 'required',
+            'access_token' => 'required',
+            'waba_id' => 'required',
+            'user_id' => 'required',
+            'user_callback_url' => 'required',
+            'business_id' => 'required',
+        ]);
+
+        try {
+            WhatsappIntegrationUser::create($validated);
 
             return successResponse(__('message.updated-successfully'));
         } catch (\Exception $exception) {

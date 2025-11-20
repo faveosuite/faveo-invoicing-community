@@ -94,6 +94,7 @@ return  [
         89 => 'Spatie\\Html\\HtmlServiceProvider',
         90 => 'App\\BillingLog\\LaravelLogViewerServiceProvider',
         91 => 'App\\Providers\\LogServiceProvider',
+        92 => 'App\\Plugins\\Recaptcha\\RecaptchaServiceProvider',
     ],
     'eager' => [
         0 => 'Illuminate\\Auth\\AuthServiceProvider',
@@ -171,6 +172,7 @@ return  [
         72 => 'App\\Providers\\AttachmentHelperServiceProvider',
         73 => 'Spatie\\Html\\HtmlServiceProvider',
         74 => 'App\\BillingLog\\LaravelLogViewerServiceProvider',
+        75 => 'App\\Plugins\\Recaptcha\\RecaptchaServiceProvider',
     ],
     'deferred' => [
         'Illuminate\\Broadcasting\\BroadcastManager' => 'Illuminate\\Broadcasting\\BroadcastServiceProvider',

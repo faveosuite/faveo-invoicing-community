@@ -582,15 +582,25 @@
             });
         }
 
-        $('#otpButtonn').on('click', function (e) {
+        $('#otpButtonn').on('click', function () {
             if (this.disabled) return;
             $('#otpSuccess').hide();
+
+            let btn = $(this);
+            btn.data("original-html", btn.html()); // store HTML including icon
+            btn.prop("disabled", true);
+
             resendOTP('email','otpNewEmail','otpSuccess','otpAlertShowMsg','otpButtonn','timerEmail','verifyOtpBtn');
         });
 
-        $('#resendOtpBtn').on('click', function (e) {
+        $('#resendOtpBtn').on('click', function () {
             if (this.disabled) return;
             $('#otpSuccessOld').hide();
+
+            let btn = $(this);
+            btn.data("original-html", btn.html());
+            btn.prop("disabled", true);
+
             resendOTP('email','otpOldEmail','otpSuccessOld','otpAlertShowMsgOld','resendOtpBtn','timerEmailOld','verifyOtpBtnOld');
         });
 
@@ -608,7 +618,11 @@
                     email_to_verify:emailToVerify,
                 },
                 beforeSend: function () {
-                    verifyBtn.prop("disabled", true).text("{{ __('message.2fa_verifying') }}");
+                    verifyBtn.prop("disabled", true);
+                    let resendBtn = $("#" + btnId);
+                    resendBtn[0].dataset.originalHtml = resendBtn.html();
+                    resendBtn.html('<i class="fa fa-refresh fa-spin"></i> {{ __("message.resending") }}...');
+                    resendBtn.prop("disabled", true);
                 },
                 success: function (response) {
                     if (type === "email") {
@@ -620,10 +634,17 @@
 
                         msgSpan.text(response.message);
                         autoHidePopup(alertOtpResent, 5000);
-                        let button = document.getElementById(btnId);
+
+                        let resendBtn2 = $("#" + btnId);
                         let display = document.getElementById(timerId);
-                        if (button && display) {
-                            startTimer(button, display);
+
+                        // Restore "Resend OTP" text (original)
+                        resendBtn2.html(resendBtn2.data("original-html"));
+                        resendBtn2.prop('disabled', true);
+
+                        // Start timer (existing functionality)
+                        if (resendBtn2.length && display) {
+                            startTimer(resendBtn2[0], display);
                         }
                     }
                 },
@@ -652,6 +673,12 @@
 
         function startTimer(button, display, duration = RESEND_DURATION) {
             let countdown = duration;
+
+            if (button && button.jquery) button = button[0];
+            if (display && display.jquery) display = display[0];
+
+            // Disable button at start
+            button.disabled = true;
             button.style.color = "gray";
             button.style.pointerEvents = "none";
             updateTimer(display, countdown);
@@ -661,8 +688,13 @@
                 if (countdown <= 0) {
                     clearInterval(interval);
                     display.textContent = "";
+
+                    // Restore visual state
                     button.style.color = "#099fdc";
                     button.style.pointerEvents = "auto";
+
+                    button.disabled = false;
+
                 } else {
                     updateTimer(display, countdown);
                 }

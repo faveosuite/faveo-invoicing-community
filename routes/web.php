@@ -64,11 +64,14 @@ Route::middleware('installAgora')->group(function () {
     Route::get('whatsapp-test', function () {
         return view('themes.default1.common.whatsapp-testing');
     });
+    Route::get('get-webhook-url', [\App\Http\Controllers\WhatsappController::class, 'getWebhookUrl']);
     Route::get('whatsapp-integration', [\App\Http\Controllers\WhatsappController::class, 'index']);
     Route::get('whatsapp-users', [\App\Http\Controllers\WhatsappController::class, 'index1']);
+    Route::post('webhook-url-edit', [\App\Http\Controllers\WhatsappController::class, 'webhookUrlEdit']);
     Route::get('whatsapp-users-table', [\App\Http\Controllers\WhatsappController::class, 'whatsappTable']);
     Route::get('whatsapp-client-table/{orderid}', [\App\Http\Controllers\WhatsappController::class, 'whatsappClientTable']);
-
+    Route::post('whatsapp-deregister', [\App\Http\Controllers\WhatsappController::class, 'deregister']);
+    Route::post('direct-whatsapp', [\App\Http\Controllers\WhatsappController::class, 'directSaveWhatsapp']);
     Route::post('url-save', [\App\Http\Controllers\WhatsappController::class, 'urlSave']);
     Route::post('save-access-token', [\App\Http\Controllers\WhatsappController::class, 'saveAccessToken']);
     Route::post('save-waba-id', [\App\Http\Controllers\WhatsappController::class, 'saveWabaId']);

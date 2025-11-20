@@ -233,12 +233,8 @@
         currency: @json(trans('message.plan_details.currency')),
       };
 
-      let countries = [
-          @foreach ($currency as $code => $name)
-        { code: "{{ $code }}", name: "{{ $name }}" }
-        @if (!$loop->last),@endif
-        @endforeach
-      ];
+        let countries = @json(collect($currency)->map(fn($name, $code) => ['code' => $code, 'name' => $name])->values());
+
       let i = 1000;
 
       // ===========================

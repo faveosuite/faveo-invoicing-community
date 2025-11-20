@@ -81,9 +81,10 @@
                 <div class="row">
                       
                     <div class="col-md-4 form-group {{ $errors->has('country') ? 'has-error' : '' }}">
-                        
-                   <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray(); ?>
-                  
+
+                        @php
+                            $countries = getSupportedCountriesForIntlInput();
+                        @endphp
                         <!-- name -->
                         {{ html()->label(Lang::get('message.country'), 'country') }}
                         {{ html()->select('country', ['' =>  __('message.all_countries')] + $countries)

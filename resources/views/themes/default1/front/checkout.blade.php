@@ -165,21 +165,21 @@ $cartSubtotalWithoutCondition = 0;
                                         $price=\Session::get('priceToBePaid');
                                     }
                                     else {
-                                        if (\Session::has('toggleState') || \Session::get('toggleState') == null) {
+                                        if (\Session::has('toggleState') || \Session::get('toggleState') !== null) {
                                             $toggleState = \Session::get('toggleState');
                                             $price = $item->price;
                                         } else {
-                                            $planid = \DB::table('plans')->where('product', $item->id)->value('id');
-                                            $countryids = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->value('country_id');
-
-                                            $price = \DB::table('plan_prices')->where('plan_id', $planid)->where('currency', $item->attributes->currency)->where('country_id',$countryids)->value('add_price');
-                                            if(!$price){
-                                                $price = \DB::table('plan_prices')->where('plan_id', $planid)->where('currency', $item->attributes->currency)->where('country_id',0)->value('add_price');
-
-                                            }
+                                            $plan = \App\Model\Payment\Plan::where('id', $item->id)->first();
+//                                            $countryids = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->value('country_id');
+                                            $content=getCurrencySymbolAndPriceForPlans(\Auth::user()->country,$plan);
+                                            $price=$content['userPlan']->add_price;
+//                                            $price = \DB::table('plan_prices')->where('plan_id', $planid)->where('currency', $item->attributes->currency)->where('country_id',$countryids)->value('add_price');
+//                                            if(!$price){
+//                                                $price = \DB::table('plan_prices')->where('plan_id', $planid)->where('currency', $item->attributes->currency)->where('country_id',0)->value('add_price');
+//
+//                                            }
                                         }
                                     }
-
                                     ?>
 
                                    <strong> <span class="amount font-weight-bold text-color-dark text-4" style="font-family: Arial;">
@@ -189,9 +189,9 @@ $cartSubtotalWithoutCondition = 0;
                                            \Session::put('togglePrice',$item->conditions->getName())
                                            ?>
 
-                                                {{ $item->quantity * $item->conditions->getName() }}
-                                           
-                                           
+                                                {{ currencyFormat($item->quantity * $item->conditions->getName(),$code = $item->attributes->currency) }}
+
+
 
                                             @else
                                                 {{currencyFormat($item->quantity * $price,$code = $item->attributes->currency)}}

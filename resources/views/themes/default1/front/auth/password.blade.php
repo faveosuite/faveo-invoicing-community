@@ -101,6 +101,15 @@ main
                 error.insertAfter(element);
             }
         }
+
+        const originalBootstrapAlert = $.fn.alert;
+        $.fn.alert = function(action) {
+            if (action === "close" && $(this).closest('#alert-container').length > 0) {
+                return this;
+            }
+            return originalBootstrapAlert.apply(this, arguments);
+        };
+
         let alertTimeout;
 
         function showAlert(type, messageOrResponse) {

@@ -271,6 +271,9 @@ select {
 
 
          @if($status && (int)$status->status === 1)
+         @php
+             \Session::put('toggleState', 'yearly');
+         @endphp
          
             <div class="row mb-5">
             <div class="col text-center">
@@ -315,11 +318,6 @@ select {
         e.stopPropagation();
     });
   $(document).ready(function() {
-      if ($('.toggle_event_editing input').prop('checked')) {
-          handleSelectedState();
-      } else {
-          handleUnselectedState();
-      }
     $('.toggle_event_editing input').on('change', function() {
       const toggleValue = $(this).prop('checked');
       if (toggleValue) {
@@ -357,7 +355,7 @@ select {
         type: 'POST',
         url: "{{ url('store_toggle_state') }}",
           data: {
-              toggleState: 'selected',
+              toggleState: 'unselected',
               _token: $('meta[name="csrf-token"]').attr('content')
           },
         success: function(response) {
@@ -382,7 +380,7 @@ $(document).ready(function() {
 
   document.addEventListener("DOMContentLoaded", function () {
       document.querySelectorAll(".content-switcher").forEach(function (switcher) {
-          var status={!! $status && (int)$status->status === 1 !!};
+          const status = @json($status && (int)$status->status === 1);
           const card = switcher.closest(".card");
           const priceElement = card.querySelector(".price");
           const priceLabel=card.querySelector(".price-label");
@@ -449,11 +447,8 @@ $(document).ready(function() {
                   const newLabel = $selectedOption.attr("data-description");
                   const $priceUnit = $container.find('.price');
                   const $priceLabel = $container.find('.price-label');
-                  const formatter = new Intl.NumberFormat();
-
-                  const formattedAmount = formatter.format(newPrice);
                   if ($priceUnit.length && newPrice) {
-                      $priceUnit.html(`<span id="${this.value}" class="currency-symbol">${newCurrency}</span>${formattedAmount}`);
+                      $priceUnit.html(`<span id="${this.value}" class="currency-symbol">${newCurrency}</span>${newPrice}`);
 
                       // $priceUnit[0].textContent="<span id={$(this).value}>{newCurrency}</span>{newPrice}";
                       // $priceUnit[0].textContent=newCurrency;

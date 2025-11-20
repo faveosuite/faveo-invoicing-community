@@ -166,9 +166,9 @@
                             {!! html()->text('company', $request->company)->class('form-control')->id('company') !!}
 
                         </div>
-                        <?php
-                        $countries=DB::table('countries')->pluck('country_name','country_code_char2')->toarray();
-                        ?>
+                        @php
+                            $countries = getSupportedCountriesForIntlInput();
+                        @endphp
                         <div class="col-md-3 form-group">
                             <!-- first name -->
                             {!! html()->label( __('message.country'), 'country') !!}<br>
