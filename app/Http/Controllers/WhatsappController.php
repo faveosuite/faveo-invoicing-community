@@ -255,9 +255,10 @@ class WhatsappController extends Controller
                 'phone_number_id' => $phoneNumberId, 'business_id' => $business_id,
                 'user_callback_url' => $url, 'access_token' => $access_token, 'order_id' => $order_id, 'phone_number' => $phone_number]);
             \Session::forget('whatsapp_url');
-            $response=Http::withToken($access_token)
+            $response = Http::withToken($access_token)
                 ->post("https://graph.facebook.com/v17.0/{$wabaId}/subscribed_apps");
-            \Log::debug('ToCheck',[$response->json()]);
+            \Log::debug('ToCheck', [$response->json()]);
+
             return successResponse(__('message.updated-successfully'));
         } catch (\Exception $exception) {
             return errorResponse($exception->getMessage());
@@ -401,8 +402,8 @@ class WhatsappController extends Controller
                         'body' => $rawBody,
                         'headers' => [
                             'Content-Type' => 'application/json',
-                            'Accept'       => 'application/json',
-                        ]
+                            'Accept' => 'application/json',
+                        ],
                     ]);
                 }
 
@@ -414,7 +415,6 @@ class WhatsappController extends Controller
             \Log::debug('san_exp', [$exception->getMessage()]);
         }
     }
-
 
     public function whatsappIntegration()
     {
