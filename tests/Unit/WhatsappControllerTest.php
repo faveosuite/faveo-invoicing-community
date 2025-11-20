@@ -148,6 +148,6 @@ class WhatsappControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $response = $this->call('POST', 'faveo-whatsapp', ['waba_id' => 'erhiosefhiuwefe']);
         $response->assertStatus(200);
-        $this->assertEquals('EVENT_RECEIVED',$response->getContent());
+        $this->assertEquals('EVENT_RECEIVED', $response->getContent());
     }
 }
