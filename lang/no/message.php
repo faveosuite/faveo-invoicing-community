@@ -2718,7 +2718,6 @@ return [
     'msg_service_down' => 'Vi opplever for øyeblikket problemer med vår OTP-tjeneste. Vennligst prøv igjen om en liten stund. Vi jobber med å løse problemet så raskt som mulig.',
     'cloud_plan_error' => 'Vennligst fjern skyproduktet eller koble det til en alternativ plan.',
 
-
     'period_is_required' => 'Vennligst velg en periode.',
     'short_description' => 'Kort beskrivelse',
     'add_short_description' => 'Vennligst skriv inn en kort beskrivelse.',
