@@ -389,11 +389,12 @@ class BaseProductController extends ExtendedBaseProductController
         return successResponse(\Lang::get('message.file_exist'));
     }
 
-    public function updateStatus(Request $request){
+    public function updateStatus(Request $request)
+    {
         if (! $this->validateLicenseManagerAppKey($request->input('app_key'), $request->input('app_secret'))) {
             return errorResponse(\Lang::get('message.invalid_app_key'));
         }
-        $domain=$request->input('domain');
+        $domain = $request->input('domain');
         InstallationDetail::where('installation_path', $domain)->update(['status' => 0]);
 
         return successResponse(\Lang::get('message.updated_successfully'));
