@@ -212,14 +212,12 @@ class BaseOrderController extends ExtendedOrderController
                 $licenseExpiry = $expiryDate;
                 $updatesExpiry = $expiryDate;
                 $supportExpiry = $expiryDate;
-            }
-            elseif (\Session::has('planDays') && \Session::get('planDays') == 'freeTrial') {
+            } elseif (\Session::has('planDays') && \Session::get('planDays') == 'freeTrial') {
                 $planid = 0;
                 $licenseExpiry = $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $days);
                 $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $days);
                 $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $days);
-            }
-            else {
+            } else {
                 $planid = $days->id;
                 $period = $days->periods()->where('name', 'One Time')->get();
 

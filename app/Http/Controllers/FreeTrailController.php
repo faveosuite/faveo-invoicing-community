@@ -10,18 +10,14 @@ use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
-use App\Model\Payment\Plan;
-use App\Model\Payment\TaxOption;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
-use App\User;
 use Auth;
 use Crypt;
 use DB;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class FreeTrailController extends Controller
 {
@@ -37,17 +33,17 @@ class FreeTrailController extends Controller
     {
         $this->middleware('auth');
 
-        $this->invoice       = new Invoice();
-        $this->invoiceItem   = new InvoiceItem();
-        $this->order         = new Order();
-        $this->subscription  = new Subscription();
-        $this->product       = new Product();
+        $this->invoice = new Invoice();
+        $this->invoiceItem = new InvoiceItem();
+        $this->order = new Order();
+        $this->subscription = new Subscription();
+        $this->product = new Product();
 
         $this->tenantController = $tenantController ?: new TenantController(new Client, new FaveoCloud);
     }
 
     /**
-     * Handle free trial creation
+     * Handle free trial creation.
      */
     public function firstLoginAttempt(Request $request)
     {
@@ -101,34 +97,33 @@ class FreeTrailController extends Controller
                 $tenantResponse = $this->tenantController->createTenant(
                     new Request([
                         'orderNo' => $this->orderNo,
-                        'domain'  => $request->domain,
+                        'domain' => $request->domain,
                     ])
                 );
 
                 if ($tenantResponse['status'] === 'false') {
                     (new LicenseController())->deActivateTheLicense($serialKey);
                     DB::rollBack();
+
                     return $tenantResponse;
                 }
 
                 // Store usage
                 DB::table('free_trial_allowed')->insert([
-                    'user_id'    => $user->id,
+                    'user_id' => $user->id,
                     'product_id' => $cloudProduct->cloud_product,
-                    'domain'     => $tenantResponse['Free_trial_domain'],
+                    'domain' => $tenantResponse['Free_trial_domain'],
                 ]);
 
                 Session()->forget('planDays');
                 DB::commit();
 
                 return $tenantResponse;
-
             } catch (\Throwable $e) {
                 DB::rollBack();
                 \Logger::exception($e);
                 throw new \Exception(__('message.cannot_generate_freetrial_cloud_instance'));
             }
-
         } catch (\Throwable $e) {
             \Logger::exception($e);
             throw new \Exception(__('message.cannot_generate_freetrial_cloud_instance'));
@@ -136,7 +131,7 @@ class FreeTrailController extends Controller
     }
 
     /**
-     * Create invoice for trial
+     * Create invoice for trial.
      */
     private function generateFreetrialInvoice(): Invoice
     {
@@ -144,14 +139,13 @@ class FreeTrailController extends Controller
             $user = Auth::user();
 
             return Invoice::create([
-                'user_id'     => $user->id,
-                'number'      => random_int(10000000, 99999999),
-                'date'        => now(),
+                'user_id' => $user->id,
+                'number' => random_int(10000000, 99999999),
+                'date' => now(),
                 'grand_total' => 0,
-                'status'      => 'success',
-                'currency'    => getCurrencyForClient($user->country),
+                'status' => 'success',
+                'currency' => getCurrencyForClient($user->country),
             ]);
-
         } catch (\Throwable $e) {
             \Logger::exception($e);
             throw new \Exception(__('message.cannot_generate_invoice'));
@@ -159,23 +153,23 @@ class FreeTrailController extends Controller
     }
 
     /**
-     * Create invoice item
+     * Create invoice item.
      */
     private function createFreetrialInvoiceItems(Invoice $invoice, Product $product): InvoiceItem
     {
         try {
             return InvoiceItem::create([
-                'invoice_id'     => $invoice->id,
-                'product_name'   => $product->name,
-                'product_id'     => $product->id,
-                'regular_price'  => 0,
-                'quantity'       => 1,
-                'tax_name'       => 'null',
+                'invoice_id' => $invoice->id,
+                'product_name' => $product->name,
+                'product_id' => $product->id,
+                'regular_price' => 0,
+                'quantity' => 1,
+                'tax_name' => 'null',
                 'tax_percentage' => '0%',
-                'subtotal'       => 0,
-                'domain'         => '',
-                'plan_id'        => 0,
-                'agents'         => 1,
+                'subtotal' => 0,
+                'domain' => '',
+                'plan_id' => 0,
+                'agents' => 1,
             ]);
         } catch (\Throwable $e) {
             \Logger::exception($e);
@@ -184,7 +178,7 @@ class FreeTrailController extends Controller
     }
 
     /**
-     * Create order
+     * Create order.
      */
     private function executeFreetrialOrder(Invoice $invoice, InvoiceItem $invoiceItem)
     {
@@ -197,7 +191,7 @@ class FreeTrailController extends Controller
     }
 
     /**
-     * Core order logic
+     * Core order logic.
      */
     private function createFreetrialOrder(Invoice $invoice, InvoiceItem $invoiceItem)
     {
@@ -205,16 +199,16 @@ class FreeTrailController extends Controller
             $serialKey = $this->generateFreetrialSerialKey($invoiceItem->agents);
 
             $order = Order::create([
-                'invoice_id'      => $invoice->id,
+                'invoice_id' => $invoice->id,
                 'invoice_item_id' => $invoiceItem->id,
-                'client'          => $invoice->user_id,
-                'order_status'    => 'executed',
-                'serial_key'      => Crypt::encrypt($serialKey),
-                'product'         => $invoiceItem->product_id,
-                'price_override'  => $invoiceItem->subtotal,
-                'qty'             => $invoiceItem->quantity,
-                'domain'          => $invoiceItem->domain,
-                'number'          => random_int(10000000, 99999999),
+                'client' => $invoice->user_id,
+                'order_status' => 'executed',
+                'serial_key' => Crypt::encrypt($serialKey),
+                'product' => $invoiceItem->product_id,
+                'price_override' => $invoiceItem->subtotal,
+                'qty' => $invoiceItem->quantity,
+                'domain' => $invoiceItem->domain,
+                'number' => random_int(10000000, 99999999),
             ]);
 
             $this->orderNo = $order->number;
@@ -242,7 +236,6 @@ class FreeTrailController extends Controller
             Session()->forget('planDays');
 
             return $serialKey;
-
         } catch (\Throwable $e) {
             \Logger::exception($e);
             throw new \Exception(__('message.cannot_generate_free_trial_order'));
@@ -250,7 +243,7 @@ class FreeTrailController extends Controller
     }
 
     /**
-     * Serial key generator
+     * Serial key generator.
      */
     private function generateFreetrialSerialKey($agents)
     {
