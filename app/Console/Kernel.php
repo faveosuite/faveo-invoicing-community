@@ -40,6 +40,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\invoiceDeletion::class,
         \App\Console\Commands\CleanupMsg91Reports::class,
         DeleteLogs::class,
+        \App\Console\Commands\ReoonLogsDeletion::class,
     ];
 
     /**
