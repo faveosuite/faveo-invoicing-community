@@ -294,15 +294,14 @@ HTML;
     {
         try {
             return \DB::transaction(function () use ($request) {
-
                 $currency = Currency::findOrFail($request->input('current_id'));
 
                 $newStatus = $request->input('current_status') == '1' ? 0 : 1;
 
                 if ($newStatus) {
                     Artisan::call('currency:manage', [
-                        'action'   => 'add',
-                        'currency' => $currency->code
+                        'action' => 'add',
+                        'currency' => $currency->code,
                     ]);
 
                     Artisan::call('currency:cleanup');
@@ -316,10 +315,8 @@ HTML;
 
                 return successResponse(__('message.updated-successfully'));
             });
-
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
-
 }

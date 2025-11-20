@@ -81,7 +81,7 @@ class FreeTrailController extends Controller
                     $plan_id = $product->planRelation()->where('days', '<', 30)->value('id');
 
                     // Here we check weather the plan price is available for user currency or not
-                    if(PlanPrice::wherePlanId($plan_id)->whereCurrency(getCurrencyForClient(\Auth::user()->country))->doesntExist()){
+                    if (PlanPrice::wherePlanId($plan_id)->whereCurrency(getCurrencyForClient(\Auth::user()->country))->doesntExist()) {
                         throw new \Exception(__('message.no_available_plans_for_user_currency'));
                     }
 
