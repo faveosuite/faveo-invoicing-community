@@ -126,7 +126,7 @@ class ProcessController extends Controller
                 $invoice->grand_total = rounding($invoice->grand_total * (1 + $processingFee / 100));
                 $amount = rounding($this->cart->getTotal());
                 \View::addNamespace('plugins', $path);
-                $cart=$this->cart;
+                $cart = $this->cart;
 
                 echo view('plugins::middle-page', compact('invoice', 'amount', 'invoice_no', 'payment_method', 'invoice',
                     'regularPayment', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee', 'cart'))->render();

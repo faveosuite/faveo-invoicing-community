@@ -286,7 +286,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->hasOne(Country::class, 'country_code_char2', 'country');
     }
 
-
     public function whatsappUsers()
     {
         return $this->hasMany(WhatsappIntegrationUser::class, 'user_id', 'id');
