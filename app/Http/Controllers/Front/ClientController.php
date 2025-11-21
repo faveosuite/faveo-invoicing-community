@@ -1026,30 +1026,30 @@ class ClientController extends BaseClientController
                                      class="btn btn-light-scale-2 btn-sm text-dark" style="margin-right:5px;">
                                      <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"></i>
                                      </a>';
-                               }
+        }
         $plan = Plan::where('product', $order->product_id)
             ->whereHas('planPrice', function ($query) {
                 $query->where('currency', getCurrencyForClient(\Auth::user()->country));
             })
             ->value('id');
-                                $whatIsSub = Subscription::where('order_id', $order->id)->value('plan_id');
-                                $planName = Plan::where('id', $whatIsSub)->value('name');
-                                $price = PlanPrice::where('plan_id', $plan)->where('currency', \Auth::user()->currency)->value('renew_price');
-                                $order_cont = new \App\Http\Controllers\Order\OrderController();
-                                $status = $order_cont->checkInvoiceStatusByOrderId($order->id);
-                                $url = '';
-                                $deleteCloud = '';
-                                $listUrl = '';
-                                if ($status == 'success' && $order->price_override != '0' && $order->productRelation->type == '4') {
-                                    $deleteCloud = $this->getCloudDeletePopup($order, $order->product);
-                                    $listUrl = $this->getPopup($order, $order->product);
-                                } elseif ($status == 'success' && $order->price_override == '0' && $order->productRelation->type != '4') {
-                                    $listUrl = $this->getPopup($order, $order->product);
-                                }
-                                if (! in_array($order->product, cloudPopupProducts())) {
-                                    $listUrl = $this->getPopup($order, $order->product);
-                                }
-                                $deleteCloud = $this->getCloudDeletePopup($order, $order->product);
+        $whatIsSub = Subscription::where('order_id', $order->id)->value('plan_id');
+        $planName = Plan::where('id', $whatIsSub)->value('name');
+        $price = PlanPrice::where('plan_id', $plan)->where('currency', \Auth::user()->currency)->value('renew_price');
+        $order_cont = new \App\Http\Controllers\Order\OrderController();
+        $status = $order_cont->checkInvoiceStatusByOrderId($order->id);
+        $url = '';
+        $deleteCloud = '';
+        $listUrl = '';
+        if ($status == 'success' && $order->price_override != '0' && $order->productRelation->type == '4') {
+            $deleteCloud = $this->getCloudDeletePopup($order, $order->product);
+            $listUrl = $this->getPopup($order, $order->product);
+        } elseif ($status == 'success' && $order->price_override == '0' && $order->productRelation->type != '4') {
+            $listUrl = $this->getPopup($order, $order->product);
+        }
+        if (! in_array($order->product, cloudPopupProducts())) {
+            $listUrl = $this->getPopup($order, $order->product);
+        }
+        $deleteCloud = $this->getCloudDeletePopup($order, $order->product);
 
         $agents = substr($order->subscription->serial_key, 12, 16);
         if ($agents == '0000') {
