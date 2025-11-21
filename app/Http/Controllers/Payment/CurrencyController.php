@@ -307,10 +307,6 @@ HTML;
                     Artisan::call('currency:cleanup');
                 }
 
-                if (! $newStatus) {
-                    PlanPrice::where('currency', $currency->code)->delete();
-                }
-
                 $currency->update(['status' => $newStatus]);
 
                 return successResponse(__('message.updated-successfully'));

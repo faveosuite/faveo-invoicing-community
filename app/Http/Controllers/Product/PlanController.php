@@ -225,6 +225,14 @@ class PlanController extends ExtendedPlanController
     {
         $currency = $this->currency->where('status', '1')->pluck('name', 'code')->toArray();
         $planPrices = $plan->planPrice()->get()->toArray();
+        foreach ($planPrices as $planPrice) {
+            if (!array_key_exists($planPrice['currency'], $currency)) {
+                $disabledCurrency = $this->currency->where('code', $planPrice['currency'])->first();
+                if ($disabledCurrency) {
+                    $currency[$disabledCurrency->code] = $disabledCurrency->name;
+                }
+            }
+        }
         $periods = $this->period->pluck('name', 'days')->toArray();
         $products = $this->product->pluck('name', 'id')->toArray();
         $priceDescription = $planPrices[0]['price_description'];
