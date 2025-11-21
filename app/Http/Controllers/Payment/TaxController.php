@@ -59,6 +59,7 @@ class TaxController extends Controller
                 $classes = $this->tax_class->get();
             }
             $countries = $this->country::pluck('country_name', 'country_code_char2')->toArray();
+
             return successResponse('', [
                 'options' => $options,
                 'classes' => $classes,
