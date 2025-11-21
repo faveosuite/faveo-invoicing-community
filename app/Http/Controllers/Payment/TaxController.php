@@ -219,7 +219,7 @@ class TaxController extends Controller
             $taxClassName = $request->tax_classes_id;
 
             $taxClass = TaxClass::where('name', $taxClassName)->first();
-            if (!$taxClass) {
+            if (! $taxClass) {
                 $taxClass = $this->tax_class->create(['name' => $taxClassName]);
             }
 
@@ -230,7 +230,7 @@ class TaxController extends Controller
                 $tax->update([
                     'country' => 'IN',
                     'state' => '',
-                    'rate' => ''
+                    'rate' => '',
                 ]);
             }
 
