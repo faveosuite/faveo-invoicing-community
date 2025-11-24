@@ -1445,6 +1445,47 @@ class SettingsController extends BaseSettingsController
 //            return errorResponse($e->getMessage());
 //        }
 //    }
+//    public function getActivity(Request $request)
+//    {
+//        try {
+//            $searchString = $request->input('search-query', '');
+//            $sortOrder = $request->input('sort-order', 'desc');
+//            $sortField = $request->input('sort-field', 'created_at');
+//            $limit = $request->input('limit', 10);
+//            $from = $request->input('log_from');
+//            $till = $request->input('log_till');
+//
+//            //Load Base Query (already includes date filtering)
+//            $query = $this->getBaseQueryForSystemLogs($from, $till);
+//
+//            //Search Filter
+//            $query = $this->searchQueryForActivityLogs($query, $searchString);
+//
+//            $logs = $query->orderBy($sortField, $sortOrder)
+//                ->simplePaginate($limit);
+//            $total = $query->count();
+//
+//            $logs->getCollection()->transform(function ($log) {
+//                return [
+//                    'id' => $log->id,
+//                    'name' => ucfirst($log->log_name),
+//                    'description' => ucfirst($log->description),
+//                    'username' => $log->causer_id ? User::where('id', $log->causer_id)->value('user_name') : null,
+//                    'role' => $log->causer_id ? User::where('id', $log->causer_id)->value('role') : null,
+//                    'new' => $this->getNewEntry($log->properties, $log),
+//                    'old' => $this->getOldEntry($log->properties, $log),
+//                    'created_at' => $log->created_at->format('Y-m-d H:i:s'),
+//                ];
+//            });
+//
+//            return successResponse('Activity logs fetched successfully', [
+//                'logs' => $logs,
+//                'total' => $total,
+//            ]);
+//        } catch (\Exception $e) {
+//            return errorResponse($e->getMessage());
+//        }
+//    }
 
     public function getBaseQueryForSystemLogs($from = null, $till = null)
     {
@@ -1452,7 +1493,6 @@ class SettingsController extends BaseSettingsController
 
         try {
             if ($from || $till) {
-
                 // If only one date is provided, use it for both "from" and "till"
                 $from = $from ?: $till;
                 $till = $till ?: $from;
@@ -1461,19 +1501,17 @@ class SettingsController extends BaseSettingsController
                 $fromUtc = toFormatDateAndTime($from);
                 $tillUtc = toFormatDateAndTime($till);
 
-
                 // If only date provided (no time), include the entire day
                 $fromUtc = strlen($from) <= 10 ? $fromUtc->startOfDay() : $fromUtc;
                 $tillUtc = strlen($till) <= 10 ? $tillUtc->endOfDay() : $tillUtc;
 
-            $query->whereBetween('created_at', [$fromUtc, $tillUtc]);
-        }
+                $query->whereBetween('created_at', [$fromUtc, $tillUtc]);
+            }
 
             return $query;
-
-    } catch (\Exception $e) {
-                return errorResponse( $e->getMessage());
-            }
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
 
     private function searchQueryForActivityLogs($query, $search)
@@ -1490,6 +1528,7 @@ class SettingsController extends BaseSettingsController
                     });
             });
         }
+
         return $query;
     }
 
