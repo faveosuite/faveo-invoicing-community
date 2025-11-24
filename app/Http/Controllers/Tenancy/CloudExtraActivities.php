@@ -1269,24 +1269,21 @@ class CloudExtraActivities extends Controller
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-
             // Transform output for API
             $productPlanData->getCollection()->transform(function ($model) {
                 return [
-                    'id'                => $model->id,
-                    'cloud_product'     => $model->product->name ?? null,
-                    'cloud_product_id'  => $model->product->id ?? null,
+                    'id' => $model->id,
+                    'cloud_product' => $model->product->name ?? null,
+                    'cloud_product_id' => $model->product->id ?? null,
                     'cloud_product_key' => $model->cloud_product_key,
-                    'cloud_free_plan'   => $model->plan->name ?? null,
-                    'cloud_free_plan_id'=> $model->plan->id ?? null,
-                    'trial_status'      => (bool)$model->trial_status,
+                    'cloud_free_plan' => $model->plan->name ?? null,
+                    'cloud_free_plan_id' => $model->plan->id ?? null,
+                    'trial_status' => (bool) $model->trial_status,
                 ];
             });
 
-            return successResponse( '', $productPlanData);
-
+            return successResponse('', $productPlanData);
         } catch (\Exception $e) {
-
             return errorResponse(__('message.something_went_wrong'));
         }
     }
@@ -1342,9 +1339,9 @@ class CloudExtraActivities extends Controller
                 'longitude' => $geo['longitude'],
             ]);
 
-            return successResponse( __('message.saved_data_center'));
+            return successResponse(__('message.saved_data_center'));
         } else {
-            return errorResponse( __('message.no_lat_or_long'));
+            return errorResponse(__('message.no_lat_or_long'));
         }
     }
 
