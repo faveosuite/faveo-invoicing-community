@@ -17,7 +17,6 @@ use App\Model\Order\InstallationDetail;
 use App\Model\Order\Order;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
-use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\ThirdPartyApp;
 use App\User;
@@ -82,15 +81,17 @@ class TenantController extends Controller
                     'longitude' => $center->longitude,
                 ];
             });
-            return successResponse('',[
+
+            return successResponse('', [
                 'de' => $de,
                 'cloudButton' => $cloudButton,
                 'cloud' => $cloud,
                 'regions' => $regions,
-                'cloudPopUp' => $cloudPopUp
+                'cloudPopUp' => $cloudPopUp,
             ]);
         } catch (\Exception $e) {
             \Logger::exception($e);
+
             return errorResponse(Lang::get('message.cloud_error_message'));
         }
     }
@@ -103,9 +104,9 @@ class TenantController extends Controller
                 'cloud_button' => $request->debug == 'true' ? '1' : '0',
             ]);
 
-            return successResponse( __('message.updated-successfully'));
+            return successResponse(__('message.updated-successfully'));
         } catch (\Exception $ex) {
-            return errorResponse( __('message.something_went_wrong_try_again'));
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
@@ -113,15 +114,15 @@ class TenantController extends Controller
     {
         try {
             $searchQuery = $request->input('search-query', '');
-            $sortOrder   = $request->input('sort-order', 'asc');
-            $sortField   = $request->input('sort-field', 'created_at');
-            $limit       = (int)$request->input('limit', 10);
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = (int) $request->input('limit', 10);
 
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')
                     ->select('app_key', 'app_secret')
                     ->first();
 
-            if (!$keys || empty($keys->app_key)) {
+            if (! $keys || empty($keys->app_key)) {
                 return errorResponse(__('message.cloud_invalid_message'));
             }
 
@@ -132,43 +133,42 @@ class TenantController extends Controller
 
             $data = json_decode($response->getBody(), true);
 
-            $tenants = collect($data['message'])->reject(fn($t) => $t === null);
+            $tenants = collect($data['message'])->reject(fn ($t) => $t === null);
 
             $tenantList = $tenants->map(function ($model) {
-
                 $order_id = $this->getOrderId($model['domain']);
                 $order_number = $order_id ? Order::find($order_id)?->number : null;
 
                 $userData = $this->getUserData($order_id);
-                $subData  = $this->getSubscriptionDataForCloud($order_id);
+                $subData = $this->getSubscriptionDataForCloud($order_id);
 
                 return [
                     'tenant_id' => $model['id'] ?? null,
-                    'domain'    => $model['domain'] ?? null,
+                    'domain' => $model['domain'] ?? null,
 
                     'database' => [
-                        'name'     => $model['database_name'] ?? null,
+                        'name' => $model['database_name'] ?? null,
                         'username' => $model['database_user_name'] ?? null,
                     ],
 
                     'order' => [
-                        'order_id'     => $order_id,
+                        'order_id' => $order_id,
                         'order_number' => $order_number,
                         'subscription' => $subData['plan'] ?? null,
                     ],
 
-                    'user'      => $userData,
-                    'dates'     => $subData,
-                    'links'     => [
+                    'user' => $userData,
+                    'dates' => $subData,
+                    'links' => [
                         'tenant_domain' => $model['domain'] ? "http://{$model['domain']}" : null,
                     ],
 
                     'action' => [
                         'delete' => [
-                            'tenant_id'    => $model['id'],
+                            'tenant_id' => $model['id'],
                             'order_number' => $order_number,
-                            'delete_url'   => url("tenants/{$model['id']}/delete"),
-                        ]
+                            'delete_url' => url("tenants/{$model['id']}/delete"),
+                        ],
                     ],
                 ];
             });
@@ -184,9 +184,7 @@ class TenantController extends Controller
 
             $tenantList = $tenantList->values()->take($limit);
 
-
-
-            return successResponse( __('message.tenants_fetched_successfully'), $tenantList);
+            return successResponse(__('message.tenants_fetched_successfully'), $tenantList);
         } catch (\Throwable $e) {
             return errorResponse(__('message.something_went_wrong'), 500);
         }
@@ -466,9 +464,9 @@ class TenantController extends Controller
             $cloud = new FaveoCloud;
             $cloud->updateOrCreate(['id' => 1], ['cloud_central_domain' => $request->input('cloud_central_domain'), 'cloud_cname' => $request->input('cloud_cname')]);
 
-            return successResponse( __('message.updated-successfully'));
+            return successResponse(__('message.updated-successfully'));
         } catch (Exception $e) {
-            return errorResponse( __('message.something_went_wrong_try_again'));
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
@@ -610,9 +608,9 @@ class TenantController extends Controller
                 'cloud_label_field' => $request->input('cloud_label_field'),
                 'cloud_label_radio' => $request->input('cloud_label_radio')]);
 
-            return successResponse( __('message.updated-successfully'));
+            return successResponse(__('message.updated-successfully'));
         } catch (Exception $e) {
-            return errorResponse( __('message.something_went_wrong_try_again'));
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
@@ -633,9 +631,9 @@ class TenantController extends Controller
         try {
             CloudProducts::create($request->all());
 
-            return successResponse( __('message.saved_products'));
+            return successResponse(__('message.saved_products'));
         } catch(\Exception $e) {
-            return errorResponse( __('message.something_went_wrong_try_again'));
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
@@ -670,36 +668,44 @@ class TenantController extends Controller
 
     private function getUserData($order_id)
     {
-        if (!$order_id) return null;
+        if (! $order_id) {
+            return null;
+        }
 
         $userId = Order::where('id', $order_id)->value('client');
-        $user   = User::find($userId);
+        $user = User::find($userId);
 
-        if (!$user) return null;
+        if (! $user) {
+            return null;
+        }
 
         return [
-            'id'      => $user->id,
-            'name'    => ucfirst($user->first_name).' '.ucfirst($user->last_name),
-            'email'   => $user->email,
-            'mobile'  => ($user->mobile_code && $user->mobile)
+            'id' => $user->id,
+            'name' => ucfirst($user->first_name).' '.ucfirst($user->last_name),
+            'email' => $user->email,
+            'mobile' => ($user->mobile_code && $user->mobile)
                 ? '+'.$user->mobile_code.' '.$user->mobile
                 : null,
             'country' => Country::where('country_code_char2', $user->country)->value('nicename'),
-            'profile' => url("clients/{$user->id}")
+            'profile' => url("clients/{$user->id}"),
         ];
     }
 
     private function getSubscriptionDataForCloud($order_id)
     {
-        if (!$order_id) return null;
+        if (! $order_id) {
+            return null;
+        }
 
         $subscription = Subscription::where('order_id', $order_id)->first();
 
-        if (!$subscription) return null;
+        if (! $subscription) {
+            return null;
+        }
 
         $plan_id = $subscription->plan_id;
-        $price   = PlanPrice::where('plan_id', $plan_id)->latest()->value('add_price');
-        $plan    = $price ? 'Paid Subscription' : 'Free Trial';
+        $price = PlanPrice::where('plan_id', $plan_id)->latest()->value('add_price');
+        $plan = $price ? 'Paid Subscription' : 'Free Trial';
 
         $expiry = Carbon::parse($subscription->ends_at)->format('d M Y');
         $cloud_days = ExpiryMailDay::whereNotNull('cloud_days')->value('cloud_days');
@@ -707,8 +713,8 @@ class TenantController extends Controller
 
         return [
             'subscription_expiry' => $expiry ?: null,
-            'deletion_date'       => $deletion_date,
-            'plan'                => $plan,
+            'deletion_date' => $deletion_date,
+            'plan' => $plan,
         ];
     }
 }
