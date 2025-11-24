@@ -2923,6 +2923,8 @@ return [
     'whatsapp_config' => 'Whatsapp Configuration',
     'add_new_number' => 'Add New Number',
     'whatsapp_access_token' => 'Access Token',
+    'something_went_wrong_try_again' => 'Something went wrong. Please try again later.',
+    'tenants_fetched_successfully' => 'Tenants fetched successfully',
     'login_password_validation' => 'Please enter your password.',
     'whatsapp_integration_user' => 'Whatsapp Number',
     'manual_whatsapp_integration' => 'Manual Phone Number Addition',
