@@ -103,8 +103,8 @@ $products= App\Model\Product\Product::get();
                 { data: 'PhoneNumber', name: 'PhoneNumber', orderable: true, searchable: true },
                 { data: 'WabaId', name: 'WabaId', orderable: true, searchable: true },
                 { data: 'PhoneNumberId', name: 'PhoneNumberId', orderable: true, searchable: true },
-                { data: 'BusinessId', name: 'BusinessId', orderable: false, searchable: false },
-                { data: 'created_at', name: 'CreatedAt', orderable: false, searchable: false }
+                { data: 'BusinessId', name: 'BusinessId', orderable: true, searchable: true },
+                { data: 'created_at', name: 'created_at', orderable: true, searchable: true }
 
             ]
         });

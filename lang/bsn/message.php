@@ -2644,7 +2644,7 @@ return [
     'msg_service_down' => 'Trenutno imamo problema s OTP uslugom. Molimo pokušajte ponovo uskoro. Radimo na brzom rješenju problema.',
     'cloud_plan_error' => 'Molimo uklonite cloud proizvod ili ga povežite s alternativnim planom.',
     'short_description' => 'Kratak opis',
-    'word_count' => 'Molimo zadržite kratak opis unutar 50 riječi.',
+    'word_count' => 'Molimo zadržite kratak opis unutar 25 riječi.',
 
     'add_short_description' => 'Molimo unesite kratak opis.',
     'auto_renewal_disable' => 'Automatsko obnavljanje trenutno nije dostupno. Molimo kontaktirajte administratora za pomoć.',

@@ -34,6 +34,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Razorpay\Api\Api;
+use Illuminate\Support\Facades\Http;
+
 
 class ClientController extends BaseClientController
 {
@@ -1009,12 +1011,13 @@ class ClientController extends BaseClientController
             $whatsappStatus = $product->whatsapp_integration;
             [$app_id, $config_id] =
                 array_values(WhatsappIntegration::first()?->only(['app_id', 'config_id']) ?? [null, null]);
+            $actualWhatsappStatus=StatusSetting::pluck('whatsapp_status')->first();
 
             return view(
                 'themes.default1.front.clients.show-order',
                 compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date',
                     'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment', 'stripe_key', 'json', 'gateways',
-                    'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal', 'whatsappStatus', 'app_id', 'config_id', 'autorenewal_status'
+                    'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal', 'whatsappStatus', 'app_id', 'config_id', 'autorenewal_status','actualWhatsappStatus',
                 )
             );
         } catch (Exception $ex) {

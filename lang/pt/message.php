@@ -2692,7 +2692,7 @@ return [
     'cloud_plan_error' => 'Por favor, remova o produto em nuvem ou vincule-o a um plano alternativo.',
     'short_description' => 'Descrição curta',
     'add_short_description' => 'Por favor, insira uma descrição curta.',
-    'word_count' => 'Por favor, mantenha a sua descrição curta dentro de 50 palavras.',
+    'word_count' => 'Por favor, mantenha a sua descrição curta dentro de 25 palavras.',
     'auto_renewal_disable' => 'A renovação automática não está disponível no momento. Entre em contato com o administrador para obter assistência.',
     'auto_renewal_tooltip' => 'Ativar ou desativar a renovação automática para todos os usuários.',
 

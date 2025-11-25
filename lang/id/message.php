@@ -2709,7 +2709,7 @@ return [
     'cloud_plan_error' => 'Harap hapus produk cloud atau hubungkan ke paket alternatif.',
     'short_description' => 'Deskripsi singkat',
     'add_short_description' => 'Silakan masukkan deskripsi singkat.',
-    'word_count' => 'Harap buat deskripsi singkat Anda tetap dalam 50 kata.',
+    'word_count' => 'Harap buat deskripsi singkat Anda tetap dalam 25 kata.',
     'auto_renewal_disable' => 'Perpanjangan otomatis saat ini tidak tersedia. Silakan hubungi administrator untuk bantuan.',
     'auto_renewal_tooltip' => 'Aktifkan atau nonaktifkan perpanjangan otomatis untuk semua pengguna.',
 

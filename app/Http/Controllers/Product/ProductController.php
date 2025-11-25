@@ -280,6 +280,7 @@ class ProductController extends BaseProductController
             $products = $this->product->pluck('name', 'id')->toArray();
             $periods = $this->period->pluck('name', 'days')->toArray();
             $taxes = $this->tax_class->pluck('name', 'id')->toArray();
+            $whatsappStatus=StatusSetting::pluck('whatsapp_status')->first();
 
             return view(
                 'themes.default1.product.product.create',
@@ -291,7 +292,8 @@ class ProductController extends BaseProductController
                     'group',
                     'cartUrl',
                     'products',
-                    'taxes'
+                    'taxes',
+                    'whatsappStatus'
                 )
             );
         } catch (\Exception $e) {
@@ -406,7 +408,7 @@ class ProductController extends BaseProductController
             $canModifyAgent = $product->can_modify_agent;
             $canModifyQuantity = $product->can_modify_quantity;
             $githubStatus = StatusSetting::pluck('github_status')->first();
-
+            $whatsappStatus=StatusSetting::pluck('whatsapp_status')->first();
             return view(
                 'themes.default1.product.product.edit',
                 compact(
@@ -428,6 +430,7 @@ class ProductController extends BaseProductController
                     'canModifyQuantity',
                     'checkowner',
                     'githubStatus',
+                    'whatsappStatus',
                 )
             );
         } catch (\Exception $e) {

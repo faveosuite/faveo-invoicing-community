@@ -117,6 +117,9 @@ class WhatsappController extends Controller
                 ->filterColumn('PhoneNumberId', function ($model, $keyword) {
                     $model->where('phone_number_id', 'like', "%$keyword%");
                 })
+                ->filterColumn('BusinessId', function ($model, $keyword) {
+                    $model->where('business_id', 'like', "%$keyword%");
+                })
                 ->rawColumns(['PhoneNumberId', 'UserName', 'PhoneNumber', 'WabaId', 'BusinessId', 'access_token', 'created_at'])
                 ->make(true);
         } catch (\Exception $exception) {
@@ -189,6 +192,9 @@ class WhatsappController extends Controller
             })
             ->filterColumn('PhoneNumberId', function ($model, $keyword) {
                 $model->where('phone_number_id', 'like', "%$keyword%");
+            })
+            ->filterColumn('BusinessId', function ($model, $keyword) {
+                $model->where('business_id', 'like', "%$keyword%");
             })
             ->rawColumns(['UserName', 'PhoneNumber', 'WabaId', 'PhoneNumberId', 'BusinessId', 'access_token', 'created_at'])
             ->make(true);

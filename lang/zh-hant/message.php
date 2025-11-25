@@ -2674,7 +2674,7 @@ return [
     'cloud_plan_error' => '請移除雲產品或將其連結到其他方案。',
     'short_description' => '簡短描述',
     'add_short_description' => '請輸入簡短描述。',
-    'word_count' => '請將您的簡短描述控制在 50 個詞以內。',
+    'word_count' => '請將您的簡短描述控制在 25 個詞以內。',
     'auto_renewal_disable' => '自動續訂目前不可用。請聯繫管理員以獲取協助。',
     'auto_renewal_tooltip' => '為所有用戶啟用或停用自動續訂。',
 

@@ -648,7 +648,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">WhatsappIntegration</h4>
+                    <h4 class="modal-title">Whatsapp Integration</h4>
                 </div>
                 <div class="modal-body">
                     <div id="alertMessage-whatsapp"></div>
@@ -805,6 +805,7 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
             $('#installationDetail-table').DataTable({
@@ -1609,7 +1610,6 @@
         });
 
         $(document).on('change', '.whatsapp_status input[type="checkbox"]', function() {
-            console.log('hii');
             if ($('#whatsapp_status').prop("checked")) {
                 var checkboxvalue = 1;
             }
@@ -1617,29 +1617,81 @@
                 var checkboxvalue = 0;
             }
 
+            {{--$.ajax({--}}
+
+            {{--    url : '{{url("licenseStatus")}}',--}}
+            {{--    type : 'post',--}}
+            {{--    data: {--}}
+            {{--        "whatsapp_status": checkboxvalue,--}}
+            {{--    },--}}
+            {{--    success: function (response) {--}}
+            {{--        setTimeout(function() {--}}
+            {{--            location.reload();--}}
+            {{--        }, 3000);--}}
+            {{--        $('#alertMessage12').show();--}}
+            {{--        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';--}}
+            {{--        $('#alertMessage12').html(result);--}}
+            {{--        $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");--}}
+            {{--        setInterval(function(){--}}
+            {{--            $('#alertMessage12').slideUp(3000);--}}
+            {{--        }, 1000);--}}
+
+            {{--    },--}}
+            {{--});--}}
+        if(checkboxvalue == 0) {
+                var swl = swal.fire({
+                    title: "<h2 class='swal2-title custom-title'>Info:</h2>",
+                    html: "<div  class='swal2-html-container custom-content'>" +
+                        "<div class='section-sa'>" +
+                        "<p >When this option is disabled, the Embedded Signup Flow will be unavailable on the product page to enable and whatsapp signup option will not be displayed on the client page.Would you like to disable this option?</p>" + "</div>" +
+                        "</div>",
+                    showCancelButton: true,
+                    cancelButtonText: "{{ __('message.no') }}",
+                    showCloseButton: true,
+                    position: "top",
+                    width: "600px",
+                    confirmButtonText: @json(trans('message.yes')),
+                    confirmButtonColor: "#007bff",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        whatsappUpdate(checkboxvalue);
+
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        document.getElementById("whatsapp_status").checked = true;
+                        window.close();
+                    }
+                })
+            }else{
+                whatsappUpdate(checkboxvalue);
+            }
+
+            return false;
+
+        });
+
+        function whatsappUpdate(checkboxvalue){
             $.ajax({
 
-                url : '{{url("licenseStatus")}}',
-                type : 'post',
+                url: '{{url("licenseStatus")}}',
+                type: 'post',
                 data: {
                     "whatsapp_status": checkboxvalue,
                 },
                 success: function (response) {
-                    setTimeout(function() {
+                    setTimeout(function () {
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
+                    var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>' + response.message + '.</div>';
                     $('#alertMessage12').html(result);
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
-                    setInterval(function(){
+                    setInterval(function () {
                         $('#alertMessage12').slideUp(3000);
                     }, 1000);
 
                 },
             });
-
-        });
+        }
 
 
         $(document).on('change', '.gcaptcha input[type="checkbox"]', function() {

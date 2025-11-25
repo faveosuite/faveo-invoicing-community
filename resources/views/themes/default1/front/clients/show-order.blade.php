@@ -806,7 +806,7 @@
 
     <div class="tab-pane tab-pane-navigation" id="whats-app-integration" role="tabpanel">
         <div id="alertMessage-22"></div>
-
+        @if($actualWhatsappStatus)
         <div class="row mb-4">
             <div class="col">
                 <button id="get-url" style="background-color: #1877f2; border: 0; border-radius: 4px; color: #fff; cursor: pointer; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: bold; height: 40px; padding: 0 24px;">
@@ -814,7 +814,7 @@
                 </button>
             </div>
         </div>
-
+@endif
         <div class="row">
             <div class="table-responsive">
                 <table id="shownumber-table" class="table table-striped table-bordered mw-auto" cellspacing="0" width="100%" styleClass="borderless">
@@ -1313,10 +1313,10 @@
                     { data: 'PhoneNumber', name: 'PhoneNumber', orderable: true , searchable: true },
                     { data: 'WabaId', name: 'WabaId', orderable: true, searchable: true },
                     { data: 'PhoneNumberId', name: 'PhoneNumberId', orderable: true, searchable: true },
-                    { data: 'BusinessId', name: 'BusinessId', orderable: false, searchable: false },
+                    { data: 'BusinessId', name: 'BusinessId', orderable: true, searchable: true },
                     { data: 'access_token', name: 'Access Token', orderable: false, searchable: false },
 
-                    { data: 'created_at', name: 'CreatedAt', orderable: false, searchable: false }
+                    { data: 'created_at', name: 'created_at', orderable: true, searchable: true }
 
                 ]
             });
@@ -1439,21 +1439,6 @@
                 try {
                     const data = JSON.parse(event.data);
                     if (data.type === 'WA_EMBEDDED_SIGNUP') {
-                        console.log('message event: ', data);
-                                {{--$.ajax ({--}}
-                                {{--    url: '{{url("save-waba-id")}}',--}}
-                                {{--    type : 'post',--}}
-                                {{--    data: {--}}
-                                {{--        "waba_id": data.data.waba_id,"phone_number_id":data.data.phone_number_id,"business_id":data.data.business_id,--}}
-                                {{--    },--}}
-                                {{--    success: function (data) {--}}
-                                {{--        console.log(data);--}}
-
-                                {{--    },--}}
-                                {{--    error:function(data){--}}
-                                {{--        console.log(data);--}}
-                                {{--    },--}}
-                                {{--})--}}
                             fbData = data;
                         getAllData();
                     }
@@ -1468,24 +1453,8 @@
                 if (response.authResponse) {
                     fbToken=response.authResponse.code;
                     getAllData();
-                    console.log('response1: ', code);
-                    {{--$.ajax ({--}}
-                    {{--    url: '{{url("save-access-token")}}',--}}
-                    {{--    type : 'post',--}}
-                    {{--    data: {--}}
-                    {{--        "code": code,--}}
-                    {{--    },--}}
-                    {{--    success: function (data) {--}}
-                    {{--        console.log(data);--}}
-                    {{--    },--}}
-                    {{--    error:function(data){--}}
-                    {{--        console.log(data);--}}
-                    {{--    },--}}
-                    {{--})--}}
-                    // your code goes here
                 } else {
                     console.log('response2: ', response);
-                    // your code goes here
                 }
             }
 

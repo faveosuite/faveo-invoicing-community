@@ -2717,7 +2717,7 @@ return [
     'cloud_plan_error' => 'Please remove the cloud product or link it to an alternative plan.',
     'short_description' => 'Short Description',
     'add_short_description' => 'Please enter a short description.',
-    'word_count' => 'Please keep your short description within 50 words.',
+    'word_count' => 'Please keep your short description within 25 words.',
     'auto_renewal_disable' => 'Auto-renewal is currently not available. Please contact the administrator for assistance.',
     'auto_renewal_tooltip' => 'Enable or disable auto-renewal for all users.',
 

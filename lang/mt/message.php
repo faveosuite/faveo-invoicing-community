@@ -2639,7 +2639,7 @@
      'cloud_plan_error' => 'Jekk jogħġbok neħħi l-prodott cloud jew għaqqdu ma’ pjan alternattiv.',
      'short_description' => 'Deskrizzjoni qasira',
      'add_short_description' => 'Jekk jogħġbok daħħal deskrizzjoni qasira.',
-     'word_count' => 'Jekk jogħġbok żomm id-deskrizzjoni qasira tiegħek fi 50 kelma.',
+     'word_count' => 'Jekk jogħġbok żomm id-deskrizzjoni qasira tiegħek fi 25 kelma.',
      'auto_renewal_disable' => 'Ir-rinnovar awtomatiku bħalissa mhux disponibbli. Jekk jogħġbok ikkuntattja lill-amministratur għall-għajnuna.',
      'auto_renewal_tooltip' => 'Attiva jew iddiżattiva r-rinnovar awtomatiku għal kull utent.',
 

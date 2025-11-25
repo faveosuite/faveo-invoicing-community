@@ -2714,7 +2714,7 @@ return [
     'system_logs_deletion_older_than' => 'Eliminazione dei log di sistema precedenti a...',
     'cloud_plan_error' => 'Si prega di rimuovere il prodotto cloud o collegarlo a un piano alternativo.',
     'short_description' => 'Breve descrizione',
-    'word_count' => 'Si prega di mantenere la descrizione breve entro 50 parole.',
+    'word_count' => 'Si prega di mantenere la descrizione breve entro 25 parole.',
     'add_short_description' => 'Si prega di inserire una breve descrizione.',
     'auto_renewal_disable' => "Il rinnovo automatico non è attualmente disponibile. Si prega di contattare l'amministratore per assistenza.",
     'auto_renewal_tooltip' => 'Abilita o disabilita il rinnovo automatico per tutti gli utenti.',

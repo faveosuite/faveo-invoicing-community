@@ -2705,7 +2705,7 @@ return [
     'cloud_plan_error' => 'Veuillez supprimer le produit cloud ou le lier à un plan alternatif.',
     'short_description' => 'Brève description',
     'add_short_description' => 'Veuillez entrer une brève description.',
-    'word_count' => 'Veuillez garder votre brève description dans la limite de 50 mots.',
+    'word_count' => 'Veuillez garder votre brève description dans la limite de 25 mots.',
     'auto_renewal_disable' => "Le renouvellement automatique n'est actuellement pas disponible. Veuillez contacter l'administrateur pour obtenir de l'aide.",
     'auto_renewal_tooltip' => 'Activer ou désactiver le renouvellement automatique pour tous les utilisateurs.',
 

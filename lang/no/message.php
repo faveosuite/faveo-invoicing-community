@@ -2721,7 +2721,7 @@ return [
     'period_is_required' => 'Vennligst velg en periode.',
     'short_description' => 'Kort beskrivelse',
     'add_short_description' => 'Vennligst skriv inn en kort beskrivelse.',
-    'word_count' => 'Vennligst hold den korte beskrivelsen innen 50 ord.',
+    'word_count' => 'Vennligst hold den korte beskrivelsen innen 25 ord.',
     'invalid_code_2fa' => 'Ongeldige code. Probeer het opnieuw.',
     '6_digit_auth_code' => 'Voer uw 6-cijferige authenticatiecode in',
     '6_code_numer' => 'De code moet een 6-cijferig nummer zijn.',
