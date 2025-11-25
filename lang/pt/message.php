@@ -2768,4 +2768,5 @@ return [
     'something_wrong_try_again_later' => 'Algo correu mal. Por favor tente novamente mais tarde.',
     'something_went_wrong_while_updating_mobile' => 'Algo correu mal ao atualizar o número de telemóvel. Por favor tente novamente mais tarde.',
     'no_available_plans_for_user_currency' => 'A moeda selecionada do usuário não possui planos disponíveis para este produto. Por favor, adicione um plano para essa moeda para continuar.',
+    'login_password_validation' => 'Por favor, insira a sua palavra-passe.',
 ];

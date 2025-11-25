@@ -2722,4 +2722,5 @@ return [
     'something_wrong_try_again_later' => 'Došlo je do greške. Molimo pokušajte kasnije.',
     'something_went_wrong_while_updating_mobile' => 'Došlo je do greške prilikom ažuriranja broja mobilnog telefona. Molimo pokušajte kasnije.',
     'no_available_plans_for_user_currency' => 'Odabrana korisnička valuta nema dostupnih planova za ovaj proizvod. Molimo dodajte plan za tu valutu da biste nastavili.',
+    'login_password_validation' => 'Molimo unesite svoju lozinku.',
 ];

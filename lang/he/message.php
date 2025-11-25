@@ -2794,4 +2794,5 @@ return [
     'something_went_wrong_while_updating_mobile' => 'אירעה שגיאה בעת עדכון מספר הנייד. אנא נסו שוב מאוחר יותר.',
     'period_is_required' => 'אנא בחר תקופה.',
     'no_available_plans_for_user_currency' => 'למטבע שנבחר עבור המשתמש אין תכניות זמינות עבור מוצר זה. אנא הוסף תכנית למטבע זה כדי להמשיך.',
+    'login_password_validation' => 'אנא הזן את הסיסמה שלך.',
 ];

@@ -2745,4 +2745,5 @@ return [
     'something_wrong_try_again_later' => '發生錯誤。請稍後再試。',
     'something_went_wrong_while_updating_mobile' => '更新手機號碼時出現問題。請稍後再試。',
     'no_available_plans_for_user_currency' => '所選使用者的貨幣沒有此產品的可用方案。請為該貨幣新增方案以繼續。',
+    'login_password_validation' => '請輸入您的密碼。',
 ];

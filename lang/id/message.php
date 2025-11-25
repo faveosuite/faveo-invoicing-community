@@ -2785,4 +2785,5 @@ return [
     'something_wrong_try_again_later' => 'Terjadi kesalahan. Silakan coba lagi nanti.',
     'something_went_wrong_while_updating_mobile' => 'Terjadi kesalahan saat memperbarui nomor ponsel. Silakan coba lagi nanti.',
     'no_available_plans_for_user_currency' => 'Mata uang yang dipilih pengguna tidak memiliki rencana apa pun untuk produk ini. Harap tambahkan rencana untuk mata uang tersebut untuk melanjutkan.',
+    'login_password_validation' => 'Silakan masukkan kata sandi Anda.',
 ];

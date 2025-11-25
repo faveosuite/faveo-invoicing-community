@@ -2781,4 +2781,5 @@ return [
     'something_wrong_try_again_later' => 'Quelque chose s’est mal passé. Veuillez réessayer plus tard.',
     'something_went_wrong_while_updating_mobile' => 'Quelque chose s’est mal passé lors de la mise à jour du numéro de mobile. Veuillez réessayer plus tard.',
     'no_available_plans_for_user_currency' => 'La devise sélectionnée de l’utilisateur ne dispose d’aucun plan disponible pour ce produit. Veuillez ajouter un plan pour cette devise afin de continuer.',
+    'login_password_validation' => 'Veuillez saisir votre mot de passe.',
 ];

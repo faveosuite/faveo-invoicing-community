@@ -2803,4 +2803,5 @@ return [
     'something_wrong_try_again_later' => 'Bir şeyler yanlış gitti. Lütfen daha sonra tekrar deneyin.',
     'something_went_wrong_while_updating_mobile' => 'Mobil numara güncellenirken bir şeyler yanlış gitti. Lütfen daha sonra tekrar deneyin.',
     'no_available_plans_for_user_currency' => 'Seçilen kullanıcının para birimi için bu ürünle ilgili herhangi bir plan bulunmuyor. Devam etmek için lütfen o para birimi için bir plan ekleyin.',
+    'login_password_validation' => 'Lütfen şifrenizi giriniz.',
 ];

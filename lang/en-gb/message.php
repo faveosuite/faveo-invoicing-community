@@ -2793,4 +2793,5 @@ return [
     'something_wrong_try_again_later' => 'Something went wrong. Please try again later.',
     'something_went_wrong_while_updating_mobile' => 'Something went wrong while updating the mobile number. Please try again later.',
     'no_available_plans_for_user_currency' => 'The selected user’s currency does not have any available plans for this product. Please add a plan for that currency to proceed.',
+    'login_password_validation' => 'Please enter your password.',
 ];

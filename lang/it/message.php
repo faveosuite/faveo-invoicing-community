@@ -2785,4 +2785,5 @@ return [
     'something_wrong_try_again_later' => 'Qualcosa è andato storto. Per favore riprova più tardi.',
     'something_went_wrong_while_updating_mobile' => 'Si è verificato un errore durante l’aggiornamento del numero di cellulare. Per favore riprova più tardi.',
     'no_available_plans_for_user_currency' => 'La valuta selezionata dell’utente non ha piani disponibili per questo prodotto. Aggiungi un piano per quella valuta per procedere.',
+    'login_password_validation' => 'Per favore inserisci la tua password.',
 ];

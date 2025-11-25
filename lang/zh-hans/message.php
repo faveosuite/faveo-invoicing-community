@@ -2785,4 +2785,5 @@ return [
     'something_wrong_try_again_later' => '出现错误。请稍后再试。',
     'something_went_wrong_while_updating_mobile' => '更新手机号码时出现问题。请稍后再试。',
     'no_available_plans_for_user_currency' => '所选用户的货币没有该产品的可用方案。请为该货币添加方案以继续。',
+    'login_password_validation' => '请输入您的密码。',
 ];

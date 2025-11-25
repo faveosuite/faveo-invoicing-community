@@ -657,7 +657,7 @@ foreach($scripts as $script) {
                         email_or_username: "{{ __('message.username_or_email') }}"
                     },
                     password1: {
-                        required: "{{ __('message.received_password_enter') }}",
+                        required: "{{ __('message.login_password_validation') }}",
                     },
                 },
                 unhighlight: function(element) {

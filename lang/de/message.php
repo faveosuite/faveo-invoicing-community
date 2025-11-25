@@ -2786,4 +2786,5 @@ return [
     'something_wrong_try_again_later' => 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.',
     'something_went_wrong_while_updating_mobile' => 'Beim Aktualisieren der Handynummer ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.',
     'no_available_plans_for_user_currency' => 'Für die ausgewählte Währung des Benutzers sind keine Pläne für dieses Produkt verfügbar. Bitte fügen Sie einen Plan für diese Währung hinzu, um fortzufahren.',
+    'login_password_validation' => 'Bitte geben Sie Ihr Passwort ein.',
 ];

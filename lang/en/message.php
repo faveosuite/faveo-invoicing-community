@@ -2876,4 +2876,5 @@ return [
     'whatsapp_config' => 'Whatsapp Configuration',
     'add_new_number' => 'Add New Number',
     'whatsapp_access_token' => 'Access Token',
+    'login_password_validation' => 'Please enter your password.',
 ];

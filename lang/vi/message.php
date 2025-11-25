@@ -2791,4 +2791,5 @@ return [
     'something_wrong_try_again_later' => 'Đã xảy ra lỗi. Vui lòng thử lại sau.',
     'something_went_wrong_while_updating_mobile' => 'Đã xảy ra lỗi khi cập nhật số điện thoại. Vui lòng thử lại sau.',
     'no_available_plans_for_user_currency' => 'Loại tiền tệ đã chọn của người dùng không có bất kỳ gói nào cho sản phẩm này. Vui lòng thêm một gói cho loại tiền tệ đó để tiếp tục.',
+    'login_password_validation' => 'Vui lòng nhập mật khẩu của bạn.',
 ];

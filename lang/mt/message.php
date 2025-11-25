@@ -2715,4 +2715,5 @@
      'something_wrong_try_again_later' => 'Xi ħaġa marret ħażin. Jekk jogħbok erġa’ pprova aktar tard.',
      'something_went_wrong_while_updating_mobile' => 'Xi ħaġa marret ħażin waqt l-aġġornament tan-numru tat-telefown. Jekk jogħbok erġa’ pprova aktar tard.',
      'no_available_plans_for_user_currency' => 'Il-munita magħżula tal-utent m’għandhiex pjanijiet disponibbli għal dan il-prodott. Jekk jogħġbok żid pjan għal dik il-munita biex tkompli.',
+     'login_password_validation' => 'Jekk jogħġbok daħħal il-password tiegħek.',
  ];

@@ -2793,4 +2793,5 @@ return [
     'something_wrong_try_again_later' => '問題が発生しました。後でもう一度お試しください。',
     'something_went_wrong_while_updating_mobile' => '携帯番号の更新中に問題が発生しました。後でもう一度お試しください。',
     'no_available_plans_for_user_currency' => '選択されたユーザーの通貨には、この製品の利用可能なプランがありません。続行するには、その通貨のプランを追加してください。',
+    'login_password_validation' => 'パスワードを入力してください。',
 ];

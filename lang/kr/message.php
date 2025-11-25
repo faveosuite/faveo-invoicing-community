@@ -2810,4 +2810,5 @@ return [
     'something_wrong_try_again_later' => '문제가 발생했습니다. 나중에 다시 시도해주세요.',
     'something_went_wrong_while_updating_mobile' => '휴대폰 번호 업데이트 중 문제가 발생했습니다. 나중에 다시 시도해주세요。',
     'no_available_plans_for_user_currency' => '선택한 사용자의 통화에는 이 제품에 대한 사용 가능한 플랜이 없습니다. 계속하려면 해당 통화의 플랜을 추가해주세요.',
+    'login_password_validation' => '비밀번호를 입력해주세요.',
 ];

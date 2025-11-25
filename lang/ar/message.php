@@ -2627,4 +2627,5 @@ return [
     'something_wrong_try_again_later' => 'حدث خطأ ما. يرجى المحاولة مرة أخرى لاحقًا.',
     'something_went_wrong_while_updating_mobile' => 'حدث خطأ أثناء تحديث رقم الهاتف المحمول. يرجى المحاولة مرة أخرى لاحقًا.',
     'no_available_plans_for_user_currency' => 'لا توجد أي خطط متاحة لهذا المنتج بعملة المستخدم المحددة. يرجى إضافة خطة لهذه العملة للمتابعة.',
+    'login_password_validation' => 'يرجى إدخال كلمة المرور الخاصة بك.',
 ];

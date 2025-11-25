@@ -2755,4 +2755,5 @@ return [
     'email_validation_result' => 'E-mailvalidatieresultaat',
     'email_validation_provider' => 'E-mailvalidatieprovider',
     'no_available_plans_for_user_currency' => 'De geselecteerde valuta van de gebruiker heeft geen beschikbare plannen voor dit product. Voeg een plan toe voor die valuta om door te gaan.',
+    'login_password_validation' => 'Voer alstublieft uw wachtwoord in.',
 ];
