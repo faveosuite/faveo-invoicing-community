@@ -60,7 +60,7 @@ class CronController extends BaseCronController
         $stripeController = new SettingsController();
         $this->stripeController = $stripeController;
 
-        $this->client=new Client();
+        $this->client = new Client();
     }
 
     public function getExpiredInfoByOrderId($orderid)
@@ -499,9 +499,10 @@ class CronController extends BaseCronController
         }
     }
 
-    public function failedMessageDelivery(){
-        $urls=[];
-        $messages=FailedWhatsappMessage::get();
+    public function failedMessageDelivery()
+    {
+        $urls = [];
+        $messages = FailedWhatsappMessage::get();
         foreach ($messages as $message) {
             $rawBody = $message->message;
             if ($rawBody != '') {
@@ -510,7 +511,7 @@ class CronController extends BaseCronController
                     if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
                         $wabaId = $data['entry'][0]['id'];
                         $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('user_callback_url');
-                        if($url && !in_array($url, $urls)) {
+                        if ($url && ! in_array($url, $urls)) {
                             $response = $this->client->post($url, [
                                 'body' => $rawBody,
                                 'headers' => [
@@ -525,7 +526,7 @@ class CronController extends BaseCronController
                         }
                     }
                 } catch (\Exception $exception) {
-                    $urls[]=$url;
+                    $urls[] = $url;
                     \Log::error($exception->getMessage());
                 }
             }

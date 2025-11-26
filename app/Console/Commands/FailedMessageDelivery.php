@@ -29,6 +29,5 @@ class FailedMessageDelivery extends Command
         $controller = new CronController();
         $controller->failedMessageDelivery();
         $this->info('app:failed-message-delivery Command Run successfully!');
-
     }
 }
