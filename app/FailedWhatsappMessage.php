@@ -7,9 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class FailedWhatsappMessage extends Model
 {
-    protected $table='failed_whatsapp_message';
+    protected $table = 'failed_whatsapp_message';
     protected $fillable = ['message'];
-
 
     public function setMessageAttribute($value)
     {
@@ -21,13 +20,14 @@ class FailedWhatsappMessage extends Model
         }
     }
 
-    public function getMessageAttribute($value){
+    public function getMessageAttribute($value)
+    {
         try {
             $decrypted = \Crypt::decrypt($value);
+
             return $decrypted;
         } catch (DecryptException $ex) {
             return $value;
         }
     }
 }
-

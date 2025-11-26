@@ -3,7 +3,6 @@
 namespace App;
 
 use App\Traits\SystemActivityLogsTrait;
-use App\BaseModel;
 use Illuminate\Contracts\Encryption\DecryptException;
 
 class WhatsappIntegrationUser extends BaseModel
@@ -14,17 +13,16 @@ class WhatsappIntegrationUser extends BaseModel
 
     protected $fillable = ['waba_id', 'phone_number_id', 'phone_number', 'user_id', 'access_token', 'user_callback_url', 'business_id', 'order_id'];
 
-    protected static $logName='phoneNumber';
+    protected static $logName = 'phoneNumber';
 
-    protected $logAttributes = ['waba_id', 'phone_number','phone_number_id', 'user_id', 'user_callback_url', 'business_id', 'order_id'];
+    protected $logAttributes = ['waba_id', 'phone_number', 'phone_number_id', 'user_id', 'user_callback_url', 'business_id', 'order_id'];
 
-    protected $logNameColumn='phone_number';
+    protected $logNameColumn = 'phone_number';
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
 
     protected function getMappings(): array
     {
@@ -36,7 +34,7 @@ class WhatsappIntegrationUser extends BaseModel
             'order_id' => ['Order Number', fn ($value) => \App\Model\Order\Order::find($value)?->number],
             'user_callback_url' => ['Callback Url', fn ($value) => $value],
             'business_id' => ['Business Id', fn ($value) => $value],
-            ];
+        ];
     }
 
     public function setAccessTokenAttribute($value)
@@ -49,9 +47,11 @@ class WhatsappIntegrationUser extends BaseModel
         }
     }
 
-    public function getAccessTokenAttribute($value){
+    public function getAccessTokenAttribute($value)
+    {
         try {
             $decrypted = \Crypt::decrypt($value);
+
             return $decrypted;
         } catch (DecryptException $ex) {
             return $value;

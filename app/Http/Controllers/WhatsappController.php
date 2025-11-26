@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\FailedWhatsappMessage;
 use App\Jobs\SendWhatsappMessage;
 use App\User;
 use App\WhatsappIntegration;
@@ -106,7 +105,6 @@ class WhatsappController extends Controller
                     return $model->access_token;
                 })
                 ->addColumn('action', function ($model) {
-
                     return "<p>
             <button data-toggle='modal'
                 data-id=".$model->id."
@@ -116,8 +114,6 @@ class WhatsappController extends Controller
                 <i class='fa fa-trash' style='color:white;'></i>
             </button>
         </p>";
-
-
                 })
                 ->filterColumn('UserName', function ($model, $keyword) {
                     $model->whereHas('user', function ($query) use ($keyword) {
@@ -394,9 +390,9 @@ class WhatsappController extends Controller
 //    }
 
     public function whatsappWebhook(Request $request)
-    {   $response='';
+    {
+        $response = '';
         try {
-
             // Handle GET request (Verification)
             if ($request->isMethod('get')) {
                 $verify_token = WhatsappIntegration::value('verify_token');

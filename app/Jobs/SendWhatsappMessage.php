@@ -12,16 +12,17 @@ class SendWhatsappMessage implements ShouldQueue
 {
     use Queueable;
 
-    public $connection='custom_db';
+    public $connection = 'custom_db';
     protected $message;
     protected $client;
+
     /**
      * Create a new job instance.
      */
     public function __construct($message)
     {
         $this->message = $message;
-        $this->client= new Client();
+        $this->client = new Client();
     }
 
     /**
@@ -42,13 +43,13 @@ class SendWhatsappMessage implements ShouldQueue
                     ],
                 ]);
             }
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             \Log::error('Whatsapp Message Failure: '.$exception->getMessage());
         }
     }
 
     public function failed(): void
     {
-        FailedWhatsappMessage::create(['message'=>$this->message]);
+        FailedWhatsappMessage::create(['message' => $this->message]);
     }
 }

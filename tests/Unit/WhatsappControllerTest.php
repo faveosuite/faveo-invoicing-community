@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-use App\Console\Commands\FailedMessageDelivery;
 use App\FailedWhatsappMessage;
 use App\Http\Controllers\WhatsappController;
 use App\Model\Order\Order;
@@ -199,7 +198,7 @@ class WhatsappControllerTest extends DBTestCase
 //            json_encode($payload)
 //        );
 //        dd(FailedWhatsappMessage::all());
-////        $response->assertStatus(200);
+    ////        $response->assertStatus(200);
 //        $this->assertEquals('EVENT_RECEIVED', $response->getContent());
 //    }
 }

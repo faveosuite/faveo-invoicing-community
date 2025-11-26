@@ -34,7 +34,7 @@ return [
             'driver' => 'sync',
         ],
 
-//This is a custom table for whatsapp Messages sending.
+        //This is a custom table for whatsapp Messages sending.
         'custom_db' => [
             'driver' => 'database',
             'table' => 'custom_jobs',
