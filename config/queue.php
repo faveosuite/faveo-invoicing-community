@@ -34,6 +34,19 @@ return [
             'driver' => 'sync',
         ],
 
+//This is a custom table for whatsapp Messages sending.
+        'custom_db' => [
+            'driver' => 'database',
+            'table' => 'custom_jobs',
+            'queue' => 'default',
+            'retry_after' => 90,
+            'after_commit' => false,
+
+            'failed' => [
+                'driver' => 'null',
+            ],
+        ],
+
         'database' => [
             'driver' => 'database',
             'table' => 'jobs',

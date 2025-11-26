@@ -41,6 +41,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\CleanupMsg91Reports::class,
         DeleteLogs::class,
         \App\Console\Commands\ReoonLogsDeletion::class,
+        \App\Console\Commands\FailedMessageDelivery::class,
     ];
 
     /**
@@ -54,7 +55,7 @@ class Kernel extends ConsoleKernel
         $this->execute($schedule, 'expiryMail');
         $this->execute($schedule, 'deleteLogs');
         $schedule->command('renewal:cron')->everyFiveMinutes();
-
+        $schedule->command('app:failed-message-delivery')->hourly();
         $this->execute($schedule, 'subsExpirymail');
         $this->execute($schedule, 'postExpirymail');
         $this->execute($schedule, 'invoice');

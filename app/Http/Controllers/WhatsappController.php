@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\FailedWhatsappMessage;
+use App\Jobs\SendWhatsappMessage;
 use App\User;
 use App\WhatsappIntegration;
 use App\WhatsappIntegrationUser;
@@ -103,6 +105,20 @@ class WhatsappController extends Controller
                 ->addColumn('access_token', function ($model) {
                     return $model->access_token;
                 })
+                ->addColumn('action', function ($model) {
+
+                    return "<p>
+            <button data-toggle='modal'
+                data-id=".$model->id."
+                onclick=\"deleteWhatsappUser('".$model->id."')\"
+                id='delten".$model->id."'
+                class='btn btn-sm btn-dark btn-xs delTenant'>
+                <i class='fa fa-trash' style='color:white;'></i>
+            </button>
+        </p>";
+
+
+                })
                 ->filterColumn('UserName', function ($model, $keyword) {
                     $model->whereHas('user', function ($query) use ($keyword) {
                         $query->where('first_name', 'like', "%$keyword%");
@@ -120,7 +136,7 @@ class WhatsappController extends Controller
                 ->filterColumn('BusinessId', function ($model, $keyword) {
                     $model->where('business_id', 'like', "%$keyword%");
                 })
-                ->rawColumns(['PhoneNumberId', 'UserName', 'PhoneNumber', 'WabaId', 'BusinessId', 'access_token', 'created_at'])
+                ->rawColumns(['PhoneNumberId', 'UserName', 'PhoneNumber', 'WabaId', 'BusinessId', 'access_token', 'created_at', 'action'])
                 ->make(true);
         } catch (\Exception $exception) {
             return errorResponse($exception->getMessage());
@@ -329,6 +345,7 @@ class WhatsappController extends Controller
             $response = Http::post($url, [
                 'access_token' => $whatsappUser->access_token,
             ]);
+            $whatsappUser->delete();
             $content = $response->json();
 
             return successResponse(__('message.updated-successfully'));
@@ -377,8 +394,9 @@ class WhatsappController extends Controller
 //    }
 
     public function whatsappWebhook(Request $request)
-    {
+    {   $response='';
         try {
+
             // Handle GET request (Verification)
             if ($request->isMethod('get')) {
                 $verify_token = WhatsappIntegration::value('verify_token');
@@ -395,24 +413,21 @@ class WhatsappController extends Controller
             }
             if ($request->isMethod('post')) {
                 $rawBody = $request->getContent();
-
-                \Log::debug('santhanu_test_raw', ['body' => $rawBody]);
+                SendWhatsappMessage::dispatch($rawBody);
 
                 // decode only if you need to read id
-                $data = json_decode($rawBody, true);
-                if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
-                    $wabaId = $data['entry'][0]['id'];
-                    $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('user_callback_url');
-
-                    $this->client->post($url, [
-                        'body' => $rawBody,
-                        'headers' => [
-                            'Content-Type' => 'application/json',
-                            'Accept' => 'application/json',
-                        ],
-                    ]);
-                }
-
+//                $data = json_decode($rawBody, true);
+//                if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
+//                    $wabaId = $data['entry'][0]['id'];
+//                    $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('user_callback_url');
+//                    $response=$this->client->post($url, [
+//                        'body' => $rawBody,
+//                        'headers' => [
+//                            'Content-Type' => 'application/json',
+//                            'Accept' => 'application/json',
+//                        ],
+//                    ]);
+//                }
                 return response('EVENT_RECEIVED', 200);
             }
 
