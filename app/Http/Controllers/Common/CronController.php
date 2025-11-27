@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Common;
 
 use App\EmailValidationResults;
 use App\FailedWhatsappMessage;
+use App\Jobs\SendWhatsappMessage;
 use App\Model\Common\MsgDeliveryReports;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
@@ -499,36 +500,37 @@ class CronController extends BaseCronController
         }
     }
 
-    public function failedMessageDelivery()
-    {
-        $urls = [];
-        $messages = FailedWhatsappMessage::get();
+    public function failedMessageDelivery(){
+        \Session::forget('NonReachableUrls');
+        $messages=FailedWhatsappMessage::get();
         foreach ($messages as $message) {
             $rawBody = $message->message;
             if ($rawBody != '') {
-                $data = json_decode($rawBody, true);
-                try {
-                    if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
-                        $wabaId = $data['entry'][0]['id'];
-                        $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('user_callback_url');
-                        if ($url && ! in_array($url, $urls)) {
-                            $response = $this->client->post($url, [
-                                'body' => $rawBody,
-                                'headers' => [
-                                    'Content-Type' => 'application/json',
-                                    'Accept' => 'application/json',
-                                ],
-                            ]);
-
-                            if ($response->getStatusCode() == 200) {
-                                $message->delete();
-                            }
-                        }
-                    }
-                } catch (\Exception $exception) {
-                    $urls[] = $url;
-                    \Log::error($exception->getMessage());
-                }
+                SendWhatsappMessage::dispatch($rawBody);
+                $message->delete();
+//                $data = json_decode($rawBody, true);
+//                try {
+//                    if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
+//                        $wabaId = $data['entry'][0]['id'];
+//                        $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('user_callback_url');
+//                        if($url && !in_array($url, $urls)) {
+//                            $response = $this->client->post($url, [
+//                                'body' => $rawBody,
+//                                'headers' => [
+//                                    'Content-Type' => 'application/json',
+//                                    'Accept' => 'application/json',
+//                                ],
+//                            ]);
+//
+//                            if ($response->getStatusCode() == 200) {
+//                                $message->delete();
+//                            }
+//                        }
+//                    }
+//                } catch (\Exception $exception) {
+//                    $urls[]=$url;
+//                    \Log::error($exception->getMessage());
+//                }
             }
         }
     }
