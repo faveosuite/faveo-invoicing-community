@@ -409,6 +409,18 @@ class WhatsappController extends Controller
             }
             if ($request->isMethod('post')) {
                 $rawBody = $request->getContent();
+                $data = json_decode($rawBody, true);
+
+                $change = $data['entry'][0]['changes'][0]['value'] ?? [];
+
+                if (isset($change['statuses'])) {
+                    return response()->json(['ignored' => 'status update'], 200);
+                }
+
+                if (!isset($change['messages'])) {
+                    return response()->json(['ignored' => 'not a message'], 200);
+                }
+
                 SendWhatsappMessage::dispatch($rawBody);
 
                 // decode only if you need to read id
