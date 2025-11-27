@@ -417,7 +417,7 @@ class WhatsappController extends Controller
                     return response()->json(['ignored' => 'status update'], 200);
                 }
 
-                if (!isset($change['messages'])) {
+                if (! isset($change['messages'])) {
                     return response()->json(['ignored' => 'not a message'], 200);
                 }
 
