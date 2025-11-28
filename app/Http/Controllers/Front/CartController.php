@@ -88,9 +88,9 @@ class CartController extends BaseCartController
             if ($request->has('domain')) {
                 $domain = $request->input('domain').'.'.cloudSubDomain();
             }
-            if (! property_exists($subscription, Cart::getContent())) {
+            if (! Cart::get($id)) {
                 $items = $this->addProduct($id, $domain);
-                \Cart::add($items); //Add Items To the Cart Collection
+                Cart::add($items);
             }
 
             return redirect('show/cart');

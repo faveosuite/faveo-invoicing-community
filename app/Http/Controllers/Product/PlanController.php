@@ -369,7 +369,7 @@ class PlanController extends ExtendedPlanController
     public function checkSubscription(Request $request)
     {
         try {
-            $product_id = $request->input('product_id');
+            $product_id = $request->integer('product_id');
             $permissions = LicensePermissionsController::getPermissionsForProduct($product_id);
             $checkSubscription = $permissions['generateUpdatesxpiryDate'] != 0 || $permissions['generateLicenseExpiryDate'] != 0
            || $permissions['generateSupportExpiryDate'] != 0 ? 1 : 0;

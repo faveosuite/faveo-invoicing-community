@@ -4,6 +4,7 @@ namespace App\BillingLog\Model;
 
 use App\BaseModel;
 use Crypt;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class MailLog extends BaseModel
 {
@@ -84,5 +85,12 @@ class MailLog extends BaseModel
     public function getJobPayloadAttribute($value)
     {
         return $value ? Crypt::decrypt($value) : null;
+    }
+    protected function body(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value ? base64_decode($value) : null,
+            set: fn ($value) => $value ? base64_encode($value) : null,
+        );
     }
 }
