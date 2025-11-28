@@ -114,7 +114,7 @@ function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = 'M j, Y
         $date = new DateTime($dateTimeString, new DateTimeZone('UTC'));
 
         $user = Auth::user();
-        $cacheKey = 'user_timezone_' . (Auth::id() ?? session()->getId());
+        $cacheKey = 'user_timezone_'.(Auth::id() ?? session()->getId());
 
         $tz = Cache::remember(
             $cacheKey,

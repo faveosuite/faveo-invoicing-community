@@ -322,10 +322,10 @@ class ClientController extends BaseClientController
                     })
                         ->addColumn('orderNo', function ($model) {
                             if ($model->is_renewed) {
-
                                 $orderLinks = $model->orderRelation
                                     ->map(function ($relation) {
                                         $order = Order::find($relation->order_id);
+
                                         return $order?->getOrderLink($order->id, 'my-order');
                                     })
                                     ->filter()
@@ -335,7 +335,7 @@ class ClientController extends BaseClientController
                             }
 
                             $orderLinks = $model->order
-                                ->map(fn($order) => $order->getOrderLink($order->id, 'my-order'))
+                                ->map(fn ($order) => $order->getOrderLink($order->id, 'my-order'))
                                 ->implode(', ');
 
                             return $orderLinks ?: '--';
@@ -462,7 +462,6 @@ class ClientController extends BaseClientController
         $orderIDs = $invoice->orderRelation()->pluck('order_id')->toArray();
 
         $items->each(function ($item) use ($orderIDs) {
-
             $order = Order::whereIn('id', $orderIDs)
                 ->where('product', $item->product_id)
                 ->first();
