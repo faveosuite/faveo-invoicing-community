@@ -421,7 +421,7 @@ class WhatsappController extends Controller
                     return response()->json(['ignored' => 'not a message'], 200);
                 }
 
-                SendWhatsappMessage::dispatch($rawBody);
+                SendWhatsappMessage::dispatch($rawBody)->onQueue('whatsapp');
 
                 // decode only if you need to read id
 //                $data = json_decode($rawBody, true);

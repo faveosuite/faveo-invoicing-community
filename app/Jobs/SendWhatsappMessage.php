@@ -12,8 +12,6 @@ class SendWhatsappMessage implements ShouldQueue
 {
     use Queueable;
 
-//    public $connection='custom_db';
-
     public $tries=1;
     public $retryAfter=60;
     protected $message;
@@ -23,9 +21,7 @@ class SendWhatsappMessage implements ShouldQueue
     public function __construct($message)
     {
 
-        $this->onConnection('custom_db');
         $this->message = $message;
-        $this->client= new Client();
     }
 
     /**
@@ -62,5 +58,6 @@ class SendWhatsappMessage implements ShouldQueue
     public function failed(): void
     {
         FailedWhatsappMessage::create(['message'=>$this->message]);
+        $this->delete();
     }
 }

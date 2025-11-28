@@ -506,7 +506,7 @@ class CronController extends BaseCronController
         foreach ($messages as $message) {
             $rawBody = $message->message;
             if ($rawBody != '') {
-                SendWhatsappMessage::dispatch($rawBody);
+                SendWhatsappMessage::dispatch($rawBody)->onQueue('whatsapp');
                 $message->delete();
 //                $data = json_decode($rawBody, true);
 //                try {

@@ -27,6 +27,7 @@ use App\Payment_log;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
 use App\WhatsappIntegration;
+use App\WhatsappIntegrationUser;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
