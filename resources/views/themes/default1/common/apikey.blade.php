@@ -141,7 +141,10 @@
             width: auto !important;
         }
 
-
+        .small-height-modal .modal-body {
+            max-height: 350px;
+            overflow-y: auto;
+        }
 
     </style>
 
@@ -687,7 +690,7 @@
     </div>
 
     <div class="modal fade" id="emailValidation" data-backdrop="static" data-keyboard="false">
-        <div class="modal-dialog">
+        <div class="modal-dialog small-height-modal">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">{{__('message.email_validation_provider')}}</h4>

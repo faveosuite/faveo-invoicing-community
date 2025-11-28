@@ -423,7 +423,6 @@
                             </td>
                         </tr>
                     </table>
-
                     <tr>
                         <td><b>{!! html()->label(trans('message.taxes'), 'tax') !!}</b></td>
                         <td>
@@ -434,7 +433,7 @@
                                         <select id="editTax" placeholder="{{ __('message.select_taxes') }}" name="tax[]" style="width:500px;" class="select2" multiple="true">
 
                                             @foreach($taxes as $value)
-                                                <option value={{$value['id']}} <?php echo (in_array($value['id'], $savedTaxes)) ?  "selected" : "" ;  ?>>{{$value['name'].'('.$value['name'].')'}}</option>
+                                                <option value={{$value['id']}} <?php echo (in_array($value['id'], $savedTaxes)) ?  "selected" : "" ;  ?>>{{$value['name'].'('.$value['tax'][0]['name'].')'}}</option>
 
                                             @endforeach
                                         </select>

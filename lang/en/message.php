@@ -2149,7 +2149,7 @@ return [
     'enter_type_cart' => 'Please enter type of cart page',
     'income_tax_details' => 'Incomplete Tax Details',
     'mandatory_tax' => 'Mandatory fields missing in Tax screen.',
-    'info' => 'info',
+    'info' => 'Info',
     'product_quantity' => 'Product Quantity',
     'table_search' => 'Search:',
 

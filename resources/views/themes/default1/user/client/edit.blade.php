@@ -120,7 +120,7 @@
                     <div class="col-md-3 form-group {{ $errors->has('mobile_verified') ? 'has-error' : '' }}">
                         <!-- mobile active -->
                         {!! html()->label(Lang::get('message.mobile'))->for('mobile_verified') !!}
-                        <p>{!! html()->radio('mobile_verified', true, 1)->checked() !!}&nbsp;{{ __('message.active') }}&nbsp;&nbsp;{!! html()->radio('mobile_verified', false, 0) !!}{{ __('message.inactive') }}</p>
+                        <p>{!! html()->radio('mobile_verified', true, 1)->checked() !!}&nbsp;{{ __('message.active') }}&nbsp;&nbsp;{!! html()->radio('mobile_verified', false, 0) !!}&nbsp;{{ __('message.inactive') }}</p>
                         @error('mobile_verified')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
