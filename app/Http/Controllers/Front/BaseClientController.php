@@ -294,6 +294,7 @@ class BaseClientController extends Controller
                  if ($model->is_renewed) {
                      return '<a href='.url($url).'>'.$model->number.'</a>&nbsp;'.getStatusLabel('renewed', 'badge');
                  }
+
                  return '<a href='.url($url).'>'.$model->number.'</a>';
              })
             ->addColumn('products', function ($model) {

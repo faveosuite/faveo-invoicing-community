@@ -239,7 +239,7 @@ class RegisterController extends Controller
     {
         $location = getLocation();
 
-        $state = getStateByCode($location['iso_code'],$location['state']);
+        $state = getStateByCode($location['iso_code'], $location['state']);
 
         $user = [
             'state' => $state['id'],
