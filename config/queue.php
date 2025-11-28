@@ -34,8 +34,6 @@ return [
             'driver' => 'sync',
         ],
 
-
-
         'database' => [
             'driver' => 'database',
             'table' => 'jobs',

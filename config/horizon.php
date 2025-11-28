@@ -163,7 +163,7 @@ return [
         'production' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['reports', 'default','whatsapp'],
+                'queue' => ['reports', 'default', 'whatsapp'],
                 'balance' => 'simple',
                 'minProcesses' => 1,
                 'maxProcesses' => 10,
@@ -191,7 +191,7 @@ return [
         'local' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['reports', 'default','whatsapp'],
+                'queue' => ['reports', 'default', 'whatsapp'],
                 'balance' => 'simple',
                 'minProcesses' => 1,
                 'maxProcesses' => 10,
