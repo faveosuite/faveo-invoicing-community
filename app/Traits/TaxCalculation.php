@@ -42,7 +42,7 @@ trait TaxCalculation
                     ->exists();
 
                 if ($tax_class_id) {//If the product is allowed for tax (Check in tax_product relation table)
-                    if ($tax_enable == 1 && $productHasGstTax) {//If GST is Enabled
+                    if ($tax_enable == 1 && ($productHasGstTax || $productHasOtherTax)) {//If GST is Enabled
                         $tax = $this->getTaxDetails($indian_state, $user_country, $user_state, $origin_state, $origin_country, $productid);
                         //All the da a attribute that is sent to the checkout Page if tax_compound=0
                         $taxCondition = $this->getTaxConditions($tax, $taxCaluculationFromAdminPanel);

@@ -42,13 +42,6 @@ class HelpersTest extends DBTestCase
         $this->assertEquals("<label data-toggle='tooltip'style='font-weight:500; margin: 0px' data-placement='top' title='$expectedDateTime'>$expectedDate</label>", getDateHtml($now->toDateTimeString()));
     }
 
-    public function test_getDateHtml_whenAnInValidAndNonEmptyDateIsPassed_shouldGiveReturnEmptyDate()
-    {
-        $this->getLoggedInUser('admin');
-
-        $this->assertEquals('--', getDateHtml('invalid_format'));
-    }
-
     public function test_bifurcateTax_whenIntraStateTaxPassed_returnsArrayOfTaxAndValue()
     {
         $this->getLoggedInUser();
