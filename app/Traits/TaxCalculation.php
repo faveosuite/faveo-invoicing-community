@@ -29,12 +29,24 @@ trait TaxCalculation
                 $origin_state = Setting::first()->state; //Get the State of origin
                 $origin_country = Setting::first()->country; //Get the State of origin
                 $tax_class_id = TaxProductRelation::where('product_id', $productid)->pluck('tax_class_id')->toArray();
+
+                // This will check if the product is allowed for the particular tax or not
+                $gstClassNames = ['Intra State GST', 'Inter State GST', 'Union Territory GST'];
+
+                $productHasGstTax = TaxClass::whereIn('id', $tax_class_id)
+                    ->whereIn('name', $gstClassNames)
+                    ->exists();
+
+                $productHasOtherTax = TaxClass::whereIn('id', $tax_class_id)
+                    ->whereNotIn('name', $gstClassNames)
+                    ->exists();
+
                 if ($tax_class_id) {//If the product is allowed for tax (Check in tax_product relation table)
-                    if ($tax_enable == 1) {//If GST is Enabled
+                    if ($tax_enable == 1 && $productHasGstTax) {//If GST is Enabled
                         $tax = $this->getTaxDetails($indian_state, $user_country, $user_state, $origin_state, $origin_country, $productid);
                         //All the da a attribute that is sent to the checkout Page if tax_compound=0
                         $taxCondition = $this->getTaxConditions($tax, $taxCaluculationFromAdminPanel);
-                    } elseif ($tax_enable == 0) { //If Tax enable is 0 and other tax is available
+                    } elseif ($tax_enable == 0 && $productHasOtherTax) { //If Tax enable is 0 and other tax is available
                         $tax = $this->whenOtherTaxAvailableAndTaxNotEnable($productid, $user_state, $user_country);
                         $taxCondition = $this->getTaxConditions($tax, $taxCaluculationFromAdminPanel);
                     }

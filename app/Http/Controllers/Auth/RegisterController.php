@@ -238,7 +238,8 @@ class RegisterController extends Controller
     public function getUserDetails($request)
     {
         $location = getLocation();
-        $state = getStateByCode($location['iso_code'], $location['state']);
+
+        $state = getStateByCode($location['iso_code'],$location['state']);
 
         $user = [
             'state' => $state['id'],

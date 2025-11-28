@@ -322,24 +322,23 @@ class ClientController extends BaseClientController
                     })
                         ->addColumn('orderNo', function ($model) {
                             if ($model->is_renewed) {
-                                $order = Order::find($model->order_id);
-                                if ($order) {
-                                    return $order->first()->getOrderLink($model->order_id, 'my-order');
-                                } else {
-                                    return '--';
-                                }
-                            } else {
-                                $allOrders = $model->order()->select('id', 'number')->get();
-                                $orderLinks = []; // Using an array to store links
 
-                                foreach ($allOrders as $order) {
-                                    $orderLinks[] = $order->getOrderLink($order->id, 'my-order');
-                                }
+                                $orderLinks = $model->orderRelation
+                                    ->map(function ($relation) {
+                                        $order = Order::find($relation->order_id);
+                                        return $order?->getOrderLink($order->id, 'my-order');
+                                    })
+                                    ->filter()
+                                    ->implode(', ');
 
-                                $orderArray = implode(', ', $orderLinks); // Joining the links into a single string
-
-                                return $orderArray;
+                                return $orderLinks ?: '--';
                             }
+
+                            $orderLinks = $model->order
+                                ->map(fn($order) => $order->getOrderLink($order->id, 'my-order'))
+                                ->implode(', ');
+
+                            return $orderLinks ?: '--';
                         })
                     ->addColumn('date', function ($model) {
                         return getDateHtml($model->date);
@@ -459,6 +458,17 @@ class ClientController extends BaseClientController
         $payments = $invoice->payment;
         $user = $user ?? \Auth::user();
         $items = $invoice->invoiceItem()->get();
+
+        $orderIDs = $invoice->orderRelation()->pluck('order_id')->toArray();
+
+        $items->each(function ($item) use ($orderIDs) {
+
+            $order = Order::whereIn('id', $orderIDs)
+                ->where('product', $item->product_id)
+                ->first();
+
+            $item->order = $order;
+        });
         $order = $this->order->getOrderLink($invoice->orderRelation()->value('order_id'), 'my-order');
         $set = Setting::find(1);
         $date = getDateHtml($invoice->date);

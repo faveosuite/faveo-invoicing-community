@@ -171,6 +171,10 @@
             max-width: 20%;
         }
 
+        .log-status {
+            white-space: nowrap;
+        }
+
         /* Modern Bootstrap DateTimePicker Styles */
         .bootstrap-datetimepicker-widget {
             border: none !important;
@@ -772,6 +776,10 @@
 
                                 container.appendChild(box);
                             });
+
+                            $('[data-toggle="tooltip"]').tooltip({
+                                container: 'body',
+                            });
                         } else {
                             container.innerHTML = '<div class="col-12"><p class="text-center">{{ __("log::lang.no_categories_found") }}</p></div>';
                         }
@@ -907,7 +915,7 @@
         <div class="info-box bg-gradient-light h-100 category-box" data-category-id="${data.id}">
             <div class="info-box-content">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="info-box-text">${data.name}</span>
+                    <span class="info-box-text" data-toggle="tooltip" data-placement="top" title="${data.name}">${data.name}</span>
                     <span class="text-blue log-status info-box-number selector" data-status="queued">
                         ${data.queued || 0} {{ __("log::lang.queued") }}
                     </span>

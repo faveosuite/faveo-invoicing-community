@@ -271,6 +271,9 @@ select {
 
 
          @if($status && (int)$status->status === 1)
+         @php
+             \Session::put('toggleState', 'yearly');
+         @endphp
          
             <div class="row mb-5">
             <div class="col text-center">
@@ -316,11 +319,6 @@ select {
         e.stopPropagation();
     });
   $(document).ready(function() {
-      if ($('.toggle_event_editing input').prop('checked')) {
-          handleSelectedState();
-      } else {
-          handleUnselectedState();
-      }
     $('.toggle_event_editing input').on('change', function() {
       const toggleValue = $(this).prop('checked');
       if (toggleValue) {
