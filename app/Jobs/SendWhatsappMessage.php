@@ -12,15 +12,15 @@ class SendWhatsappMessage implements ShouldQueue
 {
     use Queueable;
 
-    public $tries=1;
-    public $retryAfter=60;
+    public $tries = 1;
+    public $retryAfter = 60;
     protected $message;
+
     /**
      * Create a new job instance.
      */
     public function __construct($message)
     {
-
         $this->message = $message;
     }
 
@@ -29,15 +29,14 @@ class SendWhatsappMessage implements ShouldQueue
      */
     public function handle(): void
     {
-        $client= new Client();
-        $urls=\Session::has('NonReachableUrls')?\Session::get('NonReachableUrls'):[];
+        $client = new Client();
+        $urls = \Session::has('NonReachableUrls') ? \Session::get('NonReachableUrls') : [];
         try {
             $data = json_decode($this->message, true);
             if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
                 $wabaId = $data['entry'][0]['id'];
                 $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('user_callback_url');
-                if($url && !in_array($url, $urls)) {
-
+                if ($url && ! in_array($url, $urls)) {
                     $response = $client->post($url, [
                         'body' => $this->message,
                         'headers' => [
@@ -45,19 +44,18 @@ class SendWhatsappMessage implements ShouldQueue
                             'Accept' => 'application/json',
                         ],
                     ]);
-
                 }
             }
-        }catch (\Exception $exception){
-            $urls[]=$url;
-            \Session::put('NonReachableUrls',$urls);
+        } catch (\Exception $exception) {
+            $urls[] = $url;
+            \Session::put('NonReachableUrls', $urls);
             \Log::error('Whatsapp Message Failure: '.$exception->getMessage());
         }
     }
 
     public function failed(): void
     {
-        FailedWhatsappMessage::create(['message'=>$this->message]);
+        FailedWhatsappMessage::create(['message' => $this->message]);
         $this->delete();
     }
 }

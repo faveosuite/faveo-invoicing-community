@@ -500,9 +500,10 @@ class CronController extends BaseCronController
         }
     }
 
-    public function failedMessageDelivery(){
+    public function failedMessageDelivery()
+    {
         \Session::forget('NonReachableUrls');
-        $messages=FailedWhatsappMessage::get();
+        $messages = FailedWhatsappMessage::get();
         foreach ($messages as $message) {
             $rawBody = $message->message;
             if ($rawBody != '') {
