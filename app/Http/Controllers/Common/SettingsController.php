@@ -957,7 +957,6 @@ class SettingsController extends BaseSettingsController
             ->select('payment_logs.id', 'from', 'to', 'date', 'subject', 'status', 'payment_logs.created_at', 'payment_method', 'order', 'exception', 'email', \DB::raw("CONCAT(first_name, ' ', last_name) as name"), 'users.id', 'payment_logs.id as count', 'amount', 'payment_type');
 
         if ($from || $till) {
-
             $fromDate = $from
                 ? Carbon::parse($this->DateFormat($from))->startOfDay()
                 : Carbon::parse(Payment_log::oldest('date')->value('date'))->startOfDay();
