@@ -35,8 +35,7 @@ class PromotionRequest extends Request
         if ($this->input('type') === '1') {
             $rules['value'] = 'required|numeric|between:1,100';
         } else {
-            $rules['value'] = 'required|numeric';
-        }
+            $rules['value'] = 'required|integer|min:0';        }
 
         return $rules;
     }

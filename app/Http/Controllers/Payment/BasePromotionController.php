@@ -27,7 +27,11 @@ class BasePromotionController extends Controller
 
                     return  $price - $percentage;
                 case 2://Fixed amount
-                    return $price - $value;
+                    if($value > $price){
+                        throw new \Exception(__('message.invalid_coupon_code'));
+                    }else {
+                        return $price - $value;
+                    }
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
@@ -68,6 +72,7 @@ class BasePromotionController extends Controller
     public function findCostAfterDiscount($promoid, $productid, $userid)
     {
         try {
+            $planid='';
             $promotion = Promotion::findOrFail($promoid);
             $cart_control = new \App\Http\Controllers\Front\CartController();
             if (checkPlanSession()) {

@@ -703,8 +703,8 @@
 
                                         <select id="Tax" placeholder="{{ __('message.select_taxes') }}" name="tax[]" style="width:500px;" class="select2 " multiple="multiple">
                                             <option></option>
-                                            @foreach($taxes as $key => $value)
-                                                <option value={{$key}}>{{$value}}</option>
+                                            @foreach($taxes as $value)
+                                                <option value={{$value['id']}}>{{$value['name'].'('.$value['tax'][0]['name'].')'}}</option>
                                             @endforeach
                                         </select>
 

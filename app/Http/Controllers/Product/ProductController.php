@@ -280,6 +280,7 @@ class ProductController extends BaseProductController
             $products = $this->product->pluck('name', 'id')->toArray();
             $periods = $this->period->pluck('name', 'days')->toArray();
             $taxes = $this->tax_class->pluck('name', 'id')->toArray();
+            $taxes = $this->tax_class->with('tax:tax_classes_id,id,name')->get()->toArray();
             $whatsappStatus = StatusSetting::pluck('whatsapp_status')->first();
 
             return view(
