@@ -461,7 +461,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $product = Product::find($productid);
 
             $cost = $this->cartController->cost($productid, $plan, $user_id);
-            \Session::put('plan',$plan);
+            \Session::put('plan', $plan);
             $couponTotal = $this->getGrandTotal($code, $total, $cost, $productid, $currency, $user_id);
             $grandTotalAfterCoupon = $qty * $couponTotal['total'];
             if (! $grandTotalAfterCoupon) {
@@ -478,6 +478,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 $total, $currency, $qty, $agents, $plan, $user_id, $tax['name'], $tax['value'], $grandTotalAfterCoupon);
             $result = $this->getMessage($items, $user_id);
             \Session::forget('plan');
+
             return successResponse($result);
         } catch (\Exception $ex) {
             \Logger::exception($ex);
