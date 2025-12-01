@@ -86,12 +86,4 @@ class MailLog extends BaseModel
     {
         return $value ? Crypt::decrypt($value) : null;
     }
-
-    protected function body(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => $value ? base64_decode($value) : null,
-            set: fn ($value) => $value ? base64_encode($value) : null,
-        );
-    }
 }

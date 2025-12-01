@@ -171,6 +171,12 @@
             max-width: 20%;
         }
 
+        #emailBody {
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
         .log-status {
             white-space: nowrap;
         }
