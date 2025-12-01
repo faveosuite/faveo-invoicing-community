@@ -4,7 +4,6 @@ namespace App\BillingLog\Model;
 
 use App\BaseModel;
 use Crypt;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class MailLog extends BaseModel
 {
