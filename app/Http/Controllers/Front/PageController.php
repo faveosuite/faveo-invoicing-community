@@ -20,7 +20,6 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class PageController extends Controller
@@ -517,11 +516,11 @@ class PageController extends Controller
                         $activeQuery->where('status', 1)
                             ->whereHas('planRelation', function ($q) use ($currencyAndSymbol) {
                                 $q->whereIn('days', [30, 31])
-                                    ->whereHas('planPrice', fn($pq) => $pq->where('currency', $currencyAndSymbol));
+                                    ->whereHas('planPrice', fn ($pq) => $pq->where('currency', $currencyAndSymbol));
                             })
                             ->whereHas('planRelation', function ($q) use ($currencyAndSymbol) {
                                 $q->whereIn('days', [365, 366])
-                                    ->whereHas('planPrice', fn($pq) => $pq->where('currency', $currencyAndSymbol));
+                                    ->whereHas('planPrice', fn ($pq) => $pq->where('currency', $currencyAndSymbol));
                             });
                     });
             })
