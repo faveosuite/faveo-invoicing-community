@@ -150,7 +150,6 @@ class BaseSettingsController extends PaymentSettingsController
             });
     }
 
-
     /**
      * This function is used to create a detailed description for the logs.
      * In the properties column of the activity_log table, the data is stored in the below format
