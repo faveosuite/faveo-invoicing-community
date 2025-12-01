@@ -314,7 +314,6 @@ select {
 
 
 <script>
-    console.log("rgegvfdcs yhgtvfcdsx")
     $('.owl-carousel select').on('mousedown touchstart', function (e) {
         e.stopPropagation();
     });

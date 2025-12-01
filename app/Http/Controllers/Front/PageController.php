@@ -20,6 +20,7 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class PageController extends Controller
@@ -510,6 +511,20 @@ class PageController extends Controller
                         $priceQuery->where('currency', $currencyAndSymbol);
                     });
                 })
+            ->where(function ($query) use ($currencyAndSymbol) {
+                $query->where('status', '!=', 1)
+                    ->orWhere(function ($activeQuery) use ($currencyAndSymbol) {
+                        $activeQuery->where('status', 1)
+                            ->whereHas('planRelation', function ($q) use ($currencyAndSymbol) {
+                                $q->whereIn('days', [30, 31])
+                                    ->whereHas('planPrice', fn($pq) => $pq->where('currency', $currencyAndSymbol));
+                            })
+                            ->whereHas('planRelation', function ($q) use ($currencyAndSymbol) {
+                                $q->whereIn('days', [365, 366])
+                                    ->whereHas('planPrice', fn($pq) => $pq->where('currency', $currencyAndSymbol));
+                            });
+                    });
+            })
                 ->orderBy('id')
                 ->get();
 
@@ -734,10 +749,11 @@ class PageController extends Controller
         try {
             $product = Product::find($id);
             $plans = Plan::where('product', $id)->get();
-            $planId = Plan::where('product', $id)->pluck('id')->first();
+
             $cost = 'Free';
-            $prices = [];
             $currency = '';
+
+            $priceList = [];
 
             foreach ($plans as $plan) {
                 $planDetails = userCurrencyAndPrice('', $plan);
@@ -746,19 +762,29 @@ class PageController extends Controller
                     continue;
                 }
 
-                if ($plan->days == 365 || $plan->days == 366) {
-                    $price = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
-                    $prices[] = $price;
-                    $currency = $planDetails['currency'];
+                if (in_array($plan->days, [365, 366])) {
+                    $price = ($product->status)
+                        ? round($planDetails['plan']->add_price / 12)
+                        : $planDetails['plan']->add_price;
+
+                    $priceList[] = [
+                        'price' => $price,
+                        'plan_id' => $plan->id,
+                        'currency' => $planDetails['currency'],
+                    ];
                 } elseif (! $product->status && ! in_array($product->id, cloudPopupProducts())) {
-                    $prices[] = $planDetails['plan']->add_price;
-                    $currency = $planDetails['currency'];
+                    $priceList[] = [
+                        'price' => $planDetails['plan']->add_price,
+                        'plan_id' => $plan->id,
+                        'currency' => $planDetails['currency'],
+                    ];
                 }
             }
 
-            if (! empty($prices)) {
-                $minPrice = min($prices);
-                $cost = $this->currencyFormatWithSpan($minPrice, $currency, $planId);
+            if (! empty($priceList)) {
+                usort($priceList, fn ($a, $b) => $a['price'] <=> $b['price']);
+                $min = $priceList[0];
+                $cost = $this->currencyFormatWithSpan($min['price'], $currency, $min['plan_id']);
             }
 
             return $cost;
