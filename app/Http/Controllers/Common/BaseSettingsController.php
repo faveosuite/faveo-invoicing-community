@@ -125,15 +125,15 @@ class BaseSettingsController extends PaymentSettingsController
         return $baseQuery
             ->when(request()->filled('module'), function ($query) {
                 $modules = (array) request()->module;
-                $query->whereIn('log_name', $modules);
+                $query->whereIn('activity_log.log_name', $modules);
             })
             ->when(request()->filled('event'), function ($query) {
                 $events = (array) request()->event;
-                $query->whereIn('event', $events);
+                $query->whereIn('activity_log.event', $events);
             })
             ->when(request()->filled('performed_by'), function ($query) {
                 $performedBy = (array) request()->performed_by;
-                $query->whereIn('causer_id', $performedBy);
+                $query->whereIn('activity_log.causer_id', $performedBy);
             })
             ->when($from || $till, function ($query) use ($from, $till) {
                 $from = $from
@@ -145,10 +145,11 @@ class BaseSettingsController extends PaymentSettingsController
                     : Carbon::now();
 
                 if ($from->lessThanOrEqualTo($till)) {
-                    $query->whereBetween('created_at', [$from, $till]);
+                    $query->whereBetween('activity_log.created_at', [$from, $till]);
                 }
             });
     }
+
 
     /**
      * This function is used to create a detailed description for the logs.
