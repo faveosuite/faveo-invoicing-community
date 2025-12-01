@@ -47,7 +47,8 @@ class WhatsappController extends Controller
 
     public function index1()
     {
-        return view('themes.default1.common.whatsapp-index');
+        $user_id=\Auth::user()->id;
+        return view('themes.default1.common.whatsapp-index', compact('user_id'));
     }
 
     public function urlSave(Request $request)
@@ -196,6 +197,17 @@ class WhatsappController extends Controller
     </div>
 ';
             })
+            ->addColumn('action', function ($model) {
+                return "<p>
+            <button data-toggle='modal'
+                data-id=".$model->id."
+                onclick=\"deleteWhatsappUser('".$model->id."')\"
+                id='delten".$model->id."'
+                class='btn btn-sm btn-dark btn-xs delTenant'>
+                <i class='fa fa-trash' style='color:white;'></i>
+            </button>
+        </p>";
+            })
             ->filterColumn('WabaId', function ($model, $keyword) {
                 $model->where('waba_id', 'like', "%$keyword%");
             })
@@ -208,7 +220,7 @@ class WhatsappController extends Controller
             ->filterColumn('BusinessId', function ($model, $keyword) {
                 $model->where('business_id', 'like', "%$keyword%");
             })
-            ->rawColumns(['UserName', 'PhoneNumber', 'WabaId', 'PhoneNumberId', 'BusinessId', 'access_token', 'created_at'])
+            ->rawColumns(['UserName', 'PhoneNumber', 'WabaId', 'PhoneNumberId', 'BusinessId', 'access_token', 'created_at','action'])
             ->make(true);
     }
 
@@ -476,5 +488,25 @@ class WhatsappController extends Controller
         } catch (\Exception $exception) {
             return errorResponse($exception->getMessage());
         }
+    }
+
+    public function directSaveWhatsapp(Request $request){
+
+        $validated=$request->validate([
+            'phone_number'=>'required',
+            'phone_number_id' => 'required',
+            'access_token' => 'required',
+            'waba_id' => 'required',
+            'user_id'=>'required',
+        ]);
+
+        try {
+            WhatsappIntegrationUser::create($validated);
+            return successResponse(__('message.updated-successfully'));
+        }catch (\Exception $exception){
+            dd($exception->getMessage());
+            return errorResponse($exception->getMessage());
+        }
+
     }
 }

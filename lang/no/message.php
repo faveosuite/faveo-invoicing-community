@@ -2797,4 +2797,5 @@ return [
     'something_went_wrong_while_updating_mobile' => 'Noe gikk galt under oppdatering av mobilnummeret. Vennligst prøv igjen senere.',
     'no_available_plans_for_user_currency' => 'Den valgte brukerens valuta har ingen tilgjengelige planer for dette produktet. Vennligst legg til en plan for den valutaen for å fortsette.',
     'login_password_validation' => 'Vennligst skriv inn passordet ditt.',
+
 ];

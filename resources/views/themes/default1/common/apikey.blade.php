@@ -651,7 +651,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Whatsapp Integration</h4>
+                    <h4 class="modal-title">{{__('message.whatsapp_config')}}</h4>
                 </div>
                 <div class="modal-body">
                     <div id="alertMessage-whatsapp"></div>
@@ -3153,10 +3153,10 @@
 
 
             const userRequiredFields = {
-                name:'Please Enter App Id. ',
-                type:'Please Enter App Secret',
-                config:'Please Enter Config Id',
-                token:'Please Enter Verify Token',
+                name:@json(trans('message.app_id_error')),
+                type:@json(trans('message.app_secret_error')),
+                config:@json(trans('message.config_id_error')),
+                token:@json(trans('message.verify_token_error')),
 
             };
             var app_id=$('#whatsapp-app-id');

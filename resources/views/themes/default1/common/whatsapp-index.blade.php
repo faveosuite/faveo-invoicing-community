@@ -26,6 +26,11 @@ $products= App\Model\Product\Product::get();
 
             <div class="row" style="height:760px">
                 <div class="col-md-12">
+                    <button type="button" class="btn btn-primary float-right mb-2"
+                            data-toggle="modal" data-target="#whatsapp-integration">
+                        {{__('message.manual_number_title')}}
+                    </button>
+
                     <table id="custom-table" class="table display" cellspacing="0" width="100%">
                         <thead>
                         <tr>
@@ -35,7 +40,7 @@ $products= App\Model\Product\Product::get();
                             <th>{{__('message.phone_number_id')}}</th>
                             <th>{{__('message.business_id')}}</th>
                             <th>{{__('message.create_at')}}</th>
-                            <th>Action</th>
+                            <th>{{__('message.action')}}</th>
 
                         </tr>
                         </thead>
@@ -43,10 +48,53 @@ $products= App\Model\Product\Product::get();
                 </div>
             </div>
         </div>
+
+<div class="modal fade" id="whatsapp-integration" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{__('message.manual_whatsapp_integration')}}</h4>
+            </div>
+            <div class="modal-body">
+                <div id="alertMessage-whatsapp"></div>
+
+                <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                    {!! html()->label(__('message.phone_number'), 'app_id')->class('required') !!}
+                    {!! html()->text('phone_number')->class('form-control whatsapp-app-id')->id('whatsapp-app-id') !!}
+                    <h6 id="pipedrive_keycheck"></h6>
+                </div>
+                <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                    {!! html()->label(__('message.phone_number_id'), 'app_id')->class('required') !!}
+                    {!! html()->text('phone_numnber_id')->class('form-control whatsapp-app-secret')->id('whatsapp-app-secret') !!}
+                    <h6 id="pipedrive_keycheck"></h6>
+                </div>
+                <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                    {!! html()->label(__('message.waba_id'), 'config_id')->class('required') !!}
+                    {!! html()->text('waba_id')->class('form-control whatsapp-config-id')->id('whatsapp-config-id') !!}
+                    <h6 id="pipedrive_keycheck"></h6>
+                </div>
+                <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                    {!! html()->label(__('message.whatsapp_access_token'), 'verify_token')->class('required') !!}
+                    {!! html()->text('access_token')->class('form-control whatsapp-verify-token')->id('whatsapp-verify-token') !!}
+                    <h6 id="pipedrive_keycheck"></h6>
+                </div>
+
+
+            </div>
+
+            <div class="modal-footer justify-content-between">
+                <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
+                <button type="submit" class="form-group btn btn-primary"  id="whatsapp-submit"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+
+            </div>
+        </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
-    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -193,6 +241,92 @@ $products= App\Model\Product\Product::get();
         return false;
     }
 
+    $("#whatsapp-submit").on('click',function (e){ //When Submit button is clicked
+        if ($('#whatsapp-status').prop('checked')) {//if button is on
+            var whatsappStatus = 1;
 
+        } else {
+
+            var whatsappStatus = 0;
+        }
+
+
+
+        const userRequiredFields = {
+            name:@json(trans('message.phone_number_error')),
+            type:@json(trans('message.phone_number_id_error')),
+            config:@json(trans('message.waba_id_error')),
+            token:@json(trans('message.access_token_error')),
+
+        };
+        var app_id=$('#whatsapp-app-id');
+        var app_secret=$('#whatsapp-app-secret');
+        var config_id=$('#whatsapp-config-id');
+        var token=$('#whatsapp-verify-token');
+        const userFields = {
+            name:app_id,
+            type:app_secret,
+            config:config_id,
+            token:token,
+        };
+
+
+        // Clear previous errors
+        Object.values(userFields).forEach(field => {
+            field.removeClass('is-invalid');
+            field.next().next('.error').remove();
+
+        });
+
+        let isValid = true;
+
+        const showError = (field, message) => {
+            field.addClass('is-invalid');
+            field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+        };
+
+        // Validate required fields
+        Object.keys(userFields).forEach(field => {
+            if (!userFields[field].val()) {
+                showError(userFields[field], userRequiredFields[field]);
+                isValid = false;
+            }
+        });
+
+        // If validation fails, prevent form submission
+        if (!isValid) {
+            preventDefault();
+        }
+
+        $("#whatsapp-submit").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
+        $.ajax ({
+            url: '{{url("direct-whatsapp")}}',
+            type : 'post',
+            data: {
+                "phone_number": app_id.val(),"phone_number_id" : app_secret.val(),'waba_id':config_id.val(),'access_token':token.val(),'user_id':{{$user_id}},
+            },
+            success: function (data) {
+                setTimeout(function () {
+                    location.reload();
+                }, 3000);
+                $('#alertMessage-whatsapp').show();
+                var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>' + data.message + '</div>';
+                $('#alertMessage-whatsapp').html(result);
+                $("#whatsapp-submit").html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
+                setInterval(function () {
+                    $('#alertMessage-whatsapp').slideUp(3000);
+                }, 1000);
+            },
+            error:function(data){
+                $('#alertMessage-whatsapp').show();
+                var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> {{ __('message.error') }} </strong>' + data.message + '</div>';
+                $('#alertMessage-whatsapp').html(result);
+                $("#whatsapp-submit").html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
+                setInterval(function () {
+                    $('#alertMessage-whatsapp').slideUp(2000);
+                }, 6000);
+            },
+        })
+    });
 </script>
     @stop
