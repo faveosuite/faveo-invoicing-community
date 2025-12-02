@@ -1087,7 +1087,7 @@ function getUserStateWithCountry($country = null, $state = null)
 }
 
 /**
- *Get Supported Countries for IntlInput Plugins
+ *Get Supported Countries for IntlInput Plugins.
  */
 function getSupportedCountriesForIntlInput()
 {
