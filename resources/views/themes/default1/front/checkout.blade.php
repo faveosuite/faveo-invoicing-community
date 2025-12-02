@@ -189,7 +189,7 @@ $cartSubtotalWithoutCondition = 0;
                                            \Session::put('togglePrice',$item->conditions->getName())
                                            ?>
 
-                                                {{ $item->quantity * $item->conditions->getName() }}
+                                                {{ currencyFormat($item->quantity * $item->conditions->getName(),$code = $item->attributes->currency) }}
 
 
 
