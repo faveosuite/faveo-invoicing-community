@@ -93,15 +93,14 @@ class CartController extends BaseCartController
             if ($request->has('domain')) {
                 $domain = $request->input('domain').'.'.cloudSubDomain();
             }
-            if (! Cart::get($id)) {
+//            if (! Cart::get($id)) {
                 $items = $this->addProduct($id, $domain);
                 Cart::add($items);
-            }
+//            }
 
             return redirect('show/cart');
         } catch (\Exception $ex) {
-//            \Logger::exception($ex);
-            dd($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
