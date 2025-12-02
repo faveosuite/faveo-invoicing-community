@@ -2888,4 +2888,5 @@ return [
     'config_id_error' => 'Please Enter Config ID.',
     'verify_token_error' => 'Please Enter Verify Token.',
     'manual_number_title' => 'Add Number Manually',
+    'plan_exist' => 'This product already has a plan with the same period',
 ];

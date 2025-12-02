@@ -763,7 +763,7 @@ class PageController extends Controller
 
                 if (in_array($plan->days, [365, 366])) {
                     $price = ($product->status)
-                        ? round($planDetails['plan']->add_price / 12)
+                        ? ($planDetails['plan']->add_price / 12)
                         : $planDetails['plan']->add_price;
 
                     $priceList[] = [

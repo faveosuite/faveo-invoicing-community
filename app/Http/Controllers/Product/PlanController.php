@@ -176,12 +176,9 @@ class PlanController extends ExtendedPlanController
     public function store(PlanRequest $request)
     {
         try {
-            $product_is = CloudProducts::where('cloud_product', $request->product)->value('cloud_product');
-            if ($product_is) {
-                $plans = Plan::where('product', $request->product)->where('days', $request->days)->exists();
-                if ($plans) {
-                    return back()->withErrors(['product' => 'Plan already exist']);
-                }
+            if (Plan::where('product', $request->product)
+                ->where('days', $request->days)->exists()) {
+                return back()->withErrors(['product' => __('message.plan_exist')]);
             }
             $add_prices = $request->add_price;
             $renew_prices = $request->renew_price;
@@ -273,6 +270,16 @@ class PlanController extends ExtendedPlanController
     {
         $add_prices = $request->add_price;
         $renew_prices = $request->renew_price;
+        if (
+            $request->filled('days') &&
+            Plan::where('product', $plan->product)
+                ->where('days', $request->days)
+                ->where('id', '!=', $plan->id)
+                ->exists()
+        ) {
+            return redirect()->back()
+                ->with('fails', __('message.plan_exist'));
+        }
         $offer_prices = $request->input('offer_price');
         $plan->fill($request->input())->save();
         //To change the plan days,whenever we update plan
