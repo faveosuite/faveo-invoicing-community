@@ -94,8 +94,8 @@ class CartController extends BaseCartController
                 $domain = $request->input('domain').'.'.cloudSubDomain();
             }
 //            if (! Cart::get($id)) {
-                $items = $this->addProduct($id, $domain);
-                Cart::add($items);
+            $items = $this->addProduct($id, $domain);
+            Cart::add($items);
 //            }
 
             return redirect('show/cart');
