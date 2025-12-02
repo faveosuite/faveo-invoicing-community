@@ -207,7 +207,9 @@
                     <div class="col-md-3 form-group {{ $errors->has('country') ? 'has-error' : '' }}">
                         <!-- country -->
                         {!! html()->label(Lang::get('message.country'), 'country')->class('required') !!}
-                        <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray(); ?>
+                        @php
+                            $countries = getSupportedCountriesForIntlInput();
+                        @endphp
 
                         {!! html()->select('country')->options([Lang::get('message.choose') => $countries])
     ->class('form-control select2'. ($errors->has('country') ? ' is-invalid' : ''))

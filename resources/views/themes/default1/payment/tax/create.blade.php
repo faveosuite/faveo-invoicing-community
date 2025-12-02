@@ -51,7 +51,9 @@
                 <div class="form-group {{ $errors->has('country') ? 'has-error' : '' }}">
                     <!-- name -->
                     {!! html()->label(Lang::get('message.country'))->for('country') !!}
-                    <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray(); ?>
+                    @php
+                        $countries = getSupportedCountriesForIntlInput();
+                    @endphp
                     {!! html()->select('country', ['' => __('message.select_a_country'), 'Countries' => $countries])->class('form-control'. ($errors->has('country') ? ' is-invalid' : ''))->attribute('onChange', 'getState(this.value);') !!}
 
                 </div>

@@ -2893,4 +2893,5 @@ return [
     'callback_url_error' => 'Please Enter a valid Webhook Url.',
     'webhook_explanation' => 'The Webhook URL can be found under the Additional Configuration section of the WhatsApp settings in the Admin Panel.',
     'business_id_error' => 'Please Enter a valid Business ID.',
+    'email_validation_status' => 'Email validation status successfully saved',
 ];

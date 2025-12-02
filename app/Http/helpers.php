@@ -1085,3 +1085,17 @@ function getUserStateWithCountry($country = null, $state = null)
 
     return trim("{$country}-{$state}", '-');
 }
+
+/**
+ *Get Supported Countries for IntlInput Plugins
+ */
+function getSupportedCountriesForIntlInput()
+{
+    $countries = Country::pluck('country_name', 'country_code_char2')->toArray();
+
+    $unsupportedIso = ['BV', 'PN', 'GS', 'UM', 'HM'];
+
+    return collect($countries)->reject(function ($name, $iso) use ($unsupportedIso) {
+        return in_array(strtoupper($iso), $unsupportedIso);
+    })->toArray();
+}

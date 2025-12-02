@@ -302,8 +302,10 @@
 
                                 <!-- {!! html()->text('country')->class('form-control') !!} -->
                                 <!-- <p><i> {{Lang::get('message.country')}}</i> </p> -->
-                                  <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray(); ?>
-                      <select name="country" value= "Choose" id="country" onChange="getCountryAttr(this.value)" class="form-control selectpicker {{$errors->has('country') ? ' is-invalid' : ''}}" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10">
+                                @php
+                                    $countries = getSupportedCountriesForIntlInput();
+                                @endphp
+                                <select name="country" value= "Choose" id="country" onChange="getCountryAttr(this.value)" class="form-control selectpicker {{$errors->has('country') ? ' is-invalid' : ''}}" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10">
                              <option value="">{{ __('message.choose') }}</option>
                            @foreach($countries as $key=>$country)
                               <option value="{{$key}}" <?php  if(in_array($country, $selectedCountry) ) { echo "selected";} ?>>{{$country}}</option>
