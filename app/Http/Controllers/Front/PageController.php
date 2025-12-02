@@ -783,7 +783,7 @@ class PageController extends Controller
             if (! empty($priceList)) {
                 usort($priceList, fn ($a, $b) => $a['price'] <=> $b['price']);
                 $min = $priceList[0];
-                $cost = $this->currencyFormatWithSpan($min['price'], $currency, $min['plan_id']);
+                $cost = $this->currencyFormatWithSpan($min['price'], $min['currency'], $min['plan_id']);
             }
 
             return $cost;
