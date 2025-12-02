@@ -38,12 +38,14 @@ class WhatsappController extends Controller
         }
     }
 
-    public function getWebhookUrl(Request $request){
-        $id=$request->input('id');
+    public function getWebhookUrl(Request $request)
+    {
+        $id = $request->input('id');
 
-        $cont=WhatsappIntegrationUser::where('id',$id)->first();
-$url=$cont->user_callback_url;
-$id=$cont->id;
+        $cont = WhatsappIntegrationUser::where('id', $id)->first();
+        $url = $cont->user_callback_url;
+        $id = $cont->id;
+
         return successResponse('url', ['url' => $url, 'id' => $id]);
     }
 
@@ -512,16 +514,18 @@ $id=$cont->id;
         }
     }
 
-    public function webhookUrlEdit(Request $request){
-        $url=$request->input('url');
-        $id=$request->input('id');
+    public function webhookUrlEdit(Request $request)
+    {
+        $url = $request->input('url');
+        $id = $request->input('id');
         try {
             WhatsappIntegrationUser::where('id', $id)->update(['user_callback_url' => $url]);
+
             return successResponse(__('message.updated-successfully'));
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return errorResponse($exception->getMessage());
         }
-        }
+    }
 
     public function directSaveWhatsapp(Request $request)
     {
