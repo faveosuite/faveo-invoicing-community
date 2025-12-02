@@ -10,7 +10,6 @@ use App\Model\Payment\Currency;
 use App\Model\Payment\Period;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
-use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use Illuminate\Http\Request;

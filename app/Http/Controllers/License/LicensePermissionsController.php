@@ -156,19 +156,19 @@ class LicensePermissionsController extends Controller
     {
         try {
             $map = [
-                'Generate Updates Expiry Date'            => 'generateUpdatesxpiryDate',
-                'Generate License Expiry Date'            => 'generateLicenseExpiryDate',
-                'Generate Support Expiry Date'            => 'generateSupportExpiryDate',
-                'Can be Downloaded'                       => 'downloadPermission',
-                'No Permissions'                          => 'noPermissions',
-                'Allow Downloads Before Updates Expire'   => 'allowDownloadTillExpiry',
+                'Generate Updates Expiry Date' => 'generateUpdatesxpiryDate',
+                'Generate License Expiry Date' => 'generateLicenseExpiryDate',
+                'Generate Support Expiry Date' => 'generateSupportExpiryDate',
+                'Can be Downloaded' => 'downloadPermission',
+                'No Permissions' => 'noPermissions',
+                'Allow Downloads Before Updates Expire' => 'allowDownloadTillExpiry',
             ];
 
             $result = array_fill_keys(array_values($map), 0);
 
             $product = Product::find($productid);
 
-            if (!$product || !$product->licenseType || !$product->licenseType->permissions) {
+            if (! $product || ! $product->licenseType || ! $product->licenseType->permissions) {
                 return $result;
             }
 
@@ -181,7 +181,6 @@ class LicensePermissionsController extends Controller
             }
 
             return $result;
-
         } catch (\Exception $ex) {
             \Logger::exception($ex);
 
