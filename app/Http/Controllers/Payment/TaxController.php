@@ -60,7 +60,7 @@ class TaxController extends Controller
             if (count($classes) == 0) {
                 $classes = $this->tax_class->get();
             }
-            $countries = Country::pluck('country_name', 'country_code_char2')->toArray();
+            $countries = getSupportedCountriesForIntlInput();
 
             return view('themes.default1.payment.tax.index', compact('options', 'classes', 'countries'));
         } catch (\Exception $ex) {
