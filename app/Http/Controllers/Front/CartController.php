@@ -306,6 +306,9 @@ class CartController extends BaseCartController
 
         $planID = $this->getPlanIdBasedOnProductStatus($product, $planId);
 
+if(!$product->planRelation()->find($planID)) {
+    throw new \Exception(__('message.invalid_coupon_code'));
+}
         $userPlan = userCurrencyAndPrice($userId, $product->planRelation()->findOrFail($planID));
 
         if (empty($userPlan['plan'])) {
@@ -395,7 +398,7 @@ class CartController extends BaseCartController
                 Session::forget('code');
                 Session::forget('oldprice');
                 Session::forget('usage');
-
+                \Session::forget('plan');
                 return redirect()->back()->with('success', \Lang::get('message.remove_coupon'));
             } else {
                 return redirect()->back()->with('fails', \Lang::get('message.no_product'));
