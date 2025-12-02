@@ -2552,7 +2552,7 @@ $(document).ready(function() {
                                   title:"<h2 class='swal2-title custom-title'>{{Lang::get('message.Delete')}}",
                                   html: "<div class='swal2-html-container custom-content'>" +
                                       "<div class='section-sa'>" +
-                                      "<p>Are you sure you want to delete this number?" +"?</p></div>"+
+                                      "<p>Are you sure you want to delete this number?" +"</p></div>"+
                                       "</div>",
                                   showCancelButton: true,
                                   cancelButtonText: "{{ __('message.cancel') }}",
@@ -2574,20 +2574,20 @@ $(document).ready(function() {
                                               success: function (data) {
                                                   if (data.success === true) {
                                                       var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-check"></i>{{ __('message.success') }}! </strong>' + data.message + '!</div>';
-                                                      $('#successmsg').show();
-                                                      $('#error').hide();
-                                                      $('#successmsg').html(result);
+                                                      $('#alertMessage-2').show();
+                                                      $('#error-1').hide();
+                                                      $('#alertMessage-2').html(result);
                                                       setInterval(function () {
-                                                          $('#successmsg').slideUp(5000);
+                                                          $('#alertMessage-2').slideUp(5000);
                                                           location.reload();
                                                       }, 3000);
                                                   } else if (data.success === false) {
-                                                      $('#successmsg').hide();
-                                                      $('#error').show();
+                                                      $('#alertMessage-2').hide();
+                                                      $('#error-1').show();
                                                       var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<br>' + data.message + '!</div>';
-                                                      $('#error').html(result);
+                                                      $('#error-1').html(result);
                                                       setInterval(function () {
-                                                          $('#error').slideUp(5000);
+                                                          $('#error-1').slideUp(5000);
                                                           location.reload();
                                                       }, 10000);
                                                   }

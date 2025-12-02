@@ -310,7 +310,10 @@ $products= App\Model\Product\Product::get();
                 isValid = false;
             }
         });
-
+        if (isValid && !isValidURL(userFields.callback_url.val())) {
+            showError(userFields.callback_url,'Please enter a Valid URL',);
+            isValid = false;
+        }
         // If validation fails, prevent form submission
         if (!isValid) {
             preventDefault();
@@ -346,6 +349,17 @@ $products= App\Model\Product\Product::get();
             },
         })
     });
+
+
+    function isValidURL(str) {
+        try {
+            new URL(str);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    }
+
 
     const removeErrorMessage = (field) => {
         field.classList.remove('is-invalid');
