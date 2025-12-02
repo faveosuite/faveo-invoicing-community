@@ -101,7 +101,8 @@ class CartController extends BaseCartController
             return redirect('show/cart');
         } catch (\Exception $ex) {
 //            \Logger::exception($ex);
-dd($ex->getMessage());
+            dd($ex->getMessage());
+
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
