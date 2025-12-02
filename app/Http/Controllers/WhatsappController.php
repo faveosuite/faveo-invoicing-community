@@ -502,7 +502,7 @@ class WhatsappController extends Controller
             'waba_id' => 'required',
             'user_id' => 'required',
             'user_callback_url' => 'required',
-            'business_id'=>'required',
+            'business_id' => 'required',
         ]);
 
         try {
