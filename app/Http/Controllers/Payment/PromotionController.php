@@ -309,7 +309,6 @@ class PromotionController extends BasePromotionController
                     $original = $item->price;
                     \Session::put('plan', $item->id);
                 }
-
             }
             $value = $this->findCostAfterDiscount($promo->id, $validProductForPromo, \Auth::user()->id);
 
