@@ -21,7 +21,9 @@ $products= App\Model\Product\Product::get();
 ?>
 
         <!-- /.box-header -->
-        <div class="card-body">
+<div class="card card-secondary card-outline">
+
+        <div class="card-body table-responsive">
             <div id="alertMessage12"></div>
             <div id="successmsg"></div>
             <div class="row" style="height:760px">
@@ -48,6 +50,7 @@ $products= App\Model\Product\Product::get();
                 </div>
             </div>
         </div>
+</div>
 
 <div class="modal fade" id="whatsapp-integration" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog">
@@ -78,7 +81,17 @@ $products= App\Model\Product\Product::get();
                     {!! html()->text('access_token')->class('form-control whatsapp-verify-token')->id('whatsapp-verify-token') !!}
                     <h6 id="pipedrive_keycheck"></h6>
                 </div>
+                <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                    {!! html()->label(__('message.callback_url'), 'verify_token')->class('required') !!}
+                    {!! html()->text('user_callback_url')->class('form-control whatsapp-verify-token')->id('user_callback_url') !!}
+                    <h6 id="pipedrive_keycheck"></h6>
+                </div>
 
+                <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                    {!! html()->label(__('message.business_id'), 'verify_token')->class('required') !!}
+                    {!! html()->text('business_id')->class('form-control whatsapp-verify-token')->id('business_id') !!}
+                    <h6 id="pipedrive_keycheck"></h6>
+                </div>
 
             </div>
 
@@ -257,17 +270,22 @@ $products= App\Model\Product\Product::get();
             type:@json(trans('message.phone_number_id_error')),
             config:@json(trans('message.waba_id_error')),
             token:@json(trans('message.access_token_error')),
-
+            callback_url:@json(trans('message.callback_url_error')),
+            business_id:@json(trans('message.business_id_error')),
         };
         var app_id=$('#whatsapp-app-id');
         var app_secret=$('#whatsapp-app-secret');
         var config_id=$('#whatsapp-config-id');
         var token=$('#whatsapp-verify-token');
+        var callback_url=$('#user_callback_url');
+        var business_id=$('#business_id');
         const userFields = {
             name:app_id,
             type:app_secret,
             config:config_id,
             token:token,
+            callback_url:callback_url,
+            business_id:business_id,
         };
 
 
@@ -303,7 +321,7 @@ $products= App\Model\Product\Product::get();
             url: '{{url("direct-whatsapp")}}',
             type : 'post',
             data: {
-                "phone_number": app_id.val(),"phone_number_id" : app_secret.val(),'waba_id':config_id.val(),'access_token':token.val(),'user_id':{{$user_id}},
+                "phone_number": app_id.val(),"phone_number_id" : app_secret.val(),'waba_id':config_id.val(),'access_token':token.val(),'user_id':{{$user_id}},'user_callback_url':callback_url.val(),'business_id':business_id.val(),
             },
             success: function (data) {
                 setTimeout(function () {
@@ -327,6 +345,22 @@ $products= App\Model\Product\Product::get();
                 }, 6000);
             },
         })
+    });
+
+    const removeErrorMessage = (field) => {
+        field.classList.remove('is-invalid');
+        const error = field.nextElementSibling;
+        if (error && error.classList.contains('error')) {
+            error.remove();
+        }
+    };
+
+    ['whatsapp-app-id','whatsapp-app-secret','whatsapp-config-id','whatsapp-verify-token','user_callback_url','business_id'].forEach(id => {
+
+        document.getElementById(id).addEventListener('input', function () {
+            removeErrorMessage(this);
+
+        });
     });
 </script>
     @stop

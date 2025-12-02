@@ -901,8 +901,8 @@
 
                         <div class="form-group col">
 
-                            <label class="form-label">Webhook URL <span class="text-danger"> *</span>
-                                <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="" data-original-title="The Webhook URL can be found under the Additional Configuration section of the WhatsApp settings in the Admin Panel."></i>
+                            <label class="form-label">{{ __('message.callback_url')}} <span class="text-danger"> *</span>
+                                <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="" data-original-title={{__('message.webhook_explanation')}}></i>
                             </label>
                             <div class="custom-select-1">
                                 {!! html()->text('webhook_url')->class('form-control')->id('webhook_url')->placeholder('https://example.com') !!}

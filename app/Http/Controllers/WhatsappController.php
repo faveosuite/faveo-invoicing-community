@@ -501,6 +501,8 @@ class WhatsappController extends Controller
             'access_token' => 'required',
             'waba_id' => 'required',
             'user_id' => 'required',
+            'user_callback_url' => 'required',
+            'business_id'=>'required',
         ]);
 
         try {
@@ -508,8 +510,6 @@ class WhatsappController extends Controller
 
             return successResponse(__('message.updated-successfully'));
         } catch (\Exception $exception) {
-            dd($exception->getMessage());
-
             return errorResponse($exception->getMessage());
         }
     }

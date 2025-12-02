@@ -2889,4 +2889,8 @@ return [
     'verify_token_error' => 'Please Enter Verify Token.',
     'manual_number_title' => 'Add Number Manually',
     'plan_exist' => 'This product already has a plan with the same period',
+    'callback_url'=>'Webhook Url',
+    'callback_url_error'=>'Please Enter a valid Webhook Url.',
+    'webhook_explanation'=>"The Webhook URL can be found under the Additional Configuration section of the WhatsApp settings in the Admin Panel.",
+    'business_id_error'=>'Please Enter a valid Business ID.'
 ];
