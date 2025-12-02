@@ -357,9 +357,10 @@ class WhatsappController extends Controller
             $whatsappUser->delete();
             $content = $response->json();
 
-            return successResponse(__('message.updated-successfully'));
+            return successResponse(__('message.deleted-successfully'));
         } catch (\Exception $exception) {
-            return errorResponse($exception->getMessage());
+            $whatsappUser->delete();
+            return errorResponse('Successfully Deleted From this application but in meta still it is connected.');
         }
     }
 

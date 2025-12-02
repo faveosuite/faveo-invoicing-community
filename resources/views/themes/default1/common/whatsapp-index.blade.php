@@ -23,7 +23,7 @@ $products= App\Model\Product\Product::get();
         <!-- /.box-header -->
         <div class="card-body">
             <div id="alertMessage12"></div>
-
+            <div id="successmsg"></div>
             <div class="row" style="height:760px">
                 <div class="col-md-12">
                     <button type="button" class="btn btn-primary float-right mb-2"
@@ -196,7 +196,7 @@ $products= App\Model\Product\Product::get();
 
                     $.ajax({
                         url: "{!! url('whatsapp-deregister') !!}",
-                        method: "delete",
+                        method: "post",
                         data: { 'id': id},
                         success: function (data) {
                             if (data.success === true) {
