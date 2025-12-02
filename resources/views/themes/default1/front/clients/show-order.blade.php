@@ -890,7 +890,7 @@
 
                 <div class="modal-header">
 
-                    <h4 class="modal-title" id="autorenewModalLabel">{{ __('message.auto_renewal')}}</h4>
+                    <h4 class="modal-title" id="autorenewModalLabel">{{ __('message.whatsapp_product_heading')}}</h4>
 
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
                 </div>
@@ -902,7 +902,7 @@
                         <div class="form-group col">
 
                             <label class="form-label">{{ __('message.callback_url')}} <span class="text-danger"> *</span>
-                                <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="" data-original-title={{__('message.webhook_explanation')}}></i>
+                                <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{__('message.webhook_explanation')}}"></i>
                             </label>
                             <div class="custom-select-1">
                                 {!! html()->text('webhook_url')->class('form-control')->id('webhook_url')->placeholder('https://example.com') !!}

@@ -76,6 +76,11 @@ class CartController extends BaseCartController
         \Session::forget('priceRemaining');
         \Session::forget('priceToBePaid');
         \Session::forget('discount');
+        \Session::forget('plan');
+        \Session::forget('togglePrice');
+        \Session::forget('oldPrice');
+        \Session::forget('productid');
+
         try {
             $plan = '';
             $domain = '';
@@ -95,8 +100,8 @@ class CartController extends BaseCartController
 
             return redirect('show/cart');
         } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
+//            \Logger::exception($ex);
+dd($ex->getMessage());
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }

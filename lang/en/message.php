@@ -2862,7 +2862,7 @@ return [
     'no_available_plans_for_user_currency' => 'The selected user’s currency does not have any available plans for this product. Please add a plan for that currency to proceed.',
 
     'whatsapp_product_explanation' => 'Enable this option to display the embedded WhatsApp signup flow for the selected product on the client order page.',
-    'whatsapp_product_heading' => 'Embedded SignUp Flow',
+    'whatsapp_product_heading' => 'Whatsapp Embedded SignUp Flow',
     'whatsapp_users' => 'WhatsApp Users',
     'phone_number' => 'Phone Number',
     'waba_id' => 'Waba ID',
