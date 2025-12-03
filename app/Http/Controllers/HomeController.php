@@ -604,48 +604,28 @@ class HomeController extends BaseHomeController
 //            $country = findCountryByGeoip($location['iso_code']);
 //            $countryId = \App\Model\Common\Country::where('country_code_char2', $country)->value('country_id');
 //            $currencyAndSymbol = getCurrencyForClient($country);
-    //        $productsRelatedToGroup = \App\Model\Product\Product::where('group', $groupId)
-//                ->where('hidden', '!=', 1)
-//                ->join('plans', 'products.id', '=', 'plans.product')
-//                ->join('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
-//                ->where('plan_prices.currency', '=', $currencyAndSymbol)
-//                ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10, 2)) ASC')
-//                ->orderBy('created_at', 'ASC')
-//                ->select('products.*', 'plan_prices.add_price', 'plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
-//                ->get();
-            $productsRelatedToGroup = Product::with([
-                'planRelation' => function ($query) use ($currencyAndSymbol) {
-                    $query->where('days', '!=', 14)
-                        ->with(['planPrice' => function ($priceQuery) use ($currencyAndSymbol) {
-                            $priceQuery->where('currency', $currencyAndSymbol);
-                        }]);
-                },
-            ])
-                ->where('group', $groupId)
+            $productsRelatedToGroup = \App\Model\Product\Product::where('group', $groupId)
                 ->where('hidden', '!=', 1)
-                ->whereHas('planRelation', function ($query) use ($currencyAndSymbol) {
-                    $query->where('days', '!=', 14)
-                        ->whereHas('planPrice', function ($priceQuery) use ($currencyAndSymbol) {
-                            $priceQuery->where('currency', $currencyAndSymbol);
-                        });
-                })
-                ->where(function ($query) use ($currencyAndSymbol) {
-                    $query->where('status', '!=', 1)
-                        ->orWhere(function ($activeQuery) use ($currencyAndSymbol) {
-                            $activeQuery->where('status', 1)
-                                ->whereHas('planRelation', function ($q) use ($currencyAndSymbol) {
-                                    $q->whereIn('days', [30, 31])
-                                        ->whereHas('planPrice', fn ($pq) => $pq->where('currency', $currencyAndSymbol));
-                                })
-                                ->whereHas('planRelation', function ($q) use ($currencyAndSymbol) {
-                                    $q->whereIn('days', [365, 366])
-                                        ->whereHas('planPrice', fn ($pq) => $pq->where('currency', $currencyAndSymbol));
-                                });
-                        });
-                })
-                ->orderBy('id')
+                ->join('plans', 'products.id', '=', 'plans.product')
+                ->join('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
+                ->where('plan_prices.currency', '=', $currencyAndSymbol)
+                ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10, 2)) ASC')
+                ->orderBy('created_at', 'ASC')
+                ->select('products.*', 'plan_prices.add_price', 'plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
                 ->get();
-            dd($productsRelatedToGroup);
+
+            if ($productsRelatedToGroup->isEmpty()) {
+                $productsRelatedToGroup = \App\Model\Product\Product::where('group', $groupId)
+                    ->where('hidden', '!=', 1)
+                    ->join('plans', 'products.id', '=', 'plans.product')
+                    ->join('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
+                    ->where('plan_prices.country_id', '=', 0)
+                    ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10, 2)) ASC')
+                    ->orderBy('created_at', 'ASC')
+                    // ->select('products.*', 'plan_prices.add_price')
+                    ->select('products.*', 'plan_prices.add_price', 'plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
+                    ->get();
+            }
 
             return response()->json(['products' => $productsRelatedToGroup, 'currency' => $currencyAndSymbol]);
         } catch (\Exception $ex) {
