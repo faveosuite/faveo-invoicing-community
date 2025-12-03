@@ -220,9 +220,10 @@ main
 .box-shadow-6:not(.box-shadow-hover) {
      box-shadow: unset;
 }
-.price.text-color-primary {
-    font-size: 50px !important;
-}
+
+/*.price.text-color-primary {*/
+/*    font-size: 50px !important;*/
+/*}*/
 
 .center-templates {
     display: flex !important;
