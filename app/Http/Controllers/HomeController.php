@@ -649,6 +649,7 @@ class HomeController extends BaseHomeController
                 ->orderBy('products.created_at', 'ASC')
                 ->select('products.*', 'plan_prices.add_price', 'plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
                 ->get();
+
             return response()->json(['products' => $productsRelatedToGroup, 'currency' => $currencyAndSymbol]);
         } catch (\Exception $ex) {
             return response()->json(['error' => $ex->getMessage()], 500);
