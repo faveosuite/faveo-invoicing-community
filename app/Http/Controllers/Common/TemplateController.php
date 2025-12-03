@@ -323,9 +323,9 @@ class TemplateController extends Controller
                 $currency = $currencyAndSymbol['currency'];
                 $planData = $currencyAndSymbol['plan'];
 
-//                if (! $planData || ($planData->add_price ?? 0) <= 0) {
-//                    continue;
-//                }
+                if (! $planData) {
+                    continue;
+                }
 
                 $offer = PlanPrice::where('plan_id', $plan->id)
                     ->where('currency', $currency)
@@ -378,9 +378,9 @@ class TemplateController extends Controller
 
             foreach ($plans as $plan) {
                 $planDetails = userCurrencyAndPrice('', $plan);
-//                if (! $planDetails || ($planDetails['plan']->add_price ?? 0) <= 0) {
-//                    continue;
-//                }
+                if (! $planDetails) {
+                    continue;
+                }
                 $cost = rounding($planDetails['plan']->add_price); // Get price and round it
                 $currencyCode = $planDetails['currency']; // Get currency code
 
