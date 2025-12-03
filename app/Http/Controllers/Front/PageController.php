@@ -527,6 +527,14 @@ class PageController extends Controller
                 ->orderBy('id')
                 ->get();
 
+            $productsRelatedToGroup = $productsRelatedToGroup->sortBy(function ($product) {
+                return $product->planRelation
+                    ->flatMap(fn($plan) => $plan->planPrice)
+                    ->pluck('add_price')
+                    ->filter(fn($v) => $v !== null)
+                    ->min() ?? PHP_INT_MAX;
+            })->values();
+
             $trasform = [];
             $templates = $this->getTemplateOne($productsRelatedToGroup, $trasform);
             if (empty($templates)) {
