@@ -118,15 +118,25 @@ class WhatsappController extends Controller
                     return $model->access_token;
                 })
                 ->addColumn('action', function ($model) {
-                    return "<p>
-            <button data-toggle='modal'
-                data-id=".$model->id."
-                onclick=\"deleteWhatsappUser('".$model->id."')\"
-                id='delten".$model->id."'
-                class='btn btn-sm btn-dark btn-xs delTenant'>
-                <i class='fa fa-trash' style='color:white;'></i>
-            </button>
-        </p>";
+                    return "
+    <div style='display:flex; gap:4px;'>
+        <button 
+            data-toggle='modal'
+            data-id='".$model->id."'
+            onclick=\"editWhatsappUser('".$model->id."')\"
+            class='btn btn-sm btn-info btn-xs'>
+            <i class='fa fa-edit' style='color:white;'></i>
+        </button>
+
+        <button 
+            data-toggle='modal'
+            data-id='".$model->id."'
+            onclick=\"deleteWhatsappUser('".$model->id."')\"
+            class='btn btn-sm btn-dark btn-xs'>
+            <i class='fa fa-trash' style='color:white;'></i>
+        </button>
+    </div>
+";
                 })
                 ->filterColumn('UserName', function ($model, $keyword) {
                     $model->whereHas('user', function ($query) use ($keyword) {
@@ -506,7 +516,15 @@ class WhatsappController extends Controller
             [$app_id, $app_secret, $config_id, $verify_token] = array_values(
                 $request->only(['app_id', 'app_secret', 'config_id', 'verify_token'])
             );
-            WhatsappIntegration::where('id', 1)->update(['app_id' => $app_id, 'app_secret' => $app_secret, 'config_id' => $config_id, 'verify_token' => $verify_token]);
+            WhatsappIntegration::updateOrCreate(
+                ['id' => 1],
+                [
+                    'app_id' => $app_id,
+                    'app_secret' => $app_secret,
+                    'config_id' => $config_id,
+                    'verify_token' => $verify_token,
+                ]
+            );
 
             return successResponse(__('message.updated-successfully'));
         } catch (\Exception $exception) {

@@ -1441,7 +1441,7 @@
             $('#whatsapp_close_edit').on('click',function(e){
 
                 const userRequiredFields = {
-                    name:'Please Enter Webhook URL. ',
+                    name:@json(trans('message.callback_url_error')),
 
 
                 };
@@ -1476,7 +1476,7 @@
                 });
 
                 if (isValid && !isValidURL(userFields.name.val())) {
-                    showError(userFields.name,'Please enter a Valid URL',);
+                    showError(userFields.name,@json(trans('message.callback_url_error')));
                     isValid = false;
                 }
 

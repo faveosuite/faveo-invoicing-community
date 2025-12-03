@@ -2749,4 +2749,9 @@ return [
     'config_id_error' => 'Molimo unesite Config ID.',
     'verify_token_error' => 'Molimo unesite verifikacijski token.',
     'manual_number_title' => 'Ručno dodavanje broja',
+    'plan_exist' => 'Ovaj proizvod već ima plan sa istim periodom',
+    'callback_url' => 'Webhook URL',
+    'callback_url_error' => 'Molimo unesite važeći Webhook URL.',
+    'webhook_explanation' => 'Webhook URL se može pronaći u sekciji Dodatna konfiguracija u postavkama WhatsApp-a u administratorskom panelu.',
+    'business_id_error' => 'Molimo unesite važeći Business ID.',
 ];

@@ -2818,4 +2818,9 @@ return [
     'config_id_error' => 'Vui lòng nhập Config ID.',
     'verify_token_error' => 'Vui lòng nhập Mã Xác Minh.',
     'manual_number_title' => 'Thêm Số Thủ Công',
+    'plan_exist' => 'Sản phẩm này đã có gói với cùng chu kỳ',
+    'callback_url' => 'URL Webhook',
+    'callback_url_error' => 'Vui lòng nhập URL Webhook hợp lệ.',
+    'webhook_explanation' => 'URL Webhook có thể được tìm thấy trong phần Cấu hình bổ sung của cài đặt WhatsApp trong Bảng quản trị.',
+    'business_id_error' => 'Vui lòng nhập Business ID hợp lệ.',
 ];

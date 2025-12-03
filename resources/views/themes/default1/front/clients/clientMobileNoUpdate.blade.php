@@ -336,6 +336,7 @@
                         .css("display", "block");
 
                     $("#mobileAlertShowMsg").text(mobMsg1);
+                    autoHidePopup(alertBoxMob, 5000);
 
                     $('#editMobileFormBtn').prop('disabled', false).text("{{ __('message.submit') }}");
                 }

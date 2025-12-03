@@ -323,7 +323,7 @@ class TemplateController extends Controller
                 $currency = $currencyAndSymbol['currency'];
                 $planData = $currencyAndSymbol['plan'];
 
-                if (! $planData || ($planData->add_price ?? 0) <= 0) {
+                if (! $planData || is_null($planData->add_price ?? null)) {
                     continue;
                 }
 
@@ -378,7 +378,7 @@ class TemplateController extends Controller
 
             foreach ($plans as $plan) {
                 $planDetails = userCurrencyAndPrice('', $plan);
-                if (! $planDetails || ($planDetails['plan']->add_price ?? 0) <= 0) {
+                if (! $planDetails || is_null($planDetails['plan']->add_price ?? null)) {
                     continue;
                 }
                 $cost = rounding($planDetails['plan']->add_price); // Get price and round it

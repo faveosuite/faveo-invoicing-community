@@ -1370,6 +1370,7 @@ setTimeout(function() {
         location.reload();
     });
 
+    @auth
     const domainInput = document.getElementById("userdomain");
     const validationMessage = document.getElementById("validationMessage");
 
@@ -1384,7 +1385,7 @@ setTimeout(function() {
             validationMessage.style.color = "";
         }
     });
-
+@endauth
     function togglePasswordVisibility(iconElement) {
         const inputGroup = iconElement.closest('.input-group');
         const passwordInput = inputGroup.querySelector('input[type="password"], input[type="text"]');

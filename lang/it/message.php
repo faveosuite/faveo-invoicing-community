@@ -2812,4 +2812,9 @@ return [
     'config_id_error' => 'Inserisci il Config ID.',
     'verify_token_error' => 'Inserisci il token di verifica.',
     'manual_number_title' => 'Aggiungi Numero Manualmente',
+    'plan_exist' => 'Questo prodotto ha già un piano con lo stesso periodo',
+    'callback_url' => 'URL Webhook',
+    'callback_url_error' => 'Inserisci un URL Webhook valido.',
+    'webhook_explanation' => 'L’URL del Webhook si trova nella sezione Configurazione Aggiuntiva delle impostazioni WhatsApp nel pannello di amministrazione.',
+    'business_id_error' => 'Inserisci un ID aziendale valido.',
 ];
