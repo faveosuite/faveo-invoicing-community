@@ -2813,4 +2813,9 @@ return [
     'config_id_error' => 'Bitte geben Sie die Konfigurations-ID ein.',
     'verify_token_error' => 'Bitte geben Sie das Verifizierungstoken ein.',
     'manual_number_title' => 'Nummer manuell hinzufügen',
+    'plan_exist' => 'Dieses Produkt hat bereits einen Plan mit derselben Laufzeit',
+    'callback_url' => 'Webhook-URL',
+    'callback_url_error' => 'Bitte geben Sie eine gültige Webhook-URL ein.',
+    'webhook_explanation' => 'Die Webhook-URL finden Sie im Bereich Zusätzliche Konfiguration in den WhatsApp-Einstellungen des Admin-Panels.',
+    'business_id_error' => 'Bitte geben Sie eine gültige Business-ID ein.',
 ];

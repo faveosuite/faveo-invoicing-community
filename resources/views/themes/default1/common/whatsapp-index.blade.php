@@ -14,6 +14,7 @@
             <li class="breadcrumb-item active">{{ __('message.whatsapp_users') }}</li>
         </ol>
     </div><!-- /.col -->
+
 @stop
 @section('content')
 <?php
@@ -103,6 +104,50 @@ $products= App\Model\Product\Product::get();
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="Whatsapp-url-edit" tabindex="-1" role="dialog" aria-labelledby="autorenewModalLabel" aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h4 class="modal-title" id="autorenewModalLabel">{{ __('message.whatsapp_product_heading')}}</h4>
+            </div>
+
+            <div class="modal-body">
+                <div id="alertMessage-webhook"></div>
+
+                <div class="row">
+
+                    <div class="form-group col">
+
+                        <label class="form-label">{{ __('message.callback_url')}} <span class="text-danger"> *</span>
+                            <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{__('message.webhook_explanation')}}"></i>
+                        </label>
+                        <div class="custom-select-1">
+                            {!! html()->text('webhook_url_edit')->class('form-control')->id('webhook_url_edit')->placeholder('https://example.com') !!}
+                            <div class="space"></div>
+                        </div>
+                        <input type="hidden" id="webhook_id">
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="modal-footer justify-content-between">
+
+                <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
+                <button type="submit" class="form-group btn btn-primary"  id="whatsapp_close_edit"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+
+{{--                <button type="button" class="btn btn-primary" id="whatsapp_close_edit">{{ __('message.save')}}</button>--}}
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -376,5 +421,117 @@ $products= App\Model\Product\Product::get();
 
         });
     });
+
+    function editWhatsappUser(id){
+        $.ajax({
+            url: "{!! url('get-webhook-url') !!}",
+            method: "get",
+            data: { 'id': id},
+            success: function (data) {
+                url=data.data.url;
+                id=data.data.id;
+                $('#webhook_url_edit').val(url);
+                $('#webhook_id').val(id);
+
+                $('#Whatsapp-url-edit').modal('show');
+            },
+            error: function (data) {
+                $('#successmsg').hide();
+                $('#error').show();
+                var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<br>' + data.responseJSON.message + '!</div>';
+                $('#error').html(result);
+                setInterval(function () {
+                    $('#error').slideUp(5000);
+                    location.reload();
+                }, 10000);
+            },
+
+        });
+    }
+
+    $('#whatsapp_close_edit').on('click',function(e){
+
+        const userRequiredFields = {
+            name:@json(trans('message.callback_url_error')),
+
+
+        };
+        var webhook_url=$('#webhook_url_edit');
+
+        const userFields = {
+            name:webhook_url,
+
+        };
+
+
+        // Clear previous errors
+        Object.values(userFields).forEach(field => {
+            field.removeClass('is-invalid');
+            field.next().next('.error').remove();
+
+        });
+
+        let isValid = true;
+
+        const showError = (field, message) => {
+            field.addClass('is-invalid');
+            field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+        };
+
+        // Validate required fields
+        Object.keys(userFields).forEach(field => {
+            if (!userFields[field].val()) {
+                showError(userFields[field], userRequiredFields[field]);
+                isValid = false;
+            }
+        });
+
+        if (isValid && !isValidURL(userFields.name.val())) {
+            showError(userFields.name,@json(trans('message.callback_url_error')));
+            isValid = false;
+        }
+
+        // If validation fails, prevent form submission
+        if (!isValid) {
+            e.preventDefault();
+        }else{
+            var url=webhook_url.val();
+            var id=$('#webhook_id').val();
+            // var token=$('#verify_token').val();
+            $.ajax({
+                data: {'url' : url,'id': id,},
+                url: '{{url("webhook-url-edit")}}',
+                method: 'POST',
+                dataType: 'json',
+                success: function (response) {
+                    $('#alertMessage-webhook').show();
+                    var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> ' + @json(__('message.success')) +'! </strong>' + response.message + '.</div>';
+                    $('#alertMessage-webhook').html(result);
+                    $("#whatsapp_close_edit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
+                    setTimeout(function () {
+                        $('#alertMessage-webhook').slideUp(3000, function () {
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1000);
+                        });
+                    })
+                },
+                error: function (response) {
+                    $('#alertMessage-webhook').show();
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> ' + @json(__('message.success')) +'! </strong>' + response.message + '.</div>';
+                    $('#alertMessage-webhook').html(result);
+                    $("#whatsapp_close_edit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
+                    setTimeout(function () {
+                        $('#alertMessage-webhook').slideUp(3000, function () {
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1000);
+                        });
+                    })
+                },
+            });
+        }
+    })
+
 </script>
     @stop

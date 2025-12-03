@@ -300,7 +300,7 @@ class TenantController extends Controller
                     return $model->database_user_name ?? '';
                 })
                 ->addColumn('action', function ($model) {
-                    $order_id = \DB::table('installation_details')->where('installation_path', $model->domain)->value('order_id');
+                    $order_id = \DB::table('installation_details')->where('installation_path', $model->domain)->latest()->value('order_id');
                     $order_number = \DB::table('orders')->where('id', $order_id)->value('number');
 
                     if (empty($order_id) || empty($order_number)) {
@@ -463,7 +463,7 @@ class TenantController extends Controller
                 ];
 
                 logActivity(
-                    "Cloud instance <b>{$faveoCloud}</b> created successfully for user <b>{$userEmail}</b>",
+                    "Cloud instance <b><a href='http://{$faveoCloud}' target='_blank'>{$faveoCloud}</a></b> created successfully for user <b><a href='".url("clients/{$userId}")."'><strong>{$userFirstName} {$userLastName}</strong></a></b>",
                     'created',
                     'Cloud'
                 );
@@ -528,17 +528,17 @@ class TenantController extends Controller
                 $this->deleteCronForTenant($request->input('id'));
                 \DB::table('free_trial_allowed')->where('domain', $request->input('id'))->delete();
                 if (! empty($request->orderId)) {
-                    $order = Order::where('id', $request->get('orderId'))->first();
-                    $sub = $order->subscription()->first();
-                    $sub->is_deleted = 1;
-                    $sub->save();
-                    //  $order->delete();
+                    $this->statusChange($request->orderId);
                 }
 //                (empty($request->orderId)) ?: Order::where('number', $request->get('orderId'))->delete();
                 (new LicenseController())->reissueDomain($request->input('id'));
 
+                $loggingUser = \Auth::check()
+                    ? "<a href='".url('clients/'.\Auth::id())."'>".\Auth::user()->first_name.' '.\Auth::user()->last_name.'</a>'
+                    : 'Auto deletion';
+
                 logActivity(
-                    "Cloud instance <b>{$request->input('id')}</b> deleted by <b>{$user}</b>",
+                    "Cloud instance <b>{$request->input('id')}</b> deleted by <b>{$loggingUser}</b>",
                     'deleted',
                     'Cloud'
                 );
@@ -547,6 +547,10 @@ class TenantController extends Controller
 
                 return successResponse(__('message.cloud_deleted_successfully'));
             } else {
+                if ($response->message == 'tenant_not_found' && ! empty($request->orderId)) {
+                    $this->statusChange($request->orderId);
+                }
+
                 $this->googleChat('Tenant deletion failed for '.$user.'. Reason: '.$responseBody);
 
                 return errorResponse(__('message.cloud_deleted_failed'));
@@ -558,6 +562,11 @@ class TenantController extends Controller
 
             return errorResponse($e->getMessage());
         }
+    }
+
+    public function statusChange($order_id)
+    {
+        Order::where('id', $order_id)->first()->subscription()->update(['is_deleted' => 1]);
     }
 
     private function deleteCronForTenant($tenantId)
@@ -641,8 +650,12 @@ class TenantController extends Controller
                             Order::where('number', $orderNumber)->where('client', \Auth::user()->id)->delete();
                             \DB::table('free_trial_allowed')->where('domain', $installation_path)->delete();
 
+                            $loggingUser = \Auth::check()
+                                ? "<a href='".url('clients/'.\Auth::id())."'>".\Auth::user()->first_name.' '.\Auth::user()->last_name.'</a>'
+                                : 'Auto deletion';
+
                             logActivity(
-                                "Cloud instance <b>{$installation_path}</b> deleted by </b>{$user}</b>",
+                                "Cloud instance <b>{$installation_path}</b> deleted by <b>{$loggingUser}</b>",
                                 'deleted',
                                 'Cloud'
                             );

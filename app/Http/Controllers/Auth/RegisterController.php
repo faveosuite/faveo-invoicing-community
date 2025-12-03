@@ -350,7 +350,9 @@ class RegisterController extends Controller
             return;
         }
 
-        $message = "User {$user->first_name} {$user->last_name} ({$user->email}) was created.";
+        $userUrl = url("clients/{$user->id}");
+
+        $message = "User <a href='{$userUrl}'><strong>{$user->first_name} {$user->last_name}</strong></a> was created.";
 
         logActivity(
             $message,

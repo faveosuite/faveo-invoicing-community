@@ -332,7 +332,7 @@ class ClientController extends AdvanceSearchController
                 $client = User::onlyTrashed()->find($id);
             }
 
-            $is2faEnabled = $client->is_2fa_enabled;
+            $is2faEnabled = $client->is_2fa_enabled ?? 0;
             $currency = getCurrencyForClient($client->country);
             $orders = $order->where('client', $id)->get();
             $comments = Comment::where('user_id', $client->id)->get();

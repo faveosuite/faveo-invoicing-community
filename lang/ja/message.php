@@ -2820,4 +2820,9 @@ return [
     'config_id_error' => '設定 ID を入力してください。',
     'verify_token_error' => '認証トークンを入力してください。',
     'manual_number_title' => '番号を手動で追加',
+    'plan_exist' => 'この製品には既に同じ期間のプランがあります',
+    'callback_url' => 'Webhook URL',
+    'callback_url_error' => '有効な Webhook URL を入力してください。',
+    'webhook_explanation' => 'Webhook URL は管理パネルの WhatsApp 設定内の追加設定セクションにあります。',
+    'business_id_error' => '有効な Business ID を入力してください。',
 ];

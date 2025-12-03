@@ -422,12 +422,12 @@
                 }
             }
 
-            if (userFields.user_name.val() !== '') {
-                if (!validateUserName(userFields.user_name.val())) {
-                    showError(userFields.user_name, @json(trans('message.username_or_email')));
-                    isValid = false;
-                }
-            }
+            {{--if (userFields.user_name.val() !== '') {--}}
+            {{--    if (!validateUserName(userFields.user_name.val())) {--}}
+            {{--        showError(userFields.user_name, @json(trans('message.username_or_email')));--}}
+            {{--        isValid = false;--}}
+            {{--    }--}}
+            {{--}--}}
 
             var zip=$('#zip1');
             ziperrorMsg = document.querySelector("#zip-error-msg");

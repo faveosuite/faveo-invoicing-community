@@ -2820,4 +2820,9 @@ return [
     'config_id_error' => 'Введите Config ID.',
     'verify_token_error' => 'Введите токен подтверждения.',
     'manual_number_title' => 'Добавить Номер Вручную',
+    'plan_exist' => 'У этого продукта уже есть план с тем же периодом',
+    'callback_url' => 'URL веб-хука',
+    'callback_url_error' => 'Пожалуйста, введите действительный URL веб-хука.',
+    'webhook_explanation' => 'URL веб-хука можно найти в разделе Дополнительная конфигурация настроек WhatsApp в панели администратора.',
+    'business_id_error' => 'Пожалуйста, введите действительный Business ID.',
 ];

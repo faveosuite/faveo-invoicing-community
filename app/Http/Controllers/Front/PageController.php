@@ -527,6 +527,14 @@ class PageController extends Controller
                 ->orderBy('id')
                 ->get();
 
+            $productsRelatedToGroup = $productsRelatedToGroup->sortBy(function ($product) {
+                return $product->planRelation
+                    ->flatMap(fn ($plan) => $plan->planPrice)
+                    ->pluck('add_price')
+                    ->filter(fn ($v) => $v !== null)
+                    ->min() ?? PHP_INT_MAX;
+            })->values();
+
             $trasform = [];
             $templates = $this->getTemplateOne($productsRelatedToGroup, $trasform);
             if (empty($templates)) {
@@ -630,6 +638,14 @@ class PageController extends Controller
                 return '<button class="btn '.$orderButton.' btn-modern buttonsale" data-toggle="modal" data-target="#tenancy" data-mydata="'.$product->id.'">
                                 <span style="white-space: nowrap;">'.__('message.order_now').'</span>
                             </button>';
+            } elseif ($product->status) {
+                return '
+    <button type="button"
+        class="btn '.$orderButton.' btn-modern buttonsale api-order-btn"
+        data-product="'.$product->id.'">
+        '.__('message.order_now').'
+    </button>
+';
             } else {
                 return '<input type="submit" value="Order Now" class="btn '.$orderButton.' btn-modern buttonsale"></form>';
             }

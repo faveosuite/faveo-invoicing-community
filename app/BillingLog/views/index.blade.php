@@ -1077,6 +1077,7 @@
                 if (document.getElementById('deleteMailLogs').checked) selectedTypes.push('mail');
                 if (document.getElementById('deleteCronLogs').checked) selectedTypes.push('cron');
                 if (document.getElementById('deleteExceptionLogs').checked) selectedTypes.push('exception');
+                if (document.getElementById('deleteFailedJobs').checked) selectedTypes.push('failed_jobs');
 
                 let hasError = false;
 
