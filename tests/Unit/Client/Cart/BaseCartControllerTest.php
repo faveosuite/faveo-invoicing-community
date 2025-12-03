@@ -396,7 +396,7 @@ class BaseCartControllerTest extends DBTestCase
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id,'add_price'=>'0']);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '0']);
         $response = $this->withSession(['store' => 1])->get('group/'.$group->pricing_templates_id.'/'.$group->id.'/');
         $data = $response->original->gatherData();
         $this->assertStringContainsString('<input type="submit" value="Order Now" class="btn btn-dark btn-modern buttonsale">', $data['templates']);

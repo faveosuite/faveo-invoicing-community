@@ -40,7 +40,7 @@ class StoreTest extends DBTestCase
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id,'add_price'=>'0']);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '0']);
         $response = $this->call('GET', 'group/'.$group->pricing_templates_id.'/'.$group->id.'/');
         $response->assertStatus(200);
         $response->assertViewIs('themes.default1.common.template.shoppingcart');
