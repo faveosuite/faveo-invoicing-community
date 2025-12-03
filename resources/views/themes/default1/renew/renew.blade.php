@@ -171,10 +171,17 @@
      @if(in_array($productid,cloudPopupProducts()))
      function fetchPlanCost(planId) {
          if(!shouldFetchPlanCost){
-             return
-         }
-         var user = document.getElementsByName('user')[0].value;
-         shouldFetchPlanCost = false
+             if (!planId) {
+                 $('#price').val('');
+                 return;
+             }
+
+             if (!shouldFetchPlanCost) {
+                 return;
+             }
+
+             var user = document.getElementsByName('user')[0].value;
+             shouldFetchPlanCost = false;
          $.ajax({
              type: "get",
              url: "{{ url('get-renew-cost') }}",
@@ -183,24 +190,29 @@
 
              success: function (data) {
                  var agents = parseInt($('#agents').val() || 0);
-                 var totalPrice = agents * parseFloat(data);
+                 var totalPrice = agents * parseFloat(data.renewalPrice);
                  $('#price').val(totalPrice.toFixed(2));
+                 shouldFetchPlanCost = true;
+             },
+             complete: function () {
                  shouldFetchPlanCost = true;
              }
          });
      }
      @else
      function fetchPlanCost(planId) {
+         if (!planId) {
+             $('#price').val('');
+             return;
+         }
 
-         if(!shouldFetchPlanCost){
-
-             return
-
+         if (!shouldFetchPlanCost) {
+             return;
          }
 
          var user = document.getElementsByName('user')[0].value;
+         shouldFetchPlanCost = false;
 
-         shouldFetchPlanCost = false
 
          $.ajax({
 
@@ -211,10 +223,10 @@
              data: { 'user': user, 'plan': planId },
 
              success: function (data) {
-
-                 $("#price").val(data[0]);
+                 $("#price").val(parseFloat(data.renewalPrice));
+             },
+             complete: function () {
                  shouldFetchPlanCost = true;
-
              }
 
          });

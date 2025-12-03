@@ -113,6 +113,7 @@ class BaseRenewController extends Controller
 
             return response()->json([
                 'formatted_price' => $formattedCurrency,
+                'renewalPrice' => isAgentAllowed($plan->product) ? $priceForTheAgents : $price
             ]);
         } catch (Exception $ex) {
             throw new \Exception($ex->getMessage());
