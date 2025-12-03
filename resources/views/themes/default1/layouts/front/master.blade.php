@@ -1370,6 +1370,7 @@ setTimeout(function() {
         location.reload();
     });
 
+    @auth
     const domainInput = document.getElementById("userdomain");
     const validationMessage = document.getElementById("validationMessage");
 
@@ -1384,7 +1385,7 @@ setTimeout(function() {
             validationMessage.style.color = "";
         }
     });
-
+@endauth
     function togglePasswordVisibility(iconElement) {
         const inputGroup = iconElement.closest('.input-group');
         const passwordInput = inputGroup.querySelector('input[type="password"], input[type="text"]');
@@ -1404,6 +1405,23 @@ setTimeout(function() {
         // If authenticated, check if localStorage indicates a click
         var freeTrialClicked = localStorage.getItem('freeTrialClicked');
         if (freeTrialClicked === 'true') {
+            $.ajax({
+                url: "{{url('trial-cloud-products')}}",
+                type: "POST",
+                success: function(response){
+                    var data=response['data'];
+                    const select = document.getElementById('serviceType');
+
+                    Object.entries(data).forEach(([key, value]) => {
+                        const option = document.createElement('option');
+                        option.value = key;
+                        option.textContent = value;
+                        select.appendChild(option);
+                    });
+
+                    // $('#tenant').modal('show');
+                }
+            })
             // If localStorage indicates a click, open the free trial dialog
             openFreeTrialDialog();
             localStorage.removeItem('freeTrialClicked');

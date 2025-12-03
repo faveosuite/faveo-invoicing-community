@@ -40,7 +40,7 @@ class StoreTest extends DBTestCase
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id]);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '0']);
         $response = $this->call('GET', 'group/'.$group->pricing_templates_id.'/'.$group->id.'/');
         $response->assertStatus(200);
         $response->assertViewIs('themes.default1.common.template.shoppingcart');
@@ -184,5 +184,22 @@ class StoreTest extends DBTestCase
         $highlight = false;
         $response = $this->getPrivateMethod($this->con1, 'getOfferprice', [$product->id]);
         $this->assertEquals($response['365_days'], $planPrice->offer_price);
+    }
+
+    public function test_wordpress_plugin_url()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
+        $product = Product::factory()->create(['group' => $group->id]);
+        $plan = Plan::factory()->create(['product' => $product->id, 'days' => 365]);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'no_of_agents' => 7, 'offer_price' => '100']);
+        $response = $this->call('GET', 'pricing/data', ['country' => 'IN', 'group' => $group->id]);
+
+        $json = $response->decodeResponseJson();
+        $response->assertStatus(200);
+        $this->assertEquals($planPrice->add_price, $json['products'][0]['add_price']);
+        $this->assertEquals($product->name, $json['products'][0]['name']);
     }
 }

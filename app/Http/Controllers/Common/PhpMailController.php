@@ -173,7 +173,7 @@ class PhpMailController extends Controller
                     continue;
                 } else {
                     //Destroy the tenat
-                    $destroy = (new TenantController(new Client, new FaveoCloud()))->destroyTenant(new Request(['id' => $id]));
+                    $destroy = (new TenantController(new Client, new FaveoCloud()))->destroyTenant(new Request(['id' => $id, 'orderId' => $data->order_id]));
 
                     //Mail Sending
 

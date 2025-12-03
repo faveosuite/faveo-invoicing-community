@@ -731,7 +731,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>--}}
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.tiny.cloud/1/e3lij95fzfkwg5d1rx1e67g8kuu6ugnh3e4vdkmnxr0t8a4j/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.tiny.cloud/1/g4vd972kl5dvpyyfbdlq6k7xhd6zzj9s8n0xtjxhsaly9o53/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
     <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" />

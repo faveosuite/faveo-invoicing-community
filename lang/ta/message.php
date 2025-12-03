@@ -2811,4 +2811,9 @@ return [
     'config_id_error' => 'தயவுசெய்து கான்பிக் ID ஐ உள்ளிடவும்.',
     'verify_token_error' => 'தயவுசெய்து சரிபார்ப்பு டோக்கனை உள்ளிடவும்.',
     'manual_number_title' => 'கைமுறையாக எண் சேர்க்கவும்',
+    'plan_exist' => 'இந்த தயாரிப்பிற்கு இதே காலத்துடன் ஒரு திட்டம் ஏற்கனவே உள்ளது',
+    'callback_url' => 'Webhook URL',
+    'callback_url_error' => 'சரியான Webhook URL ஐ உள்ளிடவும்.',
+    'webhook_explanation' => 'Webhook URL ஐ நிர்வாக குழுவின் WhatsApp அமைப்புகளின் கூடுதல் உள்ளமைப்பு பிரிவில் காணலாம்.',
+    'business_id_error' => 'சரியான Business ID ஐ உள்ளிடவும்.',
 ];
