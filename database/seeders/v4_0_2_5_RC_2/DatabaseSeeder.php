@@ -2,7 +2,6 @@
 
 namespace Database\Seeders\v4_0_2_5_RC_2;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
