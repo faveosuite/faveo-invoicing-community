@@ -529,9 +529,9 @@ class PageController extends Controller
 
             $productsRelatedToGroup = $productsRelatedToGroup->sortBy(function ($product) {
                 return $product->planRelation
-                    ->flatMap(fn($plan) => $plan->planPrice)
+                    ->flatMap(fn ($plan) => $plan->planPrice)
                     ->pluck('add_price')
-                    ->filter(fn($v) => $v !== null)
+                    ->filter(fn ($v) => $v !== null)
                     ->min() ?? PHP_INT_MAX;
             })->values();
 
