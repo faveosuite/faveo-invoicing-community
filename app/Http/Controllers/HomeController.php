@@ -604,16 +604,51 @@ class HomeController extends BaseHomeController
 //            $country = findCountryByGeoip($location['iso_code']);
 //            $countryId = \App\Model\Common\Country::where('country_code_char2', $country)->value('country_id');
 //            $currencyAndSymbol = getCurrencyForClient($country);
-            $productsRelatedToGroup = \App\Model\Product\Product::where('group', $groupId)
-                ->where('hidden', '!=', 1)
+//            $productsRelatedToGroup = \App\Model\Product\Product::where('group', $groupId)
+//                ->where('hidden', '!=', 1)
+//                ->join('plans', 'products.id', '=', 'plans.product')
+//                ->join('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
+//                ->where('plan_prices.currency', '=', $currencyAndSymbol)
+//                ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10, 2)) ASC')
+//                ->orderBy('created_at', 'ASC')
+//                ->select('products.*', 'plan_prices.add_price', 'plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
+//                ->get();
+
+            $productsRelatedToGroup = \App\Model\Product\Product::query()
                 ->join('plans', 'products.id', '=', 'plans.product')
                 ->join('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
-                ->where('plan_prices.currency', '=', $currencyAndSymbol)
-                ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10, 2)) ASC')
-                ->orderBy('created_at', 'ASC')
+
+                ->where('products.group', $groupId)
+                ->where('products.hidden', '!=', 1)
+
+                ->where('plan_prices.currency', $currencyAndSymbol)
+
+                ->where(function ($query) use ($currencyAndSymbol) {
+                    $query->where('products.status', '!=', 1)
+                        ->orWhere(function ($active) use ($currencyAndSymbol) {
+                            $active->where('products.status', 1)
+                                ->whereExists(function ($m) use ($currencyAndSymbol) {
+                                    $m->select(\DB::raw(1))
+                                        ->from('plans as p1')
+                                        ->join('plan_prices as pp1', 'pp1.plan_id', '=', 'p1.id')
+                                        ->whereColumn('p1.product', 'products.id')
+                                        ->whereIn('p1.days', [30, 31])
+                                        ->where('pp1.currency', $currencyAndSymbol);
+                                })
+                                ->whereExists(function ($y) use ($currencyAndSymbol) {
+                                    $y->select(\DB::raw(1))
+                                        ->from('plans as p2')
+                                        ->join('plan_prices as pp2', 'pp2.plan_id', '=', 'p2.id')
+                                        ->whereColumn('p2.product', 'products.id')
+                                        ->whereIn('p2.days', [365, 366])
+                                        ->where('pp2.currency', $currencyAndSymbol);
+                                });
+                        });
+                })
+                ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10,2)) ASC')
+                ->orderBy('products.created_at', 'ASC')
                 ->select('products.*', 'plan_prices.add_price', 'plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
                 ->get();
-
             return response()->json(['products' => $productsRelatedToGroup, 'currency' => $currencyAndSymbol]);
         } catch (\Exception $ex) {
             return response()->json(['error' => $ex->getMessage()], 500);
