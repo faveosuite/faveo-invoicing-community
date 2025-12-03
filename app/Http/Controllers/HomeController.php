@@ -646,6 +646,7 @@ class HomeController extends BaseHomeController
                 ->orderBy('id')
                 ->get();
             dd($productsRelatedToGroup);
+
             return response()->json(['products' => $productsRelatedToGroup, 'currency' => $currencyAndSymbol]);
         } catch (\Exception $ex) {
             return response()->json(['error' => $ex->getMessage()], 500);
