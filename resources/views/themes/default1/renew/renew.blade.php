@@ -168,39 +168,8 @@
      });
      var shouldFetchPlanCost = true; // Disable further calls until needed
 
-     @if(in_array($productid,cloudPopupProducts()))
      function fetchPlanCost(planId) {
-         if(!shouldFetchPlanCost){
-             if (!planId) {
-                 $('#price').val('');
-                 return;
-             }
 
-             if (!shouldFetchPlanCost) {
-                 return;
-             }
-
-             var user = document.getElementsByName('user')[0].value;
-             shouldFetchPlanCost = false;
-         $.ajax({
-             type: "get",
-             url: "{{ url('get-renew-cost') }}",
-             data: { 'user': user, 'plan': planId },
-
-
-             success: function (data) {
-                 var agents = parseInt($('#agents').val() || 0);
-                 var totalPrice = agents * parseFloat(data.renewalPrice);
-                 $('#price').val(totalPrice.toFixed(2));
-                 shouldFetchPlanCost = true;
-             },
-             complete: function () {
-                 shouldFetchPlanCost = true;
-             }
-         });
-     }
-     @else
-     function fetchPlanCost(planId) {
          if (!planId) {
              $('#price').val('');
              return;
@@ -213,26 +182,28 @@
          var user = document.getElementsByName('user')[0].value;
          shouldFetchPlanCost = false;
 
+         @if(in_array($productid, cloudPopupProducts()))
+         var agents = parseInt($('#agents').val() || 0);
+         @else
+         var agents = 0; // default when not cloud products
+         @endif
 
          $.ajax({
-
-             type: "get",
-
+             type: "GET",
              url: "{{ url('get-renew-cost') }}",
-
-             data: { 'user': user, 'plan': planId },
+             data: { user: user, plan: planId, agents: agents },
 
              success: function (data) {
-                 $("#price").val(parseFloat(data.renewalPrice));
+                 var basePrice = parseFloat(data.renewalPrice || 0);
+                 $('#price').val(basePrice.toFixed(2));
              },
+
              complete: function () {
                  shouldFetchPlanCost = true;
              }
-
          });
-
      }
-     @endif
+
      // Call the fetchPlanCost function when the plan dropdown selection changes
      $('#plans').on('change', function () {
          var selectedPlanId = $(this).val(); // Get the selected plan ID
