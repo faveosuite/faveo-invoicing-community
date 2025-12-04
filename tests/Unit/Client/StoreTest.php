@@ -186,8 +186,8 @@ class StoreTest extends DBTestCase
         $this->assertEquals($response['365_days'], $planPrice->offer_price);
     }
 
-
-    public function test_wordpress_plugin_url(){
+    public function test_wordpress_plugin_url()
+    {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
@@ -199,8 +199,7 @@ class StoreTest extends DBTestCase
 
         $json = $response->decodeResponseJson();
         $response->assertStatus(200);
-        $this->assertEquals($planPrice->add_price,$json['products'][0]['add_price']);
-        $this->assertEquals($product->name,$json['products'][0]['name']);
+        $this->assertEquals($planPrice->add_price, $json['products'][0]['add_price']);
+        $this->assertEquals($product->name, $json['products'][0]['name']);
     }
-
 }
