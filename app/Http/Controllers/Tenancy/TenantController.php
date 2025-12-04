@@ -318,6 +318,7 @@ class TenantController extends Controller
                 ->rawColumns(['Order', 'Deletion day', 'tenants', 'domain', 'db_name', 'db_username', 'action', 'name', 'email', 'mobile', 'country', 'Expiry day', 'plan'])
                 ->make(true);
         } catch (ConnectException|Exception $e) {
+
             return redirect()->back()->with('fails', $e->getMessage());
         }
     }
@@ -528,10 +529,11 @@ class TenantController extends Controller
                 $this->deleteCronForTenant($request->input('id'));
                 \DB::table('free_trial_allowed')->where('domain', $request->input('id'))->delete();
                 if (! empty($request->orderId)) {
-                    $order = Order::where('id', $request->get('orderId'))->first();
-                    $sub = $order->subscription()->first();
-                    $sub->is_deleted = 1;
-                    $sub->save();
+                     $this->statusChange($request->orderId);
+//                    $order = Order::where('id', $request->get('orderId'))->first();
+//                    $sub = $order->subscription()->first();
+//                    $sub->is_deleted = 1;
+//                    $sub->save();
                     //  $order->delete();
                 }
 //                (empty($request->orderId)) ?: Order::where('number', $request->get('orderId'))->delete();
@@ -551,6 +553,10 @@ class TenantController extends Controller
 
                 return successResponse(__('message.cloud_deleted_successfully'));
             } else {
+                if($response->message == "tenant_not_found"){
+                    $this->statusChange($request->orderId);
+                }
+
                 $this->googleChat('Tenant deletion failed for '.$user.'. Reason: '.$responseBody);
 
                 return errorResponse(__('message.cloud_deleted_failed'));
@@ -562,6 +568,13 @@ class TenantController extends Controller
 
             return errorResponse($e->getMessage());
         }
+    }
+
+    public function statusChange($order_id){
+        $order = Order::where('id', $order_id)->first();
+        $sub = $order->subscription()->first();
+        $sub->is_deleted = 1;
+        $sub->save();
     }
 
     private function deleteCronForTenant($tenantId)

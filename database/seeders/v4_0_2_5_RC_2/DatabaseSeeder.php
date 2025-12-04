@@ -2,6 +2,11 @@
 
 namespace Database\Seeders\v4_0_2_5_RC_2;
 
+use App\Model\Common\FaveoCloud;
+use App\Model\Order\InstallationDetail;
+use App\Model\Product\Subscription;
+use App\ThirdPartyApp;
+use GuzzleHttp\Client;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -12,6 +17,8 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->packageRemoval();
+        $this->domaincheck();
+        $this->domainDelete();
     }
 
     public function packageRemoval()
@@ -55,5 +62,104 @@ class DatabaseSeeder extends Seeder
             }
         }
         @rmdir($dir);
+    }
+
+
+    public function domaincheck()
+    {
+        $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
+
+        if (! $keys->app_key) {//Valdidate if the app key to be sent is valid or not
+            throw new \Exception(__('message.cloud_invalid_message'));
+        }
+        $client=new Client();
+        $cloud=new FaveoCloud();
+        $response = $client->request(
+            'GET',
+            $cloud->cloud_central_domain.'/tenants',
+            [
+                'query' => [
+                    'key' => $keys->app_key,
+                ],
+            ]
+        );
+
+        $responseBody = (string) $response->getBody();
+        $responseData = json_decode($responseBody);
+
+        $collection = collect($responseData->message)->reject(function ($item) {
+            return $item === null;
+        });
+
+        $allowedDomains = $collection->pluck('domain')->toArray();
+
+
+        foreach ($allowedDomains as $domain) {
+
+            $installationDetails = InstallationDetail::where('installation_path', $domain)->get();
+
+            $orderIds = $installationDetails->pluck('order_id')->filter()->toArray();
+
+            if (empty($orderIds)) continue;
+
+            $subscriptions = Subscription::whereIn('order_id', $orderIds)->get();
+
+            if ($subscriptions->isEmpty()) continue;
+
+            $latest = $subscriptions->sortByDesc('ends_at')->first();
+
+            Subscription::whereIn('order_id', $orderIds)
+                ->where('id', '!=', $latest->id)
+                ->update(['is_deleted' => 1]);
+
+        }
+    }
+
+
+    public function domainDelete(){
+
+        $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
+
+        if (! $keys->app_key) {//Valdidate if the app key to be sent is valid or not
+            throw new \Exception(__('message.cloud_invalid_message'));
+        }
+        $client=new Client();
+        $cloud=new FaveoCloud();
+        $response = $client->request(
+            'GET',
+            $cloud->cloud_central_domain.'/tenants',
+            [
+                'query' => [
+                    'key' => $keys->app_key,
+                ],
+            ]
+        );
+
+        $responseBody = (string) $response->getBody();
+        $responseData = json_decode($responseBody);
+
+        $collection = collect($responseData->message)->reject(function ($item) {
+            return $item === null;
+        });
+
+        $allowedDomains = $collection->pluck('domain')->toArray();
+        $cloudProductIds=cloudPopupProducts();
+
+        \DB::transaction(function () use ($allowedDomains, $cloudProductIds) {
+
+            $otherOrders = \DB::table("installation_details")
+                ->whereNotIn("installation_path", $allowedDomains)
+                ->pluck("order_id");
+
+            if ($otherOrders->isEmpty()) {
+                return;
+            }
+
+            $updated = \DB::table("subscriptions")
+                ->whereIn("order_id", $otherOrders)
+                ->whereIn("product_id", $cloudProductIds)
+                ->update(["is_deleted" => 1]);
+
+        });
     }
 }
