@@ -67,99 +67,122 @@ class DatabaseSeeder extends Seeder
 
     public function domaincheck()
     {
-        $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
-        if (is_null($keys)) {//Valdidate if the app key to be sent is valid or not
-            return;
-        }
-        $client=new Client();
-        $cloud=new FaveoCloud();
-        $response = $client->request(
-            'GET',
-            $cloud->first()->cloud_central_domain.'/tenants',
-            [
-                'query' => [
-                    'key' => $keys->app_key,
-                ],
-            ]
-        );
+        $env = base_path('.env');
+        if (\File::exists($env) && (env('DB_INSTALL') == 1)) {
+            $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
-        $responseBody = (string) $response->getBody();
-        $responseData = json_decode($responseBody);
+            if (is_null($keys)) {//Valdidate if the app key to be sent is valid or not
+                return;
+            }
+            $client = new Client();
+            $cloud = new FaveoCloud();
+            $response = $client->request(
+                'GET',
+                $cloud->first()->cloud_central_domain . '/tenants',
+                [
+                    'query' => [
+                        'key' => $keys->app_key,
+                    ],
+                ]
+            );
 
-        $collection = collect($responseData->message)->reject(function ($item) {
-            return $item === null;
-        });
+            $responseBody = (string)$response->getBody();
+            $responseData = json_decode($responseBody);
 
-        $allowedDomains = $collection->pluck('domain')->toArray();
+            $collection = collect($responseData->message)->reject(function ($item) {
+                return $item === null;
+            });
+
+            $allowedDomains = $collection->pluck('domain')->toArray();
 
 
-        foreach ($allowedDomains as $domain) {
+//            foreach ($allowedDomains as $domain) {
+//
+//                $installationDetails = InstallationDetail::where('installation_path', $domain)->get();
+//
+//                $orderIds = $installationDetails->pluck('order_id')->filter()->toArray();
+//
+//                if (empty($orderIds)) continue;
+//
+//                $subscriptions = Subscription::whereIn('order_id', $orderIds)->get();
+//
+//                if ($subscriptions->isEmpty()) continue;
+//
+//                $latest = $subscriptions->sortByDesc('ends_at')->first();
+//
+//                Subscription::whereIn('order_id', $orderIds)
+//                    ->where('id', '!=', $latest->id)
+//                    ->update(['is_deleted' => 1]);
+//
+//            }
+            array_map(function ($domain) {
+                $installationDetails = InstallationDetail::where('installation_path', $domain)->get();
 
-            $installationDetails = InstallationDetail::where('installation_path', $domain)->get();
+                $orderIds = $installationDetails->pluck('order_id')->filter()->toArray();
+                if (empty($orderIds)) return null;
 
-            $orderIds = $installationDetails->pluck('order_id')->filter()->toArray();
+                $subscriptions = Subscription::whereIn('order_id', $orderIds)->get();
+                if ($subscriptions->isEmpty()) return null;
 
-            if (empty($orderIds)) continue;
+                $latest = $subscriptions->sortByDesc('ends_at')->first();
 
-            $subscriptions = Subscription::whereIn('order_id', $orderIds)->get();
+                Subscription::whereIn('order_id', $orderIds)
+                    ->where('id', '!=', $latest->id)
+                    ->update(['is_deleted' => 1]);
 
-            if ($subscriptions->isEmpty()) continue;
-
-            $latest = $subscriptions->sortByDesc('ends_at')->first();
-
-            Subscription::whereIn('order_id', $orderIds)
-                ->where('id', '!=', $latest->id)
-                ->update(['is_deleted' => 1]);
-
+            }, $allowedDomains);
         }
     }
 
 
-    public function domainDelete(){
+    public function domainDelete()
+    {
+        $env = base_path('.env');
+        if (\File::exists($env) && (env('DB_INSTALL') == 1)) {
+            $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
-        $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-
-        if (is_null($keys))  {//Valdidate if the app key to be sent is valid or not
-            return;
-        }
-        $client=new Client();
-        $cloud=new FaveoCloud();
-        $response = $client->request(
-            'GET',
-            $cloud->first()->cloud_central_domain.'/tenants',
-            [
-                'query' => [
-                    'key' => $keys->app_key,
-                ],
-            ]
-        );
-
-        $responseBody = (string) $response->getBody();
-        $responseData = json_decode($responseBody);
-
-        $collection = collect($responseData->message)->reject(function ($item) {
-            return $item === null;
-        });
-
-        $allowedDomains = $collection->pluck('domain')->toArray();
-        $cloudProductIds=cloudPopupProducts();
-
-        \DB::transaction(function () use ($allowedDomains, $cloudProductIds) {
-
-            $otherOrders = \DB::table("installation_details")
-                ->whereNotIn("installation_path", $allowedDomains)
-                ->pluck("order_id");
-
-            if ($otherOrders->isEmpty()) {
+            if (is_null($keys)) {//Valdidate if the app key to be sent is valid or not
                 return;
             }
+            $client = new Client();
+            $cloud = new FaveoCloud();
+            $response = $client->request(
+                'GET',
+                $cloud->first()->cloud_central_domain . '/tenants',
+                [
+                    'query' => [
+                        'key' => $keys->app_key,
+                    ],
+                ]
+            );
 
-            $updated = \DB::table("subscriptions")
-                ->whereIn("order_id", $otherOrders)
-                ->whereIn("product_id", $cloudProductIds)
-                ->update(["is_deleted" => 1]);
+            $responseBody = (string)$response->getBody();
+            $responseData = json_decode($responseBody);
 
-        });
+            $collection = collect($responseData->message)->reject(function ($item) {
+                return $item === null;
+            });
+
+            $allowedDomains = $collection->pluck('domain')->toArray();
+            $cloudProductIds = cloudPopupProducts();
+
+            \DB::transaction(function () use ($allowedDomains, $cloudProductIds) {
+
+                $otherOrders = \DB::table("installation_details")
+                    ->whereNotIn("installation_path", $allowedDomains)
+                    ->pluck("order_id");
+
+                if ($otherOrders->isEmpty()) {
+                    return;
+                }
+
+                $updated = \DB::table("subscriptions")
+                    ->whereIn("order_id", $otherOrders)
+                    ->whereIn("product_id", $cloudProductIds)
+                    ->update(["is_deleted" => 1]);
+
+            });
+        }
     }
 }
