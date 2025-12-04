@@ -69,14 +69,14 @@ class DatabaseSeeder extends Seeder
     {
         $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
-        if (! $keys->app_key) {//Valdidate if the app key to be sent is valid or not
-            \Log::warning('Faveo app key missing. Skipping domainCheck seeder.');
-            return;        }
+        if (is_null($keys)) {//Valdidate if the app key to be sent is valid or not
+            return;
+        }
         $client=new Client();
         $cloud=new FaveoCloud();
         $response = $client->request(
             'GET',
-            $cloud->cloud_central_domain.'/tenants',
+            $cloud->first()->cloud_central_domain.'/tenants',
             [
                 'query' => [
                     'key' => $keys->app_key,
@@ -120,15 +120,14 @@ class DatabaseSeeder extends Seeder
 
         $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
-        if (! $keys->app_key) {//Valdidate if the app key to be sent is valid or not
-            \Log::warning('Faveo app key missing. Skipping domainDelete seeder.');
+        if (is_null($keys))  {//Valdidate if the app key to be sent is valid or not
             return;
         }
         $client=new Client();
         $cloud=new FaveoCloud();
         $response = $client->request(
             'GET',
-            $cloud->cloud_central_domain.'/tenants',
+            $cloud->first()->cloud_central_domain.'/tenants',
             [
                 'query' => [
                     'key' => $keys->app_key,
