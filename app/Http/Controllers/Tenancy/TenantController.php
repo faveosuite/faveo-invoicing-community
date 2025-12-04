@@ -463,7 +463,7 @@ class TenantController extends Controller
                 ];
 
                 logActivity(
-                    "Cloud instance <b><a href='http://{$faveoCloud}' target='_blank'>{$faveoCloud}</a></b> created successfully for user <b><a href='" . url("clients/{$userId}") . "'><strong>{$userFirstName} {$userLastName}</strong></a></b>",
+                    "Cloud instance <b><a href='http://{$faveoCloud}' target='_blank'>{$faveoCloud}</a></b> created successfully for user <b><a href='".url("clients/{$userId}")."'><strong>{$userFirstName} {$userLastName}</strong></a></b>",
                     'created',
                     'Cloud'
                 );
@@ -538,8 +538,8 @@ class TenantController extends Controller
                 (new LicenseController())->reissueDomain($request->input('id'));
 
                 $loggingUser = \Auth::check()
-                    ? "<a href='" . url('clients/' . \Auth::id()) . "'>" . \Auth::user()->first_name . " " . \Auth::user()->last_name . "</a>"
-                    : "Auto deletion";
+                    ? "<a href='".url('clients/'.\Auth::id())."'>".\Auth::user()->first_name.' '.\Auth::user()->last_name.'</a>'
+                    : 'Auto deletion';
 
                 logActivity(
                     "Cloud instance <b>{$request->input('id')}</b> deleted by <b>{$loggingUser}</b>",
@@ -646,8 +646,8 @@ class TenantController extends Controller
                             \DB::table('free_trial_allowed')->where('domain', $installation_path)->delete();
 
                             $loggingUser = \Auth::check()
-                                ? "<a href='" . url('clients/' . \Auth::id()) . "'>" . \Auth::user()->first_name . " " . \Auth::user()->last_name . "</a>"
-                                : "Auto deletion";
+                                ? "<a href='".url('clients/'.\Auth::id())."'>".\Auth::user()->first_name.' '.\Auth::user()->last_name.'</a>'
+                                : 'Auto deletion';
 
                             logActivity(
                                 "Cloud instance <b>{$installation_path}</b> deleted by <b>{$loggingUser}</b>",
