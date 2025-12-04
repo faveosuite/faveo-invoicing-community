@@ -318,7 +318,6 @@ class TenantController extends Controller
                 ->rawColumns(['Order', 'Deletion day', 'tenants', 'domain', 'db_name', 'db_username', 'action', 'name', 'email', 'mobile', 'country', 'Expiry day', 'plan'])
                 ->make(true);
         } catch (ConnectException|Exception $e) {
-
             return redirect()->back()->with('fails', $e->getMessage());
         }
     }
@@ -529,7 +528,7 @@ class TenantController extends Controller
                 $this->deleteCronForTenant($request->input('id'));
                 \DB::table('free_trial_allowed')->where('domain', $request->input('id'))->delete();
                 if (! empty($request->orderId)) {
-                     $this->statusChange($request->orderId);
+                    $this->statusChange($request->orderId);
 //                    $order = Order::where('id', $request->get('orderId'))->first();
 //                    $sub = $order->subscription()->first();
 //                    $sub->is_deleted = 1;
@@ -553,7 +552,7 @@ class TenantController extends Controller
 
                 return successResponse(__('message.cloud_deleted_successfully'));
             } else {
-                if($response->message == "tenant_not_found"){
+                if ($response->message == 'tenant_not_found') {
                     $this->statusChange($request->orderId);
                 }
 
@@ -570,7 +569,8 @@ class TenantController extends Controller
         }
     }
 
-    public function statusChange($order_id){
+    public function statusChange($order_id)
+    {
         $order = Order::where('id', $order_id)->first();
         $sub = $order->subscription()->first();
         $sub->is_deleted = 1;
