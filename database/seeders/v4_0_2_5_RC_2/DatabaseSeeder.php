@@ -70,8 +70,8 @@ class DatabaseSeeder extends Seeder
         $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
         if (! $keys->app_key) {//Valdidate if the app key to be sent is valid or not
-            throw new \Exception(__('message.cloud_invalid_message'));
-        }
+            \Log::warning('Faveo app key missing. Skipping domainCheck seeder.');
+            return;        }
         $client=new Client();
         $cloud=new FaveoCloud();
         $response = $client->request(
@@ -121,7 +121,8 @@ class DatabaseSeeder extends Seeder
         $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
         if (! $keys->app_key) {//Valdidate if the app key to be sent is valid or not
-            throw new \Exception(__('message.cloud_invalid_message'));
+            \Log::warning('Faveo app key missing. Skipping domainDelete seeder.');
+            return;
         }
         $client=new Client();
         $cloud=new FaveoCloud();
