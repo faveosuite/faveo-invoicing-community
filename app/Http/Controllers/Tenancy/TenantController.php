@@ -552,7 +552,7 @@ class TenantController extends Controller
 
                 return successResponse(__('message.cloud_deleted_successfully'));
             } else {
-                if ($response->message == 'tenant_not_found') {
+                if ($response->message == 'tenant_not_found' && !empty($request->orderId)) {
                     $this->statusChange($request->orderId);
                 }
 
