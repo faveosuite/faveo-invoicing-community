@@ -394,7 +394,7 @@ function currencyFormat($amount = null, $currency = null, $includeSymbol = true,
             $amount = rounding($amount);
         }
 
-        $locale = app()->getLocale();
+        $locale = getLocalesByCurrency($currency);
         $precision = getCurrencyPrecision($currency);
 
         if (! $includeSymbol) {
@@ -409,6 +409,29 @@ function currencyFormat($amount = null, $currency = null, $includeSymbol = true,
     } catch (\Throwable $e) {
         return $amount;
     }
+}
+
+function getLocalesByCurrency(string $currencyCode)
+{
+    return cache()->rememberForever("currency_locale_{$currencyCode}", function () use ($currencyCode) {
+        $firstMatch = null;
+        foreach (\ResourceBundle::getLocales('') as $locale) {
+            try {
+                $fmt = new NumberFormatter($locale, NumberFormatter::CURRENCY);
+                $defaultCurrency = $fmt->getTextAttribute(NumberFormatter::CURRENCY_CODE);
+                if ($defaultCurrency === $currencyCode) {
+                    if ($firstMatch === null) {
+                        $firstMatch = $locale;
+                    }
+                    if (str_starts_with($locale, 'en_')) {
+                        return $locale;
+                    }
+                }
+            } catch (\Throwable $e) {
+            }
+        }
+        return $firstMatch ?? 'en_IN';
+    });
 }
 
 function getCurrencyPrecision($currency)
