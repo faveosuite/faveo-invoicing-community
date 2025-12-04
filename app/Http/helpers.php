@@ -430,6 +430,7 @@ function getLocalesByCurrency(string $currencyCode)
             } catch (\Throwable $e) {
             }
         }
+
         return $firstMatch ?? 'en_IN';
     });
 }
