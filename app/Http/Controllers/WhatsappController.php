@@ -519,10 +519,10 @@ class WhatsappController extends Controller
             WhatsappIntegration::updateOrCreate(
                 ['id' => 1],
                 [
-                    'app_id'       => $app_id,
-                    'app_secret'   => $app_secret,
-                    'config_id'    => $config_id,
-                    'verify_token' => $verify_token
+                    'app_id' => $app_id,
+                    'app_secret' => $app_secret,
+                    'config_id' => $config_id,
+                    'verify_token' => $verify_token,
                 ]
             );
 
