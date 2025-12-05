@@ -384,6 +384,24 @@ $(document).ready(function() {
 
 
   document.addEventListener("DOMContentLoaded", function () {
+      $(document).on('click', '.api-order-btn', function () {
+
+          let productId = $(this).data('product');
+
+          $.ajax({
+              url: "{{ url('pricing') }}",
+              type: "GET",
+              data: {
+                  id: productId
+              },
+              success: function (response) {
+                  window.location.href = "{{ url('show/cart') }}"
+              },
+              error: function (xhr) {
+              }
+          });
+
+      });
       document.querySelectorAll(".content-switcher").forEach(function (switcher) {
           const status = @json($status && (int)$status->status === 1);
           const card = switcher.closest(".card");

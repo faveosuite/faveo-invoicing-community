@@ -638,7 +638,17 @@ class PageController extends Controller
                 return '<button class="btn '.$orderButton.' btn-modern buttonsale" data-toggle="modal" data-target="#tenancy" data-mydata="'.$product->id.'">
                                 <span style="white-space: nowrap;">'.__('message.order_now').'</span>
                             </button>';
-            } else {
+            }
+            elseif ($product->status){
+                return '
+    <button type="button"
+        class="btn '.$orderButton.' btn-modern buttonsale api-order-btn"
+        data-product="'.$product->id.'">
+        '. __('message.order_now') .'
+    </button>
+';
+            }
+            else {
                 return '<input type="submit" value="Order Now" class="btn '.$orderButton.' btn-modern buttonsale"></form>';
             }
         } else {
