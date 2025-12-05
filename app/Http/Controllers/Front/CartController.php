@@ -80,12 +80,13 @@ class CartController extends BaseCartController
         \Session::forget('togglePrice');
         \Session::forget('oldPrice');
         \Session::forget('productid');
-
+        \Session::forget('plan_id');
         try {
             $plan = '';
             $domain = '';
             $subscription = '';
             if ($request->has('subscription')) {//put he Plan id sent into session variable
+
                 $subscription = $request->get('subscription');
                 Session::put('plan_id', $subscription);
             }
@@ -124,8 +125,14 @@ class CartController extends BaseCartController
             if (\Session::has('plan_id')) { //If a plan is selected from dropdown in pricing page, this is true
                 $planid = \Session::get('plan_id');
             } else {
-                $planid = Plan::where('product', $id)->pluck('id')->first();
+                if(Session::get('toggleState')=='yearly'){
+                    $planid = Plan::where('product', $id)->whereIn('days',['365','366'])->pluck('id')->first();
+                }
+                elseif(Session::get('toggleState')=='monthly'){
+                    $planid = Plan::where('product', $id)->whereIn('days',['30','31'])->pluck('id')->first();
             }
+}
+
             $product = Product::find($id);
             $plan = $product->planRelation->find($planid);
             if ($plan) { //If Plan For a Product exists

@@ -237,6 +237,10 @@ select {
     text-overflow: ellipsis !important;
  }
 
+    .content-switcher.active{
+        z-index: 1;
+    }
+
  #serviceType{
     width:100% !important;
 }
