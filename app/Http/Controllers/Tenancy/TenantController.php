@@ -529,7 +529,6 @@ class TenantController extends Controller
                 \DB::table('free_trial_allowed')->where('domain', $request->input('id'))->delete();
                 if (! empty($request->orderId)) {
                     $this->statusChange($request->orderId);
-
                 }
 //                (empty($request->orderId)) ?: Order::where('number', $request->get('orderId'))->delete();
                 (new LicenseController())->reissueDomain($request->input('id'));
