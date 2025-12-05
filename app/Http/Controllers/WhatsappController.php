@@ -516,7 +516,15 @@ class WhatsappController extends Controller
             [$app_id, $app_secret, $config_id, $verify_token] = array_values(
                 $request->only(['app_id', 'app_secret', 'config_id', 'verify_token'])
             );
-            WhatsappIntegration::where('id', 1)->update(['app_id' => $app_id, 'app_secret' => $app_secret, 'config_id' => $config_id, 'verify_token' => $verify_token]);
+            WhatsappIntegration::updateOrCreate(
+                ['id' => 1],
+                [
+                    'app_id'       => $app_id,
+                    'app_secret'   => $app_secret,
+                    'config_id'    => $config_id,
+                    'verify_token' => $verify_token
+                ]
+            );
 
             return successResponse(__('message.updated-successfully'));
         } catch (\Exception $exception) {
