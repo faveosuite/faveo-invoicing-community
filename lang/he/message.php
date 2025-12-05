@@ -2821,4 +2821,9 @@ return [
     'config_id_error' => 'נא להזין מזהה תצורה.',
     'verify_token_error' => 'נא להזין אסימון אימות.',
     'manual_number_title' => 'הוספת מספר ידנית',
+    'plan_exist' => 'למוצר זה כבר קיימת תכנית עם אותה תקופה',
+    'callback_url' => 'כתובת Webhook',
+    'callback_url_error' => 'אנא הזן כתובת Webhook תקפה.',
+    'webhook_explanation' => 'כתובת ה-Webhook נמצאת תחת תצורה נוספת בהגדרות WhatsApp בלוח הניהול.',
+    'business_id_error' => 'אנא הזן מזהה עסק תקף.',
 ];

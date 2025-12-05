@@ -2742,4 +2742,9 @@
      'config_id_error' => 'Jekk jogħġbok daħħal il-Config ID.',
      'verify_token_error' => 'Jekk jogħġbok daħħal it-Token ta’ Verifika.',
      'manual_number_title' => 'Żid Numru Manwalment',
+     'plan_exist' => 'Dan il-prodott diġà għandu pjan bl-istess perjodu',
+     'callback_url' => 'Webhook URL',
+     'callback_url_error' => 'Jekk jogħġbok daħħal Webhook URL validu.',
+     'webhook_explanation' => 'Il-Webhook URL jistaʼ jinstab taħt Konfigurazzjoni Addizzjonali fis-settings taʼ WhatsApp fil-Pannell tal-Amministratur.',
+     'business_id_error' => 'Jekk jogħġbok daħħal Business ID validu.',
  ];

@@ -2782,4 +2782,9 @@ return [
     'config_id_error' => 'Voer een configuratie-ID in.',
     'verify_token_error' => 'Voer een verificatietoken in.',
     'manual_number_title' => 'Nummer handmatig toevoegen',
+    'plan_exist' => 'Dit product heeft al een plan met dezelfde periode',
+    'callback_url' => 'Webhook URL',
+    'callback_url_error' => 'Voer een geldige Webhook URL in.',
+    'webhook_explanation' => 'De Webhook URL is te vinden onder de Aanvullende Configuratie in de WhatsApp-instellingen van het beheerpaneel.',
+    'business_id_error' => 'Voer een geldige Business ID in.',
 ];

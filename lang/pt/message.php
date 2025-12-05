@@ -2795,4 +2795,9 @@ return [
     'config_id_error' => 'Por favor, insira o ID da Configuração.',
     'verify_token_error' => 'Por favor, insira o Token de Verificação.',
     'manual_number_title' => 'Adicionar Número Manualmente',
+    'plan_exist' => 'Este produto já possui um plano com o mesmo período',
+    'callback_url' => 'URL do Webhook',
+    'callback_url_error' => 'Por favor, insira uma URL de Webhook válida.',
+    'webhook_explanation' => 'A URL do Webhook pode ser encontrada na seção de Configuração Adicional das configurações do WhatsApp no Painel de Administração.',
+    'business_id_error' => 'Por favor, insira um Business ID válido.',
 ];

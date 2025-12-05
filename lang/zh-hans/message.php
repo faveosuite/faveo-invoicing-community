@@ -2812,4 +2812,9 @@ return [
     'config_id_error' => '请输入配置 ID。',
     'verify_token_error' => '请输入验证令牌。',
     'manual_number_title' => '手动添加号码',
+    'plan_exist' => '该产品已存在具有相同周期的计划',
+    'callback_url' => 'Webhook 地址',
+    'callback_url_error' => '请输入有效的 Webhook 地址。',
+    'webhook_explanation' => 'Webhook 地址可在管理面板中 WhatsApp 设置的附加配置部分找到。',
+    'business_id_error' => '请输入有效的 Business ID。',
 ];
