@@ -300,7 +300,7 @@ class TenantController extends Controller
                     return $model->database_user_name ?? '';
                 })
                 ->addColumn('action', function ($model) {
-                    $order_id = \DB::table('installation_details')->where('installation_path', $model->domain)->value('order_id');
+                    $order_id = \DB::table('installation_details')->where('installation_path', $model->domain)->latest()->value('order_id');
                     $order_number = \DB::table('orders')->where('id', $order_id)->value('number');
 
                     if (empty($order_id) || empty($order_number)) {
