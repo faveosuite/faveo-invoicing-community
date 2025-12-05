@@ -529,11 +529,7 @@ class TenantController extends Controller
                 \DB::table('free_trial_allowed')->where('domain', $request->input('id'))->delete();
                 if (! empty($request->orderId)) {
                     $this->statusChange($request->orderId);
-//                    $order = Order::where('id', $request->get('orderId'))->first();
-//                    $sub = $order->subscription()->first();
-//                    $sub->is_deleted = 1;
-//                    $sub->save();
-                    //  $order->delete();
+
                 }
 //                (empty($request->orderId)) ?: Order::where('number', $request->get('orderId'))->delete();
                 (new LicenseController())->reissueDomain($request->input('id'));
@@ -571,10 +567,7 @@ class TenantController extends Controller
 
     public function statusChange($order_id)
     {
-        $order = Order::where('id', $order_id)->first();
-        $sub = $order->subscription()->first();
-        $sub->is_deleted = 1;
-        $sub->save();
+        Order::where('id', $order_id)->first()->subscription()->update(['is_deleted' => 1]);
     }
 
     private function deleteCronForTenant($tenantId)
