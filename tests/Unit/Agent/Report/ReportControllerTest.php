@@ -20,7 +20,6 @@ class ReportControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
     }
 
-
     public function test_it_returns_all_reports()
     {
         $detail = ExportDetail::create([
@@ -43,13 +42,12 @@ class ReportControllerTest extends DBTestCase
                             'format',
                             'type',
                             'user',
-                            'created_at'
-                        ]
-                    ]
-                ]
+                            'created_at',
+                        ],
+                    ],
+                ],
             ]);
     }
-
 
     public function test_it_filters_reports_by_search()
     {
@@ -64,7 +62,6 @@ class ReportControllerTest extends DBTestCase
         $this->assertStringContainsString('invoice_export.xlsx', $response->getContent());
     }
 
-
     public function test_it_deletes_bulk_reports_successfully()
     {
         $report = ExportDetail::create([
@@ -75,7 +72,7 @@ class ReportControllerTest extends DBTestCase
         Storage::put('reports/test.xlsx', 'dummy content');
 
         $response = $this->deleteJson('/reports', [
-            'select' => [$report->id]
+            'select' => [$report->id],
         ]);
 
         $response->assertStatus(200)
@@ -84,7 +81,7 @@ class ReportControllerTest extends DBTestCase
             ]);
 
         $this->assertDatabaseMissing('export_details', [
-            'id' => $report->id
+            'id' => $report->id,
         ]);
 
         Storage::disk('local')->assertMissing('reports/test.xlsx');
@@ -94,7 +91,7 @@ class ReportControllerTest extends DBTestCase
     public function it_returns_error_if_bulk_delete_has_no_ids()
     {
         $response = $this->deleteJson('/reports', [
-            'select' => []
+            'select' => [],
         ]);
 
         $response->assertStatus(422)
@@ -107,7 +104,7 @@ class ReportControllerTest extends DBTestCase
     public function it_returns_report_settings()
     {
         ReportSetting::factory()->create([
-            'records' => 100
+            'records' => 100,
         ]);
 
         $response = $this->getJson('/reports/setting');
@@ -116,7 +113,7 @@ class ReportControllerTest extends DBTestCase
             ->assertJsonStructure([
                 'success',
                 'message',
-                'data' => ['records']
+                'data' => ['records'],
             ]);
     }
 
@@ -124,21 +121,21 @@ class ReportControllerTest extends DBTestCase
     public function it_updates_report_settings()
     {
         $setting = ReportSetting::factory()->create([
-            'records' => 50
+            'records' => 50,
         ]);
 
         $response = $this->patchJson('/reports/setting', [
-            'records' => 200
+            'records' => 200,
         ]);
 
         $response->assertStatus(200)
             ->assertJson([
-                'success' => true
+                'success' => true,
             ]);
 
         $this->assertDatabaseHas('report_settings', [
             'id' => $setting->id,
-            'records' => 200
+            'records' => 200,
         ]);
     }
 
@@ -148,7 +145,7 @@ class ReportControllerTest extends DBTestCase
         ReportSetting::factory()->create();
 
         $response = $this->patchJson('/reports/setting', [
-            'records' => 5000
+            'records' => 5000,
         ]);
 
         $response->assertStatus(422);

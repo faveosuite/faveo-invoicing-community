@@ -20,9 +20,9 @@ class PlanFactory extends Factory
         $durations = [14, 30, 90, 180, 365, 730];
 
         return [
-            'name'    => $this->faker->sentence(3),
+            'name' => $this->faker->sentence(3),
             'product' => Product::factory(),
-            'days'    => $this->faker->randomElement($durations),
+            'days' => $this->faker->randomElement($durations),
         ];
     }
 }

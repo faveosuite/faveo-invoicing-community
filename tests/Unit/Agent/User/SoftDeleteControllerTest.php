@@ -42,7 +42,7 @@ class SoftDeleteControllerTest extends DBTestCase
     {
         $target = User::factory()->create([
             'deleted_at' => now(),
-            'email' => 'search_user@test.com'
+            'email' => 'search_user@test.com',
         ]);
 
         $response = $this->getJson('/soft-delete?search-query=search_user');
@@ -97,7 +97,7 @@ class SoftDeleteControllerTest extends DBTestCase
         $user = User::factory()->create(['deleted_at' => now()]);
 
         $response = $this->deleteJson('/permanent-delete-client', [
-            'user_ids' => [$user->id]
+            'user_ids' => [$user->id],
         ]);
 
         $response->assertStatus(200);
@@ -110,7 +110,7 @@ class SoftDeleteControllerTest extends DBTestCase
         $activeUser = User::factory()->create();
 
         $response = $this->deleteJson('/permanent-delete-client', [
-            'user_ids' => [$activeUser->id]
+            'user_ids' => [$activeUser->id],
         ]);
 
         $response->assertStatus(200);
@@ -123,7 +123,7 @@ class SoftDeleteControllerTest extends DBTestCase
         $user = User::factory()->create(['deleted_at' => now()]);
 
         $response = $this->deleteJson('/permanent-delete-client', [
-            'user_ids' => [$user->id, 999999]
+            'user_ids' => [$user->id, 999999],
         ]);
 
         $response->assertStatus(200);
@@ -144,11 +144,11 @@ class SoftDeleteControllerTest extends DBTestCase
         ]);
         Subscription::factory()->create([
             'user_id' => $user->id,
-            'product_id' => $product->id
+            'product_id' => $product->id,
         ]);
 
         $response = $this->deleteJson('/permanent-delete-client', [
-            'user_ids' => [$user->id]
+            'user_ids' => [$user->id],
         ]);
 
         $response->assertStatus(200);
@@ -173,7 +173,7 @@ class SoftDeleteControllerTest extends DBTestCase
         ]);
 
         $this->deleteJson('/permanent-delete-client', [
-            'user_ids' => [$user->id]
+            'user_ids' => [$user->id],
         ]);
 
         Event::assertDispatched(UserOrderDelete::class);
@@ -193,7 +193,7 @@ class SoftDeleteControllerTest extends DBTestCase
         ]);
 
         $this->deleteJson('/permanent-delete-client', [
-            'user_ids' => [$user->id]
+            'user_ids' => [$user->id],
         ]);
 
         Event::assertNotDispatched(UserOrderDelete::class);

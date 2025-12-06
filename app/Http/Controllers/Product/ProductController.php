@@ -841,7 +841,7 @@ class ProductController extends BaseProductController
             'filename' => 'required|string|max:255',
             'dependencies' => 'required|array',
             'description' => 'required',
-            'release_type' => 'required'
+            'release_type' => 'required',
         ], [
             'producttitle.required' => __('validation.product_validate.producttitle_required'),
             'version.required' => __('validation.product_validate.version_required'),

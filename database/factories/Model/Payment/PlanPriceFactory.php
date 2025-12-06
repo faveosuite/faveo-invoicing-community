@@ -21,13 +21,13 @@ class PlanPriceFactory extends Factory
     public function definition()
     {
         return [
-            'plan_id'           => Plan::factory(),
-            'currency'          => $this->faker->randomElement(['INR', 'USD', 'EUR']),
-            'add_price'         => $this->faker->randomFloat(2, 10, 5000),
-            'renew_price'       => $this->faker->randomFloat(2, 10, 5000),
+            'plan_id' => Plan::factory(),
+            'currency' => $this->faker->randomElement(['INR', 'USD', 'EUR']),
+            'add_price' => $this->faker->randomFloat(2, 10, 5000),
+            'renew_price' => $this->faker->randomFloat(2, 10, 5000),
             'price_description' => $this->faker->sentence(6),
-            'product_quantity'  => $this->faker->numberBetween(1, 10),
-            'no_of_agents'      => $this->faker->numberBetween(1, 10),
+            'product_quantity' => $this->faker->numberBetween(1, 10),
+            'no_of_agents' => $this->faker->numberBetween(1, 10),
         ];
     }
 }

@@ -2,11 +2,10 @@
 
 namespace Tests\Unit\Agent\Product;
 
-use App\Model\Product\ProductGroup;
-use App\Model\Product\Product;
-use App\Model\Payment\Plan;
 use App\Model\Common\PricingTemplate;
-use App\User;
+use App\Model\Payment\Plan;
+use App\Model\Product\Product;
+use App\Model\Product\ProductGroup;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
@@ -49,7 +48,7 @@ class GroupControllerTest extends DBTestCase
 
         Product::factory()->count(2)->create(['group' => $group->id]);
 
-        $response = $this->getJson('/group/' . $group->id);
+        $response = $this->getJson('/group/'.$group->id);
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -67,14 +66,13 @@ class GroupControllerTest extends DBTestCase
         $response->assertStatus(400);
     }
 
-
     public function test_group_can_be_created()
     {
         $template = PricingTemplate::query()->first();
 
         $payload = [
             'name' => 'New Group',
-            'pricing_templates_id' => $template->id
+            'pricing_templates_id' => $template->id,
         ];
 
         $response = $this->putJson('/group', $payload);
@@ -88,12 +86,11 @@ class GroupControllerTest extends DBTestCase
     public function test_group_create_validation_fails()
     {
         $response = $this->putJson('/group', [
-            'name' => ''
+            'name' => '',
         ]);
 
         $response->assertStatus(422);
     }
-
 
     public function test_group_can_be_updated_when_all_products_have_monthly_and_yearly_plans()
     {
@@ -114,7 +111,7 @@ class GroupControllerTest extends DBTestCase
         $response = $this->patchJson("/group/{$group->id}", [
             'pricing_templates_id' => $template->id,
             'name' => 'Updated Group',
-            'status' => 1
+            'status' => 1,
         ]);
 
         $response->assertStatus(200)
@@ -138,7 +135,7 @@ class GroupControllerTest extends DBTestCase
         $response = $this->patchJson("/group/{$group->id}", [
             'pricing_templates_id' => $template->id,
             'name' => 'Bad Update',
-            'status' => 1
+            'status' => 1,
         ]);
 
         $response->assertStatus(400);
@@ -158,7 +155,7 @@ class GroupControllerTest extends DBTestCase
         $response = $this->patchJson("/group/{$group->id}", [
             'pricing_templates_id' => $template->id,
             'name' => 'Disabled Group',
-            'status' => 0
+            'status' => 0,
         ]);
 
         $response->assertStatus(200);
@@ -187,7 +184,7 @@ class GroupControllerTest extends DBTestCase
 
         $response->assertStatus(400)
             ->assertJsonFragment([
-                'message' => __('message.select-a-row')
+                'message' => __('message.select-a-row'),
             ]);
     }
 }

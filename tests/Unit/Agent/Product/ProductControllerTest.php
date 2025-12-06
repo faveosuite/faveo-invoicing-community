@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Agent\Product;
 
-
 use App\FileSystemSettings;
 use App\Model\Common\StatusSetting;
 use App\Model\Product\Product;
@@ -28,15 +27,14 @@ class ProductControllerTest extends DBTestCase
 
         $response = $this->getJson('/products');
 
-
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'success',
                 'data' => [
                     'data' => [
-                        ['id', 'name', 'group', 'license_type', 'created_at']
-                    ]
-                ]
+                        ['id', 'name', 'group', 'license_type', 'created_at'],
+                    ],
+                ],
             ]);
     }
 
@@ -70,7 +68,7 @@ class ProductControllerTest extends DBTestCase
 
     public function test_get_product_throws_not_found()
     {
-        $response = $this->getJson("/product/99999");
+        $response = $this->getJson('/product/99999');
 
         $response->assertStatus(400)
             ->assertJsonFragment(['success' => false]);
@@ -79,8 +77,8 @@ class ProductControllerTest extends DBTestCase
     public function test_create_product_successfully()
     {
         StatusSetting::updateOrCreate([
-            'id' => 1
-        ],['license_status' => 0]);
+            'id' => 1,
+        ], ['license_status' => 0]);
 
         $payload = [
             'name' => 'Test Product',
@@ -133,7 +131,7 @@ class ProductControllerTest extends DBTestCase
         $product = Product::factory()->create();
 
         $payload = [
-            'name'  => 'Updated',
+            'name' => 'Updated',
             'type' => 1,
             'description' => 'abc',
             'product_description' => 'xyz',
@@ -168,6 +166,7 @@ class ProductControllerTest extends DBTestCase
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['image']);
     }
+
     public function test_delete_bulk_products_success()
     {
         $prodA = Product::factory()->create();
@@ -176,7 +175,7 @@ class ProductControllerTest extends DBTestCase
         StatusSetting::factory()->create(['license_status' => 0]);
 
         $response = $this->deleteJson('/products', [
-            'product_ids' => [$prodA->id, $prodB->id]
+            'product_ids' => [$prodA->id, $prodB->id],
         ]);
 
         $response->assertStatus(200)
@@ -207,8 +206,8 @@ class ProductControllerTest extends DBTestCase
         ];
 
         StatusSetting::updateOrCreate([
-            'id' => 1
-        ],['license_status' => 0]);
+            'id' => 1,
+        ], ['license_status' => 0]);
 
         $response = $this->putJson("/product/upload/{$product->id}", $payload);
 
@@ -239,20 +238,19 @@ class ProductControllerTest extends DBTestCase
 
         FileSystemSettings::updateOrCreate([
             'disk' => 'system',
-            'local_file_storage_path' => storage_path()
+            'local_file_storage_path' => storage_path(),
         ]);
 
         Storage::disk('system')->put('abc.zip', 'dummy');
 
         $response = $this->deleteJson('/product/upload', [
-            'product_upload_ids' => [$upload->id]
+            'product_upload_ids' => [$upload->id],
         ]);
 
         $response->assertStatus(200);
 
         $this->assertDatabaseMissing('product_uploads', ['id' => $upload->id]);
     }
-
 
     public function test_edit_product_fails_if_product_not_found()
     {
@@ -335,7 +333,7 @@ class ProductControllerTest extends DBTestCase
         $response->assertStatus(400)
             ->assertJsonFragment([
                 'success' => false,
-                'message' => __('message.select-a-row')
+                'message' => __('message.select-a-row'),
             ]);
     }
 }

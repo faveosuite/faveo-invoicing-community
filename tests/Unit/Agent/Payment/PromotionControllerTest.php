@@ -2,9 +2,8 @@
 
 namespace Tests\Unit\Agent\Payment;
 
-use App\Model\Order\Invoice;
-use App\Model\Payment\Promotion;
 use App\Model\Payment\PromoProductRelation;
+use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
 use App\Model\Product\Product;
 use Carbon\Carbon;
@@ -22,7 +21,7 @@ class PromotionControllerTest extends DBTestCase
     }
 
     /**
-     * Helper: create type + product + base payload
+     * Helper: create type + product + base payload.
      */
     private function makePromotionPayload(array $overrides = []): array
     {
@@ -31,17 +30,15 @@ class PromotionControllerTest extends DBTestCase
         $rawValue = $overrides['value'] ?? random_int(5, 80);
 
         return array_merge([
-            'code'    => $overrides['code'] ?? 'TEST50',
-            'type'    => $type,
-            'value'   => $rawValue,
-            'uses'    => $overrides['uses'] ?? 10,
-            'start'   => Carbon::now()->toDateTimeString(),
-            'expiry'  => Carbon::now()->addDays(10)->toDateTimeString(),
+            'code' => $overrides['code'] ?? 'TEST50',
+            'type' => $type,
+            'value' => $rawValue,
+            'uses' => $overrides['uses'] ?? 10,
+            'start' => Carbon::now()->toDateTimeString(),
+            'expiry' => Carbon::now()->addDays(10)->toDateTimeString(),
             'applied' => $product->id,
         ], $overrides);
     }
-
-
 
     public function test_it_returns_paginated_promotions_with_default_params()
     {
@@ -94,12 +91,12 @@ class PromotionControllerTest extends DBTestCase
 
         PromoProductRelation::create([
             'promotion_id' => $promoMatch->id,
-            'product_id'   => $productMatch->id,
+            'product_id' => $productMatch->id,
         ]);
 
         PromoProductRelation::create([
             'promotion_id' => $promoNoMatch->id,
-            'product_id'   => $productNoMatch->id,
+            'product_id' => $productNoMatch->id,
         ]);
 
         $response = $this->getJson('/promotions?search-query=Helpdesk');
@@ -112,7 +109,7 @@ class PromotionControllerTest extends DBTestCase
     public function test_it_filters_promotions_by_promotion_type_name()
     {
         $typePercentage = PromotionType::where('name', 'Percentage')->first();
-        $typeFixedAmount    = PromotionType::where('name', 'Fixed Amount')->first();
+        $typeFixedAmount = PromotionType::where('name', 'Fixed Amount')->first();
 
         $promoDiscount = Promotion::factory()->create([
             'code' => 'DISC01',
@@ -159,7 +156,7 @@ class PromotionControllerTest extends DBTestCase
 
         PromoProductRelation::create([
             'promotion_id' => $promotion->id,
-            'product_id'   => $product->id,
+            'product_id' => $product->id,
         ]);
 
         $response = $this->getJson('/promotion/'.$promotion->id);
@@ -171,7 +168,6 @@ class PromotionControllerTest extends DBTestCase
             ->assertJsonFragment(['name' => 'Cloud Helpdesk']);
     }
 
-
     public function test_it_returns_error_response_when_promotion_not_found()
     {
         $response = $this->getJson('/promotion/999999');
@@ -179,7 +175,6 @@ class PromotionControllerTest extends DBTestCase
         $response->assertStatus(400)
             ->assertJsonFragment(['success' => false]);
     }
-
 
     public function test_it_creates_percentage_promotion_code_successfully()
     {
@@ -209,13 +204,13 @@ class PromotionControllerTest extends DBTestCase
     public function test_it_creates_flat_promotion_code_for_type_two()
     {
         $product = Product::factory()->create();
-        $type    = PromotionType::create(['name' => 'Flat']);
+        $type = PromotionType::create(['name' => 'Flat']);
 
         $payload = $this->makePromotionPayload([
-            'code'   => 'FLAT100',
-            'type'   => $type->id,
-            'value'  => 100,
-            'applied'=> $product->id,
+            'code' => 'FLAT100',
+            'type' => $type->id,
+            'value' => 100,
+            'applied' => $product->id,
         ]);
 
         $response = $this->putJson('/promotionCreate', $payload);
@@ -227,7 +222,7 @@ class PromotionControllerTest extends DBTestCase
             ]);
 
         $this->assertDatabaseHas('promotions', [
-            'code'  => 'FLAT100',
+            'code' => 'FLAT100',
             'value' => 100,
         ]);
     }
@@ -245,29 +240,29 @@ class PromotionControllerTest extends DBTestCase
     public function test_it_updates_promotion_code_with_percentage_value()
     {
         $product = Product::factory()->create();
-        $type1   = PromotionType::create(['name' => 'Percentage']);
-        $type2   = PromotionType::create(['name' => 'Flat']);
+        $type1 = PromotionType::create(['name' => 'Percentage']);
+        $type2 = PromotionType::create(['name' => 'Flat']);
 
         $promotion = Promotion::factory()->create([
-            'code'  => 'OLD',
-            'type'  => $type2->id,
+            'code' => 'OLD',
+            'type' => $type2->id,
             'value' => 99,
-            'uses'  => 1,
+            'uses' => 1,
         ]);
 
         PromoProductRelation::create([
             'promotion_id' => $promotion->id,
-            'product_id'   => $product->id,
+            'product_id' => $product->id,
         ]);
 
         $payload = [
-            'code'   => 'NEWPERCENT',
-            'type'   => $type1->id,
-            'value'  => 30,
-            'uses'   => 5,
-            'start'  => Carbon::now()->toDateTimeString(),
+            'code' => 'NEWPERCENT',
+            'type' => $type1->id,
+            'value' => 30,
+            'uses' => 5,
+            'start' => Carbon::now()->toDateTimeString(),
             'expiry' => Carbon::now()->addDays(7)->toDateTimeString(),
-            'applied'=> $product->id,
+            'applied' => $product->id,
         ];
 
         $response = $this->patchJson('/updatePromotion/'.$promotion->id, $payload);
@@ -279,43 +274,42 @@ class PromotionControllerTest extends DBTestCase
             ]);
 
         $this->assertDatabaseHas('promotions', [
-            'id'    => $promotion->id,
-            'code'  => 'NEWPERCENT',
+            'id' => $promotion->id,
+            'code' => 'NEWPERCENT',
             'value' => '30%',
         ]);
 
         $this->assertDatabaseHas('promo_product_relations', [
             'promotion_id' => $promotion->id,
-            'product_id'   => $product->id,
+            'product_id' => $product->id,
         ]);
     }
-
 
     public function test_it_updates_promotion_code_with_flat_value_for_type_two()
     {
         $product = Product::factory()->create();
-        $type2   = PromotionType::create(['name' => 'Flat']);
+        $type2 = PromotionType::create(['name' => 'Flat']);
 
         $promotion = Promotion::factory()->create([
-            'code'  => 'OLD_FLAT',
-            'type'  => $type2->id,
+            'code' => 'OLD_FLAT',
+            'type' => $type2->id,
             'value' => 10,
-            'uses'  => 1,
+            'uses' => 1,
         ]);
 
         PromoProductRelation::create([
             'promotion_id' => $promotion->id,
-            'product_id'   => $product->id,
+            'product_id' => $product->id,
         ]);
 
         $payload = [
-            'code'   => 'NEW_FLAT',
-            'type'   => $type2->id,   // 2 => store value as int
-            'value'  => 200,
-            'uses'   => 2,
-            'start'  => Carbon::now()->toDateTimeString(),
+            'code' => 'NEW_FLAT',
+            'type' => $type2->id,   // 2 => store value as int
+            'value' => 200,
+            'uses' => 2,
+            'start' => Carbon::now()->toDateTimeString(),
             'expiry' => Carbon::now()->addDays(3)->toDateTimeString(),
-            'applied'=> $product->id,
+            'applied' => $product->id,
         ];
 
         $response = $this->patchJson('/updatePromotion/'.$promotion->id, $payload);
@@ -327,8 +321,8 @@ class PromotionControllerTest extends DBTestCase
             ]);
 
         $this->assertDatabaseHas('promotions', [
-            'id'    => $promotion->id,
-            'code'  => 'NEW_FLAT',
+            'id' => $promotion->id,
+            'code' => 'NEW_FLAT',
             'value' => 200,
         ]);
     }
@@ -338,13 +332,13 @@ class PromotionControllerTest extends DBTestCase
         $type = PromotionType::create();
 
         $payload = [
-            'code'   => 'NOPE',
-            'type'   => $type->id,
-            'value'  => 10,
-            'uses'   => 1,
-            'start'  => Carbon::now()->toDateTimeString(),
+            'code' => 'NOPE',
+            'type' => $type->id,
+            'value' => 10,
+            'uses' => 1,
+            'start' => Carbon::now()->toDateTimeString(),
             'expiry' => Carbon::now()->addDays(1)->toDateTimeString(),
-            'applied'=> Product::factory()->create()->id,
+            'applied' => Product::factory()->create()->id,
         ];
 
         $response = $this->patchJson('/updatePromotion/999999', $payload);
@@ -383,7 +377,6 @@ class PromotionControllerTest extends DBTestCase
         $this->assertDatabaseMissing('promotions', ['id' => $p1->id]);
         $this->assertDatabaseMissing('promotions', ['id' => $p2->id]);
     }
-
 
     public function test_it_returns_error_if_delete_bulk_called_with_empty_selection()
     {

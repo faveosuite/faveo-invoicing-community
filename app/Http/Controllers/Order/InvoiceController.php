@@ -547,7 +547,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 'invoiceItem.order:id,number,invoice_item_id',
             ])->findOrFail($id);
 
-            if (!$query->user || User::onlyTrashed()->find($query->user->id)) {
+            if (! $query->user || User::onlyTrashed()->find($query->user->id)) {
                 throw new \Exception(__('message.user_suspended'));
             }
 

@@ -29,7 +29,7 @@ class GroupRequest extends Request
             'tagline' => 'nullable|string',
             'hidden' => 'nullable|integer',
             'pricing_templates_id' => 'required|exists:pricing_templates,id',
-            'status' => 'nullable|boolean'
+            'status' => 'nullable|boolean',
         ];
     }
 
