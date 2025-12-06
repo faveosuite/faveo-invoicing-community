@@ -7,6 +7,7 @@ use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Product\Product;
 use Illuminate\Http\Request;
+use function PHPUnit\Framework\throwException;
 
 /*
 * Operations for License Permissions Module to be performed here
@@ -141,42 +142,36 @@ class LicensePermissionsController extends Controller
     public static function getPermissionsForProduct(int $productid)
     {
         try {
-            $permissions = Product::find($productid)->licenseType->permissions->pluck('permissions'); //Get All the permissions related to patrticular Product
-            $generateUpdatesxpiryDate = 0;
-            $generateLicenseExpiryDate = 0;
-            $generateSupportExpiryDate = 0;
-            $downloadPermission = 0;
-            $noPermissions = 0;
-            $allowDownloadTillExpiry = 0;
-            $retireAllDownloads = 0;
+            $map = [
+                'Generate Updates Expiry Date'            => 'generateUpdatesxpiryDate',
+                'Generate License Expiry Date'            => 'generateLicenseExpiryDate',
+                'Generate Support Expiry Date'            => 'generateSupportExpiryDate',
+                'Can be Downloaded'                       => 'downloadPermission',
+                'No Permissions'                          => 'noPermissions',
+                'Allow Downloads Before Updates Expire'   => 'allowDownloadTillExpiry',
+            ];
+
+            $result = array_fill_keys(array_values($map), 0);
+
+            $product = Product::find($productid);
+
+            if (!$product || !$product->licenseType || !$product->licenseType->permissions) {
+                return $result;
+            }
+
+            $permissions = $product->licenseType->permissions->pluck('permissions')->toArray();
+
             foreach ($permissions as $permission) {
-                if ($permission == 'Generate Updates Expiry Date') {
-                    $generateUpdatesxpiryDate = 1; //Has Permission for generating Updates Expiry
-                }
-                if ($permission == 'Generate License Expiry Date') {
-                    $generateLicenseExpiryDate = 1; //Has Permission for generating License Expiry
-                }
-                if ($permission == 'Generate Support Expiry Date') {
-                    $generateSupportExpiryDate = 1; //Has Permission for generating Support Expiry
-                }
-                if ($permission == 'Can be Downloaded') {
-                    $downloadPermission = 1; //Has Permission for Download
-                }
-                if ($permission == 'No Permissions') {
-                    $noPermissions = 1;  //Has No Permission
-                }
-                if ($permission == 'Allow Downloads Before Updates Expire') {
-                    $allowDownloadTillExpiry = 1;  //allow download after Expiry
+                if (isset($map[$permission])) {
+                    $result[$map[$permission]] = 1;
                 }
             }
 
-            return ['generateUpdatesxpiryDate' => $generateUpdatesxpiryDate, 'generateLicenseExpiryDate' => $generateLicenseExpiryDate,
-                'generateSupportExpiryDate' => $generateSupportExpiryDate, 'downloadPermission' => $downloadPermission, 'noPermissions' => $noPermissions,
-                'allowDownloadTillExpiry' => $allowDownloadTillExpiry, ];
+            return $result;
+
         } catch (\Exception $ex) {
             \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
+            throw new \Exception($ex->getMessage());
         }
     }
 }

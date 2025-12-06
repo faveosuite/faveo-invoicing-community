@@ -5,10 +5,11 @@ namespace App\Model\Payment;
 use App\BaseModel;
 use App\Model\Product\Product;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Promotion extends BaseModel
 {
-    use SystemActivityLogsTrait;
+    use HasFactory, SystemActivityLogsTrait;
 
     protected $table = 'promotions';
 
@@ -50,11 +51,6 @@ class Promotion extends BaseModel
         });
 
         return parent::delete();
-    }
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults();
     }
 
     public function promotionType()

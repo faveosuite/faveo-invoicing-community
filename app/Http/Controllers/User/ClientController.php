@@ -746,7 +746,7 @@ class ClientController extends AdvanceSearchController
     public function getAllUsers(Request $request)
     {
         $searchQuery = $request->input('search-query', '');
-        $sortOrder = $request->input('sort-order', 'asc');
+        $sortOrder = $request->input('sort-order', 'desc');
         $sortField = $request->input('sort-field', 'created_at');
         $limit = $request->input('limit', 10);
 
@@ -771,34 +771,30 @@ class ClientController extends AdvanceSearchController
             return errorResponse(__('message.select-a-row'));
         }
 
-        $blockedAccountManagers = User::whereIn('account_manager', $ids)
-            ->select(\DB::raw('CONCAT(first_name, " ", last_name) as name'))
-            ->get();
+        $accountManagers = User::whereIn('id', $ids)
+            ->where('position', 'account_manager')
+            ->get(['first_name', 'last_name']);
 
-        $blockedSalesManagers = User::whereIn('manager', $ids)
-            ->select(\DB::raw('CONCAT(first_name, " ", last_name) as name'))
-            ->get();
+        $salesManagers = User::whereIn('id', $ids)
+            ->where('position', 'manager')
+            ->get(['first_name', 'last_name']);
 
-        if ($blockedAccountManagers->isNotEmpty() || $blockedSalesManagers->isNotEmpty()) {
-            $names = collect()
-                ->merge($blockedAccountManagers->pluck('name'))
-                ->merge($blockedSalesManagers->pluck('name'))
+        if ($accountManagers->isNotEmpty() || $salesManagers->isNotEmpty()) {
+
+            $usersInfo = collect([
+                'account_manager' => $accountManagers,
+                'sales_manager'   => $salesManagers,
+            ])
+                ->flatMap(function ($collection, $role) {
+                    return $collection->map(function ($u) use ($role) {
+                        return $u->first_name.' '.$u->last_name.' ('.__("message.$role").')';
+                    });
+                })
                 ->implode(', ');
 
-            $roles = [];
-            if ($blockedAccountManagers->isNotEmpty()) {
-                $roles[] = __('message.account_manager');
-            }
-            if ($blockedSalesManagers->isNotEmpty()) {
-                $roles[] = __('message.sales_manager');
-            }
-
-            $rolesStr = implode(' & ', $roles);
-
             return errorResponse(__('message.deletion_blocked', [
-                'roles' => $rolesStr,
-                'names' => $names,
-            ]), 400);
+                'names' => $usersInfo,
+            ]));
         }
 
         User::whereIn('id', $ids)->delete();
@@ -856,6 +852,10 @@ class ClientController extends AdvanceSearchController
     {
         try {
             $user = User::find($id);
+
+            if (! $user) {
+                return errorResponse(__('message.user_not_found'), 404);
+            }
 
             $user->fill($request->all());
 

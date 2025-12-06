@@ -21,6 +21,7 @@ use App\Model\Product\Subscription;
 use App\Payment_log;
 use App\User;
 use Bugsnag;
+use App\Http\Controllers\License\LicenseController;
 use Illuminate\Http\Request;
 
 class OrderController extends BaseOrderController
@@ -150,7 +151,7 @@ class OrderController extends BaseOrderController
 
                 return [
                     'id' => $order->id,
-                    'product_name' => $order->productRelation->name,
+                    'product_name' => $order->productRelation?->name,
                     'plan' => $order->subscription->plan?->name,
                     'version' => $latestVersion ? getVersionAndLabel($latestVersion, $order->product) : null,
                     'agents' => $licenseAgents,
@@ -181,7 +182,7 @@ class OrderController extends BaseOrderController
             ->findOrFail($id);
 
         // Check if client is soft-deleted
-        if ($order->user->trashed()) {
+        if (!$order->user || $order->user->trashed()) {
             return errorResponse(__('message.user_suspended_restore_to_view'), 403);
         }
 
@@ -231,13 +232,11 @@ class OrderController extends BaseOrderController
         }
     }
 
-    public function getInstallationDetails($orderId)
+    public function getInstallationDetails($orderId, LicenseController $licenseController)
     {
         try {
             // Fetch the order
             $order = $this->order->findOrFail($orderId);
-
-            $licenseController = new \App\Http\Controllers\License\LicenseController();
 
             $installationLogs = $licenseController->getInstallationLogsDetails($order->serial_key);
 
@@ -533,10 +532,10 @@ class OrderController extends BaseOrderController
 
             $order = Order::with([
                 'user:id,first_name,last_name,email',
-                'invoiceRelation',
+                'invoices',
             ])->findOrFail($orderId);
 
-            $invoiceIds = $order->invoiceRelation->pluck('invoice_id')->toArray();
+            $invoiceIds = $order->invoices->pluck('id')->toArray();
 
             $payments = Payment::whereIn('invoice_id', $invoiceIds)
                 ->select(['id', 'invoice_id', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at'])

@@ -4,9 +4,12 @@ namespace App\Model\Front;
 
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class FrontendPage extends BaseModel
 {
+    use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'frontend_pages';

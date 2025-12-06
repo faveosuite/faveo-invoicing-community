@@ -768,8 +768,8 @@ class ProductController extends BaseProductController
                 'id' => $product->id,
                 'name' => $product->name,
                 'image' => $product->image,
-                'group' => $product->groupRelation->name,
-                'license_type' => $product->licenseType->name,
+                'group' => $product->groupRelation?->name,
+                'license_type' => $product->licenseType?->name,
                 'action' => [
                     'edit_url' => url('products/'.$product->id.'/edit'),
                     'download_url' => $download_url,
@@ -830,16 +830,20 @@ class ProductController extends BaseProductController
 
     public function productUploadCreate(Request $request, $productId)
     {
-        $request->validate([
+        $validated = $request->validate([
             'producttitle' => 'required|string|max:255',
             'version' => 'required|string|max:50',
             'filename' => 'required|string|max:255',
             'dependencies' => 'required|array',
+            'description' => 'required',
+            'release_type' => 'required'
         ], [
             'producttitle.required' => __('validation.product_validate.producttitle_required'),
             'version.required' => __('validation.product_validate.version_required'),
             'filename.required' => __('validation.product_validate.filename_required'),
             'dependencies.required' => __('validation.product_validate.dependencies_required'),
+            'description' => __('validation.product_vaidation.discription_required'),
+            'release_type' => __('validation.product_validate.release_type_required'),
         ]);
 
         try {
@@ -850,12 +854,12 @@ class ProductController extends BaseProductController
                 $productUpload = ProductUpload::create([
                     'product_id' => $product->id,
                     'title' => $validated['producttitle'],
-                    'description' => $request->input('description'),
+                    'description' => $validated['description'],
                     'version' => $validated['version'],
-                    'file' => $validated['filenteksalahame'],
+                    'file' => $validated['filename'],
                     'is_private' => $request->boolean('is_private'),
                     'is_restricted' => $request->boolean('is_restricted'),
-                    'release_type' => $request->input('release_type'),
+                    'release_type' => $validated['release_type'],
                     'dependencies' => json_encode($validated['dependencies']),
                 ]);
 
@@ -873,7 +877,7 @@ class ProductController extends BaseProductController
                 }
             });
 
-            return successResponse(__('message.product_upload_created_successfully'));
+            return successResponse(__('message.product_uploaded_successfully'));
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
@@ -910,7 +914,7 @@ class ProductController extends BaseProductController
                 $validated['can_modify_quantity'] = $request->boolean('can_modify_quantity');
 
                 // Filter only fillable fields
-                $data = array_intersect_key($validated, array_flip(Product::getFillable()));
+                $data = array_intersect_key($validated, array_flip((new Product)->getFillable()));
 
                 // Create Product
                 $product = Product::create($data);

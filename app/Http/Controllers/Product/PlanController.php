@@ -444,14 +444,16 @@ class PlanController extends ExtendedPlanController
     {
         try {
             // prevent creating duplicate plans for certain products
-            if (in_array(cloudPopupProducts(), $request->product) &&
+            if (in_array($request->product, cloudPopupProducts()) &&
                 Plan::whereProduct($request->product)->where('days', $request->days)->exists()
             ) {
                 return errorResponse('Plan already exists');
             }
 
             // Create the plan
-            $plan = Plan::create($request->validated());
+            $plan = Plan::create(
+                $request->only((new Plan)->getFillable())
+            );
 
             // Attach period if days is provided
             if ($request->filled('days')) {
@@ -465,7 +467,6 @@ class PlanController extends ExtendedPlanController
                 $priceData = collect($request->add_price)->map(function ($addPrice, $key) use ($request, $plan) {
                     return [
                         'plan_id' => $plan->id,
-                        'country_id' => $request->country_id[$key],
                         'currency' => $request->currency[$key],
                         'add_price' => $addPrice,
                         'renew_price' => $request->renew_price[$key],
@@ -529,7 +530,6 @@ class PlanController extends ExtendedPlanController
                 $priceData = collect($request->add_price)->map(function ($addPrice, $key) use ($request, $plan) {
                     return [
                         'plan_id' => $plan->id,
-                        'country_id' => $request->country_id[$key],
                         'currency' => $request->currency[$key],
                         'add_price' => $addPrice,
                         'renew_price' => $request->renew_price[$key],

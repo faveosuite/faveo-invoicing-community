@@ -24,7 +24,7 @@ class ClientRequest extends Request
     public function rules()
     {
         switch ($this->method()) {
-            case 'POST':
+            case 'PUT':
                 return [
                     'first_name' => 'required',
                     'last_name' => 'required',
@@ -56,7 +56,7 @@ class ClientRequest extends Request
                 ];
 
             default:
-                break;
+                return [];
         }
     }
 
