@@ -2,10 +2,13 @@
 
 namespace App\Model\Order;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class InstallationDetail extends Model
 {
+    use HasFactory;
+
     protected $table = 'installation_details';
 
     protected $fillable = ['installation_path', 'installation_ip', 'version', 'last_active', 'order_id'];

@@ -547,7 +547,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 'invoiceItem.order:id,number,invoice_item_id',
             ])->findOrFail($id);
 
-            if (User::onlyTrashed()->find($query->user->id)) {
+            if (!$query->user || User::onlyTrashed()->find($query->user->id)) {
                 throw new \Exception(__('message.user_suspended'));
             }
 
@@ -557,12 +557,12 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 'phone_code', 'phone', 'logo', 'company_email'
             )->first();
 
-            $setting->state = key_exists('name', getStateByCode($setting->state))
-                ? getStateByCode($setting->state)['name']
+            $setting->state = key_exists('name', getStateByCode($setting->country, $setting->state))
+                ? getStateByCode($setting->country, $setting->state)['name']
                 : $setting->state;
 
-            $query->user->state = key_exists('name', getStateByCode($query->user->state))
-                ? getStateByCode($query->user->state)['name']
+            $query->user->state = key_exists('name', getStateByCode($query->user->country, $query->user->state))
+                ? getStateByCode($query->user->country, $query->user->state)['name']
                 : $query->user->state;
 
             $result = $this->calculateInvoice($id, true);

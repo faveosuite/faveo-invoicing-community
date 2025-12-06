@@ -21,10 +21,12 @@ class BaseOrderController extends ExtendedOrderController
 {
     protected $sendMail;
 
-    public function __construct()
+    public function __construct(LicenseController $licenseController)
     {
         $this->middleware('auth');
         $this->middleware('admin');
+
+        $this->licenseController = $licenseController;
 
         $this->order = new Order();
 
