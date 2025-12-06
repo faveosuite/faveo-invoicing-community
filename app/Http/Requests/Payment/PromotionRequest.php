@@ -25,7 +25,7 @@ class PromotionRequest extends Request
     {
         $rules = [
             'code' => 'required',
-            'type' => 'required',
+            'type'    => 'required|exists:promotion_types,id',
             'applied' => 'required',
             'uses' => 'required|numeric',
             'start' => 'required',

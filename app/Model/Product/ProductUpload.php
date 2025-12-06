@@ -3,11 +3,12 @@
 namespace App\Model\Product;
 
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductUpload extends Model
 {
-    use SystemActivityLogsTrait;
+    use HasFactory, SystemActivityLogsTrait;
 
     protected $table = 'product_uploads';
 

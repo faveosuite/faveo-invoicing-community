@@ -2782,7 +2782,7 @@ return [
 
     'cloud_plan_error' => 'Please remove the cloud product or link it to an alternate plan.',
 
-    'deletion_blocked' => 'Deletion blocked: the following users are assigned as :roles: :names.',
+    'deletion_blocked' => 'Deletion blocked: The selected user(s) cannot be deleted because they are assigned as Account Managers or Sales Managers. Blocked managers: :names.',
     'search_term_required' => 'Search term is required',
     'no_admins_found' => 'No admins found',
     'third_party_apps_fetched' => 'Third-party apps fetched successfully',
@@ -2925,6 +2925,7 @@ return [
     'whatsapp_access_token' => 'Access Token',
     'something_went_wrong_try_again' => 'Something went wrong. Please try again later.',
     'tenants_fetched_successfully' => 'Tenants fetched successfully',
+    'license_permission_denied' => 'This action requires the proper license permissions. Please enable the appropriate permission to proceed.',
     'login_password_validation' => 'Please enter your password.',
     'whatsapp_integration_user' => 'Whatsapp Number',
     'manual_whatsapp_integration' => 'Manual Phone Number Addition',

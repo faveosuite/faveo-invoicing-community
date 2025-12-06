@@ -824,9 +824,9 @@ Route::post('language-toggle', [LanguageController::class, 'toggleLanguageStatus
 
 Route::get('users', [User\ClientController::class, 'getAllUsers']);
 Route::delete('users', [User\ClientController::class, 'deleteBulkUsers']);
-Route::post('users', [User\ClientController::class, 'userCreate']);
+Route::put('users', [User\ClientController::class, 'userCreate']);
 Route::get('user/{id}', [User\ClientController::class, 'getEditUser']);
-Route::put('user/{id}', [User\ClientController::class, 'userUpdate']);
+Route::patch('user/{id}', [User\ClientController::class, 'userUpdate']);
 
 Route::get('soft-delete', [User\SoftDeleteController::class, 'softDeletedUsers']);
 Route::get('user/restore/{id}', [User\SoftDeleteController::class, 'restoreUser']);
@@ -874,7 +874,7 @@ Route::delete('plans', [Product\PlanController::class, 'deleteBulkPlans']);
 Route::get('promotions', [Payment\PromotionController::class, 'getAllPromotions']);
 Route::get('promotion/{promotionId}', [Payment\PromotionController::class, 'getPromotion']);
 Route::get('getPromotionCode', [Payment\PromotionController::class, 'getCode']);
-Route::patch('updatePromotion', [Payment\PromotionController::class, 'updatePromotionCode']);
+Route::patch('updatePromotion/{promotionId}', [Payment\PromotionController::class, 'updatePromotionCode']);
 Route::put('promotionCreate', [Payment\PromotionController::class, 'promotionCodeCreate']);
 Route::delete('promotions', [Payment\PromotionController::class, 'deleteBulkPromotions']);
 Route::get('groups', [Product\GroupController::class, 'getProductGroups']);

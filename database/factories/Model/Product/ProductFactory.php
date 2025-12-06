@@ -17,10 +17,8 @@ class ProductFactory extends Factory
     public function definition()
     {
         return [
-
             'name' => $this->faker->name(),
             'description' => $this->faker->sentence(),
-            // 'type'                => 1,
             'group' => 1,
             'can_modify_agent' => 0,
             'can_modify_quantity' => 0,

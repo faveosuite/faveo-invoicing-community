@@ -4,10 +4,11 @@ namespace App\Model\Product;
 
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ProductGroup extends BaseModel
 {
-    use SystemActivityLogsTrait;
+    use HasFactory, SystemActivityLogsTrait;
 
     protected $table = 'product_groups';
 

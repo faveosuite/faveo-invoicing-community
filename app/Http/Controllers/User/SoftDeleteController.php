@@ -71,7 +71,7 @@ class SoftDeleteController extends ClientController
                         ->value('installation_path');
 
                     if ($installation_path) {
-                        event(new UserOrderDelete($installation_path));
+                        event(new UserOrderDelete($installation_path, $tenant));
                     }
                 });
 

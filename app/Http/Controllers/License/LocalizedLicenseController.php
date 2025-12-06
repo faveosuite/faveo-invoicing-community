@@ -149,7 +149,7 @@ class LocalizedLicenseController extends Controller
         $order->update(['license_mode' => $chose ? 'File' : 'Database']);
 
         if ($chose) {
-            (new EncryptDecryptController())->generateKeys($orderNo);
+            app(EncryptDecryptController::class)->generateKeys($orderNo);
         } else {
             $files = [
                 "publicKey-{$orderNo}.txt",

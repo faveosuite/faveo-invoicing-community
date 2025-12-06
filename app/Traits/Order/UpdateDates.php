@@ -7,6 +7,7 @@ use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Common\StatusSetting;
 use App\Model\Order\Order;
 use App\Model\Product\Subscription;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 trait UpdateDates
@@ -14,6 +15,9 @@ trait UpdateDates
     private const UPDATE_EXPIRY = 'update_ends_at';
     private const LICENSE_EXPIRY = 'ends_at';
     private const SUPPORT_EXPIRY = 'support_ends_at';
+
+    protected LicenseController $licenseController;
+
 
     /**
      * Edit Updates Expiry Date In Admin panel.
@@ -64,10 +68,11 @@ trait UpdateDates
         try {
             $orderId = $request->input('orderid');
             $productId = $this->getProductId($orderId);
+
             $permissions = LicensePermissionsController::getPermissionsForProduct($productId);
 
             if ($permissions[$permission] !== 1) {
-                return ['message' => 'success', 'update' => $successMessage];
+                return errorResponse(__('message.license_permission_denied'));
             }
 
             $newDate = $this->convertDate($request->input('date'));
@@ -95,16 +100,13 @@ trait UpdateDates
      */
     public function editInstallationLimit(Request $request)
     {
-        $this->validate($request, ['limit' => 'required|numeric']);
+        $this->validate($request, ['limit' => 'required|integer|min:1']);
 
         try {
             $order = Order::findOrFail($request->input('orderid'));
             $subscription = $this->getSubscriptionData($order->id, null);
 
-            $licenseController = new LicenseController();
-            $installPreference = $licenseController->getInstallPreference($order->serial_key, $order->product);
-
-            $licenseController->updateLicensedDomain(
+            $this->licenseController->updateLicensedDomain(
                 $order->serial_key,
                 $order->domain,
                 $order->product,
@@ -113,7 +115,7 @@ trait UpdateDates
                 $subscription->support_ends_at,
                 $order->number,
                 $request->input('limit'),
-                $installPreference
+                $this->licenseController->getInstallPreference($order->serial_key, $order->product)
             );
 
             return successResponse('Installation Limit Updated');
@@ -132,12 +134,7 @@ trait UpdateDates
 
     private function convertDate($date)
     {
-        $dateTime = \DateTime::createFromFormat('m/d/Y', $date);
-        if (! $dateTime) {
-            throw new \InvalidArgumentException('Invalid date format. Expected MM/DD/YYYY');
-        }
-
-        return $dateTime->format('Y-m-d H:i:s');
+        return Carbon::parse($date)->endOfDay();
     }
 
     private function getSubscriptionData($orderId, $excludeField = null)
@@ -190,9 +187,7 @@ trait UpdateDates
 
         $dates = $dateMapping[$field];
 
-        $licenseController = $this->getLicenseControllerWithInstallationData($order);
-
-        $licenseController->updateExpirationDate(
+        $this->licenseController->updateExpirationDate(
             $order->serial_key,
             $this->formatDate($dates['expiryDate']),
             $order->product,
@@ -200,21 +195,9 @@ trait UpdateDates
             $order->number,
             $this->formatDate($dates['licenseExpiry']),
             $this->formatDate($dates['supportExpiry']),
-            $licenseController->getNoOfAllowedInstallation($order->serial_key, $order->product),
-            $licenseController->getInstallPreference($order->serial_key, $order->product)
+            $this->licenseController->getNoOfAllowedInstallation($order->serial_key, $order->product),
+            $this->licenseController->getInstallPreference($order->serial_key, $order->product)
         );
-    }
-
-    private function getLicenseControllerWithInstallationData(Order $order): LicenseController
-    {
-        $licenseController = new LicenseController();
-
-        if ($this->shouldUpdateLicense()) {
-            $licenseController->getNoOfAllowedInstallation($order->serial_key, $order->product);
-            $licenseController->getInstallPreference($order->serial_key, $order->product);
-        }
-
-        return $licenseController;
     }
 
     private function formatDate($date)
