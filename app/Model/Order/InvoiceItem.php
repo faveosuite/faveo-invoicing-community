@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class InvoiceItem extends BaseModel
 {
     use HasFactory;
-    
+
     protected $table = 'invoice_items';
 
     protected $fillable = ['invoice_id', 'product_name',

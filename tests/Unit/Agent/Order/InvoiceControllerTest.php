@@ -4,8 +4,8 @@ namespace Tests\Unit\Agent\Order;
 
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
-use Tests\DBTestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\DBTestCase;
 
 class InvoiceControllerTest extends DBTestCase
 {
@@ -46,10 +46,10 @@ class InvoiceControllerTest extends DBTestCase
                             'user',
                             'number',
                             'grand_total',
-                            'status'
-                        ]
-                    ]
-                ]
+                            'status',
+                        ],
+                    ],
+                ],
             ]);
     }
 
@@ -57,7 +57,7 @@ class InvoiceControllerTest extends DBTestCase
     {
         Invoice::factory()->create([
             'status' => 'success',
-            'number' => 'INV12345'
+            'number' => 'INV12345',
         ]);
 
         $response = $this->getJson('/invoices?search-query=paid');
@@ -81,7 +81,7 @@ class InvoiceControllerTest extends DBTestCase
         $ids = $invoices->pluck('id')->toArray();
 
         $response = $this->deleteJson('/invoices', [
-            'invoice_ids' => $ids
+            'invoice_ids' => $ids,
         ]);
 
         $response->assertStatus(200)
@@ -95,19 +95,18 @@ class InvoiceControllerTest extends DBTestCase
     public function test_delete_bulk_invoices_empty_ids()
     {
         $response = $this->deleteJson('/invoices', [
-            'invoice_ids' => []
+            'invoice_ids' => [],
         ]);
 
         $response->assertStatus(400)
             ->assertJsonFragment(['message' => __('message.select-a-row')]);
     }
 
-
     public function test_get_invoice_success()
     {
         $invoice = $this->createInvoiceWithItems();
 
-        $response = $this->getJson('/invoice/' . $invoice->id);
+        $response = $this->getJson('/invoice/'.$invoice->id);
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -122,9 +121,9 @@ class InvoiceControllerTest extends DBTestCase
                         'processing_fee',
                         'credits',
                         'discount',
-                        'total'
-                    ]
-                ]
+                        'total',
+                    ],
+                ],
             ]);
     }
 
@@ -140,11 +139,11 @@ class InvoiceControllerTest extends DBTestCase
         $invoice = $this->createInvoiceWithItems();
         $invoice->user->delete();
 
-        $response = $this->getJson('/invoice/' . $invoice->id);
+        $response = $this->getJson('/invoice/'.$invoice->id);
 
         $response->assertStatus(400);
         $response->assertJsonFragment([
-            'message' => __('message.user_suspended')
+            'message' => __('message.user_suspended'),
         ]);
     }
 }

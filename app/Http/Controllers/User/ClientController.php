@@ -780,10 +780,9 @@ class ClientController extends AdvanceSearchController
             ->get(['first_name', 'last_name']);
 
         if ($accountManagers->isNotEmpty() || $salesManagers->isNotEmpty()) {
-
             $usersInfo = collect([
                 'account_manager' => $accountManagers,
-                'sales_manager'   => $salesManagers,
+                'sales_manager' => $salesManagers,
             ])
                 ->flatMap(function ($collection, $role) {
                     return $collection->map(function ($u) use ($role) {

@@ -18,7 +18,6 @@ trait UpdateDates
 
     protected LicenseController $licenseController;
 
-
     /**
      * Edit Updates Expiry Date In Admin panel.
      */

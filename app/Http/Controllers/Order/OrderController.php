@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Order;
 
 use App\Events\UserOrderDelete;
+use App\Http\Controllers\License\LicenseController;
 use App\Http\Requests\Order\OrderRequest;
 use App\Jobs\ReportExport;
 use App\Model\Common\StatusSetting;
@@ -21,7 +22,6 @@ use App\Model\Product\Subscription;
 use App\Payment_log;
 use App\User;
 use Bugsnag;
-use App\Http\Controllers\License\LicenseController;
 use Illuminate\Http\Request;
 
 class OrderController extends BaseOrderController
@@ -182,7 +182,7 @@ class OrderController extends BaseOrderController
             ->findOrFail($id);
 
         // Check if client is soft-deleted
-        if (!$order->user || $order->user->trashed()) {
+        if (! $order->user || $order->user->trashed()) {
             return errorResponse(__('message.user_suspended_restore_to_view'), 403);
         }
 

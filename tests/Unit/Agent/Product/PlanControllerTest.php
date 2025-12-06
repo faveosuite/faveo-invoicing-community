@@ -88,7 +88,7 @@ class PlanControllerTest extends DBTestCase
         $this->assertDatabaseHas('plans', ['name' => 'Test Plan']);
         $this->assertDatabaseHas('plan_prices', [
             'currency' => 'INR',
-            'add_price' => 100
+            'add_price' => 100,
         ]);
     }
 
@@ -99,12 +99,12 @@ class PlanControllerTest extends DBTestCase
 
         $plan = Plan::factory()->create([
             'product' => $product->id,
-            'days' => 30
+            'days' => 30,
         ]);
 
         CloudProducts::create([
-           'cloud_product' => $product->id,
-           'cloud_free_plan' => $plan->id
+            'cloud_product' => $product->id,
+            'cloud_free_plan' => $plan->id,
         ]);
 
         $payload = [
@@ -136,7 +136,7 @@ class PlanControllerTest extends DBTestCase
             'plan_id' => $plan->id,
             'currency' => 'USD',
             'product_quantity' => 2,
-            'no_of_agents' => 5
+            'no_of_agents' => 5,
         ]);
 
         $response = $this->getJson("/plan/{$plan->id}");
@@ -152,6 +152,7 @@ class PlanControllerTest extends DBTestCase
 
         $response->assertStatus(400);
     }
+
     public function test_update_plan_successfully()
     {
         $product = Product::factory()->create();

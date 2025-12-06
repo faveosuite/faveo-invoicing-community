@@ -2,10 +2,9 @@
 
 namespace Tests\Unit\Agent\Front;
 
-
 use App\Model\Front\FrontendPage;
-use Tests\DBTestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\DBTestCase;
 
 class PageControllerTest extends DBTestCase
 {
@@ -60,12 +59,11 @@ class PageControllerTest extends DBTestCase
         ]);
     }
 
-
     public function test_get_page_success()
     {
         $page = FrontendPage::factory()->create();
 
-        $response = $this->getJson('/page/' . $page->id);
+        $response = $this->getJson('/page/'.$page->id);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['type' => $page->type]);
@@ -86,7 +84,7 @@ class PageControllerTest extends DBTestCase
             'content' => 'New Content',
         ];
 
-        $response = $this->putJson('/page/' . $page->id, $updateData);
+        $response = $this->putJson('/page/'.$page->id, $updateData);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['message' => __('message.updated-successfully')]);
@@ -103,7 +101,7 @@ class PageControllerTest extends DBTestCase
 
     public function test_save_demo_page_success()
     {
-        $response = $this->postJson('/save/demo', [ 'status' => 1 ]);
+        $response = $this->postJson('/save/demo', ['status' => 1]);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['message' => __('message.data_updated_successfully')]);

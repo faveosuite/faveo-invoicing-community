@@ -22,12 +22,12 @@ class BaseOrderControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
 
         StatusSetting::updateOrCreate(['id' => 1], [
-            'license_status' => 1
+            'license_status' => 1,
         ]);
     }
 
     /**
-     * Shared helpers
+     * Shared helpers.
      */
     private function mockPermissions(array $permissions)
     {
@@ -54,15 +54,14 @@ class BaseOrderControllerTest extends DBTestCase
     {
         $this->assertDatabaseHas('subscriptions', [
             'order_id' => $orderId,
-            $field     => Carbon::parse($date)->endOfDay()->format('Y-m-d H:i:s'),
+            $field => Carbon::parse($date)->endOfDay()->format('Y-m-d H:i:s'),
         ]);
     }
-
 
     /**
      * =========================================================
      * UPDATE EXPIRY TESTS
-     * =========================================================
+     * =========================================================.
      */
     public function test_edit_update_expiry_success()
     {
@@ -75,7 +74,7 @@ class BaseOrderControllerTest extends DBTestCase
 
         $response = $this->postJson('/edit-update-expiry', [
             'orderid' => $order->id,
-            'date'    => $date,
+            'date' => $date,
         ]);
 
         $response->assertStatus(200)
@@ -93,7 +92,7 @@ class BaseOrderControllerTest extends DBTestCase
 
         $response = $this->postJson('/edit-update-expiry', [
             'orderid' => $order->id,
-            'date'    => $this->date(),
+            'date' => $this->date(),
         ]);
 
         $response->assertStatus(400)
@@ -106,7 +105,7 @@ class BaseOrderControllerTest extends DBTestCase
 
         $response = $this->postJson('/edit-update-expiry', [
             'orderid' => $order->id,
-            'date'    => '',
+            'date' => '',
         ]);
 
         $response->assertStatus(422);
@@ -123,20 +122,19 @@ class BaseOrderControllerTest extends DBTestCase
 
         $this->postJson('/edit-update-expiry', [
             'orderid' => $order->id,
-            'date'    => $this->date(),
+            'date' => $this->date(),
         ]);
 
         $this->assertDatabaseHas('orders', [
-            'id'             => $order->id,
-            'is_downloadable'=> 0,
+            'id' => $order->id,
+            'is_downloadable' => 0,
         ]);
     }
-
 
     /**
      * =========================================================
      * LICENSE EXPIRY TESTS
-     * =========================================================
+     * =========================================================.
      */
     public function test_edit_license_expiry_success()
     {
@@ -149,7 +147,7 @@ class BaseOrderControllerTest extends DBTestCase
 
         $response = $this->postJson('/edit-license-expiry', [
             'orderid' => $order->id,
-            'date'    => $date,
+            'date' => $date,
         ]);
 
         $response->assertStatus(200)
@@ -167,7 +165,7 @@ class BaseOrderControllerTest extends DBTestCase
 
         $response = $this->postJson('/edit-license-expiry', [
             'orderid' => $order->id,
-            'date'    => $this->date(),
+            'date' => $this->date(),
         ]);
 
         $response->assertStatus(400)
@@ -180,7 +178,7 @@ class BaseOrderControllerTest extends DBTestCase
 
         $response = $this->postJson('/edit-license-expiry', [
             'orderid' => $order->id,
-            'date'    => '',
+            'date' => '',
         ]);
 
         $response->assertStatus(422);
@@ -197,20 +195,19 @@ class BaseOrderControllerTest extends DBTestCase
 
         $this->postJson('/edit-license-expiry', [
             'orderid' => $order->id,
-            'date'    => $this->date(),
+            'date' => $this->date(),
         ]);
 
         $this->assertDatabaseHas('orders', [
-            'id'             => $order->id,
-            'is_downloadable'=> 0,
+            'id' => $order->id,
+            'is_downloadable' => 0,
         ]);
     }
-
 
     /**
      * =========================================================
      * SUPPORT EXPIRY TESTS
-     * =========================================================
+     * =========================================================.
      */
     public function test_edit_support_expiry_success()
     {
@@ -223,7 +220,7 @@ class BaseOrderControllerTest extends DBTestCase
 
         $response = $this->postJson('/edit-support-expiry', [
             'orderid' => $order->id,
-            'date'    => $date,
+            'date' => $date,
         ]);
 
         $response->assertStatus(200)
@@ -241,7 +238,7 @@ class BaseOrderControllerTest extends DBTestCase
 
         $response = $this->postJson('/edit-support-expiry', [
             'orderid' => $order->id,
-            'date'    => $this->date(),
+            'date' => $this->date(),
         ]);
 
         $response->assertStatus(400)
@@ -254,7 +251,7 @@ class BaseOrderControllerTest extends DBTestCase
 
         $response = $this->postJson('/edit-support-expiry', [
             'orderid' => $order->id,
-            'date'    => '',
+            'date' => '',
         ]);
 
         $response->assertStatus(422);
@@ -271,20 +268,19 @@ class BaseOrderControllerTest extends DBTestCase
 
         $this->postJson('/edit-support-expiry', [
             'orderid' => $order->id,
-            'date'    => $this->date(),
+            'date' => $this->date(),
         ]);
 
         $this->assertDatabaseHas('orders', [
-            'id'             => $order->id,
-            'is_downloadable'=> 0,
+            'id' => $order->id,
+            'is_downloadable' => 0,
         ]);
     }
-
 
     /**
      * =========================================================
      * INSTALLATION LIMIT TESTS
-     * =========================================================
+     * =========================================================.
      */
     public function test_edit_installation_limit_success()
     {
@@ -294,7 +290,7 @@ class BaseOrderControllerTest extends DBTestCase
 
         $response = $this->postJson('/edit-installation-limit', [
             'orderid' => $order->id,
-            'limit'   => 10,
+            'limit' => 10,
         ]);
 
         $response->assertStatus(200)
@@ -307,7 +303,7 @@ class BaseOrderControllerTest extends DBTestCase
 
         $response = $this->postJson('/edit-installation-limit', [
             'orderid' => $order->id,
-            'limit'   => 'abc',
+            'limit' => 'abc',
         ]);
 
         $response->assertStatus(422);
@@ -319,7 +315,7 @@ class BaseOrderControllerTest extends DBTestCase
 
         $response = $this->postJson('/edit-installation-limit', [
             'orderid' => $order->id,
-            'limit'   => -5,
+            'limit' => -5,
         ]);
 
         $response->assertStatus(422);
