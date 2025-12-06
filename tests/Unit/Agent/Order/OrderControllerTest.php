@@ -31,7 +31,7 @@ class OrderControllerTest extends DBTestCase
         $response->assertStatus(200)
             ->assertJsonFragment(['success' => true])
             ->assertJsonFragment([
-                'id'   => $order->id,
+                'id' => $order->id,
                 'plan' => $order->plan->name,
             ])
             ->assertJsonFragment([
@@ -50,7 +50,7 @@ class OrderControllerTest extends DBTestCase
         $response->assertStatus(200)
             ->assertJsonFragment([
                 'first_name' => $searchValue,
-                'id'         => $order->id,
+                'id' => $order->id,
             ]);
 
         $this->assertCount(1, $response->json('data.data'));
@@ -59,11 +59,11 @@ class OrderControllerTest extends DBTestCase
     public function test_get_orders_sorting()
     {
         Order::factory()->withRelations([
-            'created_at' => now()->subSeconds(10)
+            'created_at' => now()->subSeconds(10),
         ])->create();
 
         Order::factory()->withRelations([
-            'created_at' => now()
+            'created_at' => now(),
         ])->create();
 
         $response = $this->getJson('/orders?sort-field=created_at&sort-order=desc');
@@ -72,7 +72,7 @@ class OrderControllerTest extends DBTestCase
 
         $data = $response->json('data.data');
 
-        $first  = Carbon::parse($data[0]['order_date']);
+        $first = Carbon::parse($data[0]['order_date']);
         $second = Carbon::parse($data[1]['order_date']);
 
         $this->assertTrue($first->greaterThanOrEqualTo($second));
@@ -81,7 +81,7 @@ class OrderControllerTest extends DBTestCase
     public function test_get_orders_unlimited_agents()
     {
         Order::factory()->withRelations([
-            'serial_key' => 'AAAABBBBCCCC0000' // 0000 => Unlimited
+            'serial_key' => 'AAAABBBBCCCC0000', // 0000 => Unlimited
         ])->create();
 
         $response = $this->getJson('/orders');
@@ -89,6 +89,7 @@ class OrderControllerTest extends DBTestCase
         $response->assertStatus(200)
             ->assertJsonFragment(['agents' => 'Unlimited']);
     }
+
     public function test_get_single_order_success()
     {
         $order = Order::factory()->withRelations()->create();
@@ -115,10 +116,11 @@ class OrderControllerTest extends DBTestCase
 
     public function test_get_single_order_not_found()
     {
-        $response = $this->getJson("/order/999999");
+        $response = $this->getJson('/order/999999');
 
         $response->assertStatus(404);
     }
+
     public function test_get_installation_details_success()
     {
         $order = Order::factory()->withRelations()->create();
@@ -129,8 +131,8 @@ class OrderControllerTest extends DBTestCase
                 'installation_ip' => '127.0.0.1',
                 'installation_last_active_date' => '2023-01-01',
                 'installation_status' => 'active',
-                'version_number' => '1.0'
-            ]
+                'version_number' => '1.0',
+            ],
         ];
 
         $this->mock(LicenseController::class, function (MockInterface $mock) use ($order, $mockResponse) {
@@ -150,15 +152,15 @@ class OrderControllerTest extends DBTestCase
                         'ip' => '127.0.0.1',
                         'version' => '1.0',
                         'status' => 'active',
-                        'last_active_date' => '2023-01-01'
-                    ]
-                ]
+                        'last_active_date' => '2023-01-01',
+                    ],
+                ],
             ]);
     }
 
     public function test_get_installation_details_order_not_found()
     {
-        $response = $this->getJson("/get-installation-details/99999");
+        $response = $this->getJson('/get-installation-details/99999');
 
         $response->assertStatus(400)
             ->assertJsonFragment(['success' => false]);
@@ -172,7 +174,7 @@ class OrderControllerTest extends DBTestCase
             ->map(fn () => Order::factory()->withRelations()->create()->id);
 
         $response = $this->deleteJson('/orders', [
-            'order_ids' => $orders->toArray()
+            'order_ids' => $orders->toArray(),
         ]);
 
         $response->assertStatus(200)
@@ -186,7 +188,7 @@ class OrderControllerTest extends DBTestCase
     public function test_delete_bulk_orders_empty_input()
     {
         $response = $this->deleteJson('/orders', [
-            'order_ids' => []
+            'order_ids' => [],
         ]);
 
         $response->assertStatus(400)
@@ -196,7 +198,7 @@ class OrderControllerTest extends DBTestCase
     public function test_delete_bulk_orders_not_found()
     {
         $response = $this->deleteJson('/orders', [
-            'order_ids' => [999999]
+            'order_ids' => [999999],
         ]);
 
         $response->assertStatus(200);
@@ -208,7 +210,7 @@ class OrderControllerTest extends DBTestCase
 
         Payment::factory()->create([
             'invoice_id' => $order->invoice->id,
-            'payment_method' => 'Stripe'
+            'payment_method' => 'Stripe',
         ]);
 
         $response = $this->getJson("/getOrderPayments/{$order->id}");
@@ -216,7 +218,7 @@ class OrderControllerTest extends DBTestCase
         $response->assertStatus(200)
             ->assertJsonFragment([
                 'payment_method' => 'Stripe',
-                'invoice_number' => $order->invoice->number
+                'invoice_number' => $order->invoice->number,
             ]);
     }
 

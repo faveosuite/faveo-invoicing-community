@@ -27,7 +27,7 @@ class ProductUploadFactory extends Factory
             'title' => $this->faker->sentence,
             'description' => $this->faker->paragraph,
             'version' => $this->faker->semver,
-            'file' => $this->faker->word . '.' . $this->faker->fileExtension,
+            'file' => $this->faker->word.'.'.$this->faker->fileExtension,
             'is_private' => $this->faker->boolean,
             'is_restricted' => $this->faker->boolean,
             'release_type' => $this->faker->randomElement(['official', 'beat']),

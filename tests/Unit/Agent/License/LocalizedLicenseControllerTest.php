@@ -25,7 +25,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
 
         $order = Order::factory()->withRelations([
             'number' => 'ORD123',
-            'license_mode' => 'Database'
+            'license_mode' => 'Database',
         ])->create();
 
         $this->mock(EncryptDecryptController::class, function (MockInterface $mock) {
@@ -36,17 +36,17 @@ class LocalizedLicenseControllerTest extends DBTestCase
 
         $response = $this->postJson('/switch-license-mode', [
             'orderNo' => 'ORD123',
-            'choose' => true
+            'choose' => true,
         ]);
 
         $response->assertStatus(200)
             ->assertJsonFragment([
-                'message' => __('message.status_change_successfully')
+                'message' => __('message.status_change_successfully'),
             ]);
 
         $this->assertDatabaseHas('orders', [
             'id' => $order->id,
-            'license_mode' => 'File'
+            'license_mode' => 'File',
         ]);
     }
 
@@ -56,29 +56,29 @@ class LocalizedLicenseControllerTest extends DBTestCase
 
         $order = Order::factory()->withRelations([
             'number' => 'ORD999',
-            'license_mode' => 'Database'
+            'license_mode' => 'Database',
         ])->create();
 
-        Storage::disk('public')->put("publicKey-ORD999.txt", 'dummy');
-        Storage::disk('public')->put("privateKey-ORD999.txt", 'dummy');
-        Storage::disk('public')->put("faveo-license-ORD999.txt", 'dummy');
+        Storage::disk('public')->put('publicKey-ORD999.txt', 'dummy');
+        Storage::disk('public')->put('privateKey-ORD999.txt', 'dummy');
+        Storage::disk('public')->put('faveo-license-ORD999.txt', 'dummy');
 
-        $this->assertTrue(Storage::disk('public')->exists("publicKey-ORD999.txt"));
+        $this->assertTrue(Storage::disk('public')->exists('publicKey-ORD999.txt'));
 
         $response = $this->postJson('/switch-license-mode', [
             'orderNo' => 'ORD999',
-            'choose' => false
+            'choose' => false,
         ]);
 
         $response->assertStatus(200);
 
-        $this->assertFalse(Storage::disk('public')->exists("publicKey-ORD999.txt"));
-        $this->assertFalse(Storage::disk('public')->exists("privateKey-ORD999.txt"));
-        $this->assertFalse(Storage::disk('public')->exists("faveo-license-ORD999.txt"));
+        $this->assertFalse(Storage::disk('public')->exists('publicKey-ORD999.txt'));
+        $this->assertFalse(Storage::disk('public')->exists('privateKey-ORD999.txt'));
+        $this->assertFalse(Storage::disk('public')->exists('faveo-license-ORD999.txt'));
 
         $this->assertDatabaseHas('orders', [
             'id' => $order->id,
-            'license_mode' => 'Database'
+            'license_mode' => 'Database',
         ]);
     }
 }

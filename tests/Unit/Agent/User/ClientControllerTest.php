@@ -9,7 +9,6 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\DBTestCase;
 
-
 class ClientControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
@@ -22,7 +21,6 @@ class ClientControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
     }
 
-
     #[Group('User')]
     public function test_can_fetch_all_users_paginated()
     {
@@ -34,9 +32,9 @@ class ClientControllerTest extends DBTestCase
             ->assertJsonStructure([
                 'data' => [
                     'data' => [
-                        '*' => ['id', 'first_name', 'last_name', 'email']
-                    ]
-                ]
+                        '*' => ['id', 'first_name', 'last_name', 'email'],
+                    ],
+                ],
             ]);
 
         $this->assertCount(10, $response->json('data.data'));
@@ -48,7 +46,7 @@ class ClientControllerTest extends DBTestCase
         $targetUser = User::factory()->create([
             'first_name' => 'John',
             'last_name' => 'Doe',
-            'email' => 'unique@example.com'
+            'email' => 'unique@example.com',
         ]);
 
         User::factory()->count(5)->create();
@@ -101,7 +99,6 @@ class ClientControllerTest extends DBTestCase
         $this->assertEquals($newUser->id, $data[0]['id']);
     }
 
-
     #[Group('User')]
     public function test_bulk_delete_fails_if_no_ids_provided()
     {
@@ -129,7 +126,7 @@ class ClientControllerTest extends DBTestCase
     public function test_bulk_delete_blocked_if_user_is_account_manager()
     {
         $manager = User::factory()->create([
-            'first_name' => 'Boss', 'last_name' => 'Man', 'position' => 'account_manager'
+            'first_name' => 'Boss', 'last_name' => 'Man', 'position' => 'account_manager',
         ]);
 
         User::factory()->create(['account_manager' => $manager->id]);
@@ -139,8 +136,8 @@ class ClientControllerTest extends DBTestCase
         $response->assertStatus(400)
             ->assertJsonFragment([
                 'message' => __('message.deletion_blocked', [
-                    'names' => 'Boss Man (Account Manager)'
-                ])
+                    'names' => 'Boss Man (Account Manager)',
+                ]),
             ]);
 
         $this->assertDatabaseHas('users', ['id' => $manager->id]);
@@ -158,13 +155,12 @@ class ClientControllerTest extends DBTestCase
         $response->assertStatus(400)
             ->assertJsonFragment([
                 'message' => __('message.deletion_blocked', [
-                    'names' => 'Sales Guru (Sales Manager)'
-                ])
+                    'names' => 'Sales Guru (Sales Manager)',
+                ]),
             ]);
 
         $this->assertDatabaseHas('users', ['id' => $salesManager->id]);
     }
-
 
     #[Group('User')]
     public function test_create_user_successfully_with_job_dispatch()
@@ -224,11 +220,11 @@ class ClientControllerTest extends DBTestCase
 
         $response = $this->putJson('/users', [
             'first_name' => 'Dup',
-            'last_name'  => 'User',
-            'email'      => 'duplicate@test.com',
-            'country'    => 'US',
-            'zip'        => '12345',
-            'password'   => 'secret'
+            'last_name' => 'User',
+            'email' => 'duplicate@test.com',
+            'country' => 'US',
+            'zip' => '12345',
+            'password' => 'secret',
         ]);
 
         $response->assertStatus(422);
@@ -252,60 +248,58 @@ class ClientControllerTest extends DBTestCase
     {
         $user = User::factory()->create([
             'first_name' => 'OldName',
-            'last_name'  => 'OldLast',
-            'company'    => 'Old Company',
-            'address'    => 'Old Address',
-            'mobile'     => '9876543210',
+            'last_name' => 'OldLast',
+            'company' => 'Old Company',
+            'address' => 'Old Address',
+            'mobile' => '9876543210',
             'timezone_id' => 1,
         ]);
 
         $payload = [
-            'email'       => $user->email,
-            'company'     => 'New Company',
-            'address'     => 'New Street 123',
-            'mobile'      => '9999999999',
+            'email' => $user->email,
+            'company' => 'New Company',
+            'address' => 'New Street 123',
+            'mobile' => '9999999999',
             'timezone_id' => $user->timezone_id,
-            'first_name'  => 'NewName',
-            'last_name'   => 'Updated',
+            'first_name' => 'NewName',
+            'last_name' => 'Updated',
         ];
 
         $response = $this->patchJson("/user/{$user->id}", $payload);
 
         $response->assertStatus(200)
             ->assertJsonFragment([
-            'message' => __('message.updated-successfully'),
-        ]);
+                'message' => __('message.updated-successfully'),
+            ]);
 
         $this->assertDatabaseHas('users', [
-            'id'         => $user->id,
+            'id' => $user->id,
             'first_name' => 'NewName',
-            'last_name'  => 'Updated',
-            'company'    => 'New Company',
+            'last_name' => 'Updated',
+            'company' => 'New Company',
         ]);
     }
 
     #[Group('User')]
     public function test_update_user_handles_non_existent_id()
     {
-
         $payload = [
-            'email'       => 'unique_test_' . uniqid() . '@example.com',
-            'company'     => 'New Company',
-            'address'     => 'New Street 123',
-            'mobile'      => '9999999999',
+            'email' => 'unique_test_'.uniqid().'@example.com',
+            'company' => 'New Company',
+            'address' => 'New Street 123',
+            'mobile' => '9999999999',
             'timezone_id' => 1,
-            'first_name'  => 'NewName',
-            'last_name'   => 'Updated',
-            'country'     => 'IN',
+            'first_name' => 'NewName',
+            'last_name' => 'Updated',
+            'country' => 'IN',
         ];
 
-        $response = $this->patchJson("/user/999999", $payload);
-
+        $response = $this->patchJson('/user/999999', $payload);
 
         $response->assertStatus(404);
         $response->assertJson([
             'success' => false,
-            'message' => __('message.user_not_found')
+            'message' => __('message.user_not_found'),
         ]);
     }
 
@@ -359,7 +353,7 @@ class ClientControllerTest extends DBTestCase
 
         $this->assertCount($expectedCount, $response->json('data.data'));
     }
-    
+
     #[Group('User')]
     public function test_filtering_with_no_results()
     {
@@ -396,7 +390,7 @@ class ClientControllerTest extends DBTestCase
         User::factory()->create(['account_manager' => $manager->id]);
 
         $response = $this->deleteJson('/users', [
-            'user_ids' => [$deletableUser->id, $manager->id]
+            'user_ids' => [$deletableUser->id, $manager->id],
         ]);
 
         $response->assertStatus(400);

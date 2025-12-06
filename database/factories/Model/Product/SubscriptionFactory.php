@@ -20,18 +20,18 @@ class SubscriptionFactory extends Factory
 
     public function definition()
     {
-        $ends  = now()->addDays($this->faker->numberBetween(30, 365));
+        $ends = now()->addDays($this->faker->numberBetween(30, 365));
 
         return [
-            'user_id'                 => User::factory(),
-            'plan_id'                 => Plan::factory(),
-            'order_id'                => Order::factory(),
-            'product_id'              => Product::factory(),
-            'ends_at'                 => $ends,
-            'update_ends_at'          => $ends->copy()->addDays(5),
-            'support_ends_at'         => $ends->copy()->addDays(5),
-            'version'                 => $this->faker->numerify('v#.##'),
-            'version_updated_at'      => now()->subDays($this->faker->numberBetween(1, 60)),
+            'user_id' => User::factory(),
+            'plan_id' => Plan::factory(),
+            'order_id' => Order::factory(),
+            'product_id' => Product::factory(),
+            'ends_at' => $ends,
+            'update_ends_at' => $ends->copy()->addDays(5),
+            'support_ends_at' => $ends->copy()->addDays(5),
+            'version' => $this->faker->numerify('v#.##'),
+            'version_updated_at' => now()->subDays($this->faker->numberBetween(1, 60)),
         ];
     }
 }
