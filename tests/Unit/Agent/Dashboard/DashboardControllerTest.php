@@ -37,12 +37,12 @@ class DashboardControllerTest extends DBTestCase
                 'productInstalledRate' => [
                     'total_subscription' => 0,
                     'inactive_subscription' => 0,
-                    'rate' => 0
+                    'rate' => 0,
                 ],
                 'paidOrderRate' => [
                     'all_orders' => 0,
                     'paid_orders' => 0,
-                    'rate' => 0
+                    'rate' => 0,
                 ],
                 'expiringOrders' => [],
                 'expiredOrders' => [],
@@ -83,14 +83,13 @@ class DashboardControllerTest extends DBTestCase
         $response->assertJsonPath('monthlySales.USD', 100);
     }
 
-
     public function test_it_calculates_pending_payments_correctly()
     {
         // Scenario: Invoice for 500 USD, 200 paid. Pending should be 300.
         $invoice = Invoice::factory()->create([
             'currency' => 'USD',
             'grand_total' => 500,
-            'status' => 'partial'
+            'status' => 'partial',
         ]);
         Payment::factory()->create(['invoice_id' => $invoice->id, 'amount' => 200]);
 
@@ -123,19 +122,19 @@ class DashboardControllerTest extends DBTestCase
         // 1. Paid recent
         Order::factory()->create([
             'price_override' => 100,
-            'created_at' => now()->subDays(5)
+            'created_at' => now()->subDays(5),
         ]);
 
         // 2. Free recent
         Order::factory()->create([
             'price_override' => 0,
-            'created_at' => now()->subDays(5)
+            'created_at' => now()->subDays(5),
         ]);
 
         // 3. Paid old
         Order::factory()->create([
             'price_override' => 100,
-            'created_at' => now()->subDays(40)
+            'created_at' => now()->subDays(40),
         ]);
 
         $response = $this->getJson('dashboard');
@@ -151,14 +150,14 @@ class DashboardControllerTest extends DBTestCase
         User::factory()->create([
             'mobile_verified' => 1,
             'email_verified' => 1,
-            'created_at' => now()->subDays(2)
+            'created_at' => now()->subDays(2),
         ]);
 
         // Invalid: Only email
         User::factory()->create([
             'mobile_verified' => 0,
             'email_verified' => 1,
-            'created_at' => now()->subDays(2)
+            'created_at' => now()->subDays(2),
         ]);
 
         $response = $this->getJson('dashboard');
@@ -166,22 +165,21 @@ class DashboardControllerTest extends DBTestCase
         $this->assertCount(1, $response->json('clientWithMobileAndEmailActivation'));
     }
 
-
     public function test_it_identifies_expiring_and_expired_orders()
     {
         // 1. Expiring in 5 days (Should appear in expiringOrders)
         $expiring = Subscription::factory()->create([
-            'update_ends_at' => now()->addDays(5)
+            'update_ends_at' => now()->addDays(5),
         ]);
 
         // 2. Expired 5 days ago (Should appear in expiredOrders)
         $expired = Subscription::factory()->create([
-            'update_ends_at' => now()->subDays(5)
+            'update_ends_at' => now()->subDays(5),
         ]);
 
         // 3. Safe (Expiring in 60 days) - Ignored
         Subscription::factory()->create([
-            'update_ends_at' => now()->addDays(60)
+            'update_ends_at' => now()->addDays(60),
         ]);
 
         $response = $this->actingAs($this->user)->getJson('dashboard');
@@ -223,7 +221,7 @@ class DashboardControllerTest extends DBTestCase
         $order = Order::find($outdatedSub->order_id)->update([
             'product' => $product->id,
             'client' => $this->user->id,
-            'price_override' => 10
+            'price_override' => 10,
         ]);
 
         // 4. Create a User Subscription on Version 2.0 (Current)
@@ -235,7 +233,7 @@ class DashboardControllerTest extends DBTestCase
         Order::find($currentSub->order_id)->update([
             'product' => $product->id,
             'client' => $this->user->id,
-            'price_override' => 10
+            'price_override' => 10,
         ]);
 
         $response = $this->getJson('dashboard');
@@ -255,14 +253,14 @@ class DashboardControllerTest extends DBTestCase
         Order::factory(2)->create([
             'product' => $product1->id,
             'order_status' => 'executed',
-            'created_at' => now()->subDays(2)
+            'created_at' => now()->subDays(2),
         ]);
 
         // Create 1 order for Product 2 long ago
         Order::factory(1)->create([
             'product' => $product2->id,
             'order_status' => 'executed',
-            'created_at' => now()->subDays(40)
+            'created_at' => now()->subDays(40),
         ]);
 
         $response = $this->actingAs($this->user)->getJson('dashboard');
@@ -283,25 +281,25 @@ class DashboardControllerTest extends DBTestCase
             'grand_total' => 1000,
             'currency' => 'USD',
             'date' => now()->subDays(1),
-            'status' => 'partial'
+            'status' => 'partial',
         ]);
 
         Payment::factory()->create([
             'invoice_id' => $invoice->id,
-            'amount' => 400
+            'amount' => 400,
         ]);
 
         $response = $this->getJson('dashboard');
 
         $response->assertJsonStructure([
             'recentInvoices' => [
-                '*' => ['id', 'grand_total', 'paid_amount', 'balance', 'status']
-            ]
+                '*' => ['id', 'grand_total', 'paid_amount', 'balance', 'status'],
+            ],
         ]);
 
         $recentInvoice = $response->json('recentInvoices')[0];
-        $this->assertStringContainsString('400', (string)$recentInvoice['paid_amount']);
+        $this->assertStringContainsString('400', (string) $recentInvoice['paid_amount']);
         // 1000 - 400 = 600 balance
-        $this->assertStringContainsString('600', (string)$recentInvoice['balance']);
+        $this->assertStringContainsString('600', (string) $recentInvoice['balance']);
     }
 }
