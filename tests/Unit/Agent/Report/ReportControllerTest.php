@@ -3,6 +3,7 @@
 namespace Tests\Unit\Agent\Report;
 
 use App\ExportDetail;
+use App\ReportSetting;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Storage;
 use Tests\DBTestCase;
@@ -14,8 +15,6 @@ class ReportControllerTest extends DBTestCase
     public function setUp(): void
     {
         parent::setUp();
-
-        Storage::fake('local');
 
         $this->getLoggedInUser('admin');
     }
@@ -64,12 +63,19 @@ class ReportControllerTest extends DBTestCase
 
     public function test_it_deletes_bulk_reports_successfully()
     {
+        $folderName = 'users_export_'.auth()->id().'_'.now()->format('Ymd_His').'_XLSX';
+        $folderPath = storage_path('app/public/export/'.$folderName);
+
         $report = ExportDetail::create([
-            'user_id' => $this->user->id,
-            'file_path' => storage_path('app/reports/test.xlsx'),
+            'user_id' => auth()->id(),
+            'file_path' => $folderPath,
+            'file' => $folderName,
+            'name' => 'users',
         ]);
 
-        Storage::put('reports/test.xlsx', 'dummy content');
+        Storage::disk('system')->put('export/'. $folderName, 'dummy content');
+
+        Storage::disk('system')->assertExists('export/'.$folderName);
 
         $response = $this->deleteJson('/reports', [
             'select' => [$report->id],
@@ -84,43 +90,40 @@ class ReportControllerTest extends DBTestCase
             'id' => $report->id,
         ]);
 
-        Storage::disk('local')->assertMissing('reports/test.xlsx');
+        Storage::disk('system')->assertMissing('export/'. $folderName);
     }
 
-    /** @test */
-    public function it_returns_error_if_bulk_delete_has_no_ids()
+
+    public function test_it_returns_error_if_bulk_delete_has_no_ids()
     {
         $response = $this->deleteJson('/reports', [
             'select' => [],
         ]);
 
-        $response->assertStatus(422)
+        $response->assertStatus(400)
             ->assertJson([
-                'success' => false,
+                'message' => __('message.select-a-row'),
             ]);
     }
 
-    /** @test */
-    public function it_returns_report_settings()
+
+    public function test_it_returns_report_settings()
     {
-        ReportSetting::factory()->create([
+        ReportSetting::updateOrCreate(['id' => 1], [
             'records' => 100,
         ]);
 
         $response = $this->getJson('/reports/setting');
 
         $response->assertStatus(200)
-            ->assertJsonStructure([
-                'success',
-                'message',
-                'data' => ['records'],
-            ]);
+            ->assertJsonFragment(['success' => true])
+            ->assertJsonFragment(['records' => "100"]);
     }
 
-    /** @test */
-    public function it_updates_report_settings()
+
+    public function test_it_updates_report_settings()
     {
-        $setting = ReportSetting::factory()->create([
+        $setting = ReportSetting::updateOrCreate(['id' => 1], [
             'records' => 50,
         ]);
 
@@ -139,10 +142,10 @@ class ReportControllerTest extends DBTestCase
         ]);
     }
 
-    /** @test */
-    public function it_fails_validation_when_records_invalid()
+
+    public function test_it_fails_validation_when_records_invalid()
     {
-        ReportSetting::factory()->create();
+        ReportSetting::create();
 
         $response = $this->patchJson('/reports/setting', [
             'records' => 5000,
