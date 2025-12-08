@@ -1534,7 +1534,7 @@ class SettingsController extends BaseSettingsController
 
     private function hyperLinkGenerator($href, $value): string
     {
-        return "<a href='" . url($href) . "'>" . $value . "</a>";
+        return "<a href='".url($href)."'>".$value.'</a>';
     }
 
     public function getModuleSettings(Request $request)

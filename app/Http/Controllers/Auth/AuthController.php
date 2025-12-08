@@ -606,8 +606,10 @@ class AuthController extends BaseAuthController
         return successResponse('active');
     }
 
-    public function getCountries(){
+    public function getCountries()
+    {
         $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray();
+
         return successResponse('countries', $countries);
     }
 }

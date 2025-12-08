@@ -7,7 +7,6 @@ use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Product\Product;
 use Illuminate\Http\Request;
-use function PHPUnit\Framework\throwException;
 
 /*
 * Operations for License Permissions Module to be performed here
@@ -143,12 +142,12 @@ class LicensePermissionsController extends Controller
     {
         try {
             $map = [
-                'Generate Updates Expiry Date'            => 'generateUpdatesxpiryDate',
-                'Generate License Expiry Date'            => 'generateLicenseExpiryDate',
-                'Generate Support Expiry Date'            => 'generateSupportExpiryDate',
-                'Can be Downloaded'                       => 'downloadPermission',
-                'No Permissions'                          => 'noPermissions',
-                'Allow Downloads Before Updates Expire'   => 'allowDownloadTillExpiry',
+                'Generate Updates Expiry Date' => 'generateUpdatesxpiryDate',
+                'Generate License Expiry Date' => 'generateLicenseExpiryDate',
+                'Generate Support Expiry Date' => 'generateSupportExpiryDate',
+                'Can be Downloaded' => 'downloadPermission',
+                'No Permissions' => 'noPermissions',
+                'Allow Downloads Before Updates Expire' => 'allowDownloadTillExpiry',
             ];
 
             $result = array_fill_keys(array_values($map), 0);

@@ -59,6 +59,7 @@ class TaxController extends Controller
                 $classes = $this->tax_class->get();
             }
             $countries = getSupportedCountriesForIntlInput();
+
             return successResponse('', [
                 'options' => $options,
                 'classes' => $classes,
@@ -76,9 +77,9 @@ class TaxController extends Controller
     {
         try {
             $searchString = $request->input('search-query', '');
-            $sortOrder    = $request->input('sort-order', 'desc');
-            $sortField    = $request->input('sort-field', 'created_at');
-            $limit        = $request->input('limit', 10);
+            $sortOrder = $request->input('sort-order', 'desc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = $request->input('limit', 10);
 
             $taxes = Tax::with('taxClass')
                 ->when($searchString, function ($query) use ($searchString) {
@@ -93,17 +94,16 @@ class TaxController extends Controller
 
             $taxes->getCollection()->transform(function ($tax) {
                 return [
-                    'id'              => $tax->id,
-                    'name'            => ucfirst($tax->name),
-                    'country'         => $tax->country,
-                    'state'           => $tax->state,
-                    'rate'            => $tax->rate ?: 'Default',
-                    'tax_class_name'  => $tax->taxClass ? ucfirst($tax->taxClass->name) : null,
+                    'id' => $tax->id,
+                    'name' => ucfirst($tax->name),
+                    'country' => $tax->country,
+                    'state' => $tax->state,
+                    'rate' => $tax->rate ?: 'Default',
+                    'tax_class_name' => $tax->taxClass ? ucfirst($tax->taxClass->name) : null,
                 ];
             });
 
-            return successResponse( __('message.tax_fetched'), ['data' => $taxes], 200);
-
+            return successResponse(__('message.tax_fetched'), ['data' => $taxes], 200);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -181,7 +181,6 @@ class TaxController extends Controller
                 'state' => $state,
                 'active' => $active,
             ]);
-
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -212,7 +211,7 @@ class TaxController extends Controller
             }
 
             $tax = $this->tax->find($id);
-            if (!$tax) {
+            if (! $tax) {
                 return errorResponse(__('message.tax_not_found'), 404);
             }
 
