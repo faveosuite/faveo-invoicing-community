@@ -2,10 +2,13 @@
 
 namespace Tests\Unit\Agent\User;
 
+use App\ExportDetail;
 use App\Jobs\AddUserToExternalService;
 use App\User;
 use Bus;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Mockery;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\DBTestCase;
 
@@ -396,5 +399,110 @@ class ClientControllerTest extends DBTestCase
         $response->assertStatus(400);
         $this->assertDatabaseHas('users', ['id' => $deletableUser->id]);
         $this->assertDatabaseHas('users', ['id' => $manager->id]);
+    }
+
+    public function test_it_downloads_export_file_successfully()
+    {
+        $folderName = 'users_export_'.auth()->id().'_'.now()->format('Ymd_His').'_XLSX';
+        $folderPath = storage_path('app/public/export/'.$folderName);
+
+        if (! is_dir(dirname($folderPath))) {
+            mkdir(dirname($folderPath), 0777, true);
+        }
+        file_put_contents($folderPath, 'sample excel content');
+
+        $detail = ExportDetail::create([
+            'user_id' => auth()->id(),
+            'file' => $folderName,
+            'file_path' => $folderPath,
+            'name' => 'users',
+        ]);
+
+
+        $response = $this->getJson(route('download.exported.file', $detail->id));
+
+        $response->assertStatus(200);
+        $response->assertHeader('content-disposition');
+
+        // ZIP should be created automatically
+        $zipPath = storage_path('app/public/export/'. $folderName);
+        $this->assertFileExists($zipPath);
+    }
+
+
+    public function test_it_returns_error_if_export_detail_not_found()
+    {
+        $response = $this->getJson(route('download.exported.file', 99999));
+
+        $response->assertStatus(400)
+            ->assertJson(['success' => false]);
+    }
+
+    public function test_it_returns_error_if_download_link_is_expired()
+    {
+        $folderName = 'users_export_'.auth()->id().'_'.now()->format('Ymd_His').'_XLSX';
+        $folderPath = storage_path('app/public/export/'.$folderName);
+
+        file_put_contents($folderPath, 'old file');
+
+        $detail = ExportDetail::create([
+            'user_id' => auth()->id(),
+            'file' => $folderName,
+            'file_path' => $folderPath,
+            'name' => 'users',
+            'created_at' => Carbon::now()->subDays(7),
+        ]);
+
+        $response = $this->getJson(route('download.exported.file', $detail->id));
+
+        $response->assertJson([
+            'success' => false,
+            'message' => __('message.download_link_expired')
+        ]);
+    }
+
+
+    public function test_it_returns_error_if_file_not_found()
+    {
+        $folderName = 'users_export_'.auth()->id().'_'.now()->format('Ymd_His').'_XLSX';
+        $folderPath = storage_path('app/public/export/'.$folderName);
+
+        $detail = ExportDetail::create([
+            'user_id' => auth()->id(),
+            'file' => $folderName,
+            'file_path' => $folderPath,
+            'name' => 'users',
+        ]);
+
+        $response = $this->getJson(route('download.exported.file', $detail->id));
+
+        $response->assertJson([
+            'success' => false,
+            'message' => __('message.file_not_found')
+        ]);
+    }
+
+    public function test_it_zips_directory_contents_successfully()
+    {
+        $folderName = 'users_export_'.auth()->id().'_'.now()->format('Ymd_His').'_XLSX';
+        $folderPath = storage_path('app/public/export/'.$folderName);
+
+        // create two files in directory
+        file_put_contents($folderPath, 'hello');
+        file_put_contents($folderPath, 'world');
+
+        $detail = ExportDetail::create([
+            'user_id' => auth()->id(),
+            'file' => $folderName,
+            'file_path' => $folderPath,
+            'name' => 'users',
+        ]);
+
+        $response = $this->getJson(route('download.exported.file', $detail->id));
+
+        $response->assertStatus(200);
+
+        $zipPath = storage_path('app/public/export/'.$folderName.'.zip');
+        $this->assertFileExists($zipPath);
     }
 }

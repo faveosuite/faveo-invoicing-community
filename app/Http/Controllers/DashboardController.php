@@ -534,11 +534,9 @@ class DashboardController extends Controller
 
     public function getMonthlySalesByCurrency()
     {
-        $currentMonth = Carbon::now()->month;
-
         // Fetch invoices for the current year that are not pending
         $invoices = Invoice::where('status', '!=', 'pending')
-            ->whereYear('created_at', $currentMonth)
+            ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
             ->with('payment')
             ->get();
 
