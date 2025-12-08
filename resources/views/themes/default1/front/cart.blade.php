@@ -213,7 +213,7 @@
                                                         $productPrice = $productPrice / $agents;
                                                     }
 
-                                                    $productPrice = currencyFormat($productPrice, $item->attributes->currency);
+                                                    $productPrice = currencyFormat($productPrice, $item['attributes']['currency']);
                                                 @endphp
 
                                                 <span class="amount font-weight-medium text-color-grey">{{$productPrice}}</span>

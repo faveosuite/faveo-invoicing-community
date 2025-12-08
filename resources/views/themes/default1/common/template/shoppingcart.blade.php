@@ -236,6 +236,9 @@ select {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
  }
+    .content-switcher.active{
+        z-index: 1;
+    }
 
     .content-switcher.active{
         z-index: 1;
