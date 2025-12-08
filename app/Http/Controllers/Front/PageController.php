@@ -650,7 +650,6 @@ class PageController extends Controller
 ';
                 //For vue when product status is one different process takes place in store
                 //                return['class'=>$orderButton,'product_id'=>$product->id,'type'=>'cloud','button'=>__('message.order_now')];
-
             } else {
                 //for vue
 //                return ['class'=>$orderButton,'type'=>'multioption','button'=>__('message.order_now')];
