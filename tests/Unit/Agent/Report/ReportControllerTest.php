@@ -73,7 +73,7 @@ class ReportControllerTest extends DBTestCase
             'name' => 'users',
         ]);
 
-        Storage::disk('system')->put('export/'. $folderName, 'dummy content');
+        Storage::disk('system')->put('export/'.$folderName, 'dummy content');
 
         Storage::disk('system')->assertExists('export/'.$folderName);
 
@@ -90,9 +90,8 @@ class ReportControllerTest extends DBTestCase
             'id' => $report->id,
         ]);
 
-        Storage::disk('system')->assertMissing('export/'. $folderName);
+        Storage::disk('system')->assertMissing('export/'.$folderName);
     }
-
 
     public function test_it_returns_error_if_bulk_delete_has_no_ids()
     {
@@ -106,7 +105,6 @@ class ReportControllerTest extends DBTestCase
             ]);
     }
 
-
     public function test_it_returns_report_settings()
     {
         ReportSetting::updateOrCreate(['id' => 1], [
@@ -117,9 +115,8 @@ class ReportControllerTest extends DBTestCase
 
         $response->assertStatus(200)
             ->assertJsonFragment(['success' => true])
-            ->assertJsonFragment(['records' => "100"]);
+            ->assertJsonFragment(['records' => '100']);
     }
-
 
     public function test_it_updates_report_settings()
     {
@@ -141,7 +138,6 @@ class ReportControllerTest extends DBTestCase
             'records' => 200,
         ]);
     }
-
 
     public function test_it_fails_validation_when_records_invalid()
     {

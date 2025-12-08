@@ -8,7 +8,6 @@ use App\User;
 use Bus;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Mockery;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\DBTestCase;
 
@@ -418,17 +417,15 @@ class ClientControllerTest extends DBTestCase
             'name' => 'users',
         ]);
 
-
         $response = $this->getJson(route('download.exported.file', $detail->id));
 
         $response->assertStatus(200);
         $response->assertHeader('content-disposition');
 
         // ZIP should be created automatically
-        $zipPath = storage_path('app/public/export/'. $folderName);
+        $zipPath = storage_path('app/public/export/'.$folderName);
         $this->assertFileExists($zipPath);
     }
-
 
     public function test_it_returns_error_if_export_detail_not_found()
     {
@@ -457,10 +454,9 @@ class ClientControllerTest extends DBTestCase
 
         $response->assertJson([
             'success' => false,
-            'message' => __('message.download_link_expired')
+            'message' => __('message.download_link_expired'),
         ]);
     }
-
 
     public function test_it_returns_error_if_file_not_found()
     {
@@ -478,7 +474,7 @@ class ClientControllerTest extends DBTestCase
 
         $response->assertJson([
             'success' => false,
-            'message' => __('message.file_not_found')
+            'message' => __('message.file_not_found'),
         ]);
     }
 

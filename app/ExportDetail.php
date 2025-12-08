@@ -12,7 +12,7 @@ class ExportDetail extends Model
 
     protected $table = 'export_details';
     protected $fillable = ['user_id', 'file', 'file_path', 'name',
-        'created_at'
+        'created_at',
     ];
 
     public function user()
