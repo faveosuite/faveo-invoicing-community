@@ -338,7 +338,7 @@ class LoginController extends Controller
     public function convertCart()
     {
         $cart = new Cart();
-        $contents=$cart->getContent();
+        $contents = $cart->getContent();
         $user = \Auth::user();
         $currencyCode = getCurrencyForClient($user->country);
         $currencySymbol = Currency::where('code', $currencyCode)->value('symbol');
@@ -360,7 +360,7 @@ class LoginController extends Controller
                     'price' => $price,
                     'attributes' => [
                         'currency' => $currencyCode,
-                        'symbol' =>$currencySymbol,
+                        'symbol' => $currencySymbol,
                         'agents' => $content['attributes']['agents'],
                         'domain' => $content['attributes']['domain'],
                     ],

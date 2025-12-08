@@ -24,7 +24,8 @@ class WelcomeController extends Controller
         if ($model) {
             $code = $model->phonecode;
         }
-//return successResponse('code',['code' => $code]);
+
+        //return successResponse('code',['code' => $code]);
         return $code;
     }
 

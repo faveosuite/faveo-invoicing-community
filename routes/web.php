@@ -132,7 +132,7 @@ Route::middleware('installAgora')->group(function () {
     });
 
     Route::get('get-loginstate/{state}', [Auth\AuthController::class, 'getState']);
-    Route::get('get-countries',[Auth\AuthController::class, 'getCountries']);
+    Route::get('get-countries', [Auth\AuthController::class, 'getCountries']);
     Route::get('get-code', [WelcomeController::class, 'getCode']);
     Route::get('get-currency', [WelcomeController::class, 'getCurrency'])->middleware('admin'); //Not in use
 
