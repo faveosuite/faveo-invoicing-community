@@ -4,7 +4,10 @@ namespace Tests\Unit\Agent\Order;
 
 use App\Http\Controllers\License\LicenseController;
 use App\Model\Common\StatusSetting;
+use App\Model\License\LicensePermission;
+use App\Model\License\LicenseType;
 use App\Model\Order\Order;
+use App\Model\Product\Product;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery;
@@ -29,10 +32,35 @@ class BaseOrderControllerTest extends DBTestCase
     /**
      * Shared helpers.
      */
-    private function mockPermissions(array $permissions)
+    private function mockPermissions(int $productId, array $permissionNames)
     {
-        $mock = Mockery::mock('alias:App\Http\Controllers\License\LicensePermissionsController');
-        $mock->shouldReceive('getPermissionsForProduct')->andReturn($permissions);
+        $licenseType = LicenseType::updateOrCreate(
+            ['id' => 1],
+            ['name' => 'Download Perpetual']
+        );
+
+        $map = [
+            'Generate Updates Expiry Date' => 'generateUpdatesxpiryDate',
+            'Generate License Expiry Date' => 'generateLicenseExpiryDate',
+            'Generate Support Expiry Date' => 'generateSupportExpiryDate',
+            'Can be Downloaded' => 'downloadPermission',
+            'No Permissions' => 'noPermissions',
+            'Allow Downloads Before Updates Expire' => 'allowDownloadTillExpiry',
+        ];
+
+        $permissionDisplayNames = collect($map)
+            ->filter(fn ($key) => isset($permissionNames[$key]) && $permissionNames[$key] == 1)
+            ->keys()
+            ->toArray();
+
+        $permissionIds = LicensePermission::whereIn('permissions', $permissionDisplayNames)
+            ->pluck('id');
+
+        $licenseType->permissions()->sync($permissionIds);
+
+        Product::where('id', $productId)->update([
+            'type' => $licenseType->id,
+        ]);
     }
 
     private function mockLicenseController()
@@ -67,7 +95,7 @@ class BaseOrderControllerTest extends DBTestCase
     {
         $order = Order::factory()->withRelations()->create();
 
-        $this->mockPermissions(['generateUpdatesxpiryDate' => 1]);
+        $this->mockPermissions($order->product, ['generateUpdatesxpiryDate' => 1]);
         $this->mockLicenseController();
 
         $date = $this->date();
@@ -87,7 +115,7 @@ class BaseOrderControllerTest extends DBTestCase
     {
         $order = Order::factory()->withRelations()->create();
 
-        $this->mockPermissions(['generateUpdatesxpiryDate' => 0]);
+        $this->mockPermissions($order->product, ['generateUpdatesxpiryDate' => 0]);
         $this->mockLicenseController();
 
         $response = $this->postJson('/edit-update-expiry', [
@@ -117,7 +145,7 @@ class BaseOrderControllerTest extends DBTestCase
             ->withRelations(['license_mode' => 'File', 'is_downloadable' => 1])
             ->create();
 
-        $this->mockPermissions(['generateUpdatesxpiryDate' => 1]);
+        $this->mockPermissions($order->product, ['generateUpdatesxpiryDate' => 1]);
         $this->mockLicenseController();
 
         $this->postJson('/edit-update-expiry', [
@@ -140,7 +168,7 @@ class BaseOrderControllerTest extends DBTestCase
     {
         $order = Order::factory()->withRelations()->create();
 
-        $this->mockPermissions(['generateLicenseExpiryDate' => 1]);
+        $this->mockPermissions($order->product, ['generateLicenseExpiryDate' => 1]);
         $this->mockLicenseController();
 
         $date = $this->date();
@@ -160,7 +188,7 @@ class BaseOrderControllerTest extends DBTestCase
     {
         $order = Order::factory()->withRelations()->create();
 
-        $this->mockPermissions(['generateLicenseExpiryDate' => 0]);
+        $this->mockPermissions($order->product, ['generateLicenseExpiryDate' => 0]);
         $this->mockLicenseController();
 
         $response = $this->postJson('/edit-license-expiry', [
@@ -190,7 +218,7 @@ class BaseOrderControllerTest extends DBTestCase
             ->withRelations(['license_mode' => 'File', 'is_downloadable' => 1])
             ->create();
 
-        $this->mockPermissions(['generateLicenseExpiryDate' => 1]);
+        $this->mockPermissions($order->product, ['generateLicenseExpiryDate' => 1]);
         $this->mockLicenseController();
 
         $this->postJson('/edit-license-expiry', [
@@ -213,7 +241,7 @@ class BaseOrderControllerTest extends DBTestCase
     {
         $order = Order::factory()->withRelations()->create();
 
-        $this->mockPermissions(['generateSupportExpiryDate' => 1]);
+        $this->mockPermissions($order->product, ['generateSupportExpiryDate' => 1]);
         $this->mockLicenseController();
 
         $date = $this->date();
@@ -233,7 +261,7 @@ class BaseOrderControllerTest extends DBTestCase
     {
         $order = Order::factory()->withRelations()->create();
 
-        $this->mockPermissions(['generateSupportExpiryDate' => 0]);
+        $this->mockPermissions($order->product, ['generateSupportExpiryDate' => 0]);
         $this->mockLicenseController();
 
         $response = $this->postJson('/edit-support-expiry', [
@@ -263,7 +291,7 @@ class BaseOrderControllerTest extends DBTestCase
             ->withRelations(['license_mode' => 'File', 'is_downloadable' => 1])
             ->create();
 
-        $this->mockPermissions(['generateSupportExpiryDate' => 1]);
+        $this->mockPermissions($order->product, ['generateSupportExpiryDate' => 1]);
         $this->mockLicenseController();
 
         $this->postJson('/edit-support-expiry', [
