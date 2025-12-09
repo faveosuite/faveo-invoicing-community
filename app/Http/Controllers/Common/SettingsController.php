@@ -433,24 +433,18 @@ class SettingsController extends BaseSettingsController
     public function settingsSystem(Setting $settings)
     {
         try {
-            $set = $settings->find(1);
-            $state = getStateByCode($set->country, $set->state);
-            $selectedCountry = \DB::table('countries')->where('country_code_char2', $set->country)
-                ->pluck('country_name', 'country_code_char2')->toArray();
-            $selectedCurrency = \DB::table('currencies')->where('code', $set->default_currency)
-                ->pluck('name', 'symbol')->toArray();
-            $states = findStateByRegionId($set->country);
-            $response = (new InstallerController())->languageList();
-            $languages = $response->getData()->data ?? [];
-            $defaultLang = optional(Setting::first())->content;
+            $settings = Setting::findOrFail(1);
 
             $settings = Setting::with([
                 'defaultCurrency:id,code,name',
-                'country:country_id,country_name,country_code_char2',
-                'state:state_subdivision_id,state_subdivision_name,state_subdivision_code',
-                'language:id,name,locale',
-            ]
-            )->findOrFail(1);
+                'country' => function ($q) use ($settings) {
+                    $q->select('country_id', 'country_name', 'country_code_char2')
+                        ->with(['states' => function ($stateQ) use ($settings) {
+                            $stateQ->where('iso2', $settings->state);
+                        }]);
+                },
+                'language:id,name,locale'
+            ])->findOrFail(1);
 
             return successResponse(__('message.system_setting_fetched'), $settings);
         } catch (\Exception $ex) {
@@ -638,64 +632,6 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getActivity(Request $request)
-    {
-        try {
-            $baseQuery = Activity::query()
-                ->leftJoin('users', 'activity_log.causer_id', '=', 'users.id')
-                ->select(
-                    'activity_log.id',
-                    'activity_log.log_name',
-                    'activity_log.description',
-                    'activity_log.event',
-                    'activity_log.causer_type',
-                    'activity_log.causer_id',
-                    'activity_log.created_at',
-                    'activity_log.properties',
-                    'users.first_name',
-                    'users.last_name',
-                    'users.email',
-                    'users.role as user_role'
-                )
-                ->with(['causer:id,user_name,role,first_name,last_name,email']);
-
-            $baseQuery = $this->filterQuery($baseQuery);
-
-            if ($search = $request->input('search.value')) {
-                $baseQuery->where(function ($query) use ($search) {
-                    $query->where('activity_log.log_name', 'like', "%{$search}%")
-                        ->orWhere('activity_log.event', 'like', "%{$search}%")
-                        ->orWhere('activity_log.description', 'like', "%{$search}%")
-                        ->orWhere('users.first_name', 'like', "%{$search}%")
-                        ->orWhere('users.last_name', 'like', "%{$search}%")
-                        ->orWhere('users.email', 'like', "%{$search}%")
-                        ->orWhere('users.role', 'like', "%{$search}%")
-                        ->orWhereRaw("CONCAT(users.first_name, ' ', users.last_name) LIKE ?", ["%{$search}%"]);
-                });
-            }
-
-            return \DataTables::of($baseQuery)
-                ->addColumn('module', fn ($row) => $row->log_name ?? '---')
-                ->addColumn('event', fn ($row) => ucfirst($row->event ?? '---'))
-                ->addColumn('role', fn ($row) => ucfirst($row->user_role ?? '---'))
-                ->addColumn('detailed_properties', fn ($row) => $this->formatProperties($row->properties, $row->event))
-                ->addColumn('performed_by', fn ($row) => $this->generateLinkForPerformedBy($row->causer) ?? __('message.system'))
-                ->addColumn('created_at', fn ($row) => $row->created_at ? getDateHtml($row->created_at) : '---')
-                ->addColumn('description', fn ($row) => $row->description ?? '---')
-
-                ->orderColumn('module', 'activity_log.log_name $1')
-                ->orderColumn('event', 'activity_log.event $1')
-                ->orderColumn('role', 'users.role $1')
-                ->orderColumn('description', 'activity_log.description $1')
-                ->orderColumn('created_at', 'activity_log.created_at $1')
-
-                ->rawColumns(['performed_by', 'created_at', 'description'])
-                ->make(true);
-        } catch (\Exception $e) {
-            return errorResponse($e->getMessage());
-        }
-    }
-
     public function getMails(Request $request)
     {
         try {
@@ -868,50 +804,53 @@ class SettingsController extends BaseSettingsController
     public function getPaymentLog(Request $request)
     {
         try {
-            $from = $request->input('from');
-            $till = $request->input('till');
-            $search = $request->input('search_query', '');
-            $sortField = $request->input('sort_field', 'date');
-            $sortOrder = $request->input('sort_order', 'desc');
+            $search = $request->input('search-query', '');
+            $sortField = $request->input('sort-field', 'created_at');
+            $sortOrder = $request->input('sort-order', 'desc');
             $limit = $request->input('limit', 10);
 
-            // Base payment search logic
-            $query = $this->paymentLogData($from, $till);
+            // Base query
+            $paymentLog = $this->paymentLogData();
+
+            // Apply reusable filters
+            $paymentLog = $this->filterQueryForPaymentLog($paymentLog);
 
             // Search filter
             if (! empty($search)) {
-                $query->where(function ($q) use ($search) {
-                    $q->whereHas('orderDetails', function ($sub) use ($search) {
-                        $sub->where('number', 'like', "%{$search}%");
-                    })
+                $paymentLog->where(function ($q) use ($search) {
+                    $q->whereHas('orderDetails', fn($sub) => $sub->where('number', 'like', "%{$search}%"))
                         ->orWhere('status', 'like', "%{$search}%")
                         ->orWhere('order', 'like', "%{$search}%")
+                        ->orWhere('from', 'like', "%{$search}%")
                         ->orWhere('payment_type', 'like', "%{$search}%")
                         ->orWhere('payment_method', 'like', "%{$search}%")
                         ->orWhereHas('user', function ($sub) use ($search) {
                             $sub->where('email', 'like', "%{$search}%")
                                 ->orWhere('user_name', 'like', "%{$search}%")
+                                ->orWhere('first_name', 'like', "%{$search}%")
                                 ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
                         });
                 });
             }
 
-            // Sorting
-            $logs = $query->orderBy($sortField, $sortOrder)->simplePaginate($limit);
-            $total = $query->count();
+            // Sorting + pagination
+            $paymentLog = $paymentLog->orderBy($sortField, $sortOrder)->simplePaginate($limit);
+            $total = $paymentLog->count();
 
-            // Transform
-            $logs->getCollection()->transform(function ($log) {
+            // Transform response
+            $paymentLog->getCollection()->transform(function ($log) {
                 $userName = $log->user ? trim($log->user->first_name.' '.$log->user->last_name) : null;
 
                 return [
                     'id' => $log->id,
                     'order_number' => $log->order,
-                    'order_link' => $log->orderDetails ? $this->hyperLinkGenerator('orders/'.$log->orderDetails->id, $log->order) : null,
+                  //  'order_link' => $log->orderDetails ? $this->hyperLinkGenerator('orders/'.$log->orderDetails->id, $log->order) : null,
+                    'order_id' => $log->orderDetails->id ?? null,
                     'payment_email' => $log->from,
                     'user_name' => $userName,
-                    'user_email' => $log->user ? $log->user->email : null,
-                    'user_link' => $log->user ? $this->hyperLinkGenerator('clients/'.$log->user->id, $userName) : null,
+                    'user_email' => $log->user->email ?? null,
+                   // 'user_link' => $log->user ? $this->hyperLinkGenerator('clients/'.$log->user->id, $userName) : null,
+                    'user_id' => $log->user->id ?? null,
                     'amount' => $log->amount,
                     'description' => ucfirst($log->payment_type),
                     'payment_method' => ucfirst($log->payment_method),
@@ -922,72 +861,34 @@ class SettingsController extends BaseSettingsController
             });
 
             return successResponse(__('message.payment_logs_retrieved'), [
-                'logs' => $logs,
+                'logs' => $paymentLog,
                 'total' => $total,
             ]);
+
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
 
-    public function paymentLogData($from = '', $till = '')
+    protected function paymentLogData()
     {
-        $join = Payment_log::query()->leftJoin('users', 'payment_logs.from', '=', 'users.email')
-            ->select('payment_logs.id', 'from', 'to', 'date', 'subject', 'status', 'payment_logs.created_at', 'payment_method', 'order', 'exception', 'email', \DB::raw("CONCAT(first_name, ' ', last_name) as name"), 'users.id', 'payment_logs.id as count', 'amount', 'payment_type');
-
-        // Apply date filter if any date is provided
-        if ($from || $till) {
-            $fromDate = $from
-                ? Carbon::parse($this->DateFormat($from))->startOfDay()
-                : Carbon::parse(Payment_log::oldest('date')->value('date'))->startOfDay();
-
-            $tillDate = $till
-                ? Carbon::parse($this->DateFormat($till))->endOfDay()
-                : Carbon::now()->endOfDay();
-
-            $join->whereBetween('date', [$fromDate, $tillDate]);
-        }
-
-        return $join;
-
-//        $query = Payment_log::with([
-//            'user:id,first_name,last_name,email,user_name',
-//            'orderDetails'
-//        ])->select([
-//            'id',
-//            'from',
-//            'to',
-//            'date',
-//            'subject',
-//            'status',
-//            'created_at',
-//            'payment_method',
-//            'order',
-//            'exception',
-//            'amount',
-//            'payment_type'
-//        ]);
-//
-//        // Apply date filter if any date is provided
-//        if ($from || $till) {
-//
-//            // If only one date is provided, use it for both "from" and "till"
-//            $from = $from ?: $till;
-//            $till = $till ?: $from;
-//
-//            // Convert dates to UTC format
-//            $fromUtc = toFormatDateAndTime($from);
-//            $tillUtc = toFormatDateAndTime($till);
-//
-//
-//            // If only date provided (no time), include the entire day
-//            $fromUtc = strlen($from) <= 10 ? $fromUtc->startOfDay() : $fromUtc;
-//            $tillUtc = strlen($till) <= 10 ? $tillUtc->endOfDay() : $tillUtc;
-//
-//            $query->whereBetween('created_at', [$fromUtc, $tillUtc]);
-//        }
-//
-//        return $query;
+        return Payment_log::with([
+            'user:id,first_name,last_name,email,user_name',
+            'orderDetails',
+        ])->select([
+            'id',
+            'from',
+            'to',
+            'date',
+            'subject',
+            'status',
+            'created_at',
+            'payment_method',
+            'order',
+            'exception',
+            'amount',
+            'payment_type',
+        ]);
     }
 
     private function DateFormat($date = null)
@@ -1350,146 +1251,68 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-//    public function getBaseQueryForSystemLogs($from = null, $till = null)
-//    {
-//        $query = Activity::with(['causer:id,user_name,first_name,last_name,email', 'causer.role'])
-//            ->select('id', 'log_name', 'description', 'event', 'causer_id', 'properties', 'created_at');
-//
-//        if ($from || $till) {
-//            $from = $from
-//                ? Carbon::parse($from)->startOfDay()
-//                : Carbon::parse(Activity::min('created_at'))->startOfDay();
-//
-//            $till = $till
-//                ? Carbon::parse($till)->endOfDay()
-//                : Carbon::now()->endOfDay();
-//            \Log::info('Activity Log Filter:', [
-//                'Applied From' => $from,
-//                'Applied Till' => $till
-//            ]);
-//
-//            // ✅ Remove extra UTC conversion
-//            $query->whereBetween('created_at', [$from, $till]);
-//            \Log::info('Generated SQL Query:', [$query->toSql(), $query->getBindings()]);
-//
-//        }
-//
-//        return $query;
-//    }
-//
-//
-//    private function searchQuery($query, $search)
-//    {
-//        if (!empty($search)) {
-//            $query->where(function ($q) use ($search) {
-//                $q->where('log_name', 'LIKE', "%$search%")
-//                    ->orWhere('description', 'LIKE', "%$search%")
-//                    ->orWhereHas('causer', function ($q) use ($search) {
-//                        $q->where('first_name', 'LIKE', "%$search%")
-//                            ->orWhere('last_name', 'LIKE', "%$search%")
-//                            ->orWhere('user_name', 'LIKE', "%$search%")
-//                            ->orWhereRaw("CONCAT(first_name,' ',last_name) LIKE ?", ["%$search%"]);
-//                    });
-//            });
-//        }
-//        return $query;
-//    }
-//
-//    private function adSearch($from, $till, $query)
-//    {
-//        if ($from && $till) {
-//            $query->whereBetween('created_at', [$from, $till]);
-//        }
-//        return $query;
-//    }
-
-//    public function getActivity(Request $request)
-//    {
-//        try {
-//            $searchString = $request->input('search-query', '');
-//            $sortOrder = $request->input('sort-order', 'desc');
-//            $sortField = $request->input('sort-field', 'created_at');
-//            $limit = $request->input('limit', 10);
-//            $from = $request->input('log_from');
-//            $till = $request->input('log_till');
-//
-//            //Load Base Query (already includes date filtering)
-//            $query = $this->getBaseQueryForSystemLogs($from, $till);
-//
-//            //Search Filter
-//            $query = $this->searchQueryForActivityLogs($query, $searchString);
-//
-//            $logs = $query->orderBy($sortField, $sortOrder)
-//                ->simplePaginate($limit);
-//            $total = $query->count();
-//
-//
-//            $logs->getCollection()->transform(function ($log) {
-//                return [
-//                    'id' => $log->id,
-//                    'name' => ucfirst($log->log_name),
-//                    'description' => ucfirst($log->description),
-//                    'username' => $log->causer_id ? User::where('id', $log->causer_id)->value('user_name') : null,
-//                    'role' => $log->causer_id ? User::where('id', $log->causer_id)->value('role') : null,
-//                    'new' => $this->getNewEntry($log->properties, $log),
-//                    'old' => $this->getOldEntry($log->properties, $log),
-//                    'created_at' => $log->created_at->format('Y-m-d H:i:s'),
-//                ];
-//            });
-//
-//            return successResponse('Activity logs fetched successfully', [
-//                'logs' => $logs,
-//                'total' => $total,
-//            ]);
-//        } catch (\Exception $e) {
-//            return errorResponse($e->getMessage());
-//        }
-//    }
-//    public function getActivity(Request $request)
-//    {
-//        try {
-//            $searchString = $request->input('search-query', '');
-//            $sortOrder = $request->input('sort-order', 'desc');
-//            $sortField = $request->input('sort-field', 'created_at');
-//            $limit = $request->input('limit', 10);
-//            $from = $request->input('log_from');
-//            $till = $request->input('log_till');
-//
-//            //Load Base Query (already includes date filtering)
-//            $query = $this->getBaseQueryForSystemLogs($from, $till);
-//
-//            //Search Filter
-//            $query = $this->searchQueryForActivityLogs($query, $searchString);
-//
-//            $logs = $query->orderBy($sortField, $sortOrder)
-//                ->simplePaginate($limit);
-//            $total = $query->count();
-//
-//            $logs->getCollection()->transform(function ($log) {
-//                return [
-//                    'id' => $log->id,
-//                    'name' => ucfirst($log->log_name),
-//                    'description' => ucfirst($log->description),
-//                    'username' => $log->causer_id ? User::where('id', $log->causer_id)->value('user_name') : null,
-//                    'role' => $log->causer_id ? User::where('id', $log->causer_id)->value('role') : null,
-//                    'new' => $this->getNewEntry($log->properties, $log),
-//                    'old' => $this->getOldEntry($log->properties, $log),
-//                    'created_at' => $log->created_at->format('Y-m-d H:i:s'),
-//                ];
-//            });
-//
-//            return successResponse('Activity logs fetched successfully', [
-//                'logs' => $logs,
-//                'total' => $total,
-//            ]);
-//        } catch (\Exception $e) {
-//            return errorResponse($e->getMessage());
-//        }
-//    }
-
-    public function getBaseQueryForSystemLogs($from = null, $till = null)
+    public function getActivity(Request $request)
     {
-        $query = Activity::with(['causer:id,user_name,first_name,last_name,email', 'causer.role'])->select('id', 'log_name', 'description', 'event', 'causer_id', 'properties', 'created_at');
+        try {
+            $searchString = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'desc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = $request->input('limit', 10);
+
+            $baseQuery = $this->getBaseQueryForSystemLogs();
+
+            // apply filters (module, event, user, date)
+            $baseQuery = $this->filterQueryForActivityLogs($baseQuery);
+
+            $total = $baseQuery->count();
+
+            // search filter
+            if (! empty($searchString)) {
+                $baseQuery->where(function ($q) use ($searchString) {
+                    $q->where('log_name', 'LIKE', "%$searchString%")
+                        ->orWhere('description', 'LIKE', "%$searchString%")
+                        ->orWhereHas('causer', function ($q) use ($searchString) {
+                            $q->where('first_name', 'LIKE', "%$searchString%")
+                                ->orWhere('last_name', 'LIKE', "%$searchString%")
+                                ->orWhere('user_name', 'LIKE', "%$searchString%")
+                                ->orWhere('email', 'LIKE', "%$searchString%")
+                                ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$searchString%"]);
+                        });
+                });
+            }
+
+            $activityLogs = $baseQuery
+                ->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
+
+            $activityLogs->getCollection()->transform(function ($row) {
+                return [
+                    'id' => $row->id,
+                    'module' => $row->log_name ?? null,
+                    'event' => ucfirst($row->event ?? null),
+                    'role' => ucfirst(optional($row->causer)->role ?? null),
+                    'description' => $row->description ?? null,
+                    'detailed_properties' => $this->formatProperties($row->properties, $row->event),
+                    'performed_by' => $row->causer
+                        ? $this->generateLinkForPerformedBy($row->causer)
+                        : __('message.system'),
+                    'created_at' => $row->created_at ? getDateHtml($row->created_at) : null,
+                ];
+            });
+
+            return successResponse(__('message.activity_logs_fetched_successfully'), [
+                'activityLogs' => $activityLogs,
+                'total' => $total,
+            ]);
+
+        } catch (\Exception $e) {
+            return errorResponse(__('message.something_went_wrong_try_again'));
+        }
+    }
+
+    public function getBaseQueryForSystemLogs2($from = null, $till = null)
+    {
+        $query = Activity::with(['causer:id,user_name,first_name,last_name,email', 'causer.role'])->select('id', 'log_name', 'description', 'event', 'causer_id','causer_type', 'properties', 'created_at');
 
         try {
             if ($from || $till) {

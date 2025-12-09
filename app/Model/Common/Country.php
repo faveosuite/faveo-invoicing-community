@@ -32,4 +32,9 @@ class Country extends BaseModel
     {
         return $this->hasMany(\App\User::class, 'country', 'country_code_char2');
     }
+
+    public function states()
+    {
+        return $this->hasMany(State::class, 'country_id', 'country_id');
+    }
 }

@@ -95,40 +95,61 @@ class MSG91Controller extends Controller
 
     public function getMsg91Reports(Request $request)
     {
-        $this->request = $request;
+        try {
+            $searchString = $request->input('search-query', '');
+            $sortField = $request->input('sort_field', 'created_at');
+            $sortOrder = $request->input('sort_order', 'desc');
+            $limit = $request->input('limit', 10);
 
-        $sortField = $request->input('sort_field', 'date');
-        $sortOrder = $request->input('sort_order', 'desc');
-        $limit = $request->input('limit', 10);
+            $baseQuery = $this->msgLogData();
 
-        $baseQuery = $this->msgLogData();
-        $baseQuery = $this->searchQuery($baseQuery);
-        $baseQuery = $this->filterQuery($baseQuery);
+            // Search filter
+            if (!empty($searchString)) {
+                $baseQuery->where(function ($q) use ($searchString) {
+                    $q->where('request_id', 'like', "%$searchString%")
+                        ->orWhere('mobile_number', 'like', "%$searchString%")
+                        ->orWhereHas('readableStatus', fn($q) => $q->where('status_label', 'like', "%$searchString%"))
+                        ->orWhereHas('user', function ($sub) use ($searchString) {
+                            $sub->where('email', 'like', "%$searchString%")
+                                ->orWhere('user_name', 'like', "%$searchString%")
+                                ->orWhere('first_name', 'like', "%$searchString%")
+                                ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$searchString%"]);
+                        });
+                });
+            }
 
-        // Paginate and count
-        $logs = $baseQuery->orderBy($sortField, $sortOrder)->simplePaginate($limit);
-        $total = $baseQuery->count();
+            // Apply filter query
+            $baseQuery = $this->filterQueryForMsg($baseQuery);
 
-        // Format Output
-        $logs->getCollection()->transform(function ($log) {
-            $fullName = $log->user ? trim($log->user->first_name.' '.$log->user->last_name) : null;
+            $total = $baseQuery->count();
 
-            return [
-                'request_id' => $log->request_id,
-                'user_fullname' => $fullName,
-                'user_email' => $log->user?->email,
-                'status' => $log->readableStatus->status_label,
-                'failure_reason' => $log->failure_reason,
-                'mobile_number' => $log->mobile_number,
-                'delivery_date' => $log->date,
-                'created_at' => $log->created_at,
-            ];
-        });
+            $logs = $baseQuery->orderBy($sortField, $sortOrder)
+                    ->simplePaginate($limit);
 
-        return successResponse(__('message.msg91_reports_fetched'), [
-            'logs' => $logs,
-            'total' => $total,
-        ]);
+            // Format collection
+            $logs->getCollection()->transform(function ($log) {
+                $fullName = $log->user ? trim($log->user->first_name.' '.$log->user->last_name) : null;
+
+                return [
+                    'request_id'      => $log->request_id,
+                    'user_fullname'   => $fullName,
+                    'user_email'      => $log->user->email ?? null,
+                    'status'          => $log->readableStatus->status_label ?? null,
+                    'failure_reason'  => $log->failure_reason,
+                    'mobile_number'   => $log->mobile_number,
+                    'delivery_date'   => $log->date,
+                    'created_at'      => $log->created_at ?? null,
+                ];
+            });
+
+            return successResponse(__('message.msg91_reports_fetched'), [
+                'logs' => $logs,
+                'total' => $total,
+            ]);
+
+        } catch (\Exception $e) {
+            return errorResponse(__('message.something_went_wrong_try_again'));
+        }
     }
 
     public function msgLogData()
@@ -157,63 +178,66 @@ class MSG91Controller extends Controller
         return $query;
     }
 
-    private function filterQuery($query)
+    private function filterQueryForMsg($query)
     {
-        $request = $this->request;
+        $request = request();
 
-        // Request ID Filter
-        $query->when($request->filled('request_id'), function ($q) use ($request) {
-            $q->where('request_id', 'like', '%'.$request->request_id.'%');
-        });
+        $from = $request->input('log_from');
+        $till = $request->input('log_till');
 
-        // Full Name Filter
-        $query->when($request->filled('full_name'), function ($q) use ($request) {
-            $q->whereHas('user', function ($subQuery) use ($request) {
-                $subQuery->whereRaw("CONCAT(users.first_name, ' ', users.last_name) LIKE ?", ['%'.$request->full_name.'%']);
+        return $query
+            // Request ID Filter
+            ->when($request->filled('request_id'), function ($q) use ($request) {
+                $q->where('request_id', 'like', '%'.$request->request_id.'%');
+            })
+
+            // Full Name Filter
+            ->when($request->filled('full_name'), function ($q) use ($request) {
+                $q->whereHas('user', function ($subQuery) use ($request) {
+                    $subQuery->whereRaw("CONCAT(users.first_name, ' ', users.last_name) LIKE ?", ['%'.$request->full_name.'%']);
+                });
+            })
+
+            // Email Filter
+            ->when($request->filled('email'), function ($q) use ($request) {
+                $q->whereHas('user', function ($subQuery) use ($request) {
+                    $subQuery->where('email', 'like', '%'.$request->email.'%');
+                });
+            })
+
+            // Mobile Number Filter
+            ->when($request->filled('mobile_number'), function ($q) use ($request) {
+                $q->when($request->filled('country_iso'), function ($q) use ($request) {
+                    $q->where('country_iso', $request->country_iso);
+                })->where('mobile_number', 'like', '%'.$request->mobile_number.'%');
+            })
+
+            // Status Filter
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->whereHas('readableStatus', function ($subQuery) use ($request) {
+                    $subQuery->where('status_label', 'like', '%'.$request->status.'%');
+                });
+            })
+
+            // Failure Reason Filter
+            ->when($request->filled('failure_reason'), function ($q) use ($request) {
+                $q->where('failure_reason', 'like', '%'.$request->failure_reason.'%');
+            })
+
+            // Date Range Filter (with safe logic)
+            ->when($from || $till, function ($q) use ($from, $till) {
+                $from = $from
+                    ? Carbon::parse($from)->startOfDay()
+                    : Carbon::minValue();
+
+                $till = $till
+                    ? Carbon::parse($till)->endOfDay()
+                    : Carbon::now();
+
+                if ($from->lessThanOrEqualTo($till)) {
+                    $q->whereBetween('created_at', [$from, $till]);
+                }
             });
-        });
-
-        // Email Filter
-        $query->when($request->filled('email'), function ($q) use ($request) {
-            $q->whereHas('user', function ($subQuery) use ($request) {
-                $subQuery->where('email', 'like', '%'.$request->email.'%');
-            });
-        });
-
-        // Mobile Number Filter
-        $query->when($request->filled('mobile_number'), function ($q) use ($request) {
-            $q->when($request->filled('country_iso'), function ($q) use ($request) {
-                $q->where('country_iso', $request->country_iso);
-            })->where('mobile_number', 'like', '%'.$request->mobile_number.'%');
-        });
-
-        // Status Filter
-        $query->when($request->filled('status'), function ($q) use ($request) {
-            $q->whereHas('readableStatus', function ($subQuery) use ($request) {
-                $subQuery->where('status_label', 'like', '%'.$request->status.'%');
-            });
-        });
-
-        // Failure Reason Filter
-        $query->when($request->filled('failure_reason'), function ($q) use ($request) {
-            $q->where('failure_reason', 'like', '%'.$request->failure_reason.'%');
-        });
-
-        // Date Range Filter
-        if ($request->filled('log_from') || $request->filled('log_till')) {
-            $from = $request->log_from ?: $request->log_till;
-            $till = $request->log_till ?: $request->log_from;
-
-            $fromUtc = toFormatDateAndTime($from);
-            $tillUtc = toFormatDateAndTime($till);
-
-            $fromUtc = strlen($from) <= 10 ? $fromUtc->startOfDay() : $fromUtc;
-            $tillUtc = strlen($till) <= 10 ? $tillUtc->endOfDay() : $tillUtc;
-
-            $query->whereBetween('created_at', [$fromUtc, $tillUtc]);
-        }
-
-        return $query;
     }
 
     public function validateThirdPartyRequest($app_key, $app_secret)

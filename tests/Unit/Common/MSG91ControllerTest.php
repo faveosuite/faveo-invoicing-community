@@ -4,12 +4,14 @@ namespace Tests\Unit\Common;
 
 use App\ApiKey;
 use App\Http\Controllers\Common\MSG91Controller;
+use App\Model\Common\Msg91Status;
 use App\Model\Common\MsgDeliveryReports;
 use App\ThirdPartyApp;
 use App\User;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Mockery;
 use Tests\DBTestCase;
 
@@ -18,6 +20,7 @@ class MSG91ControllerTest extends DBTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->withoutMiddleware();
     }
 
     public function test_validate_third_party_request_returns_false_for_invalid_credentials()
@@ -154,42 +157,270 @@ class MSG91ControllerTest extends DBTestCase
         $controller->handleReports($request, 'k', 's');
     }
 
-    public function test_msg91_report_query_filters_correctly()
+//    public function test_msg91_report_query_filters_correctly()
+//    {
+//        $user = User::create([
+//            'first_name' => 'John',
+//            'last_name' => 'Doe',
+//            'email' => 'john@example.com',
+//        ]);
+//
+//        MsgDeliveryReports::create([
+//            'request_id' => 'foo123',
+//            'mobile_number' => '999',
+//            'country_iso' => 'US',
+//            'failure_reason' => 'none',
+//            'status' => 1,
+//            'date' => Carbon::now()->subDay(),
+//            'user_id' => $user->id,
+//        ]);
+//
+//        $controller = new Msg91Controller();
+//
+//        $request = Request::create('/reports', 'GET', [
+//            'request_id' => 'foo',
+//            'mobile_number' => '999',
+//            'country_iso' => 'US',
+//            'failure_reason' => 'none',
+//            'status' => 'Delivered',
+//            'date_from' => Carbon::now()->subDays(2)->format('m/d/Y'),
+//            'date_to' => Carbon::now()->format('m/d/Y'),
+//            'email' => 'john@',
+//        ]);
+//
+//        $query = $controller->msg91ReportQuery($request);
+//
+//        $results = $query->get();
+//
+//        $this->assertCount(1, $results);
+//        $this->assertEquals('foo123', $results->first()->request_id);
+//    }
+
+//New test cases can be added here
+    protected function createMsg91Log(array $overrides = [])
     {
-        $user = User::create([
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'email' => 'john@example.com',
-        ]);
+        $user = User::factory()->create();
 
-        MsgDeliveryReports::create([
-            'request_id' => 'foo123',
-            'mobile_number' => '999',
-            'country_iso' => 'US',
-            'failure_reason' => 'none',
-            'status' => 1,
-            'date' => Carbon::now()->subDay(),
-            'user_id' => $user->id,
-        ]);
+        // Ensure status exists (no duplicate violation)
+        $status = Msg91Status::firstOrCreate(
+            ['status_code' => 'DEL'],
+            ['status_label' => 'Delivered']
+        );
 
-        $controller = new Msg91Controller();
+        $defaults = [
+            'mobile_number'  => '9876543210',
+            'request_id'     => Str::uuid(),
+            'status'         => $status->status_code,
+            'date'           => now(),
+            'sender_id'      => 'SENDER',
+            'failure_reason' => null,
+            'user_id'        => $user->id,
+            'country_iso'    => 'IN',
+            'mobile_code'    => '+91',
+        ];
 
-        $request = Request::create('/reports', 'GET', [
-            'request_id' => 'foo',
-            'mobile_number' => '999',
-            'country_iso' => 'US',
-            'failure_reason' => 'none',
-            'status' => 'Delivered',
-            'date_from' => Carbon::now()->subDays(2)->format('m/d/Y'),
-            'date_to' => Carbon::now()->format('m/d/Y'),
-            'email' => 'john@',
-        ]);
-
-        $query = $controller->msg91ReportQuery($request);
-
-        $results = $query->get();
-
-        $this->assertCount(1, $results);
-        $this->assertEquals('foo123', $results->first()->request_id);
+        return MsgDeliveryReports::create(array_merge($defaults, $overrides));
     }
+
+
+    public function test_get_msg91_logs_returns_data()
+    {
+        $this->createMsg91Log();
+        $this->createMsg91Log();
+
+        $response = $this->getJson('/sms/reports');
+
+        $response->assertStatus(200)
+                 ->assertJsonFragment(['message' => __('message.msg91_reports_fetched')])
+                 ->assertJsonCount(2, 'data.logs.data');
+    }
+
+    public function test_get_msg91_logs_search_filter()
+    {
+        $user = User::factory()->create(['first_name' => 'Test', 'last_name' => 'User']);
+        $log = $this->createMsg91Log([
+            'request_id' => 'REQ-123',
+            'user_id' => $user->id
+        ]);
+
+        // Search by request_id
+        $response1 = $this->getJson('/sms/reports?search-query=REQ-123');
+        $response1->assertStatus(200)
+                 ->assertJsonCount(1, 'data.logs.data');
+
+        // Search by user full name
+        $response2 = $this->getJson('/sms/reports?search-query=Test User');
+        $response2->assertStatus(200)
+                  ->assertJsonCount(1, 'data.logs.data');
+
+        // Search by email
+        $response3 = $this->getJson('/sms/reports?search-query=' . $user->email);
+        $response3->assertStatus(200)
+                  ->assertJsonCount(1, 'data.logs.data');
+
+        // Search by status
+        $response4 = $this->getJson('/sms/reports?search-query=pending');
+        $response4->assertStatus(200)
+                  ->assertJsonCount(1, 'data.logs.data');
+
+    }
+
+    public function test_msg91_filter_by_request_id()
+    {
+        //filter by request_id
+        $log = $this->createMsg91Log(['request_id' => 'REQ12345']);
+        $this->createMsg91Log();
+
+        $response = $this->getJson('/sms/reports?request_id=REQ12345');
+
+        $response->assertStatus(200)
+            ->assertJsonFragment(['request_id' => 'REQ12345'])
+            ->assertJsonCount(1, 'data.logs.data');
+    }
+
+    public function test_msg91_filter_by_full_name()
+    {
+        //filter by full_name
+        $user = User::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
+
+        $this->createMsg91Log(['user_id' => $user->id]);
+        $this->createMsg91Log();
+
+        $response = $this->getJson('/sms/reports?full_name=John Doe');
+
+        $response->assertStatus(200)
+                 ->assertJsonFragment(['user_fullname' => 'John Doe'])
+                 ->assertJsonCount(1, 'data.logs.data');
+    }
+
+    public function test_msg91_filter_by_email()
+    {
+        //filter by email
+        $user = User::factory()->create(['email' => 'john@example.com']);
+        $this->createMsg91Log(['user_id' => $user->id]);
+
+        $response = $this->getJson('/sms/reports?email=john@example.com');
+
+        $response->assertStatus(200)
+            ->assertJsonFragment(['user_email' => 'john@example.com']);
+    }
+
+    public function test_msg91_filter_by_mobile_and_country()
+    {
+        //filter by mobile_number and country_iso
+        $this->createMsg91Log(['mobile_number' => '7894561230', 'country_iso' => 'US']);
+        $this->createMsg91Log(['mobile_number' => '9999999999', 'country_iso' => 'IN']); // excluded
+
+        $response = $this->getJson('/sms/reports?mobile_number=789456&country_iso=US');
+
+        $response->assertStatus(200)
+            ->assertJsonFragment(['mobile_number' => '7894561230'])
+            ->assertJsonCount(1, 'data.logs.data');
+    }
+
+    public function test_msg91_filter_by_failure_reason()
+    {
+        //filter by failure_reason
+        $this->createMsg91Log(['failure_reason' => 'Route not found']);
+        $this->createMsg91Log();
+
+        $response = $this->getJson('/sms/reports?failure_reason=Route');
+
+        $response->assertStatus(200)
+            ->assertJsonFragment(['failure_reason' => 'Route not found']);
+    }
+
+    public function test_msg91_filter_by_single_date_range()
+    {
+        //filter by single date range (from and till are same)
+        $this->createMsg91Log(['created_at' => now()->subDay()]);
+        $this->createMsg91Log(['created_at' => now()->subDays(10)]);
+        $log1 = $this->createMsg91Log();
+        $log1->forceFill([
+            'created_at' => Carbon::create(2025, 7, 12)->startOfDay(),
+        ])->saveQuietly();
+        $response = $this->getJson("/sms/reports?log_from=2025-07-12&log_till=2025-07-12");
+
+        $response->assertStatus(200)
+                 ->assertJsonCount(1, 'data.logs.data');
+    }
+
+
+    public function test_msg91_filter_by_multiple_date_range()
+    {
+        //filter by multiple date range (from and till are different)
+        $log1 = $this->createMsg91Log();
+        $log1->forceFill([
+            'created_at' => Carbon::create(2025, 7, 12)->startOfDay(),
+        ])->saveQuietly();
+        $log2 = $this->createMsg91Log();
+        $log2->forceFill([
+            'created_at' => Carbon::create(2025, 9, 12)->startOfDay(),
+        ])->saveQuietly();
+        $log3 = $this->createMsg91Log();
+        $log3->forceFill([
+            'created_at' => Carbon::create(2025, 10, 12)->startOfDay(),
+        ])->saveQuietly();
+
+        $response = $this->getJson("/sms/reports?log_from=2025-07-12&log_till=2025-10-12");
+
+        $response->assertStatus(200)
+                 ->assertJsonCount(3, 'data.logs.data');
+    }
+
+    public function test_msg91_filter_by_without_give_till_date()
+    {
+        //filter by date range without giving till date
+        $this->createMsg91Log();
+        $this->createMsg91Log();
+        $log1 = $this->createMsg91Log();
+
+        $log1->forceFill([
+            'created_at' => Carbon::create(2025, 7, 12)->startOfDay(),
+        ])->saveQuietly();
+
+        $response = $this->getJson("/sms/reports?log_from=2025-07-12");
+        $response->assertStatus(200)
+                 ->assertJsonCount(3, 'data.logs.data');
+
+    }
+
+    public function test_msg91_filters_all_conditions_together()
+    {
+        //filter by all conditions together
+        $user = User::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
+
+        $log1 = $this->createMsg91Log([
+            'user_id'       => $user->id,
+            'mobile_number' => '9876540000',
+            'status'        => 'DEL',
+            'failure_reason'=> 'None',
+            'created_at'    => now()->subDay(),
+        ]);
+
+        $log2 = $this->createMsg91Log([
+            'user_id'       => $user->id,
+            'mobile_number' => '9876540000',
+            'status'        => 'DEL',
+            'failure_reason'=> 'None',
+            'created_at'    => now()->subDay(),
+        ]);
+
+        $this->createMsg91Log();
+
+        $qs = http_build_query([
+            'email'         => $user->email,
+            'mobile_number' => '987654',
+            'status'        => 'Pending',
+            'log_from'      => now()->subDays(2)->toDateString(),
+            'log_till'      => now()->toDateString(),
+        ]);
+
+        $response = $this->getJson("/sms/reports?$qs");
+
+        $response->assertStatus(200)
+                 ->assertJsonCount(2, 'data.logs.data');
+    }
+
+
 }
