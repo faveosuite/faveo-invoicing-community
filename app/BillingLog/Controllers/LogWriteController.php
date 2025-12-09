@@ -201,6 +201,6 @@ class LogWriteController
 
         (new LogViewController())->deleteLogsByDate($validated['log_types'], $toDate);
 
-        return successResponse('Logs deleted successfully');
+        return successResponse( __('message.logs_deleted_successfully'));
     }
 }

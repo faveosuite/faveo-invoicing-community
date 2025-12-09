@@ -33,15 +33,6 @@ class SettingsControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $this->getLoggedInUser('admin');
 
-        // Fake disk to avoid errors
-        \DB::table('settings_filesystem')->insert([
-            'disk' => 'local',
-            'local_file_storage_path' => 'uploads',
-        ]);
-
-        \Storage::fake('local');
-
-        Setting::factory()->create(['id' => 1]);
     }
 
     /**
@@ -309,7 +300,7 @@ class SettingsControllerTest extends DBTestCase
 
     public function test_it_returns_error_when_settings_row_missing()
     {
-        Setting::truncate();
+        Setting::where('id', 1)->delete();
 
         $payload = [
             'company' => 'Test',

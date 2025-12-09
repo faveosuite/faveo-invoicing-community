@@ -2944,4 +2944,11 @@ return [
     'webhook_explanation' => 'The Webhook URL can be found under the Additional Configuration section of the WhatsApp settings in the Admin Panel.',
     'business_id_error' => 'Please Enter a valid Business ID.',
     'email_validation_status' => 'Email validation status successfully saved',
+    'scheduler_fetched_successfully' => 'Scheduler data fetched successfully',
+    'record_not_found' => 'Record not found',
+    'exceptions_fetched_successfully' => 'Exception logs fetched successfully',
+    'crons_fetched_successfully' => 'Cron logs fetched successfully',
+    'mail_logs_fetched_successfully' => 'E-mail logs fetched successfully',
+    'activity_logs_fetched_successfully' => 'Activity logs fetched successfully',
+    'logs_deleted_successfully' => 'Logs deleted successfully',
 ];

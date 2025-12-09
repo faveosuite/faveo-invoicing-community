@@ -114,10 +114,10 @@ class BaseSettingsController extends PaymentSettingsController
 
     protected function getBaseQueryForSystemLogs()
     {
-        return Activity::with(['causer:id,user_name,role,first_name,last_name,email'])->select('log_name', 'description', 'event', 'causer_type', 'causer_id', 'created_at', 'properties');
+        return Activity::with(['causer:id,user_name,role,first_name,last_name,email'])->select('log_name', 'description', 'event', 'causer_type', 'causer_id', 'created_at', 'properties','id');
     }
 
-    protected function filterQuery($baseQuery)
+    protected function filterQueryForActivityLogs($baseQuery)
     {
         $from = request()->input('log_from');
         $till = request()->input('log_till');
@@ -212,147 +212,132 @@ class BaseSettingsController extends PaymentSettingsController
 
     public function getScheduler(StatusSetting $status)
     {
-        $cronPath = base_path('artisan');
-        $status = $status->whereId('1')->first();
-        $execEnabled = $this->execEnabled();
-        $paths = $this->getPHPBinPath();
-        // $command = ":- <pre>***** php $cronUrl schedule:run >> /dev/null 2>&1</pre>";
-        // $shared = ":- <pre>/usr/bin/php-cli -q  $cronUrl schedule:run >> /dev/null 2>&1</pre>";
-        $warn = '';
-        $condition = new \App\Model\Mailjob\Condition();
+        try {
+            $cronPath = base_path('artisan');
+            $status = $status->find(1);
+            $execEnabled  = $this->execEnabled();
+            $paths = $this->getPHPBinPath();
+            $warn = '';
+            $condition = new \App\Model\Mailjob\Condition();
 
-        $commands = [
-            'everyMinute' => 'Every Minute',
-            'everyFiveMinutes' => 'Every Five Minute',
-            'everyTenMinutes' => 'Every Ten Minute',
-            'everyThirtyMinutes' => 'Every Thirty Minute',
-            'hourly' => 'Every Hour',
-            'daily' => 'Every Day',
-            'dailyAt' => 'Daily at',
-            'weekly' => 'Every Week',
+            $commands = [
+                'everyMinute' => 'Every Minute',
+                'everyFiveMinutes'  => 'Every Five Minute',
+                'everyTenMinutes'   => 'Every Ten Minute',
+                'everyThirtyMinutes'=> 'Every Thirty Minute',
+                'hourly' => 'Every Hour',
+                'daily' => 'Every Day',
+                'dailyAt' => 'Daily at',
+                'weekly' => 'Every Week',
+                'monthly' => 'Monthly',
+                'yearly' => 'Yearly',
+            ];
 
-            'monthly' => 'Monthly',
-            'yearly' => 'Yearly',
-        ];
+            $expiryDays = [
+                '30' => '30 days', '15' => '15 days',
+                '7' => '7 days',   '1'  => '1 day',
+            ];
 
-        $expiryDays = [
-            '30' => '30 days',
-            '15' => '15 days',
-            '7' => '7 days',
-            '1' => '1 day',
-        ];
+            $Subs_expiry = $expiryDays;
+            $post_expiry = $expiryDays;
+            $cloudDays   = $expiryDays;
 
-        $Subs_expiry = [
-            '30' => '30 days',
-            '15' => '15 days',
-            '7' => '7 days',
-            '1' => '1 day',
-        ];
+            $invoiceDays = [
+                '7' => '7 days', '5' => '5 days',
+                '2' => '2 days', '1' => '1 day',
+            ];
 
-        $post_expiry = [
-            '30' => '30 days',
-            '15' => '15 days',
-            '7' => '7 days',
-            '1' => '1 day',
-        ];
-        $cloudDays = [
-            '30' => '30 days',
-            '15' => '15 days',
-            '7' => '7 days',
-            '1' => '1 day',
-        ];
+            $reoonDays = [
+                '30' => '30 days', '15' => '15 days', '10' => '10 days',
+                '5' => '5 days',   '1'  => '1 day',
+            ];
 
-        $invoiceDays = [
-            '7' => '7 days',
-            '5' => '5 days',
-            '2' => '2 days',
-            '1' => '1 day',
-        ];
+            $msg91Days = [
+                '720' => '720 Days', '365' => '365 days', '180' => '180 Days',
+                '150' => '150 Days', '60'  => '60 Days',  '30' => '30 Days',
+                '15'  => '15 Days',  '5'   => '5 Days',   '2'  => '2 Days',
+                '0'   => 'Delete All Reports',
+            ];
 
-        $reoonDays = [
-            '30' => '30 days',
-            '15' => '15 days',
-            '10' => '10 days',
-            '5' => '5 days',
-            '1' => '1 day',
-        ];
+            $systemLogsDays = [
+                '720' => '720 Days', '365' => '365 days', '180' => '180 Days',
+                '150' => '150 Days', '60'  => '60 Days',  '30' => '30 Days',
+                '15'  => '15 Days',  '5'   => '5 Days',   '2'  => '2 Days',
+                '0'   => 'Delete All Logs',
+            ];
 
-        $msg91Days = ['720' => '720 Days', '365' => '365 days', '180' => '180 Days',
-            '150' => '150 Days', '60' => '60 Days', '30' => '30 Days', '15' => '15 Days', '5' => '5 Days', '2' => '2 Days', '0' => 'Delete All Reports', ];
 
-        $systemLogsDays = ['720' => '720 Days', '365' => '365 days', '180' => '180 Days',
-            '150' => '150 Days', '60' => '60 Days', '30' => '30 Days', '15' => '15 Days', '5' => '5 Days', '2' => '2 Days', '0' => 'Delete All Logs', ];
+            $expiry = ExpiryMailDay::first();
+            $activityLog = ActivityLogDay::first();
 
-        $selectedDays = [];
-        $daysLists = ExpiryMailDay::get();
-        if (count($daysLists) > 0) {
-            foreach ($daysLists as $daysList) {
-                $selectedDays[] = $daysList;
-            }
+            $selectedDays = json_decode($expiry->days ?? '[]', true);
+            $Auto_expiryday = json_decode($expiry->autorenewal_days ?? '[]', true);
+            $post_expiryday = json_decode($expiry->postexpiry_days ?? '[]', true);
+            $beforeCloudDay = [$expiry->cloud_days ?? null];
+            $invoiceDeletionDay = [$expiry->invoice_days ?? null];
+            $msgDeletionDays = [$expiry->msg91_days ?? null];
+            $ReeonLogDeletionDays = [$expiry->reoon_logs_days ?? null];
+            $systemLogsDeletionDays  = [$expiry->system_logs_days ?? null];
+            $beforeLogDay = [$activityLog->days ?? null];
+
+            return successResponse( __('message.scheduler_fetched_successfully'), [
+                'cronPath' => $cronPath,
+                'warn' => $warn,
+                'commands' => $commands,
+                'condition' => $condition,
+                'status' => $status,
+                'expiryDays' => $expiryDays,
+                'selectedDays' => $selectedDays,
+                'delLogDays' => $systemLogsDays,
+                'beforeLogDay' => $beforeLogDay,
+                'execEnabled' => $execEnabled,
+                'paths' => $paths,
+                'Subs_expiry' => $Subs_expiry,
+                'Auto_expiryday' => $Auto_expiryday,
+                'post_expiry' => $post_expiry,
+                'post_expiryday' => $post_expiryday,
+                'cloudDays' => $cloudDays,
+                'beforeCloudDay' => $beforeCloudDay,
+                'invoiceDays' => $invoiceDays,
+                'invoiceDeletionDay' => $invoiceDeletionDay,
+                'msg91Days' => $msg91Days,
+                'msgDeletionDays' => $msgDeletionDays,
+                'ReeonLogDeletionDays'  => $ReeonLogDeletionDays,
+                'reoonDays' => $reoonDays,
+                'systemLogsDays' => $systemLogsDays,
+                'systemLogsDeletionDays' => $systemLogsDeletionDays,
+            ]);
+
+        } catch (\Throwable $e) {
+            return errorResponse( __('message.something_went_wrong_try_again'));
         }
-        $delLogDays = ['720' => '720 Days', '365' => '365 days', '180' => '180 Days',
-            '150' => '150 Days', '60' => '60 Days', '30' => '30 Days', '15' => '15 Days', '5' => '5 Days', '2' => '2 Days', '0' => 'Delete All Logs', ];
-        $beforeLogDay[] = ActivityLogDay::first()->days;
-        $selectedDays = json_decode(ExpiryMailDay::first()->days, true);
-        $Auto_expiryday[] = json_decode(ExpiryMailDay::first()->autorenewal_days, true);
-        $post_expiryday[] = json_decode(ExpiryMailDay::first()->postexpiry_days, true);
-        $beforeCloudDay[] = ExpiryMailDay::first()->cloud_days;
-        $invoiceDeletionDay[] = ExpiryMailDay::first()->invoice_days;
-        $msgDeletionDays[] = ExpiryMailDay::first()->msg91_days;
-        $ReeonLogDeletionDays[] = ExpiryMailDay::first()->reoon_logs_days;
-        $systemLogsDeletionDays[] = ExpiryMailDay::first()->system_logs_days;
-
-        return view('themes.default1.common.cron.cron', compact(
-            'cronPath',
-            'warn',
-            'commands',
-            'condition',
-            'status',
-            'expiryDays',
-            'selectedDays',
-            'delLogDays',
-            'beforeLogDay',
-            'execEnabled',
-            'paths',
-            'Subs_expiry',
-            'Auto_expiryday',
-            'post_expiry',
-            'post_expiryday',
-            'cloudDays',
-            'beforeCloudDay',
-            'invoiceDays',
-            'invoiceDeletionDay',
-            'msg91Days',
-            'msgDeletionDays',
-            'ReeonLogDeletionDays',
-            'reoonDays',
-            'systemLogsDays',
-            'systemLogsDeletionDays'
-        ));
     }
+
 
     public function postSchedular(StatusSetting $status, Request $request)
     {
         try {
-            $allStatus = $status->findOrFail(1);
+            $statusRecord = $status->findOrFail(1);
 
-            $allStatus->expiry_mail = $request->expiry_cron ?? 0;
-            $allStatus->activity_log_delete = $request->activity ?? 0;
-            $allStatus->subs_expirymail = $request->subs_expirymail ?? 0;
-            $allStatus->post_expirymail = $request->postsubs_expirymail ?? 0;
-            $allStatus->cloud_mail_status = $request->cloud_cron ?? 0;
-            $allStatus->invoice_deletion_status = $request->invoice_cron ?? 0;
-            $allStatus->msg91_report_delete_status = $request->msg91_cron ?? 0;
-            $allStatus->system_log_status = $request->systemlogs_cron ?? 0;
-            $allStatus->reoon_deletion_status = $request->reoon_cron ?? 0;
+            $statusRecord->expiry_mail                = $request->input('expiry_cron', 0);
+            $statusRecord->activity_log_delete        = $request->input('activity', 0);
+            $statusRecord->subs_expirymail            = $request->input('subs_expirymail', 0);
+            $statusRecord->post_expirymail            = $request->input('postsubs_expirymail', 0);
+            $statusRecord->cloud_mail_status          = $request->input('cloud_cron', 0);
+            $statusRecord->invoice_deletion_status    = $request->input('invoice_cron', 0);
+            $statusRecord->msg91_report_delete_status = $request->input('msg91_cron', 0);
+            $statusRecord->system_log_status          = $request->input('systemlogs_cron', 0);
+            $statusRecord->reoon_deletion_status      = $request->input('reoon_cron', 0);
 
-            $allStatus->save();
+            $statusRecord->save();
 
-            $this->saveConditions();
+            // Save all cron conditions
+            $this->saveConditions($request);
 
             return successResponse(__('message.updated-successfully'));
-        } catch (\Exception $ex) {
-            return errorResponse($ex->getMessage(), 500);
+
+        } catch (\Throwable $ex) {
+            return errorResponse( __('message.something_went_wrong_try_again'));
         }
     }
 
@@ -425,4 +410,44 @@ class BaseSettingsController extends PaymentSettingsController
 
         return ['message' => 'success', 'update' => __('message.recaptcha_settings_updated')];
     }
+
+    protected function filterQueryForPaymentLog($query)
+    {
+        $from = request()->input('from');
+        $till = request()->input('till');
+
+        return $query
+            // Filter by payment status
+            ->when(request()->filled('status'), function ($q) {
+                $statuses = (array) request()->status;
+                $q->whereIn('status', $statuses);
+            })
+
+            // Filter by payment method (Stripe / Razorpay / PayPal)
+            ->when(request()->filled('payment_method'), function ($q) {
+                $methods = (array) request()->payment_method;
+                $q->whereIn('payment_method', $methods);
+            })
+
+            // Filter by payment type (subscription / invoice / renewal)
+            ->when(request()->filled('payment_type'), function ($q) {
+                $types = (array) request()->payment_type;
+                $q->whereIn('payment_type', $types);
+            })
+
+            // Date filter using the same logic of system logs
+            ->when($from || $till, function ($q) use ($from, $till) {
+                $from = $from
+                    ? Carbon::parse($from)->startOfDay()
+                    : Carbon::minValue();
+                $till = $till
+                    ? Carbon::parse($till)->endOfDay()
+                    : Carbon::now();
+
+                if ($from->lessThanOrEqualTo($till)) {
+                    $q->whereBetween('created_at', [$from, $till]);
+                }
+            });
+    }
+
 }
