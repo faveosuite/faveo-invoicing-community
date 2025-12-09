@@ -32,7 +32,6 @@ class SettingsControllerTest extends DBTestCase
 
         $this->withoutMiddleware();
         $this->getLoggedInUser('admin');
-
     }
 
     /**

@@ -443,7 +443,7 @@ class SettingsController extends BaseSettingsController
                             $stateQ->where('iso2', $settings->state);
                         }]);
                 },
-                'language:id,name,locale'
+                'language:id,name,locale',
             ])->findOrFail(1);
 
             return successResponse(__('message.system_setting_fetched'), $settings);
@@ -818,7 +818,7 @@ class SettingsController extends BaseSettingsController
             // Search filter
             if (! empty($search)) {
                 $paymentLog->where(function ($q) use ($search) {
-                    $q->whereHas('orderDetails', fn($sub) => $sub->where('number', 'like', "%{$search}%"))
+                    $q->whereHas('orderDetails', fn ($sub) => $sub->where('number', 'like', "%{$search}%"))
                         ->orWhere('status', 'like', "%{$search}%")
                         ->orWhere('order', 'like', "%{$search}%")
                         ->orWhere('from', 'like', "%{$search}%")
@@ -844,12 +844,12 @@ class SettingsController extends BaseSettingsController
                 return [
                     'id' => $log->id,
                     'order_number' => $log->order,
-                  //  'order_link' => $log->orderDetails ? $this->hyperLinkGenerator('orders/'.$log->orderDetails->id, $log->order) : null,
+                    //  'order_link' => $log->orderDetails ? $this->hyperLinkGenerator('orders/'.$log->orderDetails->id, $log->order) : null,
                     'order_id' => $log->orderDetails->id ?? null,
                     'payment_email' => $log->from,
                     'user_name' => $userName,
                     'user_email' => $log->user->email ?? null,
-                   // 'user_link' => $log->user ? $this->hyperLinkGenerator('clients/'.$log->user->id, $userName) : null,
+                    // 'user_link' => $log->user ? $this->hyperLinkGenerator('clients/'.$log->user->id, $userName) : null,
                     'user_id' => $log->user->id ?? null,
                     'amount' => $log->amount,
                     'description' => ucfirst($log->payment_type),
@@ -864,7 +864,6 @@ class SettingsController extends BaseSettingsController
                 'logs' => $paymentLog,
                 'total' => $total,
             ]);
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
@@ -1304,7 +1303,6 @@ class SettingsController extends BaseSettingsController
                 'activityLogs' => $activityLogs,
                 'total' => $total,
             ]);
-
         } catch (\Exception $e) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
@@ -1312,7 +1310,7 @@ class SettingsController extends BaseSettingsController
 
     public function getBaseQueryForSystemLogs2($from = null, $till = null)
     {
-        $query = Activity::with(['causer:id,user_name,first_name,last_name,email', 'causer.role'])->select('id', 'log_name', 'description', 'event', 'causer_id','causer_type', 'properties', 'created_at');
+        $query = Activity::with(['causer:id,user_name,first_name,last_name,email', 'causer.role'])->select('id', 'log_name', 'description', 'event', 'causer_id', 'causer_type', 'properties', 'created_at');
 
         try {
             if ($from || $till) {

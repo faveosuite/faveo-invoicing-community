@@ -114,7 +114,7 @@ class BaseSettingsController extends PaymentSettingsController
 
     protected function getBaseQueryForSystemLogs()
     {
-        return Activity::with(['causer:id,user_name,role,first_name,last_name,email'])->select('log_name', 'description', 'event', 'causer_type', 'causer_id', 'created_at', 'properties','id');
+        return Activity::with(['causer:id,user_name,role,first_name,last_name,email'])->select('log_name', 'description', 'event', 'causer_type', 'causer_id', 'created_at', 'properties', 'id');
     }
 
     protected function filterQueryForActivityLogs($baseQuery)
@@ -215,16 +215,16 @@ class BaseSettingsController extends PaymentSettingsController
         try {
             $cronPath = base_path('artisan');
             $status = $status->find(1);
-            $execEnabled  = $this->execEnabled();
+            $execEnabled = $this->execEnabled();
             $paths = $this->getPHPBinPath();
             $warn = '';
             $condition = new \App\Model\Mailjob\Condition();
 
             $commands = [
                 'everyMinute' => 'Every Minute',
-                'everyFiveMinutes'  => 'Every Five Minute',
-                'everyTenMinutes'   => 'Every Ten Minute',
-                'everyThirtyMinutes'=> 'Every Thirty Minute',
+                'everyFiveMinutes' => 'Every Five Minute',
+                'everyTenMinutes' => 'Every Ten Minute',
+                'everyThirtyMinutes' => 'Every Thirty Minute',
                 'hourly' => 'Every Hour',
                 'daily' => 'Every Day',
                 'dailyAt' => 'Daily at',
@@ -235,12 +235,12 @@ class BaseSettingsController extends PaymentSettingsController
 
             $expiryDays = [
                 '30' => '30 days', '15' => '15 days',
-                '7' => '7 days',   '1'  => '1 day',
+                '7' => '7 days',   '1' => '1 day',
             ];
 
             $Subs_expiry = $expiryDays;
             $post_expiry = $expiryDays;
-            $cloudDays   = $expiryDays;
+            $cloudDays = $expiryDays;
 
             $invoiceDays = [
                 '7' => '7 days', '5' => '5 days',
@@ -249,23 +249,22 @@ class BaseSettingsController extends PaymentSettingsController
 
             $reoonDays = [
                 '30' => '30 days', '15' => '15 days', '10' => '10 days',
-                '5' => '5 days',   '1'  => '1 day',
+                '5' => '5 days',   '1' => '1 day',
             ];
 
             $msg91Days = [
                 '720' => '720 Days', '365' => '365 days', '180' => '180 Days',
-                '150' => '150 Days', '60'  => '60 Days',  '30' => '30 Days',
-                '15'  => '15 Days',  '5'   => '5 Days',   '2'  => '2 Days',
-                '0'   => 'Delete All Reports',
+                '150' => '150 Days', '60' => '60 Days',  '30' => '30 Days',
+                '15' => '15 Days',  '5' => '5 Days',   '2' => '2 Days',
+                '0' => 'Delete All Reports',
             ];
 
             $systemLogsDays = [
                 '720' => '720 Days', '365' => '365 days', '180' => '180 Days',
-                '150' => '150 Days', '60'  => '60 Days',  '30' => '30 Days',
-                '15'  => '15 Days',  '5'   => '5 Days',   '2'  => '2 Days',
-                '0'   => 'Delete All Logs',
+                '150' => '150 Days', '60' => '60 Days',  '30' => '30 Days',
+                '15' => '15 Days',  '5' => '5 Days',   '2' => '2 Days',
+                '0' => 'Delete All Logs',
             ];
-
 
             $expiry = ExpiryMailDay::first();
             $activityLog = ActivityLogDay::first();
@@ -277,10 +276,10 @@ class BaseSettingsController extends PaymentSettingsController
             $invoiceDeletionDay = [$expiry->invoice_days ?? null];
             $msgDeletionDays = [$expiry->msg91_days ?? null];
             $ReeonLogDeletionDays = [$expiry->reoon_logs_days ?? null];
-            $systemLogsDeletionDays  = [$expiry->system_logs_days ?? null];
+            $systemLogsDeletionDays = [$expiry->system_logs_days ?? null];
             $beforeLogDay = [$activityLog->days ?? null];
 
-            return successResponse( __('message.scheduler_fetched_successfully'), [
+            return successResponse(__('message.scheduler_fetched_successfully'), [
                 'cronPath' => $cronPath,
                 'warn' => $warn,
                 'commands' => $commands,
@@ -302,32 +301,30 @@ class BaseSettingsController extends PaymentSettingsController
                 'invoiceDeletionDay' => $invoiceDeletionDay,
                 'msg91Days' => $msg91Days,
                 'msgDeletionDays' => $msgDeletionDays,
-                'ReeonLogDeletionDays'  => $ReeonLogDeletionDays,
+                'ReeonLogDeletionDays' => $ReeonLogDeletionDays,
                 'reoonDays' => $reoonDays,
                 'systemLogsDays' => $systemLogsDays,
                 'systemLogsDeletionDays' => $systemLogsDeletionDays,
             ]);
-
         } catch (\Throwable $e) {
-            return errorResponse( __('message.something_went_wrong_try_again'));
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
-
 
     public function postSchedular(StatusSetting $status, Request $request)
     {
         try {
             $statusRecord = $status->findOrFail(1);
 
-            $statusRecord->expiry_mail                = $request->input('expiry_cron', 0);
-            $statusRecord->activity_log_delete        = $request->input('activity', 0);
-            $statusRecord->subs_expirymail            = $request->input('subs_expirymail', 0);
-            $statusRecord->post_expirymail            = $request->input('postsubs_expirymail', 0);
-            $statusRecord->cloud_mail_status          = $request->input('cloud_cron', 0);
-            $statusRecord->invoice_deletion_status    = $request->input('invoice_cron', 0);
+            $statusRecord->expiry_mail = $request->input('expiry_cron', 0);
+            $statusRecord->activity_log_delete = $request->input('activity', 0);
+            $statusRecord->subs_expirymail = $request->input('subs_expirymail', 0);
+            $statusRecord->post_expirymail = $request->input('postsubs_expirymail', 0);
+            $statusRecord->cloud_mail_status = $request->input('cloud_cron', 0);
+            $statusRecord->invoice_deletion_status = $request->input('invoice_cron', 0);
             $statusRecord->msg91_report_delete_status = $request->input('msg91_cron', 0);
-            $statusRecord->system_log_status          = $request->input('systemlogs_cron', 0);
-            $statusRecord->reoon_deletion_status      = $request->input('reoon_cron', 0);
+            $statusRecord->system_log_status = $request->input('systemlogs_cron', 0);
+            $statusRecord->reoon_deletion_status = $request->input('reoon_cron', 0);
 
             $statusRecord->save();
 
@@ -335,9 +332,8 @@ class BaseSettingsController extends PaymentSettingsController
             $this->saveConditions($request);
 
             return successResponse(__('message.updated-successfully'));
-
         } catch (\Throwable $ex) {
-            return errorResponse( __('message.something_went_wrong_try_again'));
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
@@ -449,5 +445,4 @@ class BaseSettingsController extends PaymentSettingsController
                 }
             });
     }
-
 }
