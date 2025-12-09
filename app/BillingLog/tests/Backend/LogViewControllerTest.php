@@ -187,7 +187,7 @@ class LogViewControllerTest extends DBTestCase
 
         $payload = $this->defaultMailPayload([
             'category' => $log->log_category_id,
-            'search-query' =>'test1@gmail.com',
+            'search-query' => 'test1@gmail.com',
         ]);
 
         $response = $this->postJson('/logs/mail', $payload);
@@ -290,9 +290,9 @@ class LogViewControllerTest extends DBTestCase
         );
     }
 
-        /*
-         * Delete Exception Log Test Cases
-        */
+    /*
+     * Delete Exception Log Test Cases
+    */
     #[Test]
     public function it_deletes_exception_logs()
     {
@@ -325,7 +325,6 @@ class LogViewControllerTest extends DBTestCase
 
         $response->assertStatus(200)
                  ->assertJsonFragment(['message' => 'Logs deleted successfully']);
-
     }
     /*
      * Delete Mail Log Test Cases
@@ -373,8 +372,8 @@ class LogViewControllerTest extends DBTestCase
     public function test_get_activity_returns_activity_logs()
     {
         $this->createActivity([
-            'log_name'    => 'User',
-            'event'       => 'updated',
+            'log_name' => 'User',
+            'event' => 'updated',
             'description' => 'Profile updated',
         ]);
 
@@ -388,54 +387,53 @@ class LogViewControllerTest extends DBTestCase
     {
         $user = User::factory()->create([
             'first_name' => 'Jon',
-            'user_name'  => 'jon123',
-            'email'      => 'jon@example.com',
+            'user_name' => 'jon123',
+            'email' => 'jon@example.com',
         ]);
 
         $activity = $this->createActivity([
-            'log_name'    => 'Billing',
-            'event'       => 'created',
-            'causer_id'   => $user->id,
+            'log_name' => 'Billing',
+            'event' => 'created',
+            'causer_id' => $user->id,
             'description' => 'Invoice created',
-            'created_at'  => now(),
+            'created_at' => now(),
         ]);
 
         // Search by log name
-        $this->getJson('/get-activity?search-query=' . $activity->log_name)
+        $this->getJson('/get-activity?search-query='.$activity->log_name)
              ->assertStatus(200)
              ->assertJsonFragment(['module' => 'Billing']);
 
         // Search by description
-        $this->getJson('/get-activity?search-query=' . $activity->description)
+        $this->getJson('/get-activity?search-query='.$activity->description)
              ->assertStatus(200)
              ->assertJsonFragment(['description' => 'Invoice created']);
 
         // Search by first name
-        $this->getJson('/get-activity?search-query=' . $user->first_name)
+        $this->getJson('/get-activity?search-query='.$user->first_name)
              ->assertStatus(200);
         // Search by user_name
-        $this->getJson('/get-activity?search-query=' . $user->user_name)
+        $this->getJson('/get-activity?search-query='.$user->user_name)
              ->assertStatus(200);
 
         // Search by email
-        $this->getJson('/get-activity?search-query=' . $user->email)
+        $this->getJson('/get-activity?search-query='.$user->email)
              ->assertStatus(200);
     }
 
-
     /**
-     * Create activity record with ability to override any field
+     * Create activity record with ability to override any field.
      */
     protected function createActivity(array $overrides = [])
     {
         $defaults = [
-            'log_name'     => 'Billing',
-            'event'        => 'created',
-            'causer_id'    => User::factory()->create()->id,
-            'causer_type'  => User::class,
-            'description'  => 'Invoice created',
-            'properties'   => [],
-            'created_at'   => now(),
+            'log_name' => 'Billing',
+            'event' => 'created',
+            'causer_id' => User::factory()->create()->id,
+            'causer_type' => User::class,
+            'description' => 'Invoice created',
+            'properties' => [],
+            'created_at' => now(),
         ];
 
         return Activity::create(array_merge($defaults, $overrides));
@@ -470,10 +468,9 @@ class LogViewControllerTest extends DBTestCase
         $this->createActivity(['causer_id' => $user1->id]);
         $this->createActivity(['causer_id' => $user2->id]);
 
-        $response = $this->getJson('/get-activity?performed_by[]=' . $user1->id);
+        $response = $this->getJson('/get-activity?performed_by[]='.$user1->id);
 
         $response->assertStatus(200);
-
     }
 
     public function test_get_activity_applies_all_filters_together()
@@ -483,46 +480,46 @@ class LogViewControllerTest extends DBTestCase
             'last_name' => 'Doe',
             'user_name' => 'john_d',
             'email' => 'john@example.com',
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
 
         $otherUser = User::factory()->create();
 
         // Activity that MUST MATCH the filters
         $matchingActivity = $this->createActivity([
-            'log_name'    => 'Billing',
-            'event'       => 'created',
-            'causer_id'   => $targetUser->id,
+            'log_name' => 'Billing',
+            'event' => 'created',
+            'causer_id' => $targetUser->id,
             'description' => 'Invoice created successfully',
-            'created_at'  => now()->subDay(),
+            'created_at' => now()->subDay(),
         ]);
 
         // Activity that MUST BE EXCLUDED
         $this->createActivity([
-            'log_name'    => 'Support',
-            'event'       => 'deleted',
-            'causer_id'   => $otherUser->id,
+            'log_name' => 'Support',
+            'event' => 'deleted',
+            'causer_id' => $otherUser->id,
             'description' => 'Ticket deleted',
-            'created_at'  => now()->subDays(10),
+            'created_at' => now()->subDays(10),
         ]);
 
         // Build query string for ALL filters
         $queryString = http_build_query([
-            'module'         => ['Billing'],
-            'event'          => ['created'],
-            'performed_by'   => [$targetUser->id],
-            'log_from'       => now()->subDays(2)->toDateString(),
-            'log_till'       => now()->toDateString(),
-            'search-query'   => 'Invoice',
+            'module' => ['Billing'],
+            'event' => ['created'],
+            'performed_by' => [$targetUser->id],
+            'log_from' => now()->subDays(2)->toDateString(),
+            'log_till' => now()->toDateString(),
+            'search-query' => 'Invoice',
         ]);
 
         $response = $this->getJson("/get-activity?$queryString");
 
         $response->assertStatus(200)
                  ->assertJsonFragment([
-                'module' => 'Billing',
-                'event' => 'Created',
-                'description' => 'Invoice created successfully',
+                     'module' => 'Billing',
+                     'event' => 'Created',
+                     'description' => 'Invoice created successfully',
                  ])
                 ->assertJsonMissing(['module' => 'Support'])
                 ->assertJsonMissing(['event' => 'Deleted'])
@@ -537,18 +534,18 @@ class LogViewControllerTest extends DBTestCase
         // Old log (should be deleted)
         $this->createActivity([
             'description' => 'Old system log',
-            'created_at'  => now()->subDays(10),
+            'created_at' => now()->subDays(10),
         ]);
 
         // New log (should not be deleted)
         $this->createActivity([
             'description' => 'Recent system log',
-            'created_at'  => now(),
+            'created_at' => now(),
         ]);
 
         $payload = [
             'log_types' => ['systemLogs'],
-            'to_date'   => now()->subDays(2)->toDateString(),
+            'to_date' => now()->subDays(2)->toDateString(),
         ];
 
         $response = $this->deleteJson('/logs/delete', $payload);
@@ -567,25 +564,24 @@ class LogViewControllerTest extends DBTestCase
         //Create OLD cron log — should be deleted
         $oldCronLog = \Logger::cron('database:sync', 'Old cron execution');
         \DB::table('cron_logs')->where('id', $oldCronLog->id)->update([
-            'created_at' => now()->subDays(10)
+            'created_at' => now()->subDays(10),
         ]);
 
         // Create NEW cron log — should remain
         $newCronLog = \Logger::cron('database:sync', 'Recent cron execution');
         \DB::table('cron_logs')->where('id', $newCronLog->id)->update([
-            'created_at' => now()
+            'created_at' => now(),
         ]);
 
         $payload = [
             'log_types' => ['cron'],
-            'to_date'   => now()->toDateString(),
+            'to_date' => now()->toDateString(),
         ];
 
         $response = $this->deleteJson('/logs/delete', $payload);
 
         $response->assertStatus(200)
                  ->assertJsonFragment(['message' => __('message.logs_deleted_successfully')]);
-
     }
 
     /*
@@ -595,27 +591,27 @@ class LogViewControllerTest extends DBTestCase
     {
         // Create OLD failed job — should be deleted
         $oldFailedId = \DB::table('failed_jobs')->insertGetId([
-            'uuid'       => \Str::uuid(),
+            'uuid' => \Str::uuid(),
             'connection' => 'database',
-            'queue'      => 'default',
-            'payload'    => json_encode(['job' => 'ProcessOld']),
-            'exception'  => 'Old job exception',
-            'failed_at'  => now()->subDays(10),
+            'queue' => 'default',
+            'payload' => json_encode(['job' => 'ProcessOld']),
+            'exception' => 'Old job exception',
+            'failed_at' => now()->subDays(10),
         ]);
 
         // Create NEW failed job — should remain
         $newFailedId = \DB::table('failed_jobs')->insertGetId([
-            'uuid'       => \Str::uuid(),
+            'uuid' => \Str::uuid(),
             'connection' => 'database',
-            'queue'      => 'default',
-            'payload'    => json_encode(['job' => 'ProcessNew']),
-            'exception'  => 'New job exception',
-            'failed_at'  => now(),
+            'queue' => 'default',
+            'payload' => json_encode(['job' => 'ProcessNew']),
+            'exception' => 'New job exception',
+            'failed_at' => now(),
         ]);
 
         $payload = [
             'log_types' => ['failed_jobs'],
-            'to_date'   => now()->subDays(2)->toDateString(),
+            'to_date' => now()->subDays(2)->toDateString(),
         ];
 
         $response = $this->deleteJson('/logs/delete', $payload);
@@ -628,13 +624,13 @@ class LogViewControllerTest extends DBTestCase
 
         // New job must exist
         $this->assertDatabaseHas('failed_jobs', [
-            'id'        => $newFailedId,
+            'id' => $newFailedId,
             'exception' => 'New job exception',
         ]);
 
         // Old job must be deleted
         $this->assertDatabaseMissing('failed_jobs', [
-            'id'        => $oldFailedId,
+            'id' => $oldFailedId,
             'exception' => 'Old job exception',
         ]);
     }
@@ -646,11 +642,11 @@ class LogViewControllerTest extends DBTestCase
     protected function createPaymentLog(array $overrides = [])
     {
         $defaults = [
-            'status'         => 'success',
-            'payment_type'   => 'invoice',
+            'status' => 'success',
+            'payment_type' => 'invoice',
             'payment_method' => 'razorpay',
-            'amount'         => 100,
-            'date'           => now(),
+            'amount' => 100,
+            'date' => now(),
         ];
 
         $log = new Payment_log();
@@ -666,8 +662,8 @@ class LogViewControllerTest extends DBTestCase
         $order = Order::factory()->create();
 
         $this->createPaymentLog([
-            'order'          => $order->number,
-            'from'           => $user->email,
+            'order' => $order->number,
+            'from' => $user->email,
         ]);
 
         $response = $this->getJson('/get-paymentlog');
@@ -679,103 +675,103 @@ class LogViewControllerTest extends DBTestCase
 
     public function test_get_payment_logs_search_filter()
     {
-        $user  = User::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
+        $user = User::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
         $order = Order::factory()->create();
 
-        $paymentLog =$this->createPaymentLog([
-            'order'          => $order->number,
-            'from'           => $user->email,
+        $paymentLog = $this->createPaymentLog([
+            'order' => $order->number,
+            'from' => $user->email,
         ]);
 
         // Search by email
-        $response1 = $this->getJson('/get-paymentlog?search-query=' . $user->email);
+        $response1 = $this->getJson('/get-paymentlog?search-query='.$user->email);
         $response1->assertStatus(200)
                   ->assertJsonFragment(['payment_email' => $user->email]);
 
         // Search by user name (first_name + last_name)
         $fullName = "{$user->first_name} {$user->last_name}";
-        $response2 = $this->getJson('/get-paymentlog?search-query=' . $fullName);
+        $response2 = $this->getJson('/get-paymentlog?search-query='.$fullName);
         $response2->assertStatus(200)
                   ->assertJsonFragment(['user_name' => $fullName]);
 
         // Search by status
-        $response3 = $this->getJson('/get-paymentlog?search-query=' . $paymentLog->status);
+        $response3 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->status);
         $response3->assertStatus(200)
                   ->assertJsonFragment(['status' => ucfirst($paymentLog->status)]);
 
         // Search by order number
-        $response4 = $this->getJson('/get-paymentlog?search-query=' . $paymentLog->order);
+        $response4 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->order);
         $response4->assertStatus(200);
 
         // Search by from email
-        $response5 = $this->getJson('/get-paymentlog?search-query=' . $paymentLog->from);
+        $response5 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->from);
         $response5->assertStatus(200)
                   ->assertJsonFragment(['payment_email' => $paymentLog->from]);
 
         // Search by payment type
-        $response6 = $this->getJson('/get-paymentlog?search-query=' . $paymentLog->payment_type);
+        $response6 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->payment_type);
         $response6->assertStatus(200)
                   ->assertJsonFragment(['description' => ucfirst($paymentLog->payment_type)]);
 
         // Search by payment method
-        $response7 = $this->getJson('/get-paymentlog?search-query=' . $paymentLog->payment_method);
+        $response7 = $this->getJson('/get-paymentlog?search-query='.$paymentLog->payment_method);
         $response7->assertStatus(200)
                   ->assertJsonFragment(['payment_method' => ucfirst($paymentLog->payment_method)]);
     }
 
     public function test_payment_log_applies_all_filters_together()
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $order = Order::factory()->create();
 
         $paymentLog1 = $this->createPaymentLog([
-            'order'          => $order->number,
-            'from'           => $user->email,
-            'status'         => 'success',
+            'order' => $order->number,
+            'from' => $user->email,
+            'status' => 'success',
             'payment_method' => 'stripe',
-            'payment_type'   => 'subscription',
-            'created_at'     => now()->subDay(),
+            'payment_type' => 'subscription',
+            'created_at' => now()->subDay(),
         ]);
         $paymentLog1->forceFill([
             'created_at' => Carbon::create(2025, 7, 12)->startOfDay(),
         ])->saveQuietly();
 
         $paymentLog2 = $this->createPaymentLog([
-            'order'          => $order->number,
-            'from'           => $user->email,
-            'status'         => 'success',
+            'order' => $order->number,
+            'from' => $user->email,
+            'status' => 'success',
             'payment_method' => 'stripe',
-            'payment_type'   => 'subscription',
-            'created_at'     => now()->subDay(),
+            'payment_type' => 'subscription',
+            'created_at' => now()->subDay(),
         ]);
         $paymentLog2->forceFill([
             'created_at' => Carbon::create(2025, 9, 12)->startOfDay(),
         ])->saveQuietly();
 
         $paymentLog3 = $this->createPaymentLog([
-            'order'          => $order->number,
-            'from'           => $user->email,
-            'status'         => 'success',
+            'order' => $order->number,
+            'from' => $user->email,
+            'status' => 'success',
             'payment_method' => 'stripe',
-            'payment_type'   => 'subscription',
-            'created_at'     => now()->subDay(),
+            'payment_type' => 'subscription',
+            'created_at' => now()->subDay(),
         ]);
         $paymentLog3->forceFill([
             'created_at' => Carbon::create(2025, 10, 12)->startOfDay(),
         ])->saveQuietly();
 
         // filter by same date (from and till)
-        $response1 = $this->getJson("/get-paymentlog?from=2025-07-12&till=2025-07-12");
+        $response1 = $this->getJson('/get-paymentlog?from=2025-07-12&till=2025-07-12');
         $response1->assertStatus(200)
             ->assertJsonCount(1, 'data.logs.data');
 
         // filter by different  date range (from and till)
-        $response2 = $this->getJson("/get-paymentlog?from=2025-07-12&till=2025-10-12");
+        $response2 = $this->getJson('/get-paymentlog?from=2025-07-12&till=2025-10-12');
         $response2->assertStatus(200)
             ->assertJsonCount(3, 'data.logs.data');
 
         //filter by without till date
-        $response3 = $this->getJson("/get-paymentlog?from=2025-09-12");
+        $response3 = $this->getJson('/get-paymentlog?from=2025-09-12');
         $response3->assertStatus(200)
             ->assertJsonCount(2, 'data.logs.data');
     }
@@ -798,21 +794,21 @@ class LogViewControllerTest extends DBTestCase
     */
     public function test_destroy_payment_deletes_selected_records()
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $order = Order::factory()->create();
 
         $this->createPaymentLog([
             'order' => $order->number,
-            'from'  => $user->email,
+            'from' => $user->email,
         ]);
 
         // Logs to DELETE — store references
         $log1 = $this->createPaymentLog([
-            'status' => 'failed'
+            'status' => 'failed',
         ]);
 
         $log2 = $this->createPaymentLog([
-            'payment_method' => 'razorpay'
+            'payment_method' => 'razorpay',
         ]);
 
         // Delete request with selected IDs

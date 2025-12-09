@@ -301,26 +301,25 @@ trait ApiKeySettings
 
     public function saveConditions(Request $request)
     {
-        if (!$request->has('expiry-commands') || !$request->has('activity-commands')) {
+        if (! $request->has('expiry-commands') || ! $request->has('activity-commands')) {
             return;
         }
 
         // Build all cron job commands
         $jobs = [
-            'expiryMail'       => $this->getCommand($request->input('expiry-commands'),        $request->input('expiry-dailyAt')),
-            'deleteLogs'       => $this->getCommand($request->input('activity-commands'),      $request->input('activity-dailyAt')),
-            'subsExpirymail'   => $this->getCommand($request->input('subexpiry-commands'),     $request->input('subexpiry-dailyAt')),
-            'postExpirymail'   => $this->getCommand($request->input('postsubexpiry-commands'), $request->input('postsubexpiry-dailyAt')),
-            'cloud'            => $this->getCommand($request->input('cloud-commands'),         $request->input('cloud-dailyAt')),
-            'invoice'          => $this->getCommand($request->input('invoice-commands'),       $request->input('invoice-dailyAt')),
-            'msg91Reports'     => $this->getCommand($request->input('msg91-commands'),         $request->input('msg91-dailyAt')),
-            'reoon'            => $this->getCommand($request->input('reoon-commands'),         $request->input('reoon-dailyAt')),
-            'systemLogs'       => $this->getCommand($request->input('systemlogs-commands'),    $request->input('systemlogs-dailyAt')),
+            'expiryMail' => $this->getCommand($request->input('expiry-commands'), $request->input('expiry-dailyAt')),
+            'deleteLogs' => $this->getCommand($request->input('activity-commands'), $request->input('activity-dailyAt')),
+            'subsExpirymail' => $this->getCommand($request->input('subexpiry-commands'), $request->input('subexpiry-dailyAt')),
+            'postExpirymail' => $this->getCommand($request->input('postsubexpiry-commands'), $request->input('postsubexpiry-dailyAt')),
+            'cloud' => $this->getCommand($request->input('cloud-commands'), $request->input('cloud-dailyAt')),
+            'invoice' => $this->getCommand($request->input('invoice-commands'), $request->input('invoice-dailyAt')),
+            'msg91Reports' => $this->getCommand($request->input('msg91-commands'), $request->input('msg91-dailyAt')),
+            'reoon' => $this->getCommand($request->input('reoon-commands'), $request->input('reoon-dailyAt')),
+            'systemLogs' => $this->getCommand($request->input('systemlogs-commands'), $request->input('systemlogs-dailyAt')),
         ];
 
         $this->storeCommand($jobs);
     }
-
 
     public function getCommand($command, $daily_at)
     {
@@ -341,7 +340,7 @@ trait ApiKeySettings
         // Insert all new commands
         foreach ($jobs as $job => $value) {
             $model->create([
-                'job'   => $job,
+                'job' => $job,
                 'value' => $value,
             ]);
         }

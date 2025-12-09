@@ -196,7 +196,7 @@ class MSG91ControllerTest extends DBTestCase
 //        $this->assertEquals('foo123', $results->first()->request_id);
 //    }
 
-//New test cases can be added here
+    //New test cases can be added here
     protected function createMsg91Log(array $overrides = [])
     {
         $user = User::factory()->create();
@@ -208,20 +208,19 @@ class MSG91ControllerTest extends DBTestCase
         );
 
         $defaults = [
-            'mobile_number'  => '9876543210',
-            'request_id'     => Str::uuid(),
-            'status'         => $status->status_code,
-            'date'           => now(),
-            'sender_id'      => 'SENDER',
+            'mobile_number' => '9876543210',
+            'request_id' => Str::uuid(),
+            'status' => $status->status_code,
+            'date' => now(),
+            'sender_id' => 'SENDER',
             'failure_reason' => null,
-            'user_id'        => $user->id,
-            'country_iso'    => 'IN',
-            'mobile_code'    => '+91',
+            'user_id' => $user->id,
+            'country_iso' => 'IN',
+            'mobile_code' => '+91',
         ];
 
         return MsgDeliveryReports::create(array_merge($defaults, $overrides));
     }
-
 
     public function test_get_msg91_logs_returns_data()
     {
@@ -240,7 +239,7 @@ class MSG91ControllerTest extends DBTestCase
         $user = User::factory()->create(['first_name' => 'Test', 'last_name' => 'User']);
         $log = $this->createMsg91Log([
             'request_id' => 'REQ-123',
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
 
         // Search by request_id
@@ -254,7 +253,7 @@ class MSG91ControllerTest extends DBTestCase
                   ->assertJsonCount(1, 'data.logs.data');
 
         // Search by email
-        $response3 = $this->getJson('/sms/reports?search-query=' . $user->email);
+        $response3 = $this->getJson('/sms/reports?search-query='.$user->email);
         $response3->assertStatus(200)
                   ->assertJsonCount(1, 'data.logs.data');
 
@@ -262,7 +261,6 @@ class MSG91ControllerTest extends DBTestCase
         $response4 = $this->getJson('/sms/reports?search-query=pending');
         $response4->assertStatus(200)
                   ->assertJsonCount(1, 'data.logs.data');
-
     }
 
     public function test_msg91_filter_by_request_id()
@@ -339,12 +337,11 @@ class MSG91ControllerTest extends DBTestCase
         $log1->forceFill([
             'created_at' => Carbon::create(2025, 7, 12)->startOfDay(),
         ])->saveQuietly();
-        $response = $this->getJson("/sms/reports?log_from=2025-07-12&log_till=2025-07-12");
+        $response = $this->getJson('/sms/reports?log_from=2025-07-12&log_till=2025-07-12');
 
         $response->assertStatus(200)
                  ->assertJsonCount(1, 'data.logs.data');
     }
-
 
     public function test_msg91_filter_by_multiple_date_range()
     {
@@ -362,7 +359,7 @@ class MSG91ControllerTest extends DBTestCase
             'created_at' => Carbon::create(2025, 10, 12)->startOfDay(),
         ])->saveQuietly();
 
-        $response = $this->getJson("/sms/reports?log_from=2025-07-12&log_till=2025-10-12");
+        $response = $this->getJson('/sms/reports?log_from=2025-07-12&log_till=2025-10-12');
 
         $response->assertStatus(200)
                  ->assertJsonCount(3, 'data.logs.data');
@@ -379,10 +376,9 @@ class MSG91ControllerTest extends DBTestCase
             'created_at' => Carbon::create(2025, 7, 12)->startOfDay(),
         ])->saveQuietly();
 
-        $response = $this->getJson("/sms/reports?log_from=2025-07-12");
+        $response = $this->getJson('/sms/reports?log_from=2025-07-12');
         $response->assertStatus(200)
                  ->assertJsonCount(3, 'data.logs.data');
-
     }
 
     public function test_msg91_filters_all_conditions_together()
@@ -391,29 +387,29 @@ class MSG91ControllerTest extends DBTestCase
         $user = User::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
 
         $log1 = $this->createMsg91Log([
-            'user_id'       => $user->id,
+            'user_id' => $user->id,
             'mobile_number' => '9876540000',
-            'status'        => 'DEL',
-            'failure_reason'=> 'None',
-            'created_at'    => now()->subDay(),
+            'status' => 'DEL',
+            'failure_reason' => 'None',
+            'created_at' => now()->subDay(),
         ]);
 
         $log2 = $this->createMsg91Log([
-            'user_id'       => $user->id,
+            'user_id' => $user->id,
             'mobile_number' => '9876540000',
-            'status'        => 'DEL',
-            'failure_reason'=> 'None',
-            'created_at'    => now()->subDay(),
+            'status' => 'DEL',
+            'failure_reason' => 'None',
+            'created_at' => now()->subDay(),
         ]);
 
         $this->createMsg91Log();
 
         $qs = http_build_query([
-            'email'         => $user->email,
+            'email' => $user->email,
             'mobile_number' => '987654',
-            'status'        => 'Pending',
-            'log_from'      => now()->subDays(2)->toDateString(),
-            'log_till'      => now()->toDateString(),
+            'status' => 'Pending',
+            'log_from' => now()->subDays(2)->toDateString(),
+            'log_till' => now()->toDateString(),
         ]);
 
         $response = $this->getJson("/sms/reports?$qs");
@@ -421,6 +417,4 @@ class MSG91ControllerTest extends DBTestCase
         $response->assertStatus(200)
                  ->assertJsonCount(2, 'data.logs.data');
     }
-
-
 }
