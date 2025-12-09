@@ -104,11 +104,11 @@ class MSG91Controller extends Controller
             $baseQuery = $this->msgLogData();
 
             // Search filter
-            if (!empty($searchString)) {
+            if (! empty($searchString)) {
                 $baseQuery->where(function ($q) use ($searchString) {
                     $q->where('request_id', 'like', "%$searchString%")
                         ->orWhere('mobile_number', 'like', "%$searchString%")
-                        ->orWhereHas('readableStatus', fn($q) => $q->where('status_label', 'like', "%$searchString%"))
+                        ->orWhereHas('readableStatus', fn ($q) => $q->where('status_label', 'like', "%$searchString%"))
                         ->orWhereHas('user', function ($sub) use ($searchString) {
                             $sub->where('email', 'like', "%$searchString%")
                                 ->orWhere('user_name', 'like', "%$searchString%")
@@ -131,14 +131,14 @@ class MSG91Controller extends Controller
                 $fullName = $log->user ? trim($log->user->first_name.' '.$log->user->last_name) : null;
 
                 return [
-                    'request_id'      => $log->request_id,
-                    'user_fullname'   => $fullName,
-                    'user_email'      => $log->user->email ?? null,
-                    'status'          => $log->readableStatus->status_label ?? null,
-                    'failure_reason'  => $log->failure_reason,
-                    'mobile_number'   => $log->mobile_number,
-                    'delivery_date'   => $log->date,
-                    'created_at'      => $log->created_at ?? null,
+                    'request_id' => $log->request_id,
+                    'user_fullname' => $fullName,
+                    'user_email' => $log->user->email ?? null,
+                    'status' => $log->readableStatus->status_label ?? null,
+                    'failure_reason' => $log->failure_reason,
+                    'mobile_number' => $log->mobile_number,
+                    'delivery_date' => $log->date,
+                    'created_at' => $log->created_at ?? null,
                 ];
             });
 
@@ -146,7 +146,6 @@ class MSG91Controller extends Controller
                 'logs' => $logs,
                 'total' => $total,
             ]);
-
         } catch (\Exception $e) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
