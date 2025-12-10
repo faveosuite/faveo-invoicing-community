@@ -55,14 +55,12 @@ class RouteServiceProvider extends ServiceProvider
 
         $middlewares = [];
 
-
-        if(isV3Api()){
+        if (isV3Api()) {
             $this->setV3ApiConfiguration();
 
             $routeConfig['prefix'] = 'v3';
             array_push($middlewares, 'api', 'force.json');
-        }
-        else{
+        } else {
             array_push($middlewares, 'web');
         }
 

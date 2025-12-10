@@ -32,7 +32,7 @@ class Honeypot implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
 //        For v3 we dont need honeypot
-        if( isV3Api() ){
+        if (isV3Api()) {
             return;
         }
 

@@ -1233,9 +1233,8 @@ function getSupportedCountriesForIntlInput()
     })->toArray();
 }
 
-
 /**
- * Checks if the request is coming from api or web
+ * Checks if the request is coming from api or web.
  */
 function isV3Api(): bool
 {
