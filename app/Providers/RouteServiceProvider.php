@@ -41,9 +41,55 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapWebRoutes()
     {
-        Route::middleware('web')
-             ->group(base_path('routes/web.php'));
+        $routeConfig = ['namespace' => $this->namespace];
+
+        $middlewares = ['redirect', 'limit.exceeded'];
+
+        if($this->isV3Api()){
+            $this->setV3ApiConfiguration();
+
+            $routeConfig['prefix'] = 'v3';
+            array_push($middlewares, 'api');
+        }
+        else{
+            array_push($middlewares, 'web');
+        }
+
+        Route::group($routeConfig, function () {
+            require base_path('routes/web.php');
+        });
     }
+
+    /**
+     * Sets up version 3 authentication coonfiguration
+     *
+     * @return null
+     */
+    private function setV3ApiConfiguration()
+    {
+        // if v3 is given, we will set a api guard
+        Config::set('auth.defaults.guard', 'api');
+
+        // Since existing APIs uses the same guard, so
+        // it cannot be changed manually.
+        // creating a new guard is not available in passport for now,
+        // overriding their class in much more complicated than simply changing the
+        // configuration and run time
+        Config::set('auth.guards.api.driver', 'passport');
+    }
+
+    /**
+     * If the url is for version 3 APIs (if it has v3 as prefix, it will be)
+     */
+    private function isV3Api(): bool
+    {
+        // check if url has v3 in it, it should be subjected to api middleware,
+        // else web middleware
+        $relativeUrl = str_replace(\Request::root().'/', '', \URL::current());
+
+        return strpos($relativeUrl, 'v3/') !== false;
+    }
+
 
     /**
      * Define the "api" routes for the application.
