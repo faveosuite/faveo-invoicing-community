@@ -1232,3 +1232,12 @@ function getSupportedCountriesForIntlInput()
         return in_array(strtoupper($iso), $unsupportedIso);
     })->toArray();
 }
+
+
+/**
+ * Checks if the request is coming from api or web
+ */
+function isV3Api(): bool
+{
+    return str_contains(str_replace(\Request::root().'/', '', \URL::current()), 'v3/');
+}

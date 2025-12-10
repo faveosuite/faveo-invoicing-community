@@ -53,7 +53,7 @@ class BlockFailedVerifications
         switch ($context) {
             case 'login':
                 // For login, use IP + login input for security
-                $loginInput = request()->input('email_username');
+                $loginInput = request()->input('email_username') ?? '';
 
                 return (new LoginController())->getLoginRateLimitKey($loginInput);
 

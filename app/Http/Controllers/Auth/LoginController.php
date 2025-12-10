@@ -96,13 +96,42 @@ class LoginController extends Controller
         }
     }
 
+    public function postLoginAndGetToken(LoginRequest $request)
+    {
+        Auth::shouldUse('web');
+
+        $response = $this->login($request);
+
+        return $this->returnApiV3LoginResponse($response);
+    }
+
+    /**
+     * Function returns modified response(if required) for login when called via v3 api
+     */
+    private function returnApiV3LoginResponse($response)
+    {
+        // If not v3 API or user not logged in, just return original response
+        if (! isV3Api() || ! Auth::check()) {
+            return $response;
+        }
+
+        $user = Auth::user();
+
+        $userInfo = array_merge(
+            $user->only(['id', 'first_name', 'last_name', 'email', 'user_name']),
+            ['token' => $user->createToken('Billing')->accessToken],
+        );
+
+        return successResponse('', $userInfo);
+    }
+
     /**
      * Handle a login request to the application.
      *
      * @param  LoginRequest  $request
      * @return
      */
-    public function login(LoginRequest $request) // 2. Type-hint the LoginRequest
+    public function login(LoginRequest $request)
     {
         try {
             // 1. Prepare credentials for both email and username login

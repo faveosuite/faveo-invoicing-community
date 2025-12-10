@@ -86,5 +86,6 @@ class Kernel extends HttpKernel
         'language' => \App\Http\Middleware\LanguageMiddleware::class,
         'blockFailedVerifications' => \App\Http\Middleware\BlockFailedVerifications::class,
         'session.timeout' => \App\Http\Middleware\SessionTimeout::class,
+        'force.json' => \App\Http\Middleware\AddJsonAcceptHeader::class,
     ];
 }
