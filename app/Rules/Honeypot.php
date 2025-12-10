@@ -31,6 +31,11 @@ class Honeypot implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+//        For v3 we dont need honeypot
+        if( isV3Api() ){
+            return;
+        }
+
         if (! is_array($value) || count($value) !== 2) {
             $fail($this->message);
 

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Config;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -10,6 +11,15 @@ use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
+    /**
+     * This namespace is applied to your controller routes.
+     *
+     * In addition, it is set as the URL generator's root namespace.
+     *
+     * @var string
+     */
+    protected $namespace = 'App\Http\Controllers';
+
     /**
      * Define your route model bindings, pattern filters, etc.
      *
@@ -43,16 +53,20 @@ class RouteServiceProvider extends ServiceProvider
     {
         $routeConfig = ['namespace' => $this->namespace];
 
-        $middlewares = ['redirect', 'limit.exceeded'];
+        $middlewares = [];
 
-        if ($this->isV3Api()) {
+
+        if(isV3Api()){
             $this->setV3ApiConfiguration();
 
             $routeConfig['prefix'] = 'v3';
-            array_push($middlewares, 'api');
-        } else {
+            array_push($middlewares, 'api', 'force.json');
+        }
+        else{
             array_push($middlewares, 'web');
         }
+
+        $routeConfig['middleware'] = $middlewares;
 
         Route::group($routeConfig, function () {
             require base_path('routes/web.php');
@@ -75,18 +89,6 @@ class RouteServiceProvider extends ServiceProvider
         // overriding their class in much more complicated than simply changing the
         // configuration and run time
         Config::set('auth.guards.api.driver', 'passport');
-    }
-
-    /**
-     * If the url is for version 3 APIs (if it has v3 as prefix, it will be).
-     */
-    private function isV3Api(): bool
-    {
-        // check if url has v3 in it, it should be subjected to api middleware,
-        // else web middleware
-        $relativeUrl = str_replace(\Request::root().'/', '', \URL::current());
-
-        return strpos($relativeUrl, 'v3/') !== false;
     }
 
     /**
