@@ -65,7 +65,7 @@ class ClientOrderControllerTest extends DBTestCase
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'success',
-                'data' =>['data'=> [
+                'data' => ['data' => [
                     '*' => [
                         'id',
                         'date',
@@ -75,7 +75,7 @@ class ClientOrderControllerTest extends DBTestCase
                         'action',
                     ],
                 ],
-                    ],
+                ],
             ]);
     }
 

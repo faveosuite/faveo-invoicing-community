@@ -34,12 +34,11 @@ class DashboardTest extends DBTestCase
         $this->withoutMiddleware();
         $order = Order::factory()->create(['client' => $user->id]);
         $response = $this->call('get', 'client-dashboard-details');
-        $content=$response->json()['data'];
+        $content = $response->json()['data'];
         $response->assertStatus(200);
-        $this->assertEquals(1,$content['ordersCount']);
-        $this->assertEquals(0,$content['pendingInvoicesCount']);
+        $this->assertEquals(1, $content['ordersCount']);
+        $this->assertEquals(0, $content['pendingInvoicesCount']);
         $this->assertDatabaseCount('orders', 1);
-
     }
 
     #[\PHPUnit\Framework\Attributes\Group('dashboard')]
@@ -129,7 +128,7 @@ class DashboardTest extends DBTestCase
         $this->withoutMiddleware();
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending']);
         $response = $this->call('get', 'my-invoices?status=pending');
-        $content=$response->json();
+        $content = $response->json();
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
@@ -165,7 +164,7 @@ class DashboardTest extends DBTestCase
                         'balance',
                         'status',
                         'action',
-                    ]
+                    ],
                 ],
                 'first_page_url',
                 'from',
@@ -173,10 +172,9 @@ class DashboardTest extends DBTestCase
                 'path',
                 'per_page',
                 'prev_page_url',
-                'to'
+                'to',
             ],
         ]);
-
     }
 
     public function test_get_client_dashboard_details()
