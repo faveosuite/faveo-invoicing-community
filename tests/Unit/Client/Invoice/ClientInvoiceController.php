@@ -39,12 +39,31 @@ class ClientInvoiceController extends DBTestCase
         $content = $response->json();
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'draw',
-            'recordsTotal',
-            'recordsFiltered',
-            'data' => ['*' => ['number', 'orderNo', 'date', 'total', 'status', 'Action']],
+            'success',
+            'data' => [
+                'current_page',
+                'data' => [
+                    '*' => [
+                        'number',
+                        'OrderNo',
+                        'date',
+                        'total',
+                        'paid',
+                        'balance',
+                        'status',
+                        'action',
+                    ]
+                ],
+                'first_page_url',
+                'from',
+                'next_page_url',
+                'path',
+                'per_page',
+                'prev_page_url',
+                'to'
+            ],
         ]);
-        $this->assertEquals($content['data'][0]['user_id'], $user->id);
+        $this->assertEquals($content['data']['data'][0]['status'], 'Unpaid');
     }
 
     #[\PHPUnit\Framework\Attributes\Group('invoice')]
@@ -132,11 +151,16 @@ class ClientInvoiceController extends DBTestCase
         $order = Order::factory()->create(['invoice_id' => $invoice->id,
             'invoice_item_id' => $invoiceItem->id, 'client' => $user->id, 'product' => $product->id]);
         $response = $this->call('get', 'my-invoice/'.$invoice->id);
+
+        $content=$response->json();
         while (ob_get_level() > 1) {
             ob_end_clean();
         }
         $response->assertStatus(200);
-        $response->assertViewIs('themes.default1.front.clients.show-invoice');
+        $response->assertJsonStructure([
+            'data' => ['payments','items','user','processingFeeAmount','values','statusText','statusClass','status']
+        ]);
+        $this->assertEquals($user->id,$content['data']['user']['id']);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('invoice')]
@@ -151,10 +175,9 @@ class ClientInvoiceController extends DBTestCase
         $response = $this->call('get', 'get-my-invoices', ['status' => '']);
         $content = $response->json();
         $response->assertStatus(200);
-        $this->assertEquals($content['data'][0]['user_id'], $user->id);
-        $this->assertEquals($content['data'][0]['id'], $invoice->id);
-        $this->assertEquals($content['data'][0]['is_renewed'], $invoice->is_renewed);
-        $this->assertEquals($content['data'][0]['currency'], $invoice->currency);
+        $this->assertEquals($content['data']['data'][0]['status'], 'Unpaid');
+        $this->assertEquals($content['data']['data'][0]['OrderNo'], '<a href='.url('my-order/'.$order->id).'>'.$order->number.'</a>');
+        $this->assertEquals($content['data']['data'][0]['number'], '<a href='.url('my-invoice/'.$invoice->id).'>'.$invoice->number.'</a>');
     }
 
     #[\PHPUnit\Framework\Attributes\Group('invoice')]

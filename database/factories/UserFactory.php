@@ -30,7 +30,7 @@ class UserFactory extends Factory
             'currency' => 'INR',
             'address' => $this->faker->address(),
             'town' => $this->faker->city(),
-            'state' => 'IN-TN',
+            'state' => 'TN',
             'zip' => $this->faker->postcode(),
             'password' => 'Rivara@12',
             'timezone_id' => 79,
