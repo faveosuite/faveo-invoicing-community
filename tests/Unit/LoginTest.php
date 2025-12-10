@@ -346,17 +346,13 @@ class LoginTest extends DBTestCase
         ]);
     }
 
-
-    public function test_login_page(){
+    public function test_login_page()
+    {
         $this->withoutMiddleware();
-        $response=$this->get('/login');
+        $response = $this->get('/login');
         $response->assertStatus(200);
         $content = $response->getOriginalContent();
-        $this->assertEquals(true,$content['success']);
-        $this->assertEquals('Login Page',$content['message']);
+        $this->assertEquals(true, $content['success']);
+        $this->assertEquals('Login Page', $content['message']);
     }
-
-
-
-
 }
