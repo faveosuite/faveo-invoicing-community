@@ -106,7 +106,7 @@ class LoginController extends Controller
     }
 
     /**
-     * Function returns modified response(if required) for login when called via v3 api
+     * Function returns modified response(if required) for login when called via v3 api.
      */
     private function returnApiV3LoginResponse($response)
     {

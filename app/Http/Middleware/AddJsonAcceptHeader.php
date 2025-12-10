@@ -7,14 +7,13 @@ use Symfony\Component\HttpFoundation\HeaderBag;
 
 class AddJsonAcceptHeader
 {
-
     private array $allowedEndpoints = [
     ];
 
     /**
      * Add JSON HTTP_ACCEPT header for an incoming request.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -26,7 +25,7 @@ class AddJsonAcceptHeader
 //        if ($errorResponse = $this->validateSettings($request)) {
 //            return $errorResponse;
 //        }
-        
+
         $request->server->set('HTTP_ACCEPT', 'application/json');
         $request->headers = new HeaderBag($request->server->getHeaders());
 
