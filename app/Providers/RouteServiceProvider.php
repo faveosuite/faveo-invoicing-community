@@ -45,13 +45,12 @@ class RouteServiceProvider extends ServiceProvider
 
         $middlewares = ['redirect', 'limit.exceeded'];
 
-        if($this->isV3Api()){
+        if ($this->isV3Api()) {
             $this->setV3ApiConfiguration();
 
             $routeConfig['prefix'] = 'v3';
             array_push($middlewares, 'api');
-        }
-        else{
+        } else {
             array_push($middlewares, 'web');
         }
 
@@ -61,7 +60,7 @@ class RouteServiceProvider extends ServiceProvider
     }
 
     /**
-     * Sets up version 3 authentication coonfiguration
+     * Sets up version 3 authentication coonfiguration.
      *
      * @return null
      */
@@ -79,7 +78,7 @@ class RouteServiceProvider extends ServiceProvider
     }
 
     /**
-     * If the url is for version 3 APIs (if it has v3 as prefix, it will be)
+     * If the url is for version 3 APIs (if it has v3 as prefix, it will be).
      */
     private function isV3Api(): bool
     {
@@ -89,7 +88,6 @@ class RouteServiceProvider extends ServiceProvider
 
         return strpos($relativeUrl, 'v3/') !== false;
     }
-
 
     /**
      * Define the "api" routes for the application.
