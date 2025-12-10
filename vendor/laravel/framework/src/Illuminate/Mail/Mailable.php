@@ -13,6 +13,7 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Support\Collection;
+use Illuminate\Support\EncodedHtmlString;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Conditionable;
@@ -205,12 +206,12 @@ class Mailable implements MailableContract, Renderable
 
             return $mailer->send($this->buildView(), $this->buildViewData(), function ($message) {
                 $this->buildFrom($message)
-                     ->buildRecipients($message)
-                     ->buildSubject($message)
-                     ->buildTags($message)
-                     ->buildMetadata($message)
-                     ->runCallbacks($message)
-                     ->buildAttachments($message);
+                    ->buildRecipients($message)
+                    ->buildSubject($message)
+                    ->buildTags($message)
+                    ->buildMetadata($message)
+                    ->runCallbacks($message)
+                    ->buildAttachments($message);
             });
         });
     }
@@ -262,10 +263,10 @@ class Mailable implements MailableContract, Renderable
     protected function newQueuedJob()
     {
         return Container::getInstance()->make(SendQueuedMailable::class, ['mailable' => $this])
-                    ->through(array_merge(
-                        method_exists($this, 'middleware') ? $this->middleware() : [],
-                        $this->middleware ?? []
-                    ));
+            ->through(array_merge(
+                method_exists($this, 'middleware') ? $this->middleware() : [],
+                $this->middleware ?? []
+            ));
     }
 
     /**
@@ -966,9 +967,9 @@ class Mailable implements MailableContract, Renderable
         }
 
         $this->attachments = (new Collection($this->attachments))
-                    ->push(compact('file', 'options'))
-                    ->unique('file')
-                    ->all();
+            ->push(compact('file', 'options'))
+            ->unique('file')
+            ->all();
 
         return $this;
     }
@@ -1048,8 +1049,8 @@ class Mailable implements MailableContract, Renderable
         $attachments = $this->attachments();
 
         return (new Collection(is_object($attachments) ? [$attachments] : $attachments))
-                ->map(fn ($attached) => $attached instanceof Attachable ? $attached->toMailAttachment() : $attached)
-                ->contains(fn ($attached) => $attached->isEquivalent($attachment, $options));
+            ->map(fn ($attached) => $attached instanceof Attachable ? $attached->toMailAttachment() : $attached)
+            ->contains(fn ($attached) => $attached->isEquivalent($attachment, $options));
     }
 
     /**
@@ -1371,7 +1372,7 @@ class Mailable implements MailableContract, Renderable
      */
     public function assertSeeInHtml($string, $escape = true)
     {
-        $string = $escape ? e($string) : $string;
+        $string = $escape ? EncodedHtmlString::convert($string, withQuote: isset($this->markdown)) : $string;
 
         [$html, $text] = $this->renderForAssertions();
 
@@ -1393,7 +1394,7 @@ class Mailable implements MailableContract, Renderable
      */
     public function assertDontSeeInHtml($string, $escape = true)
     {
-        $string = $escape ? e($string) : $string;
+        $string = $escape ? EncodedHtmlString::convert($string, withQuote: isset($this->markdown)) : $string;
 
         [$html, $text] = $this->renderForAssertions();
 
@@ -1415,7 +1416,9 @@ class Mailable implements MailableContract, Renderable
      */
     public function assertSeeInOrderInHtml($strings, $escape = true)
     {
-        $strings = $escape ? array_map('e', $strings) : $strings;
+        $strings = $escape ? array_map(function ($string) {
+            return EncodedHtmlString::convert($string, withQuote: isset($this->markdown));
+        }, $strings) : $strings;
 
         [$html, $text] = $this->renderForAssertions();
 

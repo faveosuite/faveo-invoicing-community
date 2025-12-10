@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+7.3
+---
+
+ * Add `$key` argument to `#[MapQueryString]` that allows using a specific key for argument resolving
+ * Support `Uid` in `#[MapQueryParameter]`
+ * Add `ServicesResetterInterface`, implemented by `ServicesResetter`
+ * Allow configuring the logging channel per type of exceptions in ErrorListener
+ 
 7.2
 ---
 

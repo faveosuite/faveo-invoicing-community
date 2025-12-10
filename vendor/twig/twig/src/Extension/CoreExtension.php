@@ -266,6 +266,7 @@ final class CoreExtension extends AbstractExtension
             // iteration and runtime
             new TwigFilter('default', [self::class, 'default'], ['node_class' => DefaultFilter::class]),
             new TwigFilter('keys', [self::class, 'keys']),
+            new TwigFilter('invoke', [self::class, 'invoke']),
         ];
     }
 
@@ -913,6 +914,16 @@ final class CoreExtension extends AbstractExtension
         }
 
         return array_keys($array);
+    }
+
+    /**
+     * Invokes a callable.
+     *
+     * @internal
+     */
+    public static function invoke(\Closure $arrow, ...$arguments): mixed
+    {
+        return $arrow(...$arguments);
     }
 
     /**
@@ -1740,6 +1751,10 @@ final class CoreExtension extends AbstractExtension
 
             static $propertyCheckers = [];
 
+            if ($object instanceof \Closure && '__invoke' === $item) {
+                return $isDefinedTest ? true : $object();
+            }
+
             if (isset($object->$item)
                 || ($propertyCheckers[$object::class][$item] ??= self::getPropertyChecker($object::class, $item))($object, $item)
             ) {
@@ -1777,6 +1792,9 @@ final class CoreExtension extends AbstractExtension
         // precedence: getXxx() > isXxx() > hasXxx()
         if (!isset($cache[$class])) {
             $methods = get_class_methods($object);
+            if ($object instanceof \Closure) {
+                $methods[] = '__invoke';
+            }
             sort($methods);
             $lcMethods = array_map('strtolower', $methods);
             $classCache = [];
@@ -2133,7 +2151,7 @@ final class CoreExtension extends AbstractExtension
 
         $property = $class->getProperty($property);
 
-        if (!$property->isPublic()) {
+        if (!$property->isPublic() || $property->isStatic()) {
             static $false;
 
             return $false ??= static fn () => false;
