@@ -98,13 +98,19 @@ class BaseClientController extends Controller
      * @param  $productid
      * @param  $agents
      * @param  $planName
-     * @return \Illuminate\Contracts\View\View
+     * @return
      *
      * @throws
      */
     public function renewPopup($id, $productid, $agents, $planName, $planPrice)
     {
-        return view('themes.default1.renew.popup', compact('id', 'productid', 'agents', 'planName', 'planPrice'));
+        $renewDetails=['id' => $id,
+        'productid' => $productid,
+        'agents' => $agents,
+        'planName' => $planName,
+        'planPrice' => $planPrice];
+        return $renewDetails;
+//        return view('themes.default1.renew.popup', compact('id', 'productid', 'agents', 'planName', 'planPrice'));
     }
 
     /**
@@ -536,7 +542,9 @@ class BaseClientController extends Controller
     {
         $permissions = LicensePermissionsController::getPermissionsForProduct($productid);
         if ($permissions['downloadPermission'] != 1) { //If the Product has download permission
-            return $this->changecloudDomain($query->number);
+             //change/domain is the api
+            return ['OrderNo'=>$query->number];
+           // return $this->changecloudDomain($query->number);
         }
     }
 

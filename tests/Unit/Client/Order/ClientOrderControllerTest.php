@@ -61,21 +61,21 @@ class ClientOrderControllerTest extends DBTestCase
             'version' => 'v6.0.0', 'update_ends_at' => '']);
         $response = $this->call('get', 'get-my-orders', ['updated_ends_at' => '']);
         $content = $response->json();
+
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'draw',
-                'recordsTotal',
-                'recordsFiltered',
-                'data' => [
+                'success',
+                'data' =>['data'=> [
                     '*' => [
-                        'product_name',
+                        'id',
                         'date',
                         'number',
                         'agents',
                         'expiry',
-                        'Action',
+                        'action',
                     ],
                 ],
+                    ],
             ]);
     }
 

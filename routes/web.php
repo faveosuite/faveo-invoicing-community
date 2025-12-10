@@ -161,7 +161,7 @@ Route::middleware('installAgora')->group(function () {
 
     //order api's
     Route::get('my-orders', [Front\ClientController::class, 'orders']);
-    Route::get('get-my-orders', [Front\ClientController::class, 'getOrders'])->name('get-my-orders');
+    Route::get('get-my-orders', [Front\ClientController::class, 'getClientOrderVue'])->name('get-my-orders');
     Route::get('my-order/{id}', [Front\ClientController::class, 'getOrder']);
     Route::get('renew-popup-details/{productid}', [Front\ClientController::class, 'renewPopupVue']);
     Route::get('get-my-invoices/{orderid}/{userid}/{admin?}', [Front\ClientController::class, 'getInvoicesByOrderId']);
