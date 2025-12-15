@@ -159,7 +159,7 @@ class CloudActivitiesTest extends DBTestCase
     #[\PHPUnit\Framework\Attributes\Group('Cloud Agent Change')]
     public function test_when_days_are_more_less_no_of_agents()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['country'=>'IN']);
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);

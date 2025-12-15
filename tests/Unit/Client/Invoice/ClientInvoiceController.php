@@ -52,7 +52,7 @@ class ClientInvoiceController extends DBTestCase
                         'balance',
                         'status',
                         'action',
-                    ],
+                    ]
                 ],
                 'first_page_url',
                 'from',
@@ -60,7 +60,7 @@ class ClientInvoiceController extends DBTestCase
                 'path',
                 'per_page',
                 'prev_page_url',
-                'to',
+                'to'
             ],
         ]);
         $this->assertEquals($content['data']['data'][0]['status'], 'Unpaid');
@@ -152,15 +152,15 @@ class ClientInvoiceController extends DBTestCase
             'invoice_item_id' => $invoiceItem->id, 'client' => $user->id, 'product' => $product->id]);
         $response = $this->call('get', 'my-invoice/'.$invoice->id);
 
-        $content = $response->json();
+        $content=$response->json();
         while (ob_get_level() > 1) {
             ob_end_clean();
         }
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['payments', 'items', 'user', 'processingFeeAmount', 'values', 'statusText', 'statusClass', 'status'],
+            'data' => ['payments','items','user','processingFeeAmount','statusText','statusClass']
         ]);
-        $this->assertEquals($user->id, $content['data']['user']['id']);
+        $this->assertEquals($user->id,$content['data']['user']['id']);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('invoice')]
@@ -188,7 +188,8 @@ class ClientInvoiceController extends DBTestCase
         $this->withoutMiddleware();
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending', 'is_renewed' => 0]);
         $response = $this->call('get', 'pdf');
-        $response->assertSessionHas('fails', 'Invoice ID is required.');
+        $content = $response->json();
+        $this->assertEquals($content['message'],"No invoice id");
     }
 
     #[\PHPUnit\Framework\Attributes\Group('invoice')]

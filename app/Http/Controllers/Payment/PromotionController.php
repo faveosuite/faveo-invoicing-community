@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Payment;
 
+use App\Facades\Cart;
 use App\Http\Requests\Payment\PromotionRequest;
 use App\Model\Order\Invoice;
 use App\Model\Payment\PromoProductRelation;
@@ -25,6 +26,8 @@ class PromotionController extends BasePromotionController
 
     public $invoice;
 
+    public $cart;
+
     public function __construct()
     {
         $this->middleware('auth');
@@ -44,6 +47,8 @@ class PromotionController extends BasePromotionController
 
         $invoice = new Invoice();
         $this->invoice = $invoice;
+
+        $this->cart=new Cart();
     }
 
     /**
@@ -289,11 +294,11 @@ class PromotionController extends BasePromotionController
                 } else {
                     $productid = '';
                     $originalPrice = \Session::get('oldPrice');
-                    foreach (\Cart::getContent() as $item) {
-                        $productid = $item->id;
+                    foreach ($this->cart->getContent() as $item) {
+                        $productid = $item['id'];
                     }
                     if ($productid && $originalPrice) {
-                        \Cart::update($productid, [
+                        $this->cart->update($productid, [
                             'price' => $originalPrice,
                         ]);
                         \Session::forget('code');
@@ -317,12 +322,12 @@ class PromotionController extends BasePromotionController
                 \Session::put('usage', 1);
                 \Session::put('code', $promo->code);
                 \Session::put('codevalue', $promo->value);
-                $coupon101 = new CartCondition([
+                $coupon101 = [
                     'name' => $original,
                     'type' => 'coupon',
                     'value' => '-'.$promo->value,
-                ]);
-                \Cart::update($productid, [
+                ];
+                $this->cart->update($productid, [
                     'id' => $productid,
                     'price' => $value,
 

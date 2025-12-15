@@ -212,7 +212,7 @@ class TenantController extends Controller
     public function createTenant(Request $request)
     {
         $order = Order::wherenumber($request->orderNo)->get();
-        $product = CloudProducts::where('cloud_product', $order[0]->product()->value('id'))->value('cloud_product_key');
+        $product = CloudProducts::where('cloud_product', $order[0]->productRelation()->value('id'))->value('cloud_product_key');
 
         $this->validate($request,
             [

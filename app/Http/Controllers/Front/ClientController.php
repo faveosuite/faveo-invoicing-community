@@ -723,60 +723,60 @@ class ClientController extends BaseClientController
                 ->first();
 
             $downloadPermission = LicensePermissionsController::getPermissionsForProduct($productid);
-//            $limit='10';
-//            $page='page';
-//            $sortField='created_at';
-//            $sortOrder='asc';
-//            $paginated = $versions->orderBy($sortField, $sortOrder)
-//                ->simplePaginate($limit, ['*'], 'page', 1);
-//
-//            // Map items
-//            $paginated->getCollection()->transform(function ($version) use($downloadPermission, $updatesEndDate, $productid, $clientid, $invoiceid) {
-//                $file_link=null;
-//                if ($updatesEndDate) {
-//                    if ($downloadPermission['allowDownloadTillExpiry'] == 1) {
-//                        $file_link= $this->whenDownloadTillExpiry($updatesEndDate, $productid, $version, $clientid, $invoiceid);
-//                    } elseif ($downloadPermission['allowDownloadTillExpiry'] == 0) {
-//                        $file_link= $this->whenDownloadExpiresAfterExpiry($updatesEndDate, $productid, $version, $clientid, $invoiceid);
-//                    }
-//                }
-//                return [
-//                    'id' => $version->id,
-//                    'version'=> $version->version,
-//                    'title' => $version->title,
-//                    'description' => $version->description,
-//                    'file'=>$file_link,
-//
-//                ];
-//            });
-//            return successResponse('',$paginated);
+            $limit='10';
+            $page='page';
+            $sortField='created_at';
+            $sortOrder='asc';
+            $paginated = $versions->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit, ['*'], 'page', 1);
 
-            return \DataTables::of($versions)
-                ->addColumn('id', function ($version) {
-                    return ucfirst($version->id);
-                })
-                ->addColumn('version', function ($version) {
-                    return ucfirst($version->version).' '.getPreReleaseStatusLabel($version->release_type);
-                })
-                ->addColumn('title', function ($version) {
-                    return ucfirst($version->title);
-                })
-                ->addColumn('description', function ($version) {
-                    return ucfirst($version->description);
-                })
-                ->addColumn('file', function ($version) use ($downloadPermission, $updatesEndDate, $productid, $clientid, $invoiceid) {
-                    if ($updatesEndDate) {
-                        if ($downloadPermission['allowDownloadTillExpiry'] == 1) {
-                            return $this->whenDownloadTillExpiry($updatesEndDate, $productid, $version, $clientid, $invoiceid);
-                        } elseif ($downloadPermission['allowDownloadTillExpiry'] == 0) {
-                            return $this->whenDownloadExpiresAfterExpiry($updatesEndDate, $productid, $version, $clientid, $invoiceid);
-                        }
+            // Map items
+            $paginated->getCollection()->transform(function ($version) use($downloadPermission, $updatesEndDate, $productid, $clientid, $invoiceid) {
+                $file_link=null;
+                if ($updatesEndDate) {
+                    if ($downloadPermission['allowDownloadTillExpiry'] == 1) {
+                        $file_link= $this->whenDownloadTillExpiry($updatesEndDate, $productid, $version, $clientid, $invoiceid);
+                    } elseif ($downloadPermission['allowDownloadTillExpiry'] == 0) {
+                        $file_link= $this->whenDownloadExpiresAfterExpiry($updatesEndDate, $productid, $version, $clientid, $invoiceid);
                     }
-                })
-                ->rawColumns(['version', 'title', 'description', 'file'])
-                ->make(true);
+                }
+                return [
+                    'id' => $version->id,
+                    'version'=> $version->version,
+                    'title' => $version->title,
+                    'description' => $version->description,
+                    'file'=>$file_link,
+
+                ];
+            });
+            return successResponse('',$paginated);
+
+//            return \DataTables::of($versions)
+//                ->addColumn('id', function ($version) {
+//                    return ucfirst($version->id);
+//                })
+//                ->addColumn('version', function ($version) {
+//                    return ucfirst($version->version).' '.getPreReleaseStatusLabel($version->release_type);
+//                })
+//                ->addColumn('title', function ($version) {
+//                    return ucfirst($version->title);
+//                })
+//                ->addColumn('description', function ($version) {
+//                    return ucfirst($version->description);
+//                })
+//                ->addColumn('file', function ($version) use ($downloadPermission, $updatesEndDate, $productid, $clientid, $invoiceid) {
+//                    if ($updatesEndDate) {
+//                        if ($downloadPermission['allowDownloadTillExpiry'] == 1) {
+//                            return $this->whenDownloadTillExpiry($updatesEndDate, $productid, $version, $clientid, $invoiceid);
+//                        } elseif ($downloadPermission['allowDownloadTillExpiry'] == 0) {
+//                            return $this->whenDownloadExpiresAfterExpiry($updatesEndDate, $productid, $version, $clientid, $invoiceid);
+//                        }
+//                    }
+//                })
+//                ->rawColumns(['version', 'title', 'description', 'file'])
+//                ->make(true);
         } catch (Exception $ex) {
-            echo $ex->getMessage();
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -1214,7 +1214,7 @@ class ClientController extends BaseClientController
      *  Returns to individual order page.
      *
      * @param  int  $id
-     * @return \Illuminate\Contracts\View\View|RedirectResponse
+     * @return
      *
      * @throws Exception
      */
@@ -1224,10 +1224,10 @@ class ClientController extends BaseClientController
             $user = \Auth::user();
             $order = $this->order->findOrFail($id);
             if ($order->client != $user->id) {
-                throw new \Exception(trans('message.order_error_modification'));
+                return errorResponse(trans('message.order_error_modification'));
             }
             $invoice = $order->invoices()->first();
-            $items = $order->invoices()->first()->invoiceItem()->get();
+            //$items = $order->invoices()->first()->invoiceItem()->get();
             $subscription = $order->subscription()->first();
             $date = '--';
             $licdate = '--';
@@ -1257,6 +1257,7 @@ class ClientController extends BaseClientController
             ->first();
 
             $relation = $order->invoices()->pluck('invoice_id')->toArray();
+
             if (count($relation) > 0) {
                 $invoices = $relation;
             } else {
@@ -1279,7 +1280,8 @@ class ClientController extends BaseClientController
                 Plugin::whereStatus(1)->where('name', 'razorpay')->exists()
                 && ! isCurrencySupportedForPayments($displayCurrency, 'razorpay')
             ) {
-                throw new \Exception(__('message.unsupported_country'));
+                return errorResponse(trans('message.unsupported_country'));
+
             }
 
             $exchangeRate = '';
@@ -1320,28 +1322,30 @@ class ClientController extends BaseClientController
             $planNameReal = \App\Model\Payment\Plan::where('id', $planIdOld)->value('name');
             $autorenewal_status = Setting::where('id', 1)->value('autorenewal_status');
 
-//            return successResponse('success',['invoice'=>$invoice,'order'=>$order, 'user'=>$user, 'product'=>$product,'subscription'=>$subscription,
-//               'licenseStatus'=>$licenseStatus, 'installationDetails'=>$installationDetails,'allowDomainStatus'=>$allowDomainStatus, 'date'=>$date,
-//                    'licdate'=>$licdate, 'versionLabel'=>$versionLabel, 'installationDetails' =>$installationDetails, 'id'=>$id, 'statusAutorenewal'=>$statusAutorenewal,
-//                'status'=>$status, 'payment_log'=>$payment_log, 'recentPayment'=>$recentPayment, 'stripe_key'=>$stripe_key, 'json'=>$json, 'gateways'=>$gateways,
-//                    'price'=>$price, 'installation_path' =>$installation_path, 'latestAgents'=>$latestAgents, 'terminatedOrderId'=>$terminatedOrderId,
-//                'terminatedOrderNumber'=>$terminatedOrderNumber, 'payment_log' =>$payment_log, 'plans'=>$plans, 'planNameReal'=>$planNameReal]);
+
 
             $whatsappStatus = $product->whatsapp_integration;
             [$app_id, $config_id] =
                 array_values(WhatsappIntegration::first()?->only(['app_id', 'config_id']) ?? [null, null]);
             $actualWhatsappStatus = StatusSetting::pluck('whatsapp_status')->first();
-
-            return view(
-                'themes.default1.front.clients.show-order',
-                compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date',
-                    'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment', 'stripe_key', 'json', 'gateways',
-                    'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal', 'whatsappStatus', 'app_id', 'config_id', 'autorenewal_status', 'actualWhatsappStatus',
-                )
-            );
+            return successResponse('success',['invoice'=>$invoice,'order'=>$order, 'user'=>$user, 'product'=>$product,'subscription'=>$subscription,
+                'licenseStatus'=>$licenseStatus, 'installationDetails'=>$installationDetails,'allowDomainStatus'=>$allowDomainStatus, 'date'=>$date,
+                'licdate'=>$licdate, 'versionLabel'=>$versionLabel,  'id'=>$id, 'statusAutorenewal'=>$statusAutorenewal,
+                'status'=>$status, 'payment_log'=>$payment_log, 'recentPayment'=>$recentPayment, 'stripe_key'=>$stripe_key, 'json'=>$json, 'gateways'=>$gateways,
+                'price'=>$price, 'installation_path' =>$installation_path, 'latestAgents'=>$latestAgents, 'terminatedOrderId'=>$terminatedOrderId,
+                'terminatedOrderNumber'=>$terminatedOrderNumber,'plans'=>$plans, 'planNameReal'=>$planNameReal,'autorenewal_status'=>$autorenewal_status,'whatsappStatus'=>$whatsappStatus,
+                'app_id'=>$app_id, 'config_id'=>$config_id,'actualWhatsappStatus'=>$actualWhatsappStatus]);
+//            return view(
+//                'themes.default1.front.clients.show-order',
+//                compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date',
+//                    'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment', 'stripe_key', 'json', 'gateways',
+//                    'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal', 'whatsappStatus', 'app_id', 'config_id', 'autorenewal_status', 'actualWhatsappStatus',
+//                )
+//            );
         } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-//            return errorResponse($ex->getMessage());
+
+//            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -1374,18 +1378,22 @@ class ClientController extends BaseClientController
      */
     private function planPriceProductRelation($product)
     {
-        $plans = Plan::where('product', '!=', $product->id)
-            ->whereHas('product', function ($query) {
-                $query->where('type', 4)
-                      ->where('can_modify_agent', 1);
-            })
-            ->whereHas('planPrice', function ($query) {
-                $query->where('renew_price', '!=', 0);
-            })
-            ->pluck('name', 'id')
-            ->toArray();
+        try {
+            $plans = Plan::where('product', '!=', $product->id)
+                ->whereHas('productRelation', function ($query) {
+                    $query->where('type', 4)
+                        ->where('can_modify_agent', 1);
+                })
+                ->whereHas('planPrice', function ($query) {
+                    $query->where('renew_price', '!=', 0);
+                })
+                ->pluck('name', 'id')
+                ->toArray();
 
-        return $plans;
+            return $plans;
+        }catch (\Exception $ex){
+            return errorResponse($ex->getMessage());
+        }
     }
 
     /**

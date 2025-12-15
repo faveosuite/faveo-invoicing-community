@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenancy;
 
+use App\Facades\Cart;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\CartController;
 use App\Http\Controllers\License\LicenseController;
@@ -28,11 +29,14 @@ use Illuminate\Http\Request;
 
 class CloudExtraActivities extends Controller
 {
+    public $client;
+    public $cloud;
+    public $cart;
     public function __construct(Client $client, FaveoCloud $cloud)
     {
         $this->client = $client;
         $this->cloud = $cloud->first();
-
+        $this->cart=new Cart();
         $this->middleware('auth', ['except' => ['verifyThirdPartyToken', 'storeTenantTillPurchase']]);
     }
 
@@ -915,6 +919,7 @@ class CloudExtraActivities extends Controller
         \Session::forget('plan');
 
         \Cart::clear();
+        $this->cart->clear();
     }
 
     public function checkUpgradeDowngrade()

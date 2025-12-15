@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Client\Cart;
 
+use App\Facades\Cart;
 use App\Http\Controllers\Front\CartController;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
@@ -18,6 +19,7 @@ class CartControllerTest extends DBTestCase
     {
         parent::setUp();
         $this->classObject = new CartController();
+        $this->cart= new Cart();
         Currency::where('code', 'INR')->update(['status' => 1]);
     }
 
@@ -99,25 +101,22 @@ class CartControllerTest extends DBTestCase
         $this->getLoggedInUser();
         $this->withoutMiddleware();
         $product = Product::factory()->create();
+        $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
+        $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
+        $currency = 'INR';
 
-        $taxCondition = new \Darryldecode\Cart\CartCondition([
-            'name' => 'GST', 'type' => 'tax',
-            'value' => 5,
-        ]);
-        \Cart::add([
-            'id' => $product->id,
-            'name' => $product->name,
-            'price' => 1000,
-            'quantity' => 1,
-            'attributes' => [],
-            'conditions' => $taxCondition,
-        ]);
+        $this->cart->add(
+            $plan->id, $product->name,
+            1000,
+            1,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
+        );
 
         $response = $this->call('POST', 'cart/remove', [
-            'id' => $product->id,
+            'id' => $plan->id,
         ]);
-        $this->assertEquals($response->getContent(), 'success');
-        $this->assertCount(0, \Cart::getContent());
+        $response->assertStatus(200);
+        $this->assertCount(0, $this->cart->getContent());
     }
 
     #[Group('cart')]
@@ -128,31 +127,24 @@ class CartControllerTest extends DBTestCase
         $product1 = Product::factory()->create();
         $product2 = Product::factory()->create(['name' => 'Test Product']);
 
-        $taxCondition1 = new \Darryldecode\Cart\CartCondition([
-            'name' => 'GST', 'type' => 'tax',
-            'value' => 5,
-        ]);
-        $taxCondition2 = new \Darryldecode\Cart\CartCondition([
-            'name' => 'VAT', 'type' => 'tax',
-            'value' => 10,
-        ]);
-        \Cart::add([
+
+        $this->cart->add([
             ['id' => $product1->id,
                 'name' => $product1->name,
                 'price' => 1000,
                 'quantity' => 1,
                 'attributes' => [],
-                'conditions' => $taxCondition1,
+                'conditions' => [],
             ],
             ['id' => $product2->id,
                 'name' => $product2->name,
                 'price' => 1000,
                 'quantity' => 1,
                 'attributes' => [],
-                'conditions' => $taxCondition2,
+                'conditions' => [],
             ],
         ]);
         $response = $this->call('POST', 'cart/clear');
-        $this->assertCount(0, \Cart::getContent());
+        $this->assertCount(0, $this->cart->getContent());
     }
 }

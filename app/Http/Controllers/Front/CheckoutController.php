@@ -245,7 +245,7 @@ class CheckoutController extends InfoController
      *  This function returns paynow page(scenario:when order renewal).
      *
      * @param  $invoiceid
-     * @return \Illuminate\Contracts\View\View|RedirectResponse
+     * @return
      *
      * @throws
      */
@@ -255,7 +255,7 @@ class CheckoutController extends InfoController
             $paid = 0;
             $invoice = $this->invoice->find($invoiceid);
             if ($invoice->user_id != \Auth::user()->id) {
-                throw new \Exception(__('message.invalid_payment_modification'));
+                return errorResponse(__('message.invalid_payment_modification'));
             }
             if (count($invoice->payment()->get())) {//If partial payment is made
                 $paid = array_sum($invoice->payment()->pluck('amount')->toArray());
@@ -268,12 +268,11 @@ class CheckoutController extends InfoController
                     $product = $this->product($invoiceid);
                 }
             }
-
-            return view('themes.default1.front.paynow', compact('invoice', 'items', 'product', 'paid'));
+return successResponse('',['invoice'=>$invoice,'items'=>$items,'paid'=>$paid,'prduct'=>$product]);
+//            return view('themes.default1.front.paynow', compact('invoice', 'items', 'product', 'paid'));
         } catch (\Exception $ex) {
             \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -281,7 +280,7 @@ class CheckoutController extends InfoController
      *  This function contains post checkout operations(adding credit balance,initiating payment, creating order,invoice generation,create invoice items,create subscription).
      *
      * @param  Request  $request
-     * @return RedirectResponse
+     * @return
      *
      * @throws
      */
@@ -297,8 +296,8 @@ class CheckoutController extends InfoController
         }
 
         if ($isTrue != 0) {
-            if (\Cart::getTotal() > 0) {
-                if (Cart::getSubTotal() != 0 || $cost > 0) {
+            if ($this->cart->getTotal() > 0) {
+                if ( $cost > 0) {
                     $this->validate($request, [
                         'payment_gateway' => 'required',
                     ], [
@@ -329,7 +328,7 @@ class CheckoutController extends InfoController
                 $amount = (\Session::has('nothingLeft')) ? \Session::get('nothingLeft') : intval($this->cart->getTotal());
 
                 if ($amount) {//If payment is for paid product
-                    \Cart::removeCartCondition('Processing fee');
+                    $this->cart->removeCartCondition('Processing fee');
                     \Event::dispatch(new \App\Events\PaymentGateway(['request' => $request, 'invoice' => $invoice]));
                 } else {
                     $show = true;
@@ -343,7 +342,8 @@ class CheckoutController extends InfoController
 
                     $orders = Order::where('invoice_id', $invoice->id)->get();
 
-                    $url = view('themes.default1.front.postCheckoutTemplate', compact('invoice', 'date', 'product', 'items', 'orders', 'orderNumber', 'show'))->render();
+//                    $url = view('themes.default1.front.postCheckoutTemplate', compact('invoice', 'date', 'product', 'items', 'orders', 'orderNumber', 'show'))->render();
+                    $url=['invoice'=>$invoice,'date'=>$date,'product'=>$product,'items'=>$items,'orders'=>$orders,'orderNumber'=>$orderNumber,'show'=>$show];
                     // }
                     $this->cart->clear();
                     if (\Session::has('nothingLeft')) {
@@ -362,7 +362,8 @@ class CheckoutController extends InfoController
 
                     $this->performCloudActions($invoice);
 
-                    return redirect('checkout')->with('Success', $url);
+//                    return redirect('checkout')->with('Success', $url);
+                    return successResponse('Success',[$url]);
                 }
             } else {//When renewal, pending payments
                 $invoiceid = $request->input('invoice_id');
@@ -397,7 +398,9 @@ class CheckoutController extends InfoController
                     $orders = Order::where('id', $order)->get();
                     $orderNumber = Order::where('id', $order)->value('number');
 
-                    $url = view('themes.default1.front.postCheckoutTemplate', compact('invoice', 'date', 'product', 'items', 'orders', 'orderNumber', 'show'))->render();
+//                    $url = view('themes.default1.front.postCheckoutTemplate', compact('invoice', 'date', 'product', 'items', 'orders', 'orderNumber', 'show'))->render();
+                    $url=['invoice'=>$invoice,'date'=>$date,'product'=>$product,'items'=>$items,'orders'=>$orders,'orderNumber'=>$orderNumber,'show'=>$show];
+
                     if (\Session::has('nothingLeft')) {
                         $this->doTheDeed($invoice);
                         \Session::forget('nothingLeft');
@@ -411,13 +414,15 @@ class CheckoutController extends InfoController
                         (new TenantController(new Client, new FaveoCloud()))->createTenant(new Request(['orderNo' => $orderNumber, 'domain' => $invoice->cloud_domain]));
                     }
                     $this->performCloudActions($invoice);
-                    \Cart::clear();
+                    $this->cart->clear();
 
-                    return redirect('checkout')->with('Success', $url);
+//                    return redirect('checkout')->with('Success', $url);
+                    return successResponse('Success',[$url]);
                 }
             }
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
+//            return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 

@@ -48,7 +48,7 @@ class FreeTrailController extends Controller
      * Get the auth user id
      * Check the first_time_login is not equal to zero in DB to correspaonding,if its not change into one.
      *
-     * @return order
+     * @return
      */
     public function firstLoginAttempt(Request $request)
     {
@@ -59,14 +59,16 @@ class FreeTrailController extends Controller
         ]);
         try {
             if (! Auth::check()) {
-                return redirect('login')->back()->with('fails', \Lang::get('message.free-login'));
+                return errorResponse(\Lang::get('message.free-login'));
+//                return redirect('login')->back()->with('fails', \Lang::get('message.free-login'));
             }
 
             $userId = $request->get('id');
             if (Auth::user()->id == $userId) {
                 $product_is = CloudProducts::where('cloud_product_key', $request->product)->value('cloud_product');
                 if (\DB::table('free_trial_allowed')->where('user_id', $userId)->where('product_id', $product_is)->count() >= 1) {
-                    return ['status' => 'false', 'message' => trans('message.limit_is_up')];
+                    return errorResponse(\Lang::get('message.limit_is_up'));
+//                    return ['status' => 'false', 'message' => trans('message.limit_is_up')];
                 }
 
                 DB::beginTransaction(); // Start a database transaction
@@ -82,7 +84,8 @@ class FreeTrailController extends Controller
 
                     // Here we check weather the plan price is available for user currency or not
                     if (PlanPrice::wherePlanId($plan_id)->whereCurrency(getCurrencyForClient(\Auth::user()->country))->doesntExist()) {
-                        throw new \Exception(__('message.no_available_plans_for_user_currency'));
+                        return errorResponse(\Lang::get('message.no_available_plans_for_user_currency'));
+//                        throw new \Exception(__('message.no_available_plans_for_user_currency'));
                     }
 
                     $this->generateFreetrailInvoice($product, $plan_id);
@@ -94,7 +97,8 @@ class FreeTrailController extends Controller
 
                         DB::rollback(); // Rollback the transaction
 
-                        return $isSuccess;
+//                        return $isSuccess;
+                        return errorResponse($isSuccess['message']);
                     }
 
                     \DB::table('free_trial_allowed')->insert([
@@ -110,12 +114,14 @@ class FreeTrailController extends Controller
                 } catch (\Exception $ex) {
                     DB::rollback(); // Rollback the transaction
                     \Logger::exception($ex);
-                    throw new \Exception(__('message.cannot_generate_freetrial_cloud_instance'));
+                    return errorResponse(\Lang::get('message.cannot_generate_freetrial_cloud_instance'));
+//                    throw new \Exception(__('message.cannot_generate_freetrial_cloud_instance'));
                 }
             }
         } catch (\Exception $ex) {
             \Logger::exception($ex);
-            throw new \Exception(__('message.cannot_generate_freetrial_cloud_instance'));
+            return errorResponse(\Lang::get('message.cannot_generate_freetrial_cloud_instance'));
+//            throw new \Exception(__('message.cannot_generate_freetrial_cloud_instance'));
         }
     }
 
@@ -253,7 +259,8 @@ class FreeTrailController extends Controller
                 'number' => $this->generateFreetrailNumber(),
             ]);
             $this->orderNo = $order->number;
-            $baseorder = new BaseOrderController();
+            $license= new LicenseController();
+            $baseorder = new BaseOrderController($license);
             $baseorder->addOrderInvoiceRelation($invoiceid, $order->id);
             \Session::put('planDays', 'freeTrial');
 

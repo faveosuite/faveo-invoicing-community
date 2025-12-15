@@ -29,6 +29,18 @@ class Cart extends Facade
     {
         $cart = $this->getContent();
 
+        if(is_array($id)) {
+            if($this->isMultiArray($id)){
+                foreach($id as $item){
+                    $this->add($item['id'],$item['name'],$item['price']??null,$item['quantity']??null,$item['attributes']??null,$item['conditions']??null,$item['associatedModel']??null);
+                }
+            }else{
+                $this->add($id['id'],$id['name'],$id['price']??null,$id['quantity']??null,$id['attributes']??null,$id['conditions']??null,$id['associatedModel']??null);
+
+            }
+            return $this;
+        }
+
         $data = [
             'id' => $id,
             'name' => $name,
@@ -39,10 +51,10 @@ class Cart extends Facade
             'associatedModel' => $associatedModel,
         ];
 
-        if ($cart->has($id)) {
-            $this->update($id, $data, 1);
+        if ($cart->has($data['id'])) {
+            $this->update($data['id'], $data, 1);
         } else {
-            $this->addRow($id, $data);
+            $this->addRow($data['id'], $data);
         }
     }
 
@@ -52,6 +64,29 @@ class Cart extends Facade
 
         $cart->forget($id);
         $this->save($cart);
+    }
+
+    public function isMultiArray($array, $recursive = false)
+    {
+        if( $recursive )
+        {
+            return (count($array) == count($array, COUNT_RECURSIVE)) ? false : true;
+        }
+        else
+        {
+            foreach ($array as $k => $v)
+            {
+                if (is_array($v))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+        }
     }
 
     public function clear()
@@ -196,6 +231,13 @@ class Cart extends Facade
                 $items['conditions'] = null;
                 $this->update($items['id'], ['conditions' => null]);
             }
+        }
+    }
+
+    public function condition($condition){
+        $cart = $this->getContent();
+        foreach ($cart as $items) {
+                $this->update($items['id'], ['conditions' => $condition]);
         }
     }
 }
