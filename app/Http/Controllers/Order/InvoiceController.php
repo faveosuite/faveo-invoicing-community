@@ -308,8 +308,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             return $invoice;
         } catch (\Exception $ex) {
             \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -331,8 +330,8 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 $planid = Plan::where('id', $cart['id'])->pluck('id')->first();
             }
             $subtotal = $this->cart->getPriceSum($cart['id']);
-            $tax_name = $cart['conditions']['name'];
-            $tax_percentage = $cart['conditions']['value'];
+            $tax_name = $cart['conditions']['name']??'';
+            $tax_percentage = $cart['conditions']['value']??'';
             $invoiceItem = $this->invoiceItem->create([
                 'invoice_id' => $invoiceid,
                 'product_name' => $product_name,
@@ -350,7 +349,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             return $invoiceItem;
         } catch (\Exception $ex) {
-            throw new \Exception(__('message.cannot_create_invoice_item'));
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -489,7 +488,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         try {
             $id = $request->input('invoiceid');
             if (! $id) {
-                return redirect()->back()->with('fails', __('message.no-invoice-id'));
+                return errorResponse(__('message.no-invoice-id'));
             }
 
             $invoice = $this->invoice->find($id);

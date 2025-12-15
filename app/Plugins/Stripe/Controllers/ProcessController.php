@@ -72,7 +72,7 @@ class ProcessController extends Controller
             }
             \Session::save(); // This we added because we use echo in this middle page that does not return the view so the session will not save properly.
         } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage(), $ex->getCode(), $ex->getPrevious());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -112,9 +112,12 @@ class ProcessController extends Controller
                 \Session::put('totalToBePaid', $amount);
                 \View::addNamespace('plugins', $path);
                 $cart = $this->cart;
-
-                echo view('plugins::middle-page', compact('total', 'invoice', 'regularPayment', 'items', 'product', 'amount',
-                    'paid', 'creditBalance', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee', 'cart'));
+                $data=['total'=>$total,'invoice'=>$invoice,'regularPayment'=>$regularPayment,'items'=>$items,'product'=>$product,'amount'=>$amount,
+                        'paid'=>$paid,'creditBalance'=>$creditBalance,'gateway'=>$gateway,'rzp_key'=>$rzp_key,'apilayer_key'=>$apilayer_key,'rzp_secret'=>$rzp_secret,
+                        'stripe_key'=>$stripe_key,'data'=>$data,'displayProcessingFee'=>$displayProcessingFee,'cart'=>$cart];
+                return successResponse('success', $data);
+//                echo view('plugins::middle-page', compact('total', 'invoice', 'regularPayment', 'items', 'product', 'amount',
+//                    'paid', 'creditBalance', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee', 'cart'));
             } else {
                 $pay = $this->payment($payment_method, $status = 'pending');
                 $payment_method = $pay['payment'];
@@ -127,16 +130,19 @@ class ProcessController extends Controller
                 $amount = rounding($this->cart->getTotal());
                 \View::addNamespace('plugins', $path);
                 $cart = $this->cart;
-
-                echo view('plugins::middle-page', compact('invoice', 'amount', 'invoice_no', 'payment_method', 'invoice',
-                    'regularPayment', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee', 'cart'))->render();
+                $data=['invoice'=>$invoice,'amount'=>$amount,'invoice_no'=>$invoice_no,'payment_method'=>$payment_method,'regularPayment'=>$regularPayment,'gateway'=>$gateway,
+                    'rzp_key'=>$rzp_key,'rzp_secret'=>$rzp_secret,'apilayer_key'=>$apilayer_key,'stripe_key'=>$stripe_key,'data'=>$data,'displayProcessingFee'=>$displayProcessingFee,
+                    'cart'=>$cart];
+                return successResponse('success', $data);
+//                echo view('plugins::middle-page', compact('invoice', 'amount', 'invoice_no', 'payment_method', 'invoice',
+//                    'regularPayment', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee', 'cart'))->render();
             }
         } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
-    public static function updateFinalPrice($processingFee)
+    public function updateFinalPrice($processingFee)
     {
         $value = $processingFee ? $processingFee.'%' : '0%';
 
@@ -146,7 +152,7 @@ class ProcessController extends Controller
             'target' => 'total',
             'value' => $value,
         ]);
-        \Cart::condition($updateValue);
+        $this->cart->condition($updateValue);
     }
 
     public function payment($payment_method, $status)
@@ -170,7 +176,7 @@ class ProcessController extends Controller
         } catch (\Exception $ex) {
             \Logger::exception($ex);
 
-            throw new \Exception($ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -181,7 +187,7 @@ class ProcessController extends Controller
                 return $paymentMethod == 'razorpay' ? 0 : \DB::table(strtolower($paymentMethod))->where('currencies', $currency)->value('processing_fee');
             }
         } catch (\Exception $e) {
-            throw new \Exception(__('message.invalid_modification'));
+            return errorResponse(__('message.invalid_modification'));
         }
     }
 

@@ -119,7 +119,7 @@ class SettingsController extends Controller
     /**
      * success response method.
      *
-     * @return \Illuminate\Http\Response
+     * @return
      */
     public function postPaymentWithStripe(Request $request)
     {
@@ -135,20 +135,23 @@ class SettingsController extends Controller
                 $result = $this->processPaymentSuccess($invoice, $currency);
                 \Session::forget(['items', 'code', 'codevalue', 'totalToBePaid', 'invoice', 'cart_currency']);
                 \Cart::removeCartCondition('Processing fee');
-
-                return redirect('checkout')->with($result['status'], $result['message']);
+                $data=['status'=>$result['status'],'message'=>$result['message']];
+                return successResponse('success',[]);
+//                return redirect('checkout')->with($result['status'], $result['message']);
             } else {
                 $paymentIntent = \Stripe\PaymentIntent::retrieve($confirm['id']);
                 $redirectUrl = $paymentIntent->next_action->redirect_to_url->url;
-
-                return redirect()->away($redirectUrl);
+                return errorResponse('fail',['redirectUrl'=>$redirectUrl]);
+//                return redirect()->away($redirectUrl);
             }
         } catch (\Cartalyst\Stripe\Exception\ApiLimitExceededException|\Cartalyst\Stripe\Exception\BadRequestException|\Cartalyst\Stripe\Exception\MissingParameterException|\Cartalyst\Stripe\Exception\NotFoundException|\Cartalyst\Stripe\Exception\ServerErrorException|\Cartalyst\Stripe\Exception\StripeException|\Cartalyst\Stripe\Exception\UnauthorizedException $e) {
             $control = new \App\Http\Controllers\Order\RenewController();
             if ($control->checkRenew($invoice->is_renewed) != true) {
-                return redirect('checkout')->with('fails', __('message.stripe_payment_declined', ['error' => $e->getMessage()]));
+                return errorResponse($e->getMessage(),['redirectTo'=>'checkout']);
+//                return redirect('checkout')->with('fails', __('message.stripe_payment_declined', ['error' => $e->getMessage()]));
             } else {
-                return redirect('paynow/'.$invoice->id)->with('fails', __('message.stripe_payment_declined', ['error' => $e->getMessage()]));
+                return errorResponse($e->getMessage(),['redirectTo'=>'paynow']);
+//                return redirect('paynow/'.$invoice->id)->with('fails', __('message.stripe_payment_declined', ['error' => $e->getMessage()]));
             }
         } catch (\Cartalyst\Stripe\Exception\CardErrorException $e) {
             if (emailSendingStatus()) {
@@ -158,9 +161,10 @@ class SettingsController extends Controller
             \Session::put('amount', $amount);
             \Session::put('error', $e->getMessage());
 
-            return redirect()->route('checkout');
+//            return redirect()->route('checkout');
         } catch (\Exception $e) {
-            return redirect('checkout')->with('fails', __('message.stripe_payment_declined', ['error' => $e->getMessage()]));
+            return errorResponse($e->getMessage(),['redirectTo'=>'checkout']);
+//            return redirect('checkout')->with('fails', __('message.stripe_payment_declined', ['error' => $e->getMessage()]));
         }
     }
 

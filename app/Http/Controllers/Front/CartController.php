@@ -273,15 +273,15 @@ class CartController extends BaseCartController
      * This function removes overall cart content.
      *
      * @param
-     * @return \Illuminate\Http\RedirectResponse
+     * @return
      */
     public function clearCart()
     {
-        foreach (Cart::getContent() as $item) {
-            Cart::remove($item->id);
-            Cart::clearItemConditions($item->id);
-            if (\Session::has('domain'.$item->id)) {
-                \Session::forget('domain'.$item->id);
+        foreach ($this->cart->getContent() as $item) {
+            $this->cart->remove($item['id']);
+//            $this->cart->clearItemConditions($item->id);
+            if (\Session::has('domain'.$item['id'])) {
+                \Session::forget('domain'.$item['id']);
             }
         }
 
@@ -290,10 +290,10 @@ class CartController extends BaseCartController
         }
         $renew_control = new \App\Http\Controllers\Order\RenewController();
         $renew_control->removeSession();
-        Cart::clearCartConditions();
-        Cart::clear();
+//        Cart::clearCartConditions();
+        $this->cart->clear();
 
-        return redirect('show/cart');
+        return successResponse(__('message.removed_successfully'));
     }
 
     /**

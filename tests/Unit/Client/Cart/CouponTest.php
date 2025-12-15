@@ -2,7 +2,10 @@
 
 namespace Tests\Unit\Client\Cart;
 
+use App\Facades\Cart;
 use App\Model\Order\Invoice;
+use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
 use App\Model\Payment\PromoProductRelation;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
@@ -13,6 +16,13 @@ use Tests\DBTestCase;
 class CouponTest extends DBTestCase
 {
     use DatabaseTransactions;
+    public $cart;
+
+    public function setUp():void
+    {
+        parent::setUp();
+        $this->cart=new Cart();
+    }
 
     #[Group('coupon')]
     // public function test_addCouponUpdate_whenCouponProvided()
@@ -99,18 +109,27 @@ class CouponTest extends DBTestCase
             'expiry' => '2017-07-30 00:00:00',
 
         ]);
-
+        $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
+        $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
+        $currency = 'INR';
         $promotion = PromoProductRelation::create(['promotion_id' => $promotion->id,
             'product_id' => $product->id,
         ]);
 
-        \Cart::add([
-            'id' => $product->id,
-            'name' => $product->name,
-            'price' => $invoice->grand_total,
-            'quantity' => 1,
-            'attributes' => [],
-        ]);
+//        \Cart::add([
+//            'id' => $product->id,
+//            'name' => $product->name,
+//            'price' => $invoice->grand_total,
+//            'quantity' => 1,
+//            'attributes' => [],
+//        ]);
+
+        $this->cart->add(
+            $plan->id, $product->name,
+            1000,
+            1,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
+        );
         $controller = new \App\Http\Controllers\Payment\PromotionController();
         $response = $controller->checkCode('FAVEOCOUPON', $product->id);
     }
@@ -138,13 +157,15 @@ class CouponTest extends DBTestCase
         $promotion = PromoProductRelation::create(['promotion_id' => $promotion->id,
             'product_id' => $product->id,
         ]);
-        \Cart::add([
-            'id' => $product->id,
-            'name' => $product->name,
-            'price' => $invoice->grand_total,
-            'quantity' => 1,
-            'attributes' => [],
-        ]);
+        $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
+        $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
+        $currency = 'INR';
+        $this->cart->add(
+            $plan->id, $product->name,
+            1000,
+            1,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
+        );
         $controller = new \App\Http\Controllers\Payment\PromotionController();
         $response = $controller->checkCode('FAVEOCOUPON123', $product->id);
     }
