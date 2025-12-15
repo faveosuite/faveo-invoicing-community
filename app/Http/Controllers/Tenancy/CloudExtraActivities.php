@@ -341,11 +341,7 @@ class CloudExtraActivities extends Controller
             $plan = $product->planRelation->find($planId);
             $currency = userCurrencyAndPrice('', $plan);
             $ends_at = Subscription::where('order_id', $orderId)->value('ends_at');
-            $countryid = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->value('country_id');
-            $base_price = PlanPrice::where('plan_id', $planId)->where('currency', $currency['currency'])->where('country_id', $countryid)->value('add_price');
-            if (! $base_price) {
-                $base_price = PlanPrice::where('plan_id', $planId)->where('currency', $currency['currency'])->where('country_id', 0)->value('add_price');
-            }
+            $base_price = $currency['plan']?->add_price;
             $oldAgents = substr($oldAgents, 12, 16);
             if ($newAgents > $oldAgents) {
                 $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays);

@@ -195,7 +195,7 @@ class StoreTest extends DBTestCase
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 365]);
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'no_of_agents' => 7, 'offer_price' => '100']);
-        $response = $this->call('GET', 'pricing/data', ['country' => 'IN', 'group' => $group->id]);
+        $response = $this->call('GET', 'pricing/data', ['ipAddress' => '121.0.0.1', 'group' => $group->id]);
 
         $json = $response->decodeResponseJson();
         $response->assertStatus(200);

@@ -2,7 +2,7 @@
   "extensions":
   {
     "optional":["ldap", "redis", "ionCube Loader", "soap"],
-    "required": ["curl","ctype", "imap", "mbstring", "openssl","tokenizer", "pdo_mysql", "zip", "pdo", "mysqli", "iconv", "XML", "json", "fileinfo", "gd"]
+    "required": ["curl","ctype", "imap", "mbstring", "openssl","tokenizer", "pdo_mysql", "zip", "pdo", "mysqli", "iconv", "XML", "json", "fileinfo", "gd", "intl"]
 
   },
   "requisites": [ "PHP Version", "Database version", "PHP exec function", "env", "max_execution_time", "allow_url_fopen", "cURL", "app_url", "ssl_certificate"],

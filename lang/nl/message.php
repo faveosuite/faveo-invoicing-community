@@ -2787,4 +2787,6 @@ return [
     'callback_url_error' => 'Voer een geldige Webhook URL in.',
     'webhook_explanation' => 'De Webhook URL is te vinden onder de Aanvullende Configuratie in de WhatsApp-instellingen van het beheerpaneel.',
     'business_id_error' => 'Voer een geldige Business ID in.',
+    'enable_reoon_logs_deletion' => 'Reoon-logboeken verwijderen inschakelen',
+
 ];

@@ -2823,4 +2823,6 @@ return [
     'callback_url_error' => 'Vui lòng nhập URL Webhook hợp lệ.',
     'webhook_explanation' => 'URL Webhook có thể được tìm thấy trong phần Cấu hình bổ sung của cài đặt WhatsApp trong Bảng quản trị.',
     'business_id_error' => 'Vui lòng nhập Business ID hợp lệ.',
+    'enable_reoon_logs_deletion' => 'Bật xóa nhật ký Reoon',
+
 ];

@@ -14,7 +14,7 @@ return [
     'failover_action' => 'Action de basculement',
     'none' => 'Aucun',
     'fallback_v2_checkbox' => 'Revenir à la case à cocher reCAPTCHA v2',
-    'action_if_captcha_fails' => 'Action à entreprendre en cas d'échec de reCAPTCHA',
+    'action_if_captcha_fails' => 'Action à entreprendre en cas d\'échec de reCAPTCHA',
 
     /*
     * Recaptcha v3 Settings
@@ -25,7 +25,7 @@ return [
     'v3_secret_key' => 'Clé secrète v3',
     'enter_v3_secret_key' => 'Entrez votre clé secrète reCAPTCHA v3',
     'v3_score_threshold' => 'Seuil de score v3',
-    'v3_score_hint' => 'Valeur comprise entre 0,0 et 1,0 (plus la valeur est élevée, mieux c'est)',
+    'v3_score_hint' => 'Valeur comprise entre 0,0 et 1,0 (plus la valeur est élevée, mieux c\'est)',
     'v3_preview' => 'Aperçu v3',
 
     /*
@@ -89,28 +89,28 @@ return [
     'complete_recaptcha_v2' => 'Veuillez compléter le reCAPTCHA v2.',
     'failed_generate_v2_token' => 'Échec de la génération du jeton reCAPTCHA v2.',
     'settings_saved' => 'Paramètres enregistrés.',
-    'failed_save_settings' => 'Échec de l'enregistrement des paramètres. Veuillez réessayer.',
+    'failed_save_settings' => 'Échec de l\'enregistrement des paramètres. Veuillez réessayer.',
 
     /*
     * Backend validation messages
     */
-    'invalid_secret_or_token' => 'La clé secrète ou le jeton de réponse n'est pas valide',
-    'captcha_verification_failed' => 'La vérification reCAPTCHA a échoué (non-concordance du score/de l'action/du nom d'hôte)',
+    'invalid_secret_or_token' => 'La clé secrète ou le jeton de réponse n\'est pas valide',
+    'captcha_verification_failed' => 'La vérification reCAPTCHA a échoué (non-concordance du score/de l\'action/du nom d\'hôte)',
 
     /*
     * Validation messages
     */
     'captcha_version_required' => 'La version de reCAPTCHA est requise',
-    'captcha_version_in' => 'La version de reCAPTCHA sélectionnée n'est pas valide',
+    'captcha_version_in' => 'La version de reCAPTCHA sélectionnée n\'est pas valide',
     'failover_action_required' => 'Une action de basculement est requise',
-    'failover_action_in' => 'L'action de basculement sélectionnée n'est pas valide',
+    'failover_action_in' => 'L\'action de basculement sélectionnée n\'est pas valide',
     'score_threshold_numeric' => 'Le seuil de score doit être un nombre',
-    'score_threshold_min' => 'Le seuil de score doit être d'au moins 0',
+    'score_threshold_min' => 'Le seuil de score doit être d\'au moins 0',
     'score_threshold_max' => 'Le seuil de score ne doit pas être supérieur à 1',
     'theme_required' => 'Le thème est requis',
-    'theme_in' => 'Le thème sélectionné n'est pas valide',
+    'theme_in' => 'Le thème sélectionné n\'est pas valide',
     'size_required' => 'La taille est requise',
-    'size_in' => 'La taille sélectionnée n'est pas valide',
+    'size_in' => 'La taille sélectionnée n\'est pas valide',
     'badge_position_required' => 'La position du badge est requise',
-    'badge_position_in' => 'La position du badge sélectionnée n'est pas valide',
+    'badge_position_in' => 'La position du badge sélectionnée n\'est pas valide',
 ];
