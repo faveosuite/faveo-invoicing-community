@@ -1,6 +1,6 @@
 @php
     $hasCartItems = \Cart::getContent()->isNotEmpty();
-    $hasActivePlan = !empty($planPrice);
+    $hasActivePlan = !is_null($planPrice);
     $isDisabled = $hasCartItems || !$hasActivePlan;
 
     $tooltipTitle = $hasCartItems

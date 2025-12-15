@@ -404,7 +404,7 @@
                                 {!! html()->checkbox('reoon_cron', $condition->checkActiveJob()['reoonLogs'], 1)
                                     ->id('reoon_fetching')
                                 !!}
-                                &nbsp; {{ Lang::get('message.enable_invoice_deletion') }}
+                                &nbsp; {{ Lang::get('message.enable_reoon_logs_deletion') }}
                             </div>
                         </div>
 

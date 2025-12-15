@@ -2777,4 +2777,6 @@ return [
     'callback_url_error' => '請輸入有效的 Webhook 網址。',
     'webhook_explanation' => 'Webhook 網址可在管理後台 WhatsApp 設定的額外配置部分找到。',
     'business_id_error' => '請輸入有效的 Business ID。',
+    'enable_reoon_logs_deletion' => '啟用 Reoon 日誌刪除',
+
 ];

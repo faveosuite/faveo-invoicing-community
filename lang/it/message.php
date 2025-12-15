@@ -2817,4 +2817,6 @@ return [
     'callback_url_error' => 'Inserisci un URL Webhook valido.',
     'webhook_explanation' => 'L’URL del Webhook si trova nella sezione Configurazione Aggiuntiva delle impostazioni WhatsApp nel pannello di amministrazione.',
     'business_id_error' => 'Inserisci un ID aziendale valido.',
+    'enable_reoon_logs_deletion' => 'Abilita eliminazione dei log Reoon',
+
 ];

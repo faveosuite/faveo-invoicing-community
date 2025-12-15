@@ -11,7 +11,7 @@ return [
     'recaptcha_v2_invisible' => 'reCAPTCHA v2 Inviżibbli',
     'recaptcha_v2_checkbox' => 'Kaxxa tal-Kontroll tal-reCAPTCHA v2',
     'select_captcha_type' => 'Agħżel liema verżjoni tal-reCAPTCHA tuża',
-    'failover_action' => 'Azzjoni ta' Failover',
+    'failover_action' => 'Azzjoni ta\' Failover',
     'none' => 'Xejn',
     'fallback_v2_checkbox' => 'Fallback għall-Kaxxa tal-Kontroll tal-reCAPTCHA v2',
     'action_if_captcha_fails' => 'Azzjoni li għandha tittieħed jekk il-reCAPTCHA tfalli',
@@ -49,8 +49,8 @@ return [
     'size_normal' => 'Normali',
     'size_compact' => 'Kumpatt',
     'badge_position' => 'Pożizzjoni tal-Badge',
-    'badge_bottomright' => 'Lemin t'isfel',
-    'badge_bottomleft' => 'Xellug t'isfel',
+    'badge_bottomright' => 'Lemin t\'isfel',
+    'badge_bottomleft' => 'Xellug t\'isfel',
     'badge_inline' => 'Inline',
 
     /*
@@ -64,12 +64,12 @@ return [
     /*
     * Success messages
     */
-    'captcha_settings_updated' => 'Settings tal-reCAPTCHA aġġornati b'suċċess!',
+    'captcha_settings_updated' => 'Settings tal-reCAPTCHA aġġornati b\'suċċess!',
 
     /*
     * Error messages
     */
-    'captcha_message' => 'Verifika tal-reCAPTCHA falliet. Jekk jogħġbok erġa' pprova.',
+    'captcha_message' => 'Verifika tal-reCAPTCHA falliet. Jekk jogħġbok erġa\' pprova.',
 
     /*
     * JavaScript validation messages
@@ -84,29 +84,29 @@ return [
     'valid_recaptcha_secret_key' => 'Jekk jogħġbok daħħal ċavetta sigrieta tal-reCAPTCHA valida',
     'score_threshold_required' => 'Il-limitu tal-punteġġ huwa meħtieġ għal reCAPTCHA v3',
     'valid_number' => 'Jekk jogħġbok daħħal numru validu',
-    'complete_recaptcha_v3' => 'Ma rnexxiliex niġġenera t-token tal-reCAPTCHA. Jekk jogħġbok ivverifika li ċ-ċavetta tas-sit hija kkonfigurata b'mod korrett u valida.',
-    'failed_generate_v3_token' => 'Ma rnexxiliex niġġenera t-token tal-reCAPTCHA. Jekk jogħġbok ivverifika li ċ-ċavetta tas-sit hija kkonfigurata b'mod korrett u valida.',
+    'complete_recaptcha_v3' => 'Ma rnexxiliex niġġenera t-token tal-reCAPTCHA. Jekk jogħġbok ivverifika li ċ-ċavetta tas-sit hija kkonfigurata b\'mod korrett u valida.',
+    'failed_generate_v3_token' => 'Ma rnexxiliex niġġenera t-token tal-reCAPTCHA. Jekk jogħġbok ivverifika li ċ-ċavetta tas-sit hija kkonfigurata b\'mod korrett u valida.',
     'complete_recaptcha_v2' => 'Jekk jogħġbok imla l-reCAPTCHA v2.',
     'failed_generate_v2_token' => 'Ma rnexxiliex niġġenera t-token tal-reCAPTCHA v2.',
     'settings_saved' => 'Settings issejvjati.',
-    'failed_save_settings' => 'Ma rnexxiliex nissejvja s-settings. Jekk jogħġbok erġa' pprova.',
+    'failed_save_settings' => 'Ma rnexxiliex nissejvja s-settings. Jekk jogħġbok erġa\' pprova.',
 
     /*
     * Backend validation messages
     */
-    'invalid_secret_or_token' => 'Ċavetta sigrieta jew token ta' rispons mhumiex validi',
-    'captcha_verification_failed' => 'Verifika tal-reCAPTCHA falliet (nuqqas ta' qbil fil-punteġġ/azzjoni/isem tal-host)',
+    'invalid_secret_or_token' => 'Ċavetta sigrieta jew token ta\' rispons mhumiex validi',
+    'captcha_verification_failed' => 'Verifika tal-reCAPTCHA falliet (nuqqas ta\' qbil fil-punteġġ/azzjoni/isem tal-host)',
 
     /*
     * Validation messages
     */
     'captcha_version_required' => 'Il-verżjoni tal-reCAPTCHA hija meħtieġa',
     'captcha_version_in' => 'Il-verżjoni tal-reCAPTCHA magħżula mhix valida',
-    'failover_action_required' => 'L-azzjoni ta' failover hija meħtieġa',
-    'failover_action_in' => 'L-azzjoni ta' failover magħżula mhix valida',
+    'failover_action_required' => 'L-azzjoni ta\' failover hija meħtieġa',
+    'failover_action_in' => 'L-azzjoni ta\' failover magħżula mhix valida',
     'score_threshold_numeric' => 'Il-limitu tal-punteġġ irid ikun numru',
     'score_threshold_min' => 'Il-limitu tal-punteġġ irid ikun mill-inqas 0',
-    'score_threshold_max' => 'Il-limitu tal-punteġġ m'għandux ikun akbar minn 1',
+    'score_threshold_max' => 'Il-limitu tal-punteġġ m\'għandux ikun akbar minn 1',
     'theme_required' => 'It-tema hija meħtieġa',
     'theme_in' => 'It-tema magħżula mhix valida',
     'size_required' => 'Id-daqs huwa meħtieġ',

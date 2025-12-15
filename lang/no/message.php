@@ -2828,4 +2828,6 @@ return [
     'config_id_error' => 'Vennligst skriv inn konfigurasjons-ID.',
     'verify_token_error' => 'Vennligst skriv inn verifiseringstoken.',
     'manual_number_title' => 'Legg til nummer manuelt',
+    'enable_reoon_logs_deletion' => 'Aktiver sletting av Reoon-logger',
+
 ];

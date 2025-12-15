@@ -2816,4 +2816,6 @@ return [
     'callback_url_error' => 'சரியான Webhook URL ஐ உள்ளிடவும்.',
     'webhook_explanation' => 'Webhook URL ஐ நிர்வாக குழுவின் WhatsApp அமைப்புகளின் கூடுதல் உள்ளமைப்பு பிரிவில் காணலாம்.',
     'business_id_error' => 'சரியான Business ID ஐ உள்ளிடவும்.',
+    'enable_reoon_logs_deletion' => 'Reoon பதிவுகளை நீக்குவதைக் செயல்படுத்தவும்',
+
 ];

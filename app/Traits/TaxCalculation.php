@@ -86,7 +86,7 @@ trait TaxCalculation
 
     public function getTaxDetails($indian_state, $user_country, $user_state, $origin_state, $origin_country, $productid, $status = 1)
     {
-        if ($origin_country == 'IN' && $indian_state) {//Get the CGST,SGST,IGST,STATE_CODE of the user,if user from INdia
+        if ($origin_country == 'IN' && $indian_state && $user_country == 'IN') {//Get the CGST,SGST,IGST,STATE_CODE of the user,if user from INdia
             $c_gst = $indian_state->c_gst;
             $s_gst = $indian_state->s_gst;
             $i_gst = $indian_state->i_gst;

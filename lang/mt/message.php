@@ -2747,4 +2747,6 @@
      'callback_url_error' => 'Jekk jogħġbok daħħal Webhook URL validu.',
      'webhook_explanation' => 'Il-Webhook URL jistaʼ jinstab taħt Konfigurazzjoni Addizzjonali fis-settings taʼ WhatsApp fil-Pannell tal-Amministratur.',
      'business_id_error' => 'Jekk jogħġbok daħħal Business ID validu.',
+     'enable_reoon_logs_deletion' => 'Ippermetti t-tħassir tal-logs Reoon',
+
  ];
