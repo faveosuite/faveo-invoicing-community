@@ -22,7 +22,6 @@ use Config;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Mockery;
 use Tests\DBTestCase;
@@ -353,12 +352,12 @@ class SettingsControllerTest extends DBTestCase
 
         $response->assertStatus(200)
                  ->assertJsonStructure([
-                    'success',
-                    'data' => [
-                        'disk',
-                        'local_file_storage_path',
-                    ],
-                     ]);
+                     'success',
+                     'data' => [
+                         'disk',
+                         'local_file_storage_path',
+                     ],
+                 ]);
     }
 
     public function test_update_storage_path_for_system_disk()
@@ -366,19 +365,19 @@ class SettingsControllerTest extends DBTestCase
         // Update local file storage
         $payload = [
             'disk' => 'system',
-            'path' => '/new/storage/path'
+            'path' => '/new/storage/path',
         ];
 
         $response = $this->postJson('/file-storage-path', $payload);
 
         $response->assertStatus(200)
                  ->assertJsonFragment([
-                'message' => __('message.setting_updated')
+                     'message' => __('message.setting_updated'),
                  ]);
 
         $this->assertDatabaseHas('settings_filesystem', [
             'disk' => 'system',
-            'local_file_storage_path' => '/new/storage/path'
+            'local_file_storage_path' => '/new/storage/path',
         ]);
     }
 
@@ -387,7 +386,7 @@ class SettingsControllerTest extends DBTestCase
         //Update S3 disk storage
         $fs = FileSystemSettings::updateOrCreate([], [
             'disk' => 'system',
-            'local_file_storage_path' => '/old/path'
+            'local_file_storage_path' => '/old/path',
         ]);
 
         $payload = [
@@ -427,7 +426,7 @@ class SettingsControllerTest extends DBTestCase
         //Update S3 disk storage with invalid credentials
         $fs = FileSystemSettings::updateOrCreate([], [
             'disk' => 'system',
-            'local_file_storage_path' => '/old/path'
+            'local_file_storage_path' => '/old/path',
         ]);
 
         $payload = [
@@ -446,7 +445,7 @@ class SettingsControllerTest extends DBTestCase
         $response->assertStatus(400)
             ->assertJsonFragment([
                 'success' => false,
-                'message' => __('message.s3_error')
+                'message' => __('message.s3_error'),
             ]);
     }
 
@@ -484,7 +483,7 @@ class SettingsControllerTest extends DBTestCase
 
         $response->assertStatus(200)
                  ->assertJsonFragment([
-                     'debug' => true
+                     'debug' => true,
                  ]);
     }
 
@@ -498,7 +497,7 @@ class SettingsControllerTest extends DBTestCase
 
         $response->assertStatus(200)
             ->assertJsonFragment([
-                'debug' => false
+                'debug' => false,
             ]);
     }
 
@@ -508,12 +507,12 @@ class SettingsControllerTest extends DBTestCase
         Config::set('app.debug', false);
 
         $response = $this->postJson('/save/debugg', [
-            'debug' => 'true'
+            'debug' => 'true',
         ]);
 
         $response->assertStatus(200)
             ->assertJsonFragment([
-                'message' => __('message.updated-successfully')
+                'message' => __('message.updated-successfully'),
             ]);
 
         // The config won't change — validate ENV(testing) instead
@@ -530,13 +529,13 @@ class SettingsControllerTest extends DBTestCase
         Config::set('app.debug', true);
 
         $response = $this->postJson('/save/debugg', [
-            'debug' => 'false'
+            'debug' => 'false',
         ]);
 
         $response->assertStatus(200)
                  ->assertJsonFragment([
-                      'message' => __('message.updated-successfully')
-            ]);
+                     'message' => __('message.updated-successfully'),
+                 ]);
 
         // The config won't change — validate ENV(testing) instead
         $env = file_get_contents(base_path('.env.testing'));
@@ -574,17 +573,17 @@ class SettingsControllerTest extends DBTestCase
     public function test_returns_contact_option_settings()
     {
         //To test without updating the contact options
-        Setting::factory()->create(['sending_status'=>1]);
+        Setting::factory()->create(['sending_status' => 1]);
 
         $response = $this->getJson('/contact-option');
 
         $response->assertStatus(200)
              ->assertJsonFragment([
-                'mailSendingStatus' => 0,
-                'emailStatus'       => 0,
-                'mobileStatus'      => 0,
-                'preferred_verification' => 'email',
-            ]);
+                 'mailSendingStatus' => 0,
+                 'emailStatus' => 0,
+                 'mobileStatus' => 0,
+                 'preferred_verification' => 'email',
+             ]);
     }
 
     public function test_updates_contact_option_for_mobile_only()
@@ -600,12 +599,12 @@ class SettingsControllerTest extends DBTestCase
 
         $response->assertStatus(200)
             ->assertJsonFragment([
-                'message' => __('message.contact_setting_update')
+                'message' => __('message.contact_setting_update'),
             ]);
 
         $this->assertDatabaseHas('status_settings', [
             'emailverification_status' => 0,
-            'msg91_status'             => 1,
+            'msg91_status' => 1,
         ]);
 
         $this->assertDatabaseHas('api_keys', [
@@ -626,12 +625,12 @@ class SettingsControllerTest extends DBTestCase
 
         $response->assertStatus(200)
             ->assertJsonFragment([
-                'message' => __('message.contact_setting_update')
+                'message' => __('message.contact_setting_update'),
             ]);
 
         $this->assertDatabaseHas('status_settings', [
             'emailverification_status' => 1,
-            'msg91_status'             => 0,
+            'msg91_status' => 0,
         ]);
 
         $this->assertDatabaseHas('api_keys', [
@@ -652,12 +651,12 @@ class SettingsControllerTest extends DBTestCase
 
         $response->assertStatus(200)
             ->assertJsonFragment([
-                'message' => __('message.contact_setting_update')
+                'message' => __('message.contact_setting_update'),
             ]);
 
         $this->assertDatabaseHas('status_settings', [
             'emailverification_status' => 1,
-            'msg91_status'             => 1,
+            'msg91_status' => 1,
         ]);
 
         $this->assertDatabaseHas('api_keys', [
@@ -678,12 +677,12 @@ class SettingsControllerTest extends DBTestCase
 
         $response->assertStatus(200)
             ->assertJsonFragment([
-                'message' => __('message.contact_setting_update')
+                'message' => __('message.contact_setting_update'),
             ]);
 
         $this->assertDatabaseHas('status_settings', [
             'emailverification_status' => 1,
-            'msg91_status'             => 1,
+            'msg91_status' => 1,
         ]);
 
         $this->assertDatabaseHas('api_keys', [
@@ -696,7 +695,7 @@ class SettingsControllerTest extends DBTestCase
         // To test updating contact options with null preferred verification
         StatusSetting::create([
             'emailverification_status' => 0,
-            'msg91_status'             => 0,
+            'msg91_status' => 0,
         ]);
         ApiKey::create(['verification_preference' => 'email']);
 
@@ -710,12 +709,12 @@ class SettingsControllerTest extends DBTestCase
 
         $response->assertStatus(200)
             ->assertJsonFragment([
-                'message' => __('message.contact_setting_update')
+                'message' => __('message.contact_setting_update'),
             ]);
 
         $this->assertDatabaseHas('status_settings', [
             'emailverification_status' => 0,
-            'msg91_status'             => 1,
+            'msg91_status' => 1,
         ]);
 
         $this->assertDatabaseHas('api_keys', [

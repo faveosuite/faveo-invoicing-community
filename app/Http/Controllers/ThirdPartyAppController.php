@@ -25,9 +25,9 @@ class ThirdPartyAppController extends Controller
     {
         try {
             $searchString = $request->input('search-query', '');
-            $sortOrder    = $request->input('sort-order', 'asc');
-            $sortField    = $request->input('sort-field', 'created_at');
-            $limit        = $request->input('limit', 10);
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = $request->input('limit', 10);
 
             $query = $this->thirdParty
                 ->select('id', 'app_name', 'app_key', 'app_secret')
@@ -45,6 +45,7 @@ class ThirdPartyAppController extends Controller
 
             $thirdPartyApps->getCollection()->transform(function ($app) {
                 $app->app_secret = '*****';
+
                 return $app;
             });
 
@@ -52,9 +53,8 @@ class ThirdPartyAppController extends Controller
                 'third_party_apps' => $thirdPartyApps,
                 'total' => $total,
             ]);
-
         } catch (\Exception $ex) {
-            return errorResponse( __('message.something_went_wrong_try_again'));
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 

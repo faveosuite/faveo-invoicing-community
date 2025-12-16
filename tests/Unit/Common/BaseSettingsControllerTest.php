@@ -2,9 +2,7 @@
 
 namespace Tests\Unit\Common;
 
-use App\Model\Mailjob\ActivityLogDay;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Mockery;
 use Tests\DBTestCase;
 
 class BaseSettingsControllerTest extends DBTestCase
@@ -83,40 +81,40 @@ class BaseSettingsControllerTest extends DBTestCase
     {
         // REAL payload (based on your POST data)
         $payload = [
-            "expiry_cron"             => 1,
-            "activity"                => 1,
-            "subs_expirymail"         => 1,
-            "postsubs_expirymail"     => 1,
-            "cloud_cron"              => 1,
-            "invoice_cron"            => 1,
-            "msg91_cron"              => 1,
-            "reoon_cron"              => 1,
-            "systemlogs_cron"         => 1,
+            'expiry_cron' => 1,
+            'activity' => 1,
+            'subs_expirymail' => 1,
+            'postsubs_expirymail' => 1,
+            'cloud_cron' => 1,
+            'invoice_cron' => 1,
+            'msg91_cron' => 1,
+            'reoon_cron' => 1,
+            'systemlogs_cron' => 1,
 
             // Commands & dailyAt values are not saved in StatusSetting
-            "expiry-commands"         => "dailyAt",
-            "expiry-dailyAt"          => "12:00",
+            'expiry-commands' => 'dailyAt',
+            'expiry-dailyAt' => '12:00',
 
-            "activity-commands"       => "dailyAt",
-            "activity-dailyAt"        => "06:00",
+            'activity-commands' => 'dailyAt',
+            'activity-dailyAt' => '06:00',
 
-            "subexpiry-commands"      => "dailyAt",
-            "subexpiry-dailyAt"       => "14:00",
+            'subexpiry-commands' => 'dailyAt',
+            'subexpiry-dailyAt' => '14:00',
 
-            "postsubexpiry-commands"  => "dailyAt",
-            "postsubexpiry-dailyAt"   => "16:20",
+            'postsubexpiry-commands' => 'dailyAt',
+            'postsubexpiry-dailyAt' => '16:20',
 
-            "cloud-commands"          => "dailyAt",
-            "cloud-dailyAt"           => "11:00",
+            'cloud-commands' => 'dailyAt',
+            'cloud-dailyAt' => '11:00',
 
-            "invoice-commands"        => "dailyAt",
-            "invoice-dailyAt"         => "09:10",
+            'invoice-commands' => 'dailyAt',
+            'invoice-dailyAt' => '09:10',
 
-            "msg91-commands"          => "dailyAt",
-            "msg91-dailyAt"           => "08:25",
+            'msg91-commands' => 'dailyAt',
+            'msg91-dailyAt' => '08:25',
 
-            "reoon-commands"          => "everyMinute",
-            "systemlogs-commands"     => "everyMinute",
+            'reoon-commands' => 'everyMinute',
+            'systemlogs-commands' => 'everyMinute',
         ];
 
         $response = $this->patchJson('/post-scheduler', $payload);
@@ -125,33 +123,33 @@ class BaseSettingsControllerTest extends DBTestCase
                  ->assertJsonFragment(['message' => __('message.updated-successfully')]);
 
         $this->assertDatabaseHas('status_settings', [
-            'id'                          => 1,
-            'expiry_mail'                 => 1,
-            'activity_log_delete'         => 1,
-            'subs_expirymail'             => 1,
-            'post_expirymail'             => 1,
-            'cloud_mail_status'           => 1,
-            'invoice_deletion_status'     => 1,
-            'msg91_report_delete_status'  => 1,
-            'reoon_deletion_status'       => 1,
-            'system_log_status'           => 1,
+            'id' => 1,
+            'expiry_mail' => 1,
+            'activity_log_delete' => 1,
+            'subs_expirymail' => 1,
+            'post_expirymail' => 1,
+            'cloud_mail_status' => 1,
+            'invoice_deletion_status' => 1,
+            'msg91_report_delete_status' => 1,
+            'reoon_deletion_status' => 1,
+            'system_log_status' => 1,
         ]);
 
         $expectedConditions = [
-            'expiryMail'     => 'dailyAt,12:00',
-            'deleteLogs'     => 'dailyAt,06:00',
+            'expiryMail' => 'dailyAt,12:00',
+            'deleteLogs' => 'dailyAt,06:00',
             'subsExpirymail' => 'dailyAt,14:00',
             'postExpirymail' => 'dailyAt,16:20',
-            'cloud'          => 'dailyAt,11:00',
-            'invoice'        => 'dailyAt,09:10',
-            'msg91Reports'   => 'dailyAt,08:25',
-            'reoon'          => 'everyMinute',
-            'systemLogs'     => 'everyMinute',
+            'cloud' => 'dailyAt,11:00',
+            'invoice' => 'dailyAt,09:10',
+            'msg91Reports' => 'dailyAt,08:25',
+            'reoon' => 'everyMinute',
+            'systemLogs' => 'everyMinute',
         ];
 
         foreach ($expectedConditions as $job => $value) {
             $this->assertDatabaseHas('conditions', [
-                'job'   => $job,
+                'job' => $job,
                 'value' => $value,
             ]);
         }
@@ -160,25 +158,25 @@ class BaseSettingsControllerTest extends DBTestCase
     public function test_save_cron_days_updates_all_tables_correctly()
     {
         $payload = [
-            "logdelday" => 180,
-            "subexpiryday" => [30, 15, 7, 1],
-            "cloud_days" => 15,
-            "postsubexpiry_days" => [7, 1],
-            "invoice_days"       => 1,
-            "msg91_days"         => 0,
-            "reoon_days"         => 30,
-            "system_logs_days"   => 0,
+            'logdelday' => 180,
+            'subexpiryday' => [30, 15, 7, 1],
+            'cloud_days' => 15,
+            'postsubexpiry_days' => [7, 1],
+            'invoice_days' => 1,
+            'msg91_days' => 0,
+            'reoon_days' => 30,
+            'system_logs_days' => 0,
         ];
 
         $response = $this->patchJson('/cron-days', $payload);
 
         $response->assertStatus(200)
                  ->assertJsonFragment([
-                'message' => __('message.updated-successfully'),
-            ]);
+                     'message' => __('message.updated-successfully'),
+                 ]);
 
         $this->assertDatabaseHas('activity_log_days', [
-            'id'   => 1,
+            'id' => 1,
             'days' => 180,
         ]);
     }
@@ -198,7 +196,7 @@ class BaseSettingsControllerTest extends DBTestCase
         );
 
         $response = $this->postJson('/verify-php-path', [
-            'path' => PHP_BINARY
+            'path' => PHP_BINARY,
         ]);
 
         $response->assertStatus(200)
@@ -231,7 +229,7 @@ class BaseSettingsControllerTest extends DBTestCase
         $response = $this->postJson('/verify-php-path', [
             'path' => PHP_BINARY,
         ]);
-       // dd($response->getOriginalContent());
+        // dd($response->getOriginalContent());
 
         $response->assertStatus(400)
             ->assertJson([
@@ -272,6 +270,5 @@ class BaseSettingsControllerTest extends DBTestCase
             'job' => 'deleteLogs',
             'value' => 'dailyAt,06:00',
         ]);
-
     }
 }

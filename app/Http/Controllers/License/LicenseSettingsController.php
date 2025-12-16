@@ -33,13 +33,11 @@ class LicenseSettingsController extends LicensePermissionsController
                           ->select('id', 'name')
                           ->when($searchString, function ($q) use ($searchString) {
                               $q->where('name', 'LIKE', "%$searchString%");
-                });
-
+                          });
 
             $licenseTypes = $query->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
             $total = $licenseTypes->count();
-
 
             return successResponse('', [
                 'license_types' => $licenseTypes,
@@ -49,7 +47,6 @@ class LicenseSettingsController extends LicensePermissionsController
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
-
 
     /**
      * Store a newly created resource in storage.

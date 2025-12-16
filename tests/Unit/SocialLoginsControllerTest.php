@@ -27,7 +27,6 @@ class SocialLoginsControllerTest extends DBTestCase
         $response->assertJsonFragment(['type' => 'Google']);
         $response->assertJsonFragment(['type' => 'Github']);
         $response->assertJsonFragment(['type' => 'Linkedin']);
-
     }
 
     public function test_search_function_for_social_login()
@@ -51,7 +50,7 @@ class SocialLoginsControllerTest extends DBTestCase
     public function test_update_credentials_for_google_github_linkedin()
     {
         // Update credentials for google
-        $googlePayload =[
+        $googlePayload = [
             'type' => 'Google',
             'client_id' => 'gid',
             'client_secret' => 'gsecret',
@@ -63,7 +62,7 @@ class SocialLoginsControllerTest extends DBTestCase
                ->assertJsonFragment(['message' => __('message.social_login_settings_updated')]);
 
         // Update credentials for github
-        $githubPayload =[
+        $githubPayload = [
             'type' => 'Github',
             'client_id' => 'gid',
             'client_secret' => 'gsecret',
@@ -75,7 +74,7 @@ class SocialLoginsControllerTest extends DBTestCase
                ->assertJsonFragment(['message' => __('message.social_login_settings_updated')]);
 
         // Update credentials for linkedin
-        $linkedinPayload =[
+        $linkedinPayload = [
             'type' => 'Linkedin',
             'client_id' => 'gid',
             'client_secret' => 'gsecret',
@@ -135,7 +134,7 @@ class SocialLoginsControllerTest extends DBTestCase
     public function test_returns_validation_errors_when_required_fields_missing()
     {
         // Check validation error in google
-        $googlePayload= [
+        $googlePayload = [
             'type' => 'Google',
         ];
 
@@ -163,8 +162,5 @@ class SocialLoginsControllerTest extends DBTestCase
 
         $response->assertStatus(422)
                  ->assertJsonValidationErrors(['client_id', 'client_secret', 'redirect_url']);
-
     }
-
-
 }

@@ -37,9 +37,9 @@ class ChatScriptControllerTest extends DBTestCase
             ->assertJsonStructure([
                 'data' => [
                     'data' => [
-                        '*' => ['id', 'name', 'checkbox', 'action']
-                    ]
-                ]
+                        '*' => ['id', 'name', 'checkbox', 'action'],
+                    ],
+                ],
             ]);
     }
 
