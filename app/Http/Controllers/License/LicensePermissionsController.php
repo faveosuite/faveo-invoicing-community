@@ -66,7 +66,7 @@ class LicensePermissionsController extends Controller
                 'license_types' => $licenseTypes,
             ]);
         } catch (\Exception $ex) {
-            return errorResponse( __('message.something_went_wrong_try_again'));
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 

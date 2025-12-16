@@ -3,7 +3,6 @@
 namespace Tests\Unit\License;
 
 use App\Model\License\LicensePermission;
-use App\Model\License\LicensePermissionPivot;
 use App\Model\License\LicenseType;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
@@ -38,13 +37,13 @@ class LicensePermissionsControllerTest extends DBTestCase
         $response->assertJsonFragment([
             'id' => $permA->id,
             'permissions' => 'view',
-            'assigned' => true
+            'assigned' => true,
         ]);
 
         $response->assertJsonFragment([
             'id' => $permB->id,
             'permissions' => 'edit',
-            'assigned' => false
+            'assigned' => false,
         ]);
     }
 
@@ -99,12 +98,12 @@ class LicensePermissionsControllerTest extends DBTestCase
         // Assert they are attached
         $this->assertDatabaseHas('license_license_permissions', [
             'license_type_id' => $type->id,
-            'license_permission_id' => $perm1->id
+            'license_permission_id' => $perm1->id,
         ]);
 
         $this->assertDatabaseHas('license_license_permissions', [
             'license_type_id' => $type->id,
-            'license_permission_id' => $perm2->id
+            'license_permission_id' => $perm2->id,
         ]);
     }
 
@@ -129,7 +128,7 @@ class LicensePermissionsControllerTest extends DBTestCase
 
         $this->assertDatabaseMissing('license_license_permissions', [
             'license_type_id' => $type->id,
-            'license_permission_id' => $perm->id
+            'license_permission_id' => $perm->id,
         ]);
     }
 
@@ -145,5 +144,4 @@ class LicensePermissionsControllerTest extends DBTestCase
         $response->assertStatus(404)
             ->assertJsonFragment(['success' => false]);
     }
-
 }

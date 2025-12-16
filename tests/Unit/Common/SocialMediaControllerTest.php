@@ -3,10 +3,8 @@
 namespace Tests\Unit\Common;
 
 use App\Model\Common\SocialMedia;
-use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
-use Tests\TestCase;
 
 class SocialMediaControllerTest extends DBTestCase
 {
@@ -38,9 +36,9 @@ class SocialMediaControllerTest extends DBTestCase
             ->assertJsonStructure([
                 'data' => [
                     'data' => [
-                        '*' => ['id', 'name', 'link', 'action']
-                    ]
-                ]
+                        '*' => ['id', 'name', 'link', 'action'],
+                    ],
+                ],
             ]);
     }
 
@@ -200,5 +198,4 @@ class SocialMediaControllerTest extends DBTestCase
             'name' => 'Linkedin',
         ]);
     }
-
 }

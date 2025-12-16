@@ -780,9 +780,8 @@ class SettingsController extends BaseSettingsController
             return successResponse('', [
                 'debug' => (bool) $debug,
             ]);
-
         } catch (\Exception $e) {
-            return errorResponse( __('message.something_went_wrong_try_again'));
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 

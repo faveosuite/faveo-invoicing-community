@@ -2,7 +2,6 @@
 
 namespace Database\Factories\Model\License;
 
-
 use App\Model\License\LicenseType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
