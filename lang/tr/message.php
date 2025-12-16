@@ -2836,4 +2836,6 @@ return [
     'webhook_explanation' => 'Webhook URL, Yönetici Panelindeki WhatsApp ayarlarında Ek Yapılandırma bölümünde bulunabilir.',
     'business_id_error' => 'Lütfen geçerli bir Business ID girin.',
     'email_validation_status' => 'E-posta doğrulama durumu başarıyla kaydedildi',
+    'enable_reoon_logs_deletion' => 'Reoon Günlük Silmeyi Etkinleştir',
+
 ];

@@ -2825,4 +2825,6 @@ return [
     'callback_url_error' => 'Пожалуйста, введите действительный URL веб-хука.',
     'webhook_explanation' => 'URL веб-хука можно найти в разделе Дополнительная конфигурация настроек WhatsApp в панели администратора.',
     'business_id_error' => 'Пожалуйста, введите действительный Business ID.',
+    'enable_reoon_logs_deletion' => 'Включить удаление журналов Reoon',
+
 ];
