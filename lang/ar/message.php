@@ -2659,4 +2659,6 @@ return [
     'callback_url_error' => 'يرجى إدخال عنوان URL صالح للويب هوك.',
     'webhook_explanation' => 'يمكن العثور على عنوان URL للويب هوك ضمن قسم الإعدادات الإضافية في إعدادات واتساب داخل لوحة الإدارة.',
     'business_id_error' => 'يرجى إدخال معرف نشاط تجاري صالح.',
+    'enable_reoon_logs_deletion' => 'تمكين حذف سجلات Reoon',
+
 ];

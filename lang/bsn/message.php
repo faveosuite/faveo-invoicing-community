@@ -2754,4 +2754,6 @@ return [
     'callback_url_error' => 'Molimo unesite važeći Webhook URL.',
     'webhook_explanation' => 'Webhook URL se može pronaći u sekciji Dodatna konfiguracija u postavkama WhatsApp-a u administratorskom panelu.',
     'business_id_error' => 'Molimo unesite važeći Business ID.',
+    'enable_reoon_logs_deletion' => 'Omogući brisanje Reoon zapisa',
+
 ];

@@ -1120,21 +1120,26 @@ class SettingsController extends BaseSettingsController
             $query = EmailValidationResults::query();
 
             return \DataTables::of($query)
-                ->orderColumn('email', function ($query, $order) {
-                    $query->orderBy('email', $order);
-                })
-                ->orderColumn('method', function ($query, $order) {
-                    $query->orderBy('method', $order);
-                })
-                ->orderColumn('status', function ($query, $order) {
-                    $query->orderBy('status', $order);
-                })
-                ->orderColumn('registration', function ($query, $order) {
-                    $query->orderBy('registration', $order);
-                })
-                ->orderColumn('created_at', function ($query, $order) {
-                    $query->orderBy('created_at', $order);
-                })
+//                ->orderColumn('email', function ($query, $order) {
+//                    $query->orderBy('email', $order);
+//                })
+//                ->orderColumn('method', function ($query, $order) {
+//                    $query->orderBy('method', $order);
+//                })
+//                ->orderColumn('status', function ($query, $order) {
+//                    $query->orderBy('status', $order);
+//                })
+//                ->orderColumn('registration', function ($query, $order) {
+//                    $query->orderBy('registration', $order);
+//                })
+//                ->orderColumn('created_at', function ($query, $order) {
+//                    $query->orderBy('created_at', $order);
+//                })
+                ->orderColumn('email', '-created_at $1')
+                ->orderColumn('method', '-created_at $1')
+                ->orderColumn('status', '-created_at $1')
+                ->orderColumn('registration', '-created_at $1')
+                ->orderColumn('created_at', '-created_at $1')
                 ->addColumn('email', function ($query) {
                     return $query->email;
                 })

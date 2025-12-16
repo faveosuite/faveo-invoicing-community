@@ -2818,4 +2818,6 @@ return [
     'webhook_explanation' => 'URL Webhook dapat ditemukan di bagian Konfigurasi Tambahan di pengaturan WhatsApp pada Panel Admin.',
     'business_id_error' => 'Harap masukkan Business ID yang valid.',
     'email_validation_status' => 'Status validasi email berhasil disimpan',
+    'enable_reoon_logs_deletion' => 'Aktifkan Penghapusan Log Reoon',
+
 ];
