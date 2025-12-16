@@ -315,11 +315,11 @@ class ClientController extends AdvanceSearchController
             $client = User::withTrashed()->find($id);
 
             if (! $client) {
-                return redirect()->back()->with('fails', \Lang::get('message.user_not_found'));
+                return redirect('clients')->with('fails', \Lang::get('message.user_not_found'));
             }
 
             if ($client->trashed()) {
-                return redirect()->back()->with('fails', \Lang::get('message.user_suspend'));
+                return redirect('clients')->with('fails', \Lang::get('message.user_suspend'));
             }
             $invoice = new Invoice();
             $order = new Order();
@@ -349,7 +349,7 @@ class ClientController extends AdvanceSearchController
         } catch (\Exception $ex) {
             \Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return redirect('clients')->with('fails', $ex->getMessage());
         }
     }
 
