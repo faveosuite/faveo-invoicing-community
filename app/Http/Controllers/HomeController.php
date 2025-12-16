@@ -590,29 +590,25 @@ class HomeController extends BaseHomeController
 
     public function getPricingData(Request $request)
     {
+        $validator = \Validator::make($request->query(), [
+            'group'     => 'required|integer|exists:product_groups,id',
+            'ipAddress' => 'required|ip',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error'    => $validator->errors()->first(),
+            ], 422);
+        }
+
         try {
             $groupId = $request->query('group');
-            $countryCode = $request->query('country', '');
+            $ip      = $request->query('ipAddress');
 
-            $group = ProductGroup::findOrFail($groupId);
+            $location = getLocation($ip);
+            $country = findCountryByGeoip($location['iso_code']);
 
-            $countryId = Country::where('country_code_char2', $countryCode)->value('country_id');
-            $currencyAndSymbol = getCurrencyForClient($countryCode);
-
-//            $ip=$request->query('ipAddress');
-//            $location = getLocation($ip);
-//            $country = findCountryByGeoip($location['iso_code']);
-//            $countryId = \App\Model\Common\Country::where('country_code_char2', $country)->value('country_id');
-//            $currencyAndSymbol = getCurrencyForClient($country);
-//            $productsRelatedToGroup = \App\Model\Product\Product::where('group', $groupId)
-//                ->where('hidden', '!=', 1)
-//                ->join('plans', 'products.id', '=', 'plans.product')
-//                ->join('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
-//                ->where('plan_prices.currency', '=', $currencyAndSymbol)
-//                ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10, 2)) ASC')
-//                ->orderBy('created_at', 'ASC')
-//                ->select('products.*', 'plan_prices.add_price', 'plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
-//                ->get();
+            $currencyAndSymbol = getCurrencyForClient($country);
 
             $productsRelatedToGroup = \App\Model\Product\Product::query()
                 ->join('plans', 'products.id', '=', 'plans.product')
