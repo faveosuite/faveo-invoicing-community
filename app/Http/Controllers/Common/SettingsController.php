@@ -257,7 +257,6 @@ class SettingsController extends BaseSettingsController
                 $allists = $mailchimp->get('lists?count=20')['lists'];
                 $selectedList[] = $set->list_id;
             } catch (\Exception $e) {
-                \Logger::exception($e);
                 $allists = [];
                 $selectedList = [];
             }
