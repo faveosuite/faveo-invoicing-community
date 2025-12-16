@@ -233,7 +233,6 @@ Route::middleware('installAgora')->group(function () {
      *
      */
 
-
     /*
      * Email Api keys
      */
@@ -337,7 +336,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('languages', [LanguageController::class, 'viewLanguage'])->middleware('auth');
     Route::post('language-toggle', [LanguageController::class, 'toggleLanguageStatus']);
 
-   // Contact API
+    // Contact API
     Route::get('contact-option', [Common\SettingsController::class, 'contactOption'])->name('contact-option');
     Route::post('verificationSettings', [Common\SettingsController::class, 'postContactOption']);
 

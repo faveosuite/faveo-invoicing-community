@@ -38,26 +38,26 @@ class WidgetControllerTest extends DBTestCase
                 'data' => [
                     'pages' => [
                         'data' => [
-                            '*' => ['id', 'name', 'type', 'created_at', 'content', 'action']
-                        ]
+                            '*' => ['id', 'name', 'type', 'created_at', 'content', 'action'],
+                        ],
                     ],
-                    'total'
-                ]
+                    'total',
+                ],
             ]);
     }
 
     public function test_filters_widgets_by_search_query()
     {
         Widgets::create([
-            'name'    => 'Footer Widget',
-            'type'    => 'footer',
+            'name' => 'Footer Widget',
+            'type' => 'footer',
             'publish' => 1,
             'content' => 'Footer content',
         ]);
 
         Widgets::create([
-            'name'    => 'Header Widget',
-            'type'    => 'header',
+            'name' => 'Header Widget',
+            'type' => 'header',
             'publish' => 1,
             'content' => 'Header content',
         ]);
@@ -70,7 +70,6 @@ class WidgetControllerTest extends DBTestCase
                 'type' => 'footer',
             ]);
     }
-
 
     public function test_fetches_single_widget()
     {
@@ -138,6 +137,7 @@ class WidgetControllerTest extends DBTestCase
         $response->assertStatus(422)
                  ->assertJsonValidationErrors(['type']);
     }
+
     public function test_updates_widget_successfully()
     {
         $widget = Widgets::create([
@@ -201,6 +201,4 @@ class WidgetControllerTest extends DBTestCase
                 'message' => __('message.select-a-row'),
             ]);
     }
-
-
 }

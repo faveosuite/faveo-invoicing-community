@@ -59,7 +59,7 @@ class LanguageController extends Controller
 
             return errorResponse(__('message.language_not_found'));
         } catch (\Exception $e) {
-            return errorResponse( __('message.something_went_wrong'));;
+            return errorResponse(__('message.something_went_wrong'));
         }
     }
 

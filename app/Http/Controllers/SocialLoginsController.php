@@ -9,16 +9,16 @@ class SocialLoginsController extends Controller
 {
     public function getSocialLogin(Request $request)
     {
-        $search     = $request->input('search-query', '');
-        $sortField  = $request->input('sort-field', 'created_at');
-        $sortOrder  = $request->input('sort-order', 'desc');
-        $limit      = $request->input('limit', 10);
+        $search = $request->input('search-query', '');
+        $sortField = $request->input('sort-field', 'created_at');
+        $sortOrder = $request->input('sort-order', 'desc');
+        $limit = $request->input('limit', 10);
 
         $query = SocialLogin::select('id', 'type', 'client_id', 'client_secret', 'redirect_url', 'status')
                  ->when($search, function ($q) use ($search) {
-                  $q->where('type', 'like', "%{$search}%")
-                    ->orWhere('client_id', 'like', "%{$search}%");
-            });
+                     $q->where('type', 'like', "%{$search}%")
+                       ->orWhere('client_id', 'like', "%{$search}%");
+                 });
 
         $socialLogins = $query->orderBy($sortField, $sortOrder)
                               ->simplePaginate($limit);
@@ -58,9 +58,9 @@ class SocialLoginsController extends Controller
                 'status' => $request->optradio,
             ]);
 
-            return successResponse( __('message.social_login_settings_updated'));
+            return successResponse(__('message.social_login_settings_updated'));
         } catch (\Exception $e) {
-            return errorResponse( __('message.error_occurred_social_login'));
+            return errorResponse(__('message.error_occurred_social_login'));
         }
     }
 }

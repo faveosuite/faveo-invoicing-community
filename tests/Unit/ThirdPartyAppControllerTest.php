@@ -22,8 +22,8 @@ class ThirdPartyAppControllerTest extends DBTestCase
     public function test_fetches_third_party_apps_with_masked_secret()
     {
         $app = ThirdPartyApp::create([
-            'app_name'   => 'MailApp',
-            'app_key'    => str_repeat('A', 32),
+            'app_name' => 'MailApp',
+            'app_key' => str_repeat('A', 32),
             'app_secret' => 'real-secret',
         ]);
 
@@ -58,8 +58,8 @@ class ThirdPartyAppControllerTest extends DBTestCase
     public function test_creates_third_party_app_successfully()
     {
         $payload = [
-            'app_name'   => 'TestApp',
-            'app_key'    => str_repeat('C', 32),
+            'app_name' => 'TestApp',
+            'app_key' => str_repeat('C', 32),
             'app_secret' => 'secret123',
         ];
 
@@ -76,8 +76,8 @@ class ThirdPartyAppControllerTest extends DBTestCase
     public function test_fails_validation_when_creating_invalid_request()
     {
         $payload = [
-            'app_name'   => '',
-            'app_key'    => '123',
+            'app_name' => '',
+            'app_key' => '123',
             'app_secret' => '',
         ];
 
@@ -90,14 +90,14 @@ class ThirdPartyAppControllerTest extends DBTestCase
     public function test_updates_third_party_app_successfully()
     {
         $app = ThirdPartyApp::create([
-            'app_name'   => 'OldApp',
-            'app_key'    => str_repeat('X', 32),
+            'app_name' => 'OldApp',
+            'app_key' => str_repeat('X', 32),
             'app_secret' => 'old-sec',
         ]);
 
         $payload = [
-            'app_name'   => 'UpdatedApp',
-            'app_key'    => str_repeat('Y', 32),
+            'app_name' => 'UpdatedApp',
+            'app_key' => str_repeat('Y', 32),
             'app_secret' => 'new-secret',
         ];
 
@@ -106,8 +106,8 @@ class ThirdPartyAppControllerTest extends DBTestCase
                  ->assertJsonFragment(['message' => __('message.updated-successfully')]);
 
         $this->assertDatabaseHas('third_party_apps', [
-            'id'       => $app->id,
-            'app_name' => 'UpdatedApp'
+            'id' => $app->id,
+            'app_name' => 'UpdatedApp',
         ]);
     }
 
@@ -122,14 +122,14 @@ class ThirdPartyAppControllerTest extends DBTestCase
     public function test_deletes_selected_third_party_apps()
     {
         $app1 = ThirdPartyApp::create([
-            'app_name'   => 'App1',
-            'app_key'    => str_repeat('M', 32),
+            'app_name' => 'App1',
+            'app_key' => str_repeat('M', 32),
             'app_secret' => 'sec1',
         ]);
 
         $app2 = ThirdPartyApp::create([
-            'app_name'   => 'App2',
-            'app_key'    => str_repeat('N', 32),
+            'app_name' => 'App2',
+            'app_key' => str_repeat('N', 32),
             'app_secret' => 'sec2',
         ]);
 
@@ -151,6 +151,4 @@ class ThirdPartyAppControllerTest extends DBTestCase
         $response->assertStatus(400)
                  ->assertJsonFragment(['message' => __('message.no-record')]);
     }
-
-
 }

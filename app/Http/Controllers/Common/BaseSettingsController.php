@@ -214,7 +214,7 @@ class BaseSettingsController extends PaymentSettingsController
     {
         try {
             $cronPath = base_path('artisan');
-            $execEnabled  = $this->execEnabled();
+            $execEnabled = $this->execEnabled();
             $paths = $this->getPHPBinPath();
             $condition = new \App\Model\Mailjob\Condition();
 
@@ -341,29 +341,28 @@ class BaseSettingsController extends PaymentSettingsController
 
             // Create new row
             $expiry = ExpiryMailDay::create([
-                'days'              => json_encode($request->input('expiryday')),
-                'autorenewal_days'  => json_encode($request->input('subexpiryday')),
-                'postexpiry_days'   => json_encode($request->input('postsubexpiry_days')),
+                'days' => json_encode($request->input('expiryday')),
+                'autorenewal_days' => json_encode($request->input('subexpiryday')),
+                'postexpiry_days' => json_encode($request->input('postsubexpiry_days')),
             ]);
 
             // Update additional columns for the same row
             $expiry->update([
-                'cloud_days'        => $request->input('cloud_days'),
-                'invoice_days'      => $request->input('invoice_days'),
-                'msg91_days'        => $request->input('msg91_days'),
-                'reoon_logs_days'   => $request->input('reoon_days'),
-                'system_logs_days'  => $request->input('system_logs_days'),
+                'cloud_days' => $request->input('cloud_days'),
+                'invoice_days' => $request->input('invoice_days'),
+                'msg91_days' => $request->input('msg91_days'),
+                'reoon_logs_days' => $request->input('reoon_days'),
+                'system_logs_days' => $request->input('system_logs_days'),
             ]);
 
             // Update Activity Logs
             ActivityLogDay::findOrFail(1)->update([
-                'days' => $request->logdelday
+                'days' => $request->logdelday,
             ]);
 
             return successResponse(__('message.updated-successfully'));
-
         } catch (\Exception $e) {
-            return errorResponse( __('message.something_went_wrong_try_again'));
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 

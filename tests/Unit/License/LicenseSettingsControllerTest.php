@@ -43,7 +43,6 @@ class LicenseSettingsControllerTest extends DBTestCase
 
     public function test_create_license_saves_successfully()
     {
-
         $payload = ['name' => 'Enterprise'];
 
         $response = $this->postJson('create-license-type', $payload);
@@ -93,5 +92,4 @@ class LicenseSettingsControllerTest extends DBTestCase
         $this->assertDatabaseMissing('license_types', ['id' => $type2->id]);
         $this->assertDatabaseHas('license_types', ['id' => $type3->id]);
     }
-
 }

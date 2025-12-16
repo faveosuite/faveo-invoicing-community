@@ -24,16 +24,16 @@ class SystemManagerControllerTest extends DBTestCase
     {
         // Create account managers
         $acc1 = User::factory()->create([
-            'role'     => 'admin',
+            'role' => 'admin',
             'position' => 'account_manager',
-            'email'    => 'acc1@test.com'
+            'email' => 'acc1@test.com',
         ]);
 
         // Create sales managers
         $sales1 = User::factory()->create([
-            'role'     => 'admin',
+            'role' => 'admin',
             'position' => 'manager',
-            'email'    => 'sales1@test.com'
+            'email' => 'sales1@test.com',
         ]);
 
         // Create Manager Settings
@@ -46,7 +46,6 @@ class SystemManagerControllerTest extends DBTestCase
             ['manager_role' => 'sales'],
             ['auto_assign' => 1]
         );
-
 
         $response = $this->getJson('/system-managers');
 
@@ -78,14 +77,14 @@ class SystemManagerControllerTest extends DBTestCase
         $response = $this->getJson('/system-managers');
         $response->assertStatus(200)
                  ->assertJsonStructure([
-                'success',
-                'data' => [
-                    'account_managers',
-                    'sales_managers',
-                    'account_managers_auto_assign',
-                    'sales_managers_auto_assign',
-                ],
-            ]);
+                     'success',
+                     'data' => [
+                         'account_managers',
+                         'sales_managers',
+                         'account_managers_auto_assign',
+                         'sales_managers_auto_assign',
+                     ],
+                 ]);
     }
 
     public function test_it_returns_filtered_admin_users()
@@ -198,8 +197,8 @@ class SystemManagerControllerTest extends DBTestCase
 
     public function test_search_admin_requires_term()
     {
-      User::factory()->create([
-            'role'     => 'admin',
+        User::factory()->create([
+            'role' => 'admin',
             'position' => 'manager',
         ]);
 
@@ -207,15 +206,15 @@ class SystemManagerControllerTest extends DBTestCase
 
         $response->assertStatus(400)
                  ->assertJsonFragment([
-                'success' => false,
-                'message' => __('message.search_term_required')
-            ]);
+                     'success' => false,
+                     'message' => __('message.search_term_required'),
+                 ]);
     }
 
     public function test_search_admin_returns_no_admins_found()
     {
         User::factory()->create([
-            'role'     => 'admin',
+            'role' => 'admin',
             'position' => 'manager',
         ]);
 
@@ -224,17 +223,17 @@ class SystemManagerControllerTest extends DBTestCase
         $response->assertStatus(400)
             ->assertJsonFragment([
                 'success' => false,
-                'message' => __('message.no_admins_found')
+                'message' => __('message.no_admins_found'),
             ]);
     }
 
     public function test_search_admin_returns_matching_admins()
     {
         $admin = User::factory()->create([
-            'role'       => 'admin',
+            'role' => 'admin',
             'first_name' => 'John',
-            'last_name'  => 'Doe',
-            'email'      => 'john@example.com',
+            'last_name' => 'Doe',
+            'email' => 'john@example.com',
         ]);
 
         $response = $this->getJson('/search-admins?q=john');

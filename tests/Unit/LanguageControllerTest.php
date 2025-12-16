@@ -23,6 +23,7 @@ class LanguageControllerTest extends DBTestCase
         $response = $this->getJson('languages');
         $response->assertStatus(200);
     }
+
     public function test_applies_search_filter_in_languages()
     {
         // Search by tamil
@@ -76,7 +77,7 @@ class LanguageControllerTest extends DBTestCase
         $response->assertStatus(400)
                   ->assertJsonFragment([
                       'success' => false,
-                      'message' => __('message.something_went_wrong')
+                      'message' => __('message.something_went_wrong'),
                   ]);
     }
 
@@ -93,5 +94,4 @@ class LanguageControllerTest extends DBTestCase
         $response->assertStatus(400)
                  ->assertJsonFragment(['message' => __('message.language_not_found')]);
     }
-
 }

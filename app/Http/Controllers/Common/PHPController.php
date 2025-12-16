@@ -79,7 +79,7 @@ class PHPController extends Controller
 
             return errorResponse(\Lang::get('message.please_enable_php_exec_for_cronjob_check'));
         } catch (\Exception $e) {
-            return errorResponse( __('message.something_went_wrong_try_again'));
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 }

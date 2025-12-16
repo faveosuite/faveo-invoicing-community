@@ -16,18 +16,17 @@ class Condition extends Model
         $status = StatusSetting::find(1);
 
         return [
-            'expiryMail'     => $status && $status->expiry_mail == 1,
-            'deleteLogs'     => $status && $status->activity_log_delete == 1,
+            'expiryMail' => $status && $status->expiry_mail == 1,
+            'deleteLogs' => $status && $status->activity_log_delete == 1,
             'subsExpirymail' => $status && $status->subs_expirymail == 1,
             'postExpirymail' => $status && $status->post_expirymail == 1,
-            'cloud'          => $status && $status->cloud_mail_status == 1,
-            'invoice'        => $status && $status->invoice_deletion_status == 1,
-            'msg91Reports'   => $status && $status->msg91_report_delete_status == 1,
-            'reoonLogs'      => $status && $status->reoon_deletion_status == 1,
-            'systemLogs'     => $status && $status->system_log_status == 1,
+            'cloud' => $status && $status->cloud_mail_status == 1,
+            'invoice' => $status && $status->invoice_deletion_status == 1,
+            'msg91Reports' => $status && $status->msg91_report_delete_status == 1,
+            'reoonLogs' => $status && $status->reoon_deletion_status == 1,
+            'systemLogs' => $status && $status->system_log_status == 1,
         ];
     }
-
 
     public function getConditionValue($job)
     {
