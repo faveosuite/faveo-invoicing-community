@@ -2,6 +2,7 @@
 
 namespace App\Model\Mailjob;
 
+use App\Model\Common\StatusSetting;
 use Illuminate\Database\Eloquent\Model;
 
 class Condition extends Model
@@ -12,42 +13,21 @@ class Condition extends Model
 
     public function checkActiveJob()
     {
-        $result = ['expiryMail' => '', 'deleteLogs' => '', 'subsExpirymail' => '', 'postExpirymail' => '', 'cloud' => '', 'invoice' => '', 'msg91Reports' => '', 'reoonLogs' => '', 'systemLogs' => ''];
-        $allStatus = new \App\Model\Common\StatusSetting();
-        $status = $allStatus->find(1);
-        if ($status) {
-            if ($status->expiry_mail == 1) {
-                $result['expiryMail'] = true;
-            }
-            if ($status->activity_log_delete == 1) {
-                $result['deleteLogs'] = true;
-            }
-            if ($status->subs_expirymail == 1) {
-                $result['subsExpirymail'] = true;
-            }
-            if ($status->post_expirymail == 1) {
-                $result['postExpirymail'] = true;
-            }
+        $status = StatusSetting::find(1);
 
-            if ($status->cloud_mail_status == 1) {
-                $result['cloud'] = true;
-            }
-            if ($status->invoice_deletion_status == 1) {
-                $result['invoice'] = true;
-            }
-            if ($status->msg91_report_delete_status == 1) {
-                $result['msg91Reports'] = true;
-            }
-            if ($status->reoon_deletion_status == 1) {
-                $result['reoonLogs'] = true;
-            }
-            if ($status->system_log_status == 1) {
-                $result['systemLogs'] = true;
-            }
-        }
-
-        return $result;
+        return [
+            'expiryMail'     => $status && $status->expiry_mail == 1,
+            'deleteLogs'     => $status && $status->activity_log_delete == 1,
+            'subsExpirymail' => $status && $status->subs_expirymail == 1,
+            'postExpirymail' => $status && $status->post_expirymail == 1,
+            'cloud'          => $status && $status->cloud_mail_status == 1,
+            'invoice'        => $status && $status->invoice_deletion_status == 1,
+            'msg91Reports'   => $status && $status->msg91_report_delete_status == 1,
+            'reoonLogs'      => $status && $status->reoon_deletion_status == 1,
+            'systemLogs'     => $status && $status->system_log_status == 1,
+        ];
     }
+
 
     public function getConditionValue($job)
     {

@@ -59,7 +59,7 @@ class LanguageController extends Controller
 
             return errorResponse(__('message.language_not_found'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            return errorResponse( __('message.something_went_wrong'));;
         }
     }
 
@@ -85,10 +85,7 @@ class LanguageController extends Controller
 
             $languages = collect($languages)->sortBy('name')->values()->all();
 
-            return successResponse(
-                __('message.language_fetched'),
-                $languages
-            );
+            return successResponse(__('message.language_fetched'), $languages);
         } catch (\Exception $exception) {
             return errorResponse($exception->getMessage());
         }

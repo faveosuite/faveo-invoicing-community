@@ -25,14 +25,6 @@ class LicensePermissionsController extends Controller
         $this->licensePermission = $licensePermission;
     }
 
-    public function index()
-    {
-        $allPermissions = $this->licensePermission->select('id', 'permissions')->get();
-        $allLicense = LicenseType::select('name', 'id')->get();
-
-        return view('themes.default1.licence.permissions.index', compact('allPermissions', 'allLicense'));
-    }
-
     /*
     * Get all the License  and their links with their permissions
     */
@@ -74,26 +66,7 @@ class LicensePermissionsController extends Controller
                 'license_types' => $licenseTypes,
             ]);
         } catch (\Exception $ex) {
-            return errorResponse($ex->getMessage());
-        }
-    }
-
-    /*
-    Show All Permission in Datatable
-    */
-    public function showPermissions($permissions)
-    {
-        if (count($permissions) > 0) {
-            $html = '<ul>';
-            foreach ($permissions as $permission) {
-                $html .= '<li><b>'.$permission.'</b></li>';
-            }
-
-            return $html.'</ul>';
-        } else {
-            $html = 'No Permissions Selected';
-
-            return $html;
+            return errorResponse( __('message.something_went_wrong_try_again'));
         }
     }
 
@@ -104,6 +77,10 @@ class LicensePermissionsController extends Controller
     {
         try {
             $licenseType = LicenseType::find($request->input('licenseId'));
+
+            if (! $licenseType) {
+                return errorResponse(__('message.no_record_found'), 404);
+            }
 
             $licenseType->permissions()->sync($request->input('permissionid'));
 
@@ -116,21 +93,40 @@ class LicensePermissionsController extends Controller
     }
 
     /*
+    Show All Permission in Datatable
+    */
+//    public function showPermissions($permissions)
+//    {
+//        if (count($permissions) > 0) {
+//            $html = '<ul>';
+//            foreach ($permissions as $permission) {
+//                $html .= '<li><b>'.$permission.'</b></li>';
+//            }
+//
+//            return $html.'</ul>';
+//        } else {
+//            $html = 'No Permissions Selected';
+//
+//            return $html;
+//        }
+//    }
+
+    /*
      For Ticking permission for a License Type
     */
 
-    public function tickPermission(Request $request)
-    {
-        $licenseTypeInstance = LicenseType::find($request->input('license'));
-        $allPermission = $licenseTypeInstance->permissions;
-        if (count($allPermission) > 0) {
-            $permissionsArray = $allPermission->pluck('id');
-        } else {
-            $permissionsArray = [];
-        }
-
-        return response()->json(['permissions' => $permissionsArray, 'message' => 'success']);
-    }
+//    public function tickPermission(Request $request)
+//    {
+//        $licenseTypeInstance = LicenseType::find($request->input('license'));
+//        $allPermission = $licenseTypeInstance->permissions;
+//        if (count($allPermission) > 0) {
+//            $permissionsArray = $allPermission->pluck('id');
+//        } else {
+//            $permissionsArray = [];
+//        }
+//
+//        return response()->json(['permissions' => $permissionsArray, 'message' => 'success']);
+//    }
 
     /**
      * Get All the Permissions Allowed for a Product.

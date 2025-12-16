@@ -18,16 +18,6 @@ class ThirdPartyAppController extends Controller
         $this->thirdParty = $thirdParty;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-//    public function index()
-//    {
-//        return view('themes.default1.third-party.index');
-//    }
-
     /*
     * Get All the third party apps
     */
@@ -35,9 +25,9 @@ class ThirdPartyAppController extends Controller
     {
         try {
             $searchString = $request->input('search-query', '');
-            $sortOrder = $request->input('sort-order', 'asc');
-            $sortField = $request->input('sort-field', 'created_at');
-            $limit = $request->input('limit', 10);
+            $sortOrder    = $request->input('sort-order', 'asc');
+            $sortField    = $request->input('sort-field', 'created_at');
+            $limit        = $request->input('limit', 10);
 
             $query = $this->thirdParty
                 ->select('id', 'app_name', 'app_key', 'app_secret')
@@ -48,35 +38,24 @@ class ThirdPartyAppController extends Controller
                     });
                 });
 
-            if ($sortOrder != '' && $sortField != '') {
-                $query->orderBy($sortField, $sortOrder);
-            }
-
-            $thirdPartyApps = $query->simplePaginate($limit)->toArray();
-
-            foreach ($thirdPartyApps['data'] as &$app) {
-                $app['app_secret'] = '*****';
-            }
-
             $total = $query->count();
+
+            $thirdPartyApps = $query->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
+
+            $thirdPartyApps->getCollection()->transform(function ($app) {
+                $app->app_secret = '*****';
+                return $app;
+            });
 
             return successResponse(__('message.third_party_apps_fetched'), [
                 'third_party_apps' => $thirdPartyApps,
                 'total' => $total,
             ]);
-        } catch (\Exception $ex) {
-            return errorResponse($ex->getMessage());
-        }
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        } catch (\Exception $ex) {
+            return errorResponse( __('message.something_went_wrong_try_again'));
+        }
     }
 
     /**
@@ -85,7 +64,7 @@ class ThirdPartyAppController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function createThirdPartyApp(Request $request)
     {
         $this->validate($request, [
             'app_name' => 'required',
@@ -114,35 +93,13 @@ class ThirdPartyAppController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\ThirdPartyApp  $thirdPartyApp
-     * @return \Illuminate\Http\Response
-     */
-    public function show(ThirdPartyApp $thirdPartyApp)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\ThirdPartyApp  $thirdPartyApp
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(ThirdPartyApp $thirdPartyApp)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\ThirdPartyApp  $thirdPartyApp
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function updateThirdPartyApp(Request $request, $id)
     {
         $this->validate($request, [
             'app_name' => 'required',
@@ -160,7 +117,7 @@ class ThirdPartyAppController extends Controller
 
         $thirdPartyApp->update($request->only(['app_name', 'app_key', 'app_secret']));
 
-        return redirect()->back()->with('success', __('message.updated-successfully'));
+        return successResponse(__('message.updated-successfully'));
     }
 
     /**
@@ -169,7 +126,7 @@ class ThirdPartyAppController extends Controller
      * @param  \App\ThirdPartyApp  $thirdPartyApp
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
+    public function deleteThirdPartyApp(Request $request)
     {
         try {
             $ids = $request->input('select');

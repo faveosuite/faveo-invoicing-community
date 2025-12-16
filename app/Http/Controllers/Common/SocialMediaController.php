@@ -113,13 +113,13 @@ class SocialMediaController extends Controller
             $social = $this->social->find($id);
 
             if (is_null($social)) {
-                return $this->errorResponse(__('message.no-records'), 404);
+                return errorResponse(__('message.no-record'), 404);
             }
 
             $social->fill($request->validated())->save();
 
             return successResponse(__('message.updated-successfully'));
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             return errorResponse($ex->getMessage(), 500);
         }
     }

@@ -18,16 +18,6 @@ class LicenseSettingsController extends LicensePermissionsController
         $this->licenseType = $licenseType;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        return view('themes.default1.licence.index');
-    }
-
     /*
     * Get All the categories
     */
@@ -35,31 +25,31 @@ class LicenseSettingsController extends LicensePermissionsController
     {
         try {
             $searchString = $request->input('search-query', '');
-            $sortOrder = $request->input('sort-order', 'asc');
+            $sortOrder = $request->input('sort-order', 'desc');
             $sortField = $request->input('sort-field', 'created_at');
             $limit = $request->input('limit', 10);
 
             $query = $this->licenseType
-                ->select('id', 'name')
-                ->when($searchString, function ($q) use ($searchString) {
-                    $q->where('name', 'LIKE', "%$searchString%");
+                          ->select('id', 'name')
+                          ->when($searchString, function ($q) use ($searchString) {
+                              $q->where('name', 'LIKE', "%$searchString%");
                 });
 
-            if ($sortField && $sortOrder) {
-                $query->orderBy($sortField, $sortOrder);
-            }
 
-            $licenseTypes = $query->simplePaginate($limit);
+            $licenseTypes = $query->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
             $total = $licenseTypes->count();
+
 
             return successResponse('', [
                 'license_types' => $licenseTypes,
                 'total' => $total,
             ]);
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -67,7 +57,7 @@ class LicenseSettingsController extends LicensePermissionsController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function createLicense(Request $request)
     {
         try {
             $productType = $this->licenseType->fill($request->input())->save();
@@ -78,7 +68,7 @@ class LicenseSettingsController extends LicensePermissionsController
         }
     }
 
-    public function update(Request $request, $id)
+    public function updateLicense(Request $request, $id)
     {
         try {
             $type_name = $request->input('name');
@@ -101,7 +91,7 @@ class LicenseSettingsController extends LicensePermissionsController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
+    public function deleteLicense(Request $request)
     {
         try {
             $ids = $request->input('select');
