@@ -774,7 +774,16 @@ class SettingsController extends BaseSettingsController
 
     public function debugSettings()
     {
-        return view('themes.default1.common.setting.debugging');
+        try {
+            $debug = config('app.debug');
+
+            return successResponse('', [
+                'debug' => (bool) $debug,
+            ]);
+
+        } catch (\Exception $e) {
+            return errorResponse( __('message.something_went_wrong_try_again'));
+        }
     }
 
     public function postdebugSettings(Request $request)

@@ -18,16 +18,6 @@ class ChatScriptController extends Controller
         $this->script = $script;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        return view('themes.default1.common.chat.index');
-    }
-
     public function getScriptList(Request $request)
     {
         try {
@@ -58,16 +48,6 @@ class ChatScriptController extends Controller
             return errorResponse($ex->getMessage());
         }
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    //    public function create()
-    //    {
-    //        return view('themes.default1.common.chat.create');
-    //    }
 
     /**
      * Store a newly created resource in storage.

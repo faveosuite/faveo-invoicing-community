@@ -89,7 +89,7 @@ class SystemManagerController extends Controller
             $formattedUsers = $users->map(function ($user) {
                 return [
                     'id' => $user->id,
-                    'text' => $user->email,
+                    'email' => $user->email,
                     'profile_pic' => $user->profile_pic,
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,

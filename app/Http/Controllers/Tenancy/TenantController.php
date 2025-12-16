@@ -541,7 +541,7 @@ class TenantController extends Controller
                 }
             }
 
-            return redirect()->back()->with('fails', __('message.something_wrong_cloud_instance'));
+            return errorResponse( __('message.something_wrong_cloud_instance'));
         }
     }
 
@@ -670,7 +670,7 @@ class TenantController extends Controller
         } catch (\Exception $e) {
             \Logger::exception($e);
 
-            return response()->json(['message' => $e->getMessage()], 500);
+            return errorResponse($e->getMessage(),500);
         }
     }
 

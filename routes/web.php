@@ -50,14 +50,9 @@ Route::get('refresh-csrf', function () {
         'token' => csrf_token(), ],
         200);
 });
-// social logins routes
-Route::post('otp2/send', [Auth\AuthController::class, 'otp']);
-Route::get('social-logins', [SocialLoginsController::class, 'view'])->middleware('auth');
-Route::get('edit/SocialLogins/{id}', [SocialLoginsController::class, 'edit'])->middleware('auth');
-Route::post('update-social-login', [SocialLoginsController::class, 'update'])->name('update-social-login');
-//Route::post('verifying/phone', [PhoneVerificationController::class, 'create']);
 
-// !social logins rotes end
+Route::post('otp2/send', [Auth\AuthController::class, 'otp']);
+//Route::post('verifying/phone', [PhoneVerificationController::class, 'create']);
 
 Route::middleware('installAgora')->group(function () {
     Route::get('whatsapp-test', function () {
@@ -238,12 +233,6 @@ Route::middleware('installAgora')->group(function () {
      *
      */
 
-    /*
-     * Contact API
-     */
-
-    Route::get('contact-option', [Common\SettingsController::class, 'contactOption'])->name('contact-option');
-    Route::post('verificationSettings', [Common\SettingsController::class, 'postContactOption']);
 
     /*
      * Email Api keys
@@ -335,19 +324,41 @@ Route::middleware('installAgora')->group(function () {
     Route::get('settings/activitylog', [Common\SettingsController::class, 'settingsActivity']);
     Route::get('settings/maillog', [Common\SettingsController::class, 'settingsMail']);
 
+    // Debug APi
+    Route::get('debugg', [Common\SettingsController::class, 'debugSettings']);
+    Route::post('save/debugg', [Common\SettingsController::class, 'postdebugSettings']);
+
+    // Social Logins Api
+    Route::get('social-logins', [SocialLoginsController::class, 'getSocialLogin'])->middleware('auth');
+    Route::get('edit/SocialLogins/{id}', [SocialLoginsController::class, 'editSocialLogin'])->middleware('auth');
+    Route::post('update-social-login', [SocialLoginsController::class, 'updateSocialLogin'])->name('update-social-login');
+
+    //language
+    Route::get('languages', [LanguageController::class, 'viewLanguage'])->middleware('auth');
+    Route::post('language-toggle', [LanguageController::class, 'toggleLanguageStatus']);
+
+   // Contact API
+    Route::get('contact-option', [Common\SettingsController::class, 'contactOption'])->name('contact-option');
+    Route::post('verificationSettings', [Common\SettingsController::class, 'postContactOption']);
+
+    // System Manager APi
+    Route::get('system-managers', [Common\SystemManagerController::class, 'getSystemManagers'])->name('system-managers');
+    Route::get('search-admins', [Common\SystemManagerController::class, 'searchAdmin'])->name('search-admins');
+    Route::post('updateSystemManager', [Common\SystemManagerController::class, 'updateManagerSettings']);
+
     /*
      * System Logs
-     */
+    */
 
-    //Get Activity Log
+    // Get Activity Log
     Route::get('get-activity', [Common\SettingsController::class, 'getActivity'])->name('get-activity');
 
-    //Get Payment Log
+    // Get Payment Log
 //    Route::get('settings/paymentlog', [Common\SettingsController::class, 'settingsPayment']);
     Route::get('get-paymentlog', [Common\SettingsController::class, 'getPaymentlog'])->name('get-paymentlog');
     Route::delete('paymentlog-delete', [Common\SettingsController::class, 'destroyPayment'])->name('paymentlog-delete');
 
-    //Get Msg91 Log
+    // Get Msg91 Log
 //    Route::get('sms/reports', [Common\MSG91Controller::class, 'msg91Reports']);
     Route::get('sms/reports', [Common\MSG91Controller::class, 'getMsg91Reports']);
     Route::get('getMsgStatus', [Common\MSG91Controller::class, 'getMsgStauts']);
@@ -366,11 +377,6 @@ Route::middleware('installAgora')->group(function () {
     Route::post('mailchimp-prod-status', [Common\BaseSettingsController::class, 'updateMailchimpProductStatus'])->name('mailchimp-prod-status');
     Route::post('mailchimp-paid-status', [Common\BaseSettingsController::class, 'updateMailchimpIsPaidStatus'])->name('mailchimp-paid-status');
     Route::post('updatedomainCheckDetails', [Common\BaseSettingsController::class, 'updatedomainCheckDetails'])->name('updatedomainCheckDetails');
-    Route::get('system-managers', [Common\SystemManagerController::class, 'getSystemManagers'])->name('system-managers');
-    Route::get('search-admins', [Common\SystemManagerController::class, 'searchAdmin'])->name('search-admins');
-    Route::post('updateSystemManager', [Common\SystemManagerController::class, 'updateManagerSettings']);
-    Route::get('debugg', [Common\SettingsController::class, 'debugSettings']);
-    Route::post('save/debugg', [Common\SettingsController::class, 'postdebugSettings']);
     Route::post('v3captchaDetails', [Common\BaseSettingsController::class, 'v3captchaDetails'])->name('v3captchaDetails');
     Route::get('demo/page', [Front\PageController::class, 'VewDemoPage']);
     Route::post('save/demo', [Front\PageController::class, 'saveDemoPage']);
@@ -486,15 +492,18 @@ Route::middleware('installAgora')->group(function () {
     Route::delete('comment-delete', [User\CommentController::class, 'destroy'])->name('comment-delete');
 
     /*
-     * License
+     * License Type
     */
-    Route::resource('license-type', License\LicenseSettingsController::class);
     Route::get('get-license-type', [License\LicenseSettingsController::class, 'getLicenseTypes'])->name('get-license-type');
-    Route::delete('license-type-delete', [License\LicenseSettingsController::class, 'destroy'])->name('license-type-delete');
-    Route::get('license-permissions', [License\LicensePermissionsController::class, 'index']);
+    Route::post('create-license-type', [License\LicenseSettingsController::class, 'createLicense']);
+    Route::put('update-license-type/{id}', [License\LicenseSettingsController::class, 'updateLicense']);
+    Route::delete('delete-license-type', [License\LicenseSettingsController::class, 'deleteLicense'])->name('license-type-delete');
+
+    /*
+     * License Permission
+    */
     Route::get('get-license-permission', [License\LicensePermissionsController::class, 'getPermissions'])->name('get-license-permission');
     Route::post('add-permission', [License\LicensePermissionsController::class, 'addPermission'])->name('add-permission');
-    Route::get('tick-permission', [License\LicensePermissionsController::class, 'tickPermission'])->name('tick-permission');
     Route::get('orders/license/{order_number}', [License\LicenseController::class, 'licenseRedirect']);
 
     /*
@@ -558,10 +567,10 @@ Route::middleware('installAgora')->group(function () {
         Route::put('update/{id}', [Common\ChatScriptController::class, 'updateScript']);
         Route::delete('delete', [Common\ChatScriptController::class, 'deleteScript']);
     });
+
     /*
      * Invoices
-     */
-
+    */
     Route::get('invoices', [Order\InvoiceController::class, 'index']);
     Route::get('invoices/{id}', [Order\InvoiceController::class, 'show']);
     Route::get('get-client-invoice/{id}', [User\ClientController::class, 'getClientInvoice']);
@@ -652,6 +661,8 @@ Route::middleware('installAgora')->group(function () {
     Route::patch('post-scheduler', [Common\SettingsController::class, 'postSchedular'])->name('post.job.scheduler')->name('post-scheduler'); //to update job scheduler
     Route::patch('cron-days', [Common\SettingsController::class, 'saveCronDays'])->name('cron-days')->name('cron-days');
     Route::post('verify-php-path', [Common\SettingsController::class, 'checkPHPExecutablePath'])->name('verify-cron');
+    Route::get('cron/condition/{job}', [Common\SettingsController::class, 'getCronCondition']);
+
     Route::get('file-storage', [Common\SettingsController::class, 'showFileStorage']);
     Route::post('file-storage-path', [Common\SettingsController::class, 'updateStoragePath']);
     Route::get('expired-subscriptions', [Common\CronController::class, 'eachSubscription']);
@@ -666,13 +677,16 @@ Route::middleware('installAgora')->group(function () {
     /*
      * Third Party Apps
      */
-    Route::resource('third-party-keys', ThirdPartyAppController::class);
 
     Route::get('get-third-party-app', [ThirdPartyAppController::class, 'getThirdPartyDetails'])->name('get-third-party-app');
 
+    Route::post('third-party-app-create', [ThirdPartyAppController::class, 'createThirdPartyApp'])->name('third-party-app-create');
+
+    Route::put('third-party-app-update/{id}', [ThirdPartyAppController::class, 'updateThirdPartyApp'])->name('third-party-app-update');
+
     Route::get('get-app-key', [ThirdPartyAppController::class, 'getAppKey'])->name('get-app-key');
 
-    Route::delete('third-party-delete', [ThirdPartyAppController::class, 'destroy'])->name('third-party-delete');
+    Route::delete('third-party-delete', [ThirdPartyAppController::class, 'deleteThirdPartyApp'])->name('third-party-delete');
 
     /*
     * Cloud Api's
@@ -815,9 +829,6 @@ Route::get('404', function () {
 })->name('error404');
 Route::get('/api/download/agents', [Product\BaseProductController::class, 'agentProductDownload']);
 Route::get('/product/detail', [Product\BaseProductController::class, 'getProductUsingLicenseCode']);
-//language
-Route::get('languages', [LanguageController::class, 'viewLanguage'])->middleware('auth');
-Route::post('language-toggle', [LanguageController::class, 'toggleLanguageStatus']);
 
 // });
 

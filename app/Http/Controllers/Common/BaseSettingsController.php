@@ -214,10 +214,8 @@ class BaseSettingsController extends PaymentSettingsController
     {
         try {
             $cronPath = base_path('artisan');
-            $status = $status->find(1);
-            $execEnabled = $this->execEnabled();
+            $execEnabled  = $this->execEnabled();
             $paths = $this->getPHPBinPath();
-            $warn = '';
             $condition = new \App\Model\Mailjob\Condition();
 
             $commands = [
@@ -281,16 +279,14 @@ class BaseSettingsController extends PaymentSettingsController
 
             return successResponse(__('message.scheduler_fetched_successfully'), [
                 'cronPath' => $cronPath,
-                'warn' => $warn,
+                'paths' => $paths,
                 'commands' => $commands,
-                'condition' => $condition,
-                'status' => $status,
+                'condition' => $condition->checkActiveJob(),
                 'expiryDays' => $expiryDays,
                 'selectedDays' => $selectedDays,
                 'delLogDays' => $systemLogsDays,
                 'beforeLogDay' => $beforeLogDay,
                 'execEnabled' => $execEnabled,
-                'paths' => $paths,
                 'Subs_expiry' => $Subs_expiry,
                 'Auto_expiryday' => $Auto_expiryday,
                 'post_expiry' => $post_expiry,
@@ -340,21 +336,35 @@ class BaseSettingsController extends PaymentSettingsController
     //Save the Cron Days for expiry Mails and Activity Log
     public function saveCronDays(Request $request)
     {
-        ExpiryMailDay::truncate();
+        try {
+            ExpiryMailDay::truncate();
 
-        ExpiryMailDay::create([
-            'days' => json_encode($request->input('expiryday')),
-            'autorenewal_days' => json_encode($request->input('subexpiryday')),
-            'postexpiry_days' => json_encode($request->input('postsubexpiry_days')),
-        ]);
+            // Create new row
+            $expiry = ExpiryMailDay::create([
+                'days'              => json_encode($request->input('expiryday')),
+                'autorenewal_days'  => json_encode($request->input('subexpiryday')),
+                'postexpiry_days'   => json_encode($request->input('postsubexpiry_days')),
+            ]);
 
-        // $cloudDays = is_array($request->input('cloud_days')) ? $request->input('cloud_days') : [$request->input('cloud_days')];
+            // Update additional columns for the same row
+            $expiry->update([
+                'cloud_days'        => $request->input('cloud_days'),
+                'invoice_days'      => $request->input('invoice_days'),
+                'msg91_days'        => $request->input('msg91_days'),
+                'reoon_logs_days'   => $request->input('reoon_days'),
+                'system_logs_days'  => $request->input('system_logs_days'),
+            ]);
 
-        \DB::table('expiry_mail_days')->update(['cloud_days' => $request->input('cloud_days'), 'invoice_days' => $request->input('invoice_days'),
-            'msg91_days' => $request->input('msg91_days'), 'reoon_logs_days' => $request->input('reoon_days'), 'system_logs_days' => $request->input('system_logs_days')]);
-        ActivityLogDay::findOrFail(1)->update(['days' => $request->logdelday]);
+            // Update Activity Logs
+            ActivityLogDay::findOrFail(1)->update([
+                'days' => $request->logdelday
+            ]);
 
-        return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+            return successResponse(__('message.updated-successfully'));
+
+        } catch (\Exception $e) {
+            return errorResponse( __('message.something_went_wrong_try_again'));
+        }
     }
 
     //Save Google recaptcha site key and secret in Database
@@ -444,5 +454,13 @@ class BaseSettingsController extends PaymentSettingsController
                     $q->whereBetween('created_at', [$from, $till]);
                 }
             });
+    }
+
+    public function getCronCondition($job)
+    {
+        $condition = new \App\Model\Mailjob\Condition();
+        $value = $condition->getConditionValue($job);
+
+        return successResponse(__('message.data_retrieved'), $value);
     }
 }
