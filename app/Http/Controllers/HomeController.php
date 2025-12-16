@@ -6,7 +6,6 @@ use App\ApiKey;
 use App\Http\Controllers\Common\CronController;
 use App\Http\Controllers\Order\RenewController;
 use App\Http\Requests\ProductRenewalRequest;
-use App\Model\Common\Country;
 use App\Model\Configure\PluginCompatibleWithProducts;
 use App\Model\Configure\ProductPluginGroup;
 use App\Model\License\LicenseType;
@@ -591,19 +590,19 @@ class HomeController extends BaseHomeController
     public function getPricingData(Request $request)
     {
         $validator = \Validator::make($request->query(), [
-            'group'     => 'required|integer|exists:product_groups,id',
+            'group' => 'required|integer|exists:product_groups,id',
             'ipAddress' => 'required|ip',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'error'    => $validator->errors()->first(),
+                'error' => $validator->errors()->first(),
             ], 422);
         }
 
         try {
             $groupId = $request->query('group');
-            $ip      = $request->query('ipAddress');
+            $ip = $request->query('ipAddress');
 
             $location = getLocation($ip);
             $country = findCountryByGeoip($location['iso_code']);
