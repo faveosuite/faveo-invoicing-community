@@ -312,8 +312,14 @@ class ClientController extends AdvanceSearchController
     public function show($id)
     {
         try {
-            if (User::onlyTrashed()->find($id)) {
-                throw new \Exception(\Lang::get('message.user_suspend'));
+            $client = User::withTrashed()->find($id);
+
+            if (! $client) {
+                return redirect()->back()->with('fails', \Lang::get('message.user_not_found'));
+            }
+
+            if ($client->trashed()) {
+                return redirect()->back()->with('fails', \Lang::get('message.user_suspend'));
             }
             $invoice = new Invoice();
             $order = new Order();
@@ -327,10 +333,6 @@ class ClientController extends AdvanceSearchController
             // }
             $extraAmt = $this->getExtraAmt($id);
             $client = $this->user->where('id', $id)->first();
-
-            if (User::onlyTrashed()->find($id)) {
-                $client = User::onlyTrashed()->find($id);
-            }
 
             $is2faEnabled = $client->is_2fa_enabled ?? 0;
             $currency = getCurrencyForClient($client->country);
