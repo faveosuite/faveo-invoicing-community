@@ -115,8 +115,8 @@ class BaseRenewController extends Controller
 //                'formatted_price' => $formattedCurrency,
 //                'renewalPrice' => isAgentAllowed($plan->product) ? $priceForTheAgents : $price,
 //            ]);
-            return successResponse('',[ 'formatted_price' => $formattedCurrency,
-                'renewalPrice' => isAgentAllowed($plan->product) ? $priceForTheAgents : $price,]);
+            return successResponse('', ['formatted_price' => $formattedCurrency,
+                'renewalPrice' => isAgentAllowed($plan->product) ? $priceForTheAgents : $price, ]);
         } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }

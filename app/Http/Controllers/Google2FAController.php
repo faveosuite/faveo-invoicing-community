@@ -36,7 +36,6 @@ class Google2FAController extends Controller
 //            return view('themes.default1.front.enableTwoFactor');
         } else {
             return successResponse('Login page', ['redirect' => url('login')]);
-
         }
     }
 
@@ -170,9 +169,8 @@ class Google2FAController extends Controller
             return successResponse('Redirect to RecoveryCode');
 //            return view('themes.default1.front.recoveryCode');
         }
+
         return successResponse('Login page', ['redirect' => url('login')]);
-
-
     }
 
     public function verifyRecoveryCode(Request $request)

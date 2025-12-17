@@ -29,15 +29,15 @@ class Cart extends Facade
     {
         $cart = $this->getContent();
 
-        if(is_array($id)) {
-            if($this->isMultiArray($id)){
-                foreach($id as $item){
-                    $this->add($item['id'],$item['name'],$item['price']??null,$item['quantity']??null,$item['attributes']??null,$item['conditions']??null,$item['associatedModel']??null);
+        if (is_array($id)) {
+            if ($this->isMultiArray($id)) {
+                foreach ($id as $item) {
+                    $this->add($item['id'], $item['name'], $item['price'] ?? null, $item['quantity'] ?? null, $item['attributes'] ?? null, $item['conditions'] ?? null, $item['associatedModel'] ?? null);
                 }
-            }else{
-                $this->add($id['id'],$id['name'],$id['price']??null,$id['quantity']??null,$id['attributes']??null,$id['conditions']??null,$id['associatedModel']??null);
-
+            } else {
+                $this->add($id['id'], $id['name'], $id['price'] ?? null, $id['quantity'] ?? null, $id['attributes'] ?? null, $id['conditions'] ?? null, $id['associatedModel'] ?? null);
             }
+
             return $this;
         }
 
@@ -68,24 +68,16 @@ class Cart extends Facade
 
     public function isMultiArray($array, $recursive = false)
     {
-        if( $recursive )
-        {
+        if ($recursive) {
             return (count($array) == count($array, COUNT_RECURSIVE)) ? false : true;
-        }
-        else
-        {
-            foreach ($array as $k => $v)
-            {
-                if (is_array($v))
-                {
+        } else {
+            foreach ($array as $k => $v) {
+                if (is_array($v)) {
                     return true;
-                }
-                else
-                {
+                } else {
                     return false;
                 }
             }
-
         }
     }
 
@@ -234,10 +226,11 @@ class Cart extends Facade
         }
     }
 
-    public function condition($condition){
+    public function condition($condition)
+    {
         $cart = $this->getContent();
         foreach ($cart as $items) {
-                $this->update($items['id'], ['conditions' => $condition]);
+            $this->update($items['id'], ['conditions' => $condition]);
         }
     }
 }

@@ -32,7 +32,7 @@ class RazorpayController extends Controller
 
         $invoiceItem = new InvoiceItem();
         $this->invoiceItem = $invoiceItem;
-        $this->cart= new Cart();
+        $this->cart = new Cart();
         // $mailchimp = new MailChimpController();
         // $this->mailchimp = $mailchimp;
     }
@@ -70,11 +70,12 @@ class RazorpayController extends Controller
                 return redirect('checkout')->with($result['status'], $result['message']);
             } catch (\Razorpay\Api\Errors\SignatureVerificationError|\Razorpay\Api\Errors\BadRequestError|\Razorpay\Api\Errors\GatewayError|\Razorpay\Api\Errors\ServerError $e) {
                 SettingsController::sendFailedPaymenttoAdmin($invoice, $invoice->grand_total, $invoice->invoiceItem()->first()->product_name, $e->getMessage(), \Auth::user());
+
                 return errorResponse('Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
 //                return redirect('checkout')->with('fails', 'Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
             } catch (\Exception $e) {
                 return errorResponse('Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
-              //  return redirect('checkout')->with('fails', 'Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
+                //  return redirect('checkout')->with('fails', 'Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
             }
         }
     }

@@ -55,7 +55,7 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except(['logout', 'store-basic-details']);
         $this->middleware(['blockFailedVerifications:login', 'recaptcha:login'])->only('login');
-        $this->cart=new Cart();
+        $this->cart = new Cart();
     }
 
     /**
@@ -80,16 +80,17 @@ class LoginController extends Controller
             $github_status = SocialLogin::select('status')->where('type', 'github')->value('status');
             $twitter_status = SocialLogin::select('status')->where('type', 'twitter')->value('status');
             $linkedin_status = SocialLogin::select('status')->where('type', 'linkedin')->value('status');
-            $data=[
-                'status'=>$status,
-                'apiKeys'=>$apiKeys,
-                'analyticsTag'=>$analyticsTag,
-                'location'=>$location,
-                'google_status'=>$google_status,
-                'github_status'=>$github_status,
-                'twitter_status'=>$twitter_status,
-                'linkedin_status'=>$linkedin_status,
+            $data = [
+                'status' => $status,
+                'apiKeys' => $apiKeys,
+                'analyticsTag' => $analyticsTag,
+                'location' => $location,
+                'google_status' => $google_status,
+                'github_status' => $github_status,
+                'twitter_status' => $twitter_status,
+                'linkedin_status' => $linkedin_status,
             ];
+
             return successResponse('Login Page', $data);
 //            return view('themes.default1.front.auth.login-register', compact('bussinesses', 'location', 'status', 'apiKeys', 'analyticsTag', 'google_status', 'github_status', 'linkedin_status', 'twitter_status'));
         } catch (\Exception $ex) {
@@ -242,8 +243,8 @@ class LoginController extends Controller
             : '/';
         $defaultPath = ($this->cart->isEmpty() === false) ? '/show/cart' : $defaultPath;
 
-        return successResponse('success',['role'=>$auth->role]);
-       // return redirect()->intended($defaultPath)->getTargetUrl();
+        return successResponse('success', ['role' => $auth->role]);
+        // return redirect()->intended($defaultPath)->getTargetUrl();
     }
 
     /**
@@ -264,7 +265,7 @@ class LoginController extends Controller
         \Config::set("services.$provider.client_secret", $details->client_secret);
 
         //return Socialite::driver($provider)->redirect();
-        return successResponse('success',[Socialite::driver($provider)->redirect()]);
+        return successResponse('success', [Socialite::driver($provider)->redirect()]);
     }
 
     /**

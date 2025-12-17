@@ -41,7 +41,7 @@ class ForgotPasswordController extends Controller
         $status = StatusSetting::select('msg91_status', 'emailverification_status', 'terms')->first();
         $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
 
-        return successResponse('forgot-password',['status'=>$status,'apiKeys'=>$apiKeys]);
+        return successResponse('forgot-password', ['status' => $status, 'apiKeys' => $apiKeys]);
     }
 
     /**

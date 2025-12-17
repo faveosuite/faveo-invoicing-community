@@ -387,10 +387,9 @@ class AuthController extends BaseAuthController
 //            } else {
 //                echo "<option value=''>".__('message.no_states_available').'</option>';
 //            }
-            return successResponse('States',['states'=>$states]);
+            return successResponse('States', ['states' => $states]);
         } catch (\Exception $ex) {
             return errorResponse(__('message.problem_while_loading'));
-
         }
     }
 

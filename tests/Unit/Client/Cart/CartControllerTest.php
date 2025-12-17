@@ -19,7 +19,7 @@ class CartControllerTest extends DBTestCase
     {
         parent::setUp();
         $this->classObject = new CartController();
-        $this->cart= new Cart();
+        $this->cart = new Cart();
         Currency::where('code', 'INR')->update(['status' => 1]);
     }
 
@@ -126,7 +126,6 @@ class CartControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $product1 = Product::factory()->create();
         $product2 = Product::factory()->create(['name' => 'Test Product']);
-
 
         $this->cart->add([
             ['id' => $product1->id,

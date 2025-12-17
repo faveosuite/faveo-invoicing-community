@@ -32,11 +32,12 @@ class CloudExtraActivities extends Controller
     public $client;
     public $cloud;
     public $cart;
+
     public function __construct(Client $client, FaveoCloud $cloud)
     {
         $this->client = $client;
         $this->cloud = $cloud->first();
-        $this->cart=new Cart();
+        $this->cart = new Cart();
         $this->middleware('auth', ['except' => ['verifyThirdPartyToken', 'storeTenantTillPurchase']]);
     }
 
