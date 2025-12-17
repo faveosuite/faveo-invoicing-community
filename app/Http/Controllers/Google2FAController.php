@@ -32,9 +32,11 @@ class Google2FAController extends Controller
     public function verify2fa()
     {
         if (\Session::has('2fa:user:id')) {
-            return view('themes.default1.front.enableTwoFactor');
+            return successResponse('Redirect to 2fa');
+//            return view('themes.default1.front.enableTwoFactor');
         } else {
-            return redirect('login');
+            return successResponse('Login page', ['redirect' => url('login')]);
+
         }
     }
 
@@ -82,7 +84,8 @@ class Google2FAController extends Controller
                 $isValid = (new Google2FA())->verifyKey($secret, $request->totp);
 
                 if (! $isValid) {
-                    throw new \Exception(__('message.invalid_passcode'));
+//                    throw new \Exception(__('message.invalid_passcode'));
+                    return errorResponse(__('message.invalid_passcode'));
                 }
             });
         } catch (\Exception $e) {
@@ -164,10 +167,12 @@ class Google2FAController extends Controller
     public function showRecoveryCode()
     {
         if (session('2fa:user:id')) {
-            return view('themes.default1.front.recoveryCode');
+            return successResponse('Redirect to RecoveryCode');
+//            return view('themes.default1.front.recoveryCode');
         }
+        return successResponse('Login page', ['redirect' => url('login')]);
 
-        return redirect('login');
+
     }
 
     public function verifyRecoveryCode(Request $request)

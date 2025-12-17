@@ -126,6 +126,23 @@ Route::middleware('installAgora')->group(function () {
         Route::post('verify-recovery-code', [Google2FAController::class, 'verifyRecoveryCode'])->name('verify-recovery-code');
     });
 
+    /*
+ * 2FA Routes
+ */
+
+    Route::post('/2fa/enable', [Google2FAController::class, 'enableTwoFactor']);
+    Route::post('2fa/disable/{userId?}', [Google2FAController::class, 'disableTwoFactor']);
+
+    Route::post('2fa/setupValidate', [Google2FAController::class, 'postSetupValidateToken']);
+    Route::get('verify-password', [Google2FAController::class, 'verifyPassword']);
+    Route::post('2fa-recovery-code', [Google2FAController::class, 'generateRecoveryCode']);
+    Route::get('get-recovery-code', [Google2FAController::class, 'getRecoveryCode']);
+    Route::get('recovery-code', [Google2FAController::class, 'showRecoveryCode']);
+    Route::post('verify-2fa-admin', [Google2FAController::class, 'postSetupValidateToken'])->name('verify.2fa.admin');
+    Route::post('verify-recovery-code', [Google2FAController::class, 'verifyRecoveryCode'])->name('verify-recovery-code');
+
+
+
     Route::get('get-loginstate/{state}', [Auth\AuthController::class, 'getState']);
     Route::get('get-countries', [Auth\AuthController::class, 'getCountries']);
     Route::get('get-code', [WelcomeController::class, 'getCode']);
@@ -179,8 +196,8 @@ Route::middleware('installAgora')->group(function () {
     Route::post('strRenewal-enable', [Front\ClientController::class, 'enableAutorenewalStatus']);
     Route::post('renewal-disable', [Front\ClientController::class, 'disableAutorenewalStatus']);
     Route::post('rzpRenewal-disable/{orderid}', [Front\ClientController::class, 'enableRzpStatus']);
-    Route::get('my-subscriptions', [Front\ClientController::class, 'subscriptions']);
-    Route::get('get-my-subscriptions', [Front\ClientController::class, 'getSubscriptions']);
+    //Route::get('my-subscriptions', [Front\ClientController::class, 'subscriptions']);
+    //Route::get('get-my-subscriptions', [Front\ClientController::class, 'getSubscriptions']);
     Route::get('uploadFile', [License\LocalizedLicenseController::class, 'storeFile']);
     Route::get('my-profile', [Front\ClientController::class, 'profile']);
     Route::patch('my-profile', [Front\ClientController::class, 'postProfile']);
@@ -194,20 +211,6 @@ Route::middleware('installAgora')->group(function () {
     Route::get('LocalizedLicense/downloadLicense/{fileName}', [License\LocalizedLicenseController::class, 'downloadFileAdmin']);
     Route::get('request', [License\LocalizedLicenseController::class, 'tempOrderLink']);
     Route::get('LocalizedLicense/downloadPrivateKey/{fileName}', [License\LocalizedLicenseController::class, 'downloadPrivateKeyAdmin']);
-    /*
-     * 2FA Routes
-     */
-
-    Route::post('/2fa/enable', [Google2FAController::class, 'enableTwoFactor']);
-    Route::post('2fa/disable/{userId?}', [Google2FAController::class, 'disableTwoFactor']);
-
-    Route::post('2fa/setupValidate', [Google2FAController::class, 'postSetupValidateToken']);
-    Route::get('verify-password', [Google2FAController::class, 'verifyPassword']);
-    Route::post('2fa-recovery-code', [Google2FAController::class, 'generateRecoveryCode']);
-    Route::get('get-recovery-code', [Google2FAController::class, 'getRecoveryCode']);
-    Route::get('recovery-code', [Google2FAController::class, 'showRecoveryCode']);
-    Route::post('verify-recovery-code', [Google2FAController::class, 'verifyRecoveryCode'])->name('verify-recovery-code');
-    Route::post('verify-2fa-admin', [Google2FAController::class, 'postSetupValidateToken'])->name('verify.2fa.admin');
 
     /*
      * Social Media

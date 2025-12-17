@@ -175,9 +175,7 @@ trait AuthenticatesUsers
             return $response;
         }
 
-        return $request->wantsJson()
-            ? new JsonResponse([], 204)
-            : redirect('/');
+        return successResponse(__('message.logout'));
     }
 
     /**

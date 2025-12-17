@@ -57,16 +57,20 @@ class ResetPasswordController extends Controller
                     \Session::put('justStarted', true);
                     \Session::put('reset_token', $token);
 
-                    return redirect('verify-2fa');
-                }
 
-                return view('themes.default1.front.auth.reset')
-                    ->with(['reset_token' => $token, 'email' => $reset->email]);
+                    return successResponse('', ['redirect' => url('verify-2fa')]);
+                }
+                $data=['reset_token' => $token, 'email' => $reset->email];
+                return successResponse('Reset page',[$data]);
+//                return view('themes.default1.front.auth.reset')
+//                    ->with(['reset_token' => $token, 'email' => $reset->email]);
             } else {
-                return redirect('login')->with('fails', \Lang::get('message.reset_link_expired'));
+                return errorResponse(__('message.reset_link_expired'));
+                //return redirect('login')->with('fails', \Lang::get('message.reset_link_expired'));
             }
         } catch (\Exception $ex) {
-            return redirect('login')->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
+            //return redirect('login')->with('fails', $ex->getMessage());
         }
     }
 
