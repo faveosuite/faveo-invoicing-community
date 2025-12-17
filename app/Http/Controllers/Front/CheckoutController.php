@@ -268,10 +268,12 @@ class CheckoutController extends InfoController
                     $product = $this->product($invoiceid);
                 }
             }
-return successResponse('',['invoice'=>$invoice,'items'=>$items,'paid'=>$paid,'prduct'=>$product]);
+
+            return successResponse('', ['invoice' => $invoice, 'items' => $items, 'paid' => $paid, 'prduct' => $product]);
 //            return view('themes.default1.front.paynow', compact('invoice', 'items', 'product', 'paid'));
         } catch (\Exception $ex) {
             \Logger::exception($ex);
+
             return errorResponse($ex->getMessage());
         }
     }
@@ -297,7 +299,7 @@ return successResponse('',['invoice'=>$invoice,'items'=>$items,'paid'=>$paid,'pr
 
         if ($isTrue != 0) {
             if ($this->cart->getTotal() > 0) {
-                if ( $cost > 0) {
+                if ($cost > 0) {
                     $this->validate($request, [
                         'payment_gateway' => 'required',
                     ], [
@@ -343,7 +345,7 @@ return successResponse('',['invoice'=>$invoice,'items'=>$items,'paid'=>$paid,'pr
                     $orders = Order::where('invoice_id', $invoice->id)->get();
 
 //                    $url = view('themes.default1.front.postCheckoutTemplate', compact('invoice', 'date', 'product', 'items', 'orders', 'orderNumber', 'show'))->render();
-                    $url=['invoice'=>$invoice,'date'=>$date,'product'=>$product,'items'=>$items,'orders'=>$orders,'orderNumber'=>$orderNumber,'show'=>$show];
+                    $url = ['invoice' => $invoice, 'date' => $date, 'product' => $product, 'items' => $items, 'orders' => $orders, 'orderNumber' => $orderNumber, 'show' => $show];
                     // }
                     $this->cart->clear();
                     if (\Session::has('nothingLeft')) {
@@ -363,7 +365,7 @@ return successResponse('',['invoice'=>$invoice,'items'=>$items,'paid'=>$paid,'pr
                     $this->performCloudActions($invoice);
 
 //                    return redirect('checkout')->with('Success', $url);
-                    return successResponse('Success',[$url]);
+                    return successResponse('Success', [$url]);
                 }
             } else {//When renewal, pending payments
                 $invoiceid = $request->input('invoice_id');
@@ -399,7 +401,7 @@ return successResponse('',['invoice'=>$invoice,'items'=>$items,'paid'=>$paid,'pr
                     $orderNumber = Order::where('id', $order)->value('number');
 
 //                    $url = view('themes.default1.front.postCheckoutTemplate', compact('invoice', 'date', 'product', 'items', 'orders', 'orderNumber', 'show'))->render();
-                    $url=['invoice'=>$invoice,'date'=>$date,'product'=>$product,'items'=>$items,'orders'=>$orders,'orderNumber'=>$orderNumber,'show'=>$show];
+                    $url = ['invoice' => $invoice, 'date' => $date, 'product' => $product, 'items' => $items, 'orders' => $orders, 'orderNumber' => $orderNumber, 'show' => $show];
 
                     if (\Session::has('nothingLeft')) {
                         $this->doTheDeed($invoice);
@@ -417,7 +419,7 @@ return successResponse('',['invoice'=>$invoice,'items'=>$items,'paid'=>$paid,'pr
                     $this->cart->clear();
 
 //                    return redirect('checkout')->with('Success', $url);
-                    return successResponse('Success',[$url]);
+                    return successResponse('Success', [$url]);
                 }
             }
         } catch (\Exception $ex) {

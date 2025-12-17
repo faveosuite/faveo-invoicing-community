@@ -25,7 +25,7 @@ class WelcomeController extends Controller
             $code = $model->phonecode;
         }
 
-        return successResponse('code',['code' => $code]);
+        return successResponse('code', ['code' => $code]);
     }
 
     public function getCurrency()
@@ -36,7 +36,7 @@ class WelcomeController extends Controller
             $currency = 'USD';
         }
 
-        return successResponse('currency',['Currency'=>$currency]);
+        return successResponse('currency', ['Currency' => $currency]);
     }
 
     /**

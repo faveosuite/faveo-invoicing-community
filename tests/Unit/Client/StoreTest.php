@@ -40,11 +40,10 @@ class StoreTest extends DBTestCase
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '0','currency' => 'USD']);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '0', 'currency' => 'USD']);
         $response = $this->call('GET', 'group/'.$group->pricing_templates_id.'/'.$group->id.'/');
-        $content=$response->json()['data'];
+        $content = $response->json()['data'];
         $response->assertStatus(200);
-
     }
 
     #[\PHPUnit\Framework\Attributes\Group('store')]
@@ -56,8 +55,8 @@ class StoreTest extends DBTestCase
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => 200,'currency' => 'USD']);
-        $response=$this->con->leastAmount($product->id);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => 200, 'currency' => 'USD']);
+        $response = $this->con->leastAmount($product->id);
 //        $response = $this->getPrivateMethod($this->con, 'leastAmount', [$product->id]);
         $this->assertEquals($response, '<span class="price-unit">$</span>200.00');
     }
@@ -84,8 +83,8 @@ class StoreTest extends DBTestCase
         $this->withoutMiddleware();
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id]);
-        $plan = Plan::factory()->create(['product' => $product->id,'days'=>30]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500','currency' => 'USD']);
+        $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'currency' => 'USD']);
         $response = $this->getPrivateMethod($this->con1, 'YearlyAmount', [$product->id]);
         $this->assertEquals($response, '<span class="price-unit" id="'.$plan->id.'">$</span>500.00');
     }
@@ -131,7 +130,7 @@ class StoreTest extends DBTestCase
         $orderButton = 'btn-dark';
         $highlight = false;
         $response = $this->getPrivateMethod($this->con1, 'generateProductUrl', [$product, $orderButton, $highlight]);
-        $this->assertEquals("Order Now",$response['button']);
+        $this->assertEquals('Order Now', $response['button']);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('store')]
@@ -148,21 +147,20 @@ class StoreTest extends DBTestCase
         $orderButton = 'btn-dark';
         $highlight = false;
         $response = $this->getPrivateMethod($this->con1, 'generateProductUrl', [$product, $orderButton, $highlight]);
-        $this->assertEquals("Order Now",$response['button']);
-        $this->assertEquals("cloud",$response['type']);
-
+        $this->assertEquals('Order Now', $response['button']);
+        $this->assertEquals('cloud', $response['type']);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('store')]
     public function test_store_get_offer_price_monthly()
     {
-        $user = User::factory()->create(['country'=>"US"]);
+        $user = User::factory()->create(['country' => 'US']);
         $this->actingAs($user);
         $this->withoutMiddleware();
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'no_of_agents' => 7, 'offer_price' => '100','currency'=>'USD']);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'no_of_agents' => 7, 'offer_price' => '100', 'currency' => 'USD']);
         $cloudproduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $orderButton = 'btn-dark';
         $highlight = false;
@@ -174,13 +172,13 @@ class StoreTest extends DBTestCase
     #[\PHPUnit\Framework\Attributes\Group('store')]
     public function test_store_get_offer_price_yearly()
     {
-        $user = User::factory()->create(['country'=>"US"]);
+        $user = User::factory()->create(['country' => 'US']);
         $this->actingAs($user);
         $this->withoutMiddleware();
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 365]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'no_of_agents' => 7, 'offer_price' => '100','currency'=>'USD']);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'no_of_agents' => 7, 'offer_price' => '100', 'currency' => 'USD']);
         $cloudproduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id]);
         $orderButton = 'btn-dark';
         $highlight = false;
@@ -190,7 +188,7 @@ class StoreTest extends DBTestCase
 
     public function test_wordpress_plugin_url()
     {
-        $user = User::factory()->create(['country'=>'US']);
+        $user = User::factory()->create(['country' => 'US']);
         $this->actingAs($user);
         $this->withoutMiddleware();
         $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);

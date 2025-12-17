@@ -10,7 +10,6 @@ use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
 use App\Model\Product\Product;
 use Carbon\Carbon;
-use Darryldecode\Cart\CartCondition;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 
@@ -48,7 +47,7 @@ class PromotionController extends BasePromotionController
         $invoice = new Invoice();
         $this->invoice = $invoice;
 
-        $this->cart=new Cart();
+        $this->cart = new Cart();
     }
 
     /**

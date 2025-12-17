@@ -141,8 +141,6 @@ Route::middleware('installAgora')->group(function () {
     Route::post('verify-2fa-admin', [Google2FAController::class, 'postSetupValidateToken'])->name('verify.2fa.admin');
     Route::post('verify-recovery-code', [Google2FAController::class, 'verifyRecoveryCode'])->name('verify-recovery-code');
 
-
-
     Route::get('get-loginstate/{state}', [Auth\AuthController::class, 'getState']);
     Route::get('get-countries', [Auth\AuthController::class, 'getCountries']);
     Route::get('get-code', [WelcomeController::class, 'getCode']);

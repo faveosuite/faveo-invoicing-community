@@ -118,7 +118,7 @@ class PaymentSettingsController extends Controller
             }
 
             return $attributes;
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
