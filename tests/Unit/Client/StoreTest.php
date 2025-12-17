@@ -59,7 +59,7 @@ class StoreTest extends DBTestCase
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => 200,'currency' => 'USD']);
         $response=$this->con->leastAmount($product->id);
 //        $response = $this->getPrivateMethod($this->con, 'leastAmount', [$product->id]);
-        $this->assertEquals($response, '<span class="price-unit"></span>200');
+        $this->assertEquals($response, '<span class="price-unit">$</span>200.00');
     }
 
     #[\PHPUnit\Framework\Attributes\Group('store')]
@@ -87,7 +87,7 @@ class StoreTest extends DBTestCase
         $plan = Plan::factory()->create(['product' => $product->id,'days'=>30]);
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500','currency' => 'USD']);
         $response = $this->getPrivateMethod($this->con1, 'YearlyAmount', [$product->id]);
-        $this->assertEquals($response, '<span class="price-unit" id="'.$plan->id.'"></span>500');
+        $this->assertEquals($response, '<span class="price-unit" id="'.$plan->id.'">$</span>500.00');
     }
 
     #[\PHPUnit\Framework\Attributes\Group('store')]

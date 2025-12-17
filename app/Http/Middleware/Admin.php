@@ -17,6 +17,7 @@ class Admin
      */
     protected $auth;
 
+    protected $cart;
     /**
      * Create a new filter instance.
      *
@@ -26,6 +27,7 @@ class Admin
     public function __construct(Guard $auth)
     {
         $this->auth = $auth;
+        $this->cart= new Cart();
     }
 
     /**
@@ -48,7 +50,7 @@ class Admin
                 if (\Auth::user()->currency != $currency) {//If user currency is not equal to the cart currency then redirect to default url and clear his cart items and let the customer add the Product again so that the tax could be calculated properly
                     foreach ($content as $key => $item) {
                         $id = $item->id;
-                        Cart::remove($id);
+                        $this->cart->remove($id);
                     }
                     \Session::forget('content');
 

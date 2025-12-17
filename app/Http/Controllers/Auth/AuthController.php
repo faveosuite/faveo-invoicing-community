@@ -378,19 +378,19 @@ class AuthController extends BaseAuthController
             $states = \App\Model\Common\State::where('country_code_char2', $id)
             ->orderBy('state_subdivision_name', 'asc')->get();
 
-            if (count($states) > 0) {
-                echo '<option value="">'.__('message.choose').'</option>';
-                foreach ($states as $stateList) {
-                    echo '<option value='.$stateList->iso2.'>'
-                .$stateList->state_subdivision_name.'</option>';
-                }
-            } else {
-                echo "<option value=''>".__('message.no_states_available').'</option>';
-            }
+//            if (count($states) > 0) {
+//                echo '<option value="">'.__('message.choose').'</option>';
+//                foreach ($states as $stateList) {
+//                    echo '<option value='.$stateList->iso2.'>'
+//                .$stateList->state_subdivision_name.'</option>';
+//                }
+//            } else {
+//                echo "<option value=''>".__('message.no_states_available').'</option>';
+//            }
+            return successResponse('States',['states'=>$states]);
         } catch (\Exception $ex) {
-            echo "<option value=''>".__('message.problem_while_loading').'</option>';
+            return errorResponse(__('message.problem_while_loading'));
 
-            return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 
