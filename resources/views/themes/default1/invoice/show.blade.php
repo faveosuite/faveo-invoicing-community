@@ -125,7 +125,7 @@
                     <tbody>
                     @foreach($items as $item)
                         <tr>
-                            <td>{!! $item->order?->getOrderLink($item->order->id,'my-order') ?? '--' !!}</td>
+                            <td>{!! $item->order?->getOrderLink($item->order->id) ?? '--' !!}</td>
                             <td>{{ $item->product_name }}</td>
                             <td>{{ currencyFormat($item->regular_price, $symbol) }}</td>
                             <td>{{ $item->agents ?? 'Unlimited' }}</td>
