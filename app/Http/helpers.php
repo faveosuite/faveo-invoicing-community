@@ -431,7 +431,7 @@ function getLocalesByCurrency(string $currencyCode)
             }
         }
 
-        return $firstMatch ?? 'en_IN';
+        return $firstMatch ?? 'en';
     });
 }
 

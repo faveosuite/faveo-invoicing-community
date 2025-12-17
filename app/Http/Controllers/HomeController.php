@@ -645,10 +645,21 @@ class HomeController extends BaseHomeController
                 ->select('products.*', 'plan_prices.add_price', 'plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
                 ->get();
 
-            return response()->json(['products' => $productsRelatedToGroup, 'currency' => $currencyAndSymbol]);
+            return response()->json(['products' => $productsRelatedToGroup, 'currency' => $currencyAndSymbol, 'currency_symbol' => $this->getCurrencySymbol($currencyAndSymbol)]);
         } catch (\Exception $ex) {
             return response()->json(['error' => $ex->getMessage()], 500);
         }
+    }
+
+    private function getCurrencySymbol($currency)
+    {
+        $locale = getLocalesByCurrency($currency);
+
+        $formatter = new \NumberFormatter($locale, \NumberFormatter::CURRENCY);
+
+        return $locale == 'en' ?
+            $currency :
+            $formatter->getSymbol(\NumberFormatter::CURRENCY_SYMBOL);
     }
 
     public function getGroupDatails()
