@@ -2,13 +2,13 @@
 
 namespace App\Model\Configure;
 
+use App\BaseModel;
 use App\Model\Product\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class PluginCompatibleWithProducts extends Model
+class PluginCompatibleWithProducts extends BaseModel
 {
-    use HasFactory;
+
 
     protected $table = 'plugin_compatible_with_products';
 

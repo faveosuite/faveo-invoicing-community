@@ -2,13 +2,15 @@
 
 namespace App\Model\Configure;
 
+use App\BaseModel;
 use App\Model\Product\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class ProductPluginGroup extends Model
+
+
+class ProductPluginGroup extends BaseModel
 {
-    use HasFactory;
+
 
     protected $table = 'product_plugin_group';
 
