@@ -285,13 +285,14 @@ class RenewController extends BaseRenewController
 
             if ($renew) {
                 return successResponse(__('message.renewed_successfully'));
-               // return redirect()->back()->with('success', __('message.renewed_successfully'));
+                // return redirect()->back()->with('success', __('message.renewed_successfully'));
             }
+
             return errorResponse(__('message.cannot_process'));
-          //  return redirect()->back()->with('fails', __('message.cannot_process'));
+            //  return redirect()->back()->with('fails', __('message.cannot_process'));
         } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
-           // return redirect()->back()->with('fails', $ex->getMessage());
+            // return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -310,12 +311,13 @@ class RenewController extends BaseRenewController
             }
             $productid = $sub->product_id;
             $plans = $this->plan->pluck('name', 'id')->toArray();
-            $data=['id'=>$id,
-                'productid'=>$productid,
-                'plans'=>$plans,
-                'userid'=>$userid,
-                'agents'=>$agents];
-            return successResponse('',$data);
+            $data = ['id' => $id,
+                'productid' => $productid,
+                'plans' => $plans,
+                'userid' => $userid,
+                'agents' => $agents];
+
+            return successResponse('', $data);
 //            return view('themes.default1.renew.renew', compact('id', 'productid', 'plans', 'userid', 'agents'));
         } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
@@ -400,7 +402,8 @@ class RenewController extends BaseRenewController
             $items = $this->invoiceBySubscriptionId($id, $planId, $cost, $currency, $agents);
             $invoiceid = $items->invoice_id;
             $this->setSession($id, $planId);
-            return successResponse('success',[url('paynow/'.$invoiceid)]);
+
+            return successResponse('success', [url('paynow/'.$invoiceid)]);
             //return redirect('paynow/'.$invoiceid);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());

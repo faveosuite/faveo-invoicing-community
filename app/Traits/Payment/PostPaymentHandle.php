@@ -205,7 +205,7 @@ trait PostPaymentHandle
             $invoiceItems = InvoiceItem::where('invoice_id', $invoice->id)->get();
             $cart->clear();
             $status = 'Success';
-            $message=['invoice'=>$invoice,'orders'=>$orders,'invoiceItems'=>$invoiceItems,'state'=>$state,'currency'=>$currency];
+            $message = ['invoice' => $invoice, 'orders' => $orders, 'invoiceItems' => $invoiceItems, 'state' => $state, 'currency' => $currency];
 //            $message = view('themes.default1.front.postPaymentTemplate', compact('invoice', 'orders',
 //                'invoiceItems', 'state', 'currency'))->render();
 
@@ -226,7 +226,7 @@ trait PostPaymentHandle
         $date = $date1->format('M j, Y, g:i a ');
         $cart->clear();
         $status = 'Success';
-        $message=['invoice'=>$invoice,'date'=>$date,'product'=>$product,'invoiceItem'=>$invoiceItem,'state'=>$state,'currency'=>$currency];
+        $message = ['invoice' => $invoice, 'date' => $date, 'product' => $product, 'invoiceItem' => $invoiceItem, 'state' => $state, 'currency' => $currency];
 //        $message = view('themes.default1.front.postRenewTemplate', compact('invoice', 'date',
 //            'product', 'invoiceItem', 'state', 'currency', 'order_number'))->render();
 

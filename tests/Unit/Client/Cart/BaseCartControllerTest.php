@@ -42,7 +42,7 @@ class BaseCartControllerTest extends DBTestCase
         $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
         $this->html->shouldReceive('token')->andReturn('mocked-token');
         $this->app->instance(Html::class, $this->html);
-        $this->cart= new Cart();
+        $this->cart = new Cart();
     }
 
     #[Group('quantity')]
@@ -57,9 +57,9 @@ class BaseCartControllerTest extends DBTestCase
         $currency = 'INR';
         $this->cart->add(
             $plan1->id, $product->name,
-             1000,
-             1,
-             ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
+            1000,
+            1,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
         );
         $response = $this->getPrivateMethod($this->classObject, 'getCartValues', [$plan1->id, true]);
         $this->assertEquals($response['agtqty'], 9); //Reduced to half
@@ -336,7 +336,7 @@ class BaseCartControllerTest extends DBTestCase
             55, $product->name,
             1000,
             1,
-            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],null,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10], null,
             $product,
         );
         $checkoutController = new CheckoutController();
@@ -368,7 +368,7 @@ class BaseCartControllerTest extends DBTestCase
         ]);
         $order = Order::factory()->create(['invoice_id' => $invoice->id,
             'invoice_item_id' => $invoiceItem->id, 'client' => $user->id, 'product' => $product->id]);
-        OrderInvoiceRelation::create(['invoice_id'=>$invoice->id, 'order_id' => $order->id]);
+        OrderInvoiceRelation::create(['invoice_id' => $invoice->id, 'order_id' => $order->id]);
         $subscription = Subscription::create(['user_id' => $user->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
         $serialKey = 'eertrertyuhgbvfdrgtyujhnbvfdrethgbf';
         $productId = 1;
@@ -382,7 +382,7 @@ class BaseCartControllerTest extends DBTestCase
 
         $response = $this->getPrivateMethod($this->classObject1, 'getOrder', [$order->id]);
 
-        $content=json_decode($response->getContent())->data;
+        $content = json_decode($response->getContent())->data;
         $this->assertEquals($content->invoice->id, $invoice->id);
     }
 

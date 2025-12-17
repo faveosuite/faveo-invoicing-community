@@ -89,7 +89,7 @@ class ClientOrderControllerTest extends DBTestCase
         $product = Product::factory()->create();
         Currency::where('code', 'USD')->update(['status' => 1]);
         $plan = Plan::factory()->create(['product' => $product->id]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id,'currency' => 'USD']);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD']);
         $response = $this->call('get', 'get-renew-cost', ['user' => $user->id, 'plan' => $plan->id]);
         $content = $response->json()['data'];
 
@@ -122,7 +122,7 @@ class ClientOrderControllerTest extends DBTestCase
 
         $response = $this->call('get', 'my-order/'.$order->id);
         $content = $response->json()['message'];
-        $this->assertEquals($content,'Please configure the valid license details in Apikey settings.');
+        $this->assertEquals($content, 'Please configure the valid license details in Apikey settings.');
     }
 
     #[\PHPUnit\Framework\Attributes\Group('order')]
@@ -131,7 +131,7 @@ class ClientOrderControllerTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $product = Product::factory()->create(['type'=>4]);
+        $product = Product::factory()->create(['type' => 4]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         $invoiceItem = InvoiceItem::create([
             'invoice_id' => $invoice->id,
@@ -145,13 +145,13 @@ class ClientOrderControllerTest extends DBTestCase
             'plan_id' => 1,
         ]);
         $plan = Plan::factory()->create(['product' => $product->id]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id,'currency' => 'USD']);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD']);
         $order = Order::factory()->create(['invoice_id' => $invoice->id,
             'invoice_item_id' => $invoiceItem->id, 'client' => $user->id, 'product' => $product->id]);
         $subscription = Subscription::create(['user_id' => $user->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
         $serialKey = 'eertrertyuhgbvfdrgtyujhnbvfdrethgbf';
         $productId = 1;
-        OrderInvoiceRelation::create(['invoice_id'=>$invoice->id, 'order_id'=>$order->id]);
+        OrderInvoiceRelation::create(['invoice_id' => $invoice->id, 'order_id' => $order->id]);
 
         $mock = Mockery::mock(\App\Http\Controllers\License\LicenseController::class);
         $mock->shouldReceive('searchInstallationPath')
@@ -177,7 +177,7 @@ class ClientOrderControllerTest extends DBTestCase
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id,'currency' => 'USD']);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD']);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v6.0.0', 'update_ends_at' => $date]);
 
         $response = $this->call('post', 'client/renew/'.$subscription->id, ['plan' => $plan->id, 'user' => $user->id]);
@@ -203,8 +203,8 @@ class ClientOrderControllerTest extends DBTestCase
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => $date]);
         $response = $this->call('get', 'paynow/'.$invoice->id);
-        $content=$response->json();
-        $this->assertEquals("Cannot initiate payment. Invalid modification of data", $content['message']);
+        $content = $response->json();
+        $this->assertEquals('Cannot initiate payment. Invalid modification of data', $content['message']);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('order')]
@@ -226,9 +226,8 @@ class ClientOrderControllerTest extends DBTestCase
             'version' => 'v6.0.0', 'update_ends_at' => $date]);
         $response = $this->call('get', 'paynow/'.$invoice->id);
         $response->assertStatus(200);
-        $content=$response->json()['data'];
+        $content = $response->json()['data'];
         $this->assertArrayHasKey('paid', $content);
-
     }
 
     #[\PHPUnit\Framework\Attributes\Group('order')]
@@ -267,15 +266,15 @@ class ClientOrderControllerTest extends DBTestCase
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
-                    'data'=>[
-                    '*' => [
-                        'id',
-                        'version',
-                        'title',
-                        'description',
-                        'file',
+                    'data' => [
+                        '*' => [
+                            'id',
+                            'version',
+                            'title',
+                            'description',
+                            'file',
+                        ],
                     ],
-        ],
                 ],
             ]);
     }
@@ -306,7 +305,7 @@ class ClientOrderControllerTest extends DBTestCase
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id,'currency' => 'USD']);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD']);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '']);
         $response = $this->call('get', 'get-my-orders', ['updated_ends_at' => '']);
@@ -316,6 +315,5 @@ class ClientOrderControllerTest extends DBTestCase
         $this->assertEquals($content['data'][0]['id'], $order->id);
         $this->assertEquals($content['data'][0]['product_name'], $product->name);
         $this->assertEquals($content['data'][0]['number'], $order->number);
-
     }
 }

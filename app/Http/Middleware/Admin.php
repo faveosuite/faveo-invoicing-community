@@ -18,6 +18,7 @@ class Admin
     protected $auth;
 
     protected $cart;
+
     /**
      * Create a new filter instance.
      *
@@ -27,7 +28,7 @@ class Admin
     public function __construct(Guard $auth)
     {
         $this->auth = $auth;
-        $this->cart= new Cart();
+        $this->cart = new Cart();
     }
 
     /**

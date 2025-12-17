@@ -308,6 +308,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             return $invoice;
         } catch (\Exception $ex) {
             \Logger::exception($ex);
+
             return errorResponse($ex->getMessage());
         }
     }
@@ -330,8 +331,8 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 $planid = Plan::where('id', $cart['id'])->pluck('id')->first();
             }
             $subtotal = $this->cart->getPriceSum($cart['id']);
-            $tax_name = $cart['conditions']['name']??'';
-            $tax_percentage = $cart['conditions']['value']??'';
+            $tax_name = $cart['conditions']['name'] ?? '';
+            $tax_percentage = $cart['conditions']['value'] ?? '';
             $invoiceItem = $this->invoiceItem->create([
                 'invoice_id' => $invoiceid,
                 'product_name' => $product_name,

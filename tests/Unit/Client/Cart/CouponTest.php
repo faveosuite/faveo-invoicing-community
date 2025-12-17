@@ -18,10 +18,10 @@ class CouponTest extends DBTestCase
     use DatabaseTransactions;
     public $cart;
 
-    public function setUp():void
+    public function setUp(): void
     {
         parent::setUp();
-        $this->cart=new Cart();
+        $this->cart = new Cart();
     }
 
     #[Group('coupon')]

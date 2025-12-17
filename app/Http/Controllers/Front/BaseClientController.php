@@ -286,52 +286,52 @@ class BaseClientController extends Controller
                     'invoice_items.product_name as products'
                 );
 
-            $invoices=$invoice->with(['invoiceItem'])->where('id',$relation)
-                ->whereHas('invoiceItem', function($query) use ($order) {
+            $invoices = $invoice->with(['invoiceItem'])->where('id', $relation)
+                ->whereHas('invoiceItem', function ($query) use ($order) {
                     $query->where('id', $order->invoice_item_id);
                 });
 
-                        $limit='10';
-            $page='page';
-            $sortField='created_at';
-            $sortOrder='asc';
+            $limit = '10';
+            $page = 'page';
+            $sortField = 'created_at';
+            $sortOrder = 'asc';
             $paginated = $invoices->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit, ['*'], 'page', 1);
 
             // Map items
             $paginated->getCollection()->transform(function ($model) use ($admin) {
-                $url='';
-                $status='';
-                $action='';
+                $url = '';
+                $status = '';
+                $action = '';
                 $url = $this->getInvoiceLinkUrl($model->id, $admin);
-                if($url) {
-                    $url= '<a href=' . url($url) . '>' . $model->number . '</a>';
+                if ($url) {
+                    $url = '<a href='.url($url).'>'.$model->number.'</a>';
                 }
                 if (\Auth::user()->role == 'admin') {
-                    $status= getStatusLabel($model->status);
-                }else {
-
-                    $status= getStatusLabel($model->status, 'badge');
+                    $status = getStatusLabel($model->status);
+                } else {
+                    $status = getStatusLabel($model->status, 'badge');
                 }
                 if ($status != 'Success' && $model->grand_total > 0) {
                     $payment = '  <a href='.url('autopaynow/'.$model->id).
                         " class='btn btn-light-scale-2 btn-sm text-dark'><i class='fa fa-credit-card'></i></a>";
 
-                $action= '<p><a href='.url($url)."
+                    $action = '<p><a href='.url($url)."
                 class='btn btn-light-scale-2 btn-sm text-dark'".tooltip(__('message.view'))."<i class='fa fa-eye'
                 > </i></a>".$payment.'</p>';
                 }
 
-                    return [
-                    'number' =>$url,
-                    'products'=> ucfirst($model->invoiceItem->value('product_name')),
+                return [
+                    'number' => $url,
+                    'products' => ucfirst($model->invoiceItem->value('product_name')),
                     'date' => getDateHtml($model->date),
                     'total' => currencyFormat($model->grand_total, $code = $model->currency),
-                    'status'=>$status,
-                    'action'=> $action,
+                    'status' => $status,
+                    'action' => $action,
                 ];
             });
-            return successResponse('',$paginated);
+
+            return successResponse('', $paginated);
 
             if ($invoiceIds->isNotEmpty()) {
                 $query->whereIn('invoices.id', $invoiceIds)

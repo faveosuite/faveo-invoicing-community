@@ -114,12 +114,14 @@ class FreeTrailController extends Controller
                 } catch (\Exception $ex) {
                     DB::rollback(); // Rollback the transaction
                     \Logger::exception($ex);
+
                     return errorResponse(\Lang::get('message.cannot_generate_freetrial_cloud_instance'));
 //                    throw new \Exception(__('message.cannot_generate_freetrial_cloud_instance'));
                 }
             }
         } catch (\Exception $ex) {
             \Logger::exception($ex);
+
             return errorResponse(\Lang::get('message.cannot_generate_freetrial_cloud_instance'));
 //            throw new \Exception(__('message.cannot_generate_freetrial_cloud_instance'));
         }
@@ -259,7 +261,7 @@ class FreeTrailController extends Controller
                 'number' => $this->generateFreetrailNumber(),
             ]);
             $this->orderNo = $order->number;
-            $license= new LicenseController();
+            $license = new LicenseController();
             $baseorder = new BaseOrderController($license);
             $baseorder->addOrderInvoiceRelation($invoiceid, $order->id);
             \Session::put('planDays', 'freeTrial');
