@@ -92,7 +92,7 @@ class CloudExtraActivities extends Controller
      *  This function checks if the installation path is present or not, and returns installation the path if present.
      *
      * @param  Request  $request
-     * @return JsonResponse
+     * @return
      *
      * @throws
      */
@@ -101,10 +101,12 @@ class CloudExtraActivities extends Controller
         // Output the modified domain value
         $installtion_path = InstallationDetail::where('order_id', $request->orderId)->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
         if (! empty($installtion_path)) {
-            return response()->json(['data' => $installtion_path]);
+            return successResponse('',['url'=>$installtion_path]);
+            //return response()->json(['data' => $installtion_path]);
         }
 
-        return response()->json(['data' => '']);
+//        return response()->json(['data' => '']);
+        return successResponse('',['url'=>'']);
     }
 
     /**
@@ -263,7 +265,8 @@ class CloudExtraActivities extends Controller
                 \Session::put('product_id', $product_id);
                 \Session::put('oldLicense', $oldLicense);
 
-                return url('paynow/'.$invoice->invoice_id);
+                $url= url('paynow/'.$invoice->invoice_id);
+                return successResponse('success',['url'=>$url]);
             }
         } catch(\Exception $e) {
             \Logger::exception($e);
@@ -276,7 +279,7 @@ class CloudExtraActivities extends Controller
      *  This function is used to get upgrade and downgrade plans value.
      *
      * @param  Request  $request
-     * @return JsonResponse|string
+     * @return
      *
      * @throws
      */
@@ -300,12 +303,13 @@ class CloudExtraActivities extends Controller
 
             $items = $this->getThePaymentCalculationUpgradeDowngrade($agents, $oldLicense, $orderId, $planId);
 
-            \Cart::add($items); //Add Items To the Cart Collection
+            $this->cart->add($items); //Add Items To the Cart Collection
             \Session::put('upgradeDowngradeProduct', \Auth::user()->id);
             \Session::put('upgradeOldLicense', $oldLicense);
             \Session::put('upgradeorderId', $orderId);
 
-            return response()->json(['redirectTo' => url('/checkout')]);
+            $url=url('/checkout');
+            return successResponse('success',['url'=>$url]);
         } catch(\Exception $e) {
             \Logger::exception($e);
 
@@ -1085,10 +1089,12 @@ class CloudExtraActivities extends Controller
             $items = ['priceoldplan' => currencyFormat($priceRemaining, $currencyNew['currency'], true), 'pricenewplan' => currencyFormat($priceToBePaid, $currencyNew['currency'], true), 'price_to_be_paid' => currencyFormat(abs($price), $currencyNew['currency'], true), 'discount' => currencyFormat($discount, $currencyNew['currency'], true), 'priceperagent' => currencyFormat($pricePerAgent, $currencyNew['currency'], true)];
 
             return $items;
+            return successResponse('success',['items'=>$itmems]);
         } catch(\Exception $e) {
             \Logger::exception($e);
 
-            return ['price_to_be_paid' => 'NaN', 'discount' => 'NaN', 'currency' => 'NaN'];
+            $items= ['price_to_be_paid' => 'NaN', 'discount' => 'NaN', 'currency' => 'NaN'];
+            return errorResponse('fail',['items'=>$items]);
         }
     }
 
@@ -1191,7 +1197,7 @@ class CloudExtraActivities extends Controller
      *  This function is used to provide the actual cost before changing number of agents, it will be displayed.
      *
      * @param  request  $request
-     * @return array
+     * @return
      *
      * @throws
      */
@@ -1224,11 +1230,13 @@ class CloudExtraActivities extends Controller
                 $price = $this->newAgentlessthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays);
             }
 
-            return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => currencyFormat($base_price * $newAgents, $currency['currency'], true), 'priceToPay' => currencyFormat($price, $currency['currency'], true)];
+            $data=['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => currencyFormat($base_price * $newAgents, $currency['currency'], true), 'priceToPay' => currencyFormat($price, $currency['currency'], true)];
+            return successResponse('',['data'=>$data]);
         } catch(\Exception $e) {
             \Logger::exception($e);
 
-            return ['pricePerAgent' => 'NaN', 'totalPrice' => 'NaN', 'priceToPay' => 'NaN'];
+            $data= ['pricePerAgent' => 'NaN', 'totalPrice' => 'NaN', 'priceToPay' => 'NaN'];
+            return errorResponse('',['data'=>$data]);
         }
     }
 

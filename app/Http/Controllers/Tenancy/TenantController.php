@@ -245,14 +245,16 @@ class TenantController extends Controller
             $dns_record = dns_get_record($faveoCloud, DNS_CNAME);
             if (! strpos($faveoCloud, cloudSubDomain())) {
                 if (empty($dns_record) || ! in_array(cloudSubDomain(), array_column($dns_record, 'target'))) {
-                    return ['status' => 'false', 'message' => trans('message.cname')];
+                    return errorResponse(trans('message.cname'));
+                    //return ['status' => 'false', 'message' => trans('message.cname')];
                 }
             }
 
             $licCode = Order::where('number', $request->input('orderNo'))->first()->serial_key;
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
             if (! optional($keys)->app_key) {//Validate if the app key to be sent is valid or not
-                return ['status' => 'false', 'message' => trans('message.something_bad')];
+                return errorResponse(trans('message.something_bad'));
+                //return ['status' => 'false', 'message' => trans('message.something_bad')];
             }
 
             $token = str_random(32);
@@ -282,13 +284,14 @@ class TenantController extends Controller
 
                 $this->googleChat($result->message);
 
-                return ['status' => 'false', 'message' => trans('message.something_bad')];
+                return errorResponse(trans('message.something_bad'));
+                //return ['status' => 'false', 'message' => trans('message.something_bad')];
             } elseif ($result->status == 'validationFailure') {
                 $this->prepareMessages($faveoCloud, $userEmail);
 
                 $this->googleChat($result->message);
-
-                return ['status' => 'validationFailure', 'message' => $result->message];
+                return errorResponse($result->message);
+                //return ['status' => 'validationFailure', 'message' => $result->message];
             } else {
                 $client->request('GET', env('CLOUD_JOB_URL_NORMAL'), [
                     'auth' => [env('CLOUD_USER'), env('CLOUD_AUTH')],
@@ -339,17 +342,20 @@ class TenantController extends Controller
                 $this->prepareMessages($faveoCloud, $userEmail, true);
                 $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $template->type()->value('name'), $replace, $type);
                 if (isset($result->reason) && $result->reason != '') {
-                    return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'reason' => $result->reason, 'Free_trial_domain' => $faveoCloud];
+                    $data= ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'reason' => $result->reason, 'Free_trial_domain' => $faveoCloud];
+                    return successResponse('', $data);
                 }
 
-                return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'Free_trial_domain' => $faveoCloud];
+                $data= ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'Free_trial_domain' => $faveoCloud];
+                return successResponse('', $data);
             }
         } catch (Exception $e) {
             \Logger::exception($e);
             $message = $e->getMessage().' Domain: '.$faveoCloud.' Email: '.$userEmail;
             $this->googleChat($message);
 
-            return ['status' => 'false', 'message' => trans('message.something_bad')];
+            $data=['status' => 'false', 'message' => trans('message.something_bad')];
+            return errorResponse('',[$data]);
         }
     }
 

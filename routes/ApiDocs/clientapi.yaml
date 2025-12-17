@@ -1598,6 +1598,180 @@ paths:
           description: Webhook URL updated successfully.
         '403':
           description: Unauthorized.
+  /get-cloud-upgrade-cost:
+    post:
+      summary: Get cloud upgrade cost
+      operationId: getUpgradeCost
+      tags:
+        - Cloud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - plan
+                - agents
+                - orderId
+              properties:
+                plan:
+                  type: integer
+                agents:
+                  type: integer
+                orderId:
+                  type: integer
+      responses:
+        '200':
+          description: Cloud upgrade cost.
+          content:
+            application/json:
+              schema:
+                type: object
+  /changeAgents:
+    post:
+      summary: Change agents
+      operationId: agentAlteration
+      tags:
+        - Cloud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - newAgents
+                - orderId
+                - product_id
+                - subId
+              properties:
+                newAgents:
+                  type: integer
+                orderId:
+                  type: integer
+                product_id:
+                  type: integer
+                subId:
+                  type: integer
+      responses:
+        '200':
+          description: Agents changed successfully.
+  /upgradeDowngradeCloud:
+    post:
+      summary: Upgrade or downgrade a cloud product
+      operationId: upgradeDowngradeCloud
+      tags:
+        - Cloud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - agents
+                - orderId
+              properties:
+                id:
+                  type: integer
+                agents:
+                  type: integer
+                orderId:
+                  type: integer
+      responses:
+        '200':
+          description: Cloud product upgraded or downgraded successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  redirectTo:
+                    type: string
+  /api/takeCloudDomain:
+    post:
+      summary: Autofill domain for a cloud order
+      operationId: orderDomainCloudAutofill
+      tags:
+        - Cloud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orderId
+              properties:
+                orderId:
+                  type: integer
+      responses:
+        '200':
+          description: Domain autofilled successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+  /create/tenant:
+    post:
+      summary: Create a new tenant
+      operationId: createTenant
+      tags:
+        - Cloud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orderNo
+                - domain
+              properties:
+                orderNo:
+                  type: string
+                domain:
+                  type: string
+      responses:
+        '200':
+          description: Tenant created successfully.
+  /change/domain:
+    post:
+      summary: Change a domain
+      operationId: changeDomain
+      tags:
+        - Cloud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentDomain
+                - newDomain
+                - order_id
+                - lic_code
+                - product_id
+              properties:
+                currentDomain:
+                  type: string
+                newDomain:
+                  type: string
+                order_id:
+                  type: integer
+                lic_code:
+                  type: string
+                product_id:
+                  type: integer
+      responses:
+        '200':
+          description: Domain changed successfully
 components:
   securitySchemes:
     bearerAuth:
