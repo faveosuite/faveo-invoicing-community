@@ -649,13 +649,10 @@ class HomeController extends BaseHomeController
             $pageController = new PageController();
 
             $productsRelatedToGroup->transform(function ($product) use ($pageController) {
-
                 if ((int) $product->status === 1) {
-
                     if (in_array((int) $product->days, [30, 31], true)) {
                         $product->price_description =
                             $pageController->getMonthPriceDescription($product->id);
-
                     } elseif (in_array((int) $product->days, [365, 366], true)) {
                         $product->price_description =
                             $pageController->getPriceDescription($product->id);
