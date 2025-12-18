@@ -169,12 +169,12 @@ class PageController extends Controller
                     ->value('url');
 
                 DefaultPage::findOrFail(1)->update([
-                    'page_id'  => $request->input('default_page_id'),
+                    'page_id' => $request->input('default_page_id'),
                     'page_url' => $defaultUrl,
                 ]);
             } else {
                 DefaultPage::findOrFail(1)->update([
-                    'page_id'  => 1,
+                    'page_id' => 1,
                     'page_url' => url('my-invoices'),
                 ]);
             }
