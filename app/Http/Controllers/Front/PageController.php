@@ -150,16 +150,33 @@ class PageController extends Controller
     public function update($id, PageRequest $request)
     {
         try {
-            if ($request->input('default_page_id') != '') {
-                $page = $this->page->where('id', $id)->first();
-                $page->fill($request->except('created_at'))->save();
-                $date = \DateTime::createFromFormat('m/d/Y', $request->input('created_at'));
-                $page->created_at = $date->format('Y-m-d H:i:s');
-                $page->save();
-                $defaultUrl = $this->page->where('id', $request->input('default_page_id'))->pluck('url')->first();
-                DefaultPage::find(1)->update(['page_id' => $request->input('default_page_id'), 'page_url' => $defaultUrl]);
+            $page = $this->page->findOrFail($id);
+
+            $page->fill($request->except('created_at'));
+
+            if ($request->filled('created_at')) {
+                $page->created_at = \Carbon\Carbon::createFromFormat(
+                    'm/d/Y',
+                    $request->input('created_at')
+                );
+            }
+
+            $page->save();
+
+            if ($request->filled('default_page_id')) {
+                $defaultUrl = $this->page
+                    ->where('id', $request->input('default_page_id'))
+                    ->value('url');
+
+                DefaultPage::findOrFail(1)->update([
+                    'page_id'  => $request->input('default_page_id'),
+                    'page_url' => $defaultUrl,
+                ]);
             } else {
-                DefaultPage::find(1)->update(['page_id' => 1, 'page_url' => url('my-invoices')]);
+                DefaultPage::findOrFail(1)->update([
+                    'page_id'  => 1,
+                    'page_url' => url('my-invoices'),
+                ]);
             }
 
             return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
