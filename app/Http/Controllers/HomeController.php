@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\ApiKey;
 use App\Http\Controllers\Common\CronController;
+use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Order\RenewController;
 use App\Http\Requests\ProductRenewalRequest;
 use App\Model\Configure\PluginCompatibleWithProducts;
@@ -644,6 +645,25 @@ class HomeController extends BaseHomeController
                 ->orderBy('products.created_at', 'ASC')
                 ->select('products.*', 'plan_prices.add_price', 'plans.days', 'plan_prices.offer_price', 'plan_prices.price_description')
                 ->get();
+
+            $pageController = new PageController();
+
+            $productsRelatedToGroup->transform(function ($product) use ($pageController) {
+
+                if ((int) $product->status === 1) {
+
+                    if (in_array((int) $product->days, [30, 31], true)) {
+                        $product->price_description =
+                            $pageController->getMonthPriceDescription($product->id);
+
+                    } elseif (in_array((int) $product->days, [365, 366], true)) {
+                        $product->price_description =
+                            $pageController->getPriceDescription($product->id);
+                    }
+                }
+
+                return $product;
+            });
 
             return response()->json(['products' => $productsRelatedToGroup, 'currency' => $currencyAndSymbol, 'currency_symbol' => $this->getCurrencySymbol($currencyAndSymbol)]);
         } catch (\Exception $ex) {
