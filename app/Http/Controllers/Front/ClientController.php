@@ -776,6 +776,7 @@ class ClientController extends BaseClientController
                                      </a>';
                                 }
                                 $plan = Plan::where('product', $model->product_id)
+                                    ->where('days', '!=', 14) // here we exclude the free plan but this is not an right approach to define free trial, we need select the free trial based on the cloud product free trial section
                                     ->whereHas('planPrice', function ($query) {
                                         $query->where('currency', getCurrencyForClient(\Auth::user()->country));
                                     })
