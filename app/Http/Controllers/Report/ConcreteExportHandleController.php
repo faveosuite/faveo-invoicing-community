@@ -210,7 +210,7 @@ class ConcreteExportHandleController extends ExportHandleController
                 '<br><br>User report is successfully generated and ready for download.'.
                 '<br><br>Download link: <a href="'.$downloadLink.'">'.$downloadLink.'</a>'.
                 '<br><br>Please note this link will be expired in 6 hours.'.
-                '<br><br>Kind regards,<br>'.$user->first_name;
+                '<br><br>Kind regards,<br>Team '.$settings->title;
 
             $mail->SendEmail($from, $email, $emailContent, 'User report available for download', 'user-report');
 
@@ -332,7 +332,7 @@ class ConcreteExportHandleController extends ExportHandleController
                 '<br><br>Invoice report is successfully generated and ready for download.'.
                 '<br><br>Download link: <a href="'.$downloadLink.'">'.$downloadLink.'</a>'.
                 '<br><br>Please note this link will be expired in 6 hours.'.
-                '<br><br>Kind regards,<br>'.$user->first_name;
+                '<br><br>Kind regards,<br>Team '.$settings->title;
 
             $mail->SendEmail($from, $email, $emailContent, 'Invoice report available for download', 'invoice-report');
 
@@ -454,7 +454,7 @@ class ConcreteExportHandleController extends ExportHandleController
                 '<br><br>Order report is successfully generated and ready for download.'.
                 '<br><br>Download link: <a href="'.$downloadLink.'">'.$downloadLink.'</a>'.
                 '<br><br>Please note this link will expire in 6 hours.'.
-                '<br><br>Kind regards,<br>'.$user->first_name;
+                '<br><br>Kind regards,<br>Team '.$settings->title;
 
             $mail->SendEmail($from, $email, $emailContent, 'Order report available for download', 'order-report');
 
@@ -711,7 +711,7 @@ class ConcreteExportHandleController extends ExportHandleController
             '<br><br>Tenant report is successfully generated and ready for download.'.
             '<br><br>Download link: <a href="'.$downloadLink.'">'.$downloadLink.'</a>'.
             '<br><br>Please note this link will be expired in 6 hours.'.
-            '<br><br>Kind regards,<br>'.$user->first_name;
+            '<br><br>Kind regards,<br>Team '.$settings->title;
 
         $mail->SendEmail($from, $this->email, $emailContent, 'Tenant report available for download', 'tenant-report');
     }
