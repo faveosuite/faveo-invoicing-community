@@ -290,6 +290,7 @@ class TenantController extends Controller
                 $this->prepareMessages($faveoCloud, $userEmail);
 
                 $this->googleChat($result->message);
+
                 return errorResponse($result->message);
                 //return ['status' => 'validationFailure', 'message' => $result->message];
             } else {
@@ -342,11 +343,13 @@ class TenantController extends Controller
                 $this->prepareMessages($faveoCloud, $userEmail, true);
                 $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $template->type()->value('name'), $replace, $type);
                 if (isset($result->reason) && $result->reason != '') {
-                    $data= ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'reason' => $result->reason, 'Free_trial_domain' => $faveoCloud];
+                    $data = ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'reason' => $result->reason, 'Free_trial_domain' => $faveoCloud];
+
                     return successResponse('', $data);
                 }
 
-                $data= ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'Free_trial_domain' => $faveoCloud];
+                $data = ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'Free_trial_domain' => $faveoCloud];
+
                 return successResponse('', $data);
             }
         } catch (Exception $e) {
@@ -354,8 +357,9 @@ class TenantController extends Controller
             $message = $e->getMessage().' Domain: '.$faveoCloud.' Email: '.$userEmail;
             $this->googleChat($message);
 
-            $data=['status' => 'false', 'message' => trans('message.something_bad')];
-            return errorResponse('',[$data]);
+            $data = ['status' => 'false', 'message' => trans('message.something_bad')];
+
+            return errorResponse('', [$data]);
         }
     }
 
