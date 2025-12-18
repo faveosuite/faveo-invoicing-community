@@ -101,12 +101,12 @@ class CloudExtraActivities extends Controller
         // Output the modified domain value
         $installtion_path = InstallationDetail::where('order_id', $request->orderId)->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
         if (! empty($installtion_path)) {
-            return successResponse('',['url'=>$installtion_path]);
+            return successResponse('', ['url' => $installtion_path]);
             //return response()->json(['data' => $installtion_path]);
         }
 
 //        return response()->json(['data' => '']);
-        return successResponse('',['url'=>'']);
+        return successResponse('', ['url' => '']);
     }
 
     /**
@@ -265,8 +265,9 @@ class CloudExtraActivities extends Controller
                 \Session::put('product_id', $product_id);
                 \Session::put('oldLicense', $oldLicense);
 
-                $url= url('paynow/'.$invoice->invoice_id);
-                return successResponse('success',['url'=>$url]);
+                $url = url('paynow/'.$invoice->invoice_id);
+
+                return successResponse('success', ['url' => $url]);
             }
         } catch(\Exception $e) {
             \Logger::exception($e);
@@ -308,8 +309,9 @@ class CloudExtraActivities extends Controller
             \Session::put('upgradeOldLicense', $oldLicense);
             \Session::put('upgradeorderId', $orderId);
 
-            $url=url('/checkout');
-            return successResponse('success',['url'=>$url]);
+            $url = url('/checkout');
+
+            return successResponse('success', ['url' => $url]);
         } catch(\Exception $e) {
             \Logger::exception($e);
 
@@ -1089,12 +1091,14 @@ class CloudExtraActivities extends Controller
             $items = ['priceoldplan' => currencyFormat($priceRemaining, $currencyNew['currency'], true), 'pricenewplan' => currencyFormat($priceToBePaid, $currencyNew['currency'], true), 'price_to_be_paid' => currencyFormat(abs($price), $currencyNew['currency'], true), 'discount' => currencyFormat($discount, $currencyNew['currency'], true), 'priceperagent' => currencyFormat($pricePerAgent, $currencyNew['currency'], true)];
 
             return $items;
-            return successResponse('success',['items'=>$itmems]);
+
+            return successResponse('success', ['items' => $itmems]);
         } catch(\Exception $e) {
             \Logger::exception($e);
 
-            $items= ['price_to_be_paid' => 'NaN', 'discount' => 'NaN', 'currency' => 'NaN'];
-            return errorResponse('fail',['items'=>$items]);
+            $items = ['price_to_be_paid' => 'NaN', 'discount' => 'NaN', 'currency' => 'NaN'];
+
+            return errorResponse('fail', ['items' => $items]);
         }
     }
 
@@ -1230,13 +1234,15 @@ class CloudExtraActivities extends Controller
                 $price = $this->newAgentlessthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays);
             }
 
-            $data=['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => currencyFormat($base_price * $newAgents, $currency['currency'], true), 'priceToPay' => currencyFormat($price, $currency['currency'], true)];
-            return successResponse('',['data'=>$data]);
+            $data = ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => currencyFormat($base_price * $newAgents, $currency['currency'], true), 'priceToPay' => currencyFormat($price, $currency['currency'], true)];
+
+            return successResponse('', ['data' => $data]);
         } catch(\Exception $e) {
             \Logger::exception($e);
 
-            $data= ['pricePerAgent' => 'NaN', 'totalPrice' => 'NaN', 'priceToPay' => 'NaN'];
-            return errorResponse('',['data'=>$data]);
+            $data = ['pricePerAgent' => 'NaN', 'totalPrice' => 'NaN', 'priceToPay' => 'NaN'];
+
+            return errorResponse('', ['data' => $data]);
         }
     }
 
