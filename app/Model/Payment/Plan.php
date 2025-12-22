@@ -14,7 +14,7 @@ class Plan extends BaseModel
 
     protected $table = 'plans';
 
-    protected $fillable = ['name', 'product', 'allow_tax', 'days'];
+    protected $fillable = ['name', 'product', 'allow_tax', 'days','group'];
 
     protected $logName = 'plan';
 

@@ -168,11 +168,12 @@ class CartController extends BaseCartController
             $cart->add($planid, $product->name, $actualPrice,
                 $qty, $attribute, '', $product);
 
-//
+
             return $items;
         } catch (\Exception $e) {
             \Logger::exception($e);
-            throw new \Exception($e->getMessage());
+            return errorResponse($e->getMessage());
+           // throw new \Exception($e->getMessage());
         }
     }
 
