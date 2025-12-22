@@ -1772,6 +1772,190 @@ paths:
       responses:
         '200':
           description: Domain changed successfully
+  /store_toggle_state:
+    post:
+      summary: Store the toggle state
+      operationId: toggle
+      tags:
+        - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - toggleState
+              properties:
+                toggleState:
+                  type: string
+      responses:
+        '200':
+          description: Toggle state stored successfully.
+  /pricing:
+    get:
+      summary: Add a product to the cart
+      operationId: cart
+      tags:
+        - Cart
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: subscription
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: domain
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to the cart page.
+  /group/{templateid}/{groupid}:
+    get:
+      summary: Get page templates for a group
+      operationId: pageTemplates
+      tags:
+        - Pages
+      parameters:
+        - name: templateid
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: groupid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of page templates.
+          content:
+            application/json:
+              schema:
+                type: object
+  /update-agent-qty:
+    post:
+      summary: Update agent quantity in the cart
+      operationId: updateAgentQty
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Agent quantity updated successfully.
+  /update-qty:
+    post:
+      summary: Update product quantity in the cart
+      operationId: updateProductQty
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Product quantity updated successfully.
+  /reduce-product-qty:
+    post:
+      summary: Reduce product quantity in the cart
+      operationId: reduceProductQty
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Product quantity reduced successfully.
+  /reduce-agent-qty:
+    post:
+      summary: Reduce agent quantity in the cart
+      operationId: reduceAgentQty
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Agent quantity reduced successfully.
+  /cart/clear:
+    post:
+      summary: Clear the cart
+      operationId: clearCart
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Cart cleared successfully.
+  /show/cart:
+    get:
+      summary: Show the cart
+      operationId: showCart
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: The cart contents.
+          content:
+            application/json:
+              schema:
+                type: object
+  /checkout:
+    get:
+      summary: Show the checkout form
+      operationId: checkoutForm
+      tags:
+        - Checkout
+      responses:
+        '200':
+          description: The checkout form data.
+          content:
+            application/json:
+              schema:
+                type: object
+  /checkout-and-pay:
+    post:
+      summary: Process the checkout and payment
+      operationId: postCheckout
+      tags:
+        - Checkout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cost:
+                  type: number
+                invoice_id:
+                  type: integer
+                payment_gateway:
+                  type: string
+                checkout_token:
+                  type: string
+      responses:
+        '200':
+          description: Checkout and payment processed successfully.
+  /pricing/update:
+    post:
+      summary: Update pricing with a coupon
+      operationId: addCouponUpdate
+      tags:
+        - Pricing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - coupon
+              properties:
+                coupon:
+                  type: string
+      responses:
+        '200':
+          description: Pricing updated successfully.
 components:
   securitySchemes:
     bearerAuth:

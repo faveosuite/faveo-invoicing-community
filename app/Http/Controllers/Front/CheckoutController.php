@@ -30,6 +30,7 @@ use Darryldecode\Cart\CartCondition;
 use GuzzleHttp\Client;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use function Laravel\Prompts\error;
 
 class CheckoutController extends InfoController
 {
@@ -108,7 +109,7 @@ class CheckoutController extends InfoController
      *  This function returns to the checkout page with necessary data.
      *
      * @param  Request  $request
-     * @return \Illuminate\Contracts\View\View|RedirectResponse
+     * @return
      *
      * @throws
      */
@@ -183,12 +184,12 @@ class CheckoutController extends InfoController
 
             User::where('id', \Auth::user()->id)->update(['billing_pay_balance' => 0]);
             $cart = $this->cart;
-
-            return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain', 'amt_to_credit', 'curr', 'cart'));
+            return successResponse('',['content'=>$content,'taxCondtions'=>$taxConditions,'discountPrice'=>$discountPrice,'domain'=>$domain,'amt_to_credit'=>$amt_to_credit,'curr'=>$curr,'cart'=>$cart,'curr'=>$curr]);
+            //return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain', 'amt_to_credit', 'curr', 'cart'));
         } catch (\Exception $ex) {
             \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
+           // return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 
