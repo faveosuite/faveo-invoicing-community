@@ -67,7 +67,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('whatsapp-deregister', [\App\Http\Controllers\WhatsappController::class, 'deregister']);
     Route::post('direct-whatsapp', [\App\Http\Controllers\WhatsappController::class, 'directSaveWhatsapp']);
     Route::post('url-save', [\App\Http\Controllers\WhatsappController::class, 'urlSave']);
-   // Route::post('save-access-token', [\App\Http\Controllers\WhatsappController::class, 'saveAccessToken']);
+    // Route::post('save-access-token', [\App\Http\Controllers\WhatsappController::class, 'saveAccessToken']);
     Route::post('save-waba-id', [\App\Http\Controllers\WhatsappController::class, 'saveWabaId']);
     Route::get('whatsapp-integration-info', [\App\Http\Controllers\WhatsappController::class, 'whatsappIntegration']);
     Route::post('whatsapp-integration-save', [\App\Http\Controllers\WhatsappController::class, 'whatsappSave']);

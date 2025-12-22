@@ -101,11 +101,13 @@ class CartController extends BaseCartController
             $items = $this->addProduct($id, $domain);
 //                \Cart::add($items); //Add Items To the Cart Collection
             //  }
-            $url=url('show/cart');
-            return successResponse('cart Redirect',['url'=>$url]);
-           // return redirect('show/cart');
+            $url = url('show/cart');
+
+            return successResponse('cart Redirect', ['url' => $url]);
+            // return redirect('show/cart');
         } catch (\Exception $ex) {
             \Logger::exception($ex);
+
             return errorResponse($ex->getMessage());
             //return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -213,12 +215,14 @@ class CartController extends BaseCartController
                 return (int) $item['id'];
             });
             $cart = $this->cart;
-            return successResponse('',['cartCollection'=>$cartCollection, 'cart'=>$cart]);
+
+            return successResponse('', ['cartCollection' => $cartCollection, 'cart' => $cart]);
             //return view('themes.default1.front.cart', compact('cartCollection', 'cart'));
         } catch (\Exception $ex) {
             \Logger::exception($ex);
+
             return errorResponse($ex->getMessage());
-           // return redirect()->back()->with('fails', $ex->getMessage());
+            // return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -396,14 +400,14 @@ class CartController extends BaseCartController
             $result = $promo_controller->checkCode($code);
             if ($result == 'success') {
                 return successResponse(\Lang::get('message.updated-successfully'));
-               // return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+                // return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
             }
 
             return errorResponse('Not Updated');
             //return redirect()->back();
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
-           // return redirect()->back()->with('fails', $ex->getMessage());
+            // return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 
