@@ -102,7 +102,7 @@ class BaseCartController extends Controller
      * Reduce The Quantity And Price in cart whenMinus Button is Clicked.
      *
      * @param  Request  $request  Get productid , Product quantity ,Price as Request
-     * @return success
+     * @return
      */
     public function reduceProductQty(Request $request)
     {
@@ -121,10 +121,12 @@ class BaseCartController extends Controller
                     ]);
                 }
             } else {
-                throw new \Exception(__('message.cannot_modify_quantity'));
+                return errorResponse(__('message.cannot_modify_quantity'));
+                //throw new \Exception(__('message.cannot_modify_quantity'));
             }
         } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+            return errorResponse($ex->getMessage());
+            //throw new \Exception($ex->getMessage());
         }
     }
 
