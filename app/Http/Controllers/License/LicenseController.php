@@ -34,7 +34,7 @@ class LicenseController extends Controller
     /**
      * Generate a time limited access token to access license manager.
      * */
-    private function oauthAuthorization()
+    public function oauthAuthorization()
     {
         $url = $this->url;
         $data = [
@@ -42,10 +42,15 @@ class LicenseController extends Controller
             'client_secret' => $this->client_secret,
             'grant_type' => $this->grant_type,
         ];
+        $response=\Cache::get('license_response');
+        if(!$response) {
+            $response = $this->postCurl($url . 'oauth/token', $data);
+            $response = json_decode($response);
 
-        $response = $this->postCurl($url.'oauth/token', $data);
-
-        $response = json_decode($response);
+            \Cache::remember('license_response', 1800, function () use ($response) {
+                return $response;
+            });
+        }
 
         return $response;
     }

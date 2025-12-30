@@ -20,35 +20,90 @@ main
 
 @section('content')
 <style>
+    /*.tooltip-text-hover {*/
+    /*    position: relative;*/
+    /*    cursor: pointer;*/
+    /*    display: inline-block;*/
+    /*    overflow: visible; !* make sure the tooltip can show outside *!*/
+    /*}*/
+
+    /*.tooltip-text-hover {*/
+    /*    text-decoration: underline dotted #aaa;*/
+    /*}*/
+
+
+    /*.tooltip-text-hover .tooltip-text {*/
+    /*    visibility: hidden;*/
+    /*    opacity: 0;*/
+    /*    background: #333;*/
+    /*    color: #fff;*/
+    /*    padding: 6px 10px;*/
+    /*    border-radius: 4px;*/
+    /*    white-space: normal;   !* allow wrapping *!*/
+    /*    max-width: 250px;      !* control tooltip width *!*/
+    /*    position: absolute;*/
+    /*    bottom: 125%;          !* place above *!*/
+    /*    left: 50%;*/
+    /*    transform: translateX(-50%);*/
+    /*    transition: opacity 0.2s;*/
+    /*    z-index: 10000;        !* ensure above other elements *!*/
+    /*}*/
+
+    /*.tooltip-text-hover:hover .tooltip-text {*/
+    /*    visibility: visible;*/
+    /*    opacity: 1;*/
+    /*}*/
+
+
+    /* li must allow overflow */
+    li {
+        overflow: visible;
+    }
+
+    /* Tooltip trigger */
     .tooltip-text-hover {
         position: relative;
         cursor: pointer;
         display: inline-block;
-        overflow: visible; /* make sure the tooltip can show outside */
-    }
-
-    .tooltip-text-hover {
         text-decoration: underline dotted #aaa;
     }
 
-
+    /* Tooltip box */
     .tooltip-text-hover .tooltip-text {
-        visibility: hidden;
-        opacity: 0;
-        background: #333;
-        color: #fff;
-        padding: 6px 10px;
-        border-radius: 4px;
-        white-space: normal;   /* allow wrapping */
-        max-width: 250px;      /* control tooltip width */
         position: absolute;
-        bottom: 125%;          /* place above */
+        top: 120%; /* show above the text */
         left: 50%;
         transform: translateX(-50%);
-        transition: opacity 0.2s;
-        z-index: 10000;        /* ensure above other elements */
+
+        background-color: #333;
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 4px;
+
+        width: max-content;
+        max-width: 300px;
+        white-space: normal;
+        line-height: 1.4;
+
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        z-index: 9999;
     }
 
+    /* Arrow pointing down toward the text */
+    .tooltip-text-hover .tooltip-text::after {
+        content: "";
+        position: absolute;
+        bottom: 100%;            /* arrow at bottom of tooltip box */
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 6px;
+        border-style: solid;
+        border-color: transparent transparent #333 transparent; /* arrow pointing down */
+    }
+
+    /* Show tooltip on hover */
     .tooltip-text-hover:hover .tooltip-text {
         visibility: visible;
         opacity: 1;
