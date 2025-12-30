@@ -34,8 +34,9 @@ class SendWhatsappMessage implements ShouldQueue
         try {
             $data = json_decode($this->message, true);
             if (isset($data['entry']) && $data['entry'][0]['id'] !== '') {
-                $wabaId = $data['entry'][0]['id'];
-                $url = WhatsappIntegrationUser::where('waba_id', $wabaId)->value('user_callback_url');
+                //$wabaId = $data['entry'][0]['id'];
+                $phoneNumberId=$data['entry'][0]['changes'][0]['value']['metadata']['phone_number_id'];
+                $url = WhatsappIntegrationUser::where('phone_number_id', $phoneNumberId)->value('user_callback_url');
                 if ($url && ! in_array($url, $urls)) {
                     $response = $client->post($url, [
                         'body' => $this->message,
