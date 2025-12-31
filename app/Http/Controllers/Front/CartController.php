@@ -97,10 +97,11 @@ class CartController extends BaseCartController
             if ($request->has('domain')) {
                 $domain = $request->input('domain').'.'.cloudSubDomain();
             }
-            //if (! property_exists($subscription, $this->cart->getContent())) {
-            $items = $this->addProduct($id, $domain);
-//                \Cart::add($items); //Add Items To the Cart Collection
-            //  }
+            if($request->has('group_id')) {
+                $this->addGroup($request->plan_id,$request->group_id,true);
+            }else{
+                $this->addProduct($id, $domain);
+            }
             $url=url('show/cart');
             return successResponse('cart Redirect',['url'=>$url]);
            // return redirect('show/cart');
@@ -110,6 +111,46 @@ class CartController extends BaseCartController
             //return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
+
+
+//    public function addGroup($plan_id,$id){
+//        if (\Session::has('plan_id')) { //If a plan is selected from dropdown in pricing page, this is true
+//            $planid = \Session::get('plan_id');
+//            $query = Plan::where('id', $planid);
+//
+//        } else {
+//            $query = Plan::where('id', $id);
+//
+//            switch (Session::get('toggleState')) {
+//                case 'yearly':
+//                    $query->whereIn('days', [365, 366]);
+//                    break;
+//
+//                case 'monthly':
+//                    $query->whereIn('days', [30, 31]);
+//                    break;
+//            }
+//
+//
+//        }
+//        $userPlan = userCurrencyAndPrice($userId=null, $query);
+//        if (empty($userPlan['plan'])) {
+//            throw new \Exception(__('message.no_available_plans_currency'));
+//        }
+//
+//        $actualPrice= $this->applyOfferPrice($userPlan,true);
+//
+//        $content=$this->cart->getContent();
+//        array_map(function($cont) use ($plan_id,$actualPrice,$id){
+//            if($cont['id']==$plan_id){
+//                $price=$cont['price']+$actualPrice;
+//                $this->cart->update($cont['id'],['price'=>$price,'group'=>$id]);
+//            }
+//        },$content);
+//    }
+
+
+
 
     /**
      * Returns the Collection to be added to cart.
