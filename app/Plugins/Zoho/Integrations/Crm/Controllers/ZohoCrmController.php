@@ -3,13 +3,12 @@
 namespace App\Plugins\Zoho\Integrations\Crm\Controllers;
 
 use App\Plugins\Zoho\Controllers\ZohoBaseController;
-use App\Plugins\Zoho\Helpers\ConnectHelper;
+use App\Plugins\Zoho\Controllers\ZohoSync;
 use App\Plugins\Zoho\Integrations\Crm\Facades\ZohoCrm;
 use App\Plugins\Zoho\Models\ZohoFieldMappings;
 use App\Plugins\Zoho\Models\ZohoFields;
 use App\User;
 use Illuminate\Http\Request;
-use App\Plugins\Zoho\Controllers\ZohoSync;
 
 class ZohoCrmController extends ZohoBaseController
 {
@@ -41,7 +40,6 @@ class ZohoCrmController extends ZohoBaseController
         }
     }
 
-
     public function getCrmMappedFields($module)
     {
         return $this->getMappedFields('crm', strtolower($module));
@@ -52,14 +50,13 @@ class ZohoCrmController extends ZohoBaseController
         return $this->getModulesFields('crm', 'Contacts');
     }
 
-
     public function getCrmAccountsFields()
     {
         return $this->getModulesFields('crm', 'Accounts');
     }
 
     /**
-     * Create or update a CRM contact
+     * Create or update a CRM contact.
      */
     public function updateToZohoCrm(Request $request)
     {
@@ -94,7 +91,7 @@ class ZohoCrmController extends ZohoBaseController
             $user
         );
 
-        if (!$recordData){
+        if (! $recordData) {
             return;
         }
 

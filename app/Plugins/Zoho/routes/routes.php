@@ -1,18 +1,14 @@
 <?php
 
-
 use App\Plugins\Zoho\Controllers\ZohoOAuthController;
-use App\Plugins\Zoho\Integrations\Crm\Controllers\ZohoCrmController;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\ZohoCampaignsController;
-
+use App\Plugins\Zoho\Integrations\Crm\Controllers\ZohoCrmController;
 
 Route::prefix('zoho')->group(function () {
-
     // Oauth 2.0 connect
     Route::get('connect', [ZohoOAuthController::class, 'connectPage']);
     Route::get('oauth/redirect', [ZohoOAuthController::class, 'getAuthorizationUrl']);
     Route::get('oauth/callback', [ZohoOAuthController::class, 'handleZohoCallback']);
-
 
     // Common Routes
     Route::get('options/{zohoFieldId}', [ZohoCrmController::class, 'getOptions']);
@@ -22,6 +18,7 @@ Route::prefix('zoho')->group(function () {
     Route::prefix('campaigns')->group(function () {
         Route::get('{module}/mapping', function ($module) {
             $platform = 'campaigns';
+
             return view('zoho::mapping', compact('module', 'platform'));
         });
         Route::get('{module}/mapping/data', [ZohoCampaignsController::class, 'getCampaignsMappedFields']);
@@ -34,6 +31,7 @@ Route::prefix('zoho')->group(function () {
     Route::prefix('crm')->group(function () {
         Route::get('{module}/mapping', function ($module) {
             $platform = 'crm';
+
             return view('zoho::mapping', compact('module', 'platform'));
         });
 

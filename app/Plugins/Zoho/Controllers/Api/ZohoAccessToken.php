@@ -2,7 +2,6 @@
 
 namespace App\Plugins\Zoho\Controllers\Api;
 
-use App\Plugins\Zoho\Models\ZohoIntegration;
 use App\Plugins\Zoho\Models\ZohoOAuthClient;
 use App\Plugins\Zoho\Models\ZohoOAuthToken;
 use Illuminate\Support\Arr;

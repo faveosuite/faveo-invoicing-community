@@ -10,7 +10,7 @@ use Illuminate\Http\Client\HttpClientException;
 use Illuminate\Support\Collection;
 
 /**
- * CRM service wrapper
+ * CRM service wrapper.
  */
 class Crm
 {
@@ -30,7 +30,7 @@ class Crm
     }
 
     /**
-     * Get fields of a CRM module
+     * Get fields of a CRM module.
      *
      * @param  string  $module  (Leads, Contacts, Deals, etc.)
      * @return Collection
@@ -46,10 +46,10 @@ class Crm
     }
 
     /**
-     * Get records from a CRM module
+     * Get records from a CRM module.
      *
      * @param  string  $module
-     * @param  array   $params
+     * @param  array  $params
      * @return Collection
      *
      * @throws ZohoCrmApiException
@@ -63,10 +63,10 @@ class Crm
     }
 
     /**
-     * Create a CRM record
+     * Create a CRM record.
      *
      * @param  string  $module
-     * @param  array   $data
+     * @param  array  $data
      *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
@@ -77,11 +77,11 @@ class Crm
     }
 
     /**
-     * Update a CRM record
+     * Update a CRM record.
      *
      * @param  string  $module
      * @param  string  $recordId
-     * @param  array   $data
+     * @param  array  $data
      *
      * @throws ZohoCrmApiException
      * @throws HttpClientException
@@ -92,7 +92,7 @@ class Crm
     }
 
     /**
-     * Delete a CRM record
+     * Delete a CRM record.
      *
      * @param  string  $module
      * @param  string  $recordId

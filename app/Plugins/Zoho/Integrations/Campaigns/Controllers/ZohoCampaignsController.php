@@ -40,12 +40,10 @@ class ZohoCampaignsController extends ZohoBaseController
         }
     }
 
-
     public function getCampaignsMappedFields()
     {
         return $this->getMappedFields('campaigns', 'Contacts');
     }
-
 
     public function getCampaignsContactFields()
     {
@@ -97,5 +95,4 @@ class ZohoCampaignsController extends ZohoBaseController
 
         ZohoCampaigns::attachTag($email, $product->name ?? $type);
     }
-
 }

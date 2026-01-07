@@ -2,4 +2,6 @@
 
 namespace App\Plugins\Zoho\Integrations\Campaigns\Controllers\Exceptions;
 
-class ContactNotFoundException extends ZohoCampaignsApiException {}
+class ContactNotFoundException extends ZohoCampaignsApiException
+{
+}

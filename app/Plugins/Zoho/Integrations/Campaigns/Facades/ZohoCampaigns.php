@@ -2,8 +2,8 @@
 
 namespace App\Plugins\Zoho\Integrations\Campaigns\Facades;
 
-use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\LazyCollection;
 
 /**

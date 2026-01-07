@@ -3,7 +3,7 @@
 return [
     /**
      * Zoho datacenter region to use.
-     * Available regions: us, eu, in, au, jp, cn
+     * Available regions: us, eu, in, au, jp, cn.
      */
     'region' => env('CAMPAIGNS_REGION'),
 
@@ -37,7 +37,7 @@ return [
              * A Zoho campaigns list key.
              * https://www.zoho.com/campaigns/help/developers/list-management.html
              * You can find this value from Zoho campaigns dashboard under:
-             * Contacts > Manage Lists > "Your list" > Setup
+             * Contacts > Manage Lists > "Your list" > Setup.
              */
             'listKey' => env('CAMPAIGNS_LIST_KEY'),
 
@@ -45,7 +45,7 @@ return [
     ],
 
     /**
-     * Define available topics
+     * Define available topics.
      */
     'topics' => [
         'free_products' => [

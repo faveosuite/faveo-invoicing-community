@@ -28,5 +28,4 @@ class ZohoFieldMappings extends Model
             'id'
         );
     }
-
 }
