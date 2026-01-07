@@ -20,7 +20,7 @@ class ZohoIntegration extends Model
     ];
 
     /**
-     * OAuth token for this integration
+     * OAuth token for this integration.
      */
     public function token(): HasOne
     {
@@ -28,7 +28,7 @@ class ZohoIntegration extends Model
     }
 
     /**
-     * OAuth client credentials
+     * OAuth client credentials.
      */
     public function client(): HasOne
     {

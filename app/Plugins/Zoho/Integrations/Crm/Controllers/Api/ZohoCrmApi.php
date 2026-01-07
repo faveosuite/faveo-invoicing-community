@@ -3,13 +3,13 @@
 namespace App\Plugins\Zoho\Integrations\Crm\Controllers\Api;
 
 use App\Plugins\Zoho\Controllers\Api\ZohoBaseApi;
-use Illuminate\Http\Client\HttpClientException;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\Exceptions\ZohoCrmApiException;
+use Illuminate\Http\Client\HttpClientException;
 
 class ZohoCrmApi extends ZohoBaseApi
 {
     /**
-     * Get fields of a CRM module
+     * Get fields of a CRM module.
      *
      * @link https://www.zoho.com/crm/developer/docs/api/v2/get-fields.html
      *
@@ -35,12 +35,12 @@ class ZohoCrmApi extends ZohoBaseApi
     }
 
     /**
-     * Get records from a CRM module
+     * Get records from a CRM module.
      *
      * @link https://www.zoho.com/crm/developer/docs/api/v2/get-records.html
      *
      * @param  string  $module
-     * @param  array   $params
+     * @param  array  $params
      * @return array
      */
     public function records(string $module, array $params = []): array
@@ -57,12 +57,12 @@ class ZohoCrmApi extends ZohoBaseApi
     }
 
     /**
-     * Create a CRM record
+     * Create a CRM record.
      *
      * @link https://www.zoho.com/crm/developer/docs/api/v2/insert-records.html
      *
      * @param  string  $module
-     * @param  array   $data
+     * @param  array  $data
      */
     public function create(string $module, array $data): void
     {
@@ -80,7 +80,7 @@ class ZohoCrmApi extends ZohoBaseApi
     }
 
     /**
-     * Update a CRM record
+     * Update a CRM record.
      *
      * @link https://www.zoho.com/crm/developer/docs/api/v2/update-records.html
      */
@@ -98,7 +98,7 @@ class ZohoCrmApi extends ZohoBaseApi
     }
 
     /**
-     * Delete a CRM record
+     * Delete a CRM record.
      *
      * @link https://www.zoho.com/crm/developer/docs/api/v2/delete-records.html
      */
@@ -114,7 +114,7 @@ class ZohoCrmApi extends ZohoBaseApi
     }
 
     /**
-     * CRM API endpoint
+     * CRM API endpoint.
      */
     protected function endpoint(): string
     {

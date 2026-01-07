@@ -39,11 +39,11 @@ enum ZohoRegion: string
     public function accountsDomain(): string
     {
         return match ($this) {
-            self::Europe       => 'accounts.zoho.eu',
-            self::Australia    => 'accounts.zoho.com.au',
-            self::India        => 'accounts.zoho.in',
-            self::Japan        => 'accounts.zoho.jp',
-            self::China        => 'accounts.zoho.com.cn',
+            self::Europe => 'accounts.zoho.eu',
+            self::Australia => 'accounts.zoho.com.au',
+            self::India => 'accounts.zoho.in',
+            self::Japan => 'accounts.zoho.jp',
+            self::China => 'accounts.zoho.com.cn',
             self::UnitedStates => 'accounts.zoho.com',
         };
     }
@@ -52,11 +52,11 @@ enum ZohoRegion: string
     public function apiDomain(): string
     {
         return match ($this) {
-            self::Europe       => 'www.zohoapis.eu',
-            self::Australia    => 'www.zohoapis.com.au',
-            self::India        => 'www.zohoapis.in',
-            self::Japan        => 'www.zohoapis.jp',
-            self::China        => 'www.zohoapis.com.cn',
+            self::Europe => 'www.zohoapis.eu',
+            self::Australia => 'www.zohoapis.com.au',
+            self::India => 'www.zohoapis.in',
+            self::Japan => 'www.zohoapis.jp',
+            self::China => 'www.zohoapis.com.cn',
             self::UnitedStates => 'www.zohoapis.com',
         };
     }

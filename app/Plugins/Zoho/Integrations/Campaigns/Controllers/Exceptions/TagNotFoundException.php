@@ -2,4 +2,6 @@
 
 namespace App\Plugins\Zoho\Integrations\Campaigns\Controllers\Exceptions;
 
-class TagNotFoundException extends ZohoCampaignsApiException {}
+class TagNotFoundException extends ZohoCampaignsApiException
+{
+}

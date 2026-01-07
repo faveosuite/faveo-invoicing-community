@@ -231,7 +231,7 @@ return [
         \App\Providers\LogServiceProvider::class,
         App\Plugins\Recaptcha\RecaptchaServiceProvider::class,
         App\Providers\CartServiceProvider::class,
-        \App\Plugins\Zoho\Providers\ZohoServiceProvider::class
+        \App\Plugins\Zoho\Providers\ZohoServiceProvider::class,
     ],
 
     /*

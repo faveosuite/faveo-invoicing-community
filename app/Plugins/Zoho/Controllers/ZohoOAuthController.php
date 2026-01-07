@@ -18,24 +18,23 @@ class ZohoOAuthController extends Controller
         return view('zoho::connect');
     }
 
-
     public function saveOAuthClientKeys(Request $request)
     {
         $validated = $request->validate([
             'integration_id' => 'required|exists:zoho_integrations,id',
-            'client_id'      => 'required|string',
-            'client_secret'  => 'required|string',
-            'redirect_uri'   => 'required|url',
-            'region'         => 'required|in:in,us,eu,au,jp,cn',
+            'client_id' => 'required|string',
+            'client_secret' => 'required|string',
+            'redirect_uri' => 'required|url',
+            'region' => 'required|in:in,us,eu,au,jp,cn',
         ]);
 
         ZohoOAuthClient::updateOrCreate(
             ['integration_id' => $validated['integration_id']],
             [
-                'client_id'     => $validated['client_id'],
+                'client_id' => $validated['client_id'],
                 'client_secret' => $validated['client_secret'],
-                'redirect_uri'  => $validated['redirect_uri'],
-                'region'        => $validated['region'],
+                'redirect_uri' => $validated['redirect_uri'],
+                'region' => $validated['region'],
             ]
         );
 
@@ -68,7 +67,7 @@ class ZohoOAuthController extends Controller
                         'prompt' => 'consent',
                         'state' => $platform,
                     ]
-                )
+                ),
                 ]
             );
         } catch (\Exception $e) {
@@ -76,9 +75,8 @@ class ZohoOAuthController extends Controller
         }
     }
 
-
     /**
-     * Platform → scopes
+     * Platform → scopes.
      */
     protected function getScopesByPlatform(string $platform): string
     {
@@ -136,15 +134,13 @@ class ZohoOAuthController extends Controller
         return $this->redirectWithMessage(true, $platform);
     }
 
-
     /**
-     * Store tokens per platform
+     * Store tokens per platform.
      */
     protected function storeTokenForPlatform(
         ZohoIntegration $integration,
-        array           $data
-    ): void
-    {
+        array $data
+    ): void {
         ZohoOAuthToken::updateOrCreate(
             ['integration_id' => $integration->id],
             [
@@ -158,22 +154,21 @@ class ZohoOAuthController extends Controller
     }
 
     /**
-     * Redirect with query parameter message
+     * Redirect with query parameter message.
      */
     private function redirectWithMessage(
         bool $success,
         string $platform,
         ?string $message = null
     ): RedirectResponse {
-
         $path = config("zoho.platforms.$platform.settings_url");
-        $url  = url($path);
+        $url = url($path);
 
         return redirect()->to(
-            $url . '?' . http_build_query([
-                'zoho_status'   => $success ? 'success' : 'error',
+            $url.'?'.http_build_query([
+                'zoho_status' => $success ? 'success' : 'error',
                 'zoho_platform' => $platform,
-                'message'       => $message
+                'message' => $message
                     ?? ($success
                         ? 'Zoho connected successfully'
                         : 'Zoho connection failed'),
@@ -188,9 +183,8 @@ class ZohoOAuthController extends Controller
 
     public function authorizationUrl(
         string $region,
-        array  $queryParams
-    ): string
-    {
+        array $queryParams
+    ): string {
         return sprintf(
             '%s/oauth/v2/auth?%s',
             $this->accountsBaseUrl($region),

@@ -32,7 +32,6 @@ return new class extends Migration
             $table->json('default_value')->nullable();
             $table->boolean('use_default_if_empty')->default(false);
 
-
             $table->json('option_mapping')->nullable();
 
             $table->json('selected_option')->nullable();

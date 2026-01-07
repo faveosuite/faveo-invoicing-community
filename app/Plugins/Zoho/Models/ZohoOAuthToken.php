@@ -13,7 +13,6 @@ class ZohoOAuthToken extends Model
     /**
      * @var mixed|null
      */
-
     protected $table = 'zoho_oauth_tokens';
 
     protected $fillable = [
@@ -35,7 +34,7 @@ class ZohoOAuthToken extends Model
     ];
 
     /**
-     * Parent integration
+     * Parent integration.
      */
     public function integration(): BelongsTo
     {
@@ -43,7 +42,7 @@ class ZohoOAuthToken extends Model
     }
 
     /**
-     * Access Token (encrypt/decrypt)
+     * Access Token (encrypt/decrypt).
      */
     protected function accessToken(): Attribute
     {
@@ -54,7 +53,7 @@ class ZohoOAuthToken extends Model
     }
 
     /**
-     * Refresh Token (encrypt/decrypt)
+     * Refresh Token (encrypt/decrypt).
      */
     protected function refreshToken(): Attribute
     {
@@ -65,7 +64,7 @@ class ZohoOAuthToken extends Model
     }
 
     /**
-     * Check if access token is expired
+     * Check if access token is expired.
      */
     public function isExpired(): bool
     {
