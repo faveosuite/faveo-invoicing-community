@@ -27,7 +27,6 @@ return new class extends Migration
             $table->string('api_domain')->nullable();
 
             $table->timestamps();
-
         });
     }
 

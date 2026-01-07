@@ -23,7 +23,7 @@ class ZohoCrmApiException extends Exception
     {
         $error = $response['data'][0] ?? [];
 
-        $code    = $error['code'] ?? 'UNKNOWN_ERROR';
+        $code = $error['code'] ?? 'UNKNOWN_ERROR';
         $message = $error['message'] ?? 'Zoho CRM error';
 
         return new self(
@@ -49,66 +49,50 @@ class ZohoCrmApiException extends Exception
     }
 
     /**
-     * Convert Zoho error codes into developer-friendly messages
+     * Convert Zoho error codes into developer-friendly messages.
      */
     protected static function humanMessage(string $code, array $error): string
     {
         return match ($code) {
-
             // ─────────── MODULE ERRORS ───────────
-            'INVALID_MODULE' =>
-            'Invalid or unsupported Zoho module name',
+            'INVALID_MODULE' => 'Invalid or unsupported Zoho module name',
 
             // ─────────── AUTH / PERMISSION ───────────
-            'OAUTH_SCOPE_MISMATCH' =>
-            'OAuth scope missing for this module operation',
+            'OAUTH_SCOPE_MISMATCH' => 'OAuth scope missing for this module operation',
 
             'NO_PERMISSION',
-            'AUTHORIZATION_FAILED' =>
-            'You do not have permission to perform this operation',
+            'AUTHORIZATION_FAILED' => 'You do not have permission to perform this operation',
 
             // ─────────── VALIDATION ───────────
-            'MANDATORY_NOT_FOUND' =>
-                'Required field missing: ' .
+            'MANDATORY_NOT_FOUND' => 'Required field missing: '.
                 ($error['details']['api_name'] ?? 'unknown'),
 
-            'INVALID_DATA' =>
-            'Invalid data provided to Zoho CRM',
+            'INVALID_DATA' => 'Invalid data provided to Zoho CRM',
 
-            'DEPENDENT_FIELD_MISSING' =>
-            'Dependent field missing or invalid',
+            'DEPENDENT_FIELD_MISSING' => 'Dependent field missing or invalid',
 
-            'DEPENDENT_MISMATCH' =>
-            'Dependent field or module mismatch',
+            'DEPENDENT_MISMATCH' => 'Dependent field or module mismatch',
 
-            'DUPLICATE_DATA' =>
-            'Duplicate value for unique field',
+            'DUPLICATE_DATA' => 'Duplicate value for unique field',
 
-            'MULTIPLE_OR_MULTI_ERRORS' =>
-            'Duplicate data found in multiple fields',
+            'MULTIPLE_OR_MULTI_ERRORS' => 'Duplicate data found in multiple fields',
 
             // ─────────── LIMITS ───────────
-            'LIMIT_EXCEEDED' =>
-            'Zoho CRM API limit exceeded',
+            'LIMIT_EXCEEDED' => 'Zoho CRM API limit exceeded',
 
             // ─────────── RECORD STATE ───────────
-            'RECORD_LOCKED' =>
-            'Record is locked and cannot be modified',
+            'RECORD_LOCKED' => 'Record is locked and cannot be modified',
 
             // ─────────── REQUEST / URL ───────────
-            'INVALID_REQUEST_METHOD' =>
-            'Invalid HTTP method used for Zoho API',
+            'INVALID_REQUEST_METHOD' => 'Invalid HTTP method used for Zoho API',
 
-            'INVALID_URL_PATTERN' =>
-            'Invalid Zoho API URL',
+            'INVALID_URL_PATTERN' => 'Invalid Zoho API URL',
 
             // ─────────── SERVER ───────────
-            'INTERNAL_ERROR' =>
-            'Zoho CRM internal server error',
+            'INTERNAL_ERROR' => 'Zoho CRM internal server error',
 
             // ─────────── FALLBACK ───────────
-            default =>
-                "Zoho CRM Error [$code]: " . ($error['message'] ?? 'Unknown error'),
+            default => "Zoho CRM Error [$code]: ".($error['message'] ?? 'Unknown error'),
         };
     }
 }

@@ -16,11 +16,11 @@ class ZohoSync
                     'zoho_field_uid' => $this->getFieldUid($platform, $field),
                 ],
                 [
-                    'zoho_key'     => $this->getZohoKey($platform, $field),
-                    'display_name'=> $this->getDisplayName($platform, $field),
-                    'field_type'  => $this->getFieldType($platform, $field),
-                    'is_mandatory'=> $this->isMandatory($platform, $field),
-                    'raw_metadata'=> $field,
+                    'zoho_key' => $this->getZohoKey($platform, $field),
+                    'display_name' => $this->getDisplayName($platform, $field),
+                    'field_type' => $this->getFieldType($platform, $field),
+                    'is_mandatory' => $this->isMandatory($platform, $field),
+                    'raw_metadata' => $field,
                 ]
             );
         }
@@ -56,7 +56,7 @@ class ZohoSync
     }
 
     /**
-     * ONE unified field type
+     * ONE unified field type.
      */
     protected function getFieldType(string $platform, array $field): ?string
     {
@@ -66,23 +66,22 @@ class ZohoSync
         }
 
         return match (strtolower($field['data_type'] ?? 'text')) {
-            'text'         => 'text',
-            'textarea'     => 'textarea',
-            'email'        => 'email',
-            'phone'        => 'phone',
-            'bigint'       => 'number',
-            'double'       => 'decimal',
-            'boolean'      => 'checkbox',
-            'date'         => 'date',
-            'datetime'     => 'datetime',
-            'picklist'     => 'picklist',
-            'lookup'       => 'lookup',
-            'ownerlookup'  => 'owner',
+            'text' => 'text',
+            'textarea' => 'textarea',
+            'email' => 'email',
+            'phone' => 'phone',
+            'bigint' => 'number',
+            'double' => 'decimal',
+            'boolean' => 'checkbox',
+            'date' => 'date',
+            'datetime' => 'datetime',
+            'picklist' => 'picklist',
+            'lookup' => 'lookup',
+            'ownerlookup' => 'owner',
             'profileimage' => 'image',
-            default        => 'text',
+            default => 'text',
         };
     }
-
 
     protected function isMandatory(string $platform, array $field): bool
     {

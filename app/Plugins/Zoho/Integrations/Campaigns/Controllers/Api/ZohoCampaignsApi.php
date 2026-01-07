@@ -25,7 +25,7 @@ class ZohoCampaignsApi extends ZohoBaseApi
      * @throws ZohoCampaignsApiException
      * @throws HttpClientException
      */
-    public function listSubscribe(string $listKey, string $email, array $contactInfo = [], array $additionalParams = [], int $topic = null): void
+    public function listSubscribe(string $listKey, string $email, array $contactInfo = [], array $additionalParams = [], ?int $topic = null): void
     {
         $params = array_merge([
             'listkey' => $listKey,
@@ -260,7 +260,7 @@ class ZohoCampaignsApi extends ZohoBaseApi
             throw match ($response['code']) {
                 '993' => ContactNotFoundException::fromResponse($response),
                 '992', '9001' => TagNotFoundException::fromResponse($response),
-                default  => ZohoCampaignsApiException::fromResponse($response),
+                default => ZohoCampaignsApiException::fromResponse($response),
             };
         }
     }
@@ -288,7 +288,7 @@ class ZohoCampaignsApi extends ZohoBaseApi
         if (isset($response['status']) && $response['status'] === 'error') {
             throw match ((int) $response['code']) {
                 993, 9001 => TagNotFoundException::fromResponse($response),
-                default   => ZohoCampaignsApiException::fromResponse($response),
+                default => ZohoCampaignsApiException::fromResponse($response),
             };
         }
     }
@@ -312,7 +312,6 @@ class ZohoCampaignsApi extends ZohoBaseApi
 
         return $response['response']['fieldnames']['fieldname'] ?? [];
     }
-
 
     /**
      * Get all mailing lists.
@@ -363,7 +362,6 @@ class ZohoCampaignsApi extends ZohoBaseApi
 
         return $response['topicDetails'] ?? [];
     }
-
 
     /**
      * Create a new topic.

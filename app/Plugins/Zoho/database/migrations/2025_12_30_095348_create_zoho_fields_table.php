@@ -37,7 +37,6 @@ return new class extends Migration
             $table->index(['platform', 'module']);
             $table->index(['platform', 'zoho_key']);
         });
-
     }
 
     /**

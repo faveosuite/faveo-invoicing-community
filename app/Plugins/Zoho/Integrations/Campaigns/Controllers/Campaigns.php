@@ -91,7 +91,6 @@ class Campaigns
      * @param  int  $chunkSize  The number of subscribers to retrieve per request.
      * @param  string|null  $list  The name or the key of the list. If null, the default list name will be used.
      * @return LazyCollection<array-key, ZohoCustomer> The list of subscribers.
-     *
      */
     public function subscribers(string $status = 'active', string $sort = 'asc', int $chunkSize = 500, ?string $list = null): LazyCollection
     {
@@ -205,7 +204,6 @@ class Campaigns
         return $listKey ?? $list;
     }
 
-
     protected function loadLists(): Collection
     {
         return collect($this->zohoApi->lists())
@@ -240,7 +238,6 @@ class Campaigns
         }
     }
 
-
     /**
      * Get Zoho topic ID by topic name.
      *
@@ -264,5 +261,4 @@ class Campaigns
 
         return $first['topicId'] ?? null;
     }
-
 }

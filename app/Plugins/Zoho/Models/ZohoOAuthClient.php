@@ -2,7 +2,6 @@
 
 namespace App\Plugins\Zoho\Models;
 
-use Crypt;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -23,7 +22,7 @@ class ZohoOAuthClient extends Model
     ];
 
     /**
-     * Parent integration
+     * Parent integration.
      */
     public function integration(): BelongsTo
     {

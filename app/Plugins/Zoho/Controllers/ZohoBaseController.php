@@ -20,7 +20,6 @@ class ZohoBaseController extends Controller
         return successResponse('', $moduleFields);
     }
 
-
     public function getMappedFields(string $platform, string $module)
     {
         $mappedFields = ConnectHelper::getExistingMappings($platform, $module);

@@ -9,7 +9,7 @@ class ZohoFields extends Model
     protected $table = 'zoho_fields';
 
     /**
-     * Mass assignable attributes
+     * Mass assignable attributes.
      */
     protected $fillable = [
         'platform',
@@ -26,7 +26,7 @@ class ZohoFields extends Model
     ];
 
     /**
-     * Attribute casting
+     * Attribute casting.
      */
     protected $casts = [
         'is_mandatory' => 'boolean',

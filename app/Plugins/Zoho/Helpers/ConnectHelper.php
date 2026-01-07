@@ -2,28 +2,26 @@
 
 namespace App\Plugins\Zoho\Helpers;
 
-use App\Plugins\Zoho\Models\FaveoLocalFields;
 use App\Plugins\Zoho\Models\ZohoFieldMappings;
 use App\Plugins\Zoho\Models\ZohoFields;
 use Illuminate\Support\Collection;
-use phpseclib3\Crypt\Salsa20;
 
 class ConnectHelper
 {
     public static function getModulesFields(string $platform, string $module)
     {
-         return ZohoFields::wherePlatform($platform)
-            ->whereModule($module)
-            ->get()
-            ->map(fn ($z) => [
-                'id' => $z->id,
-                'field_name' => $z->display_name,
-                'type' => $z->field_type,
-            ]);
+        return ZohoFields::wherePlatform($platform)
+           ->whereModule($module)
+           ->get()
+           ->map(fn ($z) => [
+               'id' => $z->id,
+               'field_name' => $z->display_name,
+               'type' => $z->field_type,
+           ]);
     }
 
     /**
-     * Get only existing mappings (CRM style)
+     * Get only existing mappings (CRM style).
      */
     public static function getExistingMappings(string $platform, string $module)
     {
@@ -40,7 +38,7 @@ class ConnectHelper
                 return [
                     'zoho_field_id' => $mapping->zoho_field_id,
                     'selected' => [
-                        'type'  => 'zoho',
+                        'type' => 'zoho',
                         'value' => $mapping->selected_option,
                     ],
                 ];
@@ -51,7 +49,7 @@ class ConnectHelper
                 return [
                     'zoho_field_id' => $mapping->zoho_field_id,
                     'selected' => [
-                        'type'  => 'local',
+                        'type' => 'local',
                         'value' => $mapping->faveo_local_field_id,
                     ],
                 ];
@@ -70,13 +68,12 @@ class ConnectHelper
             ->keyBy('zoho_field_id');
 
         $localFieldOptions = $localFields->map(fn ($local) => [
-            'id'    => $local->id,
-            'type'  => 'local_field',
+            'id' => $local->id,
+            'type' => 'local_field',
             'label' => $local->display_name,
         ])->values();
 
         return $zohoFields->map(function ($zoho) use ($mappings, $localFieldOptions) {
-
             $mapping = $mappings->get($zoho->id);
 
             $options = collect();
@@ -90,8 +87,8 @@ class ConnectHelper
             if (! empty($zoho->options)) {
                 foreach ($zoho->options as $index => $label) {
                     $options->push([
-                        'id'    => "zoho_{$zoho->id}_{$index}",
-                        'type'  => 'zoho_option',
+                        'id' => "zoho_{$zoho->id}_{$index}",
+                        'type' => 'zoho_option',
                         'label' => $label,
                     ]);
                 }
@@ -99,9 +96,9 @@ class ConnectHelper
 
             return [
                 'zoho' => [
-                    'id'                => $zoho->id,
-                    'api_name'          => $zoho->zoho_api_name ?? $zoho->zoho_key,
-                    'label'             => $zoho->display_name,
+                    'id' => $zoho->id,
+                    'api_name' => $zoho->zoho_api_name ?? $zoho->zoho_key,
+                    'label' => $zoho->display_name,
                     'allows_zoho_multi' => (bool) ($zoho->allows_zoho_multi ?? false),
                 ],
 
@@ -121,17 +118,17 @@ class ConnectHelper
         array $meta = []
     ): void {
         $data = [
-            'default_value'        => $meta['default_value'] ?? null,
+            'default_value' => $meta['default_value'] ?? null,
             'use_default_if_empty' => $meta['use_default_if_empty'] ?? false,
-            'is_active'            => $meta['is_active'] ?? true,
+            'is_active' => $meta['is_active'] ?? true,
             'faveo_local_field_id' => null,
-            'selected_option'     => null,
-            'option_mapping'      => null,
+            'selected_option' => null,
+            'option_mapping' => null,
         ];
 
         match ($selected['type'] ?? null) {
             'local' => $data['faveo_local_field_id'] = $selected['value'],
-            'zoho'  => $data['selected_option'] = json_encode([
+            'zoho' => $data['selected_option'] = json_encode([
                 'value' => $selected['value'],
             ]),
             default => throw new \InvalidArgumentException('Invalid selected type'),
@@ -142,5 +139,4 @@ class ConnectHelper
             $data
         );
     }
-
 }

@@ -6,9 +6,9 @@ use App\Plugins\Zoho\Controllers\Api\{
     ZohoAccessToken,
     ZohoAccountsApi,
 };
-use App\Plugins\Zoho\Integrations\Crm\Controllers\Api\ZohoCrmApi;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Api\ZohoCampaignsApi;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Campaigns;
+use App\Plugins\Zoho\Integrations\Crm\Controllers\Api\ZohoCrmApi;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\Crm;
 use App\Plugins\Zoho\Models\ZohoIntegration;
 use Illuminate\Support\ServiceProvider;
@@ -16,12 +16,12 @@ use Illuminate\Support\ServiceProvider;
 class ZohoServiceProvider extends ServiceProvider
 {
     /**
-     * Cache integrations per request
+     * Cache integrations per request.
      */
     protected array $integrations = [];
 
     /**
-     * Register all services
+     * Register all services.
      */
     public function register(): void
     {
@@ -111,7 +111,7 @@ class ZohoServiceProvider extends ServiceProvider
     }
 
     /**
-     * Boot plugin resources
+     * Boot plugin resources.
      */
     public function boot(): void
     {
@@ -132,7 +132,7 @@ class ZohoServiceProvider extends ServiceProvider
     }
 
     /**
-     * Resolve active integration (cached)
+     * Resolve active integration (cached).
      */
     protected function getIntegration(string $platform): ZohoIntegration
     {
@@ -144,7 +144,7 @@ class ZohoServiceProvider extends ServiceProvider
     }
 
     /**
-     * Build Zoho Accounts API
+     * Build Zoho Accounts API.
      */
     protected function makeAccountsApi(string $platform): ZohoAccountsApi
     {
