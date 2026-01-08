@@ -52,7 +52,6 @@ class ZohoController extends Controller
                 ->where('subtotal', '>', 0)
                 ->first();
 
-
         match ($event) {
             'register' => AddUserToExternalService::dispatch($user, 'register'),
 
@@ -68,6 +67,4 @@ class ZohoController extends Controller
 
         return successResponse("Event '{$event}' triggered successfully");
     }
-
-
 }
