@@ -61,12 +61,7 @@ class ZohoServiceProvider extends ServiceProvider
         */
 
         $this->app->singleton(ZohoAccessToken::class, function ($app) {
-            $integration = $this->getIntegration('campaigns');
-
-            return new ZohoAccessToken(
-                $app->make('zoho.accounts.campaigns'),
-                $integration->id
-            );
+            return new ZohoAccessToken();
         });
 
         /*

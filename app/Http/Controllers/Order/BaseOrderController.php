@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Order;
 
+use App\Http\Controllers\Common\ExternalServiceController;
 use App\Http\Controllers\License\LicenseController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Common\StatusSetting;
@@ -136,30 +137,14 @@ class BaseOrderController extends ExtendedOrderController
             if (emailSendingStatus()) {
                 $this->sendOrderMail($user_id, $order->id, $item->id);
             }
-            //Update Subscriber To Mailchimp
-            $mailchimpStatus = StatusSetting::pluck('mailchimp_status')->first();
-            if ($mailchimpStatus) {
-                $this->addtoMailchimp($product, $user_id, $item);
-            }
+
+            //Subscribe for Product Updates
+            (new ExternalServiceController())->subscribeForProductsUpdates($product, $user_id, $item);
+
         } catch (\Exception $ex) {
             \Logger::exception($ex);
 
             throw new \Exception($ex->getMessage());
-        }
-    }
-
-    public function addToMailchimp($product, $user_id, $item)
-    {
-        try {
-            $mailchimp = new \App\Http\Controllers\Common\MailChimpController();
-            $email = User::where('id', $user_id)->pluck('email')->first();
-            if ($item->subtotal > 0) {
-                $r = $mailchimp->updateSubscriberForPaidProduct($email, $product);
-            } else {
-                $r = $mailchimp->updateSubscriberForFreeProduct($email, $product);
-            }
-        } catch (\Exception $ex) {
-            return;
         }
     }
 

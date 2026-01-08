@@ -17,10 +17,6 @@ class ZohoOAuthClient extends Model
         'region',
     ];
 
-    protected $hidden = [
-        'client_secret',
-    ];
-
     /**
      * Parent integration.
      */

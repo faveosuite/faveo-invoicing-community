@@ -23,7 +23,9 @@ function zohoMappedFields(
             continue;
         }
 
-        $zohoKey = $zohoField->zoho_key;
+        $zohoKey = $zohoField->platform === 'campaigns' ?
+            $zohoField->display_name:
+            $zohoField->zoho_key;
 
         $selected = resolveSelected($zohoField, $mapping);
 

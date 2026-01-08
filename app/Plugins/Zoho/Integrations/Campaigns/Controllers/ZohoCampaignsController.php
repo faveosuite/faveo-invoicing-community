@@ -65,8 +65,14 @@ class ZohoCampaignsController extends ZohoBaseController
         }
     }
 
-    protected function subscribe(string $email, string $type): void
+    public function subscribe(string $email, string $type): void
     {
+        $topicName = config('zoho_campaigns.topics.' . $type . '.name');
+
+        if (! $topicName) {
+            return;
+        }
+
         $zohoFields = ZohoFields::wherePlatform('campaigns')
             ->whereModule('Contacts')
             ->get();
@@ -79,20 +85,14 @@ class ZohoCampaignsController extends ZohoBaseController
             $email,
             $contactInfo,
             null,
-            $type
+            $topicName
         );
     }
 
-    public function updateSubscriberForProduct(int $productId, int $user_id, InvoiceItem $item)
+    public function subscribeWithTag(string $email, string $type, string $tag): void
     {
-        $email = User::findOrFail($user_id)->email;
-
-        $product = Product::find($productId);
-
-        $type = $item->subtotal > 0 ? 'paid product' : 'free product';
-
         $this->subscribe($email, $type);
 
-        ZohoCampaigns::attachTag($email, $product->name ?? $type);
+        ZohoCampaigns::attachTag($email, $tag);
     }
 }

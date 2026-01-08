@@ -8,33 +8,33 @@ use Illuminate\Support\Arr;
 
 class ZohoAccessToken
 {
-    protected ?ZohoOAuthToken $accessToken = null;
-    protected ?ZohoOAuthToken $refreshToken = null;
+    protected array $accessToken = [];
+    protected array $refreshToken = [];
 
     public function get(int $integrationId): string
     {
-        if ($this->accessToken === null) {
-            $this->accessToken = ZohoOAuthToken::findActiveAccessToken($integrationId) ?? $this->refreshAccessToken($integrationId);
+        if (! isset($this->accessToken[$integrationId])) {
+            $this->accessToken[$integrationId] = ZohoOAuthToken::findActiveAccessToken($integrationId) ?? $this->refreshAccessToken($integrationId);
         }
 
-        if ($this->accessToken === null) {
+        if ($this->accessToken[$integrationId] === null) {
             return '';
         }
 
-        if (! $this->accessToken->isValid(now()->addMinute())) {
-            $this->accessToken = $this->refreshAccessToken($integrationId);
+        if (! $this->accessToken[$integrationId]->isValid(now()->addMinute())) {
+            $this->accessToken[$integrationId] = $this->refreshAccessToken($integrationId);
         }
 
-        return $this->accessToken->access_token ?? '';
+        return $this->accessToken[$integrationId]->access_token ?? '';
     }
 
     protected function refreshAccessToken(int $integrationId): ?ZohoOAuthToken
     {
-        if ($this->refreshToken === null) {
-            $this->refreshToken = ZohoOAuthToken::findRefreshToken($integrationId);
+        if (! isset($this->refreshToken[$integrationId])) {
+            $this->refreshToken[$integrationId] = ZohoOAuthToken::findRefreshToken($integrationId);
         }
 
-        if ($this->refreshToken === null) {
+        if ($this->refreshToken[$integrationId] === null) {
             return null;
         }
 

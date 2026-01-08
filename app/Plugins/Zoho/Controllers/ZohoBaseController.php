@@ -3,9 +3,11 @@
 namespace App\Plugins\Zoho\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Plugins\Zoho\Helpers\ConnectHelper;
+use App\Plugins\Zoho\Helpers\ZohoConnectHelper;
 use App\Plugins\Zoho\Models\FaveoLocalFields;
+use App\Plugins\Zoho\Models\ZohoFieldMappings;
 use App\Plugins\Zoho\Models\ZohoFields;
+use App\Plugins\Zoho\Models\ZohoIntegration;
 use Illuminate\Http\Request;
 
 class ZohoBaseController extends Controller
@@ -15,14 +17,14 @@ class ZohoBaseController extends Controller
      */
     public function getModulesFields(string $platform, string $module)
     {
-        $moduleFields = ConnectHelper::getModulesFields($platform, $module);
+        $moduleFields = ZohoConnectHelper::getModulesFields($platform, $module);
 
         return successResponse('', $moduleFields);
     }
 
     public function getMappedFields(string $platform, string $module)
     {
-        $mappedFields = ConnectHelper::getExistingMappings($platform, $module);
+        $mappedFields = ZohoConnectHelper::getExistingMappings($platform, $module);
 
         return successResponse('', $mappedFields);
     }
@@ -33,6 +35,8 @@ class ZohoBaseController extends Controller
     public function updateMapping(Request $request)
     {
         $request->validate([
+            'integration_id' => 'required|exists:zoho_integrations,id',
+            'module' => 'required|string',
             'mappings' => 'required|array',
             'mappings.*.zoho_field_id' => 'required|exists:zoho_fields,id',
             'mappings.*.selected.type' => 'required|in:local,zoho',
@@ -40,8 +44,27 @@ class ZohoBaseController extends Controller
         ]);
 
         \DB::transaction(function () use ($request) {
+
+            $incomingIds = collect($request->mappings)
+                ->pluck('zoho_field_id')
+                ->unique();
+
+            $zohoIntegration = ZohoIntegration::findOrFail($request->integration_id);
+
+            ZohoFieldMappings::whereIn('zoho_field_id', function ($query) use (
+                $request,
+                $zohoIntegration,
+                $incomingIds
+            ) {
+                $query->select('id')
+                    ->from('zoho_fields')
+                    ->where('module', $request->module)
+                    ->where('platform', $zohoIntegration->platform)
+                    ->whereNotIn('id', $incomingIds);
+            })->delete();
+
             foreach ($request->mappings as $map) {
-                ConnectHelper::updateMapping(
+                ZohoConnectHelper::updateMapping(
                     $map['zoho_field_id'],
                     $map['selected'],
                     $map

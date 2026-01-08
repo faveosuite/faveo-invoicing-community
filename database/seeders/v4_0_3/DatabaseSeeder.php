@@ -1,10 +1,26 @@
 <?php
 
-namespace App\Plugins\Zoho\database\seeders;
+namespace Database\Seeders\v4_0_3;
 
-class DasbaseSeeder
+use App\Model\Common\FaveoCloud;
+use App\Model\Order\InstallationDetail;
+use App\Model\Product\Subscription;
+use App\Plugins\Zoho\Models\FaveoLocalFields;
+use App\ThirdPartyApp;
+use GuzzleHttp\Client;
+use Illuminate\Database\Seeder;
+
+class DatabaseSeeder extends Seeder
 {
-    public function faveoLocalFieldsSeeder()
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+       $this->faveoLocalFieldsSeeder();
+    }
+
+    public function faveoLocalFieldsSeeder(): void
     {
         $fields = [
             ['label' => 'User Name',  'key' => 'user_name',  'type' => 'string'],
