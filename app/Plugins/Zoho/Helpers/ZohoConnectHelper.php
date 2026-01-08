@@ -6,7 +6,7 @@ use App\Plugins\Zoho\Models\ZohoFieldMappings;
 use App\Plugins\Zoho\Models\ZohoFields;
 use Illuminate\Support\Collection;
 
-class ConnectHelper
+class ZohoConnectHelper
 {
     public static function getModulesFields(string $platform, string $module)
     {

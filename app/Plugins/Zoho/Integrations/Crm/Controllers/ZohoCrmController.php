@@ -65,14 +65,19 @@ class ZohoCrmController extends ZohoBaseController
                 'email' => 'required|email',
             ]);
 
-            $this->insertModuledata('Contacts', $data['email']);
-
-            $this->insertModuledata('Accounts', $data['email']);
+            $this->addUserDataToCrm($data['email']);
 
             return successResponse('CRM contact created successfully');
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
+    }
+
+    public function addUserDataToCrm(string $email): void
+    {
+        $this->insertModuledata('Contacts', $email);
+
+        $this->insertModuledata('Accounts', $email);
     }
 
     protected function insertModuledata(string $module, string $email)

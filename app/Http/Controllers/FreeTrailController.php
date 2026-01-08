@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Common\ExternalServiceController;
 use App\Http\Controllers\License\LicenseController;
 use App\Http\Controllers\Order\BaseOrderController;
 use App\Http\Controllers\Tenancy\TenantController;
@@ -275,11 +276,10 @@ class FreeTrailController extends Controller
 
                 $cont->syncTheAddonForALicense($addOnIds, $serial_key, $options);
             }
-            $mailchimpStatus = StatusSetting::pluck('mailchimp_status')->first();
 
-            if ($mailchimpStatus) {
-                $baseorder->addtoMailchimp($product, $user_id, $item);
-            }
+            //Subscribe for Product Updates
+            (new ExternalServiceController())->subscribeForProductsUpdates($product, $user_id, $item);
+
             \Session::forget('planDays');
 
             return $serial_key;

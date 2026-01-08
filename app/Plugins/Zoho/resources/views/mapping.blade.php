@@ -6,7 +6,7 @@
 
     <div class="card">
         <div class="card-header">
-            <h3>Zoho CRM – <span id="module-name"></span> Mapping</h3>
+            <h3>Zoho {{ $integration->platform }} – <span id="module-name"></span> Mapping</h3>
         </div>
 
         <div class="card-body">
@@ -33,7 +33,7 @@
 
             const baseUrl = "{{ url('') }}";
             const module  = "{{ $module }}";
-            const platform = "{{ $platform }}";
+            const platform = "{{ $integration->platform }}";
 
             let cachedZohoFields = [];
 
@@ -226,6 +226,8 @@
                 // Correct route is /zoho/mapping/save (not /zoho/crm/mapping/save)
                 $.post(`${baseUrl}/zoho/mapping/save`, {
                     _token: $('meta[name="csrf-token"]').attr('content'),
+                    module: module,
+                    integration_id: {{ $integration->id }},
                     mappings
                 }, res => alert(res.message));
             });

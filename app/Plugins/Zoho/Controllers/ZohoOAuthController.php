@@ -15,64 +15,77 @@ class ZohoOAuthController extends Controller
 {
     public function connectPage()
     {
-        return view('zoho::connect');
+        $integrations = ZohoIntegration::select(
+            'id',
+            'platform',
+            'description',
+            'is_active'
+        )->get();
+
+        return view('zoho::connect', compact('integrations'));
+    }
+
+
+    public function getOauthClientKeys($integration)
+    {
+        $client = ZohoOAuthClient::where('integration_id', $integration)->first();
+
+        return successResponse('', $client);
     }
 
     public function saveOAuthClientKeys(Request $request)
     {
         $validated = $request->validate([
             'integration_id' => 'required|exists:zoho_integrations,id',
-            'client_id' => 'required|string',
-            'client_secret' => 'required|string',
-            'redirect_uri' => 'required|url',
-            'region' => 'required|in:in,us,eu,au,jp,cn',
+            'client_id'      => 'required|string',
+            'client_secret'  => 'required|string',
+            'redirect_uri'   => 'required|url',
+            'region'         => 'required|in:in,us,eu,au,jp,cn',
         ]);
 
+        $integration = ZohoIntegration::findOrFail($validated['integration_id']);
+
         ZohoOAuthClient::updateOrCreate(
-            ['integration_id' => $validated['integration_id']],
+            ['integration_id' => $integration->id],
             [
-                'client_id' => $validated['client_id'],
+                'client_id'     => $validated['client_id'],
                 'client_secret' => $validated['client_secret'],
-                'redirect_uri' => $validated['redirect_uri'],
-                'region' => $validated['region'],
+                'redirect_uri'  => $validated['redirect_uri'],
+                'region'        => $validated['region'],
             ]
         );
 
-        return successResponse('OAuth client keys saved successfully');
+        return successResponse('', [
+            'redirect_url' => $this->getAuthorizationUrlByPlatform(
+                $integration->platform,
+            )
+        ]);
     }
 
-    public function getAuthorizationUrl(Request $request)
+    public function getAuthorizationUrlByPlatform(string $platform): string
     {
-        try {
-            $platform = $request->validate([
-                'platform' => 'required|in:crm,campaigns',
-            ])['platform'];
+        $integration = ZohoIntegration::with('client')
+            ->where('platform', $platform)
+            ->firstOrFail();
 
-            $integration = ZohoIntegration::with('client')
-                ->where('platform', $platform)
-                ->where('is_active', true)
-                ->firstOrFail();
+        $client = $integration->client;
 
-            $client = $integration->client;
-
-            return successResponse('',
-                ['redirect_url' => $this->authorizationUrl(
-                    $client->region,
-                    [
-                        'client_id' => $client->client_id,
-                        'response_type' => 'code',
-                        'redirect_uri' => $client->redirect_uri,
-                        'scope' => $this->getScopesByPlatform($platform),
-                        'access_type' => 'offline',
-                        'prompt' => 'consent',
-                        'state' => $platform,
-                    ]
-                ),
-                ]
-            );
-        } catch (\Exception $e) {
-            return errorResponse($e->getMessage());
+        if (! $client) {
+            throw new \Exception('OAuth client not configured');
         }
+
+        return $this->authorizationUrl(
+            $client->region,
+            [
+                'client_id'     => $client->client_id,
+                'response_type' => 'code',
+                'redirect_uri'  => $client->redirect_uri,
+                'scope'         => $this->getScopesByPlatform($platform),
+                'access_type'   => 'offline',
+                'prompt'        => 'consent',
+                'state'         => $platform,
+            ]
+        );
     }
 
     /**
@@ -103,7 +116,6 @@ class ZohoOAuthController extends Controller
 
         $integration = ZohoIntegration::with('client')
             ->where('platform', $platform)
-            ->where('is_active', true)
             ->firstOrFail();
 
         $client = $integration->client;
@@ -151,6 +163,10 @@ class ZohoOAuthController extends Controller
                 'api_domain' => $data['api_domain'] ?? null,
             ]
         );
+
+        $integration->update([
+            'is_active' => true,
+        ]);
     }
 
     /**

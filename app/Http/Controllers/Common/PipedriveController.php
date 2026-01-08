@@ -314,7 +314,7 @@ class PipedriveController extends Controller
             ]);
             $this->addDeal($deal);
         } catch (\Exception $e) {
-            throw new \Exception('Error adding user to Pipedrive: '.$e->getMessage());
+            \Logger::exception($e);
         }
     }
 
