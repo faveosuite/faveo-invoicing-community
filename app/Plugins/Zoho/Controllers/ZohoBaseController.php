@@ -44,7 +44,6 @@ class ZohoBaseController extends Controller
         ]);
 
         \DB::transaction(function () use ($request) {
-
             $incomingIds = collect($request->mappings)
                 ->pluck('zoho_field_id')
                 ->unique();

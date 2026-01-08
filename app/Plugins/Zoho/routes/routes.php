@@ -9,8 +9,7 @@ use App\Plugins\Zoho\Integrations\Crm\Controllers\ZohoCrmController;
 use App\Plugins\Zoho\Models\ZohoIntegration;
 
 Route::prefix('zoho')->group(function () {
-
-    Route::get('demo', function (){
+    Route::get('demo', function () {
         $freeProducts = Product::whereIn(
             'id',
             InvoiceItem::where('subtotal', 0)->distinct()->pluck('product_id')

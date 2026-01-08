@@ -2,8 +2,6 @@
 
 namespace App\Plugins\Zoho\Integrations\Campaigns\Controllers;
 
-use App\Model\Order\InvoiceItem;
-use App\Model\Product\Product;
 use App\Plugins\Zoho\Controllers\ZohoBaseController;
 use App\Plugins\Zoho\Controllers\ZohoSync;
 use App\Plugins\Zoho\Integrations\Campaigns\Facades\ZohoCampaigns;
@@ -67,7 +65,7 @@ class ZohoCampaignsController extends ZohoBaseController
 
     public function subscribe(string $email, string $type): void
     {
-        $topicName = config('zoho_campaigns.topics.' . $type . '.name');
+        $topicName = config('zoho_campaigns.topics.'.$type.'.name');
 
         if (! $topicName) {
             return;
