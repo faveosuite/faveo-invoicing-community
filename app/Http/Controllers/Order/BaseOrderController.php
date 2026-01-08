@@ -140,7 +140,6 @@ class BaseOrderController extends ExtendedOrderController
 
             //Subscribe for Product Updates
             (new ExternalServiceController())->subscribeForProductsUpdates($product, $user_id, $item);
-
         } catch (\Exception $ex) {
             \Logger::exception($ex);
 

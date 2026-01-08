@@ -9,7 +9,6 @@ use App\Model\Order\InvoiceItem;
 use App\Model\Product\Product;
 use App\Plugins\Zoho\Controllers\ZohoController;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\ZohoCampaignsController;
-use App\Plugins\Zoho\Integrations\Campaigns\Facades\ZohoCampaigns;
 use App\User;
 
 class ExternalServiceController extends BaseAuthController
@@ -20,7 +19,7 @@ class ExternalServiceController extends BaseAuthController
 
         if ($status->pipedrive_status) {
             $this->handleServiceUserSync(
-             service: 'pipedrive',
+                service: 'pipedrive',
                 user: $user,
                 status: $status,
                 trigger: $trigger,
@@ -56,17 +55,16 @@ class ExternalServiceController extends BaseAuthController
         string $trigger,
         callable $callback
     ): void {
-
         $requiresVerification = $this->serviceRequireFullVerification($service);
 
         // Service REQUIRES verification → only allow on FULLY VERIFIED trigger
         if ($requiresVerification) {
-
-            if (!$this->isUserFullyVerified($user, $status)) {
+            if (! $this->isUserFullyVerified($user, $status)) {
                 return;
             }
 
             $callback();
+
             return;
         }
 
@@ -78,8 +76,8 @@ class ExternalServiceController extends BaseAuthController
 
     private function isUserFullyVerified(User $user, StatusSetting $settings): bool
     {
-        $isEmailVerified = !$settings->emailverification_status || $user->email_verified;
-        $isMobileVerified = !$settings->msg91_status || $user->mobile_verified;
+        $isEmailVerified = ! $settings->emailverification_status || $user->email_verified;
+        $isMobileVerified = ! $settings->msg91_status || $user->mobile_verified;
 
         return $isEmailVerified && $isMobileVerified;
     }
@@ -88,19 +86,15 @@ class ExternalServiceController extends BaseAuthController
     {
         try {
             return match ($service) {
-                'zoho' =>
-                (bool) (ApiKey::value('require_zoho_user_verification') ?? false),
+                'zoho' => (bool) (ApiKey::value('require_zoho_user_verification') ?? false),
 
-                'pipedrive' =>
-                (bool) (ApiKey::value('require_pipedrive_user_verification') ?? false),
+                'pipedrive' => (bool) (ApiKey::value('require_pipedrive_user_verification') ?? false),
 
-                'mailchimp' =>
-                (bool) (ApiKey::value('require_mailchimp_user_verification') ?? false),
+                'mailchimp' => (bool) (ApiKey::value('require_mailchimp_user_verification') ?? false),
 
                 default => false,
             };
-        }
-        catch (\Throwable $e) {
+        } catch (\Throwable $e) {
             return false;
         }
     }
@@ -138,7 +132,6 @@ class ExternalServiceController extends BaseAuthController
             } else {
                 $mailchimp->addSubscriberForFreeProduct($email, $productId);
             }
-
         } catch (\Throwable $e) {
             \Logger::exception($e);
         }
@@ -160,11 +153,8 @@ class ExternalServiceController extends BaseAuthController
                 : 'free_products';
 
             (new ZohoCampaignsController())->subscribeWithTag($email, $type, $productName ?? $type);
-
         } catch (\Throwable $e) {
             \Logger::exception($e);
         }
     }
-
-
 }
