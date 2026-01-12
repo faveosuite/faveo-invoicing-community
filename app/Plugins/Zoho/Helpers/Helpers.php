@@ -23,11 +23,9 @@ function zohoMappedFields(
             continue;
         }
 
-        $zohoKey = $zohoField->platform === 'campaigns' ?
-            $zohoField->display_name :
-            $zohoField->zoho_key;
+        $zohoKey = $zohoField->zoho_key;
 
-        $selected = resolveSelected($zohoField, $mapping);
+        $selected = resolveSelected($mapping);
 
         if ($selected['type'] === 'local') {
             $updateKey = $mapping->faveoLocalField->field_key;
@@ -75,22 +73,22 @@ function resolveOptions($zohoField, Collection $localFields): array
 /**
  * Resolve selected mapping for a Zoho field.
  */
-function resolveSelected($zohoField, ?ZohoFieldMappings $mapping): ?array
+function resolveSelected(?ZohoFieldMappings $mapping): ?array
 {
     if (! $mapping) {
         return null;
     }
 
-    if ($zohoField->field_type === 'picklist') {
+    if (!empty($mapping->faveo_local_field_id)){
         return [
-            'type' => 'zoho',
-            'value' => $mapping->selected_option,
+            'type' => 'local',
+            'value' => $mapping->faveo_local_field_id,
         ];
     }
 
     return [
-        'type' => 'local',
-        'value' => $mapping->faveo_local_field_id,
+        'type' => 'zoho',
+        'value' => $mapping->selected_option,
     ];
 }
 

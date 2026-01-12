@@ -21,14 +21,11 @@ class ZohoCrmApiException extends Exception
 
     public static function fromResponse(array $response, int $httpStatus = 400): self
     {
-        $error = $response['data'][0] ?? [];
-
-        $code = $error['code'] ?? 'UNKNOWN_ERROR';
-        $message = $error['message'] ?? 'Zoho CRM error';
+        $code = $response['code'] ?? 'UNKNOWN_ERROR';
 
         return new self(
-            self::humanMessage($code, $error),
-            $error,
+            self::humanMessage($code, $response),
+            $response,
             $httpStatus
         );
     }

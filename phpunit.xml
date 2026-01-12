@@ -12,6 +12,9 @@
         <testsuite name="modules">
             <directory>./app/BillingLog</directory>
         </testsuite>
+        <testsuite name="Zoho">
+            <directory>./app/Plugins/Zoho/Tests</directory>
+        </testsuite>
     </testsuites>
     <coverage>
     </coverage>
