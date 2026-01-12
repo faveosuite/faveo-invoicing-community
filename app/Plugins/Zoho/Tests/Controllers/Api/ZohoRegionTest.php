@@ -7,7 +7,6 @@ use Tests\DBTestCase;
 
 class ZohoRegionTest extends DBTestCase
 {
-    
     public function test_it_returns_correct_label_for_each_region()
     {
         $expectations = [
@@ -25,7 +24,6 @@ class ZohoRegionTest extends DBTestCase
         }
     }
 
-    
     public function test_it_returns_correct_campaigns_domain_for_each_region()
     {
         $expectations = [
@@ -43,7 +41,6 @@ class ZohoRegionTest extends DBTestCase
         }
     }
 
-    
     public function test_it_returns_correct_accounts_domain_for_each_region()
     {
         $expectations = [
@@ -61,8 +58,6 @@ class ZohoRegionTest extends DBTestCase
         }
     }
 
-
-
     public function test_it_returns_correct_api_domain_for_each_region()
     {
         $expectations = [
@@ -79,7 +74,7 @@ class ZohoRegionTest extends DBTestCase
             $this->assertEquals($expectedDomain, $region->apiDomain());
         }
     }
-    
+
     public function test_it_can_be_instantiated_from_string_value()
     {
         $this->assertEquals(ZohoRegion::UnitedStates, ZohoRegion::from('us'));
@@ -90,13 +85,11 @@ class ZohoRegionTest extends DBTestCase
         $this->assertEquals(ZohoRegion::China, ZohoRegion::from('cn'));
     }
 
-
     public function test_it_returns_null_for_invalid_region_with_try_from()
     {
         $this->assertNull(ZohoRegion::tryFrom('invalid'));
     }
 
-    
     public function test_it_has_correct_enum_values()
     {
         $this->assertEquals('us', ZohoRegion::UnitedStates->value);
@@ -107,7 +100,6 @@ class ZohoRegionTest extends DBTestCase
         $this->assertEquals('cn', ZohoRegion::China->value);
     }
 
-    
     public function test_it_returns_all_enum_cases()
     {
         $cases = ZohoRegion::cases();

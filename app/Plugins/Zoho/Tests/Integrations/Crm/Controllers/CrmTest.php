@@ -34,7 +34,6 @@ class CrmTest extends DBTestCase
         $this->crm = new Crm();
     }
 
-    
     public function test_it_retrieves_crm_module_fields()
     {
         Http::fake([
@@ -56,7 +55,6 @@ class CrmTest extends DBTestCase
         $this->assertInstanceOf(\Illuminate\Support\Collection::class, $fields);
     }
 
-    
     public function test_it_retrieves_crm_records()
     {
         Http::fake([
@@ -74,7 +72,6 @@ class CrmTest extends DBTestCase
         $this->assertInstanceOf(\Illuminate\Support\Collection::class, $records);
     }
 
-    
     public function test_it_creates_crm_record()
     {
         Http::fake([
@@ -95,7 +92,6 @@ class CrmTest extends DBTestCase
         });
     }
 
-    
     public function test_it_updates_crm_record()
     {
         Http::fake([
@@ -116,7 +112,6 @@ class CrmTest extends DBTestCase
         });
     }
 
-    
     public function test_it_deletes_crm_record()
     {
         Http::fake([
@@ -135,7 +130,6 @@ class CrmTest extends DBTestCase
         });
     }
 
-    
     public function test_it_passes_params_to_records_query()
     {
         Http::fake([

@@ -12,23 +12,23 @@ use Tests\DBTestCase;
 class ZohoConnectHelperTest extends DBTestCase
 {
     use DatabaseTransactions;
-    
+
     public function test_get_modules_fields_returns_correct_structure()
     {
         ZohoFields::insert([
             [
-                'platform'         => 'crm',
-                'module'           => 'Contacts',
-                'zoho_field_uid'   => 'Contacts.First_Name',
-                'display_name'     => 'First Name',
-                'field_type'       => 'text',
+                'platform' => 'crm',
+                'module' => 'Contacts',
+                'zoho_field_uid' => 'Contacts.First_Name',
+                'display_name' => 'First Name',
+                'field_type' => 'text',
             ],
             [
-                'platform'         => 'crm',
-                'module'           => 'Contacts',
-                'zoho_field_uid'   => 'Contacts.Email',
-                'display_name'     => 'Email',
-                'field_type'       => 'email',
+                'platform' => 'crm',
+                'module' => 'Contacts',
+                'zoho_field_uid' => 'Contacts.Email',
+                'display_name' => 'Email',
+                'field_type' => 'email',
             ],
         ]);
 
@@ -42,7 +42,6 @@ class ZohoConnectHelperTest extends DBTestCase
         $this->assertEquals('email', $result[0]['type']);
     }
 
-    
     public function test_get_modules_fields_filters_by_platform_and_module()
     {
         ZohoFields::insert([
@@ -50,23 +49,23 @@ class ZohoConnectHelperTest extends DBTestCase
                 'platform' => 'crm',
                 'module' => 'Contacts',
                 'display_name' => 'CRM Contact Field',
-                'zoho_field_uid'   => 'Contacts.CRM Contact Field',
-                'field_type'       => 'text',
+                'zoho_field_uid' => 'Contacts.CRM Contact Field',
+                'field_type' => 'text',
             ],
             [
                 'platform' => 'campaigns',
                 'module' => 'Contacts',
                 'display_name' => 'Campaign Field',
-                'zoho_field_uid'   => 'Contacts.Campaign Field',
-                'field_type'       => 'email',
+                'zoho_field_uid' => 'Contacts.Campaign Field',
+                'field_type' => 'email',
             ],
             [
                 'platform' => 'crm',
                 'module' => 'Accounts',
                 'display_name' => 'CRM Account Field',
-                'zoho_field_uid'   => 'Accounts.CRM Account Field',
-                'field_type'       => 'email',
-            ]
+                'zoho_field_uid' => 'Accounts.CRM Account Field',
+                'field_type' => 'email',
+            ],
         ]);
 
         $result = ZohoConnectHelper::getModulesFields('crm', 'Contacts');
@@ -75,7 +74,6 @@ class ZohoConnectHelperTest extends DBTestCase
         $this->assertEquals('CRM Contact Field', $result[0]['field_name']);
     }
 
-    
     public function test_get_existing_mappings_returns_zoho_option_mapping()
     {
         $zohoField = ZohoFields::create([
@@ -97,7 +95,6 @@ class ZohoConnectHelperTest extends DBTestCase
         $this->assertEquals('Active', json_decode($result[0]['selected']['value'])->value);
     }
 
-    
     public function test_get_existing_mappings_returns_local_field_mapping()
     {
         $zohoField = ZohoFields::create([
@@ -121,7 +118,6 @@ class ZohoConnectHelperTest extends DBTestCase
         $this->assertEquals($localField->id, $result[0]['selected']['value']);
     }
 
-    
     public function test_get_existing_mappings_filters_null_mappings()
     {
         $zohoField = ZohoFields::create([
@@ -140,7 +136,6 @@ class ZohoConnectHelperTest extends DBTestCase
         $this->assertCount(0, $result);
     }
 
-    
     public function test_merge_fields_combines_zoho_and_local_fields()
     {
         $zohoField = ZohoFields::create([
@@ -163,7 +158,6 @@ class ZohoConnectHelperTest extends DBTestCase
         $this->assertEquals('First Name', $result[0]['options'][0]['label']);
     }
 
-    
     public function test_merge_fields_includes_zoho_picklist_options()
     {
         $zohoField = ZohoFields::create([
@@ -183,7 +177,6 @@ class ZohoConnectHelperTest extends DBTestCase
         $this->assertArrayHasKey('options', $result[0]);
     }
 
-    
     public function test_merge_fields_includes_selected_mapping()
     {
         $zohoField = ZohoFields::create([
@@ -205,7 +198,6 @@ class ZohoConnectHelperTest extends DBTestCase
         $this->assertEquals(5, $result[0]['selected']['local_field_id']);
     }
 
-    
     public function test_update_mapping_creates_new_local_field_mapping()
     {
         $zohoField = ZohoFields::create(['id' => 1]);
@@ -217,11 +209,10 @@ class ZohoConnectHelperTest extends DBTestCase
 
         $this->assertDatabaseHas('zoho_field_mappings', [
             'zoho_field_id' => $zohoField->id,
-            'faveo_local_field_id' => 5
+            'faveo_local_field_id' => 5,
         ]);
     }
 
-    
     public function test_update_mapping_creates_new_zoho_option_mapping()
     {
         $zohoField = ZohoFields::create(['id' => 1]);
@@ -241,7 +232,6 @@ class ZohoConnectHelperTest extends DBTestCase
         $this->assertEquals('Active', $selectedOption['value']);
     }
 
-    
     public function test_update_mapping_updates_existing_mapping()
     {
         $zohoField = ZohoFields::create(['id' => 1]);
@@ -263,7 +253,6 @@ class ZohoConnectHelperTest extends DBTestCase
         ]);
     }
 
-    
     public function test_update_mapping_throws_exception_for_invalid_type()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -275,7 +264,6 @@ class ZohoConnectHelperTest extends DBTestCase
         );
     }
 
-    
     public function test_update_mapping_sets_default_meta_values()
     {
         $zohoField = ZohoFields::create(['id' => 1]);
@@ -293,8 +281,6 @@ class ZohoConnectHelperTest extends DBTestCase
             'is_active' => true,
         ]);
     }
-
-
 
     public function test_update_mapping_can_set_use_default_if_empty()
     {
@@ -319,7 +305,6 @@ class ZohoConnectHelperTest extends DBTestCase
         );
     }
 
-    
     public function test_update_mapping_clears_unused_fields()
     {
         $zohoField = ZohoFields::create(['id' => 1]);
@@ -340,7 +325,6 @@ class ZohoConnectHelperTest extends DBTestCase
         $this->assertNull($updated->selected_option);
     }
 
-    
     public function test_get_existing_mappings_includes_relationships()
     {
         $zohoField = ZohoFields::create([

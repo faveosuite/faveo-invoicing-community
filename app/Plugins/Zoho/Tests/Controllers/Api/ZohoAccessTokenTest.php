@@ -22,7 +22,6 @@ class ZohoAccessTokenTest extends DBTestCase
         $this->accessToken = new ZohoAccessToken();
     }
 
-
     public function test_it_returns_valid_access_token()
     {
         $client = ZohoOAuthClient::create([
@@ -41,7 +40,6 @@ class ZohoAccessTokenTest extends DBTestCase
 
         $this->assertEquals('valid_token', $result);
     }
-
 
     public function test_it_refreshes_expired_access_token()
     {
@@ -71,14 +69,12 @@ class ZohoAccessTokenTest extends DBTestCase
         $this->assertEquals('new_access_token', $result);
     }
 
-
     public function test_it_returns_empty_string_when_no_token_exists()
     {
         $result = $this->accessToken->get(999);
 
         $this->assertEquals('', $result);
     }
-
 
     public function test_it_refreshes_token_about_to_expire()
     {
@@ -128,8 +124,6 @@ class ZohoAccessTokenTest extends DBTestCase
         $this->assertEquals('cached_token', $result2);
     }
 
-
-
     public function test_it_handles_failed_token_refresh()
     {
         $client = ZohoOAuthClient::create([
@@ -156,7 +150,6 @@ class ZohoAccessTokenTest extends DBTestCase
 
         $this->accessToken->get(1);
     }
-
 
     public function test_it_uses_correct_client_credentials_when_refreshing()
     {
