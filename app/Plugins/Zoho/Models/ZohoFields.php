@@ -12,6 +12,8 @@ class ZohoFields extends Model
      * Mass assignable attributes.
      */
     protected $fillable = [
+        'id',
+
         'platform',
         'module',
 

@@ -6,6 +6,7 @@ use App\Model\Common\FaveoCloud;
 use App\Model\Order\InstallationDetail;
 use App\Model\Product\Subscription;
 use App\Plugins\Zoho\Models\FaveoLocalFields;
+use App\Plugins\Zoho\Models\ZohoIntegration;
 use App\ThirdPartyApp;
 use GuzzleHttp\Client;
 use Illuminate\Database\Seeder;
@@ -18,6 +19,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
        $this->faveoLocalFieldsSeeder();
+       $this->zohoSeeder();
     }
 
     public function faveoLocalFieldsSeeder(): void
@@ -46,4 +48,32 @@ class DatabaseSeeder extends Seeder
             ])->toArray()
         );
     }
+
+    public function zohoSeeder(): void
+    {
+        $integrations = [
+            [
+                'id' => 1,
+                'platform'       => 'crm',
+                'description'    => 'Zoho CRM integration for managing leads, contacts, and sales automation.',
+            ],
+            [
+                'id' => 2,
+                'platform'       => 'campaigns',
+                'description'    => 'Zoho Campaigns integration for managing email marketing and subscriber lists.',
+            ],
+        ];
+
+        foreach ($integrations as $integration) {
+            ZohoIntegration::updateOrCreate(
+                ['id' => $integration['id']],
+                [
+                    'platform'    => $integration['platform'],
+                    'description' => $integration['description'],
+                    'is_active'   => false,
+                ]
+            );
+        }
+    }
+
 }

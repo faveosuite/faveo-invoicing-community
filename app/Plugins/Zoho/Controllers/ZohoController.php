@@ -13,18 +13,22 @@ use Illuminate\Http\Request;
 
 class ZohoController extends Controller
 {
+    public function __construct(
+        private ZohoCampaignsController $campaignsController,
+        private ZohoCrmController $crmController
+    ) {}
     public function addUserToZoho(User $user): void
     {
         $email = $user->email;
 
         try {
-            (new ZohoCampaignsController())->subscribe($email, 'newsletter');
+            $this->campaignsController->subscribe($email, 'newsletter');
         } catch (\Throwable $e) {
             \Logger::exception($e);
         }
 
         try {
-            (new ZohoCrmController())->addUserDataToCrm($email);
+            $this->crmController->addUserDataToCrm($email);
         } catch (\Throwable $e) {
             \Logger::exception($e);
         }
@@ -55,7 +59,7 @@ class ZohoController extends Controller
         match ($event) {
             'register' => AddUserToExternalService::dispatch($user, 'register'),
 
-            'newsletter' => app(ZohoCampaignsController::class)
+            'newsletter' => $this->campaignsController
                 ->subscribeCampaign(new Request([
                     'email' => $user->email,
                 ])),

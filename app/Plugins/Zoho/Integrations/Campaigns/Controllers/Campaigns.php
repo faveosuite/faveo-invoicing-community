@@ -52,7 +52,7 @@ class Campaigns
     {
         $listKey = $this->resolveListKey($list);
 
-        $topicId = $this->getTopicId($topic);
+        $topicId = $topic !== null ? $this->getTopicId($topic) : null;
 
         $this->zohoApi->listSubscribe($listKey, $email, $contactInfo, [], $topicId);
     }
@@ -65,7 +65,7 @@ class Campaigns
     {
         $listKey = $this->resolveListKey($list);
 
-        $topicId = $this->getTopicId($topic);
+        $topicId = $topic !== null ? $this->getTopicId($topic) : null;
 
         $additionalParams = ['donotmail_resub' => 'true'];
 

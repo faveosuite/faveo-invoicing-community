@@ -11,7 +11,7 @@ class ZohoCrmApi extends ZohoBaseApi
     /**
      * Get fields of a CRM module.
      *
-     * @link https://www.zoho.com/crm/developer/docs/api/v2/get-fields.html
+     * @link https://www.zoho.com/crm/developer/docs/api/v8/field-meta.html
      *
      * @param  string  $module  (Leads, Contacts, Deals, etc.)
      * @return array
@@ -37,7 +37,7 @@ class ZohoCrmApi extends ZohoBaseApi
     /**
      * Get records from a CRM module.
      *
-     * @link https://www.zoho.com/crm/developer/docs/api/v2/get-records.html
+     * @link https://www.zoho.com/crm/developer/docs/api/v8/get-records.html
      *
      * @param  string  $module
      * @param  array  $params
@@ -59,7 +59,7 @@ class ZohoCrmApi extends ZohoBaseApi
     /**
      * Create a CRM record.
      *
-     * @link https://www.zoho.com/crm/developer/docs/api/v2/insert-records.html
+     * @link https://www.zoho.com/crm/developer/docs/api/v8/insert-records.html
      *
      * @param  string  $module
      * @param  array  $data
@@ -82,7 +82,7 @@ class ZohoCrmApi extends ZohoBaseApi
     /**
      * Update a CRM record.
      *
-     * @link https://www.zoho.com/crm/developer/docs/api/v2/update-records.html
+     * @link https://www.zoho.com/crm/developer/docs/api/v8/update-records.html
      */
     public function update(string $module, string $recordId, array $data): void
     {
@@ -100,7 +100,7 @@ class ZohoCrmApi extends ZohoBaseApi
     /**
      * Delete a CRM record.
      *
-     * @link https://www.zoho.com/crm/developer/docs/api/v2/delete-records.html
+     * @link https://www.zoho.com/crm/developer/docs/api/v8/delete-records.html
      */
     public function delete(string $module, string $recordId): void
     {
