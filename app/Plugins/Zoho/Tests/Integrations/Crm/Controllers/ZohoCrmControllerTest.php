@@ -70,10 +70,10 @@ class ZohoCrmControllerTest extends DBTestCase
     {
         Http::fake([
             '*' => Http::response([
-                'code'    => 'INVALID_MODULE',
+                'code' => 'INVALID_MODULE',
                 'details' => [],
                 'message' => 'the module name given seems to be invalid',
-                'status'  => 'error',
+                'status' => 'error',
             ], 500),
         ]);
 

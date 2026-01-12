@@ -19,7 +19,6 @@ class ZohoSyncTest extends DBTestCase
         $this->sync = new ZohoSync();
     }
 
-    
     public function test_it_syncs_crm_fields_correctly()
     {
         $fields = [
@@ -45,7 +44,6 @@ class ZohoSyncTest extends DBTestCase
         ]);
     }
 
-    
     public function test_it_syncs_campaigns_fields_correctly()
     {
         $fields = [
@@ -71,7 +69,6 @@ class ZohoSyncTest extends DBTestCase
         ]);
     }
 
-    
     public function test_it_updates_existing_fields_when_syncing()
     {
         $existingField = ZohoFields::create([
@@ -101,7 +98,6 @@ class ZohoSyncTest extends DBTestCase
         ]);
     }
 
-    
     public function test_it_throws_exception_for_unsupported_platform()
     {
         $this->expectException(\Exception::class);
@@ -114,7 +110,6 @@ class ZohoSyncTest extends DBTestCase
         $this->sync->sync('unsupported', 'module', $fields);
     }
 
-    
     public function test_it_normalizes_crm_field_types_correctly()
     {
         $fieldTypes = [
@@ -154,7 +149,6 @@ class ZohoSyncTest extends DBTestCase
         }
     }
 
-    
     public function test_it_handles_campaigns_field_types()
     {
         $fields = [
@@ -175,7 +169,6 @@ class ZohoSyncTest extends DBTestCase
         ]);
     }
 
-    
     public function test_it_stores_raw_metadata_for_fields()
     {
         $fields = [
@@ -198,7 +191,6 @@ class ZohoSyncTest extends DBTestCase
         $this->assertEquals('custom_value', $field->raw_metadata['custom_property']);
     }
 
-    
     public function test_it_handles_mandatory_fields_for_crm()
     {
         $fields = [
@@ -231,7 +223,6 @@ class ZohoSyncTest extends DBTestCase
         ]);
     }
 
-    
     public function test_it_handles_mandatory_fields_for_campaigns()
     {
         $fields = [
@@ -252,7 +243,6 @@ class ZohoSyncTest extends DBTestCase
         ]);
     }
 
-    
     public function test_it_syncs_multiple_fields_in_single_call()
     {
         $fields = [

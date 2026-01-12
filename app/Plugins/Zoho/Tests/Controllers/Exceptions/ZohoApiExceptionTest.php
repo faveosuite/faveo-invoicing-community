@@ -7,7 +7,6 @@ use Tests\DBTestCase;
 
 class ZohoApiExceptionTest extends DBTestCase
 {
-    
     public function test_it_can_be_instantiated_with_error_id_and_message()
     {
         $exception = new ZohoApiException('test_error', 'Test error message');
@@ -16,7 +15,6 @@ class ZohoApiExceptionTest extends DBTestCase
         $this->assertInstanceOf(\Exception::class, $exception);
     }
 
-    
     public function test_it_stores_error_id()
     {
         $exception = new ZohoApiException('custom_error_id', 'Error occurred');
@@ -24,7 +22,6 @@ class ZohoApiExceptionTest extends DBTestCase
         $this->assertEquals('custom_error_id', $exception->getErrorId());
     }
 
-    
     public function test_it_stores_error_message()
     {
         $exception = new ZohoApiException('error_id', 'This is the error message');
@@ -32,7 +29,6 @@ class ZohoApiExceptionTest extends DBTestCase
         $this->assertEquals('This is the error message', $exception->getMessage());
     }
 
-    
     public function test_it_can_be_thrown_and_caught()
     {
         $this->expectException(ZohoApiException::class);
@@ -41,7 +37,6 @@ class ZohoApiExceptionTest extends DBTestCase
         throw new ZohoApiException('test', 'Test exception');
     }
 
-    
     public function test_it_can_be_caught_as_generic_exception()
     {
         try {
@@ -52,7 +47,6 @@ class ZohoApiExceptionTest extends DBTestCase
         }
     }
 
-    
     public function test_it_allows_different_error_ids_for_different_errors()
     {
         $exception1 = new ZohoApiException('invalid_token', 'Token is invalid');

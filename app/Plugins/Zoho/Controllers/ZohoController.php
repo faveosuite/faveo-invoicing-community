@@ -16,7 +16,9 @@ class ZohoController extends Controller
     public function __construct(
         private ZohoCampaignsController $campaignsController,
         private ZohoCrmController $crmController
-    ) {}
+    ) {
+    }
+
     public function addUserToZoho(User $user): void
     {
         $email = $user->email;

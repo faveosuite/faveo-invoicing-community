@@ -46,7 +46,6 @@ class CampaignsTest extends DBTestCase
         $this->campaigns = new Campaigns();
     }
 
-    
     public function test_it_subscribes_contact_to_list()
     {
         Http::fake([
@@ -62,7 +61,6 @@ class CampaignsTest extends DBTestCase
         });
     }
 
-    
     public function test_it_resubscribes_contact_to_list()
     {
         Http::fake([
@@ -78,7 +76,6 @@ class CampaignsTest extends DBTestCase
         });
     }
 
-    
     public function test_it_unsubscribes_contact_from_list()
     {
         Http::fake([
@@ -111,7 +108,6 @@ class CampaignsTest extends DBTestCase
         $this->assertCount(2, $subscribers->take(10));
     }
 
-    
     public function test_it_retrieves_subscribers_count()
     {
         Http::fake([
@@ -127,7 +123,6 @@ class CampaignsTest extends DBTestCase
         $this->assertIsInt($count);
     }
 
-    
     public function test_it_retrieves_all_tags()
     {
         Http::fake([
@@ -144,8 +139,6 @@ class CampaignsTest extends DBTestCase
         $this->assertInstanceOf(\Illuminate\Support\Collection::class, $tags);
         $this->assertGreaterThanOrEqual(2, $tags->count());
     }
-
-
 
     public function test_it_attaches_tag_to_contact()
     {
@@ -166,8 +159,6 @@ class CampaignsTest extends DBTestCase
             return str_contains($request->url(), 'associate');
         });
     }
-
-
 
     public function test_it_creates_tag_if_not_exists_when_attaching()
     {
@@ -190,8 +181,6 @@ class CampaignsTest extends DBTestCase
         });
     }
 
-
-
     public function test_it_detaches_tag_from_contact()
     {
         Http::fake([
@@ -211,8 +200,6 @@ class CampaignsTest extends DBTestCase
             return str_contains($request->url(), 'tag/deassociate');
         });
     }
-
-
 
     public function test_it_handles_detach_tag_when_tag_not_found()
     {
@@ -235,7 +222,6 @@ class CampaignsTest extends DBTestCase
         $this->assertTrue(true);
     }
 
-    
     public function test_it_retrieves_contact_fields()
     {
         Http::fake([
@@ -314,7 +300,6 @@ class CampaignsTest extends DBTestCase
         });
     }
 
-    
     public function test_it_resolves_list_key_from_list_name()
     {
         Http::fake([
@@ -328,7 +313,6 @@ class CampaignsTest extends DBTestCase
         });
     }
 
-    
     public function test_it_throws_exception_when_default_list_cannot_be_resolved()
     {
         $this->expectException(\RuntimeException::class);
@@ -346,7 +330,6 @@ class CampaignsTest extends DBTestCase
         $campaigns = new Campaigns();
         $campaigns->subscribe('test@example.com');
     }
-
 
     public function test_it_limits_chunk_size_to_650_for_subscribers()
     {
@@ -371,7 +354,6 @@ class CampaignsTest extends DBTestCase
         });
     }
 
-    
     public function test_it_subscribes_with_topic()
     {
         Config::set('zoho_campaigns.topics.newsletter.name', 'Newsletter');
