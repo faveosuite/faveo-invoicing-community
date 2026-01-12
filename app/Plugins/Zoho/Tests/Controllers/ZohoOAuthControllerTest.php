@@ -23,7 +23,6 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->controller = new ZohoOAuthController();
     }
 
-    
     public function test_it_gets_oauth_client_keys_for_integration()
     {
         $integration = ZohoIntegration::first();
@@ -38,7 +37,6 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->assertEquals('test_client_id', $response->getData()->data->client_id);
     }
 
-    
     public function test_it_saves_oauth_client_keys_and_returns_redirect_url()
     {
         $integration = ZohoIntegration::wherePlatform('crm')->first();
@@ -65,7 +63,6 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->assertArrayHasKey('redirect_url', (array) $response->getData()->data);
     }
 
-    
     public function test_it_validates_required_fields_when_saving_oauth_keys()
     {
         $this->expectException(\Illuminate\Validation\ValidationException::class);
@@ -77,7 +74,6 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->controller->saveOAuthClientKeys($request);
     }
 
-    
     public function test_it_validates_region_must_be_valid()
     {
         $this->expectException(\Illuminate\Validation\ValidationException::class);
@@ -95,7 +91,6 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->controller->saveOAuthClientKeys($request);
     }
 
-    
     public function test_it_generates_authorization_url_for_platform()
     {
         $integration = ZohoIntegration::wherePlatform('crm')->first();
@@ -115,7 +110,6 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->assertStringContainsString('test_client', $url);
     }
 
-    
     public function test_it_throws_exception_when_oauth_client_not_configured()
     {
         $this->expectException(\Exception::class);
@@ -126,12 +120,10 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->controller->getAuthorizationUrlByPlatform('crm');
     }
 
-
-
     public function test_it_throws_exception_when_scopes_not_configured()
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("Scopes not configured for [crm]");
+        $this->expectExceptionMessage('Scopes not configured for [crm]');
 
         $integration = ZohoIntegration::wherePlatform('crm')->first();
 
@@ -148,7 +140,6 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->controller->getAuthorizationUrlByPlatform('crm');
     }
 
-    
     public function test_it_handles_zoho_callback_with_authorization_code()
     {
         $integration = ZohoIntegration::wherePlatform('crm')->first();
@@ -189,7 +180,6 @@ class ZohoOAuthControllerTest extends DBTestCase
         ]);
     }
 
-    
     public function test_it_handles_callback_error_when_code_not_present()
     {
         $integration = ZohoIntegration::wherePlatform('crm')->first();
@@ -208,7 +198,6 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->assertStringContainsString('zoho_status=error', $response->getTargetUrl());
     }
 
-    
     public function test_it_handles_callback_error_when_token_exchange_fails()
     {
         $integration = ZohoIntegration::wherePlatform('crm')->first();
@@ -237,7 +226,6 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->assertStringContainsString('zoho_status=error', $response->getTargetUrl());
     }
 
-    
     public function test_it_generates_correct_accounts_base_url_for_each_region()
     {
         $regions = [
@@ -255,7 +243,6 @@ class ZohoOAuthControllerTest extends DBTestCase
         }
     }
 
-    
     public function test_it_generates_authorization_url_with_query_params()
     {
         $queryParams = [
@@ -271,7 +258,6 @@ class ZohoOAuthControllerTest extends DBTestCase
         $this->assertStringContainsString('response_type=code', $url);
     }
 
-    
     public function test_it_generates_token_url_for_region()
     {
         $url = $this->controller->tokenUrl('eu');

@@ -23,7 +23,7 @@ class ZohoCampaignsControllerTest extends DBTestCase
     private ZohoCampaignsController $controller;
 
     /**
-     * Set up default HTTP fakes for Zoho API calls
+     * Set up default HTTP fakes for Zoho API calls.
      */
     protected function fakeZohoHttpCalls(array $additionalFakes = []): void
     {
@@ -91,7 +91,6 @@ class ZohoCampaignsControllerTest extends DBTestCase
         $this->controller = new ZohoCampaignsController();
     }
 
-
     public function test_it_syncs_campaigns_fields_and_topics_successfully()
     {
         Config::set('zoho_campaigns.topics', [
@@ -110,7 +109,6 @@ class ZohoCampaignsControllerTest extends DBTestCase
         ]);
     }
 
-
     public function test_it_handles_sync_fields_error()
     {
         $this->fakeZohoHttpCalls([
@@ -121,7 +119,6 @@ class ZohoCampaignsControllerTest extends DBTestCase
 
         $this->assertFalse($response->getData()->success);
     }
-
 
     public function test_it_gets_campaigns_mapped_fields()
     {
@@ -147,7 +144,6 @@ class ZohoCampaignsControllerTest extends DBTestCase
         $this->assertEquals($zohoField->id, $response->getData()->data[0]->zoho_field_id);
     }
 
-
     public function test_it_gets_campaigns_contact_fields()
     {
         ZohoFields::create([
@@ -162,7 +158,6 @@ class ZohoCampaignsControllerTest extends DBTestCase
         $this->assertEquals('First Name', $response->getData()->data[0]->field_name);
     }
 
-
     public function test_it_validates_email_when_subscribing()
     {
         $request = new Request(['email' => 'invalid-email']);
@@ -172,7 +167,6 @@ class ZohoCampaignsControllerTest extends DBTestCase
         $this->assertFalse($response->getData()->success);
         $this->assertEquals('Please enter a valid email address.', $response->getData()->message);
     }
-
 
     public function test_it_subscribes_to_campaign_successfully()
     {
@@ -187,7 +181,6 @@ class ZohoCampaignsControllerTest extends DBTestCase
         $this->assertTrue($response->getData()->success);
     }
 
-
     public function test_it_subscribes_with_topic_name_from_config()
     {
         $user = User::create(['email' => 'test@example.com']);
@@ -201,7 +194,6 @@ class ZohoCampaignsControllerTest extends DBTestCase
         });
     }
 
-    
     public function test_it_returns_early_when_topic_not_configured()
     {
         Config::set('zoho_campaigns.topics.newsletter.name', null);
@@ -212,7 +204,6 @@ class ZohoCampaignsControllerTest extends DBTestCase
 
         Http::assertNothingSent();
     }
-
 
     public function test_it_subscribes_with_mapped_contact_info()
     {
@@ -245,7 +236,6 @@ class ZohoCampaignsControllerTest extends DBTestCase
             return str_contains($request->url(), 'listsubscribe');
         });
     }
-
 
     public function test_it_subscribes_with_tag()
     {

@@ -79,7 +79,7 @@ function resolveSelected(?ZohoFieldMappings $mapping): ?array
         return null;
     }
 
-    if (!empty($mapping->faveo_local_field_id)){
+    if (! empty($mapping->faveo_local_field_id)) {
         return [
             'type' => 'local',
             'value' => $mapping->faveo_local_field_id,

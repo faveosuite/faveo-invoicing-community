@@ -23,7 +23,6 @@ class ZohoAccountsApiTest extends DBTestCase
         );
     }
 
-    
     public function test_it_generates_access_token_successfully()
     {
         Http::fake([
@@ -43,7 +42,6 @@ class ZohoAccountsApiTest extends DBTestCase
         $this->assertEquals(3600, $result['expires_in']);
     }
 
-    
     public function test_it_throws_exception_for_invalid_client()
     {
         $this->expectException(ZohoAccountsApiException::class);
@@ -57,7 +55,6 @@ class ZohoAccountsApiTest extends DBTestCase
         $this->api->generateAccessToken('auth_code_123');
     }
 
-    
     public function test_it_throws_exception_for_invalid_client_secret()
     {
         $this->expectException(ZohoAccountsApiException::class);
@@ -71,7 +68,6 @@ class ZohoAccountsApiTest extends DBTestCase
         $this->api->generateAccessToken('auth_code_123');
     }
 
-    
     public function test_it_throws_exception_for_invalid_code()
     {
         $this->expectException(ZohoAccountsApiException::class);
@@ -85,7 +81,6 @@ class ZohoAccountsApiTest extends DBTestCase
         $this->api->generateAccessToken('invalid_code');
     }
 
-    
     public function test_it_throws_generic_exception_for_unknown_errors()
     {
         $this->expectException(ZohoAccountsApiException::class);
@@ -99,7 +94,6 @@ class ZohoAccountsApiTest extends DBTestCase
         $this->api->generateAccessToken('auth_code_123');
     }
 
-    
     public function test_it_refreshes_access_token_successfully()
     {
         Http::fake([
@@ -118,7 +112,6 @@ class ZohoAccountsApiTest extends DBTestCase
         $this->assertArrayNotHasKey('refresh_token', $result);
     }
 
-    
     public function test_it_sends_correct_parameters_when_generating_token()
     {
         Http::fake();
@@ -139,7 +132,6 @@ class ZohoAccountsApiTest extends DBTestCase
         });
     }
 
-    
     public function test_it_sends_correct_parameters_when_refreshing_token()
     {
         Http::fake();
@@ -160,7 +152,6 @@ class ZohoAccountsApiTest extends DBTestCase
         });
     }
 
-    
     public function test_it_uses_correct_endpoint_for_us_region()
     {
         $api = new ZohoAccountsApi(
@@ -181,7 +172,6 @@ class ZohoAccountsApiTest extends DBTestCase
         });
     }
 
-    
     public function test_it_uses_correct_endpoint_for_eu_region()
     {
         $api = new ZohoAccountsApi(
@@ -202,7 +192,6 @@ class ZohoAccountsApiTest extends DBTestCase
         });
     }
 
-    
     public function test_it_uses_correct_endpoint_for_india_region()
     {
         $api = new ZohoAccountsApi(
@@ -223,7 +212,6 @@ class ZohoAccountsApiTest extends DBTestCase
         });
     }
 
-    
     public function test_it_handles_error_in_refresh_token()
     {
         $this->expectException(ZohoAccountsApiException::class);
