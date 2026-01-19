@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Front;
 use App\Facades\Cart;
 use App\Http\Controllers\Common\TemplateController;
 use App\Model\Common\Setting;
+use App\Model\Configure\ConfigGroup;
 use App\Model\Order\Invoice;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
@@ -97,11 +98,8 @@ class CartController extends BaseCartController
             if ($request->has('domain')) {
                 $domain = $request->input('domain').'.'.cloudSubDomain();
             }
-            if($request->has('group_id')) {
-                $this->addGroup($request->plan_id,$request->group_id,true);
-            }else{
-                $this->addProduct($id, $domain);
-            }
+            $groupProductId=$request->input('groupProductId');
+            $this->addProduct($id, $domain,$groupProductId);
             $url=url('show/cart');
             return successResponse('cart Redirect',['url'=>$url]);
            // return redirect('show/cart');
@@ -113,45 +111,6 @@ class CartController extends BaseCartController
     }
 
 
-//    public function addGroup($plan_id,$id){
-//        if (\Session::has('plan_id')) { //If a plan is selected from dropdown in pricing page, this is true
-//            $planid = \Session::get('plan_id');
-//            $query = Plan::where('id', $planid);
-//
-//        } else {
-//            $query = Plan::where('id', $id);
-//
-//            switch (Session::get('toggleState')) {
-//                case 'yearly':
-//                    $query->whereIn('days', [365, 366]);
-//                    break;
-//
-//                case 'monthly':
-//                    $query->whereIn('days', [30, 31]);
-//                    break;
-//            }
-//
-//
-//        }
-//        $userPlan = userCurrencyAndPrice($userId=null, $query);
-//        if (empty($userPlan['plan'])) {
-//            throw new \Exception(__('message.no_available_plans_currency'));
-//        }
-//
-//        $actualPrice= $this->applyOfferPrice($userPlan,true);
-//
-//        $content=$this->cart->getContent();
-//        array_map(function($cont) use ($plan_id,$actualPrice,$id){
-//            if($cont['id']==$plan_id){
-//                $price=$cont['price']+$actualPrice;
-//                $this->cart->update($cont['id'],['price'=>$price,'group'=>$id]);
-//            }
-//        },$content);
-//    }
-
-
-
-
     /**
      * Returns the Collection to be added to cart.
      *
@@ -160,9 +119,9 @@ class CartController extends BaseCartController
      * @date   2019-01-10T18:14:09+0530
      *
      * @param  int  $id  Product Id
-     * @return array $items  Array of items and Tax conditions to the cart
+     * @return
      */
-    public function addProduct(int $id, $domain = null)
+    public function addProduct(int $id, $domain = null,$groupProductId=null)
     {
         try {
             $qty = 1;
@@ -206,8 +165,9 @@ class CartController extends BaseCartController
                 'quantity' => $qty, 'attributes' => ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $agents, 'domain' => $domain], 'associatedModel' => $product];
             $cart = new Cart();
             $attribute = ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $agents, 'domain' => $domain];
+            $groupProduct_id = $product->licenseType()->name== 'plugin'?$groupProductId:null;
             $cart->add($planid, $product->name, $actualPrice,
-                $qty, $attribute, '', $product);
+                $qty, $attribute, '', $product,'',$groupProduct_id);
 
 
             return $items;
@@ -411,7 +371,7 @@ class CartController extends BaseCartController
         return $plan;
     }
 
-    protected function applyOfferPrice(array $userPlanPrice, bool $shouldApplyOffer): float
+    public function applyOfferPrice(array $userPlanPrice, bool $shouldApplyOffer): float
     {
         $cost = $userPlanPrice['plan']->add_price;
 

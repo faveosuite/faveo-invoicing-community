@@ -4,6 +4,7 @@ namespace App\Model\Product;
 
 use App\BaseModel;
 use App\Facades\Attach;
+use App\Model\Configure\ConfigGroup;
 use App\Model\Configure\ConfigOption;
 use App\Model\Configure\PluginCompatibleWithProducts;
 use App\Model\Configure\ProductPluginGroup;
@@ -216,5 +217,10 @@ class Product extends BaseModel
     public function pluginCompWith()
     {
         return $this->hasMany(PluginCompatibleWithProducts::class, 'plugin_id');
+    }
+
+    public function ConfigGroup()
+    {
+        return $this->hasMany(ConfigGroup::class, 'product_id');
     }
 }

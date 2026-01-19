@@ -3,6 +3,7 @@
 namespace App\Model\Payment;
 
 use App\BaseModel;
+use App\Model\Configure\ConfigGroup;
 use App\Model\Configure\ConfigOption;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +15,7 @@ class Plan extends BaseModel
 
     protected $table = 'plans';
 
-    protected $fillable = ['name', 'product', 'allow_tax', 'days','group'];
+    protected $fillable = ['name', 'product', 'allow_tax', 'days','group_id'];
 
     protected $logName = 'plan';
 
@@ -66,4 +67,10 @@ class Plan extends BaseModel
     {
         return $this->hasMany(ConfigOption::class);
     }
+
+    public function ConfigGroup()
+    {
+        return $this->belongsTo(ConfigGroup::class);
+    }
+
 }

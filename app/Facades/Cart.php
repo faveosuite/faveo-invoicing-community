@@ -25,17 +25,17 @@ class Cart extends Facade
         return 'user-cart';
     }
 
-    public function add($id, $name = null, $price = null, $quantity = null, $attributes = [], $conditions = [], $associatedModel = null)
+    public function add($id, $name = null, $price = null, $quantity = null, $attributes = [], $conditions = [], $associatedModel = null,$group=null,$groupedProductId=null)
     {
         $cart = $this->getContent();
-
+        $groupedProductId=empty($groupedProductId)?rand():$groupedProductId;
         if (is_array($id)) {
             if ($this->isMultiArray($id)) {
                 foreach ($id as $item) {
-                    $this->add($item['id'], $item['name'], $item['price'] ?? null, $item['quantity'] ?? null, $item['attributes'] ?? null, $item['conditions'] ?? null, $item['associatedModel'] ?? null);
+                    $this->add($item['id'], $item['name'], $item['price'] ?? null, $item['quantity'] ?? null, $item['attributes'] ?? null, $item['conditions'] ?? null, $item['associatedModel'] ?? null,$item['group']??null,$item['groupProductId']??null);
                 }
             } else {
-                $this->add($id['id'], $id['name'], $id['price'] ?? null, $id['quantity'] ?? null, $id['attributes'] ?? null, $id['conditions'] ?? null, $id['associatedModel'] ?? null);
+                $this->add($id['id'], $id['name'], $id['price'] ?? null, $id['quantity'] ?? null, $id['attributes'] ?? null, $id['conditions'] ?? null, $id['associatedModel'] ?? null,$item['group']??null,$item['groupProductId']??null);
             }
 
             return $this;
@@ -49,6 +49,8 @@ class Cart extends Facade
             'attributes' => $attributes,
             'conditions' => $conditions,
             'associatedModel' => $associatedModel,
+            'group'=>$group,
+            'groupedProductId'=>$groupedProductId
         ];
 
         if ($cart->has($data['id'])) {

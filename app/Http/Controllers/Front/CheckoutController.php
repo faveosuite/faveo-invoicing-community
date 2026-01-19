@@ -184,7 +184,7 @@ class CheckoutController extends InfoController
 
             User::where('id', \Auth::user()->id)->update(['billing_pay_balance' => 0]);
             $cart = $this->cart;
-            return successResponse('',['content'=>$content,'taxCondtions'=>$taxConditions,'discountPrice'=>$discountPrice,'domain'=>$domain,'amt_to_credit'=>$amt_to_credit,'curr'=>$curr,'cart'=>$cart,'curr'=>$curr]);
+            return successResponse('',['content'=>$content,'taxConditions'=>$taxConditions,'discountPrice'=>$discountPrice,'domain'=>$domain,'amt_to_credit'=>$amt_to_credit,'curr'=>$curr,'cart'=>$cart,'curr'=>$curr]);
             //return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain', 'amt_to_credit', 'curr', 'cart'));
         } catch (\Exception $ex) {
             \Logger::exception($ex);
@@ -228,7 +228,7 @@ class CheckoutController extends InfoController
                         'domain' => optional($item['attributes']['domain']), 'priceToBePaid' => $item['attributes']['priceToBePaid'] ?? null,
                         'priceRemaining' => $item['attributes']['priceRemaining'] ?? null];
                     $this->cart->add($item['id'], $item['name'], $item['price'],
-                        $item['quantity'], $attribute, $taxConditions, Product::find($item['associatedModel']['id']));
+                        $item['quantity'], $attribute, $taxConditions, Product::find($item['associatedModel']['id'],$item['group'],$item['groupProductId']));
                 }
 
 //                Cart::add($items);
@@ -607,6 +607,46 @@ class CheckoutController extends InfoController
             \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
         }
     }
+
+    /**
+     *  This function is to add balance to the credits, this credits will be used for subscription and manual payments.
+     *
+     *
+     * @param
+     * @param  Request  $request
+     *
+     * @throws
+     */
+    public function AddBalance(Request $request)
+    {
+
+        try {
+            $user = \Auth::user();
+            $amount = $request->input('amount');
+            if (!$amount) {
+                return errorResponse(__('message.credits_not_updated'));
+            }
+
+
+            \Db::transaction(function () use ($amount, $user) {
+                $payment = Payment::firstOrCreate(['user_id' => $user->id, 'payment_method' => 'Credit Balance'], ['payment_status' => 'success', 'amt_to_credit' => '0']);
+                $payment->increament($amount);
+                $payment->payment_status = 'success';
+
+                $formattedValue = currencyFormat($amount, getCurrencyForClient(\Auth::user()->country), true);
+                $messageAdmin = 'A credit of ' . $formattedValue . ' has been added to the balance of wallet.';
+
+                $messageClient = 'A credit of ' . $formattedValue . ' has been added to the balance of your wallet.';
+                $activities = [['payment_id' => $payment->id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()],
+                    ['payment_id' => $payment->id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]];
+                CreditActivity::create($activities);
+            });
+            return successResponse(__('message.credits_updated'));
+        }catch(\Exception $ex){
+            return errorResponse($ex->getMessage());
+        }
+    }
+
 
     /**
      *  This function performs multiple cloud operations(UpgradeDowngradePlan,AgentAlteration,AgentAlterationForRenewal).

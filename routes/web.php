@@ -229,6 +229,30 @@ Route::middleware('installAgora')->group(function () {
     Route::get('activate/{token}', [Auth\AuthController::class, 'activate']);
     Route::get('footer1', [Front\WidgetController::class, 'footer1'])->name('footer1')->withoutMiddleware(['auth', 'admin']);
 
+    /* New api's that are included  */
+
+    Route::post('str-auto-renewal',[\App\Plugins\Stripe\Controllers\ProcessController::class,'processingStripeOrder']);
+    Route::post('create-subscription',[\App\Http\Controllers\Subscription\SubscriptionController::class,'createSubscriptionDetails']);
+    Route::post('str-webhook',[\App\Http\Controllers\Subscription\SubscriptionController::class,'stripe_webhook']);
+    Route::get('get-plugin-products',[\App\Http\Controllers\PluginsGrouping\PluginAdminController::class,'index']);
+    Route::get('get-compatible-plugins',[\App\Http\Controllers\PluginsGrouping\PluginAdminController::class,'getPlugins']);
+    Route::post('add-plugins',[\App\Http\Controllers\PluginsGrouping\PluginAdminController::class,'addPlugins']);
+    Route::delete('delete-plugins',[\App\Http\Controllers\PluginsGrouping\PluginAdminController::class,'deletePlugins']);
+    Route::post('addTo-group',[\App\Http\Controllers\PluginsGrouping\PluginAdminController::class,'productGrouping']);
+    Route::post('removeFrom-group',[\App\Http\Controllers\PluginsGrouping\PluginAdminController::class,'RemoveFromGroup']);
+    Route::get('get-group',[\App\Http\Controllers\PluginsGrouping\PluginAdminController::class,'getGroup']);
+    Route::post('create-group',[\App\Http\Controllers\PluginsGrouping\PluginAdminController::class,'createGroup']);
+    Route::delete('delete-group',[\App\Http\Controllers\PluginsGrouping\PluginAdminController::class,'groupDeletion']);
+    Route::post('create-option',[\App\Http\Controllers\PluginsGrouping\PluginAdminController::class,'createOption']);
+    Route::delete('delete-option',[\App\Http\Controllers\PluginsGrouping\PluginAdminController::class,'optionDeletion']);
+    Route::post('add-groupTo-cart',[\App\Http\Controllers\PluginsGrouping\PluginClientController::class,'addGroupToProduct']);
+    Route::post('remove-groupFrom-cart',[\App\Http\Controllers\PluginsGrouping\PluginClientController::class,'removeGroupFromProduct']);
+    Route::get('get-plugins',[\App\Http\Controllers\PluginsGrouping\PluginClientController::class,'getPlugins']);
+    Route::post('check-product',[\App\Http\Controllers\PluginsGrouping\PluginClientController::class,'checkProduct']);
+    Route::get('get-groupsWith-options',[\App\Http\Controllers\PluginsGrouping\PluginClientController::class,'getGroupsWithOptions']);
+    Route::get('getOptions-key-value',[\App\Http\Controllers\PluginsGrouping\PluginClientController::class,'getOptionKeyValue']);
+    Route::post('remove-whole-group',[\App\Http\Controllers\PluginsGrouping\PluginClientController::class,'removeWholeGroup']);
+
     /*
      * Client api's completion
      *

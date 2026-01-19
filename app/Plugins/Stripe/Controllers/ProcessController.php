@@ -56,6 +56,7 @@ class ProcessController extends Controller
                     throw new \Exception(__('message.stripe_fields_not_given'));
                 }
                 \Session::put('invoice', $invoice);
+
                 $this->middlePage($request->input('payment_gateway'));
             } elseif ($request->input('payment_gateway') == 'Razorpay') {
                 if (! \Schema::hasTable('razorpay')) {
@@ -335,5 +336,62 @@ class ProcessController extends Controller
         }
 
         return $randomString;
+    }
+
+
+    // new Functions
+
+    public function processingStripeOrder(){
+        try{
+            $user = auth()->user();
+
+            $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
+
+            \Stripe\Stripe::setApiKey($stripeSecretKey);
+            $currency=getCurrencyForClient($user->country);
+            $customer = \Stripe\Customer::create([
+                'name' => $user->first_name.' '.$user->last_name,
+                'email' => $user->email,
+                'address' => [
+                    'line1' => optional($user)->address,
+                    'postal_code' => optional($user)->zip,
+                    'city' => optional($user)->town,
+                    'state' => optional($user)->state,
+                    'country' => optional($user)->country,
+                ],
+            ]);
+
+            $mandateOptions = [
+                'reference' => str_random(10),
+                'amount' => 50000000, // in paise for INR if using INR currency
+                'currency' => $currency,
+                'amount_type' => 'maximum',
+                'interval' => 'month',
+                'interval_count' => 15,
+                'start_date' => time(),
+            ];
+
+            if ($user->country === 'IN') {
+                $mandateOptions['supported_types'] = ['india'];
+            }
+
+            $setupIntent=\Stripe\SetupIntent::create([
+                'customer' => $customer['id'],
+                'payment_method_types' => ['card'],
+                'usage' => 'off_session',
+                'payment_method_options' => [
+                    'card' => [
+                        'mandate_options' => [
+                         $mandateOptions
+                            ],
+                    ],
+                ],
+            ]);
+
+            return successResponse('',['client_secret'=>$setupIntent->client_secret]);
+        }catch(\Exception $ex){
+            return errorResponse($ex->getMessage());
+        }
+
     }
 }

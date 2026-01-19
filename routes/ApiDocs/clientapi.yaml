@@ -1956,6 +1956,457 @@ paths:
       responses:
         '200':
           description: Pricing updated successfully.
+  /str-auto-renewal:
+    post:
+      summary: Process a Stripe auto-renewal
+      operationId: processingStripeOrder
+      tags:
+        - Payment
+      responses:
+        '200':
+          description: Stripe auto-renewal processed successfully.
+  /create-subscription:
+    post:
+      summary: Create a subscription
+      operationId: createSubscriptionDetails
+      tags:
+        - Subscription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - invoice_id
+                - customer_id
+                - payment_method
+              properties:
+                invoice_id:
+                  type: integer
+                customer_id:
+                  type: string
+                payment_method:
+                  type: string
+      responses:
+        '200':
+          description: Subscription created successfully.
+  /str-webhook:
+    post:
+      summary: Stripe webhook
+      operationId: stripe_webhook
+      tags:
+        - Payment
+      responses:
+        '200':
+          description: Webhook handled.
+  /get-plugin-products:
+    get:
+      summary: Get all plugin products
+      operationId: index
+      tags:
+        - Plugins
+      responses:
+        '200':
+          description: A list of plugin products.
+          content:
+            application/json:
+              schema:
+                type: object
+  /get-compatible-plugins:
+    get:
+      summary: Get compatible plugins for a product
+      operationId: getPlugins
+      tags:
+        - Plugins
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of compatible plugins.
+          content:
+            application/json:
+              schema:
+                type: object
+  /add-plugins:
+    post:
+      summary: Add plugins to a product
+      operationId: addPlugins
+      tags:
+        - Plugins
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - product_id
+                - plugin_ids
+              properties:
+                product_id:
+                  type: integer
+                plugin_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Plugins added successfully.
+  /delete-plugins:
+    delete:
+      summary: Delete plugins from a product
+      operationId: deletePlugins
+      tags:
+        - Plugins
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - product_id
+                - plugin_ids
+              properties:
+                product_id:
+                  type: integer
+                plugin_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Plugins deleted successfully.
+  addTo-group:
+    post:
+      summary: Add plugins to a product group
+      operationId: productGrouping
+      tags:
+        - Plugins
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - product_id
+                - plugin_ids
+              properties:
+                product_id:
+                  type: integer
+                plugin_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Plugins added to group successfully.
+  /removeFrom-group:
+    post:
+      summary: Remove groups
+      operationId: RemoveFromGroup
+      tags:
+        - Plugins
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - group_ids
+              properties:
+                group_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Groups removed successfully.
+  /get-group:
+    get:
+      summary: Get groups for a product
+      operationId: getGroup
+      tags:
+        - Plugins
+      parameters:
+        - name: product_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of groups.
+          content:
+            application/json:
+              schema:
+                type: object
+  /create-group:
+    post:
+      summary: Create a configuration group
+      operationId: createGroup
+      tags:
+        - Plugins
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - group_name
+                - group_description
+                - product_id
+                - add_price
+                - renew_price
+                - offer_price
+                - name
+              properties:
+                group_name:
+                  type: string
+                group_description:
+                  type: string
+                product_id:
+                  type: integer
+                add_price:
+                  type: array
+                  items:
+                    type: number
+                renew_price:
+                  type: array
+                  items:
+                    type: number
+                offer_price:
+                  type: array
+                  items:
+                    type: number
+                name:
+                  type: string
+      responses:
+        '200':
+          description: Group created successfully.
+  /delete-group:
+    delete:
+      summary: Delete a configuration group
+      operationId: groupDeletion
+      tags:
+        - Plugins
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - group_id
+              properties:
+                group_id:
+                  type: integer
+      responses:
+        '200':
+          description: Group deleted successfully.
+  /create-option:
+    post:
+      summary: Create a configuration option
+      operationId: createOption
+      tags:
+        - Plugins
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - group_id
+                - option_name
+                - option_description
+                - config_option_key_value
+              properties:
+                group_id:
+                  type: integer
+                option_name:
+                  type: string
+                option_description:
+                  type: string
+                config_option_key_value:
+                  type: object
+      responses:
+        '200':
+          description: Option created successfully.
+  /delete-option:
+    delete:
+      summary: Delete configuration options
+      operationId: optionDeletion
+      tags:
+        - Plugins
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - option_ids
+              properties:
+                option_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Options deleted successfully.
+  /add-groupTo-cart:
+    post:
+      summary: Add a group to a product in the cart
+      operationId: addGroupToProduct
+      tags:
+        - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - group_id
+              properties:
+                group_id:
+                  type: integer
+      responses:
+        '200':
+          description: Group added to product successfully.
+  /remove-groupFrom-cart:
+    post:
+      summary: Remove a group from a product in the cart
+      operationId: removeGroupFromProduct
+      tags:
+        - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - group_id
+              properties:
+                group_id:
+                  type: integer
+      responses:
+        '200':
+          description: Group removed from product successfully.
+  /get-plugins:
+    get:
+      summary: Get compatible plugins for a product
+      operationId: getPluginsClient
+      tags:
+        - Plugins
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of compatible plugins.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+  /check-product:
+    post:
+      summary: Check if a plugin is compatible with a product
+      operationId: checkProduct
+      tags:
+        - Plugins
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - plugin_id
+                - product_id
+              properties:
+                plugin_id:
+                  type: integer
+                product_id:
+                  type: integer
+      responses:
+        '200':
+          description: Compatibility check result.
+  /get-groupsWith-options:
+    get:
+      summary: Get groups with options for a product
+      operationId: getGroupsWithOptions
+      tags:
+        - Plugins
+      parameters:
+        - name: product_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of groups with their options.
+          content:
+            application/json:
+              schema:
+                type: object
+  /getOptions-key-value:
+    get:
+      summary: Get key-value pairs for an option
+      operationId: getOptionKeyValue
+      tags:
+        - Plugins
+      parameters:
+        - name: option_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Key-value pairs for the option.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+  /remove-whole-group:
+    post:
+      summary: Remove a whole group from the cart
+      operationId: removeWholeGroup
+      tags:
+        - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - groupedProductId
+              properties:
+                groupedProductId:
+                  type: integer
+      responses:
+        '200':
+          description: Group removed successfully.
 components:
   securitySchemes:
     bearerAuth:

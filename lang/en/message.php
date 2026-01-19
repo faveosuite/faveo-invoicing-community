@@ -2951,4 +2951,5 @@ return [
     'mail_logs_fetched_successfully' => 'E-mail logs fetched successfully',
     'activity_logs_fetched_successfully' => 'Activity logs fetched successfully',
     'logs_deleted_successfully' => 'Logs deleted successfully',
+    'removed-successfully'=>'Removed Successfully',
 ];
