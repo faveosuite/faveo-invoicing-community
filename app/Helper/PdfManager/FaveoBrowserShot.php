@@ -24,7 +24,6 @@ class FaveoBrowserShot
         ]);
     }
 
-
     public static function browsershot(): Browsershot
     {
         self::init();
@@ -39,7 +38,9 @@ class FaveoBrowserShot
 
     private static function init(): void
     {
-        if (self::$initialized) return;
+        if (self::$initialized) {
+            return;
+        }
 
         self::prepareDirs();
         self::loadBinaries();
@@ -61,7 +62,7 @@ class FaveoBrowserShot
 
     private static function mkdir(string $path): void
     {
-        if (!is_dir($path)) {
+        if (! is_dir($path)) {
             mkdir($path, 0755, true);
         }
     }
@@ -75,8 +76,8 @@ class FaveoBrowserShot
         $settings = FileSystemSettings::query()->first();
 
         self::$bins = [
-            'node'   => $settings->node_path ?? null,
-            'npm'    => $settings->npm_path ?? null,
+            'node' => $settings->node_path ?? null,
+            'npm' => $settings->npm_path ?? null,
             'chrome' => $settings->chrome_path ?? null,
         ];
     }
