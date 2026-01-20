@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace Nette\Utils;
 
 use Nette;
+use function is_array, is_int, is_string;
+use const IMG_BMP, IMG_FLIP_BOTH, IMG_FLIP_HORIZONTAL, IMG_FLIP_VERTICAL, IMG_GIF, IMG_JPG, IMG_PNG, IMG_WEBP, PATHINFO_EXTENSION;
 
 
 /**
@@ -237,8 +239,8 @@ class Image
 	 */
 	public static function detectTypeFromFile(string $file, &$width = null, &$height = null): ?int
 	{
-		[$width, $height, $type] = @getimagesize($file); // @ - files smaller than 12 bytes causes read error
-		return isset(self::Formats[$type]) ? $type : null;
+		[$width, $height, $type] = Helpers::falseToNull(@getimagesize($file)); // @ - files smaller than 12 bytes causes read error
+		return $type && isset(self::Formats[$type]) ? $type : null;
 	}
 
 
@@ -248,8 +250,8 @@ class Image
 	 */
 	public static function detectTypeFromString(string $s, &$width = null, &$height = null): ?int
 	{
-		[$width, $height, $type] = @getimagesizefromstring($s); // @ - strings smaller than 12 bytes causes read error
-		return isset(self::Formats[$type]) ? $type : null;
+		[$width, $height, $type] = Helpers::falseToNull(@getimagesizefromstring($s)); // @ - strings smaller than 12 bytes causes read error
+		return $type && isset(self::Formats[$type]) ? $type : null;
 	}
 
 
@@ -771,7 +773,7 @@ class Image
 
 	public function __clone()
 	{
-		ob_start(function () {});
+		ob_start(fn() => '');
 		imagepng($this->image, null, 0);
 		$this->setImageResource(imagecreatefromstring(ob_get_clean()));
 	}
@@ -794,7 +796,7 @@ class Image
 	/**
 	 * Prevents serialization.
 	 */
-	public function __sleep(): array
+	public function __serialize(): array
 	{
 		throw new Nette\NotSupportedException('You cannot serialize or unserialize ' . self::class . ' instances.');
 	}

@@ -219,9 +219,6 @@ class FiltersDeleteResponse implements ModelInterface, ArrayAccess, JsonSerializ
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -264,7 +261,7 @@ class FiltersDeleteResponse implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\FiltersDeleteResponseAllOfData
+     * @return \Pipedrive\versions\v1\Model\FiltersDeleteResponseAllOfData|null
      */
     public function getData()
     {
@@ -274,7 +271,7 @@ class FiltersDeleteResponse implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\FiltersDeleteResponseAllOfData $data data
+     * @param \Pipedrive\versions\v1\Model\FiltersDeleteResponseAllOfData|null $data data
      *
      * @return self
      */

@@ -71,7 +71,9 @@ class OrganizationRequestBody implements ModelInterface, ArrayAccess, JsonSerial
         'add_time' => 'string',
         'update_time' => 'string',
         'visible_to' => 'int',
-        'label_ids' => 'int[]'
+        'label_ids' => 'int[]',
+        'address' => '\Pipedrive\versions\v2\Model\OrganizationItemAddress',
+        'custom_fields' => 'array<string,object>'
     ];
 
     /**
@@ -87,7 +89,9 @@ class OrganizationRequestBody implements ModelInterface, ArrayAccess, JsonSerial
         'add_time' => null,
         'update_time' => null,
         'visible_to' => null,
-        'label_ids' => null
+        'label_ids' => null,
+        'address' => null,
+        'custom_fields' => null
     ];
 
     /**
@@ -126,7 +130,9 @@ class OrganizationRequestBody implements ModelInterface, ArrayAccess, JsonSerial
         'add_time' => 'add_time',
         'update_time' => 'update_time',
         'visible_to' => 'visible_to',
-        'label_ids' => 'label_ids'
+        'label_ids' => 'label_ids',
+        'address' => 'address',
+        'custom_fields' => 'custom_fields'
     ];
 
     /**
@@ -140,7 +146,9 @@ class OrganizationRequestBody implements ModelInterface, ArrayAccess, JsonSerial
         'add_time' => 'setAddTime',
         'update_time' => 'setUpdateTime',
         'visible_to' => 'setVisibleTo',
-        'label_ids' => 'setLabelIds'
+        'label_ids' => 'setLabelIds',
+        'address' => 'setAddress',
+        'custom_fields' => 'setCustomFields'
     ];
 
     /**
@@ -154,7 +162,9 @@ class OrganizationRequestBody implements ModelInterface, ArrayAccess, JsonSerial
         'add_time' => 'getAddTime',
         'update_time' => 'getUpdateTime',
         'visible_to' => 'getVisibleTo',
-        'label_ids' => 'getLabelIds'
+        'label_ids' => 'getLabelIds',
+        'address' => 'getAddress',
+        'custom_fields' => 'getCustomFields'
     ];
 
     /**
@@ -230,6 +240,8 @@ class OrganizationRequestBody implements ModelInterface, ArrayAccess, JsonSerial
         $this->container['update_time'] = $data['update_time'] ?? null;
         $this->container['visible_to'] = $data['visible_to'] ?? null;
         $this->container['label_ids'] = $data['label_ids'] ?? null;
+        $this->container['address'] = $data['address'] ?? null;
+        $this->container['custom_fields'] = $data['custom_fields'] ?? null;
     }
 
     /**
@@ -398,6 +410,54 @@ class OrganizationRequestBody implements ModelInterface, ArrayAccess, JsonSerial
     public function setLabelIds($label_ids): self
     {
         $this->container['label_ids'] = $label_ids;
+
+        return $this;
+    }
+
+    /**
+     * Gets address
+     *
+     * @return \Pipedrive\versions\v2\Model\OrganizationItemAddress|null
+     */
+    public function getAddress()
+    {
+        return $this->container['address'];
+    }
+
+    /**
+     * Sets address
+     *
+     * @param \Pipedrive\versions\v2\Model\OrganizationItemAddress|null $address address
+     *
+     * @return self
+     */
+    public function setAddress($address): self
+    {
+        $this->container['address'] = $address;
+
+        return $this;
+    }
+
+    /**
+     * Gets custom_fields
+     *
+     * @return array<string,object>|null
+     */
+    public function getCustomFields()
+    {
+        return $this->container['custom_fields'];
+    }
+
+    /**
+     * Sets custom_fields
+     *
+     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes
+     *
+     * @return self
+     */
+    public function setCustomFields($custom_fields): self
+    {
+        $this->container['custom_fields'] = $custom_fields;
 
         return $this;
     }

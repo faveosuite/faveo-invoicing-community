@@ -267,36 +267,6 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     {
         $invalidProperties = [];
 
-        if ($this->container['id'] === null) {
-            $invalidProperties[] = "'id' can't be null";
-        }
-        if ($this->container['name'] === null) {
-            $invalidProperties[] = "'name' can't be null";
-        }
-        if ($this->container['icon_key'] === null) {
-            $invalidProperties[] = "'icon_key' can't be null";
-        }
-        if ($this->container['color'] === null) {
-            $invalidProperties[] = "'color' can't be null";
-        }
-        if ($this->container['order_nr'] === null) {
-            $invalidProperties[] = "'order_nr' can't be null";
-        }
-        if ($this->container['key_string'] === null) {
-            $invalidProperties[] = "'key_string' can't be null";
-        }
-        if ($this->container['active_flag'] === null) {
-            $invalidProperties[] = "'active_flag' can't be null";
-        }
-        if ($this->container['is_custom_flag'] === null) {
-            $invalidProperties[] = "'is_custom_flag' can't be null";
-        }
-        if ($this->container['add_time'] === null) {
-            $invalidProperties[] = "'add_time' can't be null";
-        }
-        if ($this->container['update_time'] === null) {
-            $invalidProperties[] = "'update_time' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -315,7 +285,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets id
      *
-     * @return int
+     * @return int|null
      */
     public function getId()
     {
@@ -325,7 +295,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets id
      *
-     * @param int $id The ID of the activity type
+     * @param int|null $id The ID of the activity type
      *
      * @return self
      */
@@ -339,7 +309,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets name
      *
-     * @return string
+     * @return string|null
      */
     public function getName()
     {
@@ -349,7 +319,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets name
      *
-     * @param string $name The name of the activity type
+     * @param string|null $name The name of the activity type
      *
      * @return self
      */
@@ -363,7 +333,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets icon_key
      *
-     * @return \Pipedrive\versions\v1\Model\IconKey
+     * @return \Pipedrive\versions\v1\Model\IconKey|null
      */
     public function getIconKey()
     {
@@ -373,7 +343,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets icon_key
      *
-     * @param \Pipedrive\versions\v1\Model\IconKey $icon_key icon_key
+     * @param \Pipedrive\versions\v1\Model\IconKey|null $icon_key icon_key
      *
      * @return self
      */
@@ -387,7 +357,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets color
      *
-     * @return string
+     * @return string|null
      */
     public function getColor()
     {
@@ -397,7 +367,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets color
      *
-     * @param string $color A designated color for the activity type in 6-character HEX format (e.g. `FFFFFF` for white, `000000` for black)
+     * @param string|null $color A designated color for the activity type in 6-character HEX format (e.g. `FFFFFF` for white, `000000` for black)
      *
      * @return self
      */
@@ -411,7 +381,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets order_nr
      *
-     * @return int
+     * @return int|null
      */
     public function getOrderNr()
     {
@@ -421,7 +391,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets order_nr
      *
-     * @param int $order_nr An order number for the activity type. Order numbers should be used to order the types in the activity type selections.
+     * @param int|null $order_nr An order number for the activity type. Order numbers should be used to order the types in the activity type selections.
      *
      * @return self
      */
@@ -435,7 +405,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets key_string
      *
-     * @return string
+     * @return string|null
      */
     public function getKeyString()
     {
@@ -445,7 +415,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets key_string
      *
-     * @param string $key_string A string that is generated by the API based on the given name of the activity type upon creation
+     * @param string|null $key_string A string that is generated by the API based on the given name of the activity type upon creation
      *
      * @return self
      */
@@ -459,7 +429,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets active_flag
      *
-     * @return bool
+     * @return bool|null
      */
     public function getActiveFlag()
     {
@@ -469,7 +439,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets active_flag
      *
-     * @param bool $active_flag The active flag of the activity type
+     * @param bool|null $active_flag The active flag of the activity type
      *
      * @return self
      */
@@ -483,7 +453,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets is_custom_flag
      *
-     * @return bool
+     * @return bool|null
      */
     public function getIsCustomFlag()
     {
@@ -493,7 +463,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets is_custom_flag
      *
-     * @param bool $is_custom_flag Whether the activity type is a custom one or not
+     * @param bool|null $is_custom_flag Whether the activity type is a custom one or not
      *
      * @return self
      */
@@ -507,7 +477,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets add_time
      *
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getAddTime()
     {
@@ -517,7 +487,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets add_time
      *
-     * @param \DateTime $add_time The creation time of the activity type
+     * @param \DateTime|null $add_time The creation time of the activity type
      *
      * @return self
      */
@@ -531,7 +501,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets update_time
      *
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getUpdateTime()
     {
@@ -541,7 +511,7 @@ class ActivityTypeObjectResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets update_time
      *
-     * @param \DateTime $update_time The update time of the activity type
+     * @param \DateTime|null $update_time The update time of the activity type
      *
      * @return self
      */

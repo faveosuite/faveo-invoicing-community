@@ -1024,6 +1024,313 @@ class DealsApi
     }
 
     /**
+     * Operation addManyDealProducts
+     *
+     * Add multiple products to a deal
+     *
+     * @param  int $id The ID of the deal (required)
+     * @param  \Pipedrive\versions\v2\Model\CreateManyDealProductRequestBody|null $create_many_deal_product_request_body create_many_deal_product_request_body (optional)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\CreateManyDealProductResponse
+     */
+    public function addManyDealProducts($id, $create_many_deal_product_request_body = null)
+    {
+        list($response) = $this->addManyDealProductsWithHttpInfo($id, $create_many_deal_product_request_body);
+        return $response;
+    }
+
+    /**
+     * Operation addManyDealProductsWithHttpInfo
+     *
+     * Add multiple products to a deal
+     *
+     * @param  int $id The ID of the deal (required)
+     * @param  \Pipedrive\versions\v2\Model\CreateManyDealProductRequestBody|null $create_many_deal_product_request_body (optional)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\CreateManyDealProductResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function addManyDealProductsWithHttpInfo($id, $create_many_deal_product_request_body = null)
+    {
+        $request = $this->addManyDealProductsRequest($id, $create_many_deal_product_request_body);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->addManyDealProductsRequest($id, $create_many_deal_product_request_body);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 201:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\CreateManyDealProductResponse' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\CreateManyDealProductResponse', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\CreateManyDealProductResponse' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\CreateManyDealProductResponse', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 201:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\CreateManyDealProductResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation addManyDealProductsAsync
+     *
+     * Add multiple products to a deal
+     *
+     * @param  int $id The ID of the deal (required)
+     * @param  \Pipedrive\versions\v2\Model\CreateManyDealProductRequestBody|null $create_many_deal_product_request_body (optional)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function addManyDealProductsAsync($id, $create_many_deal_product_request_body = null): PromiseInterface
+    {
+        return $this->addManyDealProductsAsyncWithHttpInfo($id, $create_many_deal_product_request_body)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation addManyDealProductsAsyncWithHttpInfo
+     *
+     * Add multiple products to a deal
+     *
+     * @param  int $id The ID of the deal (required)
+     * @param  \Pipedrive\versions\v2\Model\CreateManyDealProductRequestBody|null $create_many_deal_product_request_body (optional)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function addManyDealProductsAsyncWithHttpInfo($id, $create_many_deal_product_request_body = null): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\CreateManyDealProductResponse';
+        $request = $this->addManyDealProductsRequest($id, $create_many_deal_product_request_body);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'addManyDealProducts'
+     *
+     * @param  int $id The ID of the deal (required)
+     * @param  \Pipedrive\versions\v2\Model\CreateManyDealProductRequestBody|null $create_many_deal_product_request_body (optional)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function addManyDealProductsRequest($id, $create_many_deal_product_request_body = null): Request
+    {
+        // verify the required parameter 'id' is set
+        /* @phpstan-ignore-next-line */
+        if ($id === null || (is_array($id) && count($id) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $id when calling addManyDealProducts'
+            );
+        }
+
+        $resourcePath = '/deals/{id}/products/bulk';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                '{' . 'id' . '}',
+                ObjectSerializer::toPathValue($id),
+                $resourcePath
+            );
+        }
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                ['application/json']
+            );
+        }
+
+        // for model (json/xml)
+        if (isset($create_many_deal_product_request_body)) {
+            if ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($create_many_deal_product_request_body));
+            } else {
+                $httpBody = $create_many_deal_product_request_body;
+            }
+        } elseif (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'POST',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
      * Operation convertDealToLead
      *
      * Convert a deal to a lead (BETA)
@@ -1346,7 +1653,7 @@ class DealsApi
      * Delete a discount from a deal
      *
      * @param  int $id The ID of the deal (required)
-     * @param  int $discount_id The ID of the discount (required)
+     * @param  string $discount_id The ID of the discount (required)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
@@ -1364,7 +1671,7 @@ class DealsApi
      * Delete a discount from a deal
      *
      * @param  int $id The ID of the deal (required)
-     * @param  int $discount_id The ID of the discount (required)
+     * @param  string $discount_id The ID of the discount (required)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
@@ -1466,7 +1773,7 @@ class DealsApi
      * Delete a discount from a deal
      *
      * @param  int $id The ID of the deal (required)
-     * @param  int $discount_id The ID of the discount (required)
+     * @param  string $discount_id The ID of the discount (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
@@ -1487,7 +1794,7 @@ class DealsApi
      * Delete a discount from a deal
      *
      * @param  int $id The ID of the deal (required)
-     * @param  int $discount_id The ID of the discount (required)
+     * @param  string $discount_id The ID of the discount (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
@@ -1535,7 +1842,7 @@ class DealsApi
      * Create request for operation 'deleteAdditionalDiscount'
      *
      * @param  int $id The ID of the deal (required)
-     * @param  int $discount_id The ID of the discount (required)
+     * @param  string $discount_id The ID of the discount (required)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
@@ -2823,6 +3130,315 @@ class DealsApi
             $resourcePath = str_replace(
                 '{' . 'installment_id' . '}',
                 ObjectSerializer::toPathValue($installment_id),
+                $resourcePath
+            );
+        }
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                []
+            );
+        }
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'DELETE',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation deleteManyDealProducts
+     *
+     * Delete many products from a deal
+     *
+     * @param  int $id The ID of the deal (required)
+     * @param  string|null $ids Comma-separated list of deal product IDs to delete. If not provided, all deal products will be deleted up to 100 items. Maximum 100 IDs allowed. (optional)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\DeleteManyDealProductResponse
+     */
+    public function deleteManyDealProducts($id, $ids = null)
+    {
+        list($response) = $this->deleteManyDealProductsWithHttpInfo($id, $ids);
+        return $response;
+    }
+
+    /**
+     * Operation deleteManyDealProductsWithHttpInfo
+     *
+     * Delete many products from a deal
+     *
+     * @param  int $id The ID of the deal (required)
+     * @param  string|null $ids Comma-separated list of deal product IDs to delete. If not provided, all deal products will be deleted up to 100 items. Maximum 100 IDs allowed. (optional)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\DeleteManyDealProductResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function deleteManyDealProductsWithHttpInfo($id, $ids = null)
+    {
+        $request = $this->deleteManyDealProductsRequest($id, $ids);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->deleteManyDealProductsRequest($id, $ids);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\DeleteManyDealProductResponse' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\DeleteManyDealProductResponse', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\DeleteManyDealProductResponse' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\DeleteManyDealProductResponse', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\DeleteManyDealProductResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation deleteManyDealProductsAsync
+     *
+     * Delete many products from a deal
+     *
+     * @param  int $id The ID of the deal (required)
+     * @param  string|null $ids Comma-separated list of deal product IDs to delete. If not provided, all deal products will be deleted up to 100 items. Maximum 100 IDs allowed. (optional)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function deleteManyDealProductsAsync($id, $ids = null): PromiseInterface
+    {
+        return $this->deleteManyDealProductsAsyncWithHttpInfo($id, $ids)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation deleteManyDealProductsAsyncWithHttpInfo
+     *
+     * Delete many products from a deal
+     *
+     * @param  int $id The ID of the deal (required)
+     * @param  string|null $ids Comma-separated list of deal product IDs to delete. If not provided, all deal products will be deleted up to 100 items. Maximum 100 IDs allowed. (optional)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function deleteManyDealProductsAsyncWithHttpInfo($id, $ids = null): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\DeleteManyDealProductResponse';
+        $request = $this->deleteManyDealProductsRequest($id, $ids);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'deleteManyDealProducts'
+     *
+     * @param  int $id The ID of the deal (required)
+     * @param  string|null $ids Comma-separated list of deal product IDs to delete. If not provided, all deal products will be deleted up to 100 items. Maximum 100 IDs allowed. (optional)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function deleteManyDealProductsRequest($id, $ids = null): Request
+    {
+        // verify the required parameter 'id' is set
+        /* @phpstan-ignore-next-line */
+        if ($id === null || (is_array($id) && count($id) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $id when calling deleteManyDealProducts'
+            );
+        }
+
+        $resourcePath = '/deals/{id}/products';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($ids)) {
+            $ids = ObjectSerializer::serializeCollection($ids, '', true);
+        }
+        if ($ids !== null) {
+            $queryParams['ids'] = $ids;
+        }
+
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                '{' . 'id' . '}',
+                ObjectSerializer::toPathValue($id),
                 $resourcePath
             );
         }
@@ -4918,7 +5534,7 @@ class DealsApi
      * @param  int $id The ID of the deal (required)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
-     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. (optional, default to 'id')
+     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;, &#x60;order_nr&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
      *
      * @throws ApiException on non-2xx response
@@ -4939,7 +5555,7 @@ class DealsApi
      * @param  int $id The ID of the deal (required)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
-     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. (optional, default to 'id')
+     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;, &#x60;order_nr&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
      *
      * @throws ApiException on non-2xx response
@@ -5044,7 +5660,7 @@ class DealsApi
      * @param  int $id The ID of the deal (required)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
-     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. (optional, default to 'id')
+     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;, &#x60;order_nr&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
      *
      * @throws InvalidArgumentException|OAuthProviderException
@@ -5068,7 +5684,7 @@ class DealsApi
      * @param  int $id The ID of the deal (required)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
-     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. (optional, default to 'id')
+     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;, &#x60;order_nr&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
      *
      * @throws InvalidArgumentException|OAuthProviderException
@@ -5119,7 +5735,7 @@ class DealsApi
      * @param  int $id The ID of the deal (required)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
-     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. (optional, default to 'id')
+     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;, &#x60;order_nr&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
      *
      * @throws InvalidArgumentException|OAuthProviderException
@@ -5750,7 +6366,7 @@ class DealsApi
      * @param  int[] $deal_ids An array of integers with the IDs of the deals for which the attached products will be returned. A maximum of 100 deal IDs can be provided. (required)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
-     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;deal_id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. (optional, default to 'id')
+     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;deal_id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;, &#x60;order_nr&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
      *
      * @throws ApiException on non-2xx response
@@ -5771,7 +6387,7 @@ class DealsApi
      * @param  int[] $deal_ids An array of integers with the IDs of the deals for which the attached products will be returned. A maximum of 100 deal IDs can be provided. (required)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
-     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;deal_id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. (optional, default to 'id')
+     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;deal_id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;, &#x60;order_nr&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
      *
      * @throws ApiException on non-2xx response
@@ -5876,7 +6492,7 @@ class DealsApi
      * @param  int[] $deal_ids An array of integers with the IDs of the deals for which the attached products will be returned. A maximum of 100 deal IDs can be provided. (required)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
-     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;deal_id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. (optional, default to 'id')
+     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;deal_id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;, &#x60;order_nr&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
      *
      * @throws InvalidArgumentException|OAuthProviderException
@@ -5900,7 +6516,7 @@ class DealsApi
      * @param  int[] $deal_ids An array of integers with the IDs of the deals for which the attached products will be returned. A maximum of 100 deal IDs can be provided. (required)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
-     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;deal_id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. (optional, default to 'id')
+     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;deal_id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;, &#x60;order_nr&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
      *
      * @throws InvalidArgumentException|OAuthProviderException
@@ -5951,7 +6567,7 @@ class DealsApi
      * @param  int[] $deal_ids An array of integers with the IDs of the deals for which the attached products will be returned. A maximum of 100 deal IDs can be provided. (required)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
-     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;deal_id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. (optional, default to 'id')
+     * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;deal_id&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;, &#x60;order_nr&#x60;. (optional, default to 'id')
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
      *
      * @throws InvalidArgumentException|OAuthProviderException
@@ -7458,7 +8074,7 @@ class DealsApi
      * Update a discount added to a deal
      *
      * @param  int $id The ID of the deal (required)
-     * @param  int $discount_id The ID of the discount (required)
+     * @param  string $discount_id The ID of the discount (required)
      * @param  object|null $body body (optional)
      *
      * @throws ApiException on non-2xx response
@@ -7477,7 +8093,7 @@ class DealsApi
      * Update a discount added to a deal
      *
      * @param  int $id The ID of the deal (required)
-     * @param  int $discount_id The ID of the discount (required)
+     * @param  string $discount_id The ID of the discount (required)
      * @param  object|null $body (optional)
      *
      * @throws ApiException on non-2xx response
@@ -7580,7 +8196,7 @@ class DealsApi
      * Update a discount added to a deal
      *
      * @param  int $id The ID of the deal (required)
-     * @param  int $discount_id The ID of the discount (required)
+     * @param  string $discount_id The ID of the discount (required)
      * @param  object|null $body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
@@ -7602,7 +8218,7 @@ class DealsApi
      * Update a discount added to a deal
      *
      * @param  int $id The ID of the deal (required)
-     * @param  int $discount_id The ID of the discount (required)
+     * @param  string $discount_id The ID of the discount (required)
      * @param  object|null $body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
@@ -7651,7 +8267,7 @@ class DealsApi
      * Create request for operation 'updateAdditionalDiscount'
      *
      * @param  int $id The ID of the deal (required)
-     * @param  int $discount_id The ID of the discount (required)
+     * @param  string $discount_id The ID of the discount (required)
      * @param  object|null $body (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException

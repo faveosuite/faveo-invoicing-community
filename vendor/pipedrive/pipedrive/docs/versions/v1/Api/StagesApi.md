@@ -211,7 +211,7 @@ Name | Type | Description  | Notes
 ## `getStage()`
 
 ```php
-getStage($id, $everyone): \Pipedrive\versions\v1\Model\GetOneStage
+getStage($id): \Pipedrive\versions\v1\Model\GetOneStage
 ```
 
 Get one stage
@@ -241,10 +241,9 @@ $apiInstance = new Pipedrive\versions\v1\Api\StagesApi(
     $config
 );
 $id = 56; // int | The ID of the stage
-$everyone = new \Pipedrive\versions\v1\Model\\Pipedrive\versions\v1\Model\NumberBoolean(); // \Pipedrive\versions\v1\Model\NumberBoolean | If `everyone=1` is provided, deals summary will return deals owned by every user
 
 try {
-    $result = $apiInstance->getStage($id, $everyone);
+    $result = $apiInstance->getStage($id);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling StagesApi->getStage: ', $e->getMessage(), PHP_EOL;
@@ -256,7 +255,6 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **int**| The ID of the stage |
- **everyone** | [**\Pipedrive\versions\v1\Model\NumberBoolean**](../Model/.md)| If &#x60;everyone&#x3D;1&#x60; is provided, deals summary will return deals owned by every user | [optional]
 
 ### Return type
 

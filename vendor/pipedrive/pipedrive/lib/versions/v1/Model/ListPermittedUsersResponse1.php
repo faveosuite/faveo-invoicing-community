@@ -219,9 +219,6 @@ class ListPermittedUsersResponse1 implements ModelInterface, ArrayAccess, JsonSe
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -264,7 +261,7 @@ class ListPermittedUsersResponse1 implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets data
      *
-     * @return float[]
+     * @return float[]|null
      */
     public function getData()
     {
@@ -274,7 +271,7 @@ class ListPermittedUsersResponse1 implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets data
      *
-     * @param float[] $data The list of permitted user IDs
+     * @param float[]|null $data The list of permitted user IDs
      *
      * @return self
      */

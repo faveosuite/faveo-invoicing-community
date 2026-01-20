@@ -219,12 +219,6 @@ class OrganizationsDeleteResponse implements ModelInterface, ArrayAccess, JsonSe
     {
         $invalidProperties = [];
 
-        if ($this->container['success'] === null) {
-            $invalidProperties[] = "'success' can't be null";
-        }
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class OrganizationsDeleteResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets success
      *
-     * @return bool
+     * @return bool|null
      */
     public function getSuccess()
     {
@@ -253,7 +247,7 @@ class OrganizationsDeleteResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets success
      *
-     * @param bool $success If the request was successful or not
+     * @param bool|null $success If the request was successful or not
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class OrganizationsDeleteResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\OrganizationsDeleteResponseData
+     * @return \Pipedrive\versions\v1\Model\OrganizationsDeleteResponseData|null
      */
     public function getData()
     {
@@ -277,7 +271,7 @@ class OrganizationsDeleteResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\OrganizationsDeleteResponseData $data data
+     * @param \Pipedrive\versions\v1\Model\OrganizationsDeleteResponseData|null $data data
      *
      * @return self
      */

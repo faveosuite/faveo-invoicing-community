@@ -4,6 +4,16 @@ Changelog for Razorpay-PHP SDK. Follows [keepachangelog.com](https://keepachange
 
 ## Unreleased
 
+## [2.9.2] - 2025-08-05
+- fix: Content-Type header leakage in `Order::create()` where setting application/json globally caused subsequent API calls.
+- fix: Replaced deprecated `get_class()` usage in the `ErrorCode::exists()` method with the __CLASS__ constant to resolve PHP deprecation warnings.
+
+## [2.9.1] - 2025-03-20
+feat: Added support for access token based authentication mechanism
+- Added oauth APIs (getAuthURL, getAccessToken, getRefreshToken, revokeToken)
+- Added support for onboarding signature generation
+- Doc updated
+
 ## [2.9.0] - 2023-12-18
 feat: Added new API endpoints
 

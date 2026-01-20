@@ -11,8 +11,6 @@
 
 namespace Symfony\Component\HttpClient;
 
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\Response\AsyncContext;
 use Symfony\Component\HttpClient\Response\AsyncResponse;
@@ -28,14 +26,14 @@ use Symfony\Contracts\Service\ResetInterface;
  * @author Hallison Boaventura <hallisonboaventura@gmail.com>
  * @author Nicolas Grekas <p@tchwork.com>
  */
-final class NoPrivateNetworkHttpClient implements HttpClientInterface, LoggerAwareInterface, ResetInterface
+final class NoPrivateNetworkHttpClient implements HttpClientInterface, ResetInterface
 {
-    use HttpClientTrait;
     use AsyncDecoratorTrait;
+    use HttpClientTrait;
 
     private array $defaultOptions = self::OPTIONS_DEFAULTS;
     private HttpClientInterface $client;
-    private array|null $subnets;
+    private ?array $subnets;
     private int $ipFlags;
     private \ArrayObject $dnsCache;
 
@@ -138,7 +136,7 @@ final class NoPrivateNetworkHttpClient implements HttpClientInterface, LoggerAwa
                     $filterContentHeaders = static function ($h) {
                         return 0 !== stripos($h, 'Content-Length:') && 0 !== stripos($h, 'Content-Type:') && 0 !== stripos($h, 'Transfer-Encoding:');
                     };
-                    $options['header'] = array_filter($options['header'], $filterContentHeaders);
+                    $options['headers'] = array_filter($options['headers'], $filterContentHeaders);
                     $redirectHeaders['no_auth'] = array_filter($redirectHeaders['no_auth'], $filterContentHeaders);
                     $redirectHeaders['with_auth'] = array_filter($redirectHeaders['with_auth'], $filterContentHeaders);
                 }
@@ -157,18 +155,6 @@ final class NoPrivateNetworkHttpClient implements HttpClientInterface, LoggerAwa
                 $context->passthru();
             }
         });
-    }
-
-    /**
-     * @deprecated since Symfony 7.1, configure the logger on the wrapped HTTP client directly instead
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        trigger_deprecation('symfony/http-client', '7.1', 'Configure the logger on the wrapped HTTP client directly instead.');
-
-        if ($this->client instanceof LoggerAwareInterface) {
-            $this->client->setLogger($logger);
-        }
     }
 
     public function withOptions(array $options): static
@@ -209,7 +195,7 @@ final class NoPrivateNetworkHttpClient implements HttpClientInterface, LoggerAwa
 
         if ($ip = dns_get_record($host, \DNS_AAAA)) {
             $ip = $ip[0]['ipv6'];
-        } elseif (extension_loaded('sockets')) {
+        } elseif (\extension_loaded('sockets')) {
             if (!$info = socket_addrinfo_lookup($host, 0, ['ai_socktype' => \SOCK_STREAM, 'ai_family' => \AF_INET6])) {
                 return $host;
             }

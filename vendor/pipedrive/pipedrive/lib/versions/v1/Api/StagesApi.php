@@ -1022,16 +1022,15 @@ class StagesApi
      * Get one stage
      *
      * @param  int $id The ID of the stage (required)
-     * @param  \Pipedrive\versions\v1\Model\NumberBoolean|null $everyone If &#x60;everyone&#x3D;1&#x60; is provided, deals summary will return deals owned by every user (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\GetOneStage
      * @deprecated
      */
-    public function getStage($id, $everyone = null)
+    public function getStage($id)
     {
-        list($response) = $this->getStageWithHttpInfo($id, $everyone);
+        list($response) = $this->getStageWithHttpInfo($id);
         return $response;
     }
 
@@ -1041,16 +1040,15 @@ class StagesApi
      * Get one stage
      *
      * @param  int $id The ID of the stage (required)
-     * @param  \Pipedrive\versions\v1\Model\NumberBoolean|null $everyone If &#x60;everyone&#x3D;1&#x60; is provided, deals summary will return deals owned by every user (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\GetOneStage, HTTP status code, HTTP response headers (array of strings)
      * @deprecated
      */
-    public function getStageWithHttpInfo($id, $everyone = null)
+    public function getStageWithHttpInfo($id)
     {
-        $request = $this->getStageRequest($id, $everyone);
+        $request = $this->getStageRequest($id);
 
         try {
             $options = $this->createHttpClientOption();
@@ -1059,7 +1057,7 @@ class StagesApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->getStageRequest($id, $everyone);
+                    $request = $this->getStageRequest($id);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -1144,15 +1142,14 @@ class StagesApi
      * Get one stage
      *
      * @param  int $id The ID of the stage (required)
-     * @param  \Pipedrive\versions\v1\Model\NumberBoolean|null $everyone If &#x60;everyone&#x3D;1&#x60; is provided, deals summary will return deals owned by every user (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      * @deprecated
      */
-    public function getStageAsync($id, $everyone = null): PromiseInterface
+    public function getStageAsync($id): PromiseInterface
     {
-        return $this->getStageAsyncWithHttpInfo($id, $everyone)
+        return $this->getStageAsyncWithHttpInfo($id)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1166,16 +1163,15 @@ class StagesApi
      * Get one stage
      *
      * @param  int $id The ID of the stage (required)
-     * @param  \Pipedrive\versions\v1\Model\NumberBoolean|null $everyone If &#x60;everyone&#x3D;1&#x60; is provided, deals summary will return deals owned by every user (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      * @deprecated
      */
-    public function getStageAsyncWithHttpInfo($id, $everyone = null): PromiseInterface
+    public function getStageAsyncWithHttpInfo($id): PromiseInterface
     {
         $returnType = '\Pipedrive\versions\v1\Model\GetOneStage';
-        $request = $this->getStageRequest($id, $everyone);
+        $request = $this->getStageRequest($id);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1215,13 +1211,12 @@ class StagesApi
      * Create request for operation 'getStage'
      *
      * @param  int $id The ID of the stage (required)
-     * @param  \Pipedrive\versions\v1\Model\NumberBoolean|null $everyone If &#x60;everyone&#x3D;1&#x60; is provided, deals summary will return deals owned by every user (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      * @deprecated
      */
-    public function getStageRequest($id, $everyone = null): Request
+    public function getStageRequest($id): Request
     {
         // verify the required parameter 'id' is set
         /* @phpstan-ignore-next-line */
@@ -1238,14 +1233,6 @@ class StagesApi
         $httpBody = '';
         $multipart = false;
 
-        // query params
-        /* @phpstan-ignore-next-line */
-        if (is_array($everyone)) {
-            $everyone = ObjectSerializer::serializeCollection($everyone, '', true);
-        }
-        if ($everyone !== null) {
-            $queryParams['everyone'] = $everyone;
-        }
 
 
         // path params

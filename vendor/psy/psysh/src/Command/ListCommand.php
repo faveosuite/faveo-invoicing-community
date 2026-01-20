@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2025 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -51,7 +51,7 @@ class ListCommand extends ReflectingCommand implements PresenterAware
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         list($grep, $insensitive, $invert) = FilterOptions::getOptions();
 
@@ -122,7 +122,7 @@ HELP
         $method = $input->getOption('long') ? 'writeLong' : 'write';
 
         if ($target = $input->getArgument('target')) {
-            list($target, $reflector) = $this->getTargetAndReflector($target);
+            list($target, $reflector) = $this->getTargetAndReflector($target, $output);
         } else {
             $reflector = null;
         }
@@ -181,9 +181,20 @@ HELP
             return;
         }
 
+        $formatter = $output->getFormatter();
+
         foreach ($result as $label => $items) {
-            $names = \array_map([$this, 'formatItemName'], $items);
-            $output->writeln(\sprintf('<strong>%s</strong>: %s', $label, \implode(', ', $names)));
+            // Pre-format each item individually to avoid O(n^2) performance
+            // in Symfony's OutputFormatter when processing large strings with many style tags.
+            $names = \array_map(function ($item) use ($formatter) {
+                return $formatter->format($this->formatItemName($item));
+            }, $items);
+
+            // Pre-format the label and join with pre-formatted names
+            $line = $formatter->format(\sprintf('<strong>%s</strong>: ', $label)).\implode(', ', $names);
+
+            // Write raw since we've already formatted everything
+            $output->writeln($line, OutputInterface::OUTPUT_RAW);
         }
     }
 

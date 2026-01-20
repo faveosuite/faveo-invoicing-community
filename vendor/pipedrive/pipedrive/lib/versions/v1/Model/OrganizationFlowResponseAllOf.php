@@ -225,15 +225,6 @@ class OrganizationFlowResponseAllOf implements ModelInterface, ArrayAccess, Json
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
-        if ($this->container['related_objects'] === null) {
-            $invalidProperties[] = "'related_objects' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -252,7 +243,7 @@ class OrganizationFlowResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\OrganizationFlowResponseAllOfData[]
+     * @return \Pipedrive\versions\v1\Model\OrganizationFlowResponseAllOfData[]|null
      */
     public function getData()
     {
@@ -262,7 +253,7 @@ class OrganizationFlowResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\OrganizationFlowResponseAllOfData[] $data data
+     * @param \Pipedrive\versions\v1\Model\OrganizationFlowResponseAllOfData[]|null $data data
      *
      * @return self
      */
@@ -276,7 +267,7 @@ class OrganizationFlowResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\AdditionalData
+     * @return \Pipedrive\versions\v1\Model\AdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -286,7 +277,7 @@ class OrganizationFlowResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\AdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\AdditionalData|null $additional_data additional_data
      *
      * @return self
      */
@@ -300,7 +291,7 @@ class OrganizationFlowResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Gets related_objects
      *
-     * @return \Pipedrive\versions\v1\Model\OrganizationFlowResponseAllOfRelatedObjects
+     * @return \Pipedrive\versions\v1\Model\OrganizationFlowResponseAllOfRelatedObjects|null
      */
     public function getRelatedObjects()
     {
@@ -310,7 +301,7 @@ class OrganizationFlowResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Sets related_objects
      *
-     * @param \Pipedrive\versions\v1\Model\OrganizationFlowResponseAllOfRelatedObjects $related_objects related_objects
+     * @param \Pipedrive\versions\v1\Model\OrganizationFlowResponseAllOfRelatedObjects|null $related_objects related_objects
      *
      * @return self
      */

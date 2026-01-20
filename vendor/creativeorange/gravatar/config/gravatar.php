@@ -9,7 +9,7 @@ return [
 		'size'   => 80,
 
 		// the fallback image, can be a string or a url
-		// for more info, visit: http://en.gravatar.com/site/implement/images/#default-image
+		// for more info, visit: https://docs.gravatar.com/api/avatars/images/#default-image
 		'fallback' => 'mp',
 
 		// would you like to return a https://... image

@@ -73,17 +73,18 @@ class BaseWebhook implements ModelInterface, ArrayAccess, JsonSerializable
         'event_action' => 'string',
         'event_object' => 'string',
         'subscription_url' => 'string',
+        'version' => 'string',
         'is_active' => '\Pipedrive\versions\v1\Model\NumberBooleanDefault1',
         'add_time' => '\DateTime',
         'remove_time' => '\DateTime',
         'type' => 'string',
         'http_auth_user' => 'string',
         'http_auth_password' => 'string',
-        'additional_data' => 'object',
         'remove_reason' => 'string',
         'last_delivery_time' => '\DateTime',
         'last_http_status' => 'int',
-        'admin_id' => 'int'
+        'admin_id' => 'int',
+        'name' => 'string'
     ];
 
     /**
@@ -101,17 +102,18 @@ class BaseWebhook implements ModelInterface, ArrayAccess, JsonSerializable
         'event_action' => null,
         'event_object' => null,
         'subscription_url' => null,
+        'version' => null,
         'is_active' => null,
         'add_time' => 'date-time',
         'remove_time' => 'date-time',
         'type' => null,
         'http_auth_user' => null,
         'http_auth_password' => null,
-        'additional_data' => null,
         'remove_reason' => null,
         'last_delivery_time' => 'date-time',
         'last_http_status' => null,
-        'admin_id' => null
+        'admin_id' => null,
+        'name' => null
     ];
 
     /**
@@ -152,17 +154,18 @@ class BaseWebhook implements ModelInterface, ArrayAccess, JsonSerializable
         'event_action' => 'event_action',
         'event_object' => 'event_object',
         'subscription_url' => 'subscription_url',
+        'version' => 'version',
         'is_active' => 'is_active',
         'add_time' => 'add_time',
         'remove_time' => 'remove_time',
         'type' => 'type',
         'http_auth_user' => 'http_auth_user',
         'http_auth_password' => 'http_auth_password',
-        'additional_data' => 'additional_data',
         'remove_reason' => 'remove_reason',
         'last_delivery_time' => 'last_delivery_time',
         'last_http_status' => 'last_http_status',
-        'admin_id' => 'admin_id'
+        'admin_id' => 'admin_id',
+        'name' => 'name'
     ];
 
     /**
@@ -178,17 +181,18 @@ class BaseWebhook implements ModelInterface, ArrayAccess, JsonSerializable
         'event_action' => 'setEventAction',
         'event_object' => 'setEventObject',
         'subscription_url' => 'setSubscriptionUrl',
+        'version' => 'setVersion',
         'is_active' => 'setIsActive',
         'add_time' => 'setAddTime',
         'remove_time' => 'setRemoveTime',
         'type' => 'setType',
         'http_auth_user' => 'setHttpAuthUser',
         'http_auth_password' => 'setHttpAuthPassword',
-        'additional_data' => 'setAdditionalData',
         'remove_reason' => 'setRemoveReason',
         'last_delivery_time' => 'setLastDeliveryTime',
         'last_http_status' => 'setLastHttpStatus',
-        'admin_id' => 'setAdminId'
+        'admin_id' => 'setAdminId',
+        'name' => 'setName'
     ];
 
     /**
@@ -204,17 +208,18 @@ class BaseWebhook implements ModelInterface, ArrayAccess, JsonSerializable
         'event_action' => 'getEventAction',
         'event_object' => 'getEventObject',
         'subscription_url' => 'getSubscriptionUrl',
+        'version' => 'getVersion',
         'is_active' => 'getIsActive',
         'add_time' => 'getAddTime',
         'remove_time' => 'getRemoveTime',
         'type' => 'getType',
         'http_auth_user' => 'getHttpAuthUser',
         'http_auth_password' => 'getHttpAuthPassword',
-        'additional_data' => 'getAdditionalData',
         'remove_reason' => 'getRemoveReason',
         'last_delivery_time' => 'getLastDeliveryTime',
         'last_http_status' => 'getLastHttpStatus',
-        'admin_id' => 'getAdminId'
+        'admin_id' => 'getAdminId',
+        'name' => 'getName'
     ];
 
     /**
@@ -310,17 +315,18 @@ class BaseWebhook implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['event_action'] = $data['event_action'] ?? null;
         $this->container['event_object'] = $data['event_object'] ?? null;
         $this->container['subscription_url'] = $data['subscription_url'] ?? null;
+        $this->container['version'] = $data['version'] ?? null;
         $this->container['is_active'] = $data['is_active'] ?? null;
         $this->container['add_time'] = $data['add_time'] ?? null;
         $this->container['remove_time'] = $data['remove_time'] ?? null;
         $this->container['type'] = $data['type'] ?? null;
         $this->container['http_auth_user'] = $data['http_auth_user'] ?? null;
         $this->container['http_auth_password'] = $data['http_auth_password'] ?? null;
-        $this->container['additional_data'] = $data['additional_data'] ?? null;
         $this->container['remove_reason'] = $data['remove_reason'] ?? null;
         $this->container['last_delivery_time'] = $data['last_delivery_time'] ?? null;
         $this->container['last_http_status'] = $data['last_http_status'] ?? null;
         $this->container['admin_id'] = $data['admin_id'] ?? null;
+        $this->container['name'] = $data['name'] ?? null;
     }
 
     /**
@@ -341,6 +347,10 @@ class BaseWebhook implements ModelInterface, ArrayAccess, JsonSerializable
                 $this->container['type'],
                 implode("', '", $allowedValues)
             );
+        }
+
+        if (!is_null($this->container['name']) && (mb_strlen($this->container['name']) > 255)) {
+            $invalidProperties[] = "invalid value for 'name', the character length must be smaller than or equal to 255.";
         }
 
         return $invalidProperties;
@@ -527,6 +537,30 @@ class BaseWebhook implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
+     * Gets version
+     *
+     * @return string|null
+     */
+    public function getVersion()
+    {
+        return $this->container['version'];
+    }
+
+    /**
+     * Sets version
+     *
+     * @param string|null $version The Webhook version
+     *
+     * @return self
+     */
+    public function setVersion($version): self
+    {
+        $this->container['version'] = $version;
+
+        return $this;
+    }
+
+    /**
      * Gets is_active
      *
      * @return \Pipedrive\versions\v1\Model\NumberBooleanDefault1|null
@@ -681,30 +715,6 @@ class BaseWebhook implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
-     * Gets additional_data
-     *
-     * @return object|null
-     */
-    public function getAdditionalData()
-    {
-        return $this->container['additional_data'];
-    }
-
-    /**
-     * Sets additional_data
-     *
-     * @param object|null $additional_data Any additional data related to the Webhook
-     *
-     * @return self
-     */
-    public function setAdditionalData($additional_data): self
-    {
-        $this->container['additional_data'] = $additional_data;
-
-        return $this;
-    }
-
-    /**
      * Gets remove_reason
      *
      * @return string|null
@@ -796,6 +806,34 @@ class BaseWebhook implements ModelInterface, ArrayAccess, JsonSerializable
     public function setAdminId($admin_id): self
     {
         $this->container['admin_id'] = $admin_id;
+
+        return $this;
+    }
+
+    /**
+     * Gets name
+     *
+     * @return string|null
+     */
+    public function getName()
+    {
+        return $this->container['name'];
+    }
+
+    /**
+     * Sets name
+     *
+     * @param string|null $name The Webhook name
+     *
+     * @return self
+     */
+    public function setName($name): self
+    {
+        if (!is_null($name) && (mb_strlen($name) > 255)) {
+            throw new \InvalidArgumentException('invalid length for $name when calling BaseWebhook., must be smaller than or equal to 255.');
+        }
+
+        $this->container['name'] = $name;
 
         return $this;
     }

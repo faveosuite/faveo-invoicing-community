@@ -226,7 +226,7 @@ final class Writer
 
         $solutions = $throwable instanceof Throwable
             ? $this->solutionsRepository->getFromThrowable($throwable)
-            : []; // @phpstan-ignore-line
+            : [];
 
         foreach ($solutions as $solution) {
             /** @var \Spatie\Ignition\Contracts\Solution $solution */

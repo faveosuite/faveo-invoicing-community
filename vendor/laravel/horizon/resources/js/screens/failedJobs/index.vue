@@ -18,22 +18,12 @@
             };
         },
 
+
         /**
          * Prepare the component.
          */
         mounted() {
             document.title = "Horizon - Failed Jobs";
-
-            this.loadJobs();
-
-            this.refreshJobsPeriodically();
-        },
-
-        /**
-         * Clean after the component is unmounted.
-         */
-        unmounted() {
-            clearInterval(this.interval);
         },
 
 
@@ -47,14 +37,20 @@
                 this.loadJobs();
             },
 
+
             tagSearchPhrase() {
                 clearTimeout(this.searchTimeout);
-                clearInterval(this.interval);
 
                 this.searchTimeout = setTimeout(() => {
                     this.loadJobs();
                     this.refreshJobsPeriodically();
                 }, 500);
+            },
+
+            '$root.autoLoadsNewEntries'(autoLoadsNewEntries) {
+                if (autoLoadsNewEntries && this.hasNewEntries) {
+                    this.hasNewEntries = false;
+                }
             }
         },
 
@@ -73,6 +69,7 @@
                 this.$http.get(Horizon.basePath + '/api/jobs/failed?' + tagQuery + 'starting_at=' + starting)
                     .then(response => {
                         if (!this.$root.autoLoadsNewEntries && refreshing && !response.data.jobs.length) {
+                            this.ready = true;
                             return;
                         }
 
@@ -150,6 +147,7 @@
                 return job.payload.retry_of;
             },
 
+
             /**
              * Construct the tooltip label for a retried job.
              */
@@ -159,13 +157,12 @@
                 return `Total retries: ${job.retried_by.length}, Last retry status: ${this.upperFirst(lastRetry.status)}`;
             },
 
+
             /**
-             * Refresh the jobs every period of time.
+             * Poll handler to refresh the jobs at regular intervals.
              */
             refreshJobsPeriodically() {
-                this.interval = setInterval(() => {
-                    this.loadJobs((this.page - 1) * this.perPage, true);
-                }, 3000);
+                this.loadJobs((this.page - 1) * this.perPage, true);
             },
 
 
@@ -174,7 +171,7 @@
              */
             previous() {
                 this.loadJobs(
-                    (this.page - 2) * this.perPage
+                    (this.page - 2) * this.perPage - 1
                 );
 
                 this.page -= 1;
@@ -188,7 +185,7 @@
              */
             next() {
                 this.loadJobs(
-                    this.page * this.perPage
+                    this.page * this.perPage - 1
                 );
 
                 this.page += 1;
@@ -201,6 +198,8 @@
 
 <template>
     <div>
+        <poll @poll="refreshJobsPeriodically" />
+
         <div class="card overflow-hidden">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h2 class="h6 m-0">Failed Jobs</h2>
@@ -240,7 +239,7 @@
                 </thead>
 
                 <tbody>
-                <tr v-if="hasNewEntries" key="newEntries" class="dontanimate">
+                <tr v-if="hasNewEntries && !this.$root.autoLoadsNewEntries" key="newEntries" class="dontanimate">
                     <td colspan="100" class="text-center card-bg-secondary py-2">
                         <small><a href="#" v-on:click.prevent="loadNewEntries" v-if="!loadingNewEntries">Load New Entries</a></small>
 

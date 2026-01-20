@@ -384,7 +384,32 @@ $api->order->create(array('amount' => 50000,'currency' => 'INR','receipt' => 'rc
 ### Create Payment Json
 
 ```php
-$api->payment->createPaymentJson(array('amount' => 100,'currency' => 'INR','email' => 'gaurav.kumar@example.com','contact' => '9123456789','order_id' => 'order_I6LVPRQ6upW3uh','method' => 'card','card' => array('number' => '4854980604708430','cvv' => '123','expiry_month' => '12','expiry_year' => '21','name' => 'Gaurav Kumar')));
+$api->payment->createPaymentJson(array(
+    "amount" => 100,
+    "currency" => "INR",
+    "contact" => "9000090000",
+    "email" => "gaurav.kumar@example.com",
+    "order_id" => "order_DPzFe1Q1dEOKed",
+    "method" => "card",
+    "card" => array(
+        "number" => "4386289407660153",
+        "name" => "Gaurav",
+        "expiry_month" => 11,
+        "expiry_year" => 30,
+        "cvv" => 100
+    ),
+    "authentication" => array(
+        "authentication_channel" => "browser"
+    ),
+    "browser" => array(
+        "java_enabled" => false,
+        "javascript_enabled" => false,
+        "timezone_offset" => 11,
+        "color_depth" => 23,
+        "screen_width" => 23,
+        "screen_height" => 100
+    )
+));
 ```
 
 **Parameters:**
@@ -500,7 +525,15 @@ Failure
 ### Create Payment Json (Third party validation)
 
 ```php
-$api->payment->createPaymentJson(array('amount' => 100,'currency' => 'INR','email' => 'gaurav.kumar@example.com','contact' => '9123456789','order_id' => 'order_I6LVPRQ6upW3uh','method' => 'netbanking', 'bank'=>'HDFC'));
+$api->payment->createPaymentJson(array(
+  'amount' => 100,
+  'currency' => 'INR',
+  'email' => 'gaurav.kumar@example.com',
+  'contact' => '9123456789',
+  'order_id' => 'order_I6LVPRQ6upW3uh',
+  'method' => 'netbanking', 
+  'bank'=>'HDFC'
+));
 ```
 
 **Parameters:**
@@ -532,7 +565,28 @@ $api->payment->createPaymentJson(array('amount' => 100,'currency' => 'INR','emai
 ### Create Payment UPI s2s / VPA token (Third party validation)
 
 ```php
-$api->payment->createUpi(array("amount" => 200,"currency" => "INR","order_id" => "order_Jhgp4wIVHQrg5H","email" => "gaurav.kumar@example.com","contact" => "9123456789","method" => "upi","customer_id" => "cust_EIW4T2etiweBmG","save" => 1,"ip" => "192.168.0.103","referer" => "http","user_agent" => "Mozilla/5.0","description" => "Test flow","notes" => array("note_key" => "value1"),"upi" => array("flow" => "collect","vpa" => "gauravkumar@exampleupi","expiry_time" => 5)));
+$api->payment->createUpi(array(
+    "amount" => 200,
+    "currency" => "INR",
+    "order_id" => "order_Jhgp4wIVHQrg5H",
+    "email" => "gaurav.kumar@example.com",
+    "contact" => "9123456789",
+    "method" => "upi",
+    "customer_id" => "cust_EIW4T2etiweBmG",
+    "save" => true,
+    "ip" => "192.168.0.103",
+    "referer" => "http",
+    "user_agent" => "Mozilla/5.0",
+    "description" => "Test flow",
+    "notes" => array(
+        "note_key" => "value1"
+    ),
+    "upi" => array(
+        "flow" => "collect",
+        "vpa" => "gauravkumar@exampleupi",
+        "expiry_time" => 5
+    )
+));
 ```
 
 **Parameters:**
@@ -546,7 +600,7 @@ $api->payment->createUpi(array("amount" => 200,"currency" => "INR","order_id" =>
 | contact*      | string      | Contact number of the customer              |
 | notes | array  | A key-value pair  |
 | description | string  | Descriptive text of the payment. |
-| save | boolean  |  Specifies if the VPA should be stored as tokens.Possible value is `0`, `1`  |
+| save | boolean  |  Specifies if the VPA should be stored as tokens.Possible value is `true`, `false`  |
 | callback_url   | string      | URL where Razorpay will submit the final payment status. |
 | ip*   | string      | The client's browser IP address. For example `117.217.74.98` |
 | referer*   | string      | Value of `referer` header passed by the client's browser. For example, `https://example.com/` |
@@ -563,7 +617,25 @@ $api->payment->createUpi(array("amount" => 200,"currency" => "INR","order_id" =>
 ### Create Payment UPI s2s / VPA token (Third party validation)
 
 ```php
-$api->payment->createUpi(array("amount" => 200,"currency" => "INR","order_id" => "order_Jhgp4wIVHQrg5H","email" => "gaurav.kumar@example.com","contact" => "9123456789","method" => "upi","customer_id" => "cust_EIW4T2etiweBmG","ip" => "192.168.0.103","referer" => "http","user_agent" => "Mozilla/5.0","description" => "Test flow","notes" => array("note_key" => "value1"),"upi" => array("flow" => "intent")));
+$api->payment->createUpi(array(
+    'amount' => 200,
+    'currency' => 'INR',
+    'order_id' => 'order_Jhgp4wIVHQrg5H',
+    'email' => 'gaurav.kumar@example.com',
+    'contact' => '9123456789',
+    'method' => 'upi',
+    'customer_id' => 'cust_EIW4T2etiweBmG',
+    'ip' => '192.168.0.103',
+    'referer' => 'http',
+    'user_agent' => 'Mozilla/5.0',
+    'description' => 'Test flow',
+    'notes' => array(
+        'note_key' => 'value1'
+    ),
+    'upi' => array(
+        'flow' => 'intent'
+    )
+));
 ```
 
 **Parameters:**

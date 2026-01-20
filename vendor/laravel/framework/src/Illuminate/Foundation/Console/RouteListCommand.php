@@ -76,7 +76,6 @@ class RouteListCommand extends Command
      * Create a new route command instance.
      *
      * @param  \Illuminate\Routing\Router  $router
-     * @return void
      */
     public function __construct(Router $router)
     {
@@ -114,9 +113,10 @@ class RouteListCommand extends Command
      */
     protected function getRoutes()
     {
-        $routes = (new Collection($this->router->getRoutes()))->map(function ($route) {
-            return $this->getRouteInformation($route);
-        })->filter()->all();
+        $routes = (new Collection($this->router->getRoutes()))
+            ->map(fn ($route) => $this->getRouteInformation($route))
+            ->filter()
+            ->all();
 
         if (($sort = $this->option('sort')) !== null) {
             $routes = $this->sortRoutes($sort, $routes);
@@ -208,9 +208,9 @@ class RouteListCommand extends Command
      */
     protected function getMiddleware($route)
     {
-        return (new Collection($this->router->gatherRouteMiddleware($route)))->map(function ($middleware) {
-            return $middleware instanceof Closure ? 'Closure' : $middleware;
-        })->implode("\n");
+        return (new Collection($this->router->gatherRouteMiddleware($route)))
+            ->map(fn ($middleware) => $middleware instanceof Closure ? 'Closure' : $middleware)
+            ->implode("\n");
     }
 
     /**
@@ -268,6 +268,7 @@ class RouteListCommand extends Command
             ($this->option('path') && ! Str::contains($route['uri'], $this->option('path'))) ||
             ($this->option('method') && ! Str::contains($route['method'], strtoupper($this->option('method')))) ||
             ($this->option('domain') && ! Str::contains((string) $route['domain'], $this->option('domain'))) ||
+            ($this->option('middleware') && ! Str::contains($route['middleware'], $this->option('middleware'))) ||
             ($this->option('except-vendor') && $route['vendor']) ||
             ($this->option('only-vendor') && ! $route['vendor'])) {
             return;
@@ -301,7 +302,7 @@ class RouteListCommand extends Command
      */
     protected function getColumns()
     {
-        return array_map('strtolower', $this->headers);
+        return array_map(strtolower(...), $this->headers);
     }
 
     /**
@@ -322,7 +323,7 @@ class RouteListCommand extends Command
             }
         }
 
-        return array_map('strtolower', $results);
+        return array_map(strtolower(...), $results);
     }
 
     /**
@@ -500,6 +501,7 @@ class RouteListCommand extends Command
             ['action', null, InputOption::VALUE_OPTIONAL, 'Filter the routes by action'],
             ['name', null, InputOption::VALUE_OPTIONAL, 'Filter the routes by name'],
             ['domain', null, InputOption::VALUE_OPTIONAL, 'Filter the routes by domain'],
+            ['middleware', null, InputOption::VALUE_OPTIONAL, 'Filter the routes by middleware'],
             ['path', null, InputOption::VALUE_OPTIONAL, 'Only show routes matching the given path pattern'],
             ['except-path', null, InputOption::VALUE_OPTIONAL, 'Do not display the routes matching the given path pattern'],
             ['reverse', 'r', InputOption::VALUE_NONE, 'Reverse the ordering of the routes'],

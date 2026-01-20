@@ -56,7 +56,7 @@ class OrganizationItemAddress implements ModelInterface, ArrayAccess, JsonSerial
       *
       * @var string
       */
-    protected static string $openAPIModelName = 'OrganizationItem_address';
+    protected static string $openAPIModelName = 'OrganizationItemAddress';
 
     /**
       * Array of property to type mappings. Used for (de)serialization

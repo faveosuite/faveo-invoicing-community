@@ -225,15 +225,6 @@ class ResponseCallLogObjectAllOf implements ModelInterface, ArrayAccess, JsonSer
     {
         $invalidProperties = [];
 
-        if ($this->container['id'] === null) {
-            $invalidProperties[] = "'id' can't be null";
-        }
-        if ($this->container['has_recording'] === null) {
-            $invalidProperties[] = "'has_recording' can't be null";
-        }
-        if ($this->container['company_id'] === null) {
-            $invalidProperties[] = "'company_id' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -252,7 +243,7 @@ class ResponseCallLogObjectAllOf implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets id
      *
-     * @return string
+     * @return string|null
      */
     public function getId()
     {
@@ -262,7 +253,7 @@ class ResponseCallLogObjectAllOf implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets id
      *
-     * @param string $id The call log ID, generated when the call log was created
+     * @param string|null $id The call log ID, generated when the call log was created
      *
      * @return self
      */
@@ -276,7 +267,7 @@ class ResponseCallLogObjectAllOf implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets has_recording
      *
-     * @return bool
+     * @return bool|null
      */
     public function getHasRecording()
     {
@@ -286,7 +277,7 @@ class ResponseCallLogObjectAllOf implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets has_recording
      *
-     * @param bool $has_recording If the call log has an audio recording attached, the value should be true
+     * @param bool|null $has_recording If the call log has an audio recording attached, the value should be true
      *
      * @return self
      */
@@ -300,7 +291,7 @@ class ResponseCallLogObjectAllOf implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets company_id
      *
-     * @return int
+     * @return int|null
      */
     public function getCompanyId()
     {
@@ -310,7 +301,7 @@ class ResponseCallLogObjectAllOf implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets company_id
      *
-     * @param int $company_id The company ID of the owner of the call log
+     * @param int|null $company_id The company ID of the owner of the call log
      *
      * @return self
      */

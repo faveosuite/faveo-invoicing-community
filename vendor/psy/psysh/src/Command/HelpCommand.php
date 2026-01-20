@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2025 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,6 +12,7 @@
 namespace Psy\Command;
 
 use Psy\Output\ShellOutput;
+use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -28,7 +29,7 @@ class HelpCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('help')
@@ -63,7 +64,21 @@ class HelpCommand extends Command
             $this->command = null;
         } elseif ($name = $input->getArgument('command_name')) {
             // help for an individual command
-            $output->page($this->getApplication()->get($name)->asText());
+            try {
+                $cmd = $this->getApplication()->get($name);
+            } catch (CommandNotFoundException $e) {
+                $this->getShell()->writeException($e);
+                $output->writeln('');
+                $output->writeln(\sprintf(
+                    '<aside>To read PHP documentation, use <return>doc %s</return></aside>',
+                    $name
+                ));
+                $output->writeln('');
+
+                return 1;
+            }
+
+            $output->page($cmd->asText());
         } else {
             // list available commands
             $commands = $this->getApplication()->all();

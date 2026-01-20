@@ -219,9 +219,6 @@ class BulkDeleteResponse implements ModelInterface, ArrayAccess, JsonSerializabl
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -264,7 +261,7 @@ class BulkDeleteResponse implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\BulkDeleteResponseAllOfData
+     * @return \Pipedrive\versions\v1\Model\BulkDeleteResponseAllOfData|null
      */
     public function getData()
     {
@@ -274,7 +271,7 @@ class BulkDeleteResponse implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\BulkDeleteResponseAllOfData $data data
+     * @param \Pipedrive\versions\v1\Model\BulkDeleteResponseAllOfData|null $data data
      *
      * @return self
      */

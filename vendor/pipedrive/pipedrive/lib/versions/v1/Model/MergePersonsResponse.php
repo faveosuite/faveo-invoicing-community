@@ -219,9 +219,6 @@ class MergePersonsResponse implements ModelInterface, ArrayAccess, JsonSerializa
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -264,7 +261,7 @@ class MergePersonsResponse implements ModelInterface, ArrayAccess, JsonSerializa
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\MergePersonItem
+     * @return \Pipedrive\versions\v1\Model\MergePersonItem|null
      */
     public function getData()
     {
@@ -274,7 +271,7 @@ class MergePersonsResponse implements ModelInterface, ArrayAccess, JsonSerializa
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\MergePersonItem $data data
+     * @param \Pipedrive\versions\v1\Model\MergePersonItem|null $data data
      *
      * @return self
      */

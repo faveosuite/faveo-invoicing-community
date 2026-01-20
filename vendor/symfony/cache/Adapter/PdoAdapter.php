@@ -324,7 +324,17 @@ class PdoAdapter extends AbstractAdapter implements PruneableInterface
             $insertStmt->bindValue(':time', $now, \PDO::PARAM_INT);
         }
 
+        if ('sqlsrv' === $driver) {
+            $dataStream = fopen('php://memory', 'r+');
+        }
         foreach ($values as $id => $data) {
+            if ('sqlsrv' === $driver) {
+                rewind($dataStream);
+                fwrite($dataStream, $data);
+                ftruncate($dataStream, \strlen($data));
+                rewind($dataStream);
+                $data = $dataStream;
+            }
             try {
                 $stmt->execute();
             } catch (\PDOException $e) {
@@ -348,17 +358,17 @@ class PdoAdapter extends AbstractAdapter implements PruneableInterface
     /**
      * @internal
      */
-    protected function getId(mixed $key): string
+    protected function getId(mixed $key, ?string $namespace = null): string
     {
         if ('pgsql' !== $this->getDriver()) {
-            return parent::getId($key);
+            return parent::getId($key, $namespace);
         }
 
         if (str_contains($key, "\0") || str_contains($key, '%') || !preg_match('//u', $key)) {
             $key = rawurlencode($key);
         }
 
-        return parent::getId($key);
+        return parent::getId($key, $namespace);
     }
 
     private function getConnection(): \PDO

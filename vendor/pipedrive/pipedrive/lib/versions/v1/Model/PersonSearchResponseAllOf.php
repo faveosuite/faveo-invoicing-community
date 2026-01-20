@@ -219,12 +219,6 @@ class PersonSearchResponseAllOf implements ModelInterface, ArrayAccess, JsonSeri
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class PersonSearchResponseAllOf implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\PersonSearchResponseAllOfData
+     * @return \Pipedrive\versions\v1\Model\PersonSearchResponseAllOfData|null
      */
     public function getData()
     {
@@ -253,7 +247,7 @@ class PersonSearchResponseAllOf implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\PersonSearchResponseAllOfData $data data
+     * @param \Pipedrive\versions\v1\Model\PersonSearchResponseAllOfData|null $data data
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class PersonSearchResponseAllOf implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\ItemSearchAdditionalData
+     * @return \Pipedrive\versions\v1\Model\ItemSearchAdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -277,7 +271,7 @@ class PersonSearchResponseAllOf implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\ItemSearchAdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\ItemSearchAdditionalData|null $additional_data additional_data
      *
      * @return self
      */

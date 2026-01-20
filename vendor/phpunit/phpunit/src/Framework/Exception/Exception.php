@@ -43,7 +43,7 @@ use Throwable;
 class Exception extends RuntimeException implements \PHPUnit\Exception
 {
     /**
-     * @var list<array{file: string, line: int, function: string}>
+     * @var list<array{file?: string, line?: int, function: string}>
      */
     protected array $serializableTrace;
 
@@ -70,15 +70,15 @@ class Exception extends RuntimeException implements \PHPUnit\Exception
         }
     }
 
-    public function __sleep(): array
+    public function __serialize(): array
     {
-        return array_keys(get_object_vars($this));
+        return get_object_vars($this);
     }
 
     /**
      * Returns the serializable trace (without 'args').
      *
-     * @return list<array{file: string, line: int, function: string}>
+     * @return list<array{file?: string, line?: int, function: string}>
      */
     public function getSerializableTrace(): array
     {

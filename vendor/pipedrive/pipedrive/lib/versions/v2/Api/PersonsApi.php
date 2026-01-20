@@ -2303,6 +2303,7 @@ class PersonsApi
      * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $org_id If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored. (optional)
+     * @param  int|null $deal_id If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only persons with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only persons with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
@@ -2316,9 +2317,9 @@ class PersonsApi
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v2\Model\GetPersons
      */
-    public function getPersons($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null)
+    public function getPersons($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null)
     {
-        list($response) = $this->getPersonsWithHttpInfo($filter_id, $ids, $owner_id, $org_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
+        list($response) = $this->getPersonsWithHttpInfo($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
         return $response;
     }
 
@@ -2331,6 +2332,7 @@ class PersonsApi
      * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $org_id If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored. (optional)
+     * @param  int|null $deal_id If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only persons with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only persons with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
@@ -2344,9 +2346,9 @@ class PersonsApi
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v2\Model\GetPersons, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getPersonsWithHttpInfo($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null)
+    public function getPersonsWithHttpInfo($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null)
     {
-        $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
+        $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
 
         try {
             $options = $this->createHttpClientOption();
@@ -2355,7 +2357,7 @@ class PersonsApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
+                    $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -2443,6 +2445,7 @@ class PersonsApi
      * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $org_id If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored. (optional)
+     * @param  int|null $deal_id If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only persons with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only persons with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
@@ -2455,9 +2458,9 @@ class PersonsApi
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getPersonsAsync($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null): PromiseInterface
+    public function getPersonsAsync($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null): PromiseInterface
     {
-        return $this->getPersonsAsyncWithHttpInfo($filter_id, $ids, $owner_id, $org_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor)
+        return $this->getPersonsAsyncWithHttpInfo($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2474,6 +2477,7 @@ class PersonsApi
      * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $org_id If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored. (optional)
+     * @param  int|null $deal_id If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only persons with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only persons with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
@@ -2486,10 +2490,10 @@ class PersonsApi
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getPersonsAsyncWithHttpInfo($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null): PromiseInterface
+    public function getPersonsAsyncWithHttpInfo($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null): PromiseInterface
     {
         $returnType = '\Pipedrive\versions\v2\Model\GetPersons';
-        $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
+        $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2532,6 +2536,7 @@ class PersonsApi
      * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $org_id If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored. (optional)
+     * @param  int|null $deal_id If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only persons with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only persons with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
@@ -2544,7 +2549,7 @@ class PersonsApi
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function getPersonsRequest($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null): Request
+    public function getPersonsRequest($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null): Request
     {
 
         $resourcePath = '/persons';
@@ -2585,6 +2590,14 @@ class PersonsApi
         }
         if ($org_id !== null) {
             $queryParams['org_id'] = $org_id;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($deal_id)) {
+            $deal_id = ObjectSerializer::serializeCollection($deal_id, '', true);
+        }
+        if ($deal_id !== null) {
+            $queryParams['deal_id'] = $deal_id;
         }
         // query params
         /* @phpstan-ignore-next-line */

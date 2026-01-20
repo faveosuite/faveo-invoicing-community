@@ -100,7 +100,7 @@ class Inline
      *
      * @throws DumpException When trying to dump PHP resource
      */
-    public static function dump(mixed $value, int $flags = 0): string
+    public static function dump(mixed $value, int $flags = 0, bool $rootLevel = false): string
     {
         switch (true) {
             case \is_resource($value):
@@ -138,7 +138,7 @@ class Inline
             case \is_array($value):
                 return self::dumpArray($value, $flags);
             case null === $value:
-                return self::dumpNull($flags);
+                return self::dumpNull($flags, $rootLevel);
             case true === $value:
                 return 'true';
             case false === $value:
@@ -173,6 +173,7 @@ class Inline
             case self::isBinaryString($value):
                 return '!!binary '.base64_encode($value);
             case Escaper::requiresDoubleQuoting($value):
+            case Yaml::DUMP_FORCE_DOUBLE_QUOTES_ON_VALUES & $flags:
                 return Escaper::escapeWithDoubleQuotes($value);
             case Escaper::requiresSingleQuoting($value):
                 $singleQuoted = Escaper::escapeWithSingleQuotes($value);
@@ -242,21 +243,26 @@ class Inline
     private static function dumpHashArray(array|\ArrayObject|\stdClass $value, int $flags): string
     {
         $output = [];
+        $keyFlags = $flags & ~Yaml::DUMP_FORCE_DOUBLE_QUOTES_ON_VALUES;
         foreach ($value as $key => $val) {
             if (\is_int($key) && Yaml::DUMP_NUMERIC_KEY_AS_STRING & $flags) {
                 $key = (string) $key;
             }
 
-            $output[] = \sprintf('%s: %s', self::dump($key, $flags), self::dump($val, $flags));
+            $output[] = \sprintf('%s: %s', self::dump($key, $keyFlags), self::dump($val, $flags));
         }
 
         return \sprintf('{ %s }', implode(', ', $output));
     }
 
-    private static function dumpNull(int $flags): string
+    private static function dumpNull(int $flags, bool $rootLevel = false): string
     {
         if (Yaml::DUMP_NULL_AS_TILDE & $flags) {
             return '~';
+        }
+
+        if (Yaml::DUMP_NULL_AS_EMPTY & $flags && !$rootLevel) {
+            return '';
         }
 
         return 'null';
@@ -453,7 +459,7 @@ class Inline
             }
 
             if ('!php/const' === $key || '!php/enum' === $key) {
-                $key .= ' '.self::parseScalar($mapping, $flags, [':'], $i, false);
+                $key .= ' '.self::parseScalar($mapping, $flags, ['(?<!:):(?!:)'], $i, false);
                 $key = self::evaluateScalar($key, $flags);
             }
 
@@ -708,6 +714,10 @@ class Inline
                 switch (true) {
                     case ctype_digit($scalar):
                     case '-' === $scalar[0] && ctype_digit(substr($scalar, 1)):
+                        if ($scalar < \PHP_INT_MIN || \PHP_INT_MAX < $scalar) {
+                            return $scalar;
+                        }
+
                         $cast = (int) $scalar;
 
                         return ($scalar === (string) $cast) ? $cast : $scalar;
@@ -744,7 +754,7 @@ class Inline
                             if (false !== $scalar = $time->getTimestamp()) {
                                 return $scalar;
                             }
-                        } catch (\ValueError) {
+                        } catch (\DateRangeError|\ValueError) {
                             // no-op
                         }
 
@@ -823,19 +833,19 @@ class Inline
     private static function getTimestampRegex(): string
     {
         return <<<EOF
-        ~^
-        (?P<year>[0-9][0-9][0-9][0-9])
-        -(?P<month>[0-9][0-9]?)
-        -(?P<day>[0-9][0-9]?)
-        (?:(?:[Tt]|[ \t]+)
-        (?P<hour>[0-9][0-9]?)
-        :(?P<minute>[0-9][0-9])
-        :(?P<second>[0-9][0-9])
-        (?:\.(?P<fraction>[0-9]*))?
-        (?:[ \t]*(?P<tz>Z|(?P<tz_sign>[-+])(?P<tz_hour>[0-9][0-9]?)
-        (?::(?P<tz_minute>[0-9][0-9]))?))?)?
-        $~x
-EOF;
+                    ~^
+                    (?P<year>[0-9][0-9][0-9][0-9])
+                    -(?P<month>[0-9][0-9]?)
+                    -(?P<day>[0-9][0-9]?)
+                    (?:(?:[Tt]|[ \t]+)
+                    (?P<hour>[0-9][0-9]?)
+                    :(?P<minute>[0-9][0-9])
+                    :(?P<second>[0-9][0-9])
+                    (?:\.(?P<fraction>[0-9]*))?
+                    (?:[ \t]*(?P<tz>Z|(?P<tz_sign>[-+])(?P<tz_hour>[0-9][0-9]?)
+                    (?::(?P<tz_minute>[0-9][0-9]))?))?)?
+                    $~x
+            EOF;
     }
 
     /**

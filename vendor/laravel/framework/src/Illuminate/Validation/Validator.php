@@ -188,6 +188,7 @@ class Validator implements ValidatorContract
     protected $fileRules = [
         'Between',
         'Dimensions',
+        'Encoding',
         'Extensions',
         'File',
         'Image',
@@ -309,7 +310,7 @@ class Validator implements ValidatorContract
     /**
      * The current random hash for the validator.
      *
-     * @var string
+     * @var string|null
      */
     protected static $placeholderHash;
 
@@ -335,7 +336,6 @@ class Validator implements ValidatorContract
      * @param  array  $rules
      * @param  array  $messages
      * @param  array  $attributes
-     * @return void
      */
     public function __construct(
         Translator $translator,
@@ -396,8 +396,8 @@ class Validator implements ValidatorContract
 
         foreach ($data as $key => $value) {
             $originalData[$this->replacePlaceholderInString($key)] = is_array($value)
-                        ? $this->replacePlaceholders($value)
-                        : $value;
+                ? $this->replacePlaceholders($value)
+                : $value;
         }
 
         return $originalData;
@@ -588,8 +588,8 @@ class Validator implements ValidatorContract
     public function safe(?array $keys = null)
     {
         return is_array($keys)
-                ? (new ValidatedInput($this->validated()))->only($keys)
-                : new ValidatedInput($this->validated());
+            ? (new ValidatedInput($this->validated()))->only($keys)
+            : new ValidatedInput($this->validated());
     }
 
     /**
@@ -675,8 +675,8 @@ class Validator implements ValidatorContract
 
         if ($rule instanceof RuleContract) {
             return $validatable
-                    ? $this->validateUsingCustomRule($attribute, $value, $rule)
-                    : null;
+                ? $this->validateUsingCustomRule($attribute, $value, $rule)
+                : null;
         }
 
         $method = "validate{$rule}";
@@ -748,7 +748,7 @@ class Validator implements ValidatorContract
     protected function replaceDotInParameters(array $parameters)
     {
         return array_map(function ($field) {
-            return str_replace('\.', '__dot__'.static::$placeholderHash, $field);
+            return static::encodeAttributeWithPlaceholder($field);
         }, $parameters);
     }
 
@@ -1042,9 +1042,11 @@ class Validator implements ValidatorContract
      */
     protected function attributesThatHaveMessages()
     {
-        return (new Collection($this->messages()->toArray()))->map(function ($message, $key) {
-            return explode('.', $key)[0];
-        })->unique()->flip()->all();
+        return (new Collection($this->messages()->toArray()))
+            ->map(fn ($message, $key) => explode('.', $key)[0])
+            ->unique()
+            ->flip()
+            ->all();
     }
 
     /**
@@ -1204,7 +1206,7 @@ class Validator implements ValidatorContract
     {
         return (new Collection($this->rules))
             ->mapWithKeys(fn ($value, $key) => [
-                str_replace('__dot__'.static::$placeholderHash, '\\.', $key) => $value,
+                static::decodeAttributeWithPlaceholder($key) => $value,
             ])
             ->all();
     }
@@ -1217,9 +1219,11 @@ class Validator implements ValidatorContract
      */
     public function setRules(array $rules)
     {
-        $rules = (new Collection($rules))->mapWithKeys(function ($value, $key) {
-            return [str_replace('\.', '__dot__'.static::$placeholderHash, $key) => $value];
-        })->toArray();
+        $rules = (new Collection($rules))
+            ->mapWithKeys(function ($value, $key) {
+                return [static::encodeAttributeWithPlaceholder($key) => $value];
+            })
+            ->toArray();
 
         $this->initialRules = $rules;
 
@@ -1231,7 +1235,26 @@ class Validator implements ValidatorContract
     }
 
     /**
+     * Append new validation rules to the validator.
+     *
+     * @param  array  $rules
+     * @return $this
+     */
+    public function appendRules(array $rules)
+    {
+        $rules = (new Collection($rules))
+            ->map(function ($value) {
+                return is_string($value) ? explode('|', $value) : $value;
+            })
+            ->all();
+
+        return $this->setRules(array_merge_recursive($this->getRulesWithoutPlaceholders(), $rules));
+    }
+
+    /**
      * Parse the given rules and merge them into current rules.
+     *
+     * @internal
      *
      * @param  array  $rules
      * @return void
@@ -1244,9 +1267,9 @@ class Validator implements ValidatorContract
         $response = (new ValidationRuleParser($this->data))
             ->explode(ValidationRuleParser::filterConditionalRules($rules, $this->data));
 
-        $this->rules = array_merge_recursive(
-            $this->rules, $response->rules
-        );
+        foreach ($response->rules as $key => $rule) {
+            $this->rules[$key] = array_merge($this->rules[$key] ?? [], $rule);
+        }
 
         $this->implicitAttributes = array_merge(
             $this->implicitAttributes, $response->implicitAttributes
@@ -1272,7 +1295,7 @@ class Validator implements ValidatorContract
 
             foreach ($response->rules as $ruleKey => $ruleValue) {
                 if ($callback($payload, $this->dataForSometimesIteration($ruleKey, ! str_ends_with($key, '.*')))) {
-                    $this->addRules([$ruleKey => $ruleValue]);
+                    $this->addRules([static::encodeAttributeWithPlaceholder($ruleKey) => $ruleValue]);
                 }
             }
         }
@@ -1284,15 +1307,16 @@ class Validator implements ValidatorContract
      * Get the data that should be injected into the iteration of a wildcard "sometimes" callback.
      *
      * @param  string  $attribute
-     * @return \Illuminate\Support\Fluent|array|mixed
+     * @param  bool  $removeLastSegmentOfAttribute
+     * @return \Illuminate\Support\Fluent|mixed
      */
-    private function dataForSometimesIteration(string $attribute, $removeLastSegmentOfAttribute)
+    private function dataForSometimesIteration(string $attribute, bool $removeLastSegmentOfAttribute)
     {
         $lastSegmentOfAttribute = strrchr($attribute, '.');
 
         $attribute = $lastSegmentOfAttribute && $removeLastSegmentOfAttribute
-                    ? Str::replaceLast($lastSegmentOfAttribute, '', $attribute)
-                    : $attribute;
+            ? Str::replaceLast($lastSegmentOfAttribute, '', $attribute)
+            : $attribute;
 
         return is_array($data = data_get($this->data, $attribute))
             ? new Fluent($data)
@@ -1321,7 +1345,7 @@ class Validator implements ValidatorContract
     public function addExtensions(array $extensions)
     {
         if ($extensions) {
-            $keys = array_map([Str::class, 'snake'], array_keys($extensions));
+            $keys = array_map(Str::snake(...), array_keys($extensions));
 
             $extensions = array_combine($keys, array_values($extensions));
         }
@@ -1408,7 +1432,7 @@ class Validator implements ValidatorContract
     public function addReplacers(array $replacers)
     {
         if ($replacers) {
-            $keys = array_map([Str::class, 'snake'], array_keys($replacers));
+            $keys = array_map(Str::snake(...), array_keys($replacers));
 
             $replacers = array_combine($keys, array_values($replacers));
         }
@@ -1655,6 +1679,38 @@ class Validator implements ValidatorContract
         [$class, $method] = Str::parseCallback($callback, 'validate');
 
         return $this->container->make($class)->{$method}(...array_values($parameters));
+    }
+
+    /**
+     * Encode the attribute with the placeholder hash.
+     *
+     * @param  string  $attribute
+     * @return string
+     */
+    protected static function encodeAttributeWithPlaceholder(string $attribute)
+    {
+        return str_replace('\.', '__dot__'.static::$placeholderHash, $attribute);
+    }
+
+    /**
+     * Decode an attribute with a placeholder hash.
+     *
+     * @param  string  $attribute
+     * @return string
+     */
+    protected static function decodeAttributeWithPlaceholder(string $attribute)
+    {
+        return str_replace('__dot__'.static::$placeholderHash, '\\.', $attribute);
+    }
+
+    /**
+     * Flush the validator's global state.
+     *
+     * @return void
+     */
+    public static function flushState()
+    {
+        static::$placeholderHash = null;
     }
 
     /**

@@ -219,9 +219,6 @@ class SubscriptionsIdResponse implements ModelInterface, ArrayAccess, JsonSerial
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -264,7 +261,7 @@ class SubscriptionsIdResponse implements ModelInterface, ArrayAccess, JsonSerial
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\SubscriptionItem
+     * @return \Pipedrive\versions\v1\Model\SubscriptionItem|null
      */
     public function getData()
     {
@@ -274,7 +271,7 @@ class SubscriptionsIdResponse implements ModelInterface, ArrayAccess, JsonSerial
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\SubscriptionItem $data data
+     * @param \Pipedrive\versions\v1\Model\SubscriptionItem|null $data data
      *
      * @return self
      */

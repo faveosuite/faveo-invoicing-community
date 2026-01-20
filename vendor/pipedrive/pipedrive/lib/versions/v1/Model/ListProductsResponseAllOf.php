@@ -225,15 +225,6 @@ class ListProductsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeri
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
-        if ($this->container['related_objects'] === null) {
-            $invalidProperties[] = "'related_objects' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -252,7 +243,7 @@ class ListProductsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\ProductListItem[]
+     * @return \Pipedrive\versions\v1\Model\ProductListItem[]|null
      */
     public function getData()
     {
@@ -262,7 +253,7 @@ class ListProductsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\ProductListItem[] $data The array of products
+     * @param \Pipedrive\versions\v1\Model\ProductListItem[]|null $data The array of products
      *
      * @return self
      */
@@ -276,7 +267,7 @@ class ListProductsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\ListProductAdditionalData
+     * @return \Pipedrive\versions\v1\Model\ListProductAdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -286,7 +277,7 @@ class ListProductsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\ListProductAdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\ListProductAdditionalData|null $additional_data additional_data
      *
      * @return self
      */
@@ -300,7 +291,7 @@ class ListProductsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Gets related_objects
      *
-     * @return \Pipedrive\versions\v1\Model\ListProductsResponseAllOfRelatedObjects
+     * @return \Pipedrive\versions\v1\Model\ListProductsResponseAllOfRelatedObjects|null
      */
     public function getRelatedObjects()
     {
@@ -310,7 +301,7 @@ class ListProductsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Sets related_objects
      *
-     * @param \Pipedrive\versions\v1\Model\ListProductsResponseAllOfRelatedObjects $related_objects related_objects
+     * @param \Pipedrive\versions\v1\Model\ListProductsResponseAllOfRelatedObjects|null $related_objects related_objects
      *
      * @return self
      */

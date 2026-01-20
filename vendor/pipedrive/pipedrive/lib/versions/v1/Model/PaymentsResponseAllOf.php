@@ -213,9 +213,6 @@ class PaymentsResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializ
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -234,7 +231,7 @@ class PaymentsResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\PaymentItem[]
+     * @return \Pipedrive\versions\v1\Model\PaymentItem[]|null
      */
     public function getData()
     {
@@ -244,7 +241,7 @@ class PaymentsResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\PaymentItem[] $data data
+     * @param \Pipedrive\versions\v1\Model\PaymentItem[]|null $data data
      *
      * @return self
      */

@@ -5,10 +5,10 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/barryvdh/laravel-debugbar?label=Downloads)](https://packagist.org/packages/barryvdh/laravel-debugbar)
 [![Fruitcake](https://img.shields.io/badge/Powered%20By-Fruitcake-b2bc35.svg)](https://fruitcake.nl/)
 
-This is a package to integrate [PHP Debug Bar](http://phpdebugbar.com/) with Laravel.
+This is a package to integrate [PHP Debug Bar](https://github.com/php-debugbar/php-debugbar) with Laravel.
 It includes a ServiceProvider to register the debugbar and attach it to the output. You can publish assets and configure it through Laravel.
 It bootstraps some Collectors to work with Laravel and implements a couple custom DataCollectors, specific for Laravel.
-It is configured to display Redirects and (jQuery) Ajax Requests. (Shown in a dropdown)
+It is configured to display Redirects and Ajax/Livewire Requests. (Shown in a dropdown)
 Read [the documentation](http://phpdebugbar.com/docs/) for more configuration options.
 
 ![Debugbar Dark Mode screenshot](https://github.com/barryvdh/laravel-debugbar/assets/973269/6600837a-8b2d-4acb-ab0c-158c9ca5439c)
@@ -71,8 +71,10 @@ If you want to use the facade to log messages, add this within the `register` me
 ```php
 public function register(): void
 {
-    $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-    $loader->alias('Debugbar', \Barryvdh\Debugbar\Facades\Debugbar::class);
+    if (class_exists(\Barryvdh\Debugbar\Facades\Debugbar::class)) {
+        $loader = \Illuminate\Foundation\AliasLoader::getInstance();
+        $loader->alias('Debugbar', \Barryvdh\Debugbar\Facades\Debugbar::class);
+    }
 }
 ```
 
@@ -224,3 +226,7 @@ The Stopwatch extension adds a [stopwatch tag](http://symfony.com/blog/new-in-sy
     …some things that gets timed
 {% endstopwatch %}
 ```
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=barryvdh/laravel-debugbar&type=Date)](https://www.star-history.com/#barryvdh/laravel-debugbar&Date)

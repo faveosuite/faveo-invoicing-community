@@ -19,6 +19,7 @@ use Twig\Error\Error;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+use Twig\ExpressionParser\ExpressionParsers;
 use Twig\Extension\CoreExtension;
 use Twig\Extension\EscaperExtension;
 use Twig\Extension\ExtensionInterface;
@@ -27,8 +28,6 @@ use Twig\Extension\YieldNotReadyExtension;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\ChainLoader;
 use Twig\Loader\LoaderInterface;
-use Twig\Node\Expression\Binary\AbstractBinary;
-use Twig\Node\Expression\Unary\AbstractUnary;
 use Twig\Node\ModuleNode;
 use Twig\Node\Node;
 use Twig\NodeVisitor\NodeVisitorInterface;
@@ -44,11 +43,11 @@ use Twig\TokenParser\TokenParserInterface;
  */
 class Environment
 {
-    public const VERSION = '3.19.0';
-    public const VERSION_ID = 31900;
+    public const VERSION = '3.22.2';
+    public const VERSION_ID = 32202;
     public const MAJOR_VERSION = 3;
-    public const MINOR_VERSION = 19;
-    public const RELEASE_VERSION = 0;
+    public const MINOR_VERSION = 22;
+    public const RELEASE_VERSION = 2;
     public const EXTRA_VERSION = '';
 
     private $charset;
@@ -736,6 +735,9 @@ class Environment
         return $this->extensionSet->getTokenParser($name);
     }
 
+    /**
+     * @param callable(string): (TokenParserInterface|false) $callable
+     */
     public function registerUndefinedTokenParserCallback(callable $callable): void
     {
         $this->extensionSet->registerUndefinedTokenParserCallback($callable);
@@ -775,6 +777,9 @@ class Environment
         return $this->extensionSet->getFilter($name);
     }
 
+    /**
+     * @param callable(string): (TwigFilter|false) $callable
+     */
     public function registerUndefinedFilterCallback(callable $callable): void
     {
         $this->extensionSet->registerUndefinedFilterCallback($callable);
@@ -823,6 +828,14 @@ class Environment
     }
 
     /**
+     * @param callable(string): (TwigTest|false) $callable
+     */
+    public function registerUndefinedTestCallback(callable $callable): void
+    {
+        $this->extensionSet->registerUndefinedTestCallback($callable);
+    }
+
+    /**
      * @return void
      */
     public function addFunction(TwigFunction $function)
@@ -838,6 +851,9 @@ class Environment
         return $this->extensionSet->getFunction($name);
     }
 
+    /**
+     * @param callable(string): (TwigFunction|false) $callable
+     */
     public function registerUndefinedFunctionCallback(callable $callable): void
     {
         $this->extensionSet->registerUndefinedFunctionCallback($callable);
@@ -916,22 +932,10 @@ class Environment
 
     /**
      * @internal
-     *
-     * @return array<string, array{precedence: int, precedence_change?: OperatorPrecedenceChange, class: class-string<AbstractUnary>}>
      */
-    public function getUnaryOperators(): array
+    public function getExpressionParsers(): ExpressionParsers
     {
-        return $this->extensionSet->getUnaryOperators();
-    }
-
-    /**
-     * @internal
-     *
-     * @return array<string, array{precedence: int, precedence_change?: OperatorPrecedenceChange, class: class-string<AbstractBinary>, associativity: ExpressionParser::OPERATOR_*}>
-     */
-    public function getBinaryOperators(): array
-    {
-        return $this->extensionSet->getBinaryOperators();
+        return $this->extensionSet->getExpressionParsers();
     }
 
     private function updateOptionsHash(): void

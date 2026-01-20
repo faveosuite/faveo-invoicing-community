@@ -20,7 +20,7 @@ script:
 
 notifications:
   slack:
-    secure: fLT1x7BCXi8+sP1Qk1lP74+60JIBCw2clUTSOmB0OuoQGWYIJ4qelKcGH5FFsADGuC1GX2pf0fKRiLdavVrGpBkD4MGFPpyYKPYb0S/FyArN3PjdaNvAqE1VgQCtKkbugP5bHH9bp631+lo2EGQVLWTjlwiijWbCEyDu3L0YVMY=
+    secure: ${{ secrets.TRAVIS_SLACK_NOTIFY }}
 # We are doing the releases for non-composer folks
 # So this includes the vendor directory
 before_deploy:
@@ -31,7 +31,7 @@ deploy:
   # Otherwise, we lose the vendor/ directory
   skip_cleanup: true
   api_key:
-    secure: bHcu1jUASH6aVSD1LmzXdjQC4hc0o8EBbVs9X8e5j+/OC7+UuBBRu+jh6gQje/XWu9Nj1W2LkWhv0IKX1tJbcs0uRstggx+xC0ZayRzkscsqErqeM4WeyJjxe5ewb2eeGujtl9+WWFB3wpUQJtxXaaPuGYtroYGGYuI23wzKN4A=
+    secure: ${{ secrets.TRAVIS_DEPLOY_API_KEY }}
   # travis doesn't support multi file deployes yet, not that we need them
   file: razorpay-php.zip
   on:

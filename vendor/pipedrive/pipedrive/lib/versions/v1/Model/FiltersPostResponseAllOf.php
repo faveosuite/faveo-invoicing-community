@@ -213,9 +213,6 @@ class FiltersPostResponseAllOf implements ModelInterface, ArrayAccess, JsonSeria
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -234,7 +231,7 @@ class FiltersPostResponseAllOf implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\Filter
+     * @return \Pipedrive\versions\v1\Model\Filter|null
      */
     public function getData()
     {
@@ -244,7 +241,7 @@ class FiltersPostResponseAllOf implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\Filter $data data
+     * @param \Pipedrive\versions\v1\Model\Filter|null $data data
      *
      * @return self
      */

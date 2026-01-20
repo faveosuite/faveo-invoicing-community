@@ -46,18 +46,18 @@ class Gravatar
 	/**
 	 * Override the default image fallback set in the config.
 	 * Can either be a public URL to an image or a valid themed image.
-	 * For more info, visit http://en.gravatar.com/site/implement/images/#default-image
+	 * For more info, visit https://docs.gravatar.com/api/avatars/images/#default-image
 	 *
 	 * @param string $fallback
 	 * @return $this
 	 */
 	public function fallback($fallback)
 	{
-		// Gravatar changed mm to mp. 
+		// Gravatar changed mm to mp.
 		// This way we make sure everything keeps working
 		if ($fallback === 'mm')
 			$fallback = 'mp';
-		
+
 		if (
 			filter_var($fallback, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)
 			|| in_array($fallback, array('mp', 'identicon', 'monsterid', 'wavatar', 'retro', 'robohash', 'blank'))
@@ -86,7 +86,7 @@ class Gravatar
 
 		$headers = @get_headers($this->buildUrl());
 
-		return (bool) strpos($headers[0], '200');
+		return (bool) ($headers) ? strpos($headers[0], '200') : false;
 	}
 
 	/**
@@ -145,13 +145,13 @@ class Gravatar
 	}
 
 	/**
-	 * Helper function to md5 hash the email address
+	 * Helper function to sha256 hash the email address
 	 *
 	 * @return string
 	 */
 	private function hashEmail()
 	{
-		return md5(strtolower(trim($this->email)));
+		return hash('sha256', strtolower(trim($this->email)));
 	}
 
 	/**

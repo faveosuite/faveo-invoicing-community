@@ -219,12 +219,6 @@ class UserProviderLinkErrorResponse implements ModelInterface, ArrayAccess, Json
     {
         $invalidProperties = [];
 
-        if ($this->container['success'] === null) {
-            $invalidProperties[] = "'success' can't be null";
-        }
-        if ($this->container['message'] === null) {
-            $invalidProperties[] = "'message' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class UserProviderLinkErrorResponse implements ModelInterface, ArrayAccess, Json
     /**
      * Gets success
      *
-     * @return bool
+     * @return bool|null
      */
     public function getSuccess()
     {
@@ -253,7 +247,7 @@ class UserProviderLinkErrorResponse implements ModelInterface, ArrayAccess, Json
     /**
      * Sets success
      *
-     * @param bool $success Boolean that indicates whether the request was successful or not
+     * @param bool|null $success Boolean that indicates whether the request was successful or not
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class UserProviderLinkErrorResponse implements ModelInterface, ArrayAccess, Json
     /**
      * Gets message
      *
-     * @return string
+     * @return string|null
      */
     public function getMessage()
     {
@@ -277,7 +271,7 @@ class UserProviderLinkErrorResponse implements ModelInterface, ArrayAccess, Json
     /**
      * Sets message
      *
-     * @param string $message The error message of the request
+     * @param string|null $message The error message of the request
      *
      * @return self
      */

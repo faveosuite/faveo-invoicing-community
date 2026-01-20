@@ -132,6 +132,7 @@ class ChannelsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\ChannelObjectResponse|\Pipedrive\versions\v1\Model\AddChannelBadRequestResponse|\Pipedrive\versions\v1\Model\AddChannelForbiddenErrorResponse
+     * @deprecated
      */
     public function addChannel($channel_object = null)
     {
@@ -149,6 +150,7 @@ class ChannelsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\ChannelObjectResponse|\Pipedrive\versions\v1\Model\AddChannelBadRequestResponse|\Pipedrive\versions\v1\Model\AddChannelForbiddenErrorResponse, HTTP status code, HTTP response headers (array of strings)
+     * @deprecated
      */
     public function addChannelWithHttpInfo($channel_object = null)
     {
@@ -291,6 +293,7 @@ class ChannelsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
+     * @deprecated
      */
     public function addChannelAsync($channel_object = null): PromiseInterface
     {
@@ -311,6 +314,7 @@ class ChannelsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
+     * @deprecated
      */
     public function addChannelAsyncWithHttpInfo($channel_object = null): PromiseInterface
     {
@@ -358,6 +362,7 @@ class ChannelsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
+     * @deprecated
      */
     public function addChannelRequest($channel_object = null): Request
     {
@@ -461,6 +466,7 @@ class ChannelsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\DeleteChannelSuccess|\Pipedrive\versions\v1\Model\AddChannelBadRequestResponse
+     * @deprecated
      */
     public function deleteChannel($id)
     {
@@ -478,6 +484,7 @@ class ChannelsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\DeleteChannelSuccess|\Pipedrive\versions\v1\Model\AddChannelBadRequestResponse, HTTP status code, HTTP response headers (array of strings)
+     * @deprecated
      */
     public function deleteChannelWithHttpInfo($id)
     {
@@ -599,6 +606,7 @@ class ChannelsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
+     * @deprecated
      */
     public function deleteChannelAsync($id): PromiseInterface
     {
@@ -619,6 +627,7 @@ class ChannelsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
+     * @deprecated
      */
     public function deleteChannelAsyncWithHttpInfo($id): PromiseInterface
     {
@@ -666,6 +675,7 @@ class ChannelsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
+     * @deprecated
      */
     public function deleteChannelRequest($id): Request
     {
@@ -779,6 +789,7 @@ class ChannelsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\DeleteConversationSuccess|\Pipedrive\versions\v1\Model\DeleteConversationForbiddenErrorResponse|\Pipedrive\versions\v1\Model\DeleteConversationNotFoundErrorResponse
+     * @deprecated
      */
     public function deleteConversation($channel_id, $conversation_id)
     {
@@ -797,6 +808,7 @@ class ChannelsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\DeleteConversationSuccess|\Pipedrive\versions\v1\Model\DeleteConversationForbiddenErrorResponse|\Pipedrive\versions\v1\Model\DeleteConversationNotFoundErrorResponse, HTTP status code, HTTP response headers (array of strings)
+     * @deprecated
      */
     public function deleteConversationWithHttpInfo($channel_id, $conversation_id)
     {
@@ -940,6 +952,7 @@ class ChannelsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
+     * @deprecated
      */
     public function deleteConversationAsync($channel_id, $conversation_id): PromiseInterface
     {
@@ -961,6 +974,7 @@ class ChannelsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
+     * @deprecated
      */
     public function deleteConversationAsyncWithHttpInfo($channel_id, $conversation_id): PromiseInterface
     {
@@ -1009,6 +1023,7 @@ class ChannelsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
+     * @deprecated
      */
     public function deleteConversationRequest($channel_id, $conversation_id): Request
     {
@@ -1136,6 +1151,7 @@ class ChannelsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\GetReceiveMessageSuccessResponse|\Pipedrive\versions\v1\Model\ReceiveMessageBadRequestErrorResponse
+     * @deprecated
      */
     public function receiveMessage($message_object = null)
     {
@@ -1153,6 +1169,7 @@ class ChannelsApi
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\GetReceiveMessageSuccessResponse|\Pipedrive\versions\v1\Model\ReceiveMessageBadRequestErrorResponse, HTTP status code, HTTP response headers (array of strings)
+     * @deprecated
      */
     public function receiveMessageWithHttpInfo($message_object = null)
     {
@@ -1274,6 +1291,7 @@ class ChannelsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
+     * @deprecated
      */
     public function receiveMessageAsync($message_object = null): PromiseInterface
     {
@@ -1294,6 +1312,7 @@ class ChannelsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
+     * @deprecated
      */
     public function receiveMessageAsyncWithHttpInfo($message_object = null): PromiseInterface
     {
@@ -1341,6 +1360,7 @@ class ChannelsApi
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
+     * @deprecated
      */
     public function receiveMessageRequest($message_object = null): Request
     {
