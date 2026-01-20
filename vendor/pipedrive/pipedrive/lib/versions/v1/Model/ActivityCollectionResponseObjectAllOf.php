@@ -363,84 +363,6 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     {
         $invalidProperties = [];
 
-        if ($this->container['id'] === null) {
-            $invalidProperties[] = "'id' can't be null";
-        }
-        if ($this->container['done'] === null) {
-            $invalidProperties[] = "'done' can't be null";
-        }
-        if ($this->container['subject'] === null) {
-            $invalidProperties[] = "'subject' can't be null";
-        }
-        if ($this->container['type'] === null) {
-            $invalidProperties[] = "'type' can't be null";
-        }
-        if ($this->container['user_id'] === null) {
-            $invalidProperties[] = "'user_id' can't be null";
-        }
-        if ($this->container['busy_flag'] === null) {
-            $invalidProperties[] = "'busy_flag' can't be null";
-        }
-        if ($this->container['company_id'] === null) {
-            $invalidProperties[] = "'company_id' can't be null";
-        }
-        if ($this->container['conference_meeting_client'] === null) {
-            $invalidProperties[] = "'conference_meeting_client' can't be null";
-        }
-        if ($this->container['conference_meeting_url'] === null) {
-            $invalidProperties[] = "'conference_meeting_url' can't be null";
-        }
-        if ($this->container['conference_meeting_id'] === null) {
-            $invalidProperties[] = "'conference_meeting_id' can't be null";
-        }
-        if ($this->container['add_time'] === null) {
-            $invalidProperties[] = "'add_time' can't be null";
-        }
-        if ($this->container['marked_as_done_time'] === null) {
-            $invalidProperties[] = "'marked_as_done_time' can't be null";
-        }
-        if ($this->container['active_flag'] === null) {
-            $invalidProperties[] = "'active_flag' can't be null";
-        }
-        if ($this->container['update_time'] === null) {
-            $invalidProperties[] = "'update_time' can't be null";
-        }
-        if ($this->container['update_user_id'] === null) {
-            $invalidProperties[] = "'update_user_id' can't be null";
-        }
-        if ($this->container['source_timezone'] === null) {
-            $invalidProperties[] = "'source_timezone' can't be null";
-        }
-        if ($this->container['location_subpremise'] === null) {
-            $invalidProperties[] = "'location_subpremise' can't be null";
-        }
-        if ($this->container['location_street_number'] === null) {
-            $invalidProperties[] = "'location_street_number' can't be null";
-        }
-        if ($this->container['location_route'] === null) {
-            $invalidProperties[] = "'location_route' can't be null";
-        }
-        if ($this->container['location_sublocality'] === null) {
-            $invalidProperties[] = "'location_sublocality' can't be null";
-        }
-        if ($this->container['location_locality'] === null) {
-            $invalidProperties[] = "'location_locality' can't be null";
-        }
-        if ($this->container['location_admin_area_level_1'] === null) {
-            $invalidProperties[] = "'location_admin_area_level_1' can't be null";
-        }
-        if ($this->container['location_admin_area_level_2'] === null) {
-            $invalidProperties[] = "'location_admin_area_level_2' can't be null";
-        }
-        if ($this->container['location_country'] === null) {
-            $invalidProperties[] = "'location_country' can't be null";
-        }
-        if ($this->container['location_postal_code'] === null) {
-            $invalidProperties[] = "'location_postal_code' can't be null";
-        }
-        if ($this->container['location_formatted_address'] === null) {
-            $invalidProperties[] = "'location_formatted_address' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -459,7 +381,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets id
      *
-     * @return int
+     * @return int|null
      */
     public function getId()
     {
@@ -469,7 +391,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets id
      *
-     * @param int $id The ID of the activity, generated when the activity was created
+     * @param int|null $id The ID of the activity, generated when the activity was created
      *
      * @return self
      */
@@ -483,7 +405,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets done
      *
-     * @return bool
+     * @return bool|null
      */
     public function getDone()
     {
@@ -493,7 +415,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets done
      *
-     * @param bool $done Whether the activity is done or not
+     * @param bool|null $done Whether the activity is done or not
      *
      * @return self
      */
@@ -507,7 +429,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets subject
      *
-     * @return string
+     * @return string|null
      */
     public function getSubject()
     {
@@ -517,7 +439,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets subject
      *
-     * @param string $subject The subject of the activity
+     * @param string|null $subject The subject of the activity
      *
      * @return self
      */
@@ -531,7 +453,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets type
      *
-     * @return string
+     * @return string|null
      */
     public function getType()
     {
@@ -541,7 +463,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets type
      *
-     * @param string $type The type of the activity. This is in correlation with the `key_string` parameter of ActivityTypes.
+     * @param string|null $type The type of the activity. This is in correlation with the `key_string` parameter of ActivityTypes.
      *
      * @return self
      */
@@ -555,7 +477,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets user_id
      *
-     * @return int
+     * @return int|null
      */
     public function getUserId()
     {
@@ -565,7 +487,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets user_id
      *
-     * @param int $user_id The ID of the user whom the activity is assigned to
+     * @param int|null $user_id The ID of the user whom the activity is assigned to
      *
      * @return self
      */
@@ -579,7 +501,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets busy_flag
      *
-     * @return bool
+     * @return bool|null
      */
     public function getBusyFlag()
     {
@@ -589,7 +511,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets busy_flag
      *
-     * @param bool $busy_flag Marks if the activity is set as 'Busy' or 'Free'. If the flag is set to `true`, your customers will not be able to book that time slot through any Scheduler links. The flag can also be unset. When the value of the flag is unset (`null`), the flag defaults to 'Busy' if it has a time set, and 'Free' if it is an all-day event without specified time.
+     * @param bool|null $busy_flag Marks if the activity is set as 'Busy' or 'Free'. If the flag is set to `true`, your customers will not be able to book that time slot through any Scheduler links. The flag can also be unset. When the value of the flag is unset (`null`), the flag defaults to 'Busy' if it has a time set, and 'Free' if it is an all-day event without specified time.
      *
      * @return self
      */
@@ -603,7 +525,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets company_id
      *
-     * @return int
+     * @return int|null
      */
     public function getCompanyId()
     {
@@ -613,7 +535,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets company_id
      *
-     * @param int $company_id The user's company ID
+     * @param int|null $company_id The user's company ID
      *
      * @return self
      */
@@ -627,7 +549,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets conference_meeting_client
      *
-     * @return string
+     * @return string|null
      */
     public function getConferenceMeetingClient()
     {
@@ -637,7 +559,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets conference_meeting_client
      *
-     * @param string $conference_meeting_client The ID of the Marketplace app, which is connected to this activity
+     * @param string|null $conference_meeting_client The ID of the Marketplace app, which is connected to this activity
      *
      * @return self
      */
@@ -651,7 +573,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets conference_meeting_url
      *
-     * @return string
+     * @return string|null
      */
     public function getConferenceMeetingUrl()
     {
@@ -661,7 +583,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets conference_meeting_url
      *
-     * @param string $conference_meeting_url The link to join the meeting which is associated with this activity
+     * @param string|null $conference_meeting_url The link to join the meeting which is associated with this activity
      *
      * @return self
      */
@@ -675,7 +597,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets conference_meeting_id
      *
-     * @return string
+     * @return string|null
      */
     public function getConferenceMeetingId()
     {
@@ -685,7 +607,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets conference_meeting_id
      *
-     * @param string $conference_meeting_id The meeting ID of the meeting provider (Zoom, MS Teams etc.) that is associated with this activity
+     * @param string|null $conference_meeting_id The meeting ID of the meeting provider (Zoom, MS Teams etc.) that is associated with this activity
      *
      * @return self
      */
@@ -699,7 +621,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets add_time
      *
-     * @return string
+     * @return string|null
      */
     public function getAddTime()
     {
@@ -709,7 +631,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets add_time
      *
-     * @param string $add_time The creation date and time of the activity in UTC. Format: YYYY-MM-DD HH:MM:SS.
+     * @param string|null $add_time The creation date and time of the activity in UTC. Format: YYYY-MM-DD HH:MM:SS.
      *
      * @return self
      */
@@ -723,7 +645,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets marked_as_done_time
      *
-     * @return string
+     * @return string|null
      */
     public function getMarkedAsDoneTime()
     {
@@ -733,7 +655,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets marked_as_done_time
      *
-     * @param string $marked_as_done_time The date and time this activity was marked as done. Format: YYYY-MM-DD HH:MM:SS.
+     * @param string|null $marked_as_done_time The date and time this activity was marked as done. Format: YYYY-MM-DD HH:MM:SS.
      *
      * @return self
      */
@@ -747,7 +669,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets active_flag
      *
-     * @return bool
+     * @return bool|null
      */
     public function getActiveFlag()
     {
@@ -757,7 +679,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets active_flag
      *
-     * @param bool $active_flag Whether the activity is active or not
+     * @param bool|null $active_flag Whether the activity is active or not
      *
      * @return self
      */
@@ -771,7 +693,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets update_time
      *
-     * @return string
+     * @return string|null
      */
     public function getUpdateTime()
     {
@@ -781,7 +703,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets update_time
      *
-     * @param string $update_time The last update date and time of the activity. Format: YYYY-MM-DD HH:MM:SS.
+     * @param string|null $update_time The last update date and time of the activity. Format: YYYY-MM-DD HH:MM:SS.
      *
      * @return self
      */
@@ -795,7 +717,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets update_user_id
      *
-     * @return int
+     * @return int|null
      */
     public function getUpdateUserId()
     {
@@ -805,7 +727,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets update_user_id
      *
-     * @param int $update_user_id The ID of the user who was the last to update this activity
+     * @param int|null $update_user_id The ID of the user who was the last to update this activity
      *
      * @return self
      */
@@ -819,7 +741,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets source_timezone
      *
-     * @return string
+     * @return string|null
      */
     public function getSourceTimezone()
     {
@@ -829,7 +751,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets source_timezone
      *
-     * @param string $source_timezone The timezone the activity was created in an external calendar
+     * @param string|null $source_timezone The timezone the activity was created in an external calendar
      *
      * @return self
      */
@@ -843,7 +765,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets location_subpremise
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationSubpremise()
     {
@@ -853,7 +775,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets location_subpremise
      *
-     * @param string $location_subpremise A subfield of the location field. Indicates apartment/suite number.
+     * @param string|null $location_subpremise A subfield of the location field. Indicates apartment/suite number.
      *
      * @return self
      */
@@ -867,7 +789,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets location_street_number
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationStreetNumber()
     {
@@ -877,7 +799,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets location_street_number
      *
-     * @param string $location_street_number A subfield of the location field. Indicates house number.
+     * @param string|null $location_street_number A subfield of the location field. Indicates house number.
      *
      * @return self
      */
@@ -891,7 +813,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets location_route
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationRoute()
     {
@@ -901,7 +823,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets location_route
      *
-     * @param string $location_route A subfield of the location field. Indicates street name.
+     * @param string|null $location_route A subfield of the location field. Indicates street name.
      *
      * @return self
      */
@@ -915,7 +837,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets location_sublocality
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationSublocality()
     {
@@ -925,7 +847,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets location_sublocality
      *
-     * @param string $location_sublocality A subfield of the location field. Indicates district/sublocality.
+     * @param string|null $location_sublocality A subfield of the location field. Indicates district/sublocality.
      *
      * @return self
      */
@@ -939,7 +861,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets location_locality
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationLocality()
     {
@@ -949,7 +871,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets location_locality
      *
-     * @param string $location_locality A subfield of the location field. Indicates city/town/village/locality.
+     * @param string|null $location_locality A subfield of the location field. Indicates city/town/village/locality.
      *
      * @return self
      */
@@ -963,7 +885,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets location_admin_area_level_1
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationAdminAreaLevel1()
     {
@@ -973,7 +895,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets location_admin_area_level_1
      *
-     * @param string $location_admin_area_level_1 A subfield of the location field. Indicates state/county.
+     * @param string|null $location_admin_area_level_1 A subfield of the location field. Indicates state/county.
      *
      * @return self
      */
@@ -987,7 +909,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets location_admin_area_level_2
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationAdminAreaLevel2()
     {
@@ -997,7 +919,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets location_admin_area_level_2
      *
-     * @param string $location_admin_area_level_2 A subfield of the location field. Indicates region.
+     * @param string|null $location_admin_area_level_2 A subfield of the location field. Indicates region.
      *
      * @return self
      */
@@ -1011,7 +933,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets location_country
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationCountry()
     {
@@ -1021,7 +943,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets location_country
      *
-     * @param string $location_country A subfield of the location field. Indicates country.
+     * @param string|null $location_country A subfield of the location field. Indicates country.
      *
      * @return self
      */
@@ -1035,7 +957,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets location_postal_code
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationPostalCode()
     {
@@ -1045,7 +967,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets location_postal_code
      *
-     * @param string $location_postal_code A subfield of the location field. Indicates ZIP/postal code.
+     * @param string|null $location_postal_code A subfield of the location field. Indicates ZIP/postal code.
      *
      * @return self
      */
@@ -1059,7 +981,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Gets location_formatted_address
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationFormattedAddress()
     {
@@ -1069,7 +991,7 @@ class ActivityCollectionResponseObjectAllOf implements ModelInterface, ArrayAcce
     /**
      * Sets location_formatted_address
      *
-     * @param string $location_formatted_address A subfield of the location field. Indicates full/combined address.
+     * @param string|null $location_formatted_address A subfield of the location field. Indicates full/combined address.
      *
      * @return self
      */

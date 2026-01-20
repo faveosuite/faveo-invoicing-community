@@ -17,6 +17,7 @@ use PHPUnit\Event\Telemetry\Info;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\IncompleteTestError;
 use PHPUnit\Framework\SkippedWithMessageException;
+use PHPUnit\Runner\TestSuiteSorter;
 use PHPUnit\TestRunner\TestResult\TestResult as PHPUnitTestResult;
 use PHPUnit\TextUI\Configuration\Registry;
 use ReflectionClass;
@@ -268,6 +269,16 @@ final class Style
             ),
         ]);
 
+        $configuration = Registry::get();
+        if ($configuration->executionOrder() === TestSuiteSorter::ORDER_RANDOMIZED) {
+            $this->output->writeln([
+                sprintf(
+                    '  <fg=gray>Random Order Seed:</> <fg=default>%s</>',
+                    $configuration->randomOrderSeed(),
+                ),
+            ]);
+        }
+
         $this->output->writeln('');
     }
 
@@ -337,8 +348,10 @@ final class Style
             '/vendor\/nunomaduro\/collision/',
             '/vendor\/bin\/pest/',
             '/bin\/pest/',
+            '/vendor\/brianium\/paratest/',
             '/vendor\/pestphp\/pest/',
             '/vendor\/pestphp\/pest-plugin-arch/',
+            '/vendor\/pestphp\/pest-plugin-browser/',
             '/vendor\/phpspec\/prophecy-phpunit/',
             '/vendor\/phpspec\/prophecy/',
             '/vendor\/phpunit\/phpunit\/src/',

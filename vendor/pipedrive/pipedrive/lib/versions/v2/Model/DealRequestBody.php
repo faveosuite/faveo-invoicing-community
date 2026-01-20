@@ -74,10 +74,9 @@ class DealRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         'stage_id' => 'int',
         'value' => 'float',
         'currency' => 'string',
-        'add_time' => 'string',
-        'update_time' => 'string',
-        'stage_change_time' => 'string',
         'is_deleted' => 'bool',
+        'is_archived' => 'bool',
+        'archive_time' => 'string',
         'status' => 'string',
         'probability' => 'float',
         'lost_reason' => 'string',
@@ -86,7 +85,8 @@ class DealRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         'won_time' => 'string',
         'lost_time' => 'string',
         'expected_close_date' => '\DateTime',
-        'label_ids' => 'int[]'
+        'label_ids' => 'int[]',
+        'custom_fields' => 'array<string,object>'
     ];
 
     /**
@@ -105,10 +105,9 @@ class DealRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         'stage_id' => null,
         'value' => null,
         'currency' => null,
-        'add_time' => null,
-        'update_time' => null,
-        'stage_change_time' => null,
         'is_deleted' => null,
+        'is_archived' => null,
+        'archive_time' => null,
         'status' => null,
         'probability' => null,
         'lost_reason' => null,
@@ -117,7 +116,8 @@ class DealRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         'won_time' => null,
         'lost_time' => null,
         'expected_close_date' => 'date',
-        'label_ids' => null
+        'label_ids' => null,
+        'custom_fields' => null
     ];
 
     /**
@@ -159,10 +159,9 @@ class DealRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         'stage_id' => 'stage_id',
         'value' => 'value',
         'currency' => 'currency',
-        'add_time' => 'add_time',
-        'update_time' => 'update_time',
-        'stage_change_time' => 'stage_change_time',
         'is_deleted' => 'is_deleted',
+        'is_archived' => 'is_archived',
+        'archive_time' => 'archive_time',
         'status' => 'status',
         'probability' => 'probability',
         'lost_reason' => 'lost_reason',
@@ -171,7 +170,8 @@ class DealRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         'won_time' => 'won_time',
         'lost_time' => 'lost_time',
         'expected_close_date' => 'expected_close_date',
-        'label_ids' => 'label_ids'
+        'label_ids' => 'label_ids',
+        'custom_fields' => 'custom_fields'
     ];
 
     /**
@@ -188,10 +188,9 @@ class DealRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         'stage_id' => 'setStageId',
         'value' => 'setValue',
         'currency' => 'setCurrency',
-        'add_time' => 'setAddTime',
-        'update_time' => 'setUpdateTime',
-        'stage_change_time' => 'setStageChangeTime',
         'is_deleted' => 'setIsDeleted',
+        'is_archived' => 'setIsArchived',
+        'archive_time' => 'setArchiveTime',
         'status' => 'setStatus',
         'probability' => 'setProbability',
         'lost_reason' => 'setLostReason',
@@ -200,7 +199,8 @@ class DealRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         'won_time' => 'setWonTime',
         'lost_time' => 'setLostTime',
         'expected_close_date' => 'setExpectedCloseDate',
-        'label_ids' => 'setLabelIds'
+        'label_ids' => 'setLabelIds',
+        'custom_fields' => 'setCustomFields'
     ];
 
     /**
@@ -217,10 +217,9 @@ class DealRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         'stage_id' => 'getStageId',
         'value' => 'getValue',
         'currency' => 'getCurrency',
-        'add_time' => 'getAddTime',
-        'update_time' => 'getUpdateTime',
-        'stage_change_time' => 'getStageChangeTime',
         'is_deleted' => 'getIsDeleted',
+        'is_archived' => 'getIsArchived',
+        'archive_time' => 'getArchiveTime',
         'status' => 'getStatus',
         'probability' => 'getProbability',
         'lost_reason' => 'getLostReason',
@@ -229,7 +228,8 @@ class DealRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         'won_time' => 'getWonTime',
         'lost_time' => 'getLostTime',
         'expected_close_date' => 'getExpectedCloseDate',
-        'label_ids' => 'getLabelIds'
+        'label_ids' => 'getLabelIds',
+        'custom_fields' => 'getCustomFields'
     ];
 
     /**
@@ -307,10 +307,9 @@ class DealRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['stage_id'] = $data['stage_id'] ?? null;
         $this->container['value'] = $data['value'] ?? null;
         $this->container['currency'] = $data['currency'] ?? null;
-        $this->container['add_time'] = $data['add_time'] ?? null;
-        $this->container['update_time'] = $data['update_time'] ?? null;
-        $this->container['stage_change_time'] = $data['stage_change_time'] ?? null;
         $this->container['is_deleted'] = $data['is_deleted'] ?? null;
+        $this->container['is_archived'] = $data['is_archived'] ?? null;
+        $this->container['archive_time'] = $data['archive_time'] ?? null;
         $this->container['status'] = $data['status'] ?? null;
         $this->container['probability'] = $data['probability'] ?? null;
         $this->container['lost_reason'] = $data['lost_reason'] ?? null;
@@ -320,6 +319,7 @@ class DealRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['lost_time'] = $data['lost_time'] ?? null;
         $this->container['expected_close_date'] = $data['expected_close_date'] ?? null;
         $this->container['label_ids'] = $data['label_ids'] ?? null;
+        $this->container['custom_fields'] = $data['custom_fields'] ?? null;
     }
 
     /**
@@ -541,78 +541,6 @@ class DealRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
-     * Gets add_time
-     *
-     * @return string|null
-     */
-    public function getAddTime()
-    {
-        return $this->container['add_time'];
-    }
-
-    /**
-     * Sets add_time
-     *
-     * @param string|null $add_time The creation date and time of the deal
-     *
-     * @return self
-     */
-    public function setAddTime($add_time): self
-    {
-        $this->container['add_time'] = $add_time;
-
-        return $this;
-    }
-
-    /**
-     * Gets update_time
-     *
-     * @return string|null
-     */
-    public function getUpdateTime()
-    {
-        return $this->container['update_time'];
-    }
-
-    /**
-     * Sets update_time
-     *
-     * @param string|null $update_time The last updated date and time of the deal
-     *
-     * @return self
-     */
-    public function setUpdateTime($update_time): self
-    {
-        $this->container['update_time'] = $update_time;
-
-        return $this;
-    }
-
-    /**
-     * Gets stage_change_time
-     *
-     * @return string|null
-     */
-    public function getStageChangeTime()
-    {
-        return $this->container['stage_change_time'];
-    }
-
-    /**
-     * Sets stage_change_time
-     *
-     * @param string|null $stage_change_time The last updated date and time of the deal stage
-     *
-     * @return self
-     */
-    public function setStageChangeTime($stage_change_time): self
-    {
-        $this->container['stage_change_time'] = $stage_change_time;
-
-        return $this;
-    }
-
-    /**
      * Gets is_deleted
      *
      * @return bool|null
@@ -632,6 +560,54 @@ class DealRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
     public function setIsDeleted($is_deleted): self
     {
         $this->container['is_deleted'] = $is_deleted;
+
+        return $this;
+    }
+
+    /**
+     * Gets is_archived
+     *
+     * @return bool|null
+     */
+    public function getIsArchived()
+    {
+        return $this->container['is_archived'];
+    }
+
+    /**
+     * Sets is_archived
+     *
+     * @param bool|null $is_archived Whether the deal is archived or not
+     *
+     * @return self
+     */
+    public function setIsArchived($is_archived): self
+    {
+        $this->container['is_archived'] = $is_archived;
+
+        return $this;
+    }
+
+    /**
+     * Gets archive_time
+     *
+     * @return string|null
+     */
+    public function getArchiveTime()
+    {
+        return $this->container['archive_time'];
+    }
+
+    /**
+     * Sets archive_time
+     *
+     * @param string|null $archive_time The optional date and time of archiving the deal in UTC. Format: YYYY-MM-DD HH:MM:SS. If omitted and `is_archived` is true, it will be set to the current date and time.
+     *
+     * @return self
+     */
+    public function setArchiveTime($archive_time): self
+    {
+        $this->container['archive_time'] = $archive_time;
 
         return $this;
     }
@@ -848,6 +824,30 @@ class DealRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
     public function setLabelIds($label_ids): self
     {
         $this->container['label_ids'] = $label_ids;
+
+        return $this;
+    }
+
+    /**
+     * Gets custom_fields
+     *
+     * @return array<string,object>|null
+     */
+    public function getCustomFields()
+    {
+        return $this->container['custom_fields'];
+    }
+
+    /**
+     * Sets custom_fields
+     *
+     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes
+     *
+     * @return self
+     */
+    public function setCustomFields($custom_fields): self
+    {
+        $this->container['custom_fields'] = $custom_fields;
 
         return $this;
     }

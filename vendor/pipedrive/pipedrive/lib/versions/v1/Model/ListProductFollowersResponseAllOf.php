@@ -219,12 +219,6 @@ class ListProductFollowersResponseAllOf implements ModelInterface, ArrayAccess, 
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class ListProductFollowersResponseAllOf implements ModelInterface, ArrayAccess, 
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\ListProductFollowersResponseAllOfData[]
+     * @return \Pipedrive\versions\v1\Model\ListProductFollowersResponseAllOfData[]|null
      */
     public function getData()
     {
@@ -253,7 +247,7 @@ class ListProductFollowersResponseAllOf implements ModelInterface, ArrayAccess, 
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\ListProductFollowersResponseAllOfData[] $data The list of followers
+     * @param \Pipedrive\versions\v1\Model\ListProductFollowersResponseAllOfData[]|null $data The list of followers
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class ListProductFollowersResponseAllOf implements ModelInterface, ArrayAccess, 
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\AdditionalData
+     * @return \Pipedrive\versions\v1\Model\AdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -277,7 +271,7 @@ class ListProductFollowersResponseAllOf implements ModelInterface, ArrayAccess, 
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\AdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\AdditionalData|null $additional_data additional_data
      *
      * @return self
      */

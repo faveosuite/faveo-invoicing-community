@@ -5,13 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com)
 and this project adheres to [Semantic Versioning](https://semver.org). This is always true of the master branch. Some earlier branches, including the branch from which you are reading this file, remain supported and security fixes are applied to them; if the security fix represents a breaking change, it may have to be applied as a minor or patch version.
 
+## 2026-01-10 - 1.30.2
+
+### Changed
+
+- Evaluation of WEBSERVICE no longer requires external client, but will use oldCalculatedValue unless the request is for a domain in a user-supplied whitelist. Security-related backport of [PR #4751](https://github.com/PHPOffice/PhpSpreadsheet/pull/4751)
+
+### Deprecated
+
+- Settings methods setHttpClient, unsetHttpClient, getHttpClient, and getRequestFactory are no longer used. No replacement.
+
+### Fixed
+
+- Changes to WEBSERVICE. Backport of [PR #4751](https://github.com/PHPOffice/PhpSpreadsheet/pull/4751)
+
 ## 2025-10-25 - 1.30.1
 
 ### Functionally Frozen
 
 - Except for security changes, no further maintenance will be applied to this branch.
 You are encouraged to upgrade to a maintained branch as soon as possible.
-Maintained branches are master (preferred - version is 5.2.0 as of the date when this is being written), release390 (current version is 3.10.1), and release222 (2.4.1).
+Maintained branches are master (preferred - version is 5.4.0 as of the date when this is being written), 3.10.x (current version is 3.10.3), and 2.4.x (2.4.3).
 - Of particular note is that this branch should not run under Php 8.5+, and will *not* be updated to avoid deprecation notices introduced with Php 8.5.
 
 ## 2025-08-10 - 1.30.0

@@ -10,11 +10,11 @@ use Endroid\QrCode\Writer\Result\ResultInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Extension\RuntimeExtensionInterface;
 
-final class QrCodeRuntime implements RuntimeExtensionInterface
+final readonly class QrCodeRuntime implements RuntimeExtensionInterface
 {
     public function __construct(
-        private readonly BuilderRegistryInterface $builderRegistry,
-        private readonly UrlGeneratorInterface $urlGenerator
+        private BuilderRegistryInterface $builderRegistry,
+        private UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -46,19 +46,14 @@ final class QrCodeRuntime implements RuntimeExtensionInterface
     /** @param array<mixed> $options */
     public function qrCodeResultFunction(string $data, string $builder = 'default', array $options = []): ResultInterface
     {
-        $builder = $this->builderRegistry->getBuilder($builder);
-
-        foreach ($options as $option => $value) {
-            if (!method_exists($builder, $option)) {
-                throw new \Exception(sprintf('Builder option "%s" does not exist', $option));
-            }
-            $builder->$option($value);
-        }
+        $builder = $this->builderRegistry->get($builder);
 
         if (!$builder instanceof Builder) {
             throw new \Exception('This twig extension only handles Builder instances');
         }
 
-        return $builder->data($data)->build();
+        $options['data'] = $data;
+
+        return $builder->build(...$options);
     }
 }

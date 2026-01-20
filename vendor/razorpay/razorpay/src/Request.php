@@ -21,6 +21,13 @@ if (defined('CURL_SSLVERSION_TLSv1_1') === false)
  */
 class Request
 {
+    public static $OAUTH = 'oauth';
+    public static $API = 'api';
+    protected $authType;
+    public function __construct($authType = null)
+    {
+        $this->authType = $authType ?? self::$API;
+    }
     /**
      * Headers to be sent with every http request to the API
      * @var array
@@ -41,19 +48,31 @@ class Request
      */
     public function request($method, $url, $data = array(), $apiVersion = "v1")
     { 
-        $url = Api::getFullUrl($url, $apiVersion);
+        if($this->authType == self::$OAUTH){
+          $url = OAuth::getFullUrl($url, $apiVersion);
+        }else{
+          $url = Api::getFullUrl($url, $apiVersion);
+        }
 
         $hooks = new Requests_Hooks();
 
         $hooks->register('curl.before_send', array($this, 'setCurlSslOpts'));
 
         $options = array(
-            'auth' => array(Api::getKey(), Api::getSecret()),
             'hook' => $hooks,
             'timeout' => 60
         );
         
         $headers = $this->getRequestHeaders();
+
+        if(!Api::getToken()){
+          $options['auth'] = array(Api::getKey(), Api::getSecret());
+        }
+        
+        if(Api::getToken()){
+          $token = Api::getToken();  
+          $headers['Authorization'] = "Bearer $token";   
+        }
 
         $response = Requests::request($url, $headers, $data, $method, $options);  
         $this->checkErrors($response);
@@ -75,6 +94,15 @@ class Request
     public static function addHeader($key, $value)
     {
         self::$headers[$key] = $value;
+    }
+
+    /**
+     * Removes an additional header from all API requests
+     * @param string $key   Header key
+     * @return null
+     */
+    public static function removeHeader($key){
+        unset(self::$headers[$key]);
     }
 
     /**
@@ -113,6 +141,13 @@ class Request
 
     protected function processError($body, $httpStatusCode, $response)
     {
+        if(isset($body['error']) && $this->authType == self::$OAUTH){
+          if($httpStatusCode >= 400 && $httpStatusCode < 500){
+            $body['error']['code'] = ErrorCode::BAD_REQUEST_ERROR;
+          }else if($httpStatusCode >= 500){
+            $body['error']['code'] = ErrorCode::SERVER_ERROR;
+          }
+        }
         $this->verifyErrorFormat($body, $httpStatusCode);
 
         $code = $body['error']['code'];

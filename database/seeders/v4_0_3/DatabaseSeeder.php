@@ -2,14 +2,10 @@
 
 namespace Database\Seeders\v4_0_3;
 
-use App\Model\Common\FaveoCloud;
-use App\Model\Order\InstallationDetail;
-use App\Model\Product\Subscription;
 use App\Plugins\Zoho\Models\FaveoLocalFields;
 use App\Plugins\Zoho\Models\ZohoIntegration;
-use App\ThirdPartyApp;
-use GuzzleHttp\Client;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,6 +16,7 @@ class DatabaseSeeder extends Seeder
     {
        $this->faveoLocalFieldsSeeder();
        $this->zohoSeeder();
+       $this->packageRemoval();
     }
 
     public function faveoLocalFieldsSeeder(): void
@@ -73,6 +70,57 @@ class DatabaseSeeder extends Seeder
                     'is_active'   => false,
                 ]
             );
+        }
+    }
+    public function packageRemoval(): void
+    {
+        $packages = [
+            'simplesoftwareio/simple-qrcode',
+            'swiftmailer/swiftmailer',
+            'rachidlaasri/laravel-installer',
+            'yajra/laravel-datatables',
+            'anhskohbo/no-captcha',
+            'barryvdh/laravel-dompdf',
+            'torann/currency'
+        ];
+
+        $configs = [
+            'datatables.php',
+            'datatables-buttons.php',
+            'datatables-fractal.php',
+            'dompdf.php',
+            'currency.php'
+        ];
+
+        foreach ($packages as $package) {
+
+            $packagePath = base_path("vendor/{$package}");
+
+            if (! File::exists($packagePath)) {
+                continue;
+            }
+
+            File::deleteDirectory($packagePath);
+
+            $authorPath = dirname($packagePath);
+
+            if (
+                File::exists($authorPath)
+                && File::isDirectory($authorPath)
+                && count(File::files($authorPath)) === 0
+                && count(File::directories($authorPath)) === 0
+            ) {
+                File::deleteDirectory($authorPath);
+            }
+        }
+
+        foreach ($configs as $config) {
+
+            $configPath = config_path($config);
+
+            if (File::exists($configPath)) {
+                File::delete($configPath);
+            }
         }
     }
 

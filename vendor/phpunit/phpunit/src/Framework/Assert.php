@@ -16,10 +16,11 @@ use function count;
 use function file_get_contents;
 use function interface_exists;
 use function is_bool;
+use function sprintf;
 use ArrayAccess;
 use Countable;
 use Generator;
-use PHPUnit\Event;
+use PHPUnit\Event\Facade as EventFacade;
 use PHPUnit\Framework\Constraint\ArrayHasKey;
 use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\Constraint\Constraint;
@@ -273,7 +274,7 @@ abstract class Assert
      * @throws Exception
      * @throws ExpectationFailedException
      *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6055
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6056
      */
     final public static function assertContainsOnly(string $type, iterable $haystack, ?bool $isNativeType = null, string $message = ''): void
     {
@@ -281,18 +282,60 @@ abstract class Assert
             $isNativeType = self::isNativeType($type);
         }
 
-        self::assertThat(
-            $haystack,
-            new TraversableContainsOnly(
-                $type,
-                $isNativeType,
-            ),
-            $message,
-        );
+        if ($isNativeType) {
+            $replacement = match ($type) {
+                'array'             => 'assertContainsOnlyArray',
+                'bool'              => 'assertContainsOnlyBool',
+                'boolean'           => 'assertContainsOnlyBool',
+                'callable'          => 'assertContainsOnlyCallable',
+                'double'            => 'assertContainsOnlyFloat',
+                'float'             => 'assertContainsOnlyFloat',
+                'int'               => 'assertContainsOnlyInt',
+                'integer'           => 'assertContainsOnlyInt',
+                'iterable'          => 'assertContainsOnlyIterable',
+                'null'              => 'assertContainsOnlyNull',
+                'numeric'           => 'assertContainsOnlyNumeric',
+                'object'            => 'assertContainsOnlyObject',
+                'real'              => 'assertContainsOnlyFloat',
+                'resource'          => 'assertContainsOnlyResource',
+                'resource (closed)' => 'assertContainsOnlyClosedResource',
+                'scalar'            => 'assertContainsOnlyScalar',
+                'string'            => 'assertContainsOnlyString',
+            };
+
+            EventFacade::emitter()->testTriggeredPhpunitDeprecation(
+                null,
+                sprintf(
+                    'assertContainsOnly() is deprecated and will be removed in PHPUnit 13. ' .
+                    'Please use %s($haystack) instead of assertContainsOnly(\'%s\', $haystack).',
+                    $replacement,
+                    $type,
+                ),
+            );
+
+            $constraint = TraversableContainsOnly::forNativeType(self::mapNativeType($type));
+        } else {
+            EventFacade::emitter()->testTriggeredPhpunitDeprecation(
+                null,
+                sprintf(
+                    'assertContainsOnly() is deprecated and will be removed in PHPUnit 13. ' .
+                    'Please use assertContainsOnlyInstancesOf(\'%s\', $haystack) instead of assertContainsOnly(\'%s\', $haystack).',
+                    $type,
+                    $type,
+                ),
+            );
+
+            /** @phpstan-ignore argument.type */
+            $constraint = TraversableContainsOnly::forClassOrInterface($type);
+        }
+
+        self::assertThat($haystack, $constraint, $message);
     }
 
     /**
      * Asserts that a haystack contains only values of type array.
+     *
+     * @phpstan-assert iterable<array<mixed>> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -302,8 +345,8 @@ abstract class Assert
     {
         self::assertThat(
             $haystack,
-            new TraversableContainsOnly(
-                NativeType::Array->value,
+            TraversableContainsOnly::forNativeType(
+                NativeType::Array,
             ),
             $message,
         );
@@ -311,6 +354,8 @@ abstract class Assert
 
     /**
      * Asserts that a haystack contains only values of type bool.
+     *
+     * @phpstan-assert iterable<bool> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -320,8 +365,8 @@ abstract class Assert
     {
         self::assertThat(
             $haystack,
-            new TraversableContainsOnly(
-                NativeType::Bool->value,
+            TraversableContainsOnly::forNativeType(
+                NativeType::Bool,
             ),
             $message,
         );
@@ -329,6 +374,8 @@ abstract class Assert
 
     /**
      * Asserts that a haystack contains only values of type callable.
+     *
+     * @phpstan-assert iterable<callable> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -338,8 +385,8 @@ abstract class Assert
     {
         self::assertThat(
             $haystack,
-            new TraversableContainsOnly(
-                NativeType::Callable->value,
+            TraversableContainsOnly::forNativeType(
+                NativeType::Callable,
             ),
             $message,
         );
@@ -347,6 +394,8 @@ abstract class Assert
 
     /**
      * Asserts that a haystack contains only values of type float.
+     *
+     * @phpstan-assert iterable<float> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -356,8 +405,8 @@ abstract class Assert
     {
         self::assertThat(
             $haystack,
-            new TraversableContainsOnly(
-                NativeType::Float->value,
+            TraversableContainsOnly::forNativeType(
+                NativeType::Float,
             ),
             $message,
         );
@@ -365,6 +414,8 @@ abstract class Assert
 
     /**
      * Asserts that a haystack contains only values of type int.
+     *
+     * @phpstan-assert iterable<int> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -374,8 +425,8 @@ abstract class Assert
     {
         self::assertThat(
             $haystack,
-            new TraversableContainsOnly(
-                NativeType::Int->value,
+            TraversableContainsOnly::forNativeType(
+                NativeType::Int,
             ),
             $message,
         );
@@ -383,6 +434,8 @@ abstract class Assert
 
     /**
      * Asserts that a haystack contains only values of type iterable.
+     *
+     * @phpstan-assert iterable<iterable<mixed>> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -392,8 +445,8 @@ abstract class Assert
     {
         self::assertThat(
             $haystack,
-            new TraversableContainsOnly(
-                NativeType::Iterable->value,
+            TraversableContainsOnly::forNativeType(
+                NativeType::Iterable,
             ),
             $message,
         );
@@ -401,6 +454,8 @@ abstract class Assert
 
     /**
      * Asserts that a haystack contains only values of type null.
+     *
+     * @phpstan-assert iterable<null> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -410,8 +465,8 @@ abstract class Assert
     {
         self::assertThat(
             $haystack,
-            new TraversableContainsOnly(
-                NativeType::Null->value,
+            TraversableContainsOnly::forNativeType(
+                NativeType::Null,
             ),
             $message,
         );
@@ -419,6 +474,8 @@ abstract class Assert
 
     /**
      * Asserts that a haystack contains only values of type numeric.
+     *
+     * @phpstan-assert iterable<numeric> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -428,8 +485,8 @@ abstract class Assert
     {
         self::assertThat(
             $haystack,
-            new TraversableContainsOnly(
-                NativeType::Numeric->value,
+            TraversableContainsOnly::forNativeType(
+                NativeType::Numeric,
             ),
             $message,
         );
@@ -437,6 +494,8 @@ abstract class Assert
 
     /**
      * Asserts that a haystack contains only values of type object.
+     *
+     * @phpstan-assert iterable<object> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -446,8 +505,8 @@ abstract class Assert
     {
         self::assertThat(
             $haystack,
-            new TraversableContainsOnly(
-                NativeType::Object->value,
+            TraversableContainsOnly::forNativeType(
+                NativeType::Object,
             ),
             $message,
         );
@@ -455,6 +514,8 @@ abstract class Assert
 
     /**
      * Asserts that a haystack contains only values of type resource.
+     *
+     * @phpstan-assert iterable<resource> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -464,8 +525,8 @@ abstract class Assert
     {
         self::assertThat(
             $haystack,
-            new TraversableContainsOnly(
-                NativeType::Resource->value,
+            TraversableContainsOnly::forNativeType(
+                NativeType::Resource,
             ),
             $message,
         );
@@ -473,6 +534,8 @@ abstract class Assert
 
     /**
      * Asserts that a haystack contains only values of type closed resource.
+     *
+     * @phpstan-assert iterable<resource> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -482,8 +545,8 @@ abstract class Assert
     {
         self::assertThat(
             $haystack,
-            new TraversableContainsOnly(
-                NativeType::ClosedResource->value,
+            TraversableContainsOnly::forNativeType(
+                NativeType::ClosedResource,
             ),
             $message,
         );
@@ -491,6 +554,8 @@ abstract class Assert
 
     /**
      * Asserts that a haystack contains only values of type scalar.
+     *
+     * @phpstan-assert iterable<scalar> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -500,8 +565,8 @@ abstract class Assert
     {
         self::assertThat(
             $haystack,
-            new TraversableContainsOnly(
-                NativeType::Scalar->value,
+            TraversableContainsOnly::forNativeType(
+                NativeType::Scalar,
             ),
             $message,
         );
@@ -509,6 +574,8 @@ abstract class Assert
 
     /**
      * Asserts that a haystack contains only values of type string.
+     *
+     * @phpstan-assert iterable<string> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -518,8 +585,8 @@ abstract class Assert
     {
         self::assertThat(
             $haystack,
-            new TraversableContainsOnly(
-                NativeType::String->value,
+            TraversableContainsOnly::forNativeType(
+                NativeType::String,
             ),
             $message,
         );
@@ -528,7 +595,11 @@ abstract class Assert
     /**
      * Asserts that a haystack contains only instances of a specified interface or class name.
      *
-     * @param class-string    $className
+     * @template T
+     *
+     * @phpstan-assert iterable<T> $haystack
+     *
+     * @param class-string<T> $className
      * @param iterable<mixed> $haystack
      *
      * @throws Exception
@@ -538,10 +609,7 @@ abstract class Assert
     {
         self::assertThat(
             $haystack,
-            new TraversableContainsOnly(
-                $className,
-                false,
-            ),
+            TraversableContainsOnly::forClassOrInterface($className),
             $message,
         );
     }
@@ -555,7 +623,7 @@ abstract class Assert
      * @throws Exception
      * @throws ExpectationFailedException
      *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6055
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6056
      */
     final public static function assertNotContainsOnly(string $type, iterable $haystack, ?bool $isNativeType = null, string $message = ''): void
     {
@@ -563,14 +631,56 @@ abstract class Assert
             $isNativeType = self::isNativeType($type);
         }
 
+        if ($isNativeType) {
+            $replacement = match ($type) {
+                'array'             => 'assertContainsNotOnlyArray',
+                'bool'              => 'assertContainsNotOnlyBool',
+                'boolean'           => 'assertContainsNotOnlyBool',
+                'callable'          => 'assertContainsNotOnlyCallable',
+                'double'            => 'assertContainsNotOnlyFloat',
+                'float'             => 'assertContainsNotOnlyFloat',
+                'int'               => 'assertContainsNotOnlyInt',
+                'integer'           => 'assertContainsNotOnlyInt',
+                'iterable'          => 'assertContainsNotOnlyIterable',
+                'null'              => 'assertContainsNotOnlyNull',
+                'numeric'           => 'assertContainsNotOnlyNumeric',
+                'object'            => 'assertContainsNotOnlyObject',
+                'real'              => 'assertContainsNotOnlyFloat',
+                'resource'          => 'assertContainsNotOnlyResource',
+                'resource (closed)' => 'assertContainsNotOnlyClosedResource',
+                'scalar'            => 'assertContainsNotOnlyScalar',
+                'string'            => 'assertContainsNotOnlyString',
+            };
+
+            EventFacade::emitter()->testTriggeredPhpunitDeprecation(
+                null,
+                sprintf(
+                    'assertNotContainsOnly() is deprecated and will be removed in PHPUnit 13. ' .
+                    'Please use %s($haystack) instead of assertNotContainsOnly(\'%s\', $haystack).',
+                    $replacement,
+                    $type,
+                ),
+            );
+
+            $constraint = TraversableContainsOnly::forNativeType(self::mapNativeType($type));
+        } else {
+            EventFacade::emitter()->testTriggeredPhpunitDeprecation(
+                null,
+                sprintf(
+                    'assertNotContainsOnly() is deprecated and will be removed in PHPUnit 13. ' .
+                    'Please use assertContainsNotOnlyInstancesOf(\'%s\', $haystack) instead of assertNotContainsOnly(\'%s\', $haystack).',
+                    $type,
+                    $type,
+                ),
+            );
+
+            /** @phpstan-ignore argument.type */
+            $constraint = TraversableContainsOnly::forClassOrInterface($type);
+        }
+
         self::assertThat(
             $haystack,
-            new LogicalNot(
-                new TraversableContainsOnly(
-                    $type,
-                    $isNativeType,
-                ),
-            ),
+            new LogicalNot($constraint),
             $message,
         );
     }
@@ -587,8 +697,8 @@ abstract class Assert
         self::assertThat(
             $haystack,
             new LogicalNot(
-                new TraversableContainsOnly(
-                    NativeType::Array->value,
+                TraversableContainsOnly::forNativeType(
+                    NativeType::Array,
                 ),
             ),
             $message,
@@ -607,8 +717,8 @@ abstract class Assert
         self::assertThat(
             $haystack,
             new LogicalNot(
-                new TraversableContainsOnly(
-                    NativeType::Bool->value,
+                TraversableContainsOnly::forNativeType(
+                    NativeType::Bool,
                 ),
             ),
             $message,
@@ -627,8 +737,8 @@ abstract class Assert
         self::assertThat(
             $haystack,
             new LogicalNot(
-                new TraversableContainsOnly(
-                    NativeType::Callable->value,
+                TraversableContainsOnly::forNativeType(
+                    NativeType::Callable,
                 ),
             ),
             $message,
@@ -647,8 +757,8 @@ abstract class Assert
         self::assertThat(
             $haystack,
             new LogicalNot(
-                new TraversableContainsOnly(
-                    NativeType::Float->value,
+                TraversableContainsOnly::forNativeType(
+                    NativeType::Float,
                 ),
             ),
             $message,
@@ -667,8 +777,8 @@ abstract class Assert
         self::assertThat(
             $haystack,
             new LogicalNot(
-                new TraversableContainsOnly(
-                    NativeType::Int->value,
+                TraversableContainsOnly::forNativeType(
+                    NativeType::Int,
                 ),
             ),
             $message,
@@ -687,8 +797,8 @@ abstract class Assert
         self::assertThat(
             $haystack,
             new LogicalNot(
-                new TraversableContainsOnly(
-                    NativeType::Iterable->value,
+                TraversableContainsOnly::forNativeType(
+                    NativeType::Iterable,
                 ),
             ),
             $message,
@@ -707,8 +817,8 @@ abstract class Assert
         self::assertThat(
             $haystack,
             new LogicalNot(
-                new TraversableContainsOnly(
-                    NativeType::Null->value,
+                TraversableContainsOnly::forNativeType(
+                    NativeType::Null,
                 ),
             ),
             $message,
@@ -727,8 +837,8 @@ abstract class Assert
         self::assertThat(
             $haystack,
             new LogicalNot(
-                new TraversableContainsOnly(
-                    NativeType::Numeric->value,
+                TraversableContainsOnly::forNativeType(
+                    NativeType::Numeric,
                 ),
             ),
             $message,
@@ -747,8 +857,8 @@ abstract class Assert
         self::assertThat(
             $haystack,
             new LogicalNot(
-                new TraversableContainsOnly(
-                    NativeType::Object->value,
+                TraversableContainsOnly::forNativeType(
+                    NativeType::Object,
                 ),
             ),
             $message,
@@ -767,8 +877,8 @@ abstract class Assert
         self::assertThat(
             $haystack,
             new LogicalNot(
-                new TraversableContainsOnly(
-                    NativeType::Resource->value,
+                TraversableContainsOnly::forNativeType(
+                    NativeType::Resource,
                 ),
             ),
             $message,
@@ -787,8 +897,8 @@ abstract class Assert
         self::assertThat(
             $haystack,
             new LogicalNot(
-                new TraversableContainsOnly(
-                    NativeType::ClosedResource->value,
+                TraversableContainsOnly::forNativeType(
+                    NativeType::ClosedResource,
                 ),
             ),
             $message,
@@ -807,8 +917,8 @@ abstract class Assert
         self::assertThat(
             $haystack,
             new LogicalNot(
-                new TraversableContainsOnly(
-                    NativeType::Scalar->value,
+                TraversableContainsOnly::forNativeType(
+                    NativeType::Scalar,
                 ),
             ),
             $message,
@@ -827,8 +937,8 @@ abstract class Assert
         self::assertThat(
             $haystack,
             new LogicalNot(
-                new TraversableContainsOnly(
-                    NativeType::String->value,
+                TraversableContainsOnly::forNativeType(
+                    NativeType::String,
                 ),
             ),
             $message,
@@ -849,10 +959,7 @@ abstract class Assert
         self::assertThat(
             $haystack,
             new LogicalNot(
-                new TraversableContainsOnly(
-                    $className,
-                    false,
-                ),
+                TraversableContainsOnly::forClassOrInterface($className),
             ),
             $message,
         );
@@ -1043,8 +1150,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws GeneratorNotSupportedException
-     *
-     * @phpstan-assert empty $actual
      */
     final public static function assertEmpty(mixed $actual, string $message = ''): void
     {
@@ -1060,8 +1165,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws GeneratorNotSupportedException
-     *
-     * @phpstan-assert !empty $actual
      */
     final public static function assertNotEmpty(mixed $actual, string $message = ''): void
     {
@@ -1725,7 +1828,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new IsType(IsType::TYPE_ARRAY),
+            new IsType(NativeType::Array),
             $message,
         );
     }
@@ -1742,7 +1845,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new IsType(IsType::TYPE_BOOL),
+            new IsType(NativeType::Bool),
             $message,
         );
     }
@@ -1759,7 +1862,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new IsType(IsType::TYPE_FLOAT),
+            new IsType(NativeType::Float),
             $message,
         );
     }
@@ -1776,7 +1879,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new IsType(IsType::TYPE_INT),
+            new IsType(NativeType::Int),
             $message,
         );
     }
@@ -1793,7 +1896,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new IsType(IsType::TYPE_NUMERIC),
+            new IsType(NativeType::Numeric),
             $message,
         );
     }
@@ -1810,7 +1913,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new IsType(IsType::TYPE_OBJECT),
+            new IsType(NativeType::Object),
             $message,
         );
     }
@@ -1827,7 +1930,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new IsType(IsType::TYPE_RESOURCE),
+            new IsType(NativeType::Resource),
             $message,
         );
     }
@@ -1844,7 +1947,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new IsType(IsType::TYPE_CLOSED_RESOURCE),
+            new IsType(NativeType::ClosedResource),
             $message,
         );
     }
@@ -1861,7 +1964,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new IsType(IsType::TYPE_STRING),
+            new IsType(NativeType::String),
             $message,
         );
     }
@@ -1878,7 +1981,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new IsType(IsType::TYPE_SCALAR),
+            new IsType(NativeType::Scalar),
             $message,
         );
     }
@@ -1895,7 +1998,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new IsType(IsType::TYPE_CALLABLE),
+            new IsType(NativeType::Callable),
             $message,
         );
     }
@@ -1912,7 +2015,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new IsType(IsType::TYPE_ITERABLE),
+            new IsType(NativeType::Iterable),
             $message,
         );
     }
@@ -1929,7 +2032,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new LogicalNot(new IsType(IsType::TYPE_ARRAY)),
+            new LogicalNot(new IsType(NativeType::Array)),
             $message,
         );
     }
@@ -1946,7 +2049,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new LogicalNot(new IsType(IsType::TYPE_BOOL)),
+            new LogicalNot(new IsType(NativeType::Bool)),
             $message,
         );
     }
@@ -1963,7 +2066,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new LogicalNot(new IsType(IsType::TYPE_FLOAT)),
+            new LogicalNot(new IsType(NativeType::Float)),
             $message,
         );
     }
@@ -1980,7 +2083,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new LogicalNot(new IsType(IsType::TYPE_INT)),
+            new LogicalNot(new IsType(NativeType::Int)),
             $message,
         );
     }
@@ -1997,7 +2100,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new LogicalNot(new IsType(IsType::TYPE_NUMERIC)),
+            new LogicalNot(new IsType(NativeType::Numeric)),
             $message,
         );
     }
@@ -2014,7 +2117,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new LogicalNot(new IsType(IsType::TYPE_OBJECT)),
+            new LogicalNot(new IsType(NativeType::Object)),
             $message,
         );
     }
@@ -2031,7 +2134,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new LogicalNot(new IsType(IsType::TYPE_RESOURCE)),
+            new LogicalNot(new IsType(NativeType::Resource)),
             $message,
         );
     }
@@ -2048,7 +2151,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new LogicalNot(new IsType(IsType::TYPE_CLOSED_RESOURCE)),
+            new LogicalNot(new IsType(NativeType::ClosedResource)),
             $message,
         );
     }
@@ -2065,7 +2168,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new LogicalNot(new IsType(IsType::TYPE_STRING)),
+            new LogicalNot(new IsType(NativeType::String)),
             $message,
         );
     }
@@ -2082,7 +2185,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new LogicalNot(new IsType(IsType::TYPE_SCALAR)),
+            new LogicalNot(new IsType(NativeType::Scalar)),
             $message,
         );
     }
@@ -2099,7 +2202,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new LogicalNot(new IsType(IsType::TYPE_CALLABLE)),
+            new LogicalNot(new IsType(NativeType::Callable)),
             $message,
         );
     }
@@ -2116,7 +2219,7 @@ abstract class Assert
     {
         self::assertThat(
             $actual,
-            new LogicalNot(new IsType(IsType::TYPE_ITERABLE)),
+            new LogicalNot(new IsType(NativeType::Iterable)),
             $message,
         );
     }
@@ -2271,29 +2374,6 @@ abstract class Assert
     }
 
     /**
-     * Asserts that a string does not match a given format string.
-     *
-     * @throws ExpectationFailedException
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5472
-     */
-    final public static function assertStringNotMatchesFormat(string $format, string $string, string $message = ''): void
-    {
-        Event\Facade::emitter()->testTriggeredPhpunitDeprecation(
-            null,
-            'assertStringNotMatchesFormat() is deprecated and will be removed in PHPUnit 12 without replacement.',
-        );
-
-        self::assertThat(
-            $string,
-            new LogicalNot(
-                new StringMatchesFormatDescription($format),
-            ),
-            $message,
-        );
-    }
-
-    /**
      * Asserts that a string matches a given format file.
      *
      * @throws ExpectationFailedException
@@ -2310,37 +2390,6 @@ abstract class Assert
             $string,
             new StringMatchesFormatDescription(
                 $formatDescription,
-            ),
-            $message,
-        );
-    }
-
-    /**
-     * Asserts that a string does not match a given format string.
-     *
-     * @throws ExpectationFailedException
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5472
-     */
-    final public static function assertStringNotMatchesFormatFile(string $formatFile, string $string, string $message = ''): void
-    {
-        Event\Facade::emitter()->testTriggeredPhpunitDeprecation(
-            null,
-            'assertStringNotMatchesFormatFile() is deprecated and will be removed in PHPUnit 12 without replacement.',
-        );
-
-        self::assertFileExists($formatFile, $message);
-
-        $formatDescription = file_get_contents($formatFile);
-
-        self::assertIsString($formatDescription);
-
-        self::assertThat(
-            $string,
-            new LogicalNot(
-                new StringMatchesFormatDescription(
-                    $formatDescription,
-                ),
             ),
             $message,
         );
@@ -2652,14 +2701,7 @@ abstract class Assert
         self::assertIsString($actualJson);
         self::assertJson($actualJson, $message);
 
-        $constraintExpected = new JsonMatches(
-            $expectedJson,
-        );
-
-        $constraintActual = new JsonMatches($actualJson);
-
-        self::assertThat($expectedJson, $constraintActual, $message);
-        self::assertThat($actualJson, $constraintExpected, $message);
+        self::assertThat($actualJson, new JsonMatches($expectedJson), $message);
     }
 
     /**
@@ -2683,14 +2725,7 @@ abstract class Assert
         self::assertIsString($actualJson);
         self::assertJson($actualJson, $message);
 
-        $constraintExpected = new JsonMatches(
-            $expectedJson,
-        );
-
-        $constraintActual = new JsonMatches($actualJson);
-
-        self::assertThat($expectedJson, new LogicalNot($constraintActual), $message);
-        self::assertThat($actualJson, new LogicalNot($constraintExpected), $message);
+        self::assertThat($actualJson, self::logicalNot(new JsonMatches($expectedJson)), $message);
     }
 
     /**
@@ -2783,76 +2818,76 @@ abstract class Assert
      *
      * @throws Exception
      *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6055
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6060
      */
     final public static function containsOnly(string $type): TraversableContainsOnly
     {
-        return new TraversableContainsOnly($type);
+        return TraversableContainsOnly::forNativeType(self::mapNativeType($type));
     }
 
     final public static function containsOnlyArray(): TraversableContainsOnly
     {
-        return new TraversableContainsOnly(NativeType::Array->value);
+        return TraversableContainsOnly::forNativeType(NativeType::Array);
     }
 
     final public static function containsOnlyBool(): TraversableContainsOnly
     {
-        return new TraversableContainsOnly(NativeType::Bool->value);
+        return TraversableContainsOnly::forNativeType(NativeType::Bool);
     }
 
     final public static function containsOnlyCallable(): TraversableContainsOnly
     {
-        return new TraversableContainsOnly(NativeType::Callable->value);
+        return TraversableContainsOnly::forNativeType(NativeType::Callable);
     }
 
     final public static function containsOnlyFloat(): TraversableContainsOnly
     {
-        return new TraversableContainsOnly(NativeType::Float->value);
+        return TraversableContainsOnly::forNativeType(NativeType::Float);
     }
 
     final public static function containsOnlyInt(): TraversableContainsOnly
     {
-        return new TraversableContainsOnly(NativeType::Int->value);
+        return TraversableContainsOnly::forNativeType(NativeType::Int);
     }
 
     final public static function containsOnlyIterable(): TraversableContainsOnly
     {
-        return new TraversableContainsOnly(NativeType::Iterable->value);
+        return TraversableContainsOnly::forNativeType(NativeType::Iterable);
     }
 
     final public static function containsOnlyNull(): TraversableContainsOnly
     {
-        return new TraversableContainsOnly(NativeType::Null->value);
+        return TraversableContainsOnly::forNativeType(NativeType::Null);
     }
 
     final public static function containsOnlyNumeric(): TraversableContainsOnly
     {
-        return new TraversableContainsOnly(NativeType::Numeric->value);
+        return TraversableContainsOnly::forNativeType(NativeType::Numeric);
     }
 
     final public static function containsOnlyObject(): TraversableContainsOnly
     {
-        return new TraversableContainsOnly(NativeType::Object->value);
+        return TraversableContainsOnly::forNativeType(NativeType::Object);
     }
 
     final public static function containsOnlyResource(): TraversableContainsOnly
     {
-        return new TraversableContainsOnly(NativeType::Resource->value);
+        return TraversableContainsOnly::forNativeType(NativeType::Resource);
     }
 
     final public static function containsOnlyClosedResource(): TraversableContainsOnly
     {
-        return new TraversableContainsOnly(NativeType::ClosedResource->value);
+        return TraversableContainsOnly::forNativeType(NativeType::ClosedResource);
     }
 
     final public static function containsOnlyScalar(): TraversableContainsOnly
     {
-        return new TraversableContainsOnly(NativeType::Scalar->value);
+        return TraversableContainsOnly::forNativeType(NativeType::Scalar);
     }
 
     final public static function containsOnlyString(): TraversableContainsOnly
     {
-        return new TraversableContainsOnly(NativeType::String->value);
+        return TraversableContainsOnly::forNativeType(NativeType::String);
     }
 
     /**
@@ -2862,7 +2897,7 @@ abstract class Assert
      */
     final public static function containsOnlyInstancesOf(string $className): TraversableContainsOnly
     {
-        return new TraversableContainsOnly($className, false);
+        return TraversableContainsOnly::forClassOrInterface($className);
     }
 
     final public static function arrayHasKey(mixed $key): ArrayHasKey
@@ -2948,74 +2983,106 @@ abstract class Assert
 
     final public static function isArray(): IsType
     {
-        return new IsType(NativeType::Array->value);
+        return new IsType(NativeType::Array);
     }
 
     final public static function isBool(): IsType
     {
-        return new IsType(NativeType::Bool->value);
+        return new IsType(NativeType::Bool);
     }
 
     final public static function isCallable(): IsType
     {
-        return new IsType(NativeType::Callable->value);
+        return new IsType(NativeType::Callable);
     }
 
     final public static function isFloat(): IsType
     {
-        return new IsType(NativeType::Float->value);
+        return new IsType(NativeType::Float);
     }
 
     final public static function isInt(): IsType
     {
-        return new IsType(NativeType::Int->value);
+        return new IsType(NativeType::Int);
     }
 
     final public static function isIterable(): IsType
     {
-        return new IsType(NativeType::Iterable->value);
+        return new IsType(NativeType::Iterable);
     }
 
     final public static function isNumeric(): IsType
     {
-        return new IsType(NativeType::Numeric->value);
+        return new IsType(NativeType::Numeric);
     }
 
     final public static function isObject(): IsType
     {
-        return new IsType(NativeType::Object->value);
+        return new IsType(NativeType::Object);
     }
 
     final public static function isResource(): IsType
     {
-        return new IsType(NativeType::Resource->value);
+        return new IsType(NativeType::Resource);
     }
 
     final public static function isClosedResource(): IsType
     {
-        return new IsType(NativeType::ClosedResource->value);
+        return new IsType(NativeType::ClosedResource);
     }
 
     final public static function isScalar(): IsType
     {
-        return new IsType(NativeType::Scalar->value);
+        return new IsType(NativeType::Scalar);
     }
 
     final public static function isString(): IsType
     {
-        return new IsType(NativeType::String->value);
+        return new IsType(NativeType::String);
     }
 
     /**
      * @param 'array'|'bool'|'boolean'|'callable'|'double'|'float'|'int'|'integer'|'iterable'|'null'|'numeric'|'object'|'real'|'resource (closed)'|'resource'|'scalar'|'string' $type
      *
-     * @throws Exception
+     * @throws UnknownNativeTypeException
      *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6052
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6053
      */
     final public static function isType(string $type): IsType
     {
-        return new IsType($type);
+        $constraint = new IsType(self::mapNativeType($type));
+
+        $replacement = match ($type) {
+            'array'             => 'isArray',
+            'bool'              => 'isBool',
+            'boolean'           => 'isBool',
+            'callable'          => 'isCallable',
+            'double'            => 'isFloat',
+            'float'             => 'isFloat',
+            'int'               => 'isInt',
+            'integer'           => 'isInt',
+            'iterable'          => 'isIterable',
+            'null'              => 'isNull',
+            'numeric'           => 'isNumeric',
+            'object'            => 'isObject',
+            'real'              => 'isFloat',
+            'resource'          => 'isResource',
+            'resource (closed)' => 'isClosedResource',
+            'scalar'            => 'isScalar',
+            'string'            => 'isString',
+        };
+
+        EventFacade::emitter()->testTriggeredPhpunitDeprecation(
+            null,
+            sprintf(
+                'isType(\'%s\') is deprecated and will be removed in PHPUnit 13. ' .
+                'Please use the %s() method instead.',
+                $type,
+                $replacement,
+            ),
+        );
+
+        return $constraint;
     }
 
     final public static function lessThan(mixed $value): LessThan
@@ -3131,9 +3198,53 @@ abstract class Assert
 
     private static function isNativeType(string $type): bool
     {
+        return $type === 'array' ||
+               $type === 'bool' ||
+               $type === 'boolean' ||
+               $type === 'callable' ||
+               $type === 'double' ||
+               $type === 'float' ||
+               $type === 'int' ||
+               $type === 'integer' ||
+               $type === 'iterable' ||
+               $type === 'null' ||
+               $type === 'numeric' ||
+               $type === 'object' ||
+               $type === 'real' ||
+               $type === 'resource' ||
+               $type === 'resource (closed)' ||
+               $type === 'scalar' ||
+               $type === 'string';
+    }
+
+    /**
+     * @throws UnknownNativeTypeException
+     */
+    private static function mapNativeType(string $type): NativeType
+    {
+        if (!self::isNativeType($type)) {
+            throw new UnknownNativeTypeException($type);
+        }
+
+        /** @phpstan-ignore match.unhandled */
         return match ($type) {
-            'numeric', 'integer', 'int', 'iterable', 'float', 'string', 'boolean', 'bool', 'null', 'array', 'object', 'resource', 'scalar' => true,
-            default => false,
+            'array'             => NativeType::Array,
+            'bool'              => NativeType::Bool,
+            'boolean'           => NativeType::Bool,
+            'callable'          => NativeType::Callable,
+            'double'            => NativeType::Float,
+            'float'             => NativeType::Float,
+            'int'               => NativeType::Int,
+            'integer'           => NativeType::Int,
+            'iterable'          => NativeType::Iterable,
+            'null'              => NativeType::Null,
+            'numeric'           => NativeType::Numeric,
+            'object'            => NativeType::Object,
+            'real'              => NativeType::Float,
+            'resource'          => NativeType::Resource,
+            'resource (closed)' => NativeType::ClosedResource,
+            'scalar'            => NativeType::Scalar,
+            'string'            => NativeType::String,
         };
     }
 }

@@ -7,6 +7,7 @@ import Base from './base';
 import Routes from './routes';
 import Alert from './components/Alert.vue';
 import SchemeToggler from './components/SchemeToggler.vue';
+import Poll from './components/Poll.vue';
 
 let token = document.head.querySelector("meta[name='csrf-token']");
 
@@ -33,13 +34,14 @@ const app = createApp({
 
 app.config.globalProperties.$http = axios.create();
 
-window.Horizon.basePath = '/' + window.Horizon.path;
+let proxyPath = window.Horizon.proxy_path;
+window.Horizon.basePath = proxyPath + '/' + window.Horizon.path;
 
 let routerBasePath = window.Horizon.basePath + '/';
 
 if (window.Horizon.path === '' || window.Horizon.path === '/') {
-    routerBasePath = '/';
-    window.Horizon.basePath = '';
+    routerBasePath = proxyPath + '/';
+    window.Horizon.basePath = proxyPath;
 }
 
 const router = createRouter({
@@ -52,6 +54,7 @@ app.use(router);
 app.component('vue-json-pretty', VueJsonPretty);
 app.component('alert', Alert);
 app.component('scheme-toggler', SchemeToggler);
+app.component('poll', Poll);
 
 app.mixin(Base);
 

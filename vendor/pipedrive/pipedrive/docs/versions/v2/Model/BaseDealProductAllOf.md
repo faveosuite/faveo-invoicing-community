@@ -11,6 +11,7 @@ Name | Type | Description | Notes
 **name** | **string** | The product name | [optional]
 **product_id** | **int** | The ID of the product | [optional]
 **product_variation_id** | **int** | The ID of the product variation | [optional]
+**order_nr** | **int** | The order number of the product within the deal | [optional]
 **add_time** | **string** | The date and time when the product was added to the deal | [optional]
 **update_time** | **string** | The date and time when the deal product was last updated | [optional]
 **comments** | **string** | The comments of the product | [optional]

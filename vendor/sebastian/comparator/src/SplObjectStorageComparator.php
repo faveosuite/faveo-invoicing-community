@@ -13,6 +13,11 @@ use function assert;
 use SebastianBergmann\Exporter\Exporter;
 use SplObjectStorage;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class SplObjectStorageComparator extends Comparator
 {
     public function accepts(mixed $expected, mixed $actual): bool
@@ -31,7 +36,7 @@ final class SplObjectStorageComparator extends Comparator
         $exporter = new Exporter;
 
         foreach ($actual as $object) {
-            if (!$expected->contains($object)) {
+            if (!$expected->offsetExists($object)) {
                 throw new ComparisonFailure(
                     $expected,
                     $actual,
@@ -43,7 +48,7 @@ final class SplObjectStorageComparator extends Comparator
         }
 
         foreach ($expected as $object) {
-            if (!$actual->contains($object)) {
+            if (!$actual->offsetExists($object)) {
                 throw new ComparisonFailure(
                     $expected,
                     $actual,

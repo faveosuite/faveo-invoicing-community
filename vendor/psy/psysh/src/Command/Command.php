@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2025 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -154,7 +154,9 @@ abstract class Command extends BaseCommand
                 }
 
                 $name = $argument->getName();
+                // @phan-suppress-next-line PhanParamSuspiciousOrder - intentionally padding empty string to create spaces
                 $pad = \str_pad('', $max - \strlen($name));
+                // @phan-suppress-next-line PhanParamSuspiciousOrder - intentionally padding empty string to create spaces
                 $description = \str_replace("\n", "\n".\str_pad('', $max + 2, ' '), $argument->getDescription());
 
                 $messages[] = \sprintf(' <info>%s</info>%s %s%s', $name, $pad, $description, $default);
@@ -186,6 +188,7 @@ abstract class Command extends BaseCommand
                 }
 
                 $multiple = $option->isArray() ? '<comment> (multiple values allowed)</comment>' : '';
+                // @phan-suppress-next-line PhanParamSuspiciousOrder - intentionally padding empty string to create spaces
                 $description = \str_replace("\n", "\n".\str_pad('', $max + 2, ' '), $option->getDescription());
 
                 $optionMax = $max - \strlen($option->getName()) - 2;

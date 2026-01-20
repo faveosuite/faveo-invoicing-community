@@ -231,15 +231,6 @@ class DealListActivitiesResponse implements ModelInterface, ArrayAccess, JsonSer
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
-        if ($this->container['related_objects'] === null) {
-            $invalidProperties[] = "'related_objects' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -282,7 +273,7 @@ class DealListActivitiesResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\ActivityResponseObject[]
+     * @return \Pipedrive\versions\v1\Model\ActivityResponseObject[]|null
      */
     public function getData()
     {
@@ -292,7 +283,7 @@ class DealListActivitiesResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\ActivityResponseObject[] $data The array of activities
+     * @param \Pipedrive\versions\v1\Model\ActivityResponseObject[]|null $data The array of activities
      *
      * @return self
      */
@@ -306,7 +297,7 @@ class DealListActivitiesResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\ActivityDistributionDataWithAdditionalData
+     * @return \Pipedrive\versions\v1\Model\ActivityDistributionDataWithAdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -316,7 +307,7 @@ class DealListActivitiesResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\ActivityDistributionDataWithAdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\ActivityDistributionDataWithAdditionalData|null $additional_data additional_data
      *
      * @return self
      */
@@ -330,7 +321,7 @@ class DealListActivitiesResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets related_objects
      *
-     * @return \Pipedrive\versions\v1\Model\DealListActivitiesResponseAllOfRelatedObjects
+     * @return \Pipedrive\versions\v1\Model\DealListActivitiesResponseAllOfRelatedObjects|null
      */
     public function getRelatedObjects()
     {
@@ -340,7 +331,7 @@ class DealListActivitiesResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets related_objects
      *
-     * @param \Pipedrive\versions\v1\Model\DealListActivitiesResponseAllOfRelatedObjects $related_objects related_objects
+     * @param \Pipedrive\versions\v1\Model\DealListActivitiesResponseAllOfRelatedObjects|null $related_objects related_objects
      *
      * @return self
      */

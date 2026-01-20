@@ -11,31 +11,20 @@ namespace PHPUnit\Framework;
 
 use function assert;
 use function defined;
-use function file_get_contents;
 use function get_include_path;
 use function hrtime;
-use function is_file;
-use function restore_error_handler;
 use function serialize;
-use function set_error_handler;
 use function sys_get_temp_dir;
 use function tempnam;
-use function trim;
 use function unlink;
 use function unserialize;
 use function var_export;
-use ErrorException;
-use PHPUnit\Event\Code\TestMethodBuilder;
-use PHPUnit\Event\Code\ThrowableBuilder;
-use PHPUnit\Event\Facade;
 use PHPUnit\Event\NoPreviousThrowableException;
 use PHPUnit\Runner\CodeCoverage;
-use PHPUnit\TestRunner\TestResult\PassedTests;
 use PHPUnit\TextUI\Configuration\Registry as ConfigurationRegistry;
 use PHPUnit\Util\GlobalState;
 use PHPUnit\Util\PHP\Job;
 use PHPUnit\Util\PHP\JobRunnerRegistry;
-use PHPUnit\Util\PHP\PhpProcessException;
 use ReflectionClass;
 use SebastianBergmann\Template\InvalidArgumentException;
 use SebastianBergmann\Template\Template;
@@ -55,7 +44,7 @@ final class SeparateProcessTestRunner implements IsolatedTestRunner
      * @throws NoPreviousThrowableException
      * @throws ProcessIsolationException
      */
-    public function run(TestCase $test, bool $runEntireClass, bool $preserveGlobalState): void
+    public function run(TestCase $test, bool $runEntireClass, bool $preserveGlobalState, bool $requiresXdebug): void
     {
         $class = new ReflectionClass($test);
 
@@ -150,126 +139,9 @@ final class SeparateProcessTestRunner implements IsolatedTestRunner
 
         assert($code !== '');
 
-        $this->runTestJob($code, $test, $processResultFile);
+        JobRunnerRegistry::runTestJob(new Job($code, requiresXdebug: $requiresXdebug), $processResultFile, $test);
 
         @unlink($serializedConfiguration);
-    }
-
-    /**
-     * @param non-empty-string $code
-     *
-     * @throws Exception
-     * @throws NoPreviousThrowableException
-     * @throws PhpProcessException
-     */
-    private function runTestJob(string $code, Test $test, string $processResultFile): void
-    {
-        $result = JobRunnerRegistry::run(new Job($code));
-
-        $processResult = '';
-
-        if (is_file($processResultFile)) {
-            $processResult = file_get_contents($processResultFile);
-
-            assert($processResult !== false);
-
-            @unlink($processResultFile);
-        }
-
-        $this->processChildResult(
-            $test,
-            $processResult,
-            $result->stderr(),
-        );
-    }
-
-    /**
-     * @throws Exception
-     * @throws NoPreviousThrowableException
-     */
-    private function processChildResult(Test $test, string $stdout, string $stderr): void
-    {
-        if (!empty($stderr)) {
-            $exception = new Exception(trim($stderr));
-
-            assert($test instanceof TestCase);
-
-            Facade::emitter()->testErrored(
-                TestMethodBuilder::fromTestCase($test),
-                ThrowableBuilder::from($exception),
-            );
-
-            return;
-        }
-
-        set_error_handler(
-            /**
-             * @throws ErrorException
-             */
-            static function (int $errno, string $errstr, string $errfile, int $errline): never
-            {
-                throw new ErrorException($errstr, $errno, $errno, $errfile, $errline);
-            },
-        );
-
-        try {
-            $childResult = unserialize($stdout);
-
-            restore_error_handler();
-
-            if ($childResult === false) {
-                $exception = new AssertionFailedError('Test was run in child process and ended unexpectedly');
-
-                assert($test instanceof TestCase);
-
-                Facade::emitter()->testErrored(
-                    TestMethodBuilder::fromTestCase($test),
-                    ThrowableBuilder::from($exception),
-                );
-
-                Facade::emitter()->testFinished(
-                    TestMethodBuilder::fromTestCase($test),
-                    0,
-                );
-            }
-        } catch (ErrorException $e) {
-            restore_error_handler();
-
-            $childResult = false;
-
-            $exception = new Exception(trim($stdout), 0, $e);
-
-            assert($test instanceof TestCase);
-
-            Facade::emitter()->testErrored(
-                TestMethodBuilder::fromTestCase($test),
-                ThrowableBuilder::from($exception),
-            );
-        }
-
-        if ($childResult !== false) {
-            if (!empty($childResult['output'])) {
-                $output = $childResult['output'];
-            }
-
-            Facade::instance()->forward($childResult['events']);
-            PassedTests::instance()->import($childResult['passedTests']);
-
-            assert($test instanceof TestCase);
-
-            $test->setResult($childResult['testResult']);
-            $test->addToAssertionCount($childResult['numAssertions']);
-
-            if (CodeCoverage::instance()->isActive() && $childResult['codeCoverage'] instanceof \SebastianBergmann\CodeCoverage\CodeCoverage) {
-                CodeCoverage::instance()->codeCoverage()->merge(
-                    $childResult['codeCoverage'],
-                );
-            }
-        }
-
-        if (!empty($output)) {
-            print $output;
-        }
     }
 
     /**

@@ -205,14 +205,8 @@ return [
         App\Providers\HorizonServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\CustomValidationProvider::class,
-
-        Barryvdh\DomPDF\ServiceProvider::class,
         // Illuminate\Support\Facades\Input::class,
-
-        Yajra\DataTables\HtmlServiceProvider::class,
-        Yajra\DataTables\DataTablesServiceProvider::class,
         Spatie\Activitylog\ActivitylogServiceProvider::class,
-        \Torann\Currency\CurrencyServiceProvider::class,
         Devio\Pipedrive\PipedriveServiceProvider::class,
         Spatie\Referer\RefererServiceProvider::class,
         Cartalyst\Stripe\Laravel\StripeServiceProvider::class,

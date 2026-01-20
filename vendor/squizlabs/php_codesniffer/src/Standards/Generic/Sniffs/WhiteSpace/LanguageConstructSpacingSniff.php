@@ -3,8 +3,9 @@
  * Ensures all language constructs contain a single space between themselves and their content.
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
- * @copyright 2006-2017 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @copyright 2006-2023 Squiz Pty Ltd (ABN 77 084 670 600)
+ * @copyright 2023 PHPCSStandards and contributors
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Sniffs\WhiteSpace;
@@ -39,9 +40,9 @@ class LanguageConstructSpacingSniff implements Sniff
             T_THROW,
             T_NAMESPACE,
             T_USE,
+            T_GOTO,
         ];
-
-    }//end register()
+    }
 
 
     /**
@@ -51,9 +52,10 @@ class LanguageConstructSpacingSniff implements Sniff
      * @param int                         $stackPtr  The position of the current token in
      *                                               the stack passed in $tokens.
      *
-     * @return void
+     * @return int|void Integer stack pointer to skip forward or void to continue
+     *                  normal file processing.
      */
-    public function process(File $phpcsFile, $stackPtr)
+    public function process(File $phpcsFile, int $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
 
@@ -70,9 +72,10 @@ class LanguageConstructSpacingSniff implements Sniff
 
         $content = $tokens[$stackPtr]['content'];
         if ($tokens[$stackPtr]['code'] === T_NAMESPACE) {
-            $nextNonEmpty = $phpcsFile->findNext(Tokens::$emptyTokens, ($stackPtr + 1), null, true);
-            if ($nextNonEmpty !== false && $tokens[$nextNonEmpty]['code'] === T_NS_SEPARATOR) {
+            $nextNonEmpty = $phpcsFile->findNext(Tokens::EMPTY_TOKENS, ($stackPtr + 1), null, true);
+            if ($nextNonEmpty !== false && $tokens[$nextNonEmpty]['code'] === T_NAME_FULLY_QUALIFIED) {
                 // Namespace keyword used as operator, not as the language construct.
+                // Note: in PHP >= 8 namespaced names no longer allow for whitespace/comments between the parts (parse error).
                 return;
             }
         }
@@ -87,13 +90,13 @@ class LanguageConstructSpacingSniff implements Sniff
             // Handle potentially multi-line/multi-token "yield from" expressions.
             if (preg_match('`yield\s+from`i', $content) !== 1) {
                 for ($i = ($stackPtr + 1); $i < $phpcsFile->numTokens; $i++) {
-                    if (isset(Tokens::$emptyTokens[$tokens[$i]['code']]) === false
+                    if (isset(Tokens::EMPTY_TOKENS[$tokens[$i]['code']]) === false
                         && $tokens[$i]['code'] !== T_YIELD_FROM
                     ) {
                         break;
                     }
 
-                    if (isset(Tokens::$commentTokens[$tokens[$i]['code']]) === true) {
+                    if (isset(Tokens::COMMENT_TOKENS[$tokens[$i]['code']]) === true) {
                         $hasComment = true;
                     }
 
@@ -107,7 +110,7 @@ class LanguageConstructSpacingSniff implements Sniff
                 }
 
                 $yieldFromEnd = $i;
-            }//end if
+            }
 
             $error = 'Language constructs must be followed by a single space; expected 1 space between YIELD FROM found "%s"';
             $data  = [Common::prepareForOutput($found)];
@@ -120,7 +123,7 @@ class LanguageConstructSpacingSniff implements Sniff
                     preg_match('/yield/i', $found, $yield);
                     preg_match('/from/i', $found, $from);
                     $phpcsFile->fixer->beginChangeset();
-                    $phpcsFile->fixer->replaceToken($stackPtr, $yield[0].' '.$from[0]);
+                    $phpcsFile->fixer->replaceToken($stackPtr, $yield[0] . ' ' . $from[0]);
 
                     for ($i = ($stackPtr + 1); $i <= $yieldFromEnd; $i++) {
                         $phpcsFile->fixer->replaceToken($i, '');
@@ -128,10 +131,10 @@ class LanguageConstructSpacingSniff implements Sniff
 
                     $phpcsFile->fixer->endChangeset();
                 }
-            }//end if
+            }
 
             return ($yieldFromEnd + 1);
-        }//end if
+        }
 
         if ($tokens[($stackPtr + 1)]['code'] === T_WHITESPACE) {
             $content = $tokens[($stackPtr + 1)]['content'];
@@ -143,19 +146,16 @@ class LanguageConstructSpacingSniff implements Sniff
                     $phpcsFile->fixer->replaceToken(($stackPtr + 1), ' ');
                 }
             }
-        } else if ($tokens[($stackPtr + 1)]['code'] !== T_OPEN_PARENTHESIS) {
+        } elseif ($tokens[($stackPtr + 1)]['code'] !== T_OPEN_PARENTHESIS) {
             $error = 'Language constructs must be followed by a single space; expected "%s" but found "%s"';
             $data  = [
-                $tokens[$stackPtr]['content'].' '.$tokens[($stackPtr + 1)]['content'],
-                $tokens[$stackPtr]['content'].$tokens[($stackPtr + 1)]['content'],
+                $tokens[$stackPtr]['content'] . ' ' . $tokens[($stackPtr + 1)]['content'],
+                $tokens[$stackPtr]['content'] . $tokens[($stackPtr + 1)]['content'],
             ];
             $fix   = $phpcsFile->addFixableError($error, $stackPtr, 'Incorrect', $data);
             if ($fix === true) {
                 $phpcsFile->fixer->addContent($stackPtr, ' ');
             }
-        }//end if
-
-    }//end process()
-
-
-}//end class
+        }
+    }
+}

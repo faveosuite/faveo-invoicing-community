@@ -3,8 +3,9 @@
  * Reports errors if the same class or interface name is used in multiple files.
  *
  * @author    Greg Sherwood <gsherwood@squiz.net>
- * @copyright 2006-2015 Squiz Pty Ltd (ABN 77 084 670 600)
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @copyright 2006-2023 Squiz Pty Ltd (ABN 77 084 670 600)
+ * @copyright 2023 PHPCSStandards and contributors
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Sniffs\Classes;
@@ -19,7 +20,7 @@ class DuplicateClassNameSniff implements Sniff
     /**
      * List of classes that have been found during checking.
      *
-     * @var array
+     * @var array<string, array<string, string|int>>
      */
     protected $foundClasses = [];
 
@@ -32,8 +33,7 @@ class DuplicateClassNameSniff implements Sniff
     public function register()
     {
         return [T_OPEN_TAG];
-
-    }//end register()
+    }
 
 
     /**
@@ -43,9 +43,9 @@ class DuplicateClassNameSniff implements Sniff
      * @param int                         $stackPtr  The position of the current token
      *                                               in the stack passed in $tokens.
      *
-     * @return void
+     * @return int
      */
-    public function process(File $phpcsFile, $stackPtr)
+    public function process(File $phpcsFile, int $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
 
@@ -62,31 +62,23 @@ class DuplicateClassNameSniff implements Sniff
         while ($stackPtr !== false) {
             // Keep track of what namespace we are in.
             if ($tokens[$stackPtr]['code'] === T_NAMESPACE) {
-                $nextNonEmpty = $phpcsFile->findNext(Tokens::$emptyTokens, ($stackPtr + 1), null, true);
-                if ($nextNonEmpty !== false
-                    // Ignore namespace keyword used as operator.
-                    && $tokens[$nextNonEmpty]['code'] !== T_NS_SEPARATOR
-                ) {
-                    $namespace = '';
-                    for ($i = $nextNonEmpty; $i < $phpcsFile->numTokens; $i++) {
-                        if (isset(Tokens::$emptyTokens[$tokens[$i]['code']]) === true) {
-                            continue;
-                        }
-
-                        if ($tokens[$i]['code'] !== T_STRING && $tokens[$i]['code'] !== T_NS_SEPARATOR) {
-                            break;
-                        }
-
-                        $namespace .= $tokens[$i]['content'];
+                $nextNonEmpty = $phpcsFile->findNext(Tokens::EMPTY_TOKENS, ($stackPtr + 1), null, true);
+                if ($nextNonEmpty !== false) {
+                    if ($tokens[$nextNonEmpty]['code'] === T_STRING
+                        || $tokens[$nextNonEmpty]['code'] === T_NAME_QUALIFIED
+                    ) {
+                        $namespace = $tokens[$nextNonEmpty]['content'];
+                    } elseif ($tokens[$nextNonEmpty]['code'] === T_OPEN_CURLY_BRACKET) {
+                        $namespace = '';
                     }
 
-                    $stackPtr = $i;
+                    $stackPtr = $nextNonEmpty;
                 }
             } else {
                 $name = $phpcsFile->getDeclarationName($stackPtr);
                 if (empty($name) === false) {
                     if ($namespace !== '') {
-                        $name = $namespace.'\\'.$name;
+                        $name = $namespace . '\\' . $name;
                     }
 
                     $compareName = strtolower($name);
@@ -108,19 +100,16 @@ class DuplicateClassNameSniff implements Sniff
                             'line' => $tokens[$stackPtr]['line'],
                         ];
                     }
-                }//end if
+                }
 
                 if (isset($tokens[$stackPtr]['scope_closer']) === true) {
                     $stackPtr = $tokens[$stackPtr]['scope_closer'];
                 }
-            }//end if
+            }
 
             $stackPtr = $phpcsFile->findNext($findTokens, ($stackPtr + 1));
-        }//end while
+        }
 
         return $phpcsFile->numTokens;
-
-    }//end process()
-
-
-}//end class
+    }
+}

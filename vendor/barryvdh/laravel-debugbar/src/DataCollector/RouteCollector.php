@@ -91,18 +91,20 @@ class RouteCollector extends DataCollector implements Renderable
 
         if (isset($reflector)) {
             $filename = $this->normalizeFilePath($reflector->getFileName());
+            $result['file'] = sprintf('%s:%s-%s', $filename, $reflector->getStartLine(), $reflector->getEndLine());
 
             if ($link = $this->getXdebugLink($reflector->getFileName(), $reflector->getStartLine())) {
-                $result['file'] = sprintf(
-                    '<a href="%s" onclick="%s">%s:%s-%s</a>',
-                    $link['url'],
-                    $link['ajax'] ? 'event.preventDefault();$.ajax(this.href);' : '',
-                    $filename,
-                    $reflector->getStartLine(),
-                    $reflector->getEndLine()
-                );
-            } else {
-                $result['file'] = sprintf('%s:%s-%s', $filename, $reflector->getStartLine(), $reflector->getEndLine());
+                $result['file'] = [
+                    'value' => $result['file'],
+                    'xdebug_link' => $link,
+                ];
+
+                if (isset($result['controller'])) {
+                    $result['controller'] = [
+                        'value' => $result['controller'],
+                        'xdebug_link' => $link,
+                    ];
+                }
             }
         }
 
@@ -110,9 +112,7 @@ class RouteCollector extends DataCollector implements Renderable
             $result['middleware'] = $middleware;
         }
 
-
-
-        return $result;
+        return array_filter($result);
     }
 
     /**
@@ -149,14 +149,6 @@ class RouteCollector extends DataCollector implements Renderable
                 "default" => "{}"
             ]
         ];
-        if (Config::get('debugbar.options.route.label', true)) {
-            $widgets['currentroute'] = [
-                "icon" => "share",
-                "tooltip" => "Route",
-                "map" => "route.uri",
-                "default" => ""
-            ];
-        }
         return $widgets;
     }
 

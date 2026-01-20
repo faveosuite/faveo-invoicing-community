@@ -18,8 +18,8 @@
         "ext-json": "*",
         "ext-zip": "*",
         "guzzlehttp/guzzle": "^7.5",
-        "illuminate/console": "^10.0|^11.0",
-        "illuminate/support": "^10.0|^11.0",
+        "illuminate/console": "^10.0|^11.0|^12.0",
+        "illuminate/support": "^10.0|^11.0|^12.0",
         "php-webdriver/webdriver": "^1.15.2",
         "symfony/console": "^6.2|^7.0",
         "symfony/finder": "^6.2|^7.0",
@@ -27,11 +27,13 @@
         "vlucas/phpdotenv": "^5.2"
     },
     "require-dev": {
+        "laravel/framework": "^10.0|^11.0|^12.0",
         "mockery/mockery": "^1.6",
-        "orchestra/testbench": "^8.19|^9.0",
+        "orchestra/testbench-core": "^8.19|^9.17|^10.8",
         "phpstan/phpstan": "^1.10",
-        "phpunit/phpunit": "^10.1|^11.0",
-        "psy/psysh": "^0.11.12|^0.12"
+        "phpunit/phpunit": "^10.1|^11.0|^12.0.1",
+        "psy/psysh": "^0.11.12|^0.12",
+        "symfony/yaml": "^6.2|^7.0"
     },
     "suggest": {
         "ext-pcntl": "Used to gracefully terminate Dusk when tests are running."
@@ -54,6 +56,9 @@
         }
     },
     "config": {
+        "audit": {
+            "block-insecure": false
+        },
         "sort-packages": true
     },
     "scripts": {
@@ -73,7 +78,6 @@
         ],
         "test": [
             "@build",
-            "@php vendor/bin/testbench serve",
             "@php vendor/bin/phpunit"
         ]
     },

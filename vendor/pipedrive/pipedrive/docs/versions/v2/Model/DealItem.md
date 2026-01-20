@@ -16,8 +16,8 @@ Name | Type | Description | Notes
 **add_time** | **string** | The creation date and time of the deal | [optional]
 **update_time** | **string** | The last updated date and time of the deal | [optional]
 **stage_change_time** | **string** | The last updated date and time of the deal stage | [optional]
-**is_archived** | **bool** | Whether the deal is archived or not | [optional]
 **is_deleted** | **bool** | Whether the deal is deleted or not | [optional]
+**is_archived** | **bool** | Whether the deal is archived or not | [optional]
 **status** | **string** | The status of the deal | [optional]
 **probability** | **float** | The success probability percentage of the deal | [optional]
 **lost_reason** | **string** | The reason for losing the deal | [optional]
@@ -31,8 +31,9 @@ Name | Type | Description | Notes
 **origin_id** | **string** | The optional ID to further distinguish the origin of the deal - e.g. Which API integration created this Deal. | [optional]
 **channel** | **int** | The ID of your Marketing channel this Deal was created from. Recognized Marketing channels can be configured in your &lt;a href&#x3D;\&quot;https://app.pipedrive.com/settings/fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;Company settings&lt;/a&gt;. | [optional]
 **channel_id** | **string** | The optional ID to further distinguish the Marketing channel. | [optional]
-**arr** | **float** | Only available in Advanced and above plans  The Annual Recurring Revenue of the deal  Null if there are no products attached to the deal | [optional]
-**mrr** | **float** | Only available in Advanced and above plans  The Monthly Recurring Revenue of the deal  Null if there are no products attached to the deal | [optional]
-**acv** | **float** | Only available in Advanced and above plans  The Annual Contract Value of the deal  Null if there are no products attached to the deal | [optional]
+**arr** | **float** | Only available in Growth and above plans  The Annual Recurring Revenue of the deal  Null if there are no products attached to the deal | [optional]
+**mrr** | **float** | Only available in Growth and above plans  The Monthly Recurring Revenue of the deal  Null if there are no products attached to the deal | [optional]
+**acv** | **float** | Only available in Growth and above plans  The Annual Contract Value of the deal  Null if there are no products attached to the deal | [optional]
+**custom_fields** | **array<string,object>** | An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

@@ -33,7 +33,7 @@ use Pipedrive\versions\v2\ObjectSerializer;
  * BillingFrequency Class Doc Comment
  *
  * @category Class
- * @description Only available in Advanced and above plans  How often a customer is billed for access to a service or product  To set &#x60;billing_frequency&#x60; different than &#x60;one-time&#x60;, the deal must not have installments associated  A deal can have up to 20 products attached with &#x60;billing_frequency&#x60; different than &#x60;one-time&#x60;
+ * @description Only available in Growth and above plans  How often a customer is billed for access to a service or product  To set &#x60;billing_frequency&#x60; different than &#x60;one-time&#x60;, the deal must not have installments associated  A deal can have up to 20 products attached with &#x60;billing_frequency&#x60; different than &#x60;one-time&#x60;
  * @package  Pipedrive\versions\v2
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech

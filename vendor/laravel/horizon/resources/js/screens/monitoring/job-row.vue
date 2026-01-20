@@ -5,7 +5,7 @@
                 {{ jobBaseName(job.name) }}
             </router-link>
 
-            <small class="badge bg-secondary badge-sm" :title="`Delayed for ${delayed}`"
+            <small class="ms-1 badge bg-secondary badge-sm" :title="`Delayed for ${delayed}`"
                    v-if="delayed && (job.status == 'reserved' || job.status == 'pending')">
                 Delayed
             </small>
@@ -16,7 +16,7 @@
                 Queue: {{job.queue}}
 
                 <span v-if="job.payload.tags.length">
-                    | Tags: {{ job.payload.tags && job.payload.tags.length ? job.payload.tags.slice(0,3).join(', ') : '' }}<span v-if="job.payload.tags.length > 3"> ({{ job.payload.tags.length - 3 }} more)</span>
+                    | Tags: {{ job.payload.tags && job.payload.tags.length ? job.payload.tags.slice(0,3).join(', ') : '' }}<span class="text-secondary" v-if="job.payload.tags.length > 3"> +{{ job.payload.tags.length - 3 }} more</span>
                 </span>
             </small>
         </td>
