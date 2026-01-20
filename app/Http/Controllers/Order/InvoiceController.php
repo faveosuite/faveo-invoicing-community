@@ -30,6 +30,7 @@ use App\Traits\TaxCalculation;
 use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class InvoiceController extends TaxRatesAndCodeExpiryController
 {
@@ -505,12 +506,13 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             $data = (new ClientController())->prepareInvoiceData($invoice);
 
-            $pdf = \PDF::loadView('themes.default1.invoice.newpdf', array_merge([
+            return Pdf::view('themes.default1.invoice.newpdf', array_merge([
                 'invoice' => $invoice,
                 'invoiceItems' => $data['items'],
-            ], $data));
+            ], $data))
+                ->margins(10, 10, 10, 10)
+                ->download($user->first_name . '-invoice.pdf');
 
-            return $pdf->download($user->first_name.'-invoice.pdf');
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

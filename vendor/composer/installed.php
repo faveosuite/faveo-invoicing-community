@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'ba893402821789e77ac700565237b8d95ff3abe8',
+        'reference' => 'd504f00ae23d2c3cfc43aedcbeb728d8610bd844',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -738,7 +738,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'ba893402821789e77ac700565237b8d95ff3abe8',
+            'reference' => 'd504f00ae23d2c3cfc43aedcbeb728d8610bd844',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -1791,6 +1791,15 @@
             'aliases' => array(),
             'dev_requirement' => true,
         ),
+        'spatie/browsershot' => array(
+            'pretty_version' => '5.2.0',
+            'version' => '5.2.0.0',
+            'reference' => '9bc6b8d67175810d7a399b2588c3401efe2d02a8',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../spatie/browsershot',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'spatie/error-solutions' => array(
             'pretty_version' => '1.1.2',
             'version' => '1.1.2.0',
@@ -1863,6 +1872,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'spatie/laravel-pdf' => array(
+            'pretty_version' => '1.8.0',
+            'version' => '1.8.0.0',
+            'reference' => '4f3eb0dc94d0cfdd7295fd71b7946dc0eba664af',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../spatie/laravel-pdf',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'spatie/laravel-referer' => array(
             'pretty_version' => '1.9.0',
             'version' => '1.9.0.0',
@@ -1877,6 +1895,15 @@
             'replaced' => array(
                 0 => '*',
             ),
+        ),
+        'spatie/temporary-directory' => array(
+            'pretty_version' => '2.3.1',
+            'version' => '2.3.1.0',
+            'reference' => '662e481d6ec07ef29fd05010433428851a42cd07',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../spatie/temporary-directory',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'squizlabs/php_codesniffer' => array(
             'pretty_version' => '3.11.2',

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Events\UserOrderDelete;
+use App\Helper\PdfManager\FaveoBrowserShot;
 use App\Listeners\CloudDeletion;
 use File;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -44,6 +45,8 @@ class AppServiceProvider extends ServiceProvider
 
         Event::listen(UserOrderDelete::class, CloudDeletion::class);
         $this->fileMacros();
+
+        FaveoBrowserShot::bootForLaravelPdf();
     }
 
     /**

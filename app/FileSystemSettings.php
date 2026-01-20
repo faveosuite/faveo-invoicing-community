@@ -13,7 +13,7 @@ class FileSystemSettings extends Model
     protected $table = 'settings_filesystem';
 
     protected $fillable = [
-        'disk', 'local_file_storage_path',
+        'disk', 'local_file_storage_path', 'node_path', 'npm_path', 'chrome_path',
     ];
 
     protected $logName = 'file_storage';
@@ -21,7 +21,7 @@ class FileSystemSettings extends Model
     protected $logNameColumn = 'File Storage Settings';
 
     protected $logAttributes = [
-        'disk', 'local_file_storage_path',
+        'disk', 'local_file_storage_path', 'node_path', 'npm_path', 'chrome_path',
     ];
 
     protected $logUrl = [
@@ -33,6 +33,9 @@ class FileSystemSettings extends Model
         return [
             'disk' => ['Disk', fn ($value) => $value],
             'local_file_storage_path' => ['Local File Storage Path', fn ($value) => $value],
+            'node_path' => ['Node Path', fn ($value) => $value],
+            'npm_path' => ['NPM Path', fn ($value) => $value],
+            'chrome_path' => ['Chrome Path', fn ($value) => $value],
         ];
     }
 }
