@@ -51,7 +51,7 @@ class LogWriteController
             $cronLog->update([
                 'status' => 'failed',
                 'exception_log_id' => $exceptionLog?->id,
-                'duration' => Carbon::now()->diffInSeconds($cronLog->created_at),
+                'duration' => (int) Carbon::now()->diffInSeconds($cronLog->created_at, true),
             ]);
         } catch (Throwable $e) {
             $this->exception($e, 'cron');
@@ -71,7 +71,7 @@ class LogWriteController
 
             $cronLog->update([
                 'status' => 'completed',
-                'duration' => Carbon::now()->diffInSeconds($cronLog->created_at),
+                'duration' => (int) Carbon::now()->diffInSeconds($cronLog->created_at, true),
             ]);
         } catch (Throwable $e) {
             $this->exception($e, 'cron');

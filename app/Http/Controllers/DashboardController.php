@@ -10,6 +10,7 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use DateTime;
 use Illuminate\Http\Request;
 
@@ -656,7 +657,7 @@ class DashboardController extends Controller
     {
         $fromDate = $days
             ? Carbon::now()->subDays($days)->startOfDay()
-            : Carbon::minValue();
+            : CarbonImmutable::startOfTime();
 
         $toDate = Carbon::now()->endOfDay();
 
