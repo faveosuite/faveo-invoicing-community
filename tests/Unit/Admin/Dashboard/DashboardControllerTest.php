@@ -170,7 +170,7 @@ class DashboardControllerTest extends DBTestCase
         Subscription::create(['update_ends_at' => Carbon::now()->addDays(5), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
         Subscription::create(['update_ends_at' => Carbon::now()->subDays(5), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
         Subscription::create(['update_ends_at' => Carbon::now()->addMonth(), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
-        $mouthDiff =  ( (int) Carbon::now()->addMonth()->diffInDays(Carbon::now(), true) ).' days';
+        $mouthDiff = ((int) Carbon::now()->addMonth()->diffInDays(Carbon::now(), true)).' days';
         $response = $this->classObject->getExpiringSubscriptions(false);
         $this->assertCount(5, $response);
         $this->assertEquals($mouthDiff, $response[0]->days_difference);
@@ -198,7 +198,7 @@ class DashboardControllerTest extends DBTestCase
         Subscription::create(['update_ends_at' => Carbon::now()->subDays(5), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
         Subscription::create(['update_ends_at' => Carbon::now()->addDays(5), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
         Subscription::create(['update_ends_at' => Carbon::now()->subMonth(), 'order_id' => $orderTwo->id, 'product_id' => $product->id, 'user_id' => $this->user->id]);
-        $mouthDiff =  ( (int) Carbon::now()->subMonth()->diffInDays(Carbon::now(), true) ).' days';
+        $mouthDiff = ((int) Carbon::now()->subMonth()->diffInDays(Carbon::now(), true)).' days';
         $response = $this->classObject->getExpiringSubscriptions(true);
 
         $this->assertCount(5, $response);
