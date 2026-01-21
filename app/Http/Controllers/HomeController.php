@@ -511,12 +511,17 @@ class HomeController extends BaseHomeController
                     break;
                 }
             }
+            if(version_compare($currenctVersion, $this->getPHPCompatibleVersionString($allVersions[2]),'>=') == false && $message['status']==true){
+                $message = ['status' => 'true', 'message' => 'new-version-available-older-than-three-versions','versions'=>$allVersions];
+            }
         } catch (\Exception $ex) {
             $message = ['error' => $ex->getMessage()];
         }
 
         return response()->json($message);
     }
+
+
 
     /**
      * removes "v", "_" and "v." from the version string and returns PHP compatible version strings

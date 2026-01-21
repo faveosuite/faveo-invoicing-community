@@ -917,9 +917,9 @@ class PageController extends Controller
         try {
             $product = Product::find($productId);
 
-            if ($product->add_to_contact == 1) {
-                return '';
-            }
+//            if ($product->add_to_contact == 1) {
+//                return '';
+//            }
 
             $plans = Plan::where('product', $productId)
                         ->where('status', 1)
