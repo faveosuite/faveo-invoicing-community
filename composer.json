@@ -21,6 +21,7 @@
         "php": "^8.4",
         "ext-pcntl": "*",
         "ext-zip": "*",
+        "ext-intl": "*",
         "bacon/bacon-qr-code": "^v3.0.3",
         "bugsnag/bugsnag-laravel": "^v2.29.0",
         "cartalyst/stripe-laravel": "^v17.0.0",

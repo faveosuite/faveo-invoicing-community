@@ -13923,6 +13923,7 @@ return array(
     'Tests\\Unit\\Common\\ChatScriptControllerTest' => $baseDir . '/tests/Unit/Common/ChatScriptControllerTest.php',
     'Tests\\Unit\\Common\\HelpersTest' => $baseDir . '/tests/Unit/Common/HelpersTest.php',
     'Tests\\Unit\\Common\\MSG91ControllerTest' => $baseDir . '/tests/Unit/Common/MSG91ControllerTest.php',
+    'Tests\\Unit\\Common\\PipedriveControllerTest' => $baseDir . '/tests/Unit/Common/PipedriveControllerTest.php',
     'Tests\\Unit\\Common\\SettingsControllerTest' => $baseDir . '/tests/Unit/Common/SettingsControllerTest.php',
     'Tests\\Unit\\Common\\SocialMediaControllerTest' => $baseDir . '/tests/Unit/Common/SocialMediaControllerTest.php',
     'Tests\\Unit\\Common\\SystemManagerControllerTest' => $baseDir . '/tests/Unit/Common/SystemManagerControllerTest.php',

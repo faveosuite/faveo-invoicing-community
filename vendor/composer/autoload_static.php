@@ -15026,6 +15026,7 @@ class ComposerStaticInit2955b800a3d45855083212747d565e16
         'Tests\\Unit\\Common\\ChatScriptControllerTest' => __DIR__ . '/../..' . '/tests/Unit/Common/ChatScriptControllerTest.php',
         'Tests\\Unit\\Common\\HelpersTest' => __DIR__ . '/../..' . '/tests/Unit/Common/HelpersTest.php',
         'Tests\\Unit\\Common\\MSG91ControllerTest' => __DIR__ . '/../..' . '/tests/Unit/Common/MSG91ControllerTest.php',
+        'Tests\\Unit\\Common\\PipedriveControllerTest' => __DIR__ . '/../..' . '/tests/Unit/Common/PipedriveControllerTest.php',
         'Tests\\Unit\\Common\\SettingsControllerTest' => __DIR__ . '/../..' . '/tests/Unit/Common/SettingsControllerTest.php',
         'Tests\\Unit\\Common\\SocialMediaControllerTest' => __DIR__ . '/../..' . '/tests/Unit/Common/SocialMediaControllerTest.php',
         'Tests\\Unit\\Common\\SystemManagerControllerTest' => __DIR__ . '/../..' . '/tests/Unit/Common/SystemManagerControllerTest.php',
@@ -15833,7 +15834,7 @@ class ComposerStaticInit2955b800a3d45855083212747d565e16
         'staabm\\SideEffectsDetector\\SideEffect' => __DIR__ . '/..' . '/staabm/side-effects-detector/lib/SideEffect.php',
         'staabm\\SideEffectsDetector\\SideEffectsDetector' => __DIR__ . '/..' . '/staabm/side-effects-detector/lib/SideEffectsDetector.php',
         'voku\\helper\\ASCII' => __DIR__ . '/..' . '/voku/portable-ascii/src/voku/helper/ASCII.php',
-        'ï¿½' => __DIR__ . '/..' . '/symfony/cache/Traits/ValueWrapper.php',
+        '©' => __DIR__ . '/..' . '/symfony/cache/Traits/ValueWrapper.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
