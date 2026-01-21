@@ -1,5 +1,0 @@
-suites:
-    main:
-        namespace: Devio\Pipedrive
-        psr4_prefix: Devio\Pipedrive
-        src_path: src
