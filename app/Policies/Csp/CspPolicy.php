@@ -4,15 +4,15 @@ namespace App\Policies\Csp;
 
 use Spatie\Csp\Directive;
 use Spatie\Csp\Keyword;
-use Spatie\Csp\Policies\Policy;
+use Spatie\Csp\Policy;
 
 class CspPolicy extends Policy
 {
-    public function configure()
+    public function configure(): void
     {
         $this
-            ->addDirective(Directive::DEFAULT, [Keyword::SELF])
-            ->addDirective(Directive::SCRIPT, [
+            ->add(Directive::DEFAULT, [Keyword::SELF])
+            ->add(Directive::SCRIPT, [
                 Keyword::REPORT_SAMPLE,
                 Keyword::UNSAFE_INLINE,
                 Keyword::UNSAFE_EVAL,
@@ -39,7 +39,7 @@ class CspPolicy extends Policy
                 'https://connect.facebook.net',
                 'https://www.facebook.com/platform',
             ])
-            ->addDirective(Directive::STYLE, [
+            ->add(Directive::STYLE, [
                 Keyword::REPORT_SAMPLE,
                 Keyword::UNSAFE_INLINE,
                 Keyword::SELF,
@@ -58,9 +58,9 @@ class CspPolicy extends Policy
                 'https://www.facebook.com/platform/',
                 'https://www.facebook.com/',
             ])
-            ->addDirective(Directive::OBJECT, ['none'])
-            ->addDirective(Directive::BASE, [Keyword::SELF])
-            ->addDirective(Directive::CONNECT, [
+            ->add(Directive::OBJECT, ['none'])
+            ->add(Directive::BASE, [Keyword::SELF])
+            ->add(Directive::CONNECT, [
                 Keyword::SELF,
                 'embed.tawk.to',
                 'google.com',
@@ -80,7 +80,7 @@ class CspPolicy extends Policy
                 'https://www.facebook.com/platform/',
                 'https://www.facebook.com/',
             ])
-            ->addDirective(Directive::FONT, [
+            ->add(Directive::FONT, [
                 Keyword::SELF,
                 'cdnjs.cloudflare.com',
                 'code.ionicframework.com',
@@ -89,7 +89,7 @@ class CspPolicy extends Policy
                 'fonts.gstatic.com',
                 'https://www.facebook.com/',
             ])
-            ->addDirective(Directive::FRAME, [
+            ->add(Directive::FRAME, [
                 Keyword::SELF,
                 'api.razorpay.com',
                 'js.stripe.com',
@@ -97,7 +97,7 @@ class CspPolicy extends Policy
                 'www.googletagmanager.com',
                 'td.doubleclick.net',
             ])
-            ->addDirective(Directive::IMG, [
+            ->add(Directive::IMG, [
                 Keyword::SELF,
                 'data:',
                 'cdn.datatables.net',
@@ -115,12 +115,12 @@ class CspPolicy extends Policy
                 'unpkg.com',
                 'https://images.unsplash.com',
             ])
-            ->addDirective(Directive::MANIFEST, [Keyword::SELF])
-            ->addDirective(Directive::MEDIA, [
+            ->add(Directive::MANIFEST, [Keyword::SELF])
+            ->add(Directive::MEDIA, [
                 Keyword::SELF,
                 'embed.tawk.to',
             ])
-            ->addDirective(Directive::WORKER, [Keyword::SELF])
-            ->reportTo(url(config('csp.report_uri')));
+            ->add(Directive::WORKER, [Keyword::SELF])
+            ->setReportUri(url(config('csp.report_uri')));
     }
 }
