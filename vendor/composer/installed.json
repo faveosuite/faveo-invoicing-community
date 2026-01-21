@@ -5359,17 +5359,17 @@
         },
         {
             "name": "livewire/livewire",
-            "version": "v4.0.1",
-            "version_normalized": "4.0.1.0",
+            "version": "v4.0.2",
+            "version_normalized": "4.0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/livewire/livewire.git",
-                "reference": "c7539589d5af82691bef17da17ce4e289269f8d9"
+                "reference": "57fd2f193072560f8615e513972db5fb9dc93501"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/livewire/livewire/zipball/c7539589d5af82691bef17da17ce4e289269f8d9",
-                "reference": "c7539589d5af82691bef17da17ce4e289269f8d9",
+                "url": "https://api.github.com/repos/livewire/livewire/zipball/57fd2f193072560f8615e513972db5fb9dc93501",
+                "reference": "57fd2f193072560f8615e513972db5fb9dc93501",
                 "shasum": ""
             },
             "require": {
@@ -5392,7 +5392,7 @@
                 "phpunit/phpunit": "^10.4|^11.5",
                 "psy/psysh": "^0.11.22|^0.12"
             },
-            "time": "2026-01-14T18:40:41+00:00",
+            "time": "2026-01-21T09:09:58+00:00",
             "type": "library",
             "extra": {
                 "laravel": {
@@ -5426,7 +5426,7 @@
             "description": "A front-end framework for Laravel.",
             "support": {
                 "issues": "https://github.com/livewire/livewire/issues",
-                "source": "https://github.com/livewire/livewire/tree/v4.0.1"
+                "source": "https://github.com/livewire/livewire/tree/v4.0.2"
             },
             "funding": [
                 {
