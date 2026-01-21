@@ -8,6 +8,7 @@ use App\Model\Common\Msg91Status;
 use App\Model\Common\MsgDeliveryReports;
 use App\ThirdPartyApp;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 
 class MSG91Controller extends Controller
@@ -227,7 +228,7 @@ class MSG91Controller extends Controller
             ->when($from || $till, function ($q) use ($from, $till) {
                 $from = $from
                     ? Carbon::parse($from)->startOfDay()
-                    : Carbon::minValue();
+                    : CarbonImmutable::startOfTime();
 
                 $till = $till
                     ? Carbon::parse($till)->endOfDay()

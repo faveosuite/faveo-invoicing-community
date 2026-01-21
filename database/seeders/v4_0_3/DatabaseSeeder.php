@@ -81,7 +81,8 @@ class DatabaseSeeder extends Seeder
             'yajra/laravel-datatables',
             'anhskohbo/no-captcha',
             'barryvdh/laravel-dompdf',
-            'torann/currency'
+            'torann/currency',
+            'devio/pipedrive'
         ];
 
         $configs = [

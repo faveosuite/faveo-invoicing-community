@@ -392,7 +392,7 @@ class CloudExtraActivities extends Controller
             $pricePerDay = $base_price / $planDays;
             $futureDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $ends_at);
             $currentDateTime = Carbon::now();
-            $daysRemain = $futureDateTime->diffInDays($currentDateTime);
+            $daysRemain = (int) $futureDateTime->diffInDays($currentDateTime, true);
             $pricePerThatAgent = $pricePerDay * $daysRemain;
             $price = $agentsAdded * $pricePerThatAgent;
         }
@@ -420,7 +420,7 @@ class CloudExtraActivities extends Controller
         } else {
             $futureDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $ends_at);
             $currentDateTime = Carbon::now();
-            $daysRemain = $futureDateTime->diffInDays($currentDateTime);
+            $daysRemain = (int) $futureDateTime->diffInDays($currentDateTime, true);
             $priceForNewAgents = $base_price * $newAgents;
             $priceForOldAgents = $base_price * $oldAgents;
             $pricePerDayForNewAgents = $priceForNewAgents / $planDays;
@@ -541,7 +541,7 @@ class CloudExtraActivities extends Controller
         } else {
             $futureDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $ends_at);
             $currentDateTime = Carbon::now();
-            $daysRemain = $futureDateTime->diffInDays($currentDateTime);
+            $daysRemain = (int) $futureDateTime->diffInDays($currentDateTime, true);
 
             $pricePerDayForNewPlan = $base_price_new / $planDaysNew;
 
@@ -655,7 +655,7 @@ class CloudExtraActivities extends Controller
             $pricePerDayOld = $base_priceOld / $planDaysOld; //1600
             $futureDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $ends_at);
             $currentDateTime = Carbon::now();
-            $daysRemain = $futureDateTime->diffInDays($currentDateTime);
+            $daysRemain = (int) $futureDateTime->diffInDays($currentDateTime, true);
 
             if ($planDaysNew !== $planDaysOld) {
                 $variables = $this->newPlanDaysNotEqualToOld($planDaysNew, $planDaysOld, $daysRemain, $pricePerDayNew, $pricePerDayOld);
@@ -744,7 +744,7 @@ class CloudExtraActivities extends Controller
         } else {
             $futureDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $ends_at);
             $currentDateTime = Carbon::now();
-            $daysRemain = $futureDateTime->diffInDays($currentDateTime);
+            $daysRemain = (int) $futureDateTime->diffInDays($currentDateTime, true);
             $variables = $this->currentDateLessThanEndDate($planDaysNew, $planDaysOld, $daysRemain, $orderId);
             $price = $variables['price'];
             $priceRemaining = $variables['priceRemaining'];
@@ -1109,7 +1109,7 @@ class CloudExtraActivities extends Controller
             $pricePerDayOld = $base_priceOld / $planDaysOld; //1600
             $futureDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $ends_at);
             $currentDateTime = Carbon::now();
-            $daysRemain = $futureDateTime->diffInDays($currentDateTime);
+            $daysRemain = (int) $futureDateTime->diffInDays($currentDateTime, true);
 
             if ($planDaysNew !== $planDaysOld) {
                 $daysRemainNew = $planDaysOld - $daysRemain;
@@ -1141,7 +1141,7 @@ class CloudExtraActivities extends Controller
         } else {
             $futureDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $ends_at);
             $currentDateTime = Carbon::now();
-            $daysRemain = $futureDateTime->diffInDays($currentDateTime);
+            $daysRemain = (int) $futureDateTime->diffInDays($currentDateTime, true);
             $pricePerDayForNewPlan = $base_price_new / $planDaysNew;
             $pricePerDayForOldPlan = $base_priceOld / $planDaysOld;
 

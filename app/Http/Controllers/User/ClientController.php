@@ -19,6 +19,7 @@ use App\Traits\PaymentsAndInvoices;
 use App\User;
 use App\UserLinkReport;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Storage;
@@ -894,7 +895,7 @@ class ClientController extends AdvanceSearchController
             ->when($request->hasAny(['reg_from', 'reg_till']), function ($q) use ($request) {
                 $from = $request->filled('reg_from')
                     ? Carbon::parse($request->input('reg_from'))->startOfDay()
-                    : Carbon::minValue();
+                    : CarbonImmutable::startOfTime();
 
                 $till = $request->filled('reg_till')
                     ? Carbon::parse($request->input('reg_till'))->endOfDay()

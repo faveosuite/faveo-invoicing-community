@@ -439,13 +439,13 @@ class SubscriptionController extends Controller
             return;
         }
 
-        $createdDate = Carbon::createFromTimestamp($latestInvoice->created)->startOfDay();
-        $today = Carbon::today();
-        $yesterday = Carbon::yesterday();
+        $createdDate = Carbon::createFromTimestampUTC($latestInvoice->created);
+        $today = Carbon::now();
 
-        if (! $createdDate->eq($today)) {
+        if (! $createdDate->isSameDay($today)) {
             return;
         }
+
         $invoiceCost = $this->calculateReverseUnitCost($currency, $latestInvoice->amount);
         $cost = $cost == intval($invoiceCost) ? $cost : intval($invoiceCost);
         Invoice::where('id', $invoiceItem->invoice_id)->where('status', 'pending')->update(['grand_total' => $cost]);
