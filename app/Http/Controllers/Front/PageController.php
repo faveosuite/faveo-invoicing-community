@@ -347,6 +347,11 @@ class PageController extends Controller
                         $format = currencyFormat(min([$prices[$plan->id][0]]), $code = $prices[$plan->id][2]);
                         $finalPrice = str_replace($prices[$plan->id][1], '', $format);
                         $cost[$plan->id] = '<span class="price-unit striked hide_custom" id="'.$prices[$plan->id][3].'">'.$prices[$plan->id][1].$finalPrice.'</span>';
+                        if($prices[$plan->id][0]==0){
+                            $cost[$plan->id] = '<span class="price-unit striked hide_custom" id="'.$prices[$plan->id][3].'">Free</span>';
+
+//                            $cost[$plan->id]='Free';
+                        }
                     }
                 }
             }
@@ -419,6 +424,7 @@ class PageController extends Controller
                         $data = str_replace('{{strike-priceyear}}', $strikePrice[$strikePriceKeys[0]], $data);
                     }
                 }
+
             }
             $result .= str_replace($array1, $array2, $data);
         }
@@ -475,6 +481,9 @@ class PageController extends Controller
                     $format = currencyFormat(min([$prices[0]]), $code = $prices[2]);
                     $finalPrice = str_replace($prices[1], '', $format);
                     $cost = '<span class="price-unit">'.$prices[1].'</span>'.$finalPrice;
+                    if($prices[0]==0){
+                        $cost='Free';
+                    }
                 }
             }
 
@@ -641,6 +650,7 @@ class PageController extends Controller
                     'url' => $this->generateProductUrl($product, $orderButton, $highlight),
                 ];
             }
+
             $data = PricingTemplate::findOrFail(1)->data;
 
             return $this->transformTemplate('cart', $data, $trasform);
@@ -869,9 +879,9 @@ class PageController extends Controller
         try {
             $product = Product::find($productid);
 
-            if ($product['add_to_contact'] == 1) {
-                return '';
-            }
+//            if ($product['add_to_contact'] == 1) {
+//                return '';
+//            }
 
             $priceDescription = '';
 
@@ -881,12 +891,12 @@ class PageController extends Controller
                 foreach ($plans as $plan) {
                     if ($plan->days == 30 || $plan->days == 31) {
                         $description = $plan->planPrice->first();
-
-                        if (is_null($description->add_price) || $description->add_price === '' || $description->add_price == 0) {
-                            $priceDescription = 'free';
-                        } else {
-                            $priceDescription = $description->no_of_agents ? 'per month for <strong>'.' '.$description->no_of_agents.' '.'agent</strong>' : 'per month';
-                        }
+                        $priceDescription=$description->price_description;
+//                        if (is_null($description->add_price) || $description->add_price === '' || $description->add_price == 0) {
+//                            $priceDescription = 'free';
+//                        } else {
+//                            $priceDescription = $description->no_of_agents ? 'per month for <strong>'.' '.$description->no_of_agents.' '.'agent</strong>' : 'per month';
+//                        }
 
                         break;
                     }
@@ -914,6 +924,7 @@ class PageController extends Controller
     public function getPriceDescription(int $productId)
     {
         try {
+
             $product = Product::find($productId);
 
 //            if ($product->add_to_contact == 1) {
@@ -933,11 +944,11 @@ class PageController extends Controller
                             return 'free';
                         }
 
-                        if ($product->status) {
-                            return $description->no_of_agents
-                                ? 'per month for <strong>'.$description->no_of_agents.' agent</strong>'
-                                : 'per month';
-                        }
+//                        if ($product->status) {
+//                            return $description->no_of_agents
+//                                ? 'per month for <strong>'.$description->no_of_agents.' agent</strong>'
+//                                : 'per month';
+//                        }
 
                         return $description->price_description;
                     }
