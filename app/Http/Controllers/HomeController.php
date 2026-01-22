@@ -508,7 +508,7 @@ class HomeController extends BaseHomeController
             $message = ['status' => '', 'message' => 'no-new-version-available'];
             foreach ($allVersions as $version) {
                 if (version_compare($this->getPHPCompatibleVersionString($version), $currenctVersion) == 1) {
-                    $message = ['status' => 'true', 'message' => 'new-version-available','versions'=>$allVersions];
+                    $message = ['status' => 'true', 'message' => 'new-version-available', 'versions' => $allVersions];
                     break;
                 }
             }
