@@ -507,13 +507,13 @@ class HomeController extends BaseHomeController
             $message = ['status' => '', 'message' => 'no-new-version-available'];
             foreach ($allVersions as $version) {
                 if (version_compare($this->getPHPCompatibleVersionString($version), $currenctVersion) == 1) {
-                    $message = ['status' => 'true', 'message' => 'new-version-available'];
+                    $message = ['status' => 'true', 'message' => 'new-version-available','versions'=>$allVersions];
                     break;
                 }
             }
-            if (version_compare($currenctVersion, $this->getPHPCompatibleVersionString($allVersions[2]), '>=') == false && $message['status'] == true) {
-                $message = ['status' => 'true', 'message' => 'new-version-available-older-than-three-versions', 'versions' => $allVersions];
-            }
+//            if(version_compare($currenctVersion, $this->getPHPCompatibleVersionString($allVersions[2]),'>=') == false && $message['status']==true){
+//                $message = ['status' => 'true', 'message' => 'new-version-available-older-than-three-versions','versions'=>$allVersions];
+//            }
         } catch (\Exception $ex) {
             $message = ['error' => $ex->getMessage()];
         }
