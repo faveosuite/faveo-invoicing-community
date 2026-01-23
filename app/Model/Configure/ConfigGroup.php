@@ -21,11 +21,13 @@ class ConfigGroup extends Model
         return $this->hasMany(ConfigOption::class, 'group_id');
     }
 
-    public function plans(){
-        return $this->hasMany(Plan::class,'group_id');
+    public function plans()
+    {
+        return $this->hasMany(Plan::class, 'group_id');
     }
 
-    public function products(){
-        return $this->belongsTo(Product::class,'product_id');
+    public function products()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
     }
 }

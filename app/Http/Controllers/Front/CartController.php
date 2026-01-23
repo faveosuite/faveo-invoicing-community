@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Front;
 use App\Facades\Cart;
 use App\Http\Controllers\Common\TemplateController;
 use App\Model\Common\Setting;
-use App\Model\Configure\ConfigGroup;
 use App\Model\Order\Invoice;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
@@ -98,18 +97,19 @@ class CartController extends BaseCartController
             if ($request->has('domain')) {
                 $domain = $request->input('domain').'.'.cloudSubDomain();
             }
-            $groupProductId=$request->input('groupProductId');
-            $this->addProduct($id, $domain,$groupProductId);
-            $url=url('show/cart');
-            return successResponse('cart Redirect',['url'=>$url]);
-           // return redirect('show/cart');
+            $groupProductId = $request->input('groupProductId');
+            $this->addProduct($id, $domain, $groupProductId);
+            $url = url('show/cart');
+
+            return successResponse('cart Redirect', ['url' => $url]);
+            // return redirect('show/cart');
         } catch (\Exception $ex) {
             \Logger::exception($ex);
+
             return errorResponse($ex->getMessage());
             //return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
-
 
     /**
      * Returns the Collection to be added to cart.
@@ -121,7 +121,7 @@ class CartController extends BaseCartController
      * @param  int  $id  Product Id
      * @return
      */
-    public function addProduct(int $id, $domain = null,$groupProductId=null)
+    public function addProduct(int $id, $domain = null, $groupProductId = null)
     {
         try {
             $qty = 1;
@@ -165,16 +165,16 @@ class CartController extends BaseCartController
                 'quantity' => $qty, 'attributes' => ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $agents, 'domain' => $domain], 'associatedModel' => $product];
             $cart = new Cart();
             $attribute = ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $agents, 'domain' => $domain];
-            $groupProduct_id = $product->licenseType()->name== 'plugin'?$groupProductId:null;
+            $groupProduct_id = $product->licenseType()->name == 'plugin' ? $groupProductId : null;
             $cart->add($planid, $product->name, $actualPrice,
-                $qty, $attribute, '', $product,'',$groupProduct_id);
-
+                $qty, $attribute, '', $product, '', $groupProduct_id);
 
             return $items;
         } catch (\Exception $e) {
             \Logger::exception($e);
+
             return errorResponse($e->getMessage());
-           // throw new \Exception($e->getMessage());
+            // throw new \Exception($e->getMessage());
         }
     }
 
@@ -215,12 +215,14 @@ class CartController extends BaseCartController
                 return (int) $item['id'];
             });
             $cart = $this->cart;
-            return successResponse('',['cartCollection'=>$cartCollection, 'cart'=>$cart]);
+
+            return successResponse('', ['cartCollection' => $cartCollection, 'cart' => $cart]);
             //return view('themes.default1.front.cart', compact('cartCollection', 'cart'));
         } catch (\Exception $ex) {
             \Logger::exception($ex);
+
             return errorResponse($ex->getMessage());
-           // return redirect()->back()->with('fails', $ex->getMessage());
+            // return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -398,14 +400,14 @@ class CartController extends BaseCartController
             $result = $promo_controller->checkCode($code);
             if ($result == 'success') {
                 return successResponse(\Lang::get('message.updated-successfully'));
-               // return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+                // return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
             }
 
             return errorResponse('Not Updated');
             //return redirect()->back();
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
-           // return redirect()->back()->with('fails', $ex->getMessage());
+            // return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 

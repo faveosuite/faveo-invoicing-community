@@ -15,7 +15,7 @@ class Plan extends BaseModel
 
     protected $table = 'plans';
 
-    protected $fillable = ['name', 'product', 'allow_tax', 'days','group_id'];
+    protected $fillable = ['name', 'product', 'allow_tax', 'days', 'group_id'];
 
     protected $logName = 'plan';
 
@@ -72,5 +72,4 @@ class Plan extends BaseModel
     {
         return $this->belongsTo(ConfigGroup::class);
     }
-
 }
