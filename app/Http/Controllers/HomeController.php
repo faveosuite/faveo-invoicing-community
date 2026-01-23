@@ -7,6 +7,7 @@ use App\Http\Controllers\Common\CronController;
 use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Order\RenewController;
 use App\Http\Requests\ProductRenewalRequest;
+use App\Model\Common\Setting;
 use App\Model\Configure\PluginCompatibleWithProducts;
 use App\Model\Configure\ProductPluginGroup;
 use App\Model\License\LicenseType;
@@ -504,7 +505,7 @@ class HomeController extends BaseHomeController
             ->whereIn('release_type', $releases)
             ->orderBy('id', 'desc')->pluck('version')->toArray();
             $currenctVersion = $this->getPHPCompatibleVersionString($request->version);
-            $message = ['status' => '', 'message' => 'no-new-version-available'];
+            $message = ['status' => '', 'message' => 'no-new-version-available','versions'=>$allVersions];
             foreach ($allVersions as $version) {
                 if (version_compare($this->getPHPCompatibleVersionString($version), $currenctVersion) == 1) {
                     $message = ['status' => 'true', 'message' => 'new-version-available', 'versions' => $allVersions];
@@ -692,9 +693,16 @@ class HomeController extends BaseHomeController
     {
         $order = $request->input('order');
         // Fetch the order details
-        $user = Order::where('number', $order)->value('client');
+        $order = Order::where('number', $order)->first();
+        $subscription=$order->subscription()->first();
+        $subscription_status=$subscription->is_subscribed;
+        $start_date=$order->created_at;
+        $plan_name=Plan::where('id', $subscription->plan_id)->value('name');
 
-        $email = User::where('id', $user)->value('email');
+        $dates=[$subscription->update_ends_at,$subscription->ends_at,$subscription->support_ends_at];
+        $next_billing_date=min($dates);
+
+        [$email,$company]=array_values(User::where('id', $order->client)->select('email','company')->first()->toArray());
 
         if (! $email) {
             return response()->json([]);
@@ -702,6 +710,11 @@ class HomeController extends BaseHomeController
 
         return response()->json([
             'billing_client_email' => $email,
+            'subscription_status'=>$subscription_status,
+            'start_date'=>$start_date,
+            'plan_name'=>$plan_name,
+            'next_billing_date'=>$next_billing_date,
+            'company'=>$company,
         ]);
     }
 
