@@ -3,7 +3,6 @@
 namespace App\Plugins\Stripe\Controllers;
 
 use App\ApiKey;
-use App\Auto_renewal;
 use App\Facades\Cart;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\SyncBillingToLatestVersion;
@@ -138,7 +137,7 @@ class SettingsController extends Controller
                 \Cart::removeCartCondition('Processing fee');
                 $data = ['status' => $result['status'], 'message' => $result['message']];
 
-                return successResponse('success', ['data'=>$data]);
+                return successResponse('success', ['data' => $data]);
             } else {
                 $paymentIntent = \Stripe\PaymentIntent::retrieve($confirm['id']);
                 $redirectUrl = $paymentIntent->next_action->redirect_to_url->url;
@@ -147,24 +146,24 @@ class SettingsController extends Controller
             }
         } catch (
             \Cartalyst\Stripe\Exception\ApiLimitExceededException|\Cartalyst\Stripe\Exception\BadRequestException|\Cartalyst\Stripe\Exception\MissingParameterException|\Cartalyst\Stripe\Exception\NotFoundException|\Cartalyst\Stripe\Exception\ServerErrorException|\Cartalyst\Stripe\Exception\StripeException|\Cartalyst\Stripe\Exception\UnauthorizedException $e) {
-            $control = new \App\Http\Controllers\Order\RenewController();
-            if ($control->checkRenew($invoice->is_renewed) != true) {
-                return errorResponse($e->getMessage(), ['redirectTo' => 'checkout']);
-            } else {
-                return errorResponse($e->getMessage(), ['redirectTo' => 'paynow']);
-            }
-        } catch (\Cartalyst\Stripe\Exception\CardErrorException $e) {
-            if (emailSendingStatus()) {
-                $user = auth()->user();
-                $this->sendFailedPaymenttoAdmin($invoice, $invoice->grand_total, $invoice->invoiceItem()->first()->product_name, $e->getMessage(), $user);
-            }
-            \Session::put('amount', $amount);
-            \Session::put('error', $e->getMessage());
-            return errorResponse($e->getMessage(), ['redirectTo' => url('checkout')]);
+                $control = new \App\Http\Controllers\Order\RenewController();
+                if ($control->checkRenew($invoice->is_renewed) != true) {
+                    return errorResponse($e->getMessage(), ['redirectTo' => 'checkout']);
+                } else {
+                    return errorResponse($e->getMessage(), ['redirectTo' => 'paynow']);
+                }
+            } catch (\Cartalyst\Stripe\Exception\CardErrorException $e) {
+                if (emailSendingStatus()) {
+                    $user = auth()->user();
+                    $this->sendFailedPaymenttoAdmin($invoice, $invoice->grand_total, $invoice->invoiceItem()->first()->product_name, $e->getMessage(), $user);
+                }
+                \Session::put('amount', $amount);
+                \Session::put('error', $e->getMessage());
 
-        } catch (\Exception $e) {
-            return errorResponse($e->getMessage(), ['redirectTo' => url('checkout')]);
-        }
+                return errorResponse($e->getMessage(), ['redirectTo' => url('checkout')]);
+            } catch (\Exception $e) {
+                return errorResponse($e->getMessage(), ['redirectTo' => url('checkout')]);
+            }
     }
 
     public function handlePayment(Request $request, $amount, $currency, $url, $invoice = null)
@@ -183,36 +182,34 @@ class SettingsController extends Controller
 
         $user = \Auth::user();
 
+        // Create a Stripe customer with user's information
+        $customer = \Stripe\Customer::create([
+            'name' => $user->first_name.' '.$user->last_name,
+            'email' => $user->email,
+            'address' => [
+                'line1' => optional($user)->address,
+                'postal_code' => optional($user)->zip,
+                'city' => optional($user)->town,
+                'state' => optional($user)->state,
+                'country' => optional($user)->country,
+            ],
+        ]);
 
-            // Create a Stripe customer with user's information
-            $customer = \Stripe\Customer::create([
-                'name' => $user->first_name.' '.$user->last_name,
-                'email' => $user->email,
-                'address' => [
-                    'line1' => optional($user)->address,
-                    'postal_code' => optional($user)->zip,
-                    'city' => optional($user)->town,
-                    'state' => optional($user)->state,
-                    'country' => optional($user)->country,
-                ],
-            ]);
-
-            // Create a payment method using the provided token
-            $paymentMethod = \Stripe\PaymentMethod::create([
-                'type' => 'card',
-                'card' => [
-                    'token' => $request->stripeToken,
-                ],
-            ]);
-            $paymentId=$paymentMethod['id'];
-            $customerId=$customer['id'];
-
+        // Create a payment method using the provided token
+        $paymentMethod = \Stripe\PaymentMethod::create([
+            'type' => 'card',
+            'card' => [
+                'token' => $request->stripeToken,
+            ],
+        ]);
+        $paymentId = $paymentMethod['id'];
+        $customerId = $customer['id'];
 
         // Create a payment intent for the transaction
         $intent = \Stripe\PaymentIntent::create([
             'amount' => intval($cost),
             'currency' => $currency,
-                'payment_method' => $paymentId,
+            'payment_method' => $paymentId,
             'customer' => $customerId,
             'confirmation_method' => 'automatic',
             'setup_future_usage' => 'off_session',

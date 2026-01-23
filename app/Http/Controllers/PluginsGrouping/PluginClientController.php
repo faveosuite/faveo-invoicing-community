@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\PluginsGrouping;
 
 use App\Facades\Cart;
@@ -11,13 +12,13 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use Illuminate\Http\Request;
 
-
-class PluginClientController extends Controller{
-
+class PluginClientController extends Controller
+{
     protected $cart;
 
-    public function  __construct(){
-        $this->cart=new Cart();
+    public function __construct()
+    {
+        $this->cart = new Cart();
     }
 
     /**
@@ -26,15 +27,15 @@ class PluginClientController extends Controller{
      * @param
      * @return
      */
-    public function getPlugins(Request $request){
-        $id=$request->input('id');
+    public function getPlugins(Request $request)
+    {
+        $id = $request->input('id');
 
-        $pluginIds= PluginCompatibleWithProducts::where('product_id',$id)->pluck('plugin_id')->toArray();
+        $pluginIds = PluginCompatibleWithProducts::where('product_id', $id)->pluck('plugin_id')->toArray();
 
-        $plugins=Product::whereIn('id',$pluginIds)->get(['id','name','shoping_cart_link'])->toArray();
+        $plugins = Product::whereIn('id', $pluginIds)->get(['id', 'name', 'shoping_cart_link'])->toArray();
 
-        return successResponse('',$plugins);
-
+        return successResponse('', $plugins);
     }
 
     /**
@@ -43,20 +44,21 @@ class PluginClientController extends Controller{
      * @param
      * @return
      */
-    public function checkProduct(Request $request){
+    public function checkProduct(Request $request)
+    {
         $request->validate([
-            'plugin_id'=>'required',
-            'product_id'=>'required',
+            'plugin_id' => 'required',
+            'product_id' => 'required',
         ]);
-        $plugin_id=$request->input('plugin_id');
-        $product_id=$request->input('product_id');
+        $plugin_id = $request->input('plugin_id');
+        $product_id = $request->input('product_id');
 
-        $count=PluginCompatibleWithProducts::where('plugin_id',$plugin_id)
-                                        ->where('product_id',$product_id)->count();
+        $count = PluginCompatibleWithProducts::where('plugin_id', $plugin_id)
+                                        ->where('product_id', $product_id)->count();
 
-        if($count>0){
+        if ($count > 0) {
             return successResponse('true');
-        }else{
+        } else {
             return successResponse('false');
         }
     }
@@ -67,26 +69,27 @@ class PluginClientController extends Controller{
      * @param
      * @return
      */
-    public function getGroupsWithOptions(Request $request){
+    public function getGroupsWithOptions(Request $request)
+    {
         $request->validate([
-            'product_id'=>'required',
+            'product_id' => 'required',
         ]);
-        $product_id=$request->input('product_id');
+        $product_id = $request->input('product_id');
         try {
             $groups = ConfigGroup::with('configOptions')
                 ->where('product_id', $product_id)
                 ->get()
                 ->mapWithKeys(function ($group) {
                     return [
-                        $group->id => $group->configOptions
+                        $group->id => $group->configOptions,
                     ];
                 });
+
             return successResponse('', $groups);
-        }catch(\Exception $ex){
+        } catch(\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
-
 
     /**
      * This function is to get options key,value pair.
@@ -94,15 +97,17 @@ class PluginClientController extends Controller{
      * @param
      * @return
      */
-    public function getOptionKeyValue(Request $request){
+    public function getOptionKeyValue(Request $request)
+    {
         $request->validate([
-            'option_id'=>'required',
+            'option_id' => 'required',
         ]);
-        $option_id=$request->input('option_id');
+        $option_id = $request->input('option_id');
         try {
-            $configOptionValue=ConfigOptionValue::where('option_id',$option_id)->pluck('value','key')->toArray();
-            return successResponse('',[$configOptionValue]);
-    }catch(\Exception $exception){
+            $configOptionValue = ConfigOptionValue::where('option_id', $option_id)->pluck('value', 'key')->toArray();
+
+            return successResponse('', [$configOptionValue]);
+        } catch(\Exception $exception) {
             return errorResponse($exception->getMessage());
         }
     }
@@ -113,24 +118,25 @@ class PluginClientController extends Controller{
      * @param
      * @return
      */
-    public function addGroupToProduct(Request $request){
+    public function addGroupToProduct(Request $request)
+    {
         $request->validate([
-            'group_id'=>'required',
+            'group_id' => 'required',
         ]);
-        $id=$request->group_id;
-        try{
-        $groupDetails=ConfigGroup::where('id',$id)->first();
-        $plan_id=$groupDetails->plan_id;
-        $query = Plan::where('id', $groupDetails->plan_id)->first();
+        $id = $request->group_id;
+        try {
+            $groupDetails = ConfigGroup::where('id', $id)->first();
+            $plan_id = $groupDetails->plan_id;
+            $query = Plan::where('id', $groupDetails->plan_id)->first();
 
-        $userPlan = userCurrencyAndPrice(\Auth::user()->id, $query);
-        if (empty($userPlan['plan'])) {
-            return errorResponse(__('message.no_available_plans_currency'));
-        }
-        $cartController=new CartController();
-        $actualPrice= $cartController->applyOfferPrice($userPlan,true);
-        $content=$this->cart->getContent();
-        $groupData=['groupId'=>$groupDetails->id,'groupName'=>$groupDetails->config_group_name,'groupPrice'=>$actualPrice];
+            $userPlan = userCurrencyAndPrice(\Auth::user()->id, $query);
+            if (empty($userPlan['plan'])) {
+                return errorResponse(__('message.no_available_plans_currency'));
+            }
+            $cartController = new CartController();
+            $actualPrice = $cartController->applyOfferPrice($userPlan, true);
+            $content = $this->cart->getContent();
+            $groupData = ['groupId' => $groupDetails->id, 'groupName' => $groupDetails->config_group_name, 'groupPrice' => $actualPrice];
             foreach ($content as $key => $cont) {
                 if ($cont['id'] == $plan_id) {
                     $price = $cont['price'] + $actualPrice;
@@ -141,12 +147,12 @@ class PluginClientController extends Controller{
                     ]);
                 }
             }
-        return successResponse(__('message.updated-successfully'));
-        }catch(\Exception $ex){
+
+            return successResponse(__('message.updated-successfully'));
+        } catch(\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
-
 
     /**
      * This function is to remove group from the product.
@@ -154,21 +160,22 @@ class PluginClientController extends Controller{
      * @param
      * @return
      */
-    public function removeGroupFromProduct(Request $request){
+    public function removeGroupFromProduct(Request $request)
+    {
         $request->validate([
-            'group_id'=>'required',
+            'group_id' => 'required',
         ]);
-        $id=$request->group_id;
+        $id = $request->group_id;
         try {
             $groupDetails = ConfigGroup::where('id', $id)->first();
-            $plan_id=$groupDetails->plan_id;
+            $plan_id = $groupDetails->plan_id;
             $query = Plan::where('id', $groupDetails->plan_id)->first();
             $userPlan = userCurrencyAndPrice('', $query);
             if (empty($userPlan['plan'])) {
                 return errorResponse(__('message.no_available_plans_currency'));
             }
-            $cartController=new CartController();
-            $actualPrice= $cartController->applyOfferPrice($userPlan,true);
+            $cartController = new CartController();
+            $actualPrice = $cartController->applyOfferPrice($userPlan, true);
             $content = $this->cart->getContent();
 
             foreach ($content as $key => $cont) {
@@ -176,13 +183,12 @@ class PluginClientController extends Controller{
                     $this->cart->update($cont['id'], ['price' => $actualPrice, 'group' => []]);
                 }
             }
+
             return successResponse(__('message.updated-successfully'));
-        }catch(\Exception $ex){
+        } catch(\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
-
     }
-
 
     /**
      * This function is to remove whole group,that is a product with multiple plugins.
@@ -190,23 +196,23 @@ class PluginClientController extends Controller{
      * @param
      * @return
      */
-    public function removeWholeGroup(Request $request){
+    public function removeWholeGroup(Request $request)
+    {
         $request->validate([
-            'groupedProductId'=>'required'
+            'groupedProductId' => 'required',
         ]);
-        $groupedProductId=$request->groupedProductId;
-        $content=$this->cart->getContent();
+        $groupedProductId = $request->groupedProductId;
+        $content = $this->cart->getContent();
         try {
             foreach ($content as $cont) {
                 if ($cont['groupedProductId'] == $groupedProductId) {
                     $this->cart->remove($cont['id']);
                 }
             }
+
             return successResponse(__('message.removed-successfully'));
-        }catch(\Exception $ex){
+        } catch(\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
-
-
 }

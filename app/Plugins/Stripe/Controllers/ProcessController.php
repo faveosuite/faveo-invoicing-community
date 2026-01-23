@@ -338,17 +338,17 @@ class ProcessController extends Controller
         return $randomString;
     }
 
-
     // new Functions
 
-    public function processingStripeOrder(){
-        try{
+    public function processingStripeOrder()
+    {
+        try {
             $user = auth()->user();
 
             $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
 
             \Stripe\Stripe::setApiKey($stripeSecretKey);
-            $currency=getCurrencyForClient($user->country);
+            $currency = getCurrencyForClient($user->country);
             $customer = \Stripe\Customer::create([
                 'name' => $user->first_name.' '.$user->last_name,
                 'email' => $user->email,
@@ -375,23 +375,22 @@ class ProcessController extends Controller
                 $mandateOptions['supported_types'] = ['india'];
             }
 
-            $setupIntent=\Stripe\SetupIntent::create([
+            $setupIntent = \Stripe\SetupIntent::create([
                 'customer' => $customer['id'],
                 'payment_method_types' => ['card'],
                 'usage' => 'off_session',
                 'payment_method_options' => [
                     'card' => [
                         'mandate_options' => [
-                         $mandateOptions
-                            ],
+                            $mandateOptions,
+                        ],
                     ],
                 ],
             ]);
 
-            return successResponse('',['client_secret'=>$setupIntent->client_secret]);
-        }catch(\Exception $ex){
+            return successResponse('', ['client_secret' => $setupIntent->client_secret]);
+        } catch(\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
-
     }
 }

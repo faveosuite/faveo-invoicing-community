@@ -4,12 +4,9 @@ namespace App\Model\Configure;
 
 use App\BaseModel;
 use App\Model\Product\Product;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PluginCompatibleWithProducts extends BaseModel
 {
-
-
     protected $table = 'plugin_compatible_with_products';
 
     protected $guarded = [];

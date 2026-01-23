@@ -8,7 +8,6 @@ use App\Http\Controllers\Common\CronController;
 use App\Http\Controllers\ConcretePostSubscriptionHandleController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Order\BaseRenewController;
-use App\Http\Controllers\Order\InvoiceController;
 use App\Http\Controllers\RazorpayController;
 use App\Model\Common\CreditActivity;
 use App\Model\Common\StatusSetting;
@@ -27,7 +26,6 @@ use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
 use Carbon\Carbon;
 use DateTime;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
 use Stripe\Event as StripeEvent;
@@ -221,7 +219,7 @@ class SubscriptionController extends Controller
 
 //                // add processing fee for stripe payment
                 if ($payment_method == 'stripe') {
-                    $processingFee=ApiKey::where('id',1)->value('stripe_processing_fee');
+                    $processingFee = ApiKey::where('id', 1)->value('stripe_processing_fee');
                     $processingFee = (float) $processingFee / 100;
                     $price = $cost + ($cost * $processingFee);
                 }
@@ -261,17 +259,17 @@ class SubscriptionController extends Controller
                                               ->first();
                     }
 
-                    $invoiceData = Invoice::where('id', $invoice->invoice_id)->first(['grand_total','currency']);
+                    $invoiceData = Invoice::where('id', $invoice->invoice_id)->first(['grand_total', 'currency']);
                     $cost = $invoiceData->grand_total;
-                    $currency=$invoiceData->currency;
+                    $currency = $invoiceData->currency;
                 }
                 $unit_cost = $this->PostSubscriptionHandle->calculateUnitCost($currency, $cost);
                 if ($sub->credit_subscription) {
-                    $this->creditFunction($sub, $unit_cost,$user,$invoice,$end,$currency,$order,$product_details,$payment_method);
+                    $this->creditFunction($sub, $unit_cost, $user, $invoice, $end, $currency, $order, $product_details, $payment_method);
                 }
 
                 if ($sub->autoRenew_status) {
-                    $this->stripeFunction($sub, $unit_cost,$invoice);
+                    $this->stripeFunction($sub, $unit_cost, $invoice);
                 }
             }
         } catch (\Exception $ex) {
@@ -564,7 +562,7 @@ class SubscriptionController extends Controller
 
     private function updateSubscriptionAndSendEmails($response, $invoice, $subscription, $cost, $user, $product_details, $order, $payment_method, $currency)
     {
-        $method=$payment_method=='stripe'?'autoRenew_status':'credit_subscription';
+        $method = $payment_method == 'stripe' ? 'autoRenew_status' : 'credit_subscription';
         Subscription::where('id', $subscription->id)->update([$method => '1']);
         $sub = $this->PostSubscriptionHandle->successRenew($invoice, $subscription, $payment_method, $currency);
         $this->PostSubscriptionHandle->postRazorpayPayment($invoice, $payment_method);
@@ -598,19 +596,19 @@ class SubscriptionController extends Controller
         return $unit_cost;
     }
 
-
     //vue pr
-    public function stripeFunction($sub,$cost){
+    public function stripeFunction($sub, $cost)
+    {
         $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
 
         \Stripe\Stripe::setApiKey($stripeSecretKey);
-        $auto_renewal=Auto_renewal::where('order_id',$sub->order_id)->first();
-        $user=User::find($sub->user_id);
-        $currency=getCurrencyForClient($user->country);
-        if($auto_renewal){
-            $paymentMethodId=$auto_renewal->payment_method;
-            $customerId=$auto_renewal->customer_id;
-            $options=[ 'amount' => intval($cost),
+        $auto_renewal = Auto_renewal::where('order_id', $sub->order_id)->first();
+        $user = User::find($sub->user_id);
+        $currency = getCurrencyForClient($user->country);
+        if ($auto_renewal) {
+            $paymentMethodId = $auto_renewal->payment_method;
+            $customerId = $auto_renewal->customer_id;
+            $options = ['amount' => intval($cost),
                 'currency' => $currency,
                 'payment_method' => $paymentMethodId,
                 'customer' => $customerId,
@@ -618,7 +616,7 @@ class SubscriptionController extends Controller
                 'setup_future_usage' => 'off_session',
                 'description' => 'payments for the purchased product'];
 
-            $auto_renewal->mandate?$options['mandate']=$auto_renewal->mandate:null;
+            $auto_renewal->mandate ? $options['mandate'] = $auto_renewal->mandate : null;
             \Stripe\PaymentMethod::attach(
                 $auto_renewal->payment_method,
                 ['customer' => $auto_renewal->customer_id]
@@ -630,21 +628,21 @@ class SubscriptionController extends Controller
             ]);
             \Stripe\InvoiceItem::create([
                 'customer' => $customerId,
-                'amount'   => intval($cost), // paise
+                'amount' => intval($cost), // paise
                 'currency' => $currency,
                 'description' => 'Subscription renewal – Feb',
                 'metadata' => [
                     'subscription_id' => $sub->id,
-                    'source'          => 'setup_intent_charge',
+                    'source' => 'setup_intent_charge',
                 ],
             ]);
             $invoice = \Stripe\Invoice::create([
-                'customer'          => $customerId,
+                'customer' => $customerId,
                 'collection_method' => 'charge_automatically',
-                'auto_advance'      => false,
+                'auto_advance' => false,
                 'metadata' => [
                     'subscription_id' => $sub->id,
-                    'invoice_type'    => 'renewal',
+                    'invoice_type' => 'renewal',
                 ],
             ]);
             $invoice = $invoice->finalizeInvoice();
@@ -654,7 +652,7 @@ class SubscriptionController extends Controller
                     [
                         'metadata' => [
                             'subscription_id' => $sub->id,
-                            'invoice_id'      => $invoice->id,
+                            'invoice_id' => $invoice->id,
                         ],
                     ]
                 );
@@ -665,34 +663,30 @@ class SubscriptionController extends Controller
                 $intent['id'],
                 [
                     'payment_method' => $auto_renewal->payment_method,
-//                    'return_url' => $url,
+                    //                    'return_url' => $url,
                 ]
             );
 
             if (isset($confirm->status) && $confirm->status === 'succeeded') {
                 $this->updateSubscriptionAndSendEmails($confirm, $invoice, $sub, $cost, $user, $sub->product, $sub->order, 'stripe', $currency);
-
-            }elseif(isset($confirm->status) && $confirm->status === 'processing'){
-                $sub->autoRenew_status='2';
+            } elseif (isset($confirm->status) && $confirm->status === 'processing') {
+                $sub->autoRenew_status = '2';
                 $sub->save();
-                $nothingToDo='';
-            }
-            else{
+                $nothingToDo = '';
+            } else {
                 $this->handleIncompleteStripePayment($confirm, $invoice, $sub, $currency, $sub->plan, $sub->product, $cost, $user);
             }
-
         }
     }
 
-
-    public function CreditFunction($sub,$cost,$user,$invoice,$end,$currency,$order,$product_details,$payment_method){
-        $auto_renewal=Auto_renewal::where('order_id',$sub->order_id)->first();
-        $payment=Payment::where('id',$auto_renewal->payment_method)->first();
+    public function CreditFunction($sub, $cost, $user, $invoice, $end, $currency, $order, $product_details, $payment_method)
+    {
+        $auto_renewal = Auto_renewal::where('order_id', $sub->order_id)->first();
+        $payment = Payment::where('id', $auto_renewal->payment_method)->first();
         try {
             if ($payment->amt_to_credit < $cost) {
-                $message='Payment Failed due to insufficient balance';
+                $message = 'Payment Failed due to insufficient balance';
                 $this->PostSubscriptionHandle->sendFailedPayment($cost, $message, $user, $order->number, $end, $currency, $order, $product_details, $invoice, $payment_method);
-
             }
             \Db::transaction(function () use ($cost, $payment) {
                 $payment->decrement($cost);
@@ -700,24 +694,21 @@ class SubscriptionController extends Controller
                     'payment_status' => 'success',
                 ]);
                 $formattedValue = currencyFormat($cost, getCurrencyForClient(\Auth::user()->country), true);
-                $messageAdmin = 'A credit of ' . $formattedValue . ' has been added to the balance of wallet.';
+                $messageAdmin = 'A credit of '.$formattedValue.' has been added to the balance of wallet.';
 
-                $messageClient = 'A credit of ' . $formattedValue . ' has been added to the balance of your wallet.';
+                $messageClient = 'A credit of '.$formattedValue.' has been added to the balance of your wallet.';
                 $activities = [['payment_id' => $payment->id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()],
                     ['payment_id' => $payment->id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]];
                 CreditActivity::create($activities);
-
             });
             $this->updateSubscriptionAndSendEmails('', $invoice, $sub, $cost, $user, $product_details, $order, 'Credits', $currency);
-
-        }catch(\Exception $ex){
-            $this->PostSubscriptionHandle->sendFailedPayment($cost,$ex->getMessage(), $user, $order->number, $end, $currency, $order, $product_details, $invoice, $payment_method);
-
+        } catch(\Exception $ex) {
+            $this->PostSubscriptionHandle->sendFailedPayment($cost, $ex->getMessage(), $user, $order->number, $end, $currency, $order, $product_details, $invoice, $payment_method);
         }
-
     }
 
-    public function stripe_webhook(Request $request){
+    public function stripe_webhook(Request $request)
+    {
         $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
         Stripe::setApiKey($stripeSecretKey);
 
@@ -743,16 +734,18 @@ class SubscriptionController extends Controller
             }
         } catch (SignatureVerificationException $e) {
             \Log::error('Stripe Webhook signature verification failed', ['error' => $e->getMessage()]);
+
             return response('Webhook signature verification failed', 400);
         } catch (\UnexpectedValueException $e) {
             \Log::error('Stripe Webhook error while parsing request', ['error' => $e->getMessage()]);
+
             return response('Webhook parsing failed', 400);
         }
         // Handle the event
         switch ($event->type) {
             case 'invoice.payment_succeeded':
                 $invoice = $event->data->object;
-                if($invoice->metadata->sub_id) {
+                if ($invoice->metadata->sub_id) {
                     $subscription = Subscription::where('subscribe_id', $invoice->metadata->sub_id)->first();
                     $this->invoice_success($subscription);
                 }
@@ -760,7 +753,7 @@ class SubscriptionController extends Controller
 
             case 'invoice.payment_failed':
                 $invoice = $event->data->object;
-                $subscription= $invoice->metadata->id;
+                $subscription = $invoice->metadata->id;
 
                 \Log::debug('Full Invoice subscription', ['subscription' => $subscription]);
                 break;
@@ -772,7 +765,8 @@ class SubscriptionController extends Controller
         return response('Webhook handled', 200);
     }
 
-    public function invoice_success($subscription){
+    public function invoice_success($subscription)
+    {
         $cronController = new CronController();
         $concreteController = app()->make(ConcretePostSubscriptionHandleController::class);
 
@@ -809,55 +803,52 @@ class SubscriptionController extends Controller
 
         // add processing fee for stripe payment
         if ($payment_method == 'stripe') {
-            $processingFee=ApiKey::where('id',1)->value('stripe_processing_fee');
-            $processingFee = (float)$processingFee / 100;
+            $processingFee = ApiKey::where('id', 1)->value('stripe_processing_fee');
+            $processingFee = (float) $processingFee / 100;
             $price = $cost + ($cost * $processingFee);
         }
         $renewController = new BaseRenewController();
         $oldcurrency = getCurrencyForClient($user->country);
         $invoice = $renewController->generateInvoice($product_details, $user, $order->id, $subscription->plan_id, $cost, $code = '', $item->agents, $oldcurrency);
         $cost = Invoice::where('id', $invoice->invoice_id)->value('grand_total');
-        $controller->processStripeSubscription($subscription, $currency, $cost, $user, $order, $product_details,$invoice);
-
+        $controller->processStripeSubscription($subscription, $currency, $cost, $user, $order, $product_details, $invoice);
     }
 
+    public function createSubscriptionDetails(Request $request)
+    {
+        $invoice = Invoice::with('orders.subscription')->findOrFail($request->invoice_id);
 
-
-    public function createSubscriptionDetails(Request $request){
-        $invoice=Invoice::with('orders.subscription')->findOrFail($request->invoice_id);
-
-            \DB::transaction(function()use($invoice,$request) {
-                $subscriptions = $invoice->orders->pluck('subscription')->filter();
-
-                foreach ($subscriptions as $sub) {
-                    $updates=['is_subscribed' => '1', 'autoRenew_status' => '1'];
-                    $sub->update($updates);
-                    Auto_renewal::create(['order_id' => $sub->order_id, 'customer_id' => $request->customer_id, 'payment_method' => $request->payment_method]);
-                }
-            });
-        return successResponse(__('message.updated-successfully'));
-
-    }
-
-    public function subscriptionByBalance(Request $request){
-        $payment=Payment::where('id',$request->payment_id)->first();
-        $invoice=Invoice::with('orders.subscription')->findOrFail($request->invoice_id);
-        if($invoice->grand_total>$payment->amt_to_credit){
-            return errorResponse('Please add sufficient balance to the credit balance.');
-        }
-
-        \DB::transaction(function()use($invoice,$request) {
+        \DB::transaction(function () use ($invoice, $request) {
             $subscriptions = $invoice->orders->pluck('subscription')->filter();
 
             foreach ($subscriptions as $sub) {
-                $updates=['is_subscribed' => '1', 'credit_subscription' => '1'];
+                $updates = ['is_subscribed' => '1', 'autoRenew_status' => '1'];
                 $sub->update($updates);
-                Auto_renewal::create(['order_id' => $sub->order_id, 'payment_method'=>$request->payment_id]);
+                Auto_renewal::create(['order_id' => $sub->order_id, 'customer_id' => $request->customer_id, 'payment_method' => $request->payment_method]);
             }
         });
 
         return successResponse(__('message.updated-successfully'));
     }
 
+    public function subscriptionByBalance(Request $request)
+    {
+        $payment = Payment::where('id', $request->payment_id)->first();
+        $invoice = Invoice::with('orders.subscription')->findOrFail($request->invoice_id);
+        if ($invoice->grand_total > $payment->amt_to_credit) {
+            return errorResponse('Please add sufficient balance to the credit balance.');
+        }
 
+        \DB::transaction(function () use ($invoice, $request) {
+            $subscriptions = $invoice->orders->pluck('subscription')->filter();
+
+            foreach ($subscriptions as $sub) {
+                $updates = ['is_subscribed' => '1', 'credit_subscription' => '1'];
+                $sub->update($updates);
+                Auto_renewal::create(['order_id' => $sub->order_id, 'payment_method' => $request->payment_id]);
+            }
+        });
+
+        return successResponse(__('message.updated-successfully'));
+    }
 }
