@@ -12,11 +12,18 @@ use Illuminate\Http\Request;
 
 class ZohoCrmController extends ZohoBaseController
 {
-    protected Crm $crm;
+    protected ?Crm $crm = null;
 
-    public function __construct()
+    /**
+     * Get the Crm instance lazily to avoid API calls during route registration.
+     */
+    protected function crm(): Crm
     {
-        $this->crm = new Crm();
+        if ($this->crm === null) {
+            $this->crm = new Crm();
+        }
+
+        return $this->crm;
     }
 
     public function syncFields()
@@ -25,13 +32,13 @@ class ZohoCrmController extends ZohoBaseController
             app(ZohoSync::class)->sync(
                 platform: 'crm',
                 module: 'Contacts',
-                fields: $this->crm->fields('Contacts')->toArray()
+                fields: $this->crm()->fields('Contacts')->toArray()
             );
 
             app(ZohoSync::class)->sync(
                 platform: 'crm',
                 module: 'Accounts',
-                fields: $this->crm->fields('Accounts')->toArray()
+                fields: $this->crm()->fields('Accounts')->toArray()
             );
 
             return successResponse('CRM fields synced successfully');

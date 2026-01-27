@@ -75,7 +75,7 @@ class SettingsControllerTest extends DBTestCase
             'card' => [
                 'number' => $cardNumber,
                 'exp_month' => 12,
-                'exp_year' => 25,
+                'exp_year' => 35,
                 'cvc' => '123',
             ],
         ]);
