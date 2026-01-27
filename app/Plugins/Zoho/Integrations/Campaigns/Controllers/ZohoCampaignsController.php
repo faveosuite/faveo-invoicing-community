@@ -12,24 +12,31 @@ use Illuminate\Http\Request;
 
 class ZohoCampaignsController extends ZohoBaseController
 {
-    protected Campaigns $campaigns;
+    protected ?Campaigns $campaigns = null;
 
-    public function __construct()
+    /**
+     * Get the Campaigns instance lazily to avoid API calls during route registration.
+     */
+    protected function campaigns(): Campaigns
     {
-        $this->campaigns = (new Campaigns());
+        if ($this->campaigns === null) {
+            $this->campaigns = new Campaigns();
+        }
+
+        return $this->campaigns;
     }
 
     public function syncFields()
     {
         try {
             // Sync Topics
-            $this->campaigns->syncTopics();
+            $this->campaigns()->syncTopics();
 
             // Sync Fields
             app(ZohoSync::class)->sync(
                 platform: 'campaigns',
                 module: 'Contacts',
-                fields: $this->campaigns->contactFields()->toArray()
+                fields: $this->campaigns()->contactFields()->toArray()
             );
 
             return successResponse('Campaigns fields and topics synced successfully');

@@ -19,6 +19,7 @@ use App\Http\Controllers\License\LocalizedLicenseController;
 use App\Http\Controllers\Order;
 //use App\Http\Controllers\PhoneVerificationController;
 use App\Http\Controllers\Payment;
+use App\Http\Controllers\Payment\OpenPaymentController;
 use App\Http\Controllers\Product;
 use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\Report\ReportController;
@@ -803,6 +804,40 @@ Route::middleware('installAgora')->group(function () {
     Route::post('user/change-mobile-no', [Front\ProfileVerificationController::class, 'changeMobileOldToNew']);
     Route::post('resendOtp/email-mobile', [Front\ProfileVerificationController::class, 'resentOtpProfile']);
 });
+
+Route::prefix('open-payment')->withoutMiddleware(['auth', 'web'])->group(function () {
+
+    // Payment Page View
+    Route::get('/', function () {
+        return view('open-payment');
+    })->name('open-payment.page');
+
+    // Create Order
+    Route::post('create', [OpenPaymentController::class, 'createOrder'])->name('open-payment.create');
+
+    // Get Order Details (Summary)
+    Route::get('order/{id}', [OpenPaymentController::class, 'getOrderDetails'])->name('open-payment.details');
+
+    // Prepare Payment Gateway (AJAX)
+    Route::post('prepare', [OpenPaymentController::class, 'preparePayment'])->name('open-payment.prepare');
+
+    // Verify Payments
+    Route::post('verify/razorpay', [OpenPaymentController::class, 'verifyRazorpayPayment'])->name('open-payment.verify.razorpay');
+    Route::post('verify/stripe', [OpenPaymentController::class, 'verifyStripePayment'])->name('open-payment.verify.stripe');
+
+    // Webhooks (CSRF exempt - handled in VerifyCsrfToken middleware)
+    Route::post('webhook/stripe', [OpenPaymentController::class, 'handleStripeWebhook'])->name('open-payment.webhook.stripe');
+    Route::post('webhook/razorpay', [OpenPaymentController::class, 'handleRazorpayWebhook'])->name('open-payment.webhook.razorpay');
+
+    // Admin Routes
+    Route::get('list', [OpenPaymentController::class, 'listOrders'])->name('open-payment.list');
+    Route::get('admin/{id}', [OpenPaymentController::class, 'getOrder'])->name('open-payment.admin.get');
+
+    // Stripe 3D Secure Redirect Handler
+    Route::get('stripe/callback', [OpenPaymentController::class, 'handleStripeCallback'])->name('open-payment.stripe.callback');
+
+});
+
 /*
 * Faveo APIs
 */

@@ -8,8 +8,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\SyncBillingToLatestVersion;
 use App\Plugins\Stripe\Model\StripePayment;
 use App\Traits\Payment\PostPaymentHandle;
+use App\User;
 use Cartalyst\Stripe\Laravel\Facades\Stripe;
 use Illuminate\Http\Request;
+use Stripe\StripeClient;
 
 class SettingsController extends Controller
 {
@@ -128,7 +130,7 @@ class SettingsController extends Controller
             $amount = rounding($this->cart->getTotal()) ?: rounding(\Session::get('totalToBePaid'));
             $currency = strtolower($invoice->currency);
             $url = url('/confirm/payment');
-            $confirm = $this->handlePayment($request, $amount, $currency, $url, $invoice);
+            $confirm = $this->handlePayment($request, $amount, $currency, $url);
 
             // Check if payment was successful
             if (isset($confirm->status) && $confirm->status === 'succeeded') {
@@ -170,7 +172,7 @@ class SettingsController extends Controller
         }
     }
 
-    public function handlePayment(Request $request, $amount, $currency, $url, $invoice = null)
+    public function handlePayment(Request $request, $amount, $currency, $url, $user = null)
     {
         $request->validate([
             'stripeToken' => 'required|string',
@@ -178,58 +180,85 @@ class SettingsController extends Controller
             'stripeToken.required' => __('message.stripe_token_required'),
         ]);
 
-        $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
+        $user = $user ?? auth()->user();
 
-        \Stripe\Stripe::setApiKey($stripeSecretKey);
+        $stripeSecretKey = ApiKey::value('stripe_secret');
+
+        $stripe = new StripeClient($stripeSecretKey);
 
         $cost = calculateUnitCost($currency, $amount);
 
-        $user = \Auth::user();
+        // Extract customer data
+        $customerData = $this->extractCustomerData($user);
 
-        // Create a Stripe customer with user's information
-        $customer = \Stripe\Customer::create([
-            'name' => $user->first_name.' '.$user->last_name,
-            'email' => $user->email,
+        // Create customer
+        $customer = $stripe->customers->create($customerData);
+
+        // Build shipping details for Indian export compliance
+        $addressData = $customerData['address'] ?? [];
+        $shippingDetails = [
+            'name' => $customerData['name'] ?: 'Customer',
             'address' => [
-                'line1' => optional($user)->address,
-                'postal_code' => optional($user)->zip,
-                'city' => optional($user)->town,
-                'state' => optional($user)->state,
-                'country' => optional($user)->country,
+                'line1' => $addressData['line1'] ?: 'Not Provided',
+                'city' => $addressData['city'] ?: 'Not Provided',
+                'state' => $addressData['state'] ?? '',
+                'postal_code' => $addressData['postal_code'] ?? '',
+                'country' => $addressData['country'] ?: 'IN',
             ],
-        ]);
+        ];
 
-        // Create a payment method using the provided token
-        $paymentMethod = \Stripe\PaymentMethod::create([
-            'type' => 'card',
-            'card' => [
-                'token' => $request->stripeToken,
-            ],
-        ]);
-
-        // Create a payment intent for the transaction
-        $intent = \Stripe\PaymentIntent::create([
-            'amount' => intval($cost),
+        // Create and confirm PaymentIntent in ONE call
+        $paymentIntent = $stripe->paymentIntents->create([
+            'amount' => $cost,
             'currency' => $currency,
-            'payment_method' => $paymentMethod['id'],
-            'customer' => $customer['id'],
+            'customer' => $customer->id,
+            'payment_method_data' => [
+                'type' => 'card',
+                'card' => [
+                    'token' => $request->stripeToken,
+                ],
+            ],
             'confirmation_method' => 'automatic',
+            'confirm' => true,
+            'return_url' => $url,
             'setup_future_usage' => 'off_session',
-            'description' => 'payments for the purchased product',
+            'description' => 'Payment for purchased product',
+            'shipping' => $shippingDetails,
+        ], [
+            'idempotency_key' => uniqid('payment_', true),
         ]);
 
-        // Confirm the payment intent
-        $stripe = new \Stripe\StripeClient($stripeSecretKey);
-        $confirm = $stripe->paymentIntents->confirm(
-            $intent['id'],
-            [
-                'payment_method' => $paymentMethod['id'],
-                'return_url' => $url,
-            ]
-        );
+        return $paymentIntent;
 
-        return $confirm;
     }
+
+    /**
+     * Extract customer data from User model, array, or object
+     */
+    public function extractCustomerData($user): array
+    {
+        $data = $user instanceof User ? $user->toArray() : (array) $user;
+
+        $firstName = \Arr::get($data, 'first_name');
+        $lastName  = \Arr::get($data, 'last_name');
+
+        return [
+            'name' => ($firstName || $lastName)
+                ? trim($firstName. ' ' .$lastName)
+                : \Arr::get($data, 'name'),
+
+            'email' => \Arr::get($data, 'email'),
+
+            'address' => [
+                'line1'       => \Arr::get($data, 'address'),
+                'postal_code' => \Arr::get($data, 'zip'),
+                'city'        => \Arr::get($data, 'town') ?? \Arr::get($data, 'city'),
+                'state'       => \Arr::get($data, 'state'),
+                'country'     => \Arr::get($data, 'country'),
+            ],
+        ];
+    }
+
 
     public function handleStripeAutoPay($stripe_payment_details, $product_details, $unit_cost, $currency, $plan)
     {
