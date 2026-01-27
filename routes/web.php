@@ -806,7 +806,6 @@ Route::middleware('installAgora')->group(function () {
 });
 
 Route::prefix('open-payment')->withoutMiddleware(['auth', 'web'])->group(function () {
-
     // Payment Page View
     Route::get('/', function () {
         return view('open-payment');
@@ -835,7 +834,6 @@ Route::prefix('open-payment')->withoutMiddleware(['auth', 'web'])->group(functio
 
     // Stripe 3D Secure Redirect Handler
     Route::get('stripe/callback', [OpenPaymentController::class, 'handleStripeCallback'])->name('open-payment.stripe.callback');
-
 });
 
 /*

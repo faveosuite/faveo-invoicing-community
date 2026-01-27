@@ -229,36 +229,34 @@ class SettingsController extends Controller
         ]);
 
         return $paymentIntent;
-
     }
 
     /**
-     * Extract customer data from User model, array, or object
+     * Extract customer data from User model, array, or object.
      */
     public function extractCustomerData($user): array
     {
         $data = $user instanceof User ? $user->toArray() : (array) $user;
 
         $firstName = \Arr::get($data, 'first_name');
-        $lastName  = \Arr::get($data, 'last_name');
+        $lastName = \Arr::get($data, 'last_name');
 
         return [
             'name' => ($firstName || $lastName)
-                ? trim($firstName. ' ' .$lastName)
+                ? trim($firstName.' '.$lastName)
                 : \Arr::get($data, 'name'),
 
             'email' => \Arr::get($data, 'email'),
 
             'address' => [
-                'line1'       => \Arr::get($data, 'address'),
+                'line1' => \Arr::get($data, 'address'),
                 'postal_code' => \Arr::get($data, 'zip'),
-                'city'        => \Arr::get($data, 'town') ?? \Arr::get($data, 'city'),
-                'state'       => \Arr::get($data, 'state'),
-                'country'     => \Arr::get($data, 'country'),
+                'city' => \Arr::get($data, 'town') ?? \Arr::get($data, 'city'),
+                'state' => \Arr::get($data, 'state'),
+                'country' => \Arr::get($data, 'country'),
             ],
         ];
     }
-
 
     public function handleStripeAutoPay($stripe_payment_details, $product_details, $unit_cost, $currency, $plan)
     {
