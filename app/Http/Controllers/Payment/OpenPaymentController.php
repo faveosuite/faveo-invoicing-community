@@ -13,7 +13,7 @@ use Razorpay\Api\Api;
 class OpenPaymentController extends Controller
 {
     /**
-     * Create order
+     * Create order.
      */
     public function createOrder(OpenPaymentRequest $request)
     {
@@ -37,12 +37,12 @@ class OpenPaymentController extends Controller
 
             return successResponse('Order created successfully', ['order' => $order]);
         } catch (\Exception $e) {
-            return errorResponse('Failed to create order: ' . $e->getMessage());
+            return errorResponse('Failed to create order: '.$e->getMessage());
         }
     }
 
     /**
-     * Get Order Details
+     * Get Order Details.
      */
     public function getOrderDetails($id)
     {
@@ -50,7 +50,7 @@ class OpenPaymentController extends Controller
             $order = OpenPaymentOrder::findOrFail($id);
             $apiKeys = ApiKey::first();
 
-            if (!$apiKeys) {
+            if (! $apiKeys) {
                 return errorResponse('Payment gateway configuration not found', 500);
             }
 
@@ -62,12 +62,12 @@ class OpenPaymentController extends Controller
         } catch (ModelNotFoundException $e) {
             return errorResponse('Order not found', 404);
         } catch (\Exception $e) {
-            return errorResponse('Failed to get order details: ' . $e->getMessage());
+            return errorResponse('Failed to get order details: '.$e->getMessage());
         }
     }
 
     /**
-     * Prepare gateway (Generate Intent/Order) called via AJAX
+     * Prepare gateway (Generate Intent/Order) called via AJAX.
      */
     public function preparePayment(Request $request)
     {
@@ -91,19 +91,19 @@ class OpenPaymentController extends Controller
         } catch (ModelNotFoundException $e) {
             return errorResponse('Order not found', 404);
         } catch (\Exception $e) {
-            return errorResponse('Failed to prepare payment: ' . $e->getMessage());
+            return errorResponse('Failed to prepare payment: '.$e->getMessage());
         }
     }
 
     /**
-     * Initialize Razorpay payment
+     * Initialize Razorpay payment.
      */
     private function initializeRazorpay(OpenPaymentOrder $order)
     {
         try {
             $apiKeys = ApiKey::first();
 
-            if (!$apiKeys || !$apiKeys->rzp_key || !$apiKeys->rzp_secret) {
+            if (! $apiKeys || ! $apiKeys->rzp_key || ! $apiKeys->rzp_secret) {
                 return errorResponse('Razorpay API keys not configured', 500);
             }
 
@@ -114,7 +114,7 @@ class OpenPaymentController extends Controller
             $razorpayOrder = $api->order->create([
                 'amount' => $amountInSmallestUnit,
                 'currency' => $order->currency,
-                'receipt' => 'OPEN_PAY_' . $order->id,
+                'receipt' => 'OPEN_PAY_'.$order->id,
                 'notes' => [
                     'order_id' => $order->id,
                     'customer' => $order->name,
@@ -142,19 +142,19 @@ class OpenPaymentController extends Controller
                 'description' => $order->description ?? 'Open Payment',
             ]);
         } catch (\Exception $e) {
-            return errorResponse('Failed to initialize Razorpay: ' . $e->getMessage());
+            return errorResponse('Failed to initialize Razorpay: '.$e->getMessage());
         }
     }
 
     /**
-     * Initialize Stripe payment using handlePayment from SettingsController
+     * Initialize Stripe payment using handlePayment from SettingsController.
      */
     private function initializeStripe(Request $request, OpenPaymentOrder $order)
     {
         try {
             $apiKeys = ApiKey::first();
 
-            if (!$apiKeys || !$apiKeys->stripe_key || !$apiKeys->stripe_secret) {
+            if (! $apiKeys || ! $apiKeys->stripe_key || ! $apiKeys->stripe_secret) {
                 return errorResponse('Stripe API keys not configured', 500);
             }
 
@@ -164,7 +164,7 @@ class OpenPaymentController extends Controller
                 $request,
                 $order->amount,
                 $order->currency,
-                url('/open-payment/stripe/callback?order_id=' . $order->id),
+                url('/open-payment/stripe/callback?order_id='.$order->id),
                 $order->toArray()
             );
 
@@ -202,12 +202,12 @@ class OpenPaymentController extends Controller
                 ]);
             }
         } catch (\Exception $e) {
-            return errorResponse('Failed to process Stripe payment: ' . $e->getMessage());
+            return errorResponse('Failed to process Stripe payment: '.$e->getMessage());
         }
     }
 
     /**
-     * Verify Razorpay payment (Client-side verification - backup for webhook)
+     * Verify Razorpay payment (Client-side verification - backup for webhook).
      */
     public function verifyRazorpayPayment(Request $request)
     {
@@ -228,7 +228,7 @@ class OpenPaymentController extends Controller
 
             $apiKeys = ApiKey::first();
 
-            if (!$apiKeys || !$apiKeys->rzp_key || !$apiKeys->rzp_secret) {
+            if (! $apiKeys || ! $apiKeys->rzp_key || ! $apiKeys->rzp_secret) {
                 return errorResponse('Razorpay API keys not configured', 500);
             }
 
@@ -256,7 +256,7 @@ class OpenPaymentController extends Controller
             return successResponse('Payment successful!', ['order' => $order]);
         } catch (\Razorpay\Api\Errors\SignatureVerificationError $e) {
             $order = OpenPaymentOrder::find($request->order_id);
-            if ($order && !$order->isPaid()) {
+            if ($order && ! $order->isPaid()) {
                 $order->update([
                     'payment_status' => 'failed',
                 ]);
@@ -264,12 +264,12 @@ class OpenPaymentController extends Controller
 
             return errorResponse('Payment verification failed: Invalid signature.', 400);
         } catch (\Exception $e) {
-            return errorResponse('Payment verification failed: ' . $e->getMessage(), 500);
+            return errorResponse('Payment verification failed: '.$e->getMessage(), 500);
         }
     }
 
     /**
-     * Verify Stripe payment (Client-side verification - backup for webhook)
+     * Verify Stripe payment (Client-side verification - backup for webhook).
      */
     public function verifyStripePayment(Request $request)
     {
@@ -288,7 +288,7 @@ class OpenPaymentController extends Controller
 
             $apiKeys = ApiKey::first();
 
-            if (!$apiKeys || !$apiKeys->stripe_secret) {
+            if (! $apiKeys || ! $apiKeys->stripe_secret) {
                 return errorResponse('Stripe API keys not configured', 500);
             }
 
@@ -310,16 +310,16 @@ class OpenPaymentController extends Controller
                     'payment_status' => 'failed',
                 ]);
 
-                return errorResponse('Payment not completed. Status: ' . $paymentIntent->status, 400);
+                return errorResponse('Payment not completed. Status: '.$paymentIntent->status, 400);
             }
         } catch (\Exception $e) {
-            return errorResponse('Payment verification failed: ' . $e->getMessage(), 500);
+            return errorResponse('Payment verification failed: '.$e->getMessage(), 500);
         }
     }
 
     /**
      * Handle Razorpay webhook for payment confirmation
-     * Webhook URL: /open-payment/webhook/razorpay
+     * Webhook URL: /open-payment/webhook/razorpay.
      */
     public function handleRazorpayWebhook(Request $request)
     {
@@ -330,21 +330,21 @@ class OpenPaymentController extends Controller
             $apiKeys = ApiKey::first();
             $webhookSecret = config('open_payment.razorpay_webhook_secret');
 
-            if (!$apiKeys || !$apiKeys->rzp_key || !$apiKeys->rzp_secret) {
+            if (! $apiKeys || ! $apiKeys->rzp_key || ! $apiKeys->rzp_secret) {
                 return errorResponse('Configuration error', 500);
             }
 
             // Verify webhook signature if secret is configured
             if ($webhookSecret && $signature) {
                 $expectedSignature = hash_hmac('sha256', $payload, $webhookSecret);
-                if (!hash_equals($expectedSignature, $signature)) {
+                if (! hash_equals($expectedSignature, $signature)) {
                     return errorResponse('Invalid signature', 400);
                 }
             }
 
             $event = json_decode($payload, true);
 
-            if (!$event || !isset($event['event'])) {
+            if (! $event || ! isset($event['event'])) {
                 return errorResponse('Invalid payload', 400);
             }
 
@@ -352,7 +352,7 @@ class OpenPaymentController extends Controller
             if ($event['event'] === 'payment.captured') {
                 $paymentData = $event['payload']['payment']['entity'] ?? null;
 
-                if (!$paymentData) {
+                if (! $paymentData) {
                     return errorResponse('Payment data not found in webhook', 400);
                 }
 
@@ -361,7 +361,7 @@ class OpenPaymentController extends Controller
                 if ($orderId) {
                     $order = OpenPaymentOrder::find($orderId);
 
-                    if ($order && !$order->isPaid()) {
+                    if ($order && ! $order->isPaid()) {
                         $order->update([
                             'payment_status' => 'completed',
                             'gateway_transaction_id' => $paymentData['id'],  // Store Razorpay payment_id
@@ -381,7 +381,7 @@ class OpenPaymentController extends Controller
                     if ($orderId) {
                         $order = OpenPaymentOrder::find($orderId);
 
-                        if ($order && !$order->isPaid()) {
+                        if ($order && ! $order->isPaid()) {
                             $order->update([
                                 'payment_status' => 'failed',
                             ]);
@@ -392,13 +392,13 @@ class OpenPaymentController extends Controller
 
             return successResponse('Webhook processed successfully');
         } catch (\Exception $e) {
-            return errorResponse('Webhook processing failed: ' . $e->getMessage(), 500);
+            return errorResponse('Webhook processing failed: '.$e->getMessage(), 500);
         }
     }
 
     /**
      * Handle Stripe webhook for async payment confirmation
-     * Webhook URL: /open-payment/webhook/stripe
+     * Webhook URL: /open-payment/webhook/stripe.
      */
     public function handleStripeWebhook(Request $request)
     {
@@ -409,7 +409,7 @@ class OpenPaymentController extends Controller
             $apiKeys = ApiKey::first();
             $webhookSecret = 'whsec_75053c0f9cf8fde3718f5ddb032578abd57e778109b12f9c2d4182d7b0b2ffb3';
 
-            if (!$apiKeys || !$apiKeys->stripe_secret) {
+            if (! $apiKeys || ! $apiKeys->stripe_secret) {
                 return errorResponse('Configuration error', 500);
             }
 
@@ -429,7 +429,7 @@ class OpenPaymentController extends Controller
             $eventType = is_array($event) ? ($event['type'] ?? null) : $event->type;
             $eventData = is_array($event) ? ($event['data']['object'] ?? null) : $event->data->object;
 
-            if (!$eventType || !$eventData) {
+            if (! $eventType || ! $eventData) {
                 return errorResponse('Invalid payload', 400);
             }
 
@@ -441,7 +441,7 @@ class OpenPaymentController extends Controller
                 if ($orderId) {
                     $order = OpenPaymentOrder::find($orderId);
 
-                    if ($order && !$order->isPaid()) {
+                    if ($order && ! $order->isPaid()) {
                         $order->update([
                             'payment_status' => 'completed',
                             'paid_at' => now(),
@@ -458,7 +458,7 @@ class OpenPaymentController extends Controller
                 if ($orderId) {
                     $order = OpenPaymentOrder::find($orderId);
 
-                    if ($order && !$order->isPaid()) {
+                    if ($order && ! $order->isPaid()) {
                         $order->update([
                             'payment_status' => 'failed',
                         ]);
@@ -468,12 +468,12 @@ class OpenPaymentController extends Controller
 
             return successResponse('Webhook processed successfully');
         } catch (\Exception $e) {
-            return errorResponse('Webhook processing failed: ' . $e->getMessage(), 500);
+            return errorResponse('Webhook processing failed: '.$e->getMessage(), 500);
         }
     }
 
     /**
-     * List all open payment orders (Admin)
+     * List all open payment orders (Admin).
      */
     public function listOrders(Request $request)
     {
@@ -491,7 +491,7 @@ class OpenPaymentController extends Controller
             }
 
             // Search functionality
-            if ($request->has('search') && !empty($request->search)) {
+            if ($request->has('search') && ! empty($request->search)) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
@@ -514,34 +514,35 @@ class OpenPaymentController extends Controller
 
             return successResponse('', ['orders' => $orders]);
         } catch (\Exception $e) {
-            return errorResponse('Failed to fetch orders: ' . $e->getMessage());
+            return errorResponse('Failed to fetch orders: '.$e->getMessage());
         }
     }
 
     /**
-     * Get order by ID (Admin)
+     * Get order by ID (Admin).
      */
     public function getOrder($id)
     {
         try {
             $order = OpenPaymentOrder::findOrFail($id);
+
             return successResponse('', ['order' => $order]);
         } catch (ModelNotFoundException $e) {
             return errorResponse('Order not found', 404);
         } catch (\Exception $e) {
-            return errorResponse('Failed to get order: ' . $e->getMessage());
+            return errorResponse('Failed to get order: '.$e->getMessage());
         }
     }
 
     /**
-     * Handle Stripe 3D Secure callback redirect
+     * Handle Stripe 3D Secure callback redirect.
      */
     public function handleStripeCallback(Request $request)
     {
         $orderId = $request->query('order_id');
         $paymentIntentId = $request->query('payment_intent');
 
-        if (!$orderId) {
+        if (! $orderId) {
             return redirect('/open-payment')->with('error', 'Order ID not found');
         }
 
@@ -550,13 +551,13 @@ class OpenPaymentController extends Controller
 
             // If already paid, redirect to success
             if ($order->isPaid()) {
-                return redirect('/open-payment?order_id=' . $orderId . '&status=success');
+                return redirect('/open-payment?order_id='.$orderId.'&status=success');
             }
 
             $apiKeys = ApiKey::first();
 
-            if (!$apiKeys || !$apiKeys->stripe_secret) {
-                return redirect('/open-payment?order_id=' . $orderId . '&status=error&message=Configuration error');
+            if (! $apiKeys || ! $apiKeys->stripe_secret) {
+                return redirect('/open-payment?order_id='.$orderId.'&status=error&message=Configuration error');
             }
 
             \Stripe\Stripe::setApiKey($apiKeys->stripe_secret);
@@ -564,8 +565,8 @@ class OpenPaymentController extends Controller
             // Get payment intent ID from order if not in query
             $paymentIntentId = $paymentIntentId ?: $order->transaction_id;
 
-            if (!$paymentIntentId) {
-                return redirect('/open-payment?order_id=' . $orderId . '&status=error&message=Payment not found');
+            if (! $paymentIntentId) {
+                return redirect('/open-payment?order_id='.$orderId.'&status=error&message=Payment not found');
             }
 
             // Retrieve payment intent to check status
@@ -578,22 +579,22 @@ class OpenPaymentController extends Controller
                     'paid_at' => now(),
                 ]);
 
-                return redirect('/open-payment?order_id=' . $orderId . '&status=success');
+                return redirect('/open-payment?order_id='.$orderId.'&status=success');
             } elseif ($paymentIntent->status === 'requires_payment_method') {
                 // Payment failed - card was declined after 3DS
                 $order->update([
                     'payment_status' => 'failed',
                 ]);
 
-                return redirect('/open-payment?order_id=' . $orderId . '&status=failed&message=Payment was declined');
+                return redirect('/open-payment?order_id='.$orderId.'&status=failed&message=Payment was declined');
             } else {
                 // Other status - still processing or requires more action
-                return redirect('/open-payment?order_id=' . $orderId . '&status=pending&message=Payment is processing');
+                return redirect('/open-payment?order_id='.$orderId.'&status=pending&message=Payment is processing');
             }
         } catch (ModelNotFoundException $e) {
             return redirect('/open-payment?status=error&message=Order not found');
         } catch (\Exception $e) {
-            return redirect('/open-payment?order_id=' . $orderId . '&status=error&message=' . urlencode($e->getMessage()));
+            return redirect('/open-payment?order_id='.$orderId.'&status=error&message='.urlencode($e->getMessage()));
         }
     }
 }

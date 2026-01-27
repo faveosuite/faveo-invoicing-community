@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('open_payment_orders')) {
+        if (! Schema::hasTable('open_payment_orders')) {
             Schema::create('open_payment_orders', function (Blueprint $table) {
                 $table->id();
                 $table->string('name', 100);

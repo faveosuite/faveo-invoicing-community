@@ -34,7 +34,7 @@ class OpenPaymentOrder extends Model
     ];
 
     /**
-     * Boot method to auto-generate transaction_id on creation
+     * Boot method to auto-generate transaction_id on creation.
      */
     protected static function boot()
     {
@@ -49,15 +49,15 @@ class OpenPaymentOrder extends Model
 
     /**
      * Generate unique transaction ID
-     * Format: txn_{unique_id} (e.g., txn_1234567890)
+     * Format: txn_{unique_id} (e.g., txn_1234567890).
      */
     public static function generateTransactionId(): string
     {
-        return 'txn_' . strtolower(\Str::ulid());
+        return 'txn_'.strtolower(\Str::ulid());
     }
 
     /**
-     * Check if payment is completed
+     * Check if payment is completed.
      */
     public function isPaid()
     {
@@ -65,7 +65,7 @@ class OpenPaymentOrder extends Model
     }
 
     /**
-     * Check if payment is pending
+     * Check if payment is pending.
      */
     public function isPending()
     {
@@ -73,7 +73,7 @@ class OpenPaymentOrder extends Model
     }
 
     /**
-     * Check if payment failed
+     * Check if payment failed.
      */
     public function isFailed()
     {
@@ -81,7 +81,7 @@ class OpenPaymentOrder extends Model
     }
 
     /**
-     * Scope for completed payments
+     * Scope for completed payments.
      */
     public function scopeCompleted($query)
     {
@@ -89,7 +89,7 @@ class OpenPaymentOrder extends Model
     }
 
     /**
-     * Scope for pending payments
+     * Scope for pending payments.
      */
     public function scopePending($query)
     {
@@ -97,7 +97,7 @@ class OpenPaymentOrder extends Model
     }
 
     /**
-     * Scope for failed payments
+     * Scope for failed payments.
      */
     public function scopeFailed($query)
     {
@@ -105,7 +105,7 @@ class OpenPaymentOrder extends Model
     }
 
     /**
-     * Get the gateway-specific transaction ID (Stripe payment_intent_id, Razorpay payment_id)
+     * Get the gateway-specific transaction ID (Stripe payment_intent_id, Razorpay payment_id).
      */
     public function getGatewayId(): ?string
     {
