@@ -6,7 +6,6 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**addStage()**](StagesApi.md#addStage) | **POST** /stages | Add a new stage
 [**deleteStage()**](StagesApi.md#deleteStage) | **DELETE** /stages/{id} | Delete a stage
-[**deleteStages()**](StagesApi.md#deleteStages) | **DELETE** /stages | Delete multiple stages in bulk
 [**getStage()**](StagesApi.md#getStage) | **GET** /stages/{id} | Get one stage
 [**getStageDeals()**](StagesApi.md#getStageDeals) | **GET** /stages/{id}/deals | Get deals in a stage
 [**getStages()**](StagesApi.md#getStages) | **GET** /stages | Get all stages
@@ -129,71 +128,6 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**\Pipedrive\versions\v1\Model\DeleteStageResponse**](../Model/DeleteStageResponse.md)
-
-### Authorization
-
-[api_key](../README.md#api_key), [oauth2](../README.md#oauth2)
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: `application/json`
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
-[[Back to Model list]](../README.md#documentation-for-models)
-[[Back to README]](../README.md)
-
-## `deleteStages()`
-
-```php
-deleteStages($ids): \Pipedrive\versions\v1\Model\DeleteStagesResponse
-```
-
-Delete multiple stages in bulk
-
-Marks multiple stages as deleted. <br>This endpoint has been deprecated. Please use <a href=\"https://developers.pipedrive.com/docs/api/v1/Stages#deleteStage\" target=\"_blank\" rel=\"noopener noreferrer\">DELETE /api/v2/stages/{id}</a> instead.
-
-### Example
-
-```php
-<?php
-require_once(__DIR__ . '/vendor/autoload.php');
-
-
-// Configure API key authorization: api_key
-$config = (new Pipedrive\versions\v1\Configuration())->setApiKey('x-api-token', 'YOUR_API_KEY');
-// Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
-// $config = (new Pipedrive\versions\v1\Configuration())->setApiKeyPrefix('x-api-token', 'Bearer');
-
-// Configure OAuth2 access token for authorization: oauth2
-$config = (new Pipedrive\versions\v1\Configuration())->setAccessToken('YOUR_ACCESS_TOKEN');
-
-
-$apiInstance = new Pipedrive\versions\v1\Api\StagesApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
-    $config
-);
-$ids = 'ids_example'; // string | The comma-separated stage IDs to delete
-
-try {
-    $result = $apiInstance->deleteStages($ids);
-    print_r($result);
-} catch (Exception $e) {
-    echo 'Exception when calling StagesApi->deleteStages: ', $e->getMessage(), PHP_EOL;
-}
-```
-
-### Parameters
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **ids** | **string**| The comma-separated stage IDs to delete |
-
-### Return type
-
-[**\Pipedrive\versions\v1\Model\DeleteStagesResponse**](../Model/DeleteStagesResponse.md)
 
 ### Authorization
 

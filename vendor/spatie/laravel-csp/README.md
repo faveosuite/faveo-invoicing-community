@@ -183,6 +183,7 @@ This package ships with a few commonly used presets to get your started. *We're 
 | `Maze`                     | [maze.co](https://maze.co)                                                                     |       
 | `Meta Pixel`               | [facebook.com](https://en-gb.facebook.com/business/tools/meta-pixel)                           |       
 | `Microsoft Clarity`        | [clarity.microsoft.com](https://clarity.microsoft.com)                                         |
+| `Plain`                    | [plain.com](https://plain.com)                                                                 |
 | `Plausible Analytics`      | [plausible.io](http://plausible.io/)                                                           |
 | `Posthog`                  | [posthog.com](https://posthog.com/)                                                            |       
 | `Rollbar`                  | [posthog.com](https://docs.rollbar.com/docs/javascript)                                        |       
@@ -250,7 +251,7 @@ Or multiple keywords for one or more directives.
 public function configure(Policy $policy): void
 {
     $policy
-        ->add(Directive::SCRIPT, [Keyword::UNSAFE_EVAL, Keyword::UNSAFE_INLINE]],)
+        ->add(Directive::SCRIPT, [Keyword::UNSAFE_EVAL, Keyword::UNSAFE_INLINE])
         ->add([Directive::SCRIPT, DIRECTIVE::STYLE], ['www.google.com', 'analytics.google.com']);
 }
 ```

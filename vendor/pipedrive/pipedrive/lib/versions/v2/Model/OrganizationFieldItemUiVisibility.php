@@ -69,6 +69,9 @@ class OrganizationFieldItemUiVisibility implements ModelInterface, ArrayAccess, 
     protected static array $openAPITypes = [
         'add_visible_flag' => 'bool',
         'details_visible_flag' => 'bool',
+        'org_detail_visible_flag' => 'bool',
+        'person_detail_visible_flag' => 'bool',
+        'deal_detail_visible_flag' => 'bool',
         'show_in_add_deal_dialog' => '\Pipedrive\versions\v2\Model\PersonFieldItemUiVisibilityShowInAddDealDialog',
         'show_in_add_person_dialog' => '\Pipedrive\versions\v2\Model\OrganizationFieldItemUiVisibilityShowInAddPersonDialog'
     ];
@@ -83,6 +86,9 @@ class OrganizationFieldItemUiVisibility implements ModelInterface, ArrayAccess, 
     protected static $openAPIFormats = [
         'add_visible_flag' => null,
         'details_visible_flag' => null,
+        'org_detail_visible_flag' => null,
+        'person_detail_visible_flag' => null,
+        'deal_detail_visible_flag' => null,
         'show_in_add_deal_dialog' => null,
         'show_in_add_person_dialog' => null
     ];
@@ -120,6 +126,9 @@ class OrganizationFieldItemUiVisibility implements ModelInterface, ArrayAccess, 
     protected static $attributeMap = [
         'add_visible_flag' => 'add_visible_flag',
         'details_visible_flag' => 'details_visible_flag',
+        'org_detail_visible_flag' => 'org_detail_visible_flag',
+        'person_detail_visible_flag' => 'person_detail_visible_flag',
+        'deal_detail_visible_flag' => 'deal_detail_visible_flag',
         'show_in_add_deal_dialog' => 'show_in_add_deal_dialog',
         'show_in_add_person_dialog' => 'show_in_add_person_dialog'
     ];
@@ -132,6 +141,9 @@ class OrganizationFieldItemUiVisibility implements ModelInterface, ArrayAccess, 
     protected static $setters = [
         'add_visible_flag' => 'setAddVisibleFlag',
         'details_visible_flag' => 'setDetailsVisibleFlag',
+        'org_detail_visible_flag' => 'setOrgDetailVisibleFlag',
+        'person_detail_visible_flag' => 'setPersonDetailVisibleFlag',
+        'deal_detail_visible_flag' => 'setDealDetailVisibleFlag',
         'show_in_add_deal_dialog' => 'setShowInAddDealDialog',
         'show_in_add_person_dialog' => 'setShowInAddPersonDialog'
     ];
@@ -144,6 +156,9 @@ class OrganizationFieldItemUiVisibility implements ModelInterface, ArrayAccess, 
     protected static $getters = [
         'add_visible_flag' => 'getAddVisibleFlag',
         'details_visible_flag' => 'getDetailsVisibleFlag',
+        'org_detail_visible_flag' => 'getOrgDetailVisibleFlag',
+        'person_detail_visible_flag' => 'getPersonDetailVisibleFlag',
+        'deal_detail_visible_flag' => 'getDealDetailVisibleFlag',
         'show_in_add_deal_dialog' => 'getShowInAddDealDialog',
         'show_in_add_person_dialog' => 'getShowInAddPersonDialog'
     ];
@@ -217,6 +232,9 @@ class OrganizationFieldItemUiVisibility implements ModelInterface, ArrayAccess, 
     {
         $this->container['add_visible_flag'] = $data['add_visible_flag'] ?? null;
         $this->container['details_visible_flag'] = $data['details_visible_flag'] ?? null;
+        $this->container['org_detail_visible_flag'] = $data['org_detail_visible_flag'] ?? null;
+        $this->container['person_detail_visible_flag'] = $data['person_detail_visible_flag'] ?? null;
+        $this->container['deal_detail_visible_flag'] = $data['deal_detail_visible_flag'] ?? null;
         $this->container['show_in_add_deal_dialog'] = $data['show_in_add_deal_dialog'] ?? null;
         $this->container['show_in_add_person_dialog'] = $data['show_in_add_person_dialog'] ?? null;
     }
@@ -291,6 +309,78 @@ class OrganizationFieldItemUiVisibility implements ModelInterface, ArrayAccess, 
     public function setDetailsVisibleFlag($details_visible_flag): self
     {
         $this->container['details_visible_flag'] = $details_visible_flag;
+
+        return $this;
+    }
+
+    /**
+     * Gets org_detail_visible_flag
+     *
+     * @return bool|null
+     */
+    public function getOrgDetailVisibleFlag()
+    {
+        return $this->container['org_detail_visible_flag'];
+    }
+
+    /**
+     * Sets org_detail_visible_flag
+     *
+     * @param bool|null $org_detail_visible_flag Whether the field is shown in the organization details view
+     *
+     * @return self
+     */
+    public function setOrgDetailVisibleFlag($org_detail_visible_flag): self
+    {
+        $this->container['org_detail_visible_flag'] = $org_detail_visible_flag;
+
+        return $this;
+    }
+
+    /**
+     * Gets person_detail_visible_flag
+     *
+     * @return bool|null
+     */
+    public function getPersonDetailVisibleFlag()
+    {
+        return $this->container['person_detail_visible_flag'];
+    }
+
+    /**
+     * Sets person_detail_visible_flag
+     *
+     * @param bool|null $person_detail_visible_flag Whether the field is shown in the person details view
+     *
+     * @return self
+     */
+    public function setPersonDetailVisibleFlag($person_detail_visible_flag): self
+    {
+        $this->container['person_detail_visible_flag'] = $person_detail_visible_flag;
+
+        return $this;
+    }
+
+    /**
+     * Gets deal_detail_visible_flag
+     *
+     * @return bool|null
+     */
+    public function getDealDetailVisibleFlag()
+    {
+        return $this->container['deal_detail_visible_flag'];
+    }
+
+    /**
+     * Sets deal_detail_visible_flag
+     *
+     * @param bool|null $deal_detail_visible_flag Whether the field is shown in the deal details view
+     *
+     * @return self
+     */
+    public function setDealDetailVisibleFlag($deal_detail_visible_flag): self
+    {
+        $this->container['deal_detail_visible_flag'] = $deal_detail_visible_flag;
 
         return $this;
     }
