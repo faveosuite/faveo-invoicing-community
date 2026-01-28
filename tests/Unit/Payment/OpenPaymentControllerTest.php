@@ -6,8 +6,6 @@ use App\ApiKey;
 use App\Http\Controllers\Payment\OpenPaymentController;
 use App\Model\Payment\OpenPaymentOrder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Schema;
 use Mockery;
 use Tests\DBTestCase;
 
@@ -31,7 +29,7 @@ class OpenPaymentControllerTest extends DBTestCase
     }
 
     /**
-     * Helper to create a valid order data array
+     * Helper to create a valid order data array.
      */
     protected function getValidOrderData(array $overrides = []): array
     {
@@ -53,7 +51,7 @@ class OpenPaymentControllerTest extends DBTestCase
     }
 
     /**
-     * Helper to create an OpenPaymentOrder
+     * Helper to create an OpenPaymentOrder.
      */
     protected function createOrder(array $overrides = []): OpenPaymentOrder
     {
@@ -61,7 +59,7 @@ class OpenPaymentControllerTest extends DBTestCase
     }
 
     /**
-     * Helper to create API keys
+     * Helper to create API keys.
      */
     protected function createApiKeys(array $overrides = []): ApiKey
     {
@@ -71,14 +69,15 @@ class OpenPaymentControllerTest extends DBTestCase
             'stripe_key' => 'pk_test_key',
             'stripe_secret' => 'sk_test_secret',
         ], $overrides);
-        
+
         // Use updateOrCreate to handle existing API keys
         $apiKey = ApiKey::first();
         if ($apiKey) {
             $apiKey->update($data);
+
             return $apiKey;
         }
-        
+
         return ApiKey::create($data);
     }
 
@@ -273,7 +272,7 @@ class OpenPaymentControllerTest extends DBTestCase
         $this->createApiKeys();
         $order = $this->createOrder();
 
-        $response = $this->getJson('/open-payment/order/' . $order->id);
+        $response = $this->getJson('/open-payment/order/'.$order->id);
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -298,16 +297,16 @@ class OpenPaymentControllerTest extends DBTestCase
         } else {
             $this->createApiKeys();
         }
-        
+
         $order = $this->createOrder();
 
-        $response = $this->getJson('/open-payment/order/' . $order->id);
+        $response = $this->getJson('/open-payment/order/'.$order->id);
 
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => ['rzp_key', 'stripe_key', 'order'],
             ]);
-        
+
         // Assert that keys are present (may have any value)
         $data = $response->json('data');
         $this->assertArrayHasKey('rzp_key', $data);
@@ -323,7 +322,7 @@ class OpenPaymentControllerTest extends DBTestCase
         // Controller returns error response (may be 200 with success:false or 404)
         $statusCode = $response->getStatusCode();
         $this->assertTrue(in_array($statusCode, [200, 404]), "Expected 200 or 404, got {$statusCode}");
-        
+
         if ($statusCode === 200) {
             $response->assertJsonPath('success', false);
         }
@@ -333,10 +332,10 @@ class OpenPaymentControllerTest extends DBTestCase
     {
         // Clear existing API keys to test this edge case
         ApiKey::query()->delete();
-        
+
         $order = $this->createOrder();
 
-        $response = $this->getJson('/open-payment/order/' . $order->id);
+        $response = $this->getJson('/open-payment/order/'.$order->id);
 
         // Controller returns 500 when API keys are not configured
         $response->assertStatus(500)
@@ -447,7 +446,7 @@ class OpenPaymentControllerTest extends DBTestCase
     {
         // Clear existing API keys
         ApiKey::query()->delete();
-        
+
         $order = $this->createOrder();
 
         $response = $this->postJson('/open-payment/verify/razorpay', [
@@ -505,7 +504,7 @@ class OpenPaymentControllerTest extends DBTestCase
     {
         // Clear existing API keys
         ApiKey::query()->delete();
-        
+
         $order = $this->createOrder();
 
         $response = $this->postJson('/open-payment/verify/stripe', [
@@ -524,7 +523,7 @@ class OpenPaymentControllerTest extends DBTestCase
     {
         // Clear existing API keys
         ApiKey::query()->delete();
-        
+
         $response = $this->postJson('/open-payment/webhook/razorpay', []);
 
         // Controller returns 500 when API keys not configured
@@ -640,7 +639,7 @@ class OpenPaymentControllerTest extends DBTestCase
     {
         // Clear existing API keys
         ApiKey::query()->delete();
-        
+
         $response = $this->postJson('/open-payment/webhook/stripe', []);
 
         // Controller returns 500 when API keys not configured
@@ -751,7 +750,7 @@ class OpenPaymentControllerTest extends DBTestCase
 
         $orders = $response->json('data.orders.data');
         // Filter only our test orders
-        $matchingOrders = array_filter($orders, fn($o) => $o['payment_status'] === 'completed');
+        $matchingOrders = array_filter($orders, fn ($o) => $o['payment_status'] === 'completed');
         $this->assertGreaterThanOrEqual(1, count($matchingOrders));
     }
 
@@ -806,7 +805,7 @@ class OpenPaymentControllerTest extends DBTestCase
     {
         $order = $this->createOrder();
 
-        $response = $this->getJson('/open-payment/admin/' . $order->id);
+        $response = $this->getJson('/open-payment/admin/'.$order->id);
 
         $response->assertStatus(200)
             ->assertJsonPath('success', true)
@@ -841,9 +840,9 @@ class OpenPaymentControllerTest extends DBTestCase
             'payment_status' => 'completed',
         ]);
 
-        $response = $this->get('/open-payment/stripe/callback?order_id=' . $order->id);
+        $response = $this->get('/open-payment/stripe/callback?order_id='.$order->id);
 
-        $response->assertRedirect('/open-payment?order_id=' . $order->id . '&status=success');
+        $response->assertRedirect('/open-payment?order_id='.$order->id.'&status=success');
     }
 
     public function test_stripe_callback_redirects_for_invalid_order()
@@ -857,7 +856,7 @@ class OpenPaymentControllerTest extends DBTestCase
     {
         $order = $this->createOrder(['gateway' => 'Stripe']);
 
-        $response = $this->get('/open-payment/stripe/callback?order_id=' . $order->id);
+        $response = $this->get('/open-payment/stripe/callback?order_id='.$order->id);
 
         $response->assertRedirect();
         $this->assertStringContainsString('Configuration error', $response->headers->get('Location'));
