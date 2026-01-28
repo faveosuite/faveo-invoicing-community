@@ -13,7 +13,7 @@ use Razorpay\Api\Api;
 class OpenPaymentController extends Controller
 {
     /**
-     * Create order
+     * Create order.
      */
     public function createOrder(OpenPaymentRequest $request)
     {
@@ -42,7 +42,7 @@ class OpenPaymentController extends Controller
     }
 
     /**
-     * Get Order Details
+     * Get Order Details.
      */
     public function getOrderDetails($id)
     {
@@ -67,7 +67,7 @@ class OpenPaymentController extends Controller
     }
 
     /**
-     * Prepare gateway (Generate Intent/Order) called via AJAX
+     * Prepare gateway (Generate Intent/Order) called via AJAX.
      */
     public function preparePayment(Request $request)
     {
@@ -96,7 +96,7 @@ class OpenPaymentController extends Controller
     }
 
     /**
-     * Initialize Razorpay payment
+     * Initialize Razorpay payment.
      */
     private function initializeRazorpay(OpenPaymentOrder $order)
     {
@@ -147,7 +147,7 @@ class OpenPaymentController extends Controller
     }
 
     /**
-     * Initialize Stripe payment using handlePayment from SettingsController
+     * Initialize Stripe payment using handlePayment from SettingsController.
      */
     private function initializeStripe(Request $request, OpenPaymentOrder $order)
     {
@@ -207,7 +207,7 @@ class OpenPaymentController extends Controller
     }
 
     /**
-     * Verify Razorpay payment (Client-side verification - backup for webhook)
+     * Verify Razorpay payment (Client-side verification - backup for webhook).
      */
     public function verifyRazorpayPayment(Request $request)
     {
@@ -269,7 +269,7 @@ class OpenPaymentController extends Controller
     }
 
     /**
-     * Verify Stripe payment (Client-side verification - backup for webhook)
+     * Verify Stripe payment (Client-side verification - backup for webhook).
      */
     public function verifyStripePayment(Request $request)
     {
@@ -319,7 +319,7 @@ class OpenPaymentController extends Controller
 
     /**
      * Handle Razorpay webhook for payment confirmation
-     * Webhook URL: /open-payment/webhook/razorpay
+     * Webhook URL: /open-payment/webhook/razorpay.
      */
     public function handleRazorpayWebhook(Request $request)
     {
@@ -398,7 +398,7 @@ class OpenPaymentController extends Controller
 
     /**
      * Handle Stripe webhook for async payment confirmation
-     * Webhook URL: /open-payment/webhook/stripe
+     * Webhook URL: /open-payment/webhook/stripe.
      */
     public function handleStripeWebhook(Request $request)
     {
@@ -473,7 +473,7 @@ class OpenPaymentController extends Controller
     }
 
     /**
-     * List all open payment orders (Admin)
+     * List all open payment orders (Admin).
      */
     public function listOrders(Request $request)
     {
@@ -519,7 +519,7 @@ class OpenPaymentController extends Controller
     }
 
     /**
-     * Get order by ID (Admin)
+     * Get order by ID (Admin).
      */
     public function getOrder($id)
     {
@@ -535,7 +535,7 @@ class OpenPaymentController extends Controller
     }
 
     /**
-     * Handle Stripe 3D Secure callback redirect
+     * Handle Stripe 3D Secure callback redirect.
      */
     public function handleStripeCallback(Request $request)
     {

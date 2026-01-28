@@ -48,7 +48,7 @@ class ProfileRequest extends Request
             return [
                 'first_name' => 'required|min:3|max:30',
                 'last_name' => 'required|max:30',
-                'mobile' =>  ['required',new PhoneNumber($this->mobile_country_iso)],
+                'mobile' => ['required', new PhoneNumber($this->mobile_country_iso)],
                 'email' => 'required|email|unique:users,email,'.$userid,
                 'company' => 'required|max:50',
                 'address' => 'required',
@@ -75,7 +75,7 @@ class ProfileRequest extends Request
                 'last_name' => 'required|max:30',
                 'email' => 'required|email|unique:users',
                 'company' => 'required|max:50',
-                'mobile' => ['required', 'unique:users' , new PhoneNumber($this->mobile_country_iso)],
+                'mobile' => ['required', 'unique:users', new PhoneNumber($this->mobile_country_iso)],
                 'address' => 'required|string|regex:/^[^<>]*$/',
                 'terms' => 'sometimes',
                 'password' => [
