@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '86ed3964df0a8b3aa309952d7a01daa2bd9d6e71',
+        'reference' => '01f12557c80d5c5e2502b9a9f06291b91c4d1cd1',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -370,6 +370,30 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'giggsey/libphonenumber-for-php' => array(
+            'pretty_version' => '9.0.22',
+            'version' => '9.0.22.0',
+            'reference' => '38fbbbf512928c5dbc1c11d9501784beb788ed55',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../giggsey/libphonenumber-for-php',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'giggsey/libphonenumber-for-php-lite' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => '9.0.22',
+            ),
+        ),
+        'giggsey/locale' => array(
+            'pretty_version' => '2.8.0',
+            'version' => '2.8.0.0',
+            'reference' => '1cd8b3ad2d43e04f4c2c6a240495af44780f809b',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../giggsey/locale',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'graham-campbell/markdown' => array(
             'pretty_version' => 'v16.0.0',
             'version' => '16.0.0.0',
@@ -705,7 +729,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '86ed3964df0a8b3aa309952d7a01daa2bd9d6e71',
+            'reference' => '01f12557c80d5c5e2502b9a9f06291b91c4d1cd1',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

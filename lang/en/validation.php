@@ -930,4 +930,8 @@ return [
     'login_failed' => 'Login failed, please check email/username and password you entered are correct.',
     'forgot_email_validation' => 'If the email you provided is registered, you will receive an email with the instructions to reset the password shortly.',
     'too_many_login_attempts' => 'You have been locked out of application due to too many failed login attempts, Please retry after :time',
+
+    // Phone number validation (libphonenumber)
+    'phone_number' => 'The :attribute is not a valid phone number.',
+    'mobile_number' => 'The :attribute must be a valid mobile phone number.',
 ];
