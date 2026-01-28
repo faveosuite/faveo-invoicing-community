@@ -6,6 +6,7 @@ use JsonException;
 use GuzzleHttp\ClientInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
+use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\RawMessage;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\SentMessage;
@@ -89,6 +90,7 @@ class SparkPostTransport implements TransportInterface
             'html' => $message->getHtmlBody(),
             'text' => $message->getTextBody(),
             'attachments' => $this->getAttachments($message),
+            'inline_images' => $this->getInlineImages($message),
         ];
 
         if (($cc = $this->getCc($message)->flatten(1)->pluck('email'))->count()) {
@@ -205,11 +207,16 @@ class SparkPostTransport implements TransportInterface
         );
     }
 
-    protected function getAttachments(RawMessage $message): array
+    protected function getFilteredAttachments(RawMessage $message, ?callable $filter = null): array
     {
         $attachments = [];
 
+        /** @var \Symfony\Component\Mime\Part\DataPart $attachment */
         foreach ($message->getAttachments() as $attachment) {
+            if ($filter !== null && !$filter($attachment)) {
+                continue;
+            }
+
             $attachments[] = [
                 'name' => $attachment->getPreparedHeaders()->get('content-disposition')->getParameter('filename'),
                 'type' => $attachment->getMediaType() . '/' . $attachment->getMediaSubtype(),
@@ -218,6 +225,20 @@ class SparkPostTransport implements TransportInterface
         }
 
         return $attachments;
+    }
+
+    protected function getInlineImages(RawMessage $message): array
+    {
+        return $this->getFilteredAttachments($message, function (DataPart $attachment) {
+            return $attachment->hasContentId();
+        });
+    }
+
+    protected function getAttachments(RawMessage $message): array
+    {
+        return $this->getFilteredAttachments($message, function (DataPart $attachment) {
+            return !$attachment->hasContentId();
+        });
     }
 
     public function validateSingleRecipient($email): JsonResponse

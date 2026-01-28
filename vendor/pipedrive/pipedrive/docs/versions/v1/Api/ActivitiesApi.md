@@ -5,7 +5,6 @@ All URIs are relative to https://api.pipedrive.com/v1.
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**addActivity()**](ActivitiesApi.md#addActivity) | **POST** /activities | Add an activity
-[**deleteActivities()**](ActivitiesApi.md#deleteActivities) | **DELETE** /activities | Delete multiple activities in bulk
 [**deleteActivity()**](ActivitiesApi.md#deleteActivity) | **DELETE** /activities/{id} | Delete an activity
 [**getActivities()**](ActivitiesApi.md#getActivities) | **GET** /activities | Get all activities assigned to a particular user
 [**getActivitiesCollection()**](ActivitiesApi.md#getActivitiesCollection) | **GET** /activities/collection | Get all activities collection
@@ -72,71 +71,6 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
 - **Content-Type**: `application/json`
-- **Accept**: `application/json`
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
-[[Back to Model list]](../README.md#documentation-for-models)
-[[Back to README]](../README.md)
-
-## `deleteActivities()`
-
-```php
-deleteActivities($ids): \Pipedrive\versions\v1\Model\DeleteActivitiesResponse
-```
-
-Delete multiple activities in bulk
-
-Marks multiple activities as deleted. After 30 days, the activities will be permanently deleted. <br>This endpoint has been deprecated. Please use <a href=\"https://developers.pipedrive.com/docs/api/v1/Activities#deleteActivity\" target=\"_blank\" rel=\"noopener noreferrer\">DELETE /api/v2/activities/{id}</a> instead.
-
-### Example
-
-```php
-<?php
-require_once(__DIR__ . '/vendor/autoload.php');
-
-
-// Configure API key authorization: api_key
-$config = (new Pipedrive\versions\v1\Configuration())->setApiKey('x-api-token', 'YOUR_API_KEY');
-// Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
-// $config = (new Pipedrive\versions\v1\Configuration())->setApiKeyPrefix('x-api-token', 'Bearer');
-
-// Configure OAuth2 access token for authorization: oauth2
-$config = (new Pipedrive\versions\v1\Configuration())->setAccessToken('YOUR_ACCESS_TOKEN');
-
-
-$apiInstance = new Pipedrive\versions\v1\Api\ActivitiesApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
-    $config
-);
-$ids = 'ids_example'; // string | The comma-separated IDs of activities that will be deleted
-
-try {
-    $result = $apiInstance->deleteActivities($ids);
-    print_r($result);
-} catch (Exception $e) {
-    echo 'Exception when calling ActivitiesApi->deleteActivities: ', $e->getMessage(), PHP_EOL;
-}
-```
-
-### Parameters
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **ids** | **string**| The comma-separated IDs of activities that will be deleted |
-
-### Return type
-
-[**\Pipedrive\versions\v1\Model\DeleteActivitiesResponse**](../Model/DeleteActivitiesResponse.md)
-
-### Authorization
-
-[api_key](../README.md#api_key), [oauth2](../README.md#oauth2)
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
 - **Accept**: `application/json`
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)

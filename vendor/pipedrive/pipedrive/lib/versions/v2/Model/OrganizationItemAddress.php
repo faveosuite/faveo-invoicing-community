@@ -74,6 +74,7 @@ class OrganizationItemAddress implements ModelInterface, ArrayAccess, JsonSerial
         'sublocality' => 'string',
         'route' => 'string',
         'street_number' => 'string',
+        'subpremise' => 'string',
         'postal_code' => 'string'
     ];
 
@@ -93,6 +94,7 @@ class OrganizationItemAddress implements ModelInterface, ArrayAccess, JsonSerial
         'sublocality' => null,
         'route' => null,
         'street_number' => null,
+        'subpremise' => null,
         'postal_code' => null
     ];
 
@@ -135,6 +137,7 @@ class OrganizationItemAddress implements ModelInterface, ArrayAccess, JsonSerial
         'sublocality' => 'sublocality',
         'route' => 'route',
         'street_number' => 'street_number',
+        'subpremise' => 'subpremise',
         'postal_code' => 'postal_code'
     ];
 
@@ -152,6 +155,7 @@ class OrganizationItemAddress implements ModelInterface, ArrayAccess, JsonSerial
         'sublocality' => 'setSublocality',
         'route' => 'setRoute',
         'street_number' => 'setStreetNumber',
+        'subpremise' => 'setSubpremise',
         'postal_code' => 'setPostalCode'
     ];
 
@@ -169,6 +173,7 @@ class OrganizationItemAddress implements ModelInterface, ArrayAccess, JsonSerial
         'sublocality' => 'getSublocality',
         'route' => 'getRoute',
         'street_number' => 'getStreetNumber',
+        'subpremise' => 'getSubpremise',
         'postal_code' => 'getPostalCode'
     ];
 
@@ -247,6 +252,7 @@ class OrganizationItemAddress implements ModelInterface, ArrayAccess, JsonSerial
         $this->container['sublocality'] = $data['sublocality'] ?? null;
         $this->container['route'] = $data['route'] ?? null;
         $this->container['street_number'] = $data['street_number'] ?? null;
+        $this->container['subpremise'] = $data['subpremise'] ?? null;
         $this->container['postal_code'] = $data['postal_code'] ?? null;
     }
 
@@ -464,6 +470,30 @@ class OrganizationItemAddress implements ModelInterface, ArrayAccess, JsonSerial
     public function setStreetNumber($street_number): self
     {
         $this->container['street_number'] = $street_number;
+
+        return $this;
+    }
+
+    /**
+     * Gets subpremise
+     *
+     * @return string|null
+     */
+    public function getSubpremise()
+    {
+        return $this->container['subpremise'];
+    }
+
+    /**
+     * Sets subpremise
+     *
+     * @param string|null $subpremise Subpremise (e.g. apartment/suite number) of the organization
+     *
+     * @return self
+     */
+    public function setSubpremise($subpremise): self
+    {
+        $this->container['subpremise'] = $subpremise;
 
         return $this;
     }

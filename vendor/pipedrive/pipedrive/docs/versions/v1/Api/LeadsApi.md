@@ -354,7 +354,7 @@ Name | Type | Description  | Notes
 ## `getLeads()`
 
 ```php
-getLeads($limit, $start, $owner_id, $person_id, $organization_id, $filter_id, $sort): \Pipedrive\versions\v1\Model\GetLeadsResponse
+getLeads($limit, $start, $owner_id, $person_id, $organization_id, $filter_id, $updated_since, $sort): \Pipedrive\versions\v1\Model\GetLeadsResponse
 ```
 
 Get all leads
@@ -389,10 +389,11 @@ $owner_id = 1; // int | If supplied, only leads matching the given user will be 
 $person_id = 1; // int | If supplied, only leads matching the given person will be returned. However, `filter_id` takes precedence over `person_id` when supplied.
 $organization_id = 1; // int | If supplied, only leads matching the given organization will be returned. However, `filter_id` takes precedence over `organization_id` when supplied.
 $filter_id = 1; // int | The ID of the filter to use
+$updated_since = 2025-01-01T10:20:00Z; // string | If set, only leads with an `update_time` later than or equal to this time are returned. In ISO 8601 format, e.g. 2025-01-01T10:20:00Z.
 $sort = 'sort_example'; // string | The field names and sorting mode separated by a comma (`field_name_1 ASC`, `field_name_2 DESC`). Only first-level field keys are supported (no nested keys).
 
 try {
-    $result = $apiInstance->getLeads($limit, $start, $owner_id, $person_id, $organization_id, $filter_id, $sort);
+    $result = $apiInstance->getLeads($limit, $start, $owner_id, $person_id, $organization_id, $filter_id, $updated_since, $sort);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling LeadsApi->getLeads: ', $e->getMessage(), PHP_EOL;
@@ -409,6 +410,7 @@ Name | Type | Description  | Notes
  **person_id** | **int**| If supplied, only leads matching the given person will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;person_id&#x60; when supplied. | [optional]
  **organization_id** | **int**| If supplied, only leads matching the given organization will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;organization_id&#x60; when supplied. | [optional]
  **filter_id** | **int**| The ID of the filter to use | [optional]
+ **updated_since** | **string**| If set, only leads with an &#x60;update_time&#x60; later than or equal to this time are returned. In ISO 8601 format, e.g. 2025-01-01T10:20:00Z. | [optional]
  **sort** | **string**| The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). | [optional]
 
 ### Return type

@@ -358,6 +358,7 @@ Class | Method | HTTP request | Description
 *PersonsApi* | [**getPerson**](Api/PersonsApi.md#getperson) | **GET** /persons/{id} | Get details of a person
 *PersonsApi* | [**getPersonFollowers**](Api/PersonsApi.md#getpersonfollowers) | **GET** /persons/{id}/followers | List followers of a person
 *PersonsApi* | [**getPersonFollowersChangelog**](Api/PersonsApi.md#getpersonfollowerschangelog) | **GET** /persons/{id}/followers/changelog | List followers changelog of a person
+*PersonsApi* | [**getPersonPicture**](Api/PersonsApi.md#getpersonpicture) | **GET** /persons/{id}/picture | Get picture of a person
 *PersonsApi* | [**getPersons**](Api/PersonsApi.md#getpersons) | **GET** /persons | Get all persons
 *PersonsApi* | [**searchPersons**](Api/PersonsApi.md#searchpersons) | **GET** /persons/search | Search persons
 *PersonsApi* | [**updatePerson**](Api/PersonsApi.md#updateperson) | **PATCH** /persons/{id} | Update a person
@@ -574,6 +575,9 @@ Class | Method | HTTP request | Description
  - [PersonItemIm](Model/PersonItemIm.md)
  - [PersonItemPhones](Model/PersonItemPhones.md)
  - [PersonItemPostalAddress](Model/PersonItemPostalAddress.md)
+ - [PersonPictureItem](Model/PersonPictureItem.md)
+ - [PersonPictureItemPictures](Model/PersonPictureItemPictures.md)
+ - [PersonPictureResponse](Model/PersonPictureResponse.md)
  - [PersonRequestBody](Model/PersonRequestBody.md)
  - [PersonRequestBodyEmails](Model/PersonRequestBodyEmails.md)
  - [PersonRequestBodyPhones](Model/PersonRequestBodyPhones.md)
