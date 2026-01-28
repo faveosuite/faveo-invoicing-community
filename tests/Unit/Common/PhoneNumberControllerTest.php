@@ -507,10 +507,10 @@ class PhoneNumberControllerTest extends DBTestCase
     {
         // Test that example numbers are returned for various valid countries
         $countries = ['US', 'IN', 'GB', 'DE', 'FR', 'AU', 'JP', 'CA', 'BR'];
-        
+
         foreach ($countries as $country) {
             $result = $this->controller->getExampleNumber($country, true);
-            
+
             $this->assertNotNull($result, "Example number should be returned for country: $country");
             $this->assertIsString($result);
             $this->assertMatchesRegularExpression('/^\+\d+/', $result, "Example for $country should start with + and digits");
