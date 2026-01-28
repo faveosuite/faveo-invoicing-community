@@ -19,9 +19,9 @@
     ],
     "require": {
         "php": "^8.4",
+        "ext-intl": "*",
         "ext-pcntl": "*",
         "ext-zip": "*",
-        "ext-intl": "*",
         "bacon/bacon-qr-code": "^v3.0.3",
         "bugsnag/bugsnag-laravel": "^v2.29.0",
         "cartalyst/stripe-laravel": "^v17.0.0",
@@ -31,6 +31,7 @@
         "endroid/qr-code-bundle": "^6.1.0",
         "ezyang/htmlpurifier": "^v4.19.0",
         "geoip2/geoip2": "^v3.3.0",
+        "giggsey/libphonenumber-for-php": "^9.0",
         "graham-campbell/markdown": "^v16.0.0",
         "guzzlehttp/guzzle": "^7.10.0",
         "itsgoingd/clockwork": "dev-master",

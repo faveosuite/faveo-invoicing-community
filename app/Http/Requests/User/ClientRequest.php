@@ -3,6 +3,7 @@
 namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
+use App\Rules\PhoneNumber;
 
 class ClientRequest extends Request
 {
@@ -31,7 +32,7 @@ class ClientRequest extends Request
                     'company' => 'required',
                     'email' => 'required|email|unique:users',
                     'address' => 'required',
-                    'mobile' => 'required',
+                    'mobile' => ['required', new PhoneNumber($this->mobile_country_iso)],
                     'country' => 'required|exists:countries,country_code_char2',
                     'timezone_id' => 'required',
                     'user_name' => 'unique:users,user_name',
@@ -48,7 +49,7 @@ class ClientRequest extends Request
                     'email' => 'required|email|unique:users,email,'.$this->getSegmentFromEnd().',id',
                     'company' => 'required',
                     'address' => 'required',
-                    'mobile' => 'required',
+                    'mobile' => ['required', new PhoneNumber($this->mobile_country_iso)],
                     'timezone_id' => 'required',
                     'user_name' => 'unique:users,user_name,'.$id,
                     'zip' => 'regex:/^[a-zA-Z0-9]+$/',
