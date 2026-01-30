@@ -2835,5 +2835,6 @@ return [
     'webhook_explanation' => 'Webhook URL को एडमिन पैनल में WhatsApp सेटिंग्स के अतिरिक्त कॉन्फ़िगरेशन सेक्शन में पाया जा सकता है।',
     'business_id_error' => 'कृपया एक वैध Business ID दर्ज करें।',
     'enable_reoon_logs_deletion' => 'Reoon लॉग्स हटाने को सक्षम करें',
+    'domain_check' => 'डोमेन में केवल अक्षर और नंबर ही होने चाहिए।',
 
 ];

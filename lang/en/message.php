@@ -2895,4 +2895,6 @@ return [
     'business_id_error' => 'Please Enter a valid Business ID.',
     'email_validation_status' => 'Email validation status successfully saved',
     'enable_reoon_logs_deletion' => 'Enable Reoon Logs Deletion',
+    'domain_check'=>'The Domain must only contain letters and numbers.',
+
 ];

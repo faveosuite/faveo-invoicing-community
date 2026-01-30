@@ -2819,5 +2819,6 @@ return [
     'business_id_error' => 'Harap masukkan Business ID yang valid.',
     'email_validation_status' => 'Status validasi email berhasil disimpan',
     'enable_reoon_logs_deletion' => 'Aktifkan Penghapusan Log Reoon',
+    'domain_check' => 'Domain hanya boleh berisi huruf dan angka.',
 
 ];

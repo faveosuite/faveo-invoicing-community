@@ -2819,5 +2819,6 @@ return [
     'webhook_explanation' => 'Die Webhook-URL finden Sie im Bereich Zusätzliche Konfiguration in den WhatsApp-Einstellungen des Admin-Panels.',
     'business_id_error' => 'Bitte geben Sie eine gültige Business-ID ein.',
     'enable_reoon_logs_deletion' => 'Löschen von Reoon-Protokollen aktivieren',
+    'domain_check' => 'Die Domain darf nur Buchstaben und Zahlen enthalten.',
 
 ];

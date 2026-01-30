@@ -2843,5 +2843,6 @@ return [
     'webhook_explanation' => 'Webhook URL은 관리자 패널의 WhatsApp 설정에 있는 추가 구성 섹션에서 확인할 수 있습니다.',
     'business_id_error' => '유효한 Business ID를 입력하세요.',
     'enable_reoon_logs_deletion' => 'Reoon 로그 삭제 활성화',
+    'domain_check' => '도메인은 문자와 숫자만 포함해야 합니다.',
 
 ];

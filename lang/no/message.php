@@ -2829,5 +2829,6 @@ return [
     'verify_token_error' => 'Vennligst skriv inn verifiseringstoken.',
     'manual_number_title' => 'Legg til nummer manuelt',
     'enable_reoon_logs_deletion' => 'Aktiver sletting av Reoon-logger',
+    'domain_check' => 'Domenet kan bare inneholde bokstaver og tall.',
 
 ];

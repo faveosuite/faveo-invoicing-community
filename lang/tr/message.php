@@ -2837,5 +2837,6 @@ return [
     'business_id_error' => 'Lütfen geçerli bir Business ID girin.',
     'email_validation_status' => 'E-posta doğrulama durumu başarıyla kaydedildi',
     'enable_reoon_logs_deletion' => 'Reoon Günlük Silmeyi Etkinleştir',
+    'domain_check' => 'Alan adı yalnızca harf ve rakamlardan oluşmalıdır.',
 
 ];

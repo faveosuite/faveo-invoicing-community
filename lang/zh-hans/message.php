@@ -2818,5 +2818,6 @@ return [
     'webhook_explanation' => 'Webhook 地址可在管理面板中 WhatsApp 设置的附加配置部分找到。',
     'business_id_error' => '请输入有效的 Business ID。',
     'enable_reoon_logs_deletion' => '启用 Reoon 日志删除',
+    'domain_check' => '域名只能包含字母和数字。',
 
 ];

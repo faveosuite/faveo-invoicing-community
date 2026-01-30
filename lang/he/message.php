@@ -2827,5 +2827,6 @@ return [
     'webhook_explanation' => 'כתובת ה-Webhook נמצאת תחת תצורה נוספת בהגדרות WhatsApp בלוח הניהול.',
     'business_id_error' => 'אנא הזן מזהה עסק תקף.',
     'enable_reoon_logs_deletion' => 'הפעלת מחיקת יומני Reoon',
+    'domain_check' => 'הדומיין חייב להכיל רק אותיות ומספרים.',
 
 ];

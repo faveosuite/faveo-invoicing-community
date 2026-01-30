@@ -2817,5 +2817,6 @@ return [
     'webhook_explanation' => 'Webhook URL ஐ நிர்வாக குழுவின் WhatsApp அமைப்புகளின் கூடுதல் உள்ளமைப்பு பிரிவில் காணலாம்.',
     'business_id_error' => 'சரியான Business ID ஐ உள்ளிடவும்.',
     'enable_reoon_logs_deletion' => 'Reoon பதிவுகளை நீக்குவதைக் செயல்படுத்தவும்',
+    'domain_check' => 'டொமைனில் எழுத்துகள் மற்றும் எண்கள் மட்டும் இருக்க வேண்டும்.',
 
 ];

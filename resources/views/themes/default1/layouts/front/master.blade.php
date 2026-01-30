@@ -1566,68 +1566,75 @@ setTimeout(function() {
             })
         });
 
-        function createtenancy(){
-            $('#createtenancy').attr('disabled',true)
-            $("#createtenancy").html("<i class='fas fa-circle-notch fa-spin'></i> {{ __('message.please_wait') }}");
+        function createtenancy(e){
+            const alphanumeric = /^[a-zA-Z0-9]+$/;
             var domain = $('#userdomainPurchase').val();
-            var order = $('#orderId').val();
-            $.ajax({
-                url: "{{url('create/tenant/purchase')}}",
-                type: "POST",
-                data: {'domain': domain, 'id': order},
-                success: function (data) {
-                    $('#createtenancy').attr('disabled',false)
-                    $("#createtenancy").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
-                    if(data.status == 'validationFailure') {
 
-                        var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
-                        for (var key in data.message)
-                        {
-                            html += '<li>' + data.message[key][0] + '</li>'
+            if ( !alphanumeric.test(domain)) {
+
+                var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
+                html += '<li>{{__('message.domain_check')}}</li>'
+                document.getElementById('error').innerHTML = html;
+            }else {
+                $('#createtenancy').attr('disabled', true)
+                $("#createtenancy").html("<i class='fas fa-circle-notch fa-spin'></i> {{ __('message.please_wait') }}");
+                var order = $('#orderId').val();
+                $.ajax({
+                    url: "{{url('create/tenant/purchase')}}",
+                    type: "POST",
+                    data: {'domain': domain, 'id': order},
+                    success: function (data) {
+                        $('#createtenancy').attr('disabled', false)
+                        $("#createtenancy").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
+                        if (data.status == 'validationFailure') {
+
+                            var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
+                            for (var key in data.message) {
+                                html += '<li>' + data.message[key][0] + '</li>'
+                            }
+                            html += '</ul></div>';
+                            $('#error').show();
+                            $('#success').hide();
+                            document.getElementById('error').innerHTML = html;
+                        } else if (data.status == 'false') {
+                            $('#error').show();
+                            $('#success').hide();
+                            var result = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}!<br><ul><li>' + data.message + '</li></ul></div>';
+                            $('#error').html(result);
+                        } else if (data.status == 'success_with_warning') {
+                            console.log('here');
+                            $('#error').show();
+                            $('#success').hide();
+                            var result = '<div class="alert alert-warning alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong><br><ul><li>' + data.message + '</li></ul></div>';
+                            $('#error').html(result);
+                        } else {
+                            window.location.href = data.redirectTo;
                         }
+                    }, error: function (response) {
+                        $('#createtenancy').attr('disabled', false)
+                        $("#createtenancy").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
+                        $("#generate").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
+                        if (response.status == 422) {
+
+                            var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
+                            for (var key in response.responseJSON.errors) {
+                                html += '<li>' + response.responseJSON.errors[key][0] + '</li>'
+                            }
+
+                        } else {
+                            var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
+                            html += '<li>' + response.responseJSON.message + '</li>'
+                        }
+
                         html += '</ul></div>';
                         $('#error').show();
                         $('#success').hide();
                         document.getElementById('error').innerHTML = html;
-                    } else if(data.status == 'false') {
-                        $('#error').show();
-                        $('#success').hide();
-                        var result =  '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}!<br><ul><li>'+data.message+'</li></ul></div>';
-                        $('#error').html(result);
-                    } else if(data.status == 'success_with_warning') {
-                        console.log('here');
-                        $('#error').show();
-                        $('#success').hide();
-                        var result =  '<div class="alert alert-warning alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong><br><ul><li>'+data.message+'</li></ul></div>';
-                        $('#error').html(result);
-                    } else {
-                        window.location.href = data.redirectTo;
-                    }
-                },error: function (response) {
-                    $('#createtenancy').attr('disabled',false)
-                    $("#createtenancy").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
-                    $("#generate").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
-                    if(response.status == 422) {
 
-                        var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
-                        for (var key in response.responseJSON.errors)
-                        {
-                            html += '<li>' + response.responseJSON.errors[key][0] + '</li>'
-                        }
-
-                    } else {
-                        var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
-                        html += '<li>' + response.responseJSON.message + '</li>'
                     }
 
-                    html += '</ul></div>';
-                    $('#error').show();
-                    $('#success').hide();
-                    document.getElementById('error').innerHTML = html;
-
-                }
-
-            })
+                })
+            }
         }
 
 

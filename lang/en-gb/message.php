@@ -2821,5 +2821,6 @@ return [
     'verify_token_error' => 'Please enter a Verify Token.',
     'manual_number_title' => 'Add Number Manually',
     'enable_reoon_logs_deletion' => 'Enable Reoon Logs Deletion',
+    'domain_check' => 'The Domain must only contain letters and numbers.',
 
 ];

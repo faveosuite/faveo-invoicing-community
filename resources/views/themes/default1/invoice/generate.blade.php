@@ -138,6 +138,21 @@
 
 
 <script>
+    $(document).on('input', '#cloud_domain', function (e) {
+        console.time('change-handler');
+
+        const alphanumeric = /^[a-zA-Z0-9]+$/;
+        if (!alphanumeric.test(this.value)) {
+            $('#cloud-msg').text("{{ __('message.domain_check') }}");
+            $('#generate').attr('disabled',true);
+        } else {
+            $('#cloud-msg').text('');
+            $('#generate').attr('disabled',false);
+
+        }
+
+        console.timeEnd('change-handler');
+    });
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'add_invoice';
     }).addClass('active');
@@ -428,6 +443,7 @@
         }
         if ($('#domain').length > 0) {
             var domain = document.getElementsByName('domain')[0].value;
+
             var data = $("#formoid").serialize() + '&domain=' + domain + '&user=' + user;
             if ($('#quantity').length > 0) {
                 var quantity = document.getElementsByName('quantity')[0].value;
@@ -446,6 +462,7 @@
             else if(document.getElementsByName('agents')[0]){
                 var agents = document.getElementsByName('agents')[0].value;
                 var cloud_domain = document.getElementsByName('cloud_domain')[0]?.value ?? '';
+
                 if(cloud_domain !== ''){
                     var data = $("#formoid").serialize() + '&agents=' + agents + '&user=' + user + '&cloud_domain=' +cloud_domain;
                 }
@@ -456,6 +473,12 @@
             else {
                 var data = $("#formoid").serialize() + '&user=' + user;
             }
+        }
+        const alphanumeric = /^[a-zA-Z0-9]+$/;
+
+        if ( cloud_domain !== '' && !alphanumeric.test(cloud_domain)) {
+            document.getElementById('cloud-msg').textContent = "{{ __('message.domain_check') }}";
+            e.preventDefault();
         }
         data = data + '&plan=' + plan + '&subscription=' + subscription+'&description='+description;
         $("#generate").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");

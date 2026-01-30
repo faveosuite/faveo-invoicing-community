@@ -2826,5 +2826,6 @@ return [
     'webhook_explanation' => 'Webhook URL は管理パネルの WhatsApp 設定内の追加設定セクションにあります。',
     'business_id_error' => '有効な Business ID を入力してください。',
     'enable_reoon_logs_deletion' => 'Reoonログの削除を有効にする',
+    'domain_check' => 'ドメインには英字と数字のみを含めてください。',
 
 ];
