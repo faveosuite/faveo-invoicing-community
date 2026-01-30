@@ -535,7 +535,7 @@ class SubscriptionController extends Controller
         $latestInvoice = \Stripe\Invoice::retrieve($latestInvoiceId);
         $url = $latestInvoice->hosted_invoice_url;
 
-        if ($url) {
+        if ($url && emailSendingStatus()) {
             $this->mailSendToActiveStripeSubscription($subscription, $product_details, $cost, $currency, $plan, $url, $user);
             Subscription::where('id', $subscription->id)->update(['subscribe_id' => $stripeResponse->id, 'autoRenew_status' => '2']);
         }

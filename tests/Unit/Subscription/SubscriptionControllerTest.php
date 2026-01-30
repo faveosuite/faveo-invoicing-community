@@ -208,7 +208,7 @@ class SubscriptionControllerTest extends DBTestCase
         $this->assertDatabaseHas('subscriptions', [
             'id' => $subscription->id,
             'is_subscribed' => '1',
-            'autoRenew_status' => '3',
+            'autoRenew_status' => '1',
         ]);
     }
 
