@@ -246,7 +246,7 @@ class BaseOrderController extends ExtendedOrderController
      * @param  int  $days  [No of days that would get addeed to the current date ]
      * @return string [The final License Expiry date that is generated]
      */
-    protected function getLicenseExpiryDate(bool $permissions, $days)
+    protected function getLicenseExpiryDate(bool $permissions, int $days)
     {
         $ends_at = '';
         if ($days > 0 && $permissions == 1) {
@@ -264,7 +264,7 @@ class BaseOrderController extends ExtendedOrderController
      * @param  int  $days  [No of days that would get added to the current date ]
      * @return string [The final Updates Expiry date that is generated]
      */
-    protected function getUpdatesExpiryDate(bool $permissions, $days)
+    protected function getUpdatesExpiryDate(bool $permissions, int $days)
     {
         $update_ends_at = '';
         if ($days > 0 && $permissions == 1) {
@@ -282,7 +282,7 @@ class BaseOrderController extends ExtendedOrderController
      * @param  int  $days  [No of days that would get added to the current date ]
      * @return string [The final Suport Expiry date that is generated]
      */
-    protected function getSupportExpiryDate(bool $permissions, $days)
+    protected function getSupportExpiryDate(bool $permissions, int $days)
     {
         $support_ends_at = '';
         if ($days > 0 && $permissions == 1) {

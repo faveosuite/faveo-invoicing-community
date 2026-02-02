@@ -9,6 +9,7 @@ use App\Model\Mailjob\ActivityLogDay;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Traits\ApiKeySettings;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 
@@ -138,7 +139,7 @@ class BaseSettingsController extends PaymentSettingsController
             ->when($from || $till, function ($query) use ($from, $till) {
                 $from = $from
                     ? Carbon::parse($from)->startOfDay()
-                    : Carbon::minValue();
+                    : CarbonImmutable::startOfTime();
 
                 $till = $till
                     ? Carbon::parse($till)->endOfDay()
