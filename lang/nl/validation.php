@@ -798,6 +798,7 @@ return [
     'product_controller' => [
         'name_required' => 'De productnaam is verplicht.',
         'name_unique' => 'Naam moet uniek zijn.',
+        'name_unique_in_group' => 'Een product met deze naam bestaat al in de geselecteerde groep. Kies een andere naam of selecteer een andere groep.',
         'type_required' => 'Het producttype is verplicht.',
         'description_required' => 'De productomschrijving is verplicht.',
         'product_description_required' => 'De gedetailleerde productomschrijving is verplicht.',

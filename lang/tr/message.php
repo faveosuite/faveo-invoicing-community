@@ -2831,6 +2831,7 @@ return [
     'verify_token_error' => 'Lütfen Doğrulama Tokeni Giriniz.',
     'manual_number_title' => 'Numarayı Manuel Ekle',
     'plan_exist' => 'Bu ürün zaten aynı dönemli bir plana sahip',
+    'duplicate_plan_period_grouped' => 'Bu ürün Aylık/Yıllık gruplandırılmış bir ürünle ilişkili olduğundan yinelenen plan dönemlerine izin verilmez.',
     'callback_url' => 'Webhook URL',
     'callback_url_error' => 'Lütfen geçerli bir Webhook URL girin.',
     'webhook_explanation' => 'Webhook URL, Yönetici Panelindeki WhatsApp ayarlarında Ek Yapılandırma bölümünde bulunabilir.',

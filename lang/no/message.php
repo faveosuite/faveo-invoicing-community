@@ -2797,6 +2797,7 @@ return [
     'something_went_wrong_while_updating_mobile' => 'Noe gikk galt under oppdatering av mobilnummeret. Vennligst prøv igjen senere.',
     'no_available_plans_for_user_currency' => 'Den valgte brukerens valuta har ingen tilgjengelige planer for dette produktet. Vennligst legg til en plan for den valutaen for å fortsette.',
     'plan_exist' => 'Dette produktet har allerede en plan med samme periode',
+    'duplicate_plan_period_grouped' => 'Dupliserte planperioder er ikke tillatt fordi dette produktet er knyttet til et månedlig/årlig gruppert produkt.',
     'callback_url' => 'Webhook-URL',
     'callback_url_error' => 'Vennligst skriv inn en gyldig Webhook-URL.',
     'webhook_explanation' => 'Webhook-URL finnes under Tilleggs­konfigurasjon i WhatsApp-innstillingene i adminpanelet.',

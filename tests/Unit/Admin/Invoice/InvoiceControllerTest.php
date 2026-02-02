@@ -40,6 +40,7 @@ class InvoiceControllerTest extends DBTestCase
             'quantity' => 1,
             'attributes' => [],
             'conditions' => $taxCondition,
+            'associatedModel' => $product,
         ]);
         $invoice = $this->classObject->generateInvoice();
         $this->assertDatabaseHas('invoices', ['id' => $invoice->id]);
@@ -64,6 +65,7 @@ class InvoiceControllerTest extends DBTestCase
             'quantity' => 1,
             'attributes' => [],
             'conditions' => $taxCondition,
+            'associatedModel' => $product,
         ]);
         $invoice = $this->classObject->generateInvoice();
         foreach (\Cart::getContent() as $cart) {

@@ -809,6 +809,7 @@ return [
     'product_controller' => [
         'name_required' => '製品名は必須です。',
         'name_unique' => '名前は一意である必要があります。',
+        'name_unique_in_group' => 'この名前の製品は選択したグループに既に存在します。別の名前を選択するか、別のグループを選択してください。',
         'type_required' => '製品タイプは必須です。',
         'description_required' => '製品の説明は必須です。',
         'product_description_required' => '詳細な製品説明は必須です。',

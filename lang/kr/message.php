@@ -2838,6 +2838,7 @@ return [
     'verify_token_error' => '검증 토큰을 입력하세요.',
     'manual_number_title' => '번호 수동 추가',
     'plan_exist' => '이 제품에는 동일한 기간의 계획이 이미 있습니다',
+    'duplicate_plan_period_grouped' => '이 제품은 월간/연간 그룹화된 제품과 연결되어 있으므로 중복된 요금제 기간은 허용되지 않습니다.',
     'callback_url' => 'Webhook URL',
     'callback_url_error' => '유효한 Webhook URL을 입력하세요.',
     'webhook_explanation' => 'Webhook URL은 관리자 패널의 WhatsApp 설정에 있는 추가 구성 섹션에서 확인할 수 있습니다.',

@@ -2783,6 +2783,7 @@ return [
     'verify_token_error' => 'Voer een verificatietoken in.',
     'manual_number_title' => 'Nummer handmatig toevoegen',
     'plan_exist' => 'Dit product heeft al een plan met dezelfde periode',
+    'duplicate_plan_period_grouped' => 'Dubbele planperiodes zijn niet toegestaan omdat dit product gekoppeld is aan een Maandelijks/Jaarlijks gegroepeerd product.',
     'callback_url' => 'Webhook URL',
     'callback_url_error' => 'Voer een geldige Webhook URL in.',
     'webhook_explanation' => 'De Webhook URL is te vinden onder de Aanvullende Configuratie in de WhatsApp-instellingen van het beheerpaneel.',

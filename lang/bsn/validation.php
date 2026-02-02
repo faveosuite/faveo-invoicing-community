@@ -840,6 +840,7 @@ return [
     'product_controller' => [
         'name_required' => 'Ime proizvoda je obavezno.',
         'name_unique' => 'Ime treba biti jedinstveno.',
+        'name_unique_in_group' => 'Proizvod s ovim imenom već postoji u odabranoj grupi. Molimo odaberite drugo ime ili drugu grupu.',
         'type_required' => 'Tip proizvoda je obavezan.',
         'description_required' => 'Opis proizvoda je obavezan.',
         'product_description_required' => 'Detaljan opis proizvoda je obavezan.',

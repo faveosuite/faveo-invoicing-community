@@ -855,6 +855,7 @@ return [
     'product_controller' => [
         'name_required' => 'Tên sản phẩm là bắt buộc.',
         'name_unique' => 'Tên phải là duy nhất.',
+        'name_unique_in_group' => 'Sản phẩm có tên này đã tồn tại trong nhóm đã chọn. Vui lòng chọn tên khác hoặc chọn nhóm khác.',
         'type_required' => 'Loại sản phẩm là bắt buộc.',
         'description_required' => 'Mô tả sản phẩm là bắt buộc.',
         'product_description_required' => 'Mô tả chi tiết sản phẩm là bắt buộc.',

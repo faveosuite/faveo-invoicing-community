@@ -804,6 +804,7 @@ return [
     'product_controller' => [
         'name_required' => 'שם המוצר נדרש.',
         'name_unique' => 'השם חייב להיות ייחודי.',
+        'name_unique_in_group' => 'מוצר עם שם זה כבר קיים בקבוצה שנבחרה. אנא בחר שם אחר או בחר קבוצה אחרת.',
         'type_required' => 'סוג המוצר נדרש.',
         'description_required' => 'תיאור המוצר נדרש.',
         'product_description_required' => 'תיאור מפורט של המוצר נדרש.',

@@ -2821,6 +2821,7 @@ return [
     'verify_token_error' => '認証トークンを入力してください。',
     'manual_number_title' => '番号を手動で追加',
     'plan_exist' => 'この製品には既に同じ期間のプランがあります',
+    'duplicate_plan_period_grouped' => 'この製品は月額/年額グループ製品に関連付けられているため、重複するプラン期間は許可されていません。',
     'callback_url' => 'Webhook URL',
     'callback_url_error' => '有効な Webhook URL を入力してください。',
     'webhook_explanation' => 'Webhook URL は管理パネルの WhatsApp 設定内の追加設定セクションにあります。',

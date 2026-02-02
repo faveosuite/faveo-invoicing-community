@@ -364,22 +364,23 @@ class PageController extends Controller
     {
         $config = \Config::get("transform.$type");
         $result = '';
-        $array = [];
-        foreach ($trasform as $trans) {
-            $array[] = $this->checkConfigKey($config, $trans);
-        }
-        $c = count($array);
-        for ($i = 0; $i < $c; $i++) {
-            $array1 = $this->keyArray($array[$i]);
-            $array2 = $this->valueArray($array[$i]);
-            $id = Product::where('name', $array2[0])->value('id');
-            $data = Product::where('name', $array2[0])->value('highlight') ? PricingTemplate::findorFail(1)->data : PricingTemplate::findorFail(2)->data;
+
+        // Iterate using the original transform array to preserve product IDs as keys
+        foreach ($trasform as $productId => $trans) {
+            $mappedArray = $this->checkConfigKey($config, $trans);
+            $array1 = $this->keyArray($mappedArray);
+            $array2 = $this->valueArray($mappedArray);
+
+            // Use product ID directly instead of looking up by name
+            $id = $productId;
+            $product = Product::find($id);
+            $data = $product->highlight ? PricingTemplate::findorFail(1)->data : PricingTemplate::findorFail(2)->data;
             $offerprice = $this->getOfferprice($id);
             $description = self::getPriceDescription($id);
             $month_offer_price = $offerprice['30_days'] ?? null;
             $year_offer_price = $offerprice['365_days'] ?? null;
 
-            if (Product::find($id)->add_to_contact == 1) {
+            if ($product->add_to_contact == 1) {
                 $data = str_replace('{{strike-price}}', '', $data);
                 $data = str_replace('{{strike-priceyear}}', '', $data);
                 $data = str_replace('{{price}}', 'Custom Pricing', $data);
@@ -388,7 +389,6 @@ class PageController extends Controller
             if ($month_offer_price === '' || $month_offer_price === null) {
                 $data = str_replace('{{strike-price}}', '', $data);
             }
-            $product = Product::find($id);
 
             if (! $product->status) {
                 if (empty($month_offer_price) && empty($year_offer_price)) {
@@ -405,7 +405,7 @@ class PageController extends Controller
                 $strikePriceKeys = array_keys($strikePrice);
                 $data = str_replace('{{price}}', $offerprice, $data);
                 if ($month_offer_price !== '' && $month_offer_price !== null) {
-                    $data = str_replace('{{strike-price}}', $array2[1], $data);
+                    $data = str_replace('{{strike-price}}', $array2[1] ?? '', $data);
                 }
                 if (sizeof($offerpriceyearKeys) > 1) {
                     $data = str_replace('{{price-year}}', implode(' ', $offerpriceYear), $data);
@@ -627,6 +627,7 @@ class PageController extends Controller
                 $orderButton = $highlight ? 'btn-primary' : 'btn-dark';
 
                 $trasform[$productId] = [
+                    'id' => $productId,
                     'price' => $temp_controller->leastAmount($productId),
                     'price-year' => $this->YearlyAmount($productId),
                     'price-description' => $this->getPriceDescription($productId),

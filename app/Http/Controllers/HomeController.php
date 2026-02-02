@@ -547,7 +547,7 @@ class HomeController extends BaseHomeController
             $oldinvoice = $basecron->getInvoiceByOrderId($subscription->order_id);
             $item = $basecron->getInvoiceItemByInvoiceId($oldinvoice->id);
 
-            $product_details = Product::where('name', $item->product_name)->first();
+            $product_details = Product::where('id', $item->product_id)->first();
             $plan = Plan::where('product', $product_details->id)->first('days');
             $oldcurrency = $oldinvoice->currency;
 

@@ -2813,6 +2813,7 @@ return [
     'verify_token_error' => '请输入验证令牌。',
     'manual_number_title' => '手动添加号码',
     'plan_exist' => '该产品已存在具有相同周期的计划',
+    'duplicate_plan_period_grouped' => '不允许重复的计划周期，因为此产品与月度/年度分组产品相关联。',
     'callback_url' => 'Webhook 地址',
     'callback_url_error' => '请输入有效的 Webhook 地址。',
     'webhook_explanation' => 'Webhook 地址可在管理面板中 WhatsApp 设置的附加配置部分找到。',

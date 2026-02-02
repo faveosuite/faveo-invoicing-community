@@ -820,6 +820,7 @@ return [
     'product_controller' => [
         'name_required' => 'اسم المنتج مطلوب.',
         'name_unique' => 'يجب أن يكون الاسم فريدًا.',
+        'name_unique_in_group' => 'يوجد منتج بهذا الاسم بالفعل في المجموعة المحددة. يرجى اختيار اسم مختلف أو تحديد مجموعة أخرى.',
         'type_required' => 'نوع المنتج مطلوب.',
         'description_required' => 'وصف المنتج مطلوب.',
         'product_description_required' => 'الوصف التفصيلي للمنتج مطلوب.',

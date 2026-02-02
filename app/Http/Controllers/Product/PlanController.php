@@ -175,9 +175,16 @@ class PlanController extends ExtendedPlanController
     public function store(PlanRequest $request)
     {
         try {
-            if (Plan::where('product', $request->product)
-                ->where('days', $request->days)->exists()) {
-                return back()->withErrors(['product' => __('message.plan_exist')]);
+            // Check if a plan already exists for a toggled product,
+            // we don't allow duplicate plans for toggled products,
+            // because it makes confusion which plan to choose while showing in the store
+            $planExists = Plan::where('product', $request->product)
+                ->where('days', $request->days)
+                ->whereHas('product', fn ($query) => $query->where('status', 1))
+                ->exists();
+
+            if ($planExists) {
+                return back()->withErrors(['product' => __('message.duplicate_plan_period_grouped')]);
             }
             $add_prices = $request->add_price;
             $renew_prices = $request->renew_price;
@@ -269,15 +276,21 @@ class PlanController extends ExtendedPlanController
     {
         $add_prices = $request->add_price;
         $renew_prices = $request->renew_price;
+
+        // Check if a plan already exists for a toggled product,
+        // we don't allow duplicate plans for toggled products,
+        // because it makes confusion which plan to choose while showing in the store
+        $planExists = Plan::where('product', $request->product)
+            ->where('days', $request->days)
+            ->where('id', '!=', $plan->id)
+            ->whereHas('product', fn ($query) => $query->where('status', 1))
+            ->exists();
+
         if (
-            $request->filled('days') &&
-            Plan::where('product', $plan->product)
-                ->where('days', $request->days)
-                ->where('id', '!=', $plan->id)
-                ->exists()
+            $request->filled('days') && $planExists
         ) {
             return redirect()->back()
-                ->with('fails', __('message.plan_exist'));
+                ->with('fails', __('message.duplicate_plan_period_grouped'));
         }
         $offer_prices = $request->input('offer_price');
         $plan->fill($request->input())->save();

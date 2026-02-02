@@ -2889,6 +2889,7 @@ return [
     'verify_token_error' => 'Please Enter Verify Token.',
     'manual_number_title' => 'Add Number Manually',
     'plan_exist' => 'This product already has a plan with the same period',
+    'duplicate_plan_period_grouped' => 'Duplicate plan periods are not allowed because this product is associated with a Monthly/Yearly grouped product.',
     'callback_url' => 'Webhook Url',
     'callback_url_error' => 'Please Enter a valid Webhook Url.',
     'webhook_explanation' => 'The Webhook URL can be found under the Additional Configuration section of the WhatsApp settings in the Admin Panel.',

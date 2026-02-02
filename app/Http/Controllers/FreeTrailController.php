@@ -232,12 +232,12 @@ class FreeTrailController extends Controller
     private function getIfFreetrailItemPresent($item, $invoiceid, $user_id, $order_status)
     {
         try {
-            $product = Product::where('name', $item->product_name)->value('id');
-            $version = Product::where('name', $item->product_name)->first()->version; //Send Product Id and Agents to generate Serial Key
+            $product = Product::where('id', $item->product_id)->first();
+            $version = $product->version; //Send Product Id and Agents to generate Serial Key
             $domain = $item->domain;
-            $plan_id = Plan::where('product', $product)->where('name', 'LIKE', '%free%')
+            $plan_id = Plan::where('product', $product->id)->where('name', 'LIKE', '%free%')
                 ->value('id');
-            $serial_key = $this->generateFreetrailSerialKey($product, planPrice::where('plan_id', $plan_id)->value('no_of_agents'));
+            $serial_key = $this->generateFreetrailSerialKey($product->id, planPrice::where('plan_id', $plan_id)->value('no_of_agents'));
 
             $order = $this->order->create([
 
@@ -246,7 +246,7 @@ class FreeTrailController extends Controller
                 'client' => $user_id,
                 'order_status' => $order_status,
                 'serial_key' => Crypt::encrypt($serial_key),
-                'product' => $product,
+                'product' => $product->id,
                 'price_override' => $item->subtotal,
                 'qty' => $item->quantity,
                 'domain' => $domain,
@@ -258,10 +258,10 @@ class FreeTrailController extends Controller
             \Session::put('planDays', 'freeTrial');
 
             if ($plan_id) {
-                $baseorder->addSubscription($order->id, $plan_id, $version, $product, $serial_key);
+                $baseorder->addSubscription($order->id, $plan_id, $version, $product->id, $serial_key);
 
-                $addOnIds = implode(',', $this->product->find($product)->productPluginGroupsAsProduct->pluck('plugin_id')->toArray());
-                $options = $baseorder->formatConfigurableOptions($product);
+                $addOnIds = implode(',', $this->product->find($product->id)->productPluginGroupsAsProduct->pluck('plugin_id')->toArray());
+                $options = $baseorder->formatConfigurableOptions($product->id);
                 $cont = app(\App\Http\Controllers\License\LicenseController::class);
 
                 $cont->syncTheAddonForALicense($addOnIds, $serial_key, $options);
@@ -269,7 +269,7 @@ class FreeTrailController extends Controller
             $mailchimpStatus = StatusSetting::pluck('mailchimp_status')->first();
 
             if ($mailchimpStatus) {
-                $baseorder->addtoMailchimp($product, $user_id, $item);
+                $baseorder->addtoMailchimp($product->id, $user_id, $item);
             }
             \Session::forget('planDays');
 

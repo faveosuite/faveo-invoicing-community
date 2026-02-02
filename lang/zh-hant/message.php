@@ -2773,6 +2773,7 @@ return [
     'verify_token_error' => '請輸入驗證 Token。',
     'manual_number_title' => '手動新增號碼',
     'plan_exist' => '此產品已經有相同週期的方案',
+    'duplicate_plan_period_grouped' => '不允許重複的方案週期，因為此產品與月度/年度分組產品相關聯。',
     'callback_url' => 'Webhook 網址',
     'callback_url_error' => '請輸入有效的 Webhook 網址。',
     'webhook_explanation' => 'Webhook 網址可在管理後台 WhatsApp 設定的額外配置部分找到。',

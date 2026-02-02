@@ -826,6 +826,7 @@ return [
     'product_controller' => [
         'name_required' => 'L-isem tal-prodott huwa meħtieġ.',
         'name_unique' => 'L-isem għandu jkun uniku.',
+        'name_unique_in_group' => 'Prodott b\'dan l-isem diġà jeżisti fil-grupp magħżul. Jekk jogħġbok agħżel isem differenti jew agħżel grupp ieħor.',
         'type_required' => 'It-tip tal-prodott huwa meħtieġ.',
         'description_required' => 'Il-deskrizzjoni tal-prodott hija meħtieġa.',
         'product_description_required' => 'Il-deskrizzjoni dettaljata tal-prodott hija meħtieġa.',

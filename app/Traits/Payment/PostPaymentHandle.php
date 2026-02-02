@@ -212,7 +212,7 @@ trait PostPaymentHandle
         $order = OrderInvoiceRelation::where('invoice_id', $invoice->id)->value('order_id');
         $order_number = Order::where('id', $order)->value('number');
         $invoiceItem = InvoiceItem::where('invoice_id', $invoice->id)->first();
-        $product = Product::where('name', $invoiceItem->product_name)->first();
+        $product = Product::where('id', $invoiceItem->product_id)->first();
         $date1 = new DateTime($invoiceItem->created_at);
         $date = $date1->format('M j, Y, g:i a ');
         \Cart::clear();

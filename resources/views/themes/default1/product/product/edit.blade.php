@@ -1304,7 +1304,7 @@ tinymce.init({
             $.ajax({
                 type : "PATCH",
                 url  :  "{{url('upload/')}}"+"/"+upload_id,
-                data :  {'productname': productname , 'producttitle': producttitle,
+                data :  {'product_id': {{ $product->id }} , 'producttitle': producttitle,
                     'description': description,'version':version},
                 success: function(response) {
                     $("#editProductUpload").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
@@ -1871,7 +1871,7 @@ tinymce.init({
                     url: "{!! route('upload/save') !!}",
                     data: {
                         filename: filename,
-                        productname: productname,
+                        product_id: {{ $product->id }},
                         producttitle: producttitle,
                         description: description,
                         dependencies: dependencies,

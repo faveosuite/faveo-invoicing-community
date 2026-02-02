@@ -2821,5 +2821,7 @@ return [
     'verify_token_error' => 'Please enter a Verify Token.',
     'manual_number_title' => 'Add Number Manually',
     'enable_reoon_logs_deletion' => 'Enable Reoon Logs Deletion',
+    'plan_exist' => 'This product already has a plan with the same period',
+    'duplicate_plan_period_grouped' => 'Duplicate plan periods are not allowed because this product is associated with a Monthly/Yearly grouped product.',
 
 ];

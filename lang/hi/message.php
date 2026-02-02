@@ -2830,6 +2830,7 @@ return [
     'verify_token_error' => 'कृपया वेरिफ़ाई टोकन दर्ज करें।',
     'manual_number_title' => 'नंबर मैन्युअली जोड़ें',
     'plan_exist' => 'इस उत्पाद में पहले से ही समान अवधि वाली योजना मौजूद है',
+    'duplicate_plan_period_grouped' => 'डुप्लिकेट प्लान अवधि की अनुमति नहीं है क्योंकि यह उत्पाद मासिक/वार्षिक समूहित उत्पाद से जुड़ा है।',
     'callback_url' => 'Webhook URL',
     'callback_url_error' => 'कृपया एक वैध Webhook URL दर्ज करें।',
     'webhook_explanation' => 'Webhook URL को एडमिन पैनल में WhatsApp सेटिंग्स के अतिरिक्त कॉन्फ़िगरेशन सेक्शन में पाया जा सकता है।',

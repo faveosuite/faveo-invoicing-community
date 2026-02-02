@@ -792,6 +792,7 @@ return [
     'product_controller' => [
         'name_required' => 'O nome do produto é obrigatório.',
         'name_unique' => 'O nome deve ser único.',
+        'name_unique_in_group' => 'Um produto com este nome já existe no grupo selecionado. Por favor, escolha um nome diferente ou selecione outro grupo.',
         'type_required' => 'O tipo do produto é obrigatório.',
         'description_required' => 'A descrição do produto é obrigatória.',
         'product_description_required' => 'A descrição detalhada do produto é obrigatória.',
