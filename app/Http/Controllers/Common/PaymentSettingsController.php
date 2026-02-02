@@ -94,7 +94,6 @@ class PaymentSettingsController extends Controller
             foreach ($fields as $key => $field) {
                 $plug = $plugs->where('name', $field['name'])->select(['path', 'status'])->orderBy('name')->get();
 
-
                 if ($plug->isNotEmpty()) {
                     foreach ($plug as $value) {
                         $attributes[$key]['path'] = $value['path'];

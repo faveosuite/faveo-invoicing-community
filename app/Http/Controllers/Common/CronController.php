@@ -605,7 +605,7 @@ class CronController extends BaseCronController
 
         $days = ExpiryMailDay::value('msg91_days');
 
-        $from =  CarbonImmutable::startOfTime();
+        $from = CarbonImmutable::startOfTime();
 
         $to = Carbon::now()->subDays($days)->endOfDay();
 
