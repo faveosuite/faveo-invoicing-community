@@ -106,6 +106,15 @@ class AutoScaler
         $totalJobs = $queues->sum('size');
 
         return $queues->mapWithKeys(function ($timeToClear, $queue) use ($supervisor, $timeToClearAll, $totalJobs) {
+            if (! $supervisor->options->balancing()) {
+                $targetProcesses = min(
+                    $supervisor->options->maxProcesses,
+                    max($supervisor->options->minProcesses, $timeToClear['size'])
+                );
+
+                return [$queue => $targetProcesses];
+            }
+
             if ($timeToClearAll > 0 &&
                 $supervisor->options->autoScaling()) {
                 $numberOfProcesses = $supervisor->options->autoScaleByNumberOfJobs()
@@ -117,8 +126,8 @@ class AutoScaler
                       $supervisor->options->autoScaling()) {
                 return [
                     $queue => $timeToClear['size']
-                                ? $supervisor->options->maxProcesses
-                                : $supervisor->options->minProcesses,
+                        ? $supervisor->options->maxProcesses
+                        : $supervisor->options->minProcesses,
                 ];
             }
 

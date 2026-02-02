@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2024 Till Krüss
+ * (c) 2021-2025 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,24 +13,27 @@
 namespace Predis\Connection\Replication;
 
 use InvalidArgumentException;
+use Predis\Command\Command;
 use Predis\Command\CommandInterface;
 use Predis\Command\RawCommand;
-use Predis\CommunicationException;
+use Predis\Connection\AbstractAggregateConnection;
 use Predis\Connection\ConnectionException;
 use Predis\Connection\FactoryInterface as ConnectionFactoryInterface;
 use Predis\Connection\NodeConnectionInterface;
 use Predis\Connection\Parameters;
+use Predis\Connection\ParametersInterface;
 use Predis\Replication\ReplicationStrategy;
 use Predis\Replication\RoleException;
 use Predis\Response\Error;
 use Predis\Response\ErrorInterface as ErrorResponseInterface;
 use Predis\Response\ServerException;
+use Throwable;
 
 /**
  * @author Daniele Alessandri <suppakilla@gmail.com>
  * @author Ville Mattila <ville@eventio.fi>
  */
-class SentinelReplication implements ReplicationInterface
+class SentinelReplication extends AbstractAggregateConnection implements ReplicationInterface
 {
     /**
      * @var NodeConnectionInterface
@@ -264,14 +267,10 @@ class SentinelReplication implements ReplicationInterface
         }
 
         if (is_array($parameters)) {
-            // NOTE: sentinels do not accept AUTH and SELECT commands so we must
-            // explicitly set them to NULL to avoid problems when using default
-            // parameters set via client options. Actually AUTH is supported for
-            // sentinels starting with Redis 5 but we have to differentiate from
-            // sentinels passwords and nodes passwords, this will be implemented
-            // in a later release.
+            // NOTE: sentinels do not accept SELECT command so we must
+            // explicitly set it to NULL to avoid problems when using default
+            // parameters set via client options.
             $parameters['database'] = null;
-            $parameters['username'] = null;
 
             // don't leak password from between configurations
             // https://github.com/predis/predis/pull/807/#discussion_r985764770
@@ -716,10 +715,16 @@ class SentinelReplication implements ReplicationInterface
         while ($retries <= $this->retryLimit) {
             try {
                 $response = $this->getConnectionByCommand($command)->$method($command);
+                if ($response instanceof Error && $response->getErrorType() === 'LOADING') {
+                    throw new ConnectionException($this->current, $response->getMessage());
+                }
                 break;
-            } catch (CommunicationException $exception) {
+            } catch (Throwable $exception) {
                 $this->wipeServerList();
-                $exception->getConnection()->disconnect();
+
+                if ($exception instanceof ConnectionException) {
+                    $exception->getConnection()->disconnect();
+                }
 
                 if ($retries === $this->retryLimit) {
                     throw $exception;
@@ -776,5 +781,25 @@ class SentinelReplication implements ReplicationInterface
         return [
             'master', 'slaves', 'pool', 'service', 'sentinels', 'connectionFactory', 'strategy',
         ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getParameters(): ?ParametersInterface
+    {
+        if (isset($this->master)) {
+            return $this->master->getParameters();
+        }
+
+        if (!empty($this->slaves)) {
+            return $this->slaves[0]->getParameters();
+        }
+
+        if (!empty($this->sentinels)) {
+            return $this->sentinels[0]->getParameters();
+        }
+
+        return null;
     }
 }

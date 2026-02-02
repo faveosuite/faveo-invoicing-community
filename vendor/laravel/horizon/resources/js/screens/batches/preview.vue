@@ -17,21 +17,7 @@
          * Prepare the component.
          */
         mounted() {
-            this.loadBatch();
-
             document.title = "Horizon - Batches";
-
-            this.interval = setInterval(() => {
-                this.loadBatch(false);
-            }, 3000);
-        },
-
-
-        /**
-         * Clean after the component is unmounted.
-         */
-        unmounted() {
-            clearInterval(this.interval);
         },
 
 
@@ -77,6 +63,8 @@
 
 <template>
     <div>
+        <poll @poll="loadBatch(false)" />
+
         <div class="card overflow-hidden">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h2 class="h6 m-0" v-if="!ready">Batch Preview</h2>
@@ -177,7 +165,7 @@
 
                 <tr v-for="failedJob in failedJobs">
                     <td>
-                        <router-link :to="{ name: 'failed-jobs-preview', params: { jobId: failedJob.id }}">
+                        <router-link :title="failedJob.name" :to="{ name: 'failed-jobs-preview', params: { jobId: failedJob.id }}">
                             {{ jobBaseName(failedJob.name) }}
                         </router-link>
                     </td>

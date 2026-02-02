@@ -12,7 +12,6 @@
 namespace Symfony\Component\HttpClient\Response;
 
 use Symfony\Component\HttpClient\Chunk\ErrorChunk;
-use Symfony\Component\HttpClient\Chunk\FirstChunk;
 use Symfony\Component\HttpClient\Chunk\LastChunk;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Contracts\HttpClient\ChunkInterface;
@@ -65,7 +64,7 @@ class AsyncResponse implements ResponseInterface, StreamableInterface
 
             while (true) {
                 foreach (self::stream([$response], $timeout) as $chunk) {
-                    if ($chunk->isTimeout() && $response->passthru) {
+                    if ($chunk->isTimeout() && ($response->passthru || $response = self::findInnerPassthru($response))) {
                         // Timeouts thrown during initialization are transport errors
                         foreach (self::passthru($response->client, $response, new ErrorChunk($response->offset, new TransportException($chunk->getError()))) as $chunk) {
                             if ($chunk->isFirst()) {
@@ -245,7 +244,7 @@ class AsyncResponse implements ResponseInterface, StreamableInterface
                 $wrappedResponses[] = $r->response;
 
                 if ($r->stream) {
-                    yield from self::passthruStream($response = $r->response, $r, new FirstChunk(), $asyncMap);
+                    yield from self::passthruStream($response = $r->response, $r, $asyncMap, new LastChunk());
 
                     if (!isset($asyncMap[$response])) {
                         array_pop($wrappedResponses);
@@ -275,16 +274,11 @@ class AsyncResponse implements ResponseInterface, StreamableInterface
                     }
                 }
 
-                if (!$r->passthru) {
-                    if (null !== $chunk->getError() || $chunk->isLast()) {
-                        unset($asyncMap[$response]);
-                    } elseif (null !== $r->content && '' !== ($content = $chunk->getContent()) && \strlen($content) !== fwrite($r->content, $content)) {
-                        $chunk = new ErrorChunk($r->offset, new TransportException(\sprintf('Failed writing %d bytes to the response buffer.', \strlen($content))));
-                        $r->info['error'] = $chunk->getError();
-                        $r->response->cancel();
-                    }
+                $innerR = null;
+                if (!$r->passthru && !$innerR = null !== $chunk->getError() ? self::findInnerPassthru($r) : null) {
+                    $r->stream = (static fn () => yield $chunk)();
+                    yield from self::passthruStream($response, $r, $asyncMap);
 
-                    yield $r => $chunk;
                     continue;
                 }
 
@@ -296,11 +290,12 @@ class AsyncResponse implements ResponseInterface, StreamableInterface
                     throw new \LogicException(\sprintf('Instance of "%s" is already consumed and cannot be managed by "%s". A decorated client should not call any of the response\'s methods in its "request()" method.', get_debug_type($response), $class ?? static::class));
                 }
 
-                foreach (self::passthru($r->client, $r, $chunk, $asyncMap) as $chunk) {
+                $innerR ??= $r;
+                foreach (self::passthru($innerR->client, $innerR, $chunk, $asyncMap) as $chunk) {
                     yield $r => $chunk;
                 }
 
-                if ($r->response !== $response && isset($asyncMap[$response])) {
+                if ($innerR->response !== $response && isset($asyncMap[$response])) {
                     break;
                 }
             }
@@ -347,13 +342,28 @@ class AsyncResponse implements ResponseInterface, StreamableInterface
         }
         $r->stream = $stream;
 
-        yield from self::passthruStream($response, $r, null, $asyncMap);
+        yield from self::passthruStream($response, $r, $asyncMap);
+    }
+
+    private static function findInnerPassthru(self $response): ?self
+    {
+        $innerResponse = $response->response ?? null;
+
+        while ($innerResponse instanceof self) {
+            if ($innerResponse->passthru) {
+                return $innerResponse;
+            }
+
+            $innerResponse = $innerResponse->response ?? null;
+        }
+
+        return null;
     }
 
     /**
      * @param \SplObjectStorage<ResponseInterface, AsyncResponse>|null $asyncMap
      */
-    private static function passthruStream(ResponseInterface $response, self $r, ?ChunkInterface $chunk, ?\SplObjectStorage $asyncMap): \Generator
+    private static function passthruStream(ResponseInterface $response, self $r, ?\SplObjectStorage $asyncMap, ?ChunkInterface $chunk = null): \Generator
     {
         while (true) {
             try {

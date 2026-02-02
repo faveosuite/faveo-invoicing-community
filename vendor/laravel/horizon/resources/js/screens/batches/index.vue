@@ -19,17 +19,6 @@
          */
         mounted() {
             document.title = "Horizon - Batches";
-
-            this.loadBatches();
-
-            this.refreshBatchesPeriodically();
-        },
-
-        /**
-         * Clean after the component is unmounted.
-         */
-        unmounted() {
-            clearInterval(this.interval);
         },
 
 
@@ -42,6 +31,12 @@
 
                 this.loadBatches();
             },
+
+            '$root.autoLoadsNewEntries'(autoLoadsNewEntries) {
+                if (autoLoadsNewEntries && this.hasNewEntries) {
+                    this.hasNewEntries = false;
+                }
+            }
         },
 
 
@@ -57,6 +52,7 @@
                 this.$http.get(Horizon.basePath + '/api/batches?before_id=' + beforeId)
                     .then(response => {
                         if (!this.$root.autoLoadsNewEntries && refreshing && !response.data.batches.length) {
+                            this.ready = true;
                             return;
                         }
 
@@ -81,14 +77,12 @@
 
 
             /**
-             * Refresh the batches every period of time.
+             * Poll handler to refresh the batches at regular intervals.
              */
             refreshBatchesPeriodically() {
-                this.interval = setInterval(() => {
-                    if (this.page != 1) return;
+                if (this.page != 1) return;
 
-                    this.loadBatches('', true);
-                }, 3000);
+                this.loadBatches('', true);
             },
 
 
@@ -126,6 +120,8 @@
 
 <template>
     <div>
+        <poll @poll="refreshBatchesPeriodically" />
+
         <div class="card overflow-hidden">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h2 class="h6 m-0">Batches</h2>
@@ -156,7 +152,7 @@
                 </thead>
 
                 <tbody>
-                <tr v-if="hasNewEntries" key="newEntries" class="dontanimate">
+                <tr v-if="hasNewEntries && !this.$root.autoLoadsNewEntries" key="newEntries" class="dontanimate">
                     <td colspan="100" class="text-center card-bg-secondary py-2">
                         <small><a href="#" v-on:click.prevent="loadNewEntries" v-if="!loadingNewEntries">Load New Entries</a></small>
 

@@ -14,9 +14,9 @@
         "ext-json": "*",
         "ext-pcntl": "*",
         "ext-posix": "*",
-        "illuminate/contracts": "^9.21|^10.0|^11.0",
-        "illuminate/queue": "^9.21|^10.0|^11.0",
-        "illuminate/support": "^9.21|^10.0|^11.0",
+        "illuminate/contracts": "^9.21|^10.0|^11.0|^12.0",
+        "illuminate/queue": "^9.21|^10.0|^11.0|^12.0",
+        "illuminate/support": "^9.21|^10.0|^11.0|^12.0",
         "nesbot/carbon": "^2.17|^3.0",
         "ramsey/uuid": "^4.0",
         "symfony/console": "^6.0|^7.0",
@@ -26,14 +26,13 @@
     },
     "require-dev": {
         "mockery/mockery": "^1.0",
-        "orchestra/testbench": "^7.0|^8.0|^9.0",
-        "phpstan/phpstan": "^1.10",
-        "phpunit/phpunit": "^9.0|^10.4",
-        "predis/predis": "^1.1|^2.0"
+        "orchestra/testbench": "^7.55|^8.36|^9.15|^10.8",
+        "phpstan/phpstan": "^1.10|^2.0",
+        "predis/predis": "^1.1|^2.0|^3.0"
     },
     "suggest": {
         "ext-redis": "Required to use the Redis PHP driver.",
-        "predis/predis": "Required when not using the Redis PHP driver (^1.1|^2.0)."
+        "predis/predis": "Required when not using the Redis PHP driver (^1.1|^2.0|^3.0)."
     },
     "autoload": {
         "psr-4": {
@@ -50,7 +49,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "5.x-dev"
+            "dev-master": "6.x-dev"
         },
         "laravel": {
             "providers": [
@@ -62,6 +61,9 @@
         }
     },
     "config": {
+        "audit": {
+            "block-insecure": false
+        },
         "sort-packages": true
     },
     "minimum-stability": "dev",

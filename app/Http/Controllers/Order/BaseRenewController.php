@@ -103,7 +103,7 @@ class BaseRenewController extends Controller
             $price = $planDetails['plan']->renew_price;
             $currency = $planDetails['currency'];
 
-            if (isAgentAllowed($plan->product)) {
+            if (isAgentAllowed($plan->product, $planId)) {
                 $priceForAgents = $price / $planDetails['plan']->no_of_agents;
                 $priceForTheAgents = $agents * $priceForAgents;
                 $formattedCurrency = currencyFormat($priceForTheAgents, $currency, true);
@@ -113,7 +113,7 @@ class BaseRenewController extends Controller
 
             return response()->json([
                 'formatted_price' => $formattedCurrency,
-                'renewalPrice' => isAgentAllowed($plan->product) ? $priceForTheAgents : $price,
+                'renewalPrice' => isAgentAllowed($plan->product, $planId) ? $priceForTheAgents : $price,
             ]);
         } catch (Exception $ex) {
             throw new \Exception($ex->getMessage());

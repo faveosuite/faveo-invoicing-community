@@ -92,7 +92,7 @@ active
         $('#order-table').DataTable({
             processing: true,
             serverSide: true,
-            order: [[ 4, "asc" ]],
+            order: [[ 6, "desc" ]],
             ajax: {
             "url": '{!! route('get-my-orders', "updated_ends_at=$request->updated_ends_at") !!}',
                error: function(xhr) {
@@ -138,6 +138,7 @@ active
                 // {data: 'group', name: 'Group'},
                 // {data: 'currency', name: 'Currency'},
                 {data: 'Action', name: 'Action'},
+                {data: 'id', name: 'id', visible: false},
             ],
             "fnDrawCallback": function( oSettings ) {
                  $(function () {

@@ -374,8 +374,8 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     {
         try {
             $planid = 0;
-            $product_name = $cart->name;
-            $product_id = Product::where('name', $product_name)->value('id');
+            $product = Product::find($cart->associatedModel->id);
+            $product_id = $product->id;
             $regular_price = (\Session::has('priceToBePaid')) ? \Session::get('priceToBePaid') : $cart->price;
             $quantity = $cart->quantity;
             $agents = $cart->attributes->agents;
@@ -392,7 +392,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $tax_percentage = $cart->conditions->getValue();
             $invoiceItem = $this->invoiceItem->create([
                 'invoice_id' => $invoiceid,
-                'product_name' => $product_name,
+                'product_name' => $product->name,
                 'product_id' => $product_id,
                 'regular_price' => $regular_price,
                 'quantity' => $quantity,
@@ -470,12 +470,13 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $user = User::where('id', $user_id)->select('state', 'country')->first();
             $tax = $this->calculateTax($product->id, $user->state, $user->country, true);
             $grand_total = rounding($this->calculateTotal($tax['value'], $grandTotalAfterCoupon));
-            $coupon = rounding($grand_total * (intval($couponTotal['value']) / 100));
+            $subtotal = $qty * $total;
+            $coupon = $subtotal * (intval($couponTotal['value']) / 100);
             $invoice = Invoice::create(['user_id' => $user_id, 'number' => $number, 'date' => $date,
                 'coupon_code' => $couponTotal['code'], 'discount' => $coupon, 'discount_mode' => $couponTotal['mode'], 'grand_total' => $grand_total,  'currency' => $currency, 'status' => $status, 'description' => $description, 'cloud_domain' => str_replace('.'.cloudSubDomain(), '', $cloud_domain)]);
 
             $items = $this->createInvoiceItemsByAdmin($invoice->id, $productid,
-                $total, $currency, $qty, $agents, $plan, $user_id, $tax['name'], $tax['value'], $grandTotalAfterCoupon);
+                $total, $currency, $qty, $agents, $plan, $user_id, $tax['name'], $tax['value'], $total);
             $result = $this->getMessage($items, $user_id);
             \Session::forget('plan');
 

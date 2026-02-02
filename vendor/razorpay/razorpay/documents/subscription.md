@@ -3,7 +3,28 @@
 ### Create subscription
 
 ```php
-$api->subscription->create(array("plan_id" => "plan_Jc7wDk5iZX88wx","total_count" => 6,"quantity" => 1,"customer_notify" => 1,"start_at" => 1580453311,"expire_by" => 1580626111,"addons" => array(array("item" => array("name" => "Delivery charges","amount" => 30000,"currency" => "INR"))),"offer_id" => "offer_JCTD1XMlUmzF6Z","notes" => array("notes_key_1" => "Tea, Earl Grey, Hot","notes_key_2" => "Tea, Earl Grey… decaf.")));
+$api->subscription->create(array(
+    "plan_id" => "plan_Jc7wDk5iZX88wx",
+    "total_count" => 6,
+    "quantity" => 1,
+    "customer_notify" => true,
+    "start_at" => 1580453311,
+    "expire_by" => 1580626111,
+    "addons" => array(
+        array(
+            "item" => array(
+                "name" => "Delivery charges",
+                "amount" => 30000,
+                "currency" => "INR"
+            )
+        )
+    ),
+    "offer_id" => "offer_JCTD1XMlUmzF6Z",
+    "notes" => array(
+        "notes_key_1" => "Tea, Earl Grey, Hot",
+        "notes_key_2" => "Tea, Earl Grey… decaf."
+    )
+));
 ```
 
 **Parameters:**
@@ -57,7 +78,32 @@ $api->subscription->create(array("plan_id" => "plan_Jc7wDk5iZX88wx","total_count
 ### Create subscription link
 
 ```php
-$api->subscription->create(array("plan_id" => "plan_Jc7wDk5iZX88wx","total_count" => 12,"quantity" => 1,"start_at" => 1561852800,"expire_by" => 1561939199,"customer_notify" => 1,"addons" => array(array("item" => array("name" => "Delivery charges","amount" => 30000,"currency" => "INR"))),"offer_id" => "offer_JCTD1XMlUmzF6Z","notes" => array("notes_key_1" => "Tea, Earl Grey, Hot","notes_key_2" => "Tea, Earl Grey… decaf."),"notify_info" => array("notify_phone" => "9123456789","notify_email" => "gaurav.kumar@example.com")));
+$api->subscription->create(array(
+    "plan_id" => "plan_Jc7wDk5iZX88wx",
+    "total_count" => 12,
+    "quantity" => 1,
+    "start_at" => 1561852800,
+    "expire_by" => 1561939199,
+    "customer_notify" => true,
+    "addons" => array(
+        array(
+            "item" => array(
+                "name" => "Delivery charges",
+                "amount" => 30000,
+                "currency" => "INR"
+            )
+        )
+    ),
+    "offer_id" => "offer_JCTD1XMlUmzF6Z",
+    "notes" => array(
+        "notes_key_1" => "Tea, Earl Grey, Hot",
+        "notes_key_2" => "Tea, Earl Grey… decaf."
+    ),
+    "notify_info" => array(
+        "notify_phone" => "9123456789",
+        "notify_email" => "gaurav.kumar@example.com"
+    )
+));
 ```
 
 **Parameters:**
@@ -217,6 +263,7 @@ $api->subscription->fetch($subscriptionId);
 ### Cancel particular subscription
 
 ```php
+$options = array("cancel_at_cycle_end" => true);
 $api->subscription->fetch($subscriptionId)->cancel($options);
 ```
 
@@ -225,7 +272,7 @@ $api->subscription->fetch($subscriptionId)->cancel($options);
 | Name  | Type      | Description                                      |
 |-------|-----------|--------------------------------------------------|
 | subscriptionId*  | string | The id of the subscription to be cancelled  |
-| cancel_at_cycle_end  | boolean | Possible values:<br>0 (default): Cancel the subscription immediately. <br> 1: Cancel the subscription at the end of the current billing cycle.  |
+| cancel_at_cycle_end  | boolean | Possible values:<br>false (default): Cancel the subscription immediately. <br> true: Cancel the subscription at the end of the current billing cycle.  |
 
 **Response:**
 ```json
@@ -265,6 +312,16 @@ $api->subscription->fetch($subscriptionId)->cancel($options);
 ### Update particular subscription
 
 ```php
+$options = array(
+    'plan_id' => 'plan_00000000000002',
+    'offer_id' => 'offer_JHD834hjbxzhd38d',
+    'quantity' => 5,
+    'remaining_count' => 5,
+    'start_at' => 1496000432,
+    'schedule_change_at' => 'now',
+    'customer_notify' => true
+);
+
 $api->subscription->fetch($subscriptionId)->update($options);
 ```
 
@@ -606,6 +663,8 @@ $api->invoice->all(['subscription_id'=>$subscriptionId]);
 ### Delete offer linked to a subscription
 
 ```php
+$offerId = "offer_JCTD1XMlUmzF6Z";
+
 $api->subscription->fetch($subscriptionId)->deleteOffer($offerId);
 ```
 

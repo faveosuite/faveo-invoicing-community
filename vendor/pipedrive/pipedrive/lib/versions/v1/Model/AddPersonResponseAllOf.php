@@ -219,12 +219,6 @@ class AddPersonResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['related_objects'] === null) {
-            $invalidProperties[] = "'related_objects' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class AddPersonResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\PersonItem
+     * @return \Pipedrive\versions\v1\Model\PersonItem|null
      */
     public function getData()
     {
@@ -253,7 +247,7 @@ class AddPersonResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\PersonItem $data data
+     * @param \Pipedrive\versions\v1\Model\PersonItem|null $data data
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class AddPersonResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets related_objects
      *
-     * @return \Pipedrive\versions\v1\Model\ListProductsResponseAllOfRelatedObjects
+     * @return \Pipedrive\versions\v1\Model\ListProductsResponseAllOfRelatedObjects|null
      */
     public function getRelatedObjects()
     {
@@ -277,7 +271,7 @@ class AddPersonResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets related_objects
      *
-     * @param \Pipedrive\versions\v1\Model\ListProductsResponseAllOfRelatedObjects $related_objects related_objects
+     * @param \Pipedrive\versions\v1\Model\ListProductsResponseAllOfRelatedObjects|null $related_objects related_objects
      *
      * @return self
      */

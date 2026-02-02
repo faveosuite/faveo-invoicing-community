@@ -81,7 +81,7 @@
             <div class="row">
                 <div class="col-sm-4 border-right">
                     <div class="description-block">
-                        <h5 class="description-header">{{currency_format($invoiceSum,$code=$currency)}}</h5>
+                        <h5 class="description-header">{{currencyFormat($invoiceSum,$code=$currency)}}</h5>
                         <span class="description-text">{{ __('message.caps_invoice_total') }}</span>
                     </div>
                     <!-- /.description-block -->
@@ -89,7 +89,7 @@
                 <!-- /.col -->
                 <div class="col-sm-4 border-right">
                     <div class="description-block">
-                        <h5 class="description-header">{{currency_format($amountReceived,$code=$currency)}}</h5>
+                        <h5 class="description-header">{{currencyFormat($amountReceived,$code=$currency)}}</h5>
                         <span class="description-text">{{ __('message.caps_paid') }}</span>
                     </div>
                     <!-- /.description-block -->
@@ -101,7 +101,7 @@
                         @else
                          <div class="description-block">
                             @endif
-                        <h5 class="description-header" >{{currency_format($pendingAmount,$code=$currency)}}</h5>
+                        <h5 class="description-header" >{{currencyFormat($pendingAmount,$code=$currency)}}</h5>
                         <span class="description-text">{{ __('message.caps_balance') }}</span>
                     </div>
                     <!-- /.description-block -->

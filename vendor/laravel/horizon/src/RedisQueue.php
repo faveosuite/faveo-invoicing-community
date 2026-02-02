@@ -6,6 +6,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Queue\RedisQueue as BaseQueue;
 use Illuminate\Support\Str;
 use Laravel\Horizon\Events\JobDeleted;
+use Laravel\Horizon\Events\JobPending;
 use Laravel\Horizon\Events\JobPushed;
 use Laravel\Horizon\Events\JobReleased;
 use Laravel\Horizon\Events\JobReserved;
@@ -59,7 +60,7 @@ class RedisQueue extends BaseQueue
      * Push a raw payload onto the queue.
      *
      * @param  string  $payload
-     * @param  string  $queue
+     * @param  string|null  $queue
      * @param  array  $options
      * @return mixed
      */
@@ -67,6 +68,8 @@ class RedisQueue extends BaseQueue
     public function pushRaw($payload, $queue = null, array $options = [])
     {
         $payload = (new JobPayload($payload))->prepare($this->lastPushed);
+
+        $this->event($this->getQueue($queue), new JobPending($payload->value));
 
         parent::pushRaw($payload->value, $queue, $options);
 
@@ -99,7 +102,7 @@ class RedisQueue extends BaseQueue
      * @param  \DateTimeInterface|\DateInterval|int  $delay
      * @param  string  $job
      * @param  mixed  $data
-     * @param  string  $queue
+     * @param  string|null  $queue
      * @return mixed
      */
     #[\Override]
@@ -114,12 +117,16 @@ class RedisQueue extends BaseQueue
                 $queue,
                 $delay,
                 function ($payload, $queue, $delay) {
+                    $this->event($this->getQueue($queue), new JobPending($payload));
+
                     return tap(parent::laterRaw($delay, $payload, $queue), function () use ($payload, $queue) {
                         $this->event($this->getQueue($queue), new JobPushed($payload));
                     });
                 }
             );
         }
+
+        $this->event($this->getQueue($queue), new JobPending($payload));
 
         return tap(parent::laterRaw($delay, $payload, $queue), function () use ($payload, $queue) {
             $this->event($this->getQueue($queue), new JobPushed($payload));
@@ -129,7 +136,7 @@ class RedisQueue extends BaseQueue
     /**
      * Pop the next job off of the queue.
      *
-     * @param  string  $queue
+     * @param  string|null  $queue
      * @param  int  $index
      * @return \Illuminate\Contracts\Queue\Job|null
      */
@@ -154,7 +161,7 @@ class RedisQueue extends BaseQueue
     public function migrateExpiredJobs($from, $to)
     {
         return tap(parent::migrateExpiredJobs($from, $to), function ($jobs) use ($to) {
-            $this->event($to, new JobsMigrated($jobs));
+            $this->event($to, new JobsMigrated($jobs === false ? [] : $jobs));
         });
     }
 

@@ -66,7 +66,7 @@ Route::middleware('installAgora')->group(function () {
     });
     Route::get('get-webhook-url', [\App\Http\Controllers\WhatsappController::class, 'getWebhookUrl']);
     Route::get('whatsapp-integration', [\App\Http\Controllers\WhatsappController::class, 'index']);
-    Route::get('whatsapp-users', [\App\Http\Controllers\WhatsappController::class, 'index1']);
+    Route::get('whatsapp-users', [\App\Http\Controllers\WhatsappController::class, 'index1'])->middleware('auth');
     Route::post('webhook-url-edit', [\App\Http\Controllers\WhatsappController::class, 'webhookUrlEdit']);
     Route::get('whatsapp-users-table', [\App\Http\Controllers\WhatsappController::class, 'whatsappTable']);
     Route::get('whatsapp-client-table/{orderid}', [\App\Http\Controllers\WhatsappController::class, 'whatsappClientTable']);

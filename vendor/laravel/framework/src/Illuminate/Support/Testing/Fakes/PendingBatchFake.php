@@ -19,12 +19,11 @@ class PendingBatchFake extends PendingBatch
      *
      * @param  \Illuminate\Support\Testing\Fakes\BusFake  $bus
      * @param  \Illuminate\Support\Collection  $jobs
-     * @return void
      */
     public function __construct(BusFake $bus, Collection $jobs)
     {
         $this->bus = $bus;
-        $this->jobs = $jobs;
+        $this->jobs = $jobs->filter()->values();
     }
 
     /**

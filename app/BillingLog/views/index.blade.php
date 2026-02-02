@@ -163,18 +163,15 @@
         }
 
         .scrollable-email-body {
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-
-        #emailBody img {
-            max-width: 20%;
+            padding: 0;
+            overflow: hidden;
         }
 
         #emailBody {
-            word-wrap: break-word;
-            overflow-wrap: anywhere;
-            word-break: break-word;
+            width: 100%;
+            height: 75vh;
+            border: none;
+            display: block;
         }
 
         .log-status {
@@ -500,9 +497,7 @@
                 </div>
 
                 <div class="modal-body scrollable-email-body">
-                    <div id="emailBody">
-                        <!-- Email content will load here -->
-                    </div>
+                    <iframe id="emailBody" sandbox="allow-same-origin"></iframe>
                 </div>
             </div>
         </div>
@@ -1252,7 +1247,20 @@
             const encodedBody = $(this).data('body');
             const decodedBody = decodeHtmlEntities(decodeURIComponent(encodedBody));
 
-            $('#emailBody').html(decodedBody);
+            const iframe = document.getElementById('emailBody');
+            iframe.srcdoc = decodedBody;
+
+            iframe.onload = function () {
+                try {
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    iframeDoc.querySelectorAll('a').forEach(function (link) {
+                        link.addEventListener('click', function (e) {
+                            e.preventDefault();
+                        });
+                    });
+                } catch (err) {}
+            };
+
             $('#emailModal').modal('show');
         });
 

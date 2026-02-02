@@ -19,6 +19,14 @@ Collision was created by, and is maintained by **[Nuno Maduro](https://github.co
 * Built on top of the **[Whoops](https://github.com/filp/whoops)** error handler.
 * Supports [Laravel](https://github.com/laravel/laravel), [Symfony](https://symfony.com), [PHPUnit](https://github.com/sebastianbergmann/phpunit), and many other frameworks.
 
+- Follow the creator Nuno Maduro:
+    - YouTube: **[youtube.com/@nunomaduro](https://youtube.com/@nunomaduro)** — Videos every week
+    - Twitch: **[twitch.tv/nunomaduro](https://twitch.tv/nunomaduro)** — Live coding on Mondays, Wednesdays, and Fridays at 9PM UTC
+    - Twitter / X: **[x.com/enunomaduro](https://x.com/enunomaduro)**
+    - LinkedIn: **[linkedin.com/in/nunomaduro](https://www.linkedin.com/in/nunomaduro)**
+    - Instagram: **[instagram.com/enunomaduro](https://www.instagram.com/enunomaduro)**
+    - Tiktok: **[tiktok.com/@enunomaduro](https://www.tiktok.com/@enunomaduro)**
+
 ## Installation & Usage
 
 > **Requires [PHP 8.2+](https://php.net/releases/)**
@@ -31,16 +39,15 @@ composer require nunomaduro/collision --dev
 
 ## Version Compatibility
 
- Laravel  | Collision | PHPUnit   | Pest
-:---------|:----------|:----------|:----------
- 6.x      | 3.x       |           |
- 7.x      | 4.x       |           |
- 8.x      | 5.x       |           | 
- 9.x      | 6.x       |           |
- 10.x     | 6.x       | 9.x       | 1.x
- 10.x     | 7.x       | 10.x      | 2.x
- 11.x     | 8.x       | 10.x      | 2.x
- 11.x     | 8.x       | 11.x      | 3.x
+ Laravel    | Collision | PHPUnit          | Pest     |
+:-----------|:----------|:-----------------|:---------|
+ 6.x        | 3.x       |                  |          |
+ 7.x        | 4.x       |                  |          |
+ 8.x        | 5.x       |                  |          |
+ 9.x, 10.x  | 6.x       |                  |          |
+ 10.x       | 6.x       | 9.x              | 1.x      |
+ 10.x       | 7.x       | 10.x             | 2.x      |
+ 11.x, 12.x | 8.x       | 10.x, 11.x, 12.x | 2.x, 3.x |
 
 As an example, here is how to require Collision on Laravel 8.x:
 
@@ -60,7 +67,7 @@ You need to register the handler in your code:
 
 Thank you for considering to contribute to Collision. All the contribution guidelines are mentioned [here](CONTRIBUTING.md).
 
-You can have a look at the [CHANGELOG](CHANGELOG.md) for constant updates & detailed information about the changes. You can also follow the twitter account for latest announcements or just come say hi!: [@enunomaduro](https://twitter.com/enunomaduro)
+You can also follow the twitter account for latest announcements or just come say hi!: [@enunomaduro](https://twitter.com/enunomaduro)
 
 ## License
 

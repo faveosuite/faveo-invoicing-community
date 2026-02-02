@@ -9,15 +9,20 @@ Method | HTTP request | Description
 [**addProductVariation()**](ProductsApi.md#addProductVariation) | **POST** /products/{id}/variations | Add a product variation
 [**deleteProduct()**](ProductsApi.md#deleteProduct) | **DELETE** /products/{id} | Delete a product
 [**deleteProductFollower()**](ProductsApi.md#deleteProductFollower) | **DELETE** /products/{id}/followers/{follower_id} | Delete a follower from a product
+[**deleteProductImage()**](ProductsApi.md#deleteProductImage) | **DELETE** /products/{id}/images | Delete an image of a product
 [**deleteProductVariation()**](ProductsApi.md#deleteProductVariation) | **DELETE** /products/{id}/variations/{product_variation_id} | Delete a product variation
+[**duplicateProduct()**](ProductsApi.md#duplicateProduct) | **POST** /products/{id}/duplicate | Duplicate a product
 [**getProduct()**](ProductsApi.md#getProduct) | **GET** /products/{id} | Get one product
 [**getProductFollowers()**](ProductsApi.md#getProductFollowers) | **GET** /products/{id}/followers | List followers of a product
 [**getProductFollowersChangelog()**](ProductsApi.md#getProductFollowersChangelog) | **GET** /products/{id}/followers/changelog | List followers changelog of a product
+[**getProductImage()**](ProductsApi.md#getProductImage) | **GET** /products/{id}/images | Get image of a product
 [**getProductVariations()**](ProductsApi.md#getProductVariations) | **GET** /products/{id}/variations | Get all product variations
 [**getProducts()**](ProductsApi.md#getProducts) | **GET** /products | Get all products
 [**searchProducts()**](ProductsApi.md#searchProducts) | **GET** /products/search | Search products
 [**updateProduct()**](ProductsApi.md#updateProduct) | **PATCH** /products/{id} | Update a product
+[**updateProductImage()**](ProductsApi.md#updateProductImage) | **PUT** /products/{id}/images | Update an image for a product
 [**updateProductVariation()**](ProductsApi.md#updateProductVariation) | **PATCH** /products/{id}/variations/{product_variation_id} | Update a product variation
+[**uploadProductImage()**](ProductsApi.md#uploadProductImage) | **POST** /products/{id}/images | Upload an image for a product
 
 
 ## `addProduct()`
@@ -351,6 +356,71 @@ Name | Type | Description  | Notes
 [[Back to Model list]](../README.md#documentation-for-models)
 [[Back to README]](../README.md)
 
+## `deleteProductImage()`
+
+```php
+deleteProductImage($id): \Pipedrive\versions\v2\Model\DeleteProductImageResponse
+```
+
+Delete an image of a product
+
+Deletes the image of a product.
+
+### Example
+
+```php
+<?php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+
+// Configure API key authorization: api_key
+$config = (new Pipedrive\versions\v2\Configuration())->setApiKey('x-api-token', 'YOUR_API_KEY');
+// Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+// $config = (new Pipedrive\versions\v2\Configuration())->setApiKeyPrefix('x-api-token', 'Bearer');
+
+// Configure OAuth2 access token for authorization: oauth2
+$config = (new Pipedrive\versions\v2\Configuration())->setAccessToken('YOUR_ACCESS_TOKEN');
+
+
+$apiInstance = new Pipedrive\versions\v2\Api\ProductsApi(
+    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
+    // This is optional, `GuzzleHttp\Client` will be used as default.
+    new GuzzleHttp\Client(),
+    $config
+);
+$id = 56; // int | The ID of the product
+
+try {
+    $result = $apiInstance->deleteProductImage($id);
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling ProductsApi->deleteProductImage: ', $e->getMessage(), PHP_EOL;
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **int**| The ID of the product |
+
+### Return type
+
+[**\Pipedrive\versions\v2\Model\DeleteProductImageResponse**](../Model/DeleteProductImageResponse.md)
+
+### Authorization
+
+[api_key](../README.md#api_key), [oauth2](../README.md#oauth2)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
 ## `deleteProductVariation()`
 
 ```php
@@ -404,6 +474,71 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**\Pipedrive\versions\v2\Model\DeleteProductVariation**](../Model/DeleteProductVariation.md)
+
+### Authorization
+
+[api_key](../README.md#api_key), [oauth2](../README.md#oauth2)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+## `duplicateProduct()`
+
+```php
+duplicateProduct($id): \Pipedrive\versions\v2\Model\ProductResponse
+```
+
+Duplicate a product
+
+Creates a duplicate of an existing product including all variations, prices, and custom fields.
+
+### Example
+
+```php
+<?php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+
+// Configure API key authorization: api_key
+$config = (new Pipedrive\versions\v2\Configuration())->setApiKey('x-api-token', 'YOUR_API_KEY');
+// Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+// $config = (new Pipedrive\versions\v2\Configuration())->setApiKeyPrefix('x-api-token', 'Bearer');
+
+// Configure OAuth2 access token for authorization: oauth2
+$config = (new Pipedrive\versions\v2\Configuration())->setAccessToken('YOUR_ACCESS_TOKEN');
+
+
+$apiInstance = new Pipedrive\versions\v2\Api\ProductsApi(
+    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
+    // This is optional, `GuzzleHttp\Client` will be used as default.
+    new GuzzleHttp\Client(),
+    $config
+);
+$id = 56; // int | The ID of the product
+
+try {
+    $result = $apiInstance->duplicateProduct($id);
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling ProductsApi->duplicateProduct: ', $e->getMessage(), PHP_EOL;
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **int**| The ID of the product |
+
+### Return type
+
+[**\Pipedrive\versions\v2\Model\ProductResponse**](../Model/ProductResponse.md)
 
 ### Authorization
 
@@ -607,6 +742,71 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**\Pipedrive\versions\v2\Model\GetFollowerChangelogs**](../Model/GetFollowerChangelogs.md)
+
+### Authorization
+
+[api_key](../README.md#api_key), [oauth2](../README.md#oauth2)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+## `getProductImage()`
+
+```php
+getProductImage($id): \Pipedrive\versions\v2\Model\ProductImageResponse
+```
+
+Get image of a product
+
+Retrieves the image of a product. The public URL has a limited lifetime of 7 days.
+
+### Example
+
+```php
+<?php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+
+// Configure API key authorization: api_key
+$config = (new Pipedrive\versions\v2\Configuration())->setApiKey('x-api-token', 'YOUR_API_KEY');
+// Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+// $config = (new Pipedrive\versions\v2\Configuration())->setApiKeyPrefix('x-api-token', 'Bearer');
+
+// Configure OAuth2 access token for authorization: oauth2
+$config = (new Pipedrive\versions\v2\Configuration())->setAccessToken('YOUR_ACCESS_TOKEN');
+
+
+$apiInstance = new Pipedrive\versions\v2\Api\ProductsApi(
+    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
+    // This is optional, `GuzzleHttp\Client` will be used as default.
+    new GuzzleHttp\Client(),
+    $config
+);
+$id = 56; // int | The ID of the product
+
+try {
+    $result = $apiInstance->getProductImage($id);
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling ProductsApi->getProductImage: ', $e->getMessage(), PHP_EOL;
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **int**| The ID of the product |
+
+### Return type
+
+[**\Pipedrive\versions\v2\Model\ProductImageResponse**](../Model/ProductImageResponse.md)
 
 ### Authorization
 
@@ -911,6 +1111,73 @@ Name | Type | Description  | Notes
 [[Back to Model list]](../README.md#documentation-for-models)
 [[Back to README]](../README.md)
 
+## `updateProductImage()`
+
+```php
+updateProductImage($id, $data): \Pipedrive\versions\v2\Model\UpdateProductImageResponse
+```
+
+Update an image for a product
+
+Updates the image of a product.
+
+### Example
+
+```php
+<?php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+
+// Configure API key authorization: api_key
+$config = (new Pipedrive\versions\v2\Configuration())->setApiKey('x-api-token', 'YOUR_API_KEY');
+// Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+// $config = (new Pipedrive\versions\v2\Configuration())->setApiKeyPrefix('x-api-token', 'Bearer');
+
+// Configure OAuth2 access token for authorization: oauth2
+$config = (new Pipedrive\versions\v2\Configuration())->setAccessToken('YOUR_ACCESS_TOKEN');
+
+
+$apiInstance = new Pipedrive\versions\v2\Api\ProductsApi(
+    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
+    // This is optional, `GuzzleHttp\Client` will be used as default.
+    new GuzzleHttp\Client(),
+    $config
+);
+$id = 56; // int | The ID of the product
+$data = "/path/to/file.txt"; // \SplFileObject | One image supplied in the multipart/form-data encoding
+
+try {
+    $result = $apiInstance->updateProductImage($id, $data);
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling ProductsApi->updateProductImage: ', $e->getMessage(), PHP_EOL;
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **int**| The ID of the product |
+ **data** | **\SplFileObject****\SplFileObject**| One image supplied in the multipart/form-data encoding |
+
+### Return type
+
+[**\Pipedrive\versions\v2\Model\UpdateProductImageResponse**](../Model/UpdateProductImageResponse.md)
+
+### Authorization
+
+[api_key](../README.md#api_key), [oauth2](../README.md#oauth2)
+
+### HTTP request headers
+
+- **Content-Type**: `multipart/form-data`
+- **Accept**: `application/json`
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
 ## `updateProductVariation()`
 
 ```php
@@ -974,6 +1241,73 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
 - **Content-Type**: `application/json`
+- **Accept**: `application/json`
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+## `uploadProductImage()`
+
+```php
+uploadProductImage($id, $data): \Pipedrive\versions\v2\Model\AddProductImageResponse
+```
+
+Upload an image for a product
+
+Uploads an image for a product.
+
+### Example
+
+```php
+<?php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+
+// Configure API key authorization: api_key
+$config = (new Pipedrive\versions\v2\Configuration())->setApiKey('x-api-token', 'YOUR_API_KEY');
+// Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+// $config = (new Pipedrive\versions\v2\Configuration())->setApiKeyPrefix('x-api-token', 'Bearer');
+
+// Configure OAuth2 access token for authorization: oauth2
+$config = (new Pipedrive\versions\v2\Configuration())->setAccessToken('YOUR_ACCESS_TOKEN');
+
+
+$apiInstance = new Pipedrive\versions\v2\Api\ProductsApi(
+    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
+    // This is optional, `GuzzleHttp\Client` will be used as default.
+    new GuzzleHttp\Client(),
+    $config
+);
+$id = 56; // int | The ID of the product
+$data = "/path/to/file.txt"; // \SplFileObject | One image supplied in the multipart/form-data encoding
+
+try {
+    $result = $apiInstance->uploadProductImage($id, $data);
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling ProductsApi->uploadProductImage: ', $e->getMessage(), PHP_EOL;
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **int**| The ID of the product |
+ **data** | **\SplFileObject****\SplFileObject**| One image supplied in the multipart/form-data encoding |
+
+### Return type
+
+[**\Pipedrive\versions\v2\Model\AddProductImageResponse**](../Model/AddProductImageResponse.md)
+
+### Authorization
+
+[api_key](../README.md#api_key), [oauth2](../README.md#oauth2)
+
+### HTTP request headers
+
+- **Content-Type**: `multipart/form-data`
 - **Accept**: `application/json`
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)

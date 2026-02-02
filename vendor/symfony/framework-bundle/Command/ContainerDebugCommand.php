@@ -43,7 +43,6 @@ class ContainerDebugCommand extends Command
         $this
             ->setDefinition([
                 new InputArgument('name', InputArgument::OPTIONAL, 'A service name (foo)'),
-                new InputOption('show-arguments', null, InputOption::VALUE_NONE, 'Show arguments in services'),
                 new InputOption('show-hidden', null, InputOption::VALUE_NONE, 'Show hidden (internal) services'),
                 new InputOption('tag', null, InputOption::VALUE_REQUIRED, 'Show all services with a specific tag'),
                 new InputOption('tags', null, InputOption::VALUE_NONE, 'Display tagged services for an application'),
@@ -57,59 +56,55 @@ class ContainerDebugCommand extends Command
                 new InputOption('deprecations', null, InputOption::VALUE_NONE, 'Display deprecations generated when compiling and warming up the container'),
             ])
             ->setHelp(<<<'EOF'
-The <info>%command.name%</info> command displays all configured <comment>public</comment> services:
+                The <info>%command.name%</info> command displays all configured <comment>public</comment> services:
 
-  <info>php %command.full_name%</info>
+                  <info>php %command.full_name%</info>
 
-To see deprecations generated during container compilation and cache warmup, use the <info>--deprecations</info> option:
+                To see deprecations generated during container compilation and cache warmup, use the <info>--deprecations</info> option:
 
-  <info>php %command.full_name% --deprecations</info>
+                  <info>php %command.full_name% --deprecations</info>
 
-To get specific information about a service, specify its name:
+                To get specific information about a service, specify its name:
 
-  <info>php %command.full_name% validator</info>
+                  <info>php %command.full_name% validator</info>
 
-To get specific information about a service including all its arguments, use the <info>--show-arguments</info> flag:
+                To see available types that can be used for autowiring, use the <info>--types</info> flag:
 
-  <info>php %command.full_name% validator --show-arguments</info>
+                  <info>php %command.full_name% --types</info>
 
-To see available types that can be used for autowiring, use the <info>--types</info> flag:
+                To see environment variables used by the container, use the <info>--env-vars</info> flag:
 
-  <info>php %command.full_name% --types</info>
+                  <info>php %command.full_name% --env-vars</info>
 
-To see environment variables used by the container, use the <info>--env-vars</info> flag:
+                Display a specific environment variable by specifying its name with the <info>--env-var</info> option:
 
-  <info>php %command.full_name% --env-vars</info>
+                  <info>php %command.full_name% --env-var=APP_ENV</info>
 
-Display a specific environment variable by specifying its name with the <info>--env-var</info> option:
+                Use the --tags option to display tagged <comment>public</comment> services grouped by tag:
 
-  <info>php %command.full_name% --env-var=APP_ENV</info>
+                  <info>php %command.full_name% --tags</info>
 
-Use the --tags option to display tagged <comment>public</comment> services grouped by tag:
+                Find all services with a specific tag by specifying the tag name with the <info>--tag</info> option:
 
-  <info>php %command.full_name% --tags</info>
+                  <info>php %command.full_name% --tag=form.type</info>
 
-Find all services with a specific tag by specifying the tag name with the <info>--tag</info> option:
+                Use the <info>--parameters</info> option to display all parameters:
 
-  <info>php %command.full_name% --tag=form.type</info>
+                  <info>php %command.full_name% --parameters</info>
 
-Use the <info>--parameters</info> option to display all parameters:
+                Display a specific parameter by specifying its name with the <info>--parameter</info> option:
 
-  <info>php %command.full_name% --parameters</info>
+                  <info>php %command.full_name% --parameter=kernel.debug</info>
 
-Display a specific parameter by specifying its name with the <info>--parameter</info> option:
+                By default, internal services are hidden. You can display them
+                using the <info>--show-hidden</info> flag:
 
-  <info>php %command.full_name% --parameter=kernel.debug</info>
+                  <info>php %command.full_name% --show-hidden</info>
 
-By default, internal services are hidden. You can display them
-using the <info>--show-hidden</info> flag:
+                The <info>--format</info> option specifies the format of the command output:
 
-  <info>php %command.full_name% --show-hidden</info>
-
-The <info>--format</info> option specifies the format of the command output:
-
-  <info>php %command.full_name% --format=json</info>
-EOF
+                  <info>php %command.full_name% --format=json</info>
+                EOF
             )
         ;
     }
@@ -161,7 +156,6 @@ EOF
 
         $helper = new DescriptorHelper();
         $options['format'] = $input->getOption('format');
-        $options['show_arguments'] = $input->getOption('show-arguments');
         $options['show_hidden'] = $input->getOption('show-hidden');
         $options['raw_text'] = $input->getOption('raw');
         $options['output'] = $io;
@@ -287,7 +281,9 @@ EOF
             return $matchingServices[0];
         }
 
-        return $io->choice('Select one of the following services to display its information', $matchingServices);
+        natsort($matchingServices);
+
+        return $io->choice('Select one of the following services to display its information', array_values($matchingServices));
     }
 
     private function findProperTagName(InputInterface $input, SymfonyStyle $io, ContainerBuilder $container, string $tagName): string
@@ -305,7 +301,9 @@ EOF
             return $matchingTags[0];
         }
 
-        return $io->choice('Select one of the following tags to display its information', $matchingTags);
+        natsort($matchingTags);
+
+        return $io->choice('Select one of the following tags to display its information', array_values($matchingTags));
     }
 
     private function findServiceIdsContaining(ContainerBuilder $container, string $name, bool $showHidden): array

@@ -86,7 +86,7 @@ class WorkerProcess
      */
     public function monitor()
     {
-        if ($this->process->isRunning() || $this->coolingDown()) {
+        if ($this->process->isRunning() || ($this->coolingDown() && $this->process->getExitCode() !== 0)) {
             return;
         }
 
@@ -159,8 +159,8 @@ class WorkerProcess
 
         if ($this->restartAgainAt) {
             $this->restartAgainAt = ! $this->process->isRunning()
-                            ? CarbonImmutable::now()->addMinute()
-                            : null;
+                ? CarbonImmutable::now()->addMinute()
+                : null;
 
             if (! $this->process->isRunning()) {
                 event(new UnableToLaunchProcess($this));
@@ -178,7 +178,7 @@ class WorkerProcess
     public function coolingDown()
     {
         return isset($this->restartAgainAt) &&
-               CarbonImmutable::now()->lt($this->restartAgainAt);
+            CarbonImmutable::now()->lt($this->restartAgainAt);
     }
 
     /**

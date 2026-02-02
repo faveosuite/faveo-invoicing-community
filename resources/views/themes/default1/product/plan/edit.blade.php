@@ -42,7 +42,7 @@
                 <option value="">{{ __('message.choose') }}</option>
 
                 @foreach($products as $key=>$product)
-                  <option value="{{$key}}"  <?php  if(in_array($product, $selectedProduct) ) { echo "selected";} ?>>{{$product}}</option>
+                  <option value="{{$key}}"  <?php  if(array_key_exists($key, $selectedProduct) ) { echo "selected";} ?>>{{$product}}</option>
                 @endforeach
               </select>
               @error('product')
@@ -200,6 +200,15 @@
               </div>
             </div>
 
+            <div class="col-md-12 form-group">
+                <div class="custom-control custom-switch">
+                    <input type="hidden" name="status" value="0">
+                    <input class="custom-control-input" type="checkbox" name="status" id="status" value="1" {{ $plan->status ? 'checked' : '' }}>
+                    <label class="custom-control-label" for="status">{{ __('message.active') }}</label>
+                    <i class="fa fa-info-circle" data-toggle="tooltip" title="{{ __('message.check_to_make_plan_active') }}"></i>
+                </div>
+            </div>
+
           </div>
 
         </div>
@@ -219,6 +228,10 @@
 
   <script>
     $(document).ready(function () {
+
+      $('[data-toggle="tooltip"]').tooltip({
+        container : 'body'
+      });
 
       // ===========================
       // INIT
@@ -242,7 +255,6 @@
       // ===========================
       function myProduct() {
         let product = $('#planproduct').val();
-
         $.ajax({
           type: 'GET',
           url: "{{url('get-period')}}",
@@ -318,11 +330,11 @@
             showError(currency, userRequiredFields.currency);
             isValid = false;
           }
-          if (regular.length && (!regular.val() || parseFloat(regular.val()) <= 0)) {
+          if (regular.length && (!regular.val() || parseFloat(regular.val()) < 0)) {
             showError(regular, userRequiredFields.regular_price);
             isValid = false;
           }
-          if (renew.length && (!renew.val() || parseFloat(renew.val()) <= 0)) {
+          if (renew.length && (!renew.val() || parseFloat(renew.val()) < 0)) {
             showError(renew, userRequiredFields.renew_price);
             isValid = false;
           }

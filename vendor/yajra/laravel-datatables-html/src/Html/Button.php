@@ -271,9 +271,11 @@ class Button extends Fluent implements Arrayable
     {
         if (! isset($this->attributes['className'])) {
             $this->attributes['className'] = $class;
-        } else {
-            $this->attributes['className'] .= " $class";
+
+            return $this;
         }
+
+        $this->attributes['className'] = $this->attributes['className']." $class";
 
         return $this;
     }
@@ -454,6 +456,20 @@ class Button extends Fluent implements Arrayable
 
         // Fallback to Fluent behavior if it's not a macro.
         $this->attributes[$method] = count($parameters) > 0 ? reset($parameters) : true;
+
+        return $this;
+    }
+
+    /**
+     * Request that the data be refreshed from the server when starting an edit.
+     *
+     * @return $this
+     *
+     * @see https://editor.datatables.net/reference/type/form-options#refresh
+     */
+    public function refresh(bool $value = true): static
+    {
+        $this->attributes['refresh'] = $value;
 
         return $this;
     }

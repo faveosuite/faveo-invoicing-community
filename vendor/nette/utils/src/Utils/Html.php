@@ -9,9 +9,9 @@ declare(strict_types=1);
 
 namespace Nette\Utils;
 
-use Nette;
 use Nette\HtmlStringable;
-use function is_array, is_float, is_object, is_string;
+use function array_merge, array_splice, count, explode, func_num_args, html_entity_decode, htmlspecialchars, http_build_query, implode, is_array, is_bool, is_float, is_object, is_string, json_encode, max, number_format, rtrim, str_contains, str_repeat, str_replace, strip_tags, strncmp, strpbrk, substr;
+use const ENT_HTML5, ENT_NOQUOTES, ENT_QUOTES;
 
 
 /**
@@ -233,20 +233,18 @@ use function is_array, is_float, is_object, is_string;
  */
 class Html implements \ArrayAccess, \Countable, \IteratorAggregate, HtmlStringable
 {
-	use Nette\SmartObject;
-
 	/** @var array<string, mixed>  element's attributes */
-	public $attrs = [];
+	public array $attrs = [];
 
 	/** void elements */
-	public static $emptyElements = [
+	public static array $emptyElements = [
 		'img' => 1, 'hr' => 1, 'br' => 1, 'input' => 1, 'meta' => 1, 'area' => 1, 'embed' => 1, 'keygen' => 1,
 		'source' => 1, 'base' => 1, 'col' => 1, 'link' => 1, 'param' => 1, 'basefont' => 1, 'frame' => 1,
 		'isindex' => 1, 'wbr' => 1, 'command' => 1, 'track' => 1,
 	];
 
 	/** @var array<int, HtmlStringable|string> nodes */
-	protected $children = [];
+	protected array $children = [];
 
 	/** element's name */
 	private string $name = '';
@@ -575,7 +573,7 @@ class Html implements \ArrayAccess, \Countable, \IteratorAggregate, HtmlStringab
 	/**
 	 * Adds new element's child.
 	 */
-	final public function addHtml(mixed $child): static
+	final public function addHtml(HtmlStringable|string $child): static
 	{
 		return $this->insert(null, $child);
 	}
@@ -584,7 +582,7 @@ class Html implements \ArrayAccess, \Countable, \IteratorAggregate, HtmlStringab
 	/**
 	 * Appends plain-text string to element content.
 	 */
-	public function addText(mixed $text): static
+	public function addText(\Stringable|string|int|null $text): static
 	{
 		if (!$text instanceof HtmlStringable) {
 			$text = htmlspecialchars((string) $text, ENT_NOQUOTES, 'UTF-8');

@@ -22,8 +22,8 @@ use PHPUnit\Runner\Version;
  */
 final readonly class UpdateSchemaLocation implements Migration
 {
-    private const NAMESPACE_URI              = 'http://www.w3.org/2001/XMLSchema-instance';
-    private const LOCAL_NAME_SCHEMA_LOCATION = 'noNamespaceSchemaLocation';
+    private const string NAMESPACE_URI              = 'http://www.w3.org/2001/XMLSchema-instance';
+    private const string LOCAL_NAME_SCHEMA_LOCATION = 'noNamespaceSchemaLocation';
 
     public function migrate(DOMDocument $document): void
     {
@@ -31,7 +31,7 @@ final readonly class UpdateSchemaLocation implements Migration
 
         assert($root instanceof DOMElement);
 
-        $existingSchemaLocation = $root->getAttributeNodeNS(self::NAMESPACE_URI, self::LOCAL_NAME_SCHEMA_LOCATION)->value;
+        $existingSchemaLocation = $root->getAttributeNS(self::NAMESPACE_URI, self::LOCAL_NAME_SCHEMA_LOCATION);
 
         if (str_contains($existingSchemaLocation, '://') === false) { // If the current schema location is a relative path, don't update it
             return;

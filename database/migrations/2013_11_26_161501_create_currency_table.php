@@ -18,7 +18,7 @@ return new class extends Migration
      */
     public function __construct()
     {
-        $this->table_name = config('currency.drivers.database.table');
+        $this->table_name = 'format_currencies';
     }
 
     /**

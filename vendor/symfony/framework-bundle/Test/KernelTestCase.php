@@ -14,6 +14,7 @@ namespace Symfony\Bundle\FrameworkBundle\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -32,6 +33,14 @@ abstract class KernelTestCase extends TestCase
     protected static bool $booted = false;
 
     protected function tearDown(): void
+    {
+        static::ensureKernelShutdown();
+        static::$class = null;
+        static::$kernel = null;
+        static::$booted = false;
+    }
+
+    public static function tearDownAfterClass(): void
     {
         static::ensureKernelShutdown();
         static::$class = null;
@@ -67,6 +76,18 @@ abstract class KernelTestCase extends TestCase
         $kernel->boot();
         static::$kernel = $kernel;
         static::$booted = true;
+
+        // If the cache warmer is registered, it means that the cache has been
+        // warmed up, so the current container is not fresh anymore. Let's
+        // reboot a fresh one.
+        if (self::getContainer()->initialized('cache_warmer')) {
+            static::ensureKernelShutdown();
+
+            $kernel = static::createKernel($options);
+            $kernel->boot();
+            static::$kernel = $kernel;
+            static::$booted = true;
+        }
 
         return static::$kernel;
     }
@@ -119,6 +140,11 @@ abstract class KernelTestCase extends TestCase
             static::$kernel->boot();
             $container = static::$kernel->getContainer();
 
+            $httpCacheDir = null;
+            if ($container->has('http_cache')) {
+                $httpCacheDir = static::$kernel->getCacheDir().'/http_cache';
+            }
+
             if ($container->has('services_resetter')) {
                 // Instantiate the service because Container::reset() only resets services that have been used
                 $container->get('services_resetter');
@@ -129,6 +155,10 @@ abstract class KernelTestCase extends TestCase
 
             if ($container instanceof ResetInterface) {
                 $container->reset();
+            }
+
+            if (null !== $httpCacheDir && is_dir($httpCacheDir)) {
+                (new Filesystem())->remove($httpCacheDir);
             }
         }
     }

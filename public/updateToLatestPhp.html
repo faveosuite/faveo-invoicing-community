@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Faveo Invoicing | PHP 8.4 Upgrade Required</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --faveo-primary: #009aba;
+            --faveo-dark: #2f6f95;
+            --faveo-light: #eaf4fa;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f4f9fc, #d9ecf7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .upgrade-wrapper {
+            max-width: 850px;
+            width: 95%;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 18px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {opacity:0; transform: translateY(20px);}
+            to {opacity:1; transform: translateY(0);}
+        }
+
+        .upgrade-header {
+            background: linear-gradient(90deg, var(--faveo-primary), var(--faveo-dark));
+            color: #fff;
+            padding: 35px 30px;
+            text-align: center;
+        }
+
+        .upgrade-header i {
+            font-size: 42px;
+            margin-bottom: 12px;
+        }
+
+        .upgrade-header h2 {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .upgrade-body {
+            padding: 40px;
+        }
+
+        .section-title {
+            font-weight: 600;
+            color: var(--faveo-primary);
+            margin-top: 25px;
+        }
+
+        .info-highlight {
+            background: var(--faveo-light);
+            border-left: 5px solid var(--faveo-primary);
+            padding: 18px;
+            border-radius: 10px;
+            margin-top: 25px;
+            font-size: 14px;
+        }
+
+        .btn-faveo {
+            background: var(--faveo-primary);
+            color: #fff;
+            border-radius: 50px;
+            padding: 10px 28px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-faveo:hover {
+            background: var(--faveo-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(60,141,188,0.3);
+        }
+
+        ul li {
+            margin-bottom: 6px;
+        }
+
+        .footer-note {
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 576px) {
+            .upgrade-body {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="upgrade-wrapper">
+
+    <div class="upgrade-header">
+        <i class="fas fa-server"></i>
+        <h2>PHP 8.4 Upgrade Required</h2>
+        <p class="mb-0">Your Faveo Invoicing installation requires PHP 8.4 or higher</p>
+    </div>
+
+    <div class="upgrade-body">
+
+        <h5 class="section-title">
+            <i class="fas fa-circle-exclamation me-2"></i>Why Upgrade?
+        </h5>
+        <p>
+            Your server is currently running an outdated PHP version.
+            For security, stability, and optimal performance, Faveo Invoicing now supports
+            <strong>PHP 8.4 and above only.</strong>
+        </p>
+
+        <ul>
+            <li>⚡ Improved system performance</li>
+            <li>🔐 Enhanced security patches</li>
+            <li>🚀 Better compatibility & stability</li>
+            <li>📈 Long-term support</li>
+        </ul>
+
+        <h5 class="section-title">
+            <i class="fas fa-code me-2"></i>Next Steps
+        </h5>
+        <p>
+            Update your server to <strong>PHP 8.4</strong> and install the latest
+            <strong>Ioncube Loader</strong>.
+        </p>
+
+        <div class="info-highlight">
+            <strong>Important:</strong><br>
+            After upgrading PHP and Ioncube, remove
+            <code>updateToLatestPhp.html</code> from your root directory.
+            Then proceed with the database upgrade process.
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="https://docs.faveohelpdesk.com/docs/installation/providers/enterprise/php84-upgrade/"
+               target="_blank"
+               class="btn btn-faveo">
+                <i class="fas fa-book me-2"></i>View Upgrade Guide
+            </a>
+        </div>
+
+        <p class="footer-note">
+            If you need assistance, please contact your hosting provider or system administrator.
+        </p>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

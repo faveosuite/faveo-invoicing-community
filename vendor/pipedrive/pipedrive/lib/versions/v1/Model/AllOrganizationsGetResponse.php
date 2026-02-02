@@ -231,15 +231,6 @@ class AllOrganizationsGetResponse implements ModelInterface, ArrayAccess, JsonSe
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
-        if ($this->container['related_objects'] === null) {
-            $invalidProperties[] = "'related_objects' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -282,7 +273,7 @@ class AllOrganizationsGetResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\BaseOrganizationItem[]
+     * @return \Pipedrive\versions\v1\Model\BaseOrganizationItem[]|null
      */
     public function getData()
     {
@@ -292,7 +283,7 @@ class AllOrganizationsGetResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\BaseOrganizationItem[] $data The array of organizations
+     * @param \Pipedrive\versions\v1\Model\BaseOrganizationItem[]|null $data The array of organizations
      *
      * @return self
      */
@@ -306,7 +297,7 @@ class AllOrganizationsGetResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\ItemSearchAdditionalData
+     * @return \Pipedrive\versions\v1\Model\ItemSearchAdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -316,7 +307,7 @@ class AllOrganizationsGetResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\ItemSearchAdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\ItemSearchAdditionalData|null $additional_data additional_data
      *
      * @return self
      */
@@ -330,7 +321,7 @@ class AllOrganizationsGetResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets related_objects
      *
-     * @return \Pipedrive\versions\v1\Model\AllOrganizationsGetResponseAllOfRelatedObjects
+     * @return \Pipedrive\versions\v1\Model\AllOrganizationsGetResponseAllOfRelatedObjects|null
      */
     public function getRelatedObjects()
     {
@@ -340,7 +331,7 @@ class AllOrganizationsGetResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets related_objects
      *
-     * @param \Pipedrive\versions\v1\Model\AllOrganizationsGetResponseAllOfRelatedObjects $related_objects related_objects
+     * @param \Pipedrive\versions\v1\Model\AllOrganizationsGetResponseAllOfRelatedObjects|null $related_objects related_objects
      *
      * @return self
      */

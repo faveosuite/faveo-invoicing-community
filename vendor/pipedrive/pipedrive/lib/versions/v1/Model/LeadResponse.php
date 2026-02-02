@@ -333,69 +333,6 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     {
         $invalidProperties = [];
 
-        if ($this->container['id'] === null) {
-            $invalidProperties[] = "'id' can't be null";
-        }
-        if ($this->container['title'] === null) {
-            $invalidProperties[] = "'title' can't be null";
-        }
-        if ($this->container['owner_id'] === null) {
-            $invalidProperties[] = "'owner_id' can't be null";
-        }
-        if ($this->container['creator_id'] === null) {
-            $invalidProperties[] = "'creator_id' can't be null";
-        }
-        if ($this->container['label_ids'] === null) {
-            $invalidProperties[] = "'label_ids' can't be null";
-        }
-        if ($this->container['person_id'] === null) {
-            $invalidProperties[] = "'person_id' can't be null";
-        }
-        if ($this->container['organization_id'] === null) {
-            $invalidProperties[] = "'organization_id' can't be null";
-        }
-        if ($this->container['source_name'] === null) {
-            $invalidProperties[] = "'source_name' can't be null";
-        }
-        if ($this->container['origin'] === null) {
-            $invalidProperties[] = "'origin' can't be null";
-        }
-        if ($this->container['origin_id'] === null) {
-            $invalidProperties[] = "'origin_id' can't be null";
-        }
-        if ($this->container['channel'] === null) {
-            $invalidProperties[] = "'channel' can't be null";
-        }
-        if ($this->container['channel_id'] === null) {
-            $invalidProperties[] = "'channel_id' can't be null";
-        }
-        if ($this->container['is_archived'] === null) {
-            $invalidProperties[] = "'is_archived' can't be null";
-        }
-        if ($this->container['was_seen'] === null) {
-            $invalidProperties[] = "'was_seen' can't be null";
-        }
-        if ($this->container['value'] === null) {
-            $invalidProperties[] = "'value' can't be null";
-        }
-        if ($this->container['expected_close_date'] === null) {
-            $invalidProperties[] = "'expected_close_date' can't be null";
-        }
-        if ($this->container['next_activity_id'] === null) {
-            $invalidProperties[] = "'next_activity_id' can't be null";
-        }
-        if ($this->container['add_time'] === null) {
-            $invalidProperties[] = "'add_time' can't be null";
-        }
-        if ($this->container['update_time'] === null) {
-            $invalidProperties[] = "'update_time' can't be null";
-        }
-        if ($this->container['visible_to'] === null) {
-            $invalidProperties[] = "'visible_to' can't be null";
-        }
-        if ($this->container['cc_email'] === null) {
-            $invalidProperties[] = "'cc_email' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -414,7 +351,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets id
      *
-     * @return string
+     * @return string|null
      */
     public function getId()
     {
@@ -424,7 +361,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets id
      *
-     * @param string $id The unique ID of the lead in the UUID format
+     * @param string|null $id The unique ID of the lead in the UUID format
      *
      * @return self
      */
@@ -438,7 +375,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets title
      *
-     * @return string
+     * @return string|null
      */
     public function getTitle()
     {
@@ -448,7 +385,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets title
      *
-     * @param string $title The title of the lead
+     * @param string|null $title The title of the lead
      *
      * @return self
      */
@@ -462,7 +399,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets owner_id
      *
-     * @return int
+     * @return int|null
      */
     public function getOwnerId()
     {
@@ -472,7 +409,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets owner_id
      *
-     * @param int $owner_id The ID of the user who owns the lead
+     * @param int|null $owner_id The ID of the user who owns the lead
      *
      * @return self
      */
@@ -486,7 +423,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets creator_id
      *
-     * @return int
+     * @return int|null
      */
     public function getCreatorId()
     {
@@ -496,7 +433,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets creator_id
      *
-     * @param int $creator_id The ID of the user who created the lead
+     * @param int|null $creator_id The ID of the user who created the lead
      *
      * @return self
      */
@@ -510,7 +447,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets label_ids
      *
-     * @return string[]
+     * @return string[]|null
      */
     public function getLabelIds()
     {
@@ -520,7 +457,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets label_ids
      *
-     * @param string[] $label_ids The IDs of the lead labels which are associated with the lead
+     * @param string[]|null $label_ids The IDs of the lead labels which are associated with the lead
      *
      * @return self
      */
@@ -534,7 +471,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets person_id
      *
-     * @return int
+     * @return int|null
      */
     public function getPersonId()
     {
@@ -544,7 +481,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets person_id
      *
-     * @param int $person_id The ID of a person which this lead is linked to
+     * @param int|null $person_id The ID of a person which this lead is linked to
      *
      * @return self
      */
@@ -558,7 +495,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets organization_id
      *
-     * @return int
+     * @return int|null
      */
     public function getOrganizationId()
     {
@@ -568,7 +505,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets organization_id
      *
-     * @param int $organization_id The ID of an organization which this lead is linked to
+     * @param int|null $organization_id The ID of an organization which this lead is linked to
      *
      * @return self
      */
@@ -582,7 +519,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets source_name
      *
-     * @return string
+     * @return string|null
      */
     public function getSourceName()
     {
@@ -592,7 +529,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets source_name
      *
-     * @param string $source_name Defines where the lead comes from. Will be `API` if the lead was created through the Public API and will be `Manually created` if the lead was created manually through the UI.
+     * @param string|null $source_name Defines where the lead comes from. Will be `API` if the lead was created through the Public API and will be `Manually created` if the lead was created manually through the UI.
      *
      * @return self
      */
@@ -606,7 +543,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets origin
      *
-     * @return string
+     * @return string|null
      */
     public function getOrigin()
     {
@@ -616,7 +553,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets origin
      *
-     * @param string $origin The way this Lead was created. `origin` field is set by Pipedrive when Lead is created and cannot be changed.
+     * @param string|null $origin The way this Lead was created. `origin` field is set by Pipedrive when Lead is created and cannot be changed.
      *
      * @return self
      */
@@ -630,7 +567,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets origin_id
      *
-     * @return string
+     * @return string|null
      */
     public function getOriginId()
     {
@@ -640,7 +577,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets origin_id
      *
-     * @param string $origin_id The optional ID to further distinguish the origin of the lead - e.g. Which API integration created this Lead.
+     * @param string|null $origin_id The optional ID to further distinguish the origin of the lead - e.g. Which API integration created this Lead.
      *
      * @return self
      */
@@ -654,7 +591,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets channel
      *
-     * @return int
+     * @return int|null
      */
     public function getChannel()
     {
@@ -664,7 +601,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets channel
      *
-     * @param int $channel The ID of your Marketing channel this Lead was created from. Recognized Marketing channels can be configured in your <a href=\"https://app.pipedrive.com/settings/fields\" target=\"_blank\" rel=\"noopener noreferrer\">Company settings</a>.
+     * @param int|null $channel The ID of your Marketing channel this Lead was created from. Recognized Marketing channels can be configured in your <a href=\"https://app.pipedrive.com/settings/fields\" target=\"_blank\" rel=\"noopener noreferrer\">Company settings</a>.
      *
      * @return self
      */
@@ -678,7 +615,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets channel_id
      *
-     * @return string
+     * @return string|null
      */
     public function getChannelId()
     {
@@ -688,7 +625,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets channel_id
      *
-     * @param string $channel_id The optional ID to further distinguish the Marketing channel.
+     * @param string|null $channel_id The optional ID to further distinguish the Marketing channel.
      *
      * @return self
      */
@@ -702,7 +639,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets is_archived
      *
-     * @return bool
+     * @return bool|null
      */
     public function getIsArchived()
     {
@@ -712,7 +649,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets is_archived
      *
-     * @param bool $is_archived A flag indicating whether the lead is archived or not
+     * @param bool|null $is_archived A flag indicating whether the lead is archived or not
      *
      * @return self
      */
@@ -726,7 +663,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets was_seen
      *
-     * @return bool
+     * @return bool|null
      */
     public function getWasSeen()
     {
@@ -736,7 +673,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets was_seen
      *
-     * @param bool $was_seen A flag indicating whether the lead was seen by someone in the Pipedrive UI
+     * @param bool|null $was_seen A flag indicating whether the lead was seen by someone in the Pipedrive UI
      *
      * @return self
      */
@@ -750,7 +687,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets value
      *
-     * @return \Pipedrive\versions\v1\Model\LeadValue
+     * @return \Pipedrive\versions\v1\Model\LeadValue|null
      */
     public function getValue()
     {
@@ -760,7 +697,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets value
      *
-     * @param \Pipedrive\versions\v1\Model\LeadValue $value value
+     * @param \Pipedrive\versions\v1\Model\LeadValue|null $value value
      *
      * @return self
      */
@@ -774,7 +711,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets expected_close_date
      *
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getExpectedCloseDate()
     {
@@ -784,7 +721,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets expected_close_date
      *
-     * @param \DateTime $expected_close_date The date of when the deal which will be created from the lead is expected to be closed. In ISO 8601 format: YYYY-MM-DD.
+     * @param \DateTime|null $expected_close_date The date of when the deal which will be created from the lead is expected to be closed. In ISO 8601 format: YYYY-MM-DD.
      *
      * @return self
      */
@@ -798,7 +735,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets next_activity_id
      *
-     * @return int
+     * @return int|null
      */
     public function getNextActivityId()
     {
@@ -808,7 +745,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets next_activity_id
      *
-     * @param int $next_activity_id The ID of the next activity associated with the lead
+     * @param int|null $next_activity_id The ID of the next activity associated with the lead
      *
      * @return self
      */
@@ -822,7 +759,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets add_time
      *
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getAddTime()
     {
@@ -832,7 +769,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets add_time
      *
-     * @param \DateTime $add_time The date and time of when the lead was created. In ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
+     * @param \DateTime|null $add_time The date and time of when the lead was created. In ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
      *
      * @return self
      */
@@ -846,7 +783,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets update_time
      *
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getUpdateTime()
     {
@@ -856,7 +793,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets update_time
      *
-     * @param \DateTime $update_time The date and time of when the lead was last updated. In ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
+     * @param \DateTime|null $update_time The date and time of when the lead was last updated. In ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
      *
      * @return self
      */
@@ -870,7 +807,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets visible_to
      *
-     * @return VisibleTo
+     * @return VisibleTo|null
      */
     public function getVisibleTo()
     {
@@ -880,7 +817,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets visible_to
      *
-     * @param VisibleTo $visible_to The visibility of the lead. If omitted, the visibility will be set to the default visibility setting of this item type for the authorized user.<table><tr><th>Value</th><th>Description</th></tr><tr><td>`1`</td><td>Owner &amp; followers (private)</td></tr><tr><td>`3`</td><td>Entire company (shared)</td></tr></table>
+     * @param VisibleTo|null $visible_to The visibility of the lead. If omitted, the visibility will be set to the default visibility setting of this item type for the authorized user.<table><tr><th>Value</th><th>Description</th></tr><tr><td>`1`</td><td>Owner &amp; followers (private)</td></tr><tr><td>`3`</td><td>Entire company (shared)</td></tr></table>
      *
      * @return self
      */
@@ -894,7 +831,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets cc_email
      *
-     * @return string
+     * @return string|null
      */
     public function getCcEmail()
     {
@@ -904,7 +841,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets cc_email
      *
-     * @param string $cc_email The BCC email of the lead
+     * @param string|null $cc_email The BCC email of the lead
      *
      * @return self
      */

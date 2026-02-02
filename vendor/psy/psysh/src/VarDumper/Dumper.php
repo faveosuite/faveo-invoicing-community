@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -71,7 +71,7 @@ class Dumper extends CliDumper
         }
 
         $styled = '';
-        $cchr = $this->styles['cchr'];
+        $cchr = $this->styles['cchr'] ?? '';
 
         $chunks = \preg_split(self::CONTROL_CHARS, $value, -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_DELIM_CAPTURE);
         foreach ($chunks as $chunk) {

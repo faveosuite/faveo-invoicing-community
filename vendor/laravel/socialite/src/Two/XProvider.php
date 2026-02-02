@@ -30,7 +30,7 @@ class XProvider extends TwitterProvider
     {
         $response = $this->getHttpClient()->get('https://api.x.com/2/users/me', [
             RequestOptions::HEADERS => ['Authorization' => 'Bearer '.$token],
-            RequestOptions::QUERY => ['user.fields' => 'profile_image_url'],
+            RequestOptions::QUERY => ['user.fields' => 'profile_image_url,confirmed_email'],
         ]);
 
         return Arr::get(json_decode($response->getBody(), true), 'data');

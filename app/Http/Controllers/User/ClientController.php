@@ -169,11 +169,14 @@ class ClientController extends AdvanceSearchController
                             $searchQuery = str_replace(' ', '', $keyword);
                             $model->whereRaw('country_name like ?', ["%$searchQuery%"]);
                         })
+                        ->filterColumn('created_at', function ($model, $keyword) {
+                            $model->whereRaw('DATE(users.created_at) like ?', ["%$keyword%"]);
+                        })
                         ->orderColumn('name', 'name $1')
                         ->orderColumn('email', 'email $1')
                         ->orderColumn('mobile', 'mobile $1')
                         ->orderColumn('country', 'country $1')
-                        ->orderColumn('created_at', 'created_at $1')
+                        ->orderColumn('created_at', 'users.created_at $1')
 
                         ->rawColumns(['checkbox', 'name', 'email',  'created_at', 'active', 'action'])
                         ->make(true);

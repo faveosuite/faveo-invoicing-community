@@ -508,7 +508,7 @@ $feeAmount = $displayProcessingFee*($processingFee/100);
                                         <td class="product-subtotal">
 
                                             <span class="amount text-color-dark font-weight-bold text-3">
-                                                {{currencyFormat($item->regular_price,$code = $currency)}}
+                                                {{currencyFormat($item->quantity * $item->regular_price,$code = $currency)}}
                                             </span>
 
                                         </td>
@@ -541,8 +541,8 @@ $feeAmount = $displayProcessingFee*($processingFee/100);
                                             <strong class="d-block text-color-dark line-height-1 font-weight-semibold">{{ __('message.cart_subtotal') }}</strong>
                                         </td>
                                           <?php 
-                                        $subtotals = App\Model\Order\InvoiceItem::where('invoice_id',$invoice->id)->pluck('regular_price')->toArray();
-                                        $subtotal = array_sum($subtotals);
+                                        $subtotals = App\Model\Order\InvoiceItem::where('invoice_id',$invoice->id)->get(['quantity','regular_price']);
+                                        $subtotal = $subtotals->sum(fn($item) => $item->quantity * $item->regular_price);
                                         ?>
                                         <td class="text-end align-top border-top-0">
                                             <span class="amount font-weight-medium text-color-grey">{{currencyFormat($subtotal,$code = $currency)}}</span>

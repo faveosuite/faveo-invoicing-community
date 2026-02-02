@@ -814,6 +814,7 @@ return [
     'product_controller' => [
         'name_required' => 'Ürün adı gereklidir.',
         'name_unique' => 'Ad benzersiz olmalıdır.',
+        'name_unique_in_group' => 'Bu isimde bir ürün seçilen grupta zaten mevcut. Lütfen farklı bir isim seçin veya başka bir grup seçin.',
         'type_required' => 'Ürün türü gereklidir.',
         'description_required' => 'Ürün açıklaması gereklidir.',
         'product_description_required' => 'Ürün detaylı açıklaması gereklidir.',

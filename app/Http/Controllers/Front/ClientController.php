@@ -543,6 +543,12 @@ class ClientController extends BaseClientController
 
             $processingFeeAmount = ($percent / 100) * ($itemsSubtotal + $taxDeducted);
         }
+        $base64 = '';
+        if ($set->logo) {
+            $type = pathinfo($set->logo, PATHINFO_EXTENSION);
+            $data = file_get_contents($set->logo);
+            $base64 = 'data:image/'.$type.';base64,'.base64_encode($data);
+        }
 
         return compact(
             'payments',
@@ -557,7 +563,8 @@ class ClientController extends BaseClientController
             'itemsSubtotal',
             'taxAmt',
             'gstSplit',
-            'processingFeeAmount'
+            'processingFeeAmount',
+            'base64'
         );
     }
 
@@ -728,11 +735,12 @@ class ClientController extends BaseClientController
             }
 
             return \DataTables::of($orders)
-                        ->orderColumn('products.name', '-orders.id $1')
-                        ->orderColumn('date', '-orders.id $1')
-                        ->orderColumn('orders.number', '-orders.id $1')
+                        ->orderColumn('product_name', 'products.name $1')
+                        ->orderColumn('date', 'orders.created_at $1')
+                        ->orderColumn('number', 'orders.number $1')
                         ->orderColumn('agents', '-orders.id $1')
-                        ->orderColumn('expiry', '-orders.id $1')
+                        ->orderColumn('expiry', 'subscriptions.update_ends_at $1')
+                        ->orderColumn('id', 'orders.id $1')
 
                             ->addColumn('id', function ($model) {
                                 return $model->id;

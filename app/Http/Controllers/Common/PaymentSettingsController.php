@@ -92,12 +92,12 @@ class PaymentSettingsController extends Controller
 
         if (count($fields) > 0) {
             foreach ($fields as $key => $field) {
-                $plug = $plugs->where('name', $field['name'])->select(['path', 'status'])->orderBy('name');
+                $plug = $plugs->where('name', $field['name'])->select(['path', 'status'])->orderBy('name')->get();
 
-                if ($plug) {
-                    foreach ($plug as $i => $value) {
-                        $attributes[$key]['path'] = $plug[$i]['path'];
-                        $attributes[$key]['status'] = $plug[$i]['status'];
+                if ($plug->isNotEmpty()) {
+                    foreach ($plug as $value) {
+                        $attributes[$key]['path'] = $value['path'];
+                        $attributes[$key]['status'] = $value['status'];
                     }
                 } else {
                     $attributes[$key]['path'] = $field['name'];

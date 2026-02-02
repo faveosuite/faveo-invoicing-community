@@ -78,8 +78,8 @@ class CloudActivitiesTest extends DBTestCase
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => '']);
-        $response = $this->call('POST', 'get-agent-inc-dec-cost', ['number' => 5, 'oldAgents' => 3, 'orderId' => $order->id]);
-        $priceToPay = currencyFormat($planPrice->add_price * 5, 'INR', true);
+        $response = $this->call('POST', 'get-agent-inc-dec-cost', ['number' => 5, 'oldAgents' => 3, 'orderId' => $order->id, 'agentAction' => 'increase']);
+        $priceToPay = currencyFormat($planPrice->add_price * 8, 'INR', true);
         $content = $response->json();
         $response->assertStatus(200);
         $this->assertEquals($content['priceToPay'], $priceToPay);
@@ -114,7 +114,7 @@ class CloudActivitiesTest extends DBTestCase
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(30)]);
-        $response = $this->call('POST', 'get-agent-inc-dec-cost', ['number' => 5, 'oldAgents' => 3, 'orderId' => $order->id]);
+        $response = $this->call('POST', 'get-agent-inc-dec-cost', ['number' => 5, 'oldAgents' => 3, 'orderId' => $order->id, 'agentAction' => 'increase']);
         $response->assertStatus(200);
         $content = $response->json();
         $this->assertNotEquals($content['priceToPay'], $content['totalPrice']);
@@ -149,8 +149,8 @@ class CloudActivitiesTest extends DBTestCase
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => '']);
-        $response = $this->call('POST', 'get-agent-inc-dec-cost', ['number' => 3, 'oldAgents' => 5, 'orderId' => $order->id]);
-        $priceToPay = currencyFormat($planPrice->add_price * 3, 'INR', true);
+        $response = $this->call('POST', 'get-agent-inc-dec-cost', ['number' => 3, 'oldAgents' => 5, 'orderId' => $order->id, 'agentAction' => 'decrease']);
+        $priceToPay = currencyFormat($planPrice->add_price * (5 - 3), 'INR', true);
         $content = $response->json();
         $response->assertStatus(200);
         $this->assertEquals($content['priceToPay'], $priceToPay);
@@ -185,7 +185,7 @@ class CloudActivitiesTest extends DBTestCase
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(80)]);
-        $response = $this->call('POST', 'get-agent-inc-dec-cost', ['number' => 3, 'oldAgents' => 5, 'orderId' => $order->id]);
+        $response = $this->call('POST', 'get-agent-inc-dec-cost', ['number' => 3, 'oldAgents' => 5, 'orderId' => $order->id, 'agentAction' => 'decrease']);
         $content = $response->json();
         $response->assertStatus(200);
         $this->assertEquals($content['priceToPay'], '₹0.00');
@@ -544,7 +544,7 @@ class CloudActivitiesTest extends DBTestCase
         $licensetype->permissions()->attach($permissionid);
         $product = Product::create(['name' => 'FreeHelpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name, 'quantity' => '1', 'subtotal' => 5000]);
+        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name, 'product_id' => $product->id, 'quantity' => '1', 'subtotal' => 5000]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => 'eyJpdiI6IkpI0005']);
         $installationDetail = InstallationDetail::create(['order_id' => $order->id, 'installation_path' => '/path']);

@@ -60,7 +60,7 @@ function getFlagIconByCardBrand($cardBrand) {
                                         <strong class="d-block text-color-dark line-height-1 font-weight-semibold">{{$item->product_name}} <span class="product-qty">x {{$item->quantity}}</span></strong>
                                     </td>
                                     <td class="text-end align-top">
-                                        <span class="amount font-weight-medium text-color-grey">{{currencyFormat($item->regular_price,$code = $invoice->currency)}}</span>
+                                        <span class="amount font-weight-medium text-color-grey">{{currencyFormat($item->quantity * $item->regular_price,$code = $invoice->currency)}}</span>
                                     </td>
                                 </tr>
 

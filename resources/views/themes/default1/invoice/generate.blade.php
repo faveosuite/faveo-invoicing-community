@@ -138,6 +138,16 @@
 
 
 <script>
+    $(document).on('input', '#cloud_domain', function () {
+        const alphanumeric = /^[a-zA-Z0-9]+$/;
+        if (!alphanumeric.test(this.value)) {
+            $('#cloud-msg').text("{{ __('message.domain_check') }}");
+            $('#generate').attr('disabled', true);
+        } else {
+            $('#cloud-msg').text('');
+            $('#generate').attr('disabled', false);
+        }
+    });
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'add_invoice';
     }).addClass('active');
@@ -232,45 +242,57 @@
                 isValid = false;
             }
 
-            if(!document.getElementsByName('plan')[0].value){
+            if(document.getElementsByName('plan')[0] && !document.getElementsByName('plan')[0].value){
+                console.log('hii');
+                isValid=false;
                 plan=document.getElementsByName('plan');
                 plan[0].classList.add('is-invalid');
-                document.getElementById('subscription-msg').innerHTML =@json(trans('message.subscription-error-message'));
-                isValid=false;
-            }else{
+                var subMsg = document.getElementById('subscription-msg');
+                if(subMsg) subMsg.innerHTML =@json(trans('message.subscription-error-message'));
+            }else if(document.getElementsByName('plan')[0]){
+                plan=document.getElementsByName('plan');
                 plan[0].classList.remove('is-invalid');
 
             }
 
-            if(!document.getElementsByName('agents')[0].value){
+            if(document.getElementsByName('agents')[0] && !document.getElementsByName('agents')[0].value){
+                isValid=false;
                 plan=document.getElementsByName('agents');
                 plan[0].classList.add('is-invalid');
-                document.getElementById('agents-msg').innerHTML =@json(trans('message.agents-error-message'));
-                isValid=false;
-            }else{
+                var agentsMsg = document.getElementById('agents-msg');
+                if(agentsMsg) agentsMsg.innerHTML =@json(trans('message.agents-error-message'));
+            }else if(document.getElementsByName('agents')[0]){
+                plan=document.getElementsByName('agents');
                 plan[0].classList.remove('is-invalid');
-                document.getElementById('agents-msg').innerHTML ='';
+                var agentsMsg = document.getElementById('agents-msg');
+                if(agentsMsg) agentsMsg.innerHTML ='';
             }
 
-            if(!document.getElementsByName('cloud_domain')[0].value){
+            if(document.getElementsByName('cloud_domain')[0] && !document.getElementsByName('cloud_domain')[0].value){
+                isValid=false;
                 plan=document.getElementsByName('cloud_domain');
                 plan[0].classList.add('is-invalid');
-                document.getElementById('cloud-msg').innerHTML =@json(trans('message.cloud-error-message'));
-                isValid=false;
-            }else{
+                var cloudMsg = document.getElementById('cloud-msg');
+                if(cloudMsg) cloudMsg.innerHTML =@json(trans('message.cloud-error-message'));
+            }else if(document.getElementsByName('cloud_domain')[0]){
+                plan=document.getElementsByName('cloud_domain');
                 plan[0].classList.remove('is-invalid');
-                document.getElementById('cloud-msg').innerHTML ='';
+                var cloudMsg = document.getElementById('cloud-msg');
+                if(cloudMsg) cloudMsg.innerHTML ='';
 
             }
 
-            if(!document.getElementsByName('quantity')[0].value){
+            if(document.getElementsByName('quantity')[0] && !document.getElementsByName('quantity')[0].value){
+                isValid=false;
                 plan=document.getElementsByName('quantity');
                 plan[0].classList.add('is-invalid');
-                document.getElementById('quantity-msg').innerHTML =@json(trans('message.quantity-error-message'));
-                isValid=false;
-            }else{
+                var qtyMsg = document.getElementById('quantity-msg');
+                if(qtyMsg) qtyMsg.innerHTML =@json(trans('message.quantity-error-message'));
+            }else if(document.getElementsByName('quantity')[0]){
+                plan=document.getElementsByName('quantity');
                 plan[0].classList.remove('is-invalid');
-                document.getElementById('quantity-msg').innerHTML ='';
+                var qtyMsg = document.getElementById('quantity-msg');
+                if(qtyMsg) qtyMsg.innerHTML ='';
 
             }
 
@@ -359,6 +381,10 @@
                     element2.innerHTML = agents
                 }
 
+                if (document.getElementById('cloud_domain') && !document.getElementById('cloud_domain').value) {
+                    $('#generate').attr('disabled', true);
+                }
+
             }
         });
     }
@@ -374,7 +400,15 @@
          }
 
          // Exit early if no product is selected
-         if (!productId) return;
+         if (!productId) {
+             $('#fields1').empty();   // remove subscription/plan
+             $('#fields').empty();    // remove dynamic fields
+             $('#qty').empty();       // remove quantity
+             $('#agents').empty();    // remove agents
+             $('#price').val('');     // reset price
+             $('#generate').attr('disabled', false);
+             return;
+         }
 
          $.ajax({
              type: 'GET',
@@ -428,6 +462,7 @@
         }
         if ($('#domain').length > 0) {
             var domain = document.getElementsByName('domain')[0].value;
+
             var data = $("#formoid").serialize() + '&domain=' + domain + '&user=' + user;
             if ($('#quantity').length > 0) {
                 var quantity = document.getElementsByName('quantity')[0].value;
@@ -446,6 +481,7 @@
             else if(document.getElementsByName('agents')[0]){
                 var agents = document.getElementsByName('agents')[0].value;
                 var cloud_domain = document.getElementsByName('cloud_domain')[0]?.value ?? '';
+
                 if(cloud_domain !== ''){
                     var data = $("#formoid").serialize() + '&agents=' + agents + '&user=' + user + '&cloud_domain=' +cloud_domain;
                 }
@@ -456,6 +492,12 @@
             else {
                 var data = $("#formoid").serialize() + '&user=' + user;
             }
+        }
+        const alphanumeric = /^[a-zA-Z0-9]+$/;
+
+        if ( cloud_domain !== '' && !alphanumeric.test(cloud_domain)) {
+            document.getElementById('cloud-msg').textContent = "{{ __('message.domain_check') }}";
+            e.preventDefault();
         }
         data = data + '&plan=' + plan + '&subscription=' + subscription+'&description='+description;
         $("#generate").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
@@ -475,12 +517,8 @@
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-check"></i>{{ __('message.success') }}! </strong>'+data.message.success+'!</div>';
                     $('#successs').html(result);
                     setTimeout(function(){
-                        $("#successs").slideUp(1000);
-                    },10000);
-                     $('#formoid').trigger("reset");
-                     $('select').prop('selectedIndex', 0);
-                     $("#users").val("");
-                     $("#users").trigger("change");
+                        window.location.reload();
+                    },3000);
                 }
             },
             error: function (response) {

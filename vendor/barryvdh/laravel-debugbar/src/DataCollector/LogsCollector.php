@@ -45,7 +45,7 @@ class LogsCollector extends MessagesCollector
 
         foreach ($this->getLogs($file) as $log) {
             $this->messages[] = [
-                'message' => $log['header'] . $log['stack'],
+                'message' => trim($log['header'] . $log['stack']),
                 'label' => $log['level'],
                 'time' => substr($log['header'], 1, 19),
                 'collector' => $basename,
@@ -100,20 +100,20 @@ class LogsCollector extends MessagesCollector
      */
     public function getLogs($file)
     {
-        $pattern = "/\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\].*/";
+        $pattern = "/\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\](?:(?!\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\])[\s\S])*/";
 
         $log_levels = $this->getLevels();
 
         // There has GOT to be a better way of doing this...
         preg_match_all($pattern, $file, $headings);
-        $log_data = preg_split($pattern, $file);
+        $log_data = preg_split($pattern, $file) ?: [];
 
         $log = [];
         foreach ($headings as $h) {
             for ($i = 0, $j = count($h); $i < $j; $i++) {
                 foreach ($log_levels as $ll) {
                     if (strpos(strtolower($h[$i]), strtolower('.' . $ll))) {
-                        $log[] = ['level' => $ll, 'header' => $h[$i], 'stack' => $log_data[$i]];
+                        $log[] = ['level' => $ll, 'header' => $h[$i], 'stack' => $log_data[$i] ?? ''];
                     }
                 }
             }

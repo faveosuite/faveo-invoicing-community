@@ -74,7 +74,8 @@ class OrganizationItem implements ModelInterface, ArrayAccess, JsonSerializable
         'is_deleted' => 'bool',
         'visible_to' => 'int',
         'address' => '\Pipedrive\versions\v2\Model\OrganizationItemAddress',
-        'label_ids' => 'int[]'
+        'label_ids' => 'int[]',
+        'custom_fields' => 'array<string,object>'
     ];
 
     /**
@@ -93,7 +94,8 @@ class OrganizationItem implements ModelInterface, ArrayAccess, JsonSerializable
         'is_deleted' => null,
         'visible_to' => null,
         'address' => null,
-        'label_ids' => null
+        'label_ids' => null,
+        'custom_fields' => null
     ];
 
     /**
@@ -135,7 +137,8 @@ class OrganizationItem implements ModelInterface, ArrayAccess, JsonSerializable
         'is_deleted' => 'is_deleted',
         'visible_to' => 'visible_to',
         'address' => 'address',
-        'label_ids' => 'label_ids'
+        'label_ids' => 'label_ids',
+        'custom_fields' => 'custom_fields'
     ];
 
     /**
@@ -152,7 +155,8 @@ class OrganizationItem implements ModelInterface, ArrayAccess, JsonSerializable
         'is_deleted' => 'setIsDeleted',
         'visible_to' => 'setVisibleTo',
         'address' => 'setAddress',
-        'label_ids' => 'setLabelIds'
+        'label_ids' => 'setLabelIds',
+        'custom_fields' => 'setCustomFields'
     ];
 
     /**
@@ -169,7 +173,8 @@ class OrganizationItem implements ModelInterface, ArrayAccess, JsonSerializable
         'is_deleted' => 'getIsDeleted',
         'visible_to' => 'getVisibleTo',
         'address' => 'getAddress',
-        'label_ids' => 'getLabelIds'
+        'label_ids' => 'getLabelIds',
+        'custom_fields' => 'getCustomFields'
     ];
 
     /**
@@ -248,6 +253,7 @@ class OrganizationItem implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['visible_to'] = $data['visible_to'] ?? null;
         $this->container['address'] = $data['address'] ?? null;
         $this->container['label_ids'] = $data['label_ids'] ?? null;
+        $this->container['custom_fields'] = $data['custom_fields'] ?? null;
     }
 
     /**
@@ -488,6 +494,30 @@ class OrganizationItem implements ModelInterface, ArrayAccess, JsonSerializable
     public function setLabelIds($label_ids): self
     {
         $this->container['label_ids'] = $label_ids;
+
+        return $this;
+    }
+
+    /**
+     * Gets custom_fields
+     *
+     * @return array<string,object>|null
+     */
+    public function getCustomFields()
+    {
+        return $this->container['custom_fields'];
+    }
+
+    /**
+     * Sets custom_fields
+     *
+     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes
+     *
+     * @return self
+     */
+    public function setCustomFields($custom_fields): self
+    {
+        $this->container['custom_fields'] = $custom_fields;
 
         return $this;
     }

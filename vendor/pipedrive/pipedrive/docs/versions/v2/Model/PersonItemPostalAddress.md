@@ -12,6 +12,7 @@ Name | Type | Description | Notes
 **sublocality** | **string** | Sublocality (e.g. neighborhood) of the person | [optional]
 **route** | **string** | Route (e.g. street) of the person | [optional]
 **street_number** | **string** | Street number of the person | [optional]
+**subpremise** | **string** | Subpremise (e.g. apartment/suite number) of the person | [optional]
 **postal_code** | **string** | Postal code of the person | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

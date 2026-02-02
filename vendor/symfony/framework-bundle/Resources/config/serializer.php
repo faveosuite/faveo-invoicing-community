@@ -14,6 +14,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bundle\FrameworkBundle\CacheWarmer\SerializerCacheWarmer;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
+use Symfony\Component\ErrorHandler\ErrorRenderer\ErrorRendererInterface;
 use Symfony\Component\ErrorHandler\ErrorRenderer\HtmlErrorRenderer;
 use Symfony\Component\ErrorHandler\ErrorRenderer\SerializerErrorRenderer;
 use Symfony\Component\PropertyInfo\Extractor\SerializerExtractor;
@@ -28,6 +29,7 @@ use Symfony\Component\Serializer\Mapping\ClassDiscriminatorResolverInterface;
 use Symfony\Component\Serializer\Mapping\Factory\CacheClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
+use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
 use Symfony\Component\Serializer\Mapping\Loader\LoaderChain;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter;
@@ -44,6 +46,7 @@ use Symfony\Component\Serializer\Normalizer\FormErrorNormalizer;
 use Symfony\Component\Serializer\Normalizer\JsonSerializableNormalizer;
 use Symfony\Component\Serializer\Normalizer\MimeMessageNormalizer;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NumberNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Normalizer\ProblemNormalizer;
 use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
@@ -55,12 +58,12 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 return static function (ContainerConfigurator $container) {
     $container->parameters()
-        ->set('serializer.mapping.cache.file', '%kernel.cache_dir%/serialization.php')
+        ->set('serializer.mapping.cache.file', '%kernel.build_dir%/serialization.php')
     ;
 
     $container->services()
         ->set('serializer', Serializer::class)
-            ->args([[], []])
+            ->args([[], [], []])
 
         ->alias(SerializerInterface::class, 'serializer')
         ->alias(NormalizerInterface::class, 'serializer')
@@ -129,7 +132,7 @@ return static function (ContainerConfigurator $container) {
                 service('property_info')->ignoreOnInvalid(),
                 service('serializer.mapping.class_discriminator_resolver')->ignoreOnInvalid(),
                 null,
-                null,
+                abstract_arg('default context, set in the SerializerPass'),
                 service('property_info')->ignoreOnInvalid(),
             ])
             ->tag('serializer.normalizer', ['built_in' => true, 'priority' => -1000])
@@ -149,6 +152,9 @@ return static function (ContainerConfigurator $container) {
         // Loader
         ->set('serializer.mapping.chain_loader', LoaderChain::class)
             ->args([[]])
+
+        ->set('serializer.mapping.attribute_loader', AttributeLoader::class)
+            ->args([true, []])
 
         // Class Metadata Factory
         ->set('serializer.mapping.class_metadata_factory', ClassMetadataFactory::class)
@@ -213,13 +219,19 @@ return static function (ContainerConfigurator $container) {
                 inline_service()
                     ->factory([SerializerErrorRenderer::class, 'getPreferredFormat'])
                     ->args([service('request_stack')]),
-                service('error_renderer.html'),
+                inline_service(ErrorRendererInterface::class)
+                    ->factory([\Closure::class, 'fromCallable'])
+                    ->args([[service('error_renderer.default'), 'render']])
+                    ->lazy(),
                 inline_service()
                     ->factory([HtmlErrorRenderer::class, 'isDebug'])
                     ->args([service('request_stack'), param('kernel.debug')]),
             ])
 
         ->set('serializer.normalizer.backed_enum', BackedEnumNormalizer::class)
+            ->tag('serializer.normalizer', ['built_in' => true, 'priority' => -915])
+
+        ->set('serializer.normalizer.number', NumberNormalizer::class)
             ->tag('serializer.normalizer', ['built_in' => true, 'priority' => -915])
     ;
 };

@@ -2,6 +2,20 @@
 
 All notable changes to `error-solutions` will be documented in this file.
 
+## 1.1.2 - 2024-12-11
+
+### What's Changed
+
+* Documentation link should follow the latest major version by @mshukurlu in https://github.com/spatie/error-solutions/pull/17
+* Replace implicitly nullable parameters for PHP 8.4 by @txdFabio in https://github.com/spatie/error-solutions/pull/22
+
+### New Contributors
+
+* @mshukurlu made their first contribution in https://github.com/spatie/error-solutions/pull/17
+* @txdFabio made their first contribution in https://github.com/spatie/error-solutions/pull/22
+
+**Full Changelog**: https://github.com/spatie/error-solutions/compare/1.1.1...1.1.2
+
 ## 1.1.1 - 2024-07-25
 
 ### What's Changed

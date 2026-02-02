@@ -333,69 +333,6 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     {
         $invalidProperties = [];
 
-        if ($this->container['id'] === null) {
-            $invalidProperties[] = "'id' can't be null";
-        }
-        if ($this->container['creator_user_id'] === null) {
-            $invalidProperties[] = "'creator_user_id' can't be null";
-        }
-        if ($this->container['user_id'] === null) {
-            $invalidProperties[] = "'user_id' can't be null";
-        }
-        if ($this->container['person_id'] === null) {
-            $invalidProperties[] = "'person_id' can't be null";
-        }
-        if ($this->container['org_id'] === null) {
-            $invalidProperties[] = "'org_id' can't be null";
-        }
-        if ($this->container['stage_id'] === null) {
-            $invalidProperties[] = "'stage_id' can't be null";
-        }
-        if ($this->container['title'] === null) {
-            $invalidProperties[] = "'title' can't be null";
-        }
-        if ($this->container['value'] === null) {
-            $invalidProperties[] = "'value' can't be null";
-        }
-        if ($this->container['currency'] === null) {
-            $invalidProperties[] = "'currency' can't be null";
-        }
-        if ($this->container['add_time'] === null) {
-            $invalidProperties[] = "'add_time' can't be null";
-        }
-        if ($this->container['update_time'] === null) {
-            $invalidProperties[] = "'update_time' can't be null";
-        }
-        if ($this->container['status'] === null) {
-            $invalidProperties[] = "'status' can't be null";
-        }
-        if ($this->container['probability'] === null) {
-            $invalidProperties[] = "'probability' can't be null";
-        }
-        if ($this->container['lost_reason'] === null) {
-            $invalidProperties[] = "'lost_reason' can't be null";
-        }
-        if ($this->container['visible_to'] === null) {
-            $invalidProperties[] = "'visible_to' can't be null";
-        }
-        if ($this->container['close_time'] === null) {
-            $invalidProperties[] = "'close_time' can't be null";
-        }
-        if ($this->container['pipeline_id'] === null) {
-            $invalidProperties[] = "'pipeline_id' can't be null";
-        }
-        if ($this->container['won_time'] === null) {
-            $invalidProperties[] = "'won_time' can't be null";
-        }
-        if ($this->container['lost_time'] === null) {
-            $invalidProperties[] = "'lost_time' can't be null";
-        }
-        if ($this->container['expected_close_date'] === null) {
-            $invalidProperties[] = "'expected_close_date' can't be null";
-        }
-        if ($this->container['label'] === null) {
-            $invalidProperties[] = "'label' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -414,7 +351,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets id
      *
-     * @return int
+     * @return int|null
      */
     public function getId()
     {
@@ -424,7 +361,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets id
      *
-     * @param int $id The ID of the deal
+     * @param int|null $id The ID of the deal
      *
      * @return self
      */
@@ -438,7 +375,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets creator_user_id
      *
-     * @return int
+     * @return int|null
      */
     public function getCreatorUserId()
     {
@@ -448,7 +385,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets creator_user_id
      *
-     * @param int $creator_user_id The ID of the deal creator
+     * @param int|null $creator_user_id The ID of the deal creator
      *
      * @return self
      */
@@ -462,7 +399,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets user_id
      *
-     * @return int
+     * @return int|null
      */
     public function getUserId()
     {
@@ -472,7 +409,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets user_id
      *
-     * @param int $user_id The ID of the user
+     * @param int|null $user_id The ID of the user
      *
      * @return self
      */
@@ -486,7 +423,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets person_id
      *
-     * @return int
+     * @return int|null
      */
     public function getPersonId()
     {
@@ -496,7 +433,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets person_id
      *
-     * @param int $person_id The ID of the person associated with the deal
+     * @param int|null $person_id The ID of the person associated with the deal
      *
      * @return self
      */
@@ -510,7 +447,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets org_id
      *
-     * @return int
+     * @return int|null
      */
     public function getOrgId()
     {
@@ -520,7 +457,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets org_id
      *
-     * @param int $org_id The ID of the organization associated with the deal
+     * @param int|null $org_id The ID of the organization associated with the deal
      *
      * @return self
      */
@@ -534,7 +471,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets stage_id
      *
-     * @return int
+     * @return int|null
      */
     public function getStageId()
     {
@@ -544,7 +481,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets stage_id
      *
-     * @param int $stage_id The ID of the deal stage
+     * @param int|null $stage_id The ID of the deal stage
      *
      * @return self
      */
@@ -558,7 +495,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets title
      *
-     * @return string
+     * @return string|null
      */
     public function getTitle()
     {
@@ -568,7 +505,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets title
      *
-     * @param string $title The title of the deal
+     * @param string|null $title The title of the deal
      *
      * @return self
      */
@@ -582,7 +519,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets value
      *
-     * @return float
+     * @return float|null
      */
     public function getValue()
     {
@@ -592,7 +529,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets value
      *
-     * @param float $value The value of the deal
+     * @param float|null $value The value of the deal
      *
      * @return self
      */
@@ -606,7 +543,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets currency
      *
-     * @return string
+     * @return string|null
      */
     public function getCurrency()
     {
@@ -616,7 +553,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets currency
      *
-     * @param string $currency The currency associated with the deal
+     * @param string|null $currency The currency associated with the deal
      *
      * @return self
      */
@@ -630,7 +567,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets add_time
      *
-     * @return string
+     * @return string|null
      */
     public function getAddTime()
     {
@@ -640,7 +577,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets add_time
      *
-     * @param string $add_time The creation date and time of the deal in UTC. Format: YYYY-MM-DD HH:MM:SS.
+     * @param string|null $add_time The creation date and time of the deal in UTC. Format: YYYY-MM-DD HH:MM:SS.
      *
      * @return self
      */
@@ -654,7 +591,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets update_time
      *
-     * @return string
+     * @return string|null
      */
     public function getUpdateTime()
     {
@@ -664,7 +601,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets update_time
      *
-     * @param string $update_time The last update date and time of the deal in UTC. Format: YYYY-MM-DD HH:MM:SS.
+     * @param string|null $update_time The last update date and time of the deal in UTC. Format: YYYY-MM-DD HH:MM:SS.
      *
      * @return self
      */
@@ -678,7 +615,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets status
      *
-     * @return string
+     * @return string|null
      */
     public function getStatus()
     {
@@ -688,7 +625,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets status
      *
-     * @param string $status The status of the deal
+     * @param string|null $status The status of the deal
      *
      * @return self
      */
@@ -702,7 +639,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets probability
      *
-     * @return float
+     * @return float|null
      */
     public function getProbability()
     {
@@ -712,7 +649,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets probability
      *
-     * @param float $probability The success probability percentage of the deal
+     * @param float|null $probability The success probability percentage of the deal
      *
      * @return self
      */
@@ -726,7 +663,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets lost_reason
      *
-     * @return string
+     * @return string|null
      */
     public function getLostReason()
     {
@@ -736,7 +673,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets lost_reason
      *
-     * @param string $lost_reason The reason for losing the deal
+     * @param string|null $lost_reason The reason for losing the deal
      *
      * @return self
      */
@@ -750,7 +687,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets visible_to
      *
-     * @return string
+     * @return string|null
      */
     public function getVisibleTo()
     {
@@ -760,7 +697,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets visible_to
      *
-     * @param string $visible_to The visibility of the deal
+     * @param string|null $visible_to The visibility of the deal
      *
      * @return self
      */
@@ -774,7 +711,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets close_time
      *
-     * @return string
+     * @return string|null
      */
     public function getCloseTime()
     {
@@ -784,7 +721,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets close_time
      *
-     * @param string $close_time The date and time of closing the deal in UTC. Format: YYYY-MM-DD HH:MM:SS.
+     * @param string|null $close_time The date and time of closing the deal in UTC. Format: YYYY-MM-DD HH:MM:SS.
      *
      * @return self
      */
@@ -798,7 +735,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets pipeline_id
      *
-     * @return int
+     * @return int|null
      */
     public function getPipelineId()
     {
@@ -808,7 +745,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets pipeline_id
      *
-     * @param int $pipeline_id The ID of the pipeline associated with the deal
+     * @param int|null $pipeline_id The ID of the pipeline associated with the deal
      *
      * @return self
      */
@@ -822,7 +759,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets won_time
      *
-     * @return string
+     * @return string|null
      */
     public function getWonTime()
     {
@@ -832,7 +769,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets won_time
      *
-     * @param string $won_time The date and time of changing the deal status to won in UTC. Format: YYYY-MM-DD HH:MM:SS.
+     * @param string|null $won_time The date and time of changing the deal status to won in UTC. Format: YYYY-MM-DD HH:MM:SS.
      *
      * @return self
      */
@@ -846,7 +783,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets lost_time
      *
-     * @return string
+     * @return string|null
      */
     public function getLostTime()
     {
@@ -856,7 +793,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets lost_time
      *
-     * @param string $lost_time The date and time of changing the deal status to lost in UTC. Format: YYYY-MM-DD HH:MM:SS.
+     * @param string|null $lost_time The date and time of changing the deal status to lost in UTC. Format: YYYY-MM-DD HH:MM:SS.
      *
      * @return self
      */
@@ -870,7 +807,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets expected_close_date
      *
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getExpectedCloseDate()
     {
@@ -880,7 +817,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets expected_close_date
      *
-     * @param \DateTime $expected_close_date The expected close date of the deal
+     * @param \DateTime|null $expected_close_date The expected close date of the deal
      *
      * @return self
      */
@@ -894,7 +831,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets label
      *
-     * @return string
+     * @return string|null
      */
     public function getLabel()
     {
@@ -904,7 +841,7 @@ class DealCollectionResponseObject implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets label
      *
-     * @param string $label The label or multiple labels assigned to the deal
+     * @param string|null $label The label or multiple labels assigned to the deal
      *
      * @return self
      */

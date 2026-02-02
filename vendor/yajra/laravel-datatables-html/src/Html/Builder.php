@@ -5,6 +5,7 @@ namespace Yajra\DataTables\Html;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Traits\Macroable;
 use Yajra\DataTables\Utilities\Helper;
@@ -61,6 +62,8 @@ class Builder
     protected string|array $ajax = '';
 
     protected array $additionalScripts = [];
+
+    protected array $templateData = [];
 
     public function __construct(public Repository $config, public Factory $view, public HtmlBuilder $html)
     {
@@ -158,7 +161,13 @@ class Builder
 
         $template = $this->template ?: $configTemplate;
 
-        return $this->view->make($template, ['editors' => $this->editors, 'scripts' => $this->additionalScripts])->render();
+        return $this->view->make(
+            $template,
+            array_merge(
+                ['editors' => $this->editors, 'scripts' => $this->additionalScripts],
+                $this->templateData,
+            )
+        )->render();
     }
 
     /**
@@ -176,7 +185,7 @@ class Builder
                 ? '<tr class="search-filter">'.implode('', $this->compileTableSearchHeaders()).'</tr>'
                 : '';
 
-        $tableHtml .= '<thead'.($this->theadClass ?? '').'>';
+        $tableHtml .= '<thead'.($this->getTheadClass() ?? '').'>';
         $tableHtml .= '<tr>'.implode('', $th).'</tr>'.$searchHtml.'</thead>';
 
         if ($drawFooter) {
@@ -260,6 +269,54 @@ class Builder
     public function addScript(string $view): static
     {
         $this->additionalScripts[] = $view;
+
+        return $this;
+    }
+
+    public function addScriptIfCan(string $ability, string $view): static
+    {
+        if (Gate::allows($ability)) {
+            $this->addScript($view);
+        }
+
+        return $this;
+    }
+
+    public function addScriptIf(bool $condition, string $view): static
+    {
+        if ($condition) {
+            $this->addScript($view);
+        }
+
+        return $this;
+    }
+
+    public function addScriptIfCannot(string $ability, string $view): static
+    {
+        if (Gate::denies($ability)) {
+            $this->addScript($view);
+        }
+
+        return $this;
+    }
+
+    public function getTemplate(): string
+    {
+        return $this->template;
+    }
+
+    public function getAdditionalScripts(): array
+    {
+        return $this->additionalScripts;
+    }
+
+    public function setTemplateData(array|\Closure $data = []): static
+    {
+        if ($data instanceof \Closure) {
+            $data = $data($this) ?? [];
+        }
+
+        $this->templateData = $data;
 
         return $this;
     }

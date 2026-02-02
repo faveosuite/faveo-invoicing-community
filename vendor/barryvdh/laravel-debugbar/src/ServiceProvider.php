@@ -2,6 +2,7 @@
 
 namespace Barryvdh\Debugbar;
 
+use Barryvdh\Debugbar\Console\ClearCommand;
 use Barryvdh\Debugbar\Middleware\InjectDebugbar;
 use DebugBar\DataFormatter\DataFormatter;
 use DebugBar\DataFormatter\DataFormatterInterface;
@@ -41,49 +42,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
         $this->app->alias(LaravelDebugbar::class, 'debugbar');
 
-        $this->app->singleton(
-            'command.debugbar.clear',
-            function ($app) {
-                return new Console\ClearCommand($app['debugbar']);
-            }
-        );
-
-        $this->app->extend(
-            'view',
-            function (Factory $factory, Container $application): Factory {
-                $laravelDebugbar = $application->make(LaravelDebugbar::class);
-
-                $shouldTrackViewTime = $laravelDebugbar->isEnabled() &&
-                    $laravelDebugbar->shouldCollect('time', true) &&
-                    $laravelDebugbar->shouldCollect('views', true) &&
-                    $application['config']->get('debugbar.options.views.timeline', false);
-
-                if (! $shouldTrackViewTime) {
-                    /* Do not swap the engine to save performance */
-                    return $factory;
-                }
-
-                $extensions = array_reverse($factory->getExtensions());
-                $engines = array_flip($extensions);
-                $enginesResolver = $application->make('view.engine.resolver');
-
-                foreach ($engines as $engine => $extension) {
-                    $resolved = $enginesResolver->resolve($engine);
-
-                    $factory->addExtension($extension, $engine, function () use ($resolved, $laravelDebugbar) {
-                        return new DebugbarViewEngine($resolved, $laravelDebugbar);
-                    });
-                }
-
-                // returns original order of extensions
-                foreach ($extensions as $extension => $engine) {
-                    $factory->addExtension($extension, $engine);
-                }
-
-                return $factory;
-            }
-        );
-
         Collection::macro('debug', function () {
             debug($this);
             return $this;
@@ -104,7 +62,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
         $this->registerMiddleware(InjectDebugbar::class);
 
-        $this->commands(['command.debugbar.clear']);
+        $this->commands([ClearCommand::class]);
     }
 
     /**
@@ -134,7 +92,11 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     protected function registerMiddleware($middleware)
     {
+        /** @var \Illuminate\Foundation\Http\Kernel $kernel */
         $kernel = $this->app[Kernel::class];
         $kernel->pushMiddleware($middleware);
+        if (isset($kernel->getMiddlewareGroups()['web'])) {
+            $kernel->appendMiddlewareToGroup('web', $middleware);
+        }
     }
 }

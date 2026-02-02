@@ -66,11 +66,27 @@ Though not tested via automation scripts, Laravel 5/6 should still be supported.
 
 | Version | PHP           |
 |---------|---------------| 
-| 11.*    | 8.2           |
+| 12.*    | 8.2,8.3,8.4   |
+| 11.*    | 8.2,8.3,8.4   |
 | 10.*    | 8.1, 8.2      |
 | 9.*     | 8.0, 8.1      |
 | 8.*     | 7.4, 8.0, 8.1 |
 | 7.*     | 7.4           |
+
+### New versions
+
+If there is a new Laravel version and there is not a offical release you can create a PR and then any one can use the PR until offical release is made. Check the PR and and update composer.json with the repository.
+
+```
+"repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/{!ENTER_USER_NAME!}/laravel-chunk-upload"
+    }
+  ]
+```
+
+Here is [exmplanation article](https://putyourlightson.com/articles/requiring-a-forked-repo-with-composer)
 
 ## Copyright and License
 

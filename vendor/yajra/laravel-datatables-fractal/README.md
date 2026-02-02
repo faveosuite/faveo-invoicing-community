@@ -1,8 +1,8 @@
 # Laravel DataTables Fractal Plugin
 
-[![Laravel 11.x](https://img.shields.io/badge/Laravel-11.x-orange.svg)](http://laravel.com)
+[![Laravel 12.x](https://img.shields.io/badge/Laravel-12.x-orange.svg)](http://laravel.com)
 [![Latest Stable Version](https://img.shields.io/packagist/v/yajra/laravel-datatables-fractal.svg)](https://packagist.org/packages/yajra/laravel-datatables-fractal)
-[![Build Status](https://travis-ci.org/yajra/laravel-datatables-fractal.svg?branch=master)](https://travis-ci.org/yajra/laravel-datatables-fractal)
+[![Continuous Integration](https://github.com/yajra/laravel-datatables-fractal/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/yajra/laravel-datatables-fractal/actions/workflows/continuous-integration.yml)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yajra/laravel-datatables-fractal/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yajra/laravel-datatables-fractal/?branch=master)
 [![Total Downloads](https://img.shields.io/packagist/dt/yajra/laravel-datatables-fractal.svg)](https://packagist.org/packages/yajra/laravel-datatables-fractal)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://packagist.org/packages/yajra/laravel-datatables-fractal)
@@ -12,7 +12,7 @@ This package is a plugin of [Laravel DataTables](https://github.com/yajra/larave
 ## Requirements
 
 - [PHP >= 8.2](http://php.net/)
-- [Laravel 11.x](https://github.com/laravel/framework)
+- [Laravel 12.x](https://github.com/laravel/framework)
 - [Laravel DataTables](https://github.com/yajra/laravel-datatables)
 
 ## Documentations
@@ -27,10 +27,11 @@ This package is a plugin of [Laravel DataTables](https://github.com/yajra/larave
 | 9.x           | 9.x     |
 | 10.x          | 10.x    |
 | 11.x          | 11.x    |
+| 12.x          | 12.x    |
 
 ## Quick Installation
 
-`composer require yajra/laravel-datatables-fractal:^11.0`
+`composer require yajra/laravel-datatables-fractal:^12.0`
 
 ### Register Service Provider (Optional on Laravel 5.5+)
 

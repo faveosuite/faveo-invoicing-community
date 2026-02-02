@@ -219,9 +219,6 @@ class FiltersBulkGetResponse implements ModelInterface, ArrayAccess, JsonSeriali
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -264,7 +261,7 @@ class FiltersBulkGetResponse implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\FilterGetItem[]
+     * @return \Pipedrive\versions\v1\Model\FilterGetItem[]|null
      */
     public function getData()
     {
@@ -274,7 +271,7 @@ class FiltersBulkGetResponse implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\FilterGetItem[] $data The array of filters
+     * @param \Pipedrive\versions\v1\Model\FilterGetItem[]|null $data The array of filters
      *
      * @return self
      */

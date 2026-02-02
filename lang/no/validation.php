@@ -822,6 +822,7 @@ return [
     'product_controller' => [
         'name_required' => 'Produktnavnet er påkrevd.',
         'name_unique' => 'Navnet må være unikt.',
+        'name_unique_in_group' => 'Et produkt med dette navnet finnes allerede i den valgte gruppen. Vennligst velg et annet navn eller velg en annen gruppe.',
         'type_required' => 'Produkttypen er påkrevd.',
         'description_required' => 'Produktbeskrivelsen er påkrevd.',
         'product_description_required' => 'Detaljert produktbeskrivelse er påkrevd.',

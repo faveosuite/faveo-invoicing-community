@@ -195,10 +195,11 @@ class BaseCronController extends Controller
         return $sub;
     }
 
-    public function mail($user, $end, $product, $order, $sub)
+    public function mail($user, $end, $productId, $order, $sub)
     {
         $contact = getContactData();
-        $product_type = Product::where('name', $product)->value('type');
+        $product = Product::where('id', $productId)->first();
+        $product_type = $product->type;
         $expiryDays = ExpiryMailDay::first()->cloud_days;
         //check in the settings
         $settings = new \App\Model\Common\Setting();
@@ -218,7 +219,7 @@ class BaseCronController extends Controller
             'deletionDate' => ($product_type == '4') ? $deletionDate : '',
             'product_type' => ($product_type == '4') ? 'Deletion Date' : '',
             'expiry' => $end,
-            'product' => $product,
+            'product' => $product->name,
             'number' => $order->number,
             'url' => url('my-orders'),
             'contact' => $contact['contact'],
@@ -236,10 +237,11 @@ class BaseCronController extends Controller
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
-    public function Auto_renewalMail($user, $end, $product, $order, $sub)
+    public function Auto_renewalMail($user, $end, $productId, $order, $sub)
     {
         $contact = getContactData();
-        $product_type = Product::where('name', $product)->value('type');
+        $product = Product::where('id', $productId)->first();
+        $product_type = $product->type;
         $plan_id = Subscription::find($sub);
         $currency = getCurrencyForClient($user->country);
 
@@ -268,7 +270,7 @@ class BaseCronController extends Controller
             'deletionDate' => ($product_type == '4') ? $deletionDate : '',
             'product_type' => ($product_type == '4') ? 'Deletion Date' : '',
             'expiry' => $end,
-            'product' => $product,
+            'product' => $product->name,
             'number' => $order->number, 'contact' => $contact['contact'],
             'logo' => $contact['logo'],
             'reply_email' => $setting->company_email,
@@ -287,10 +289,11 @@ class BaseCronController extends Controller
         $mail->SendEmail($from, $to, $data, $subject, $template->type()->value('name'), $replace, $type);
     }
 
-    public function Expiredsub_Mail($user, $end, $product, $order, $sub)
+    public function Expiredsub_Mail($user, $end, $productId, $order, $sub)
     {
         $contact = getContactData();
-        $product_type = Product::where('name', $product)->value('type');
+        $product = Product::where('id', $productId)->first();
+        $product_type = $product->type;
         $expiryDays = ExpiryMailDay::first()->cloud_days;
 
         //check in the settings
@@ -315,7 +318,7 @@ class BaseCronController extends Controller
             'deletionDate' => ($product_type == '4') ? $deletionDate : '',
             'product_type' => ($product_type == '4') ? 'Deletion Date' : '',
             'expiry' => $end,
-            'product' => $product,
+            'product' => $product->name,
             'number' => $order->number,
             'contact' => $contact['contact'],
             'logo' => $contact['logo'],

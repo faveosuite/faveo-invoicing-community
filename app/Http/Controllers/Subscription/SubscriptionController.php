@@ -202,7 +202,7 @@ class SubscriptionController extends Controller
                     throw new \Exception(__('message.order_no_active_plan_cancelled', ['order_number' => $order->number]));
                 }
                 $price = $planDetails['plan']->renew_price ?? 0;
-                if (isAgentAllowed($subscription->product_id)) {
+                if (isAgentAllowed($subscription->product_id, $subscription->plan_id)) {
                     $noOfAgents = $planDetails['plan']->no_of_agents;
                     $priceForAgents = $price / $noOfAgents;
                     $cost = $this->getPriceforCloud($order, $priceForAgents);
@@ -439,11 +439,11 @@ class SubscriptionController extends Controller
             return;
         }
 
-        $createdDate = Carbon::createFromTimestamp($latestInvoice->created)->startOfDay();
-        $today = Carbon::today();
+        $createdDate = Carbon::createFromTimestampUTC($latestInvoice->created);
+        $today = Carbon::now();
         $yesterday = Carbon::yesterday();
 
-        if (! $createdDate->eq($today)) {
+        if (! $createdDate->isSameDay($today)) {
             return;
         }
         $invoiceCost = $this->calculateReverseUnitCost($currency, $latestInvoice->amount);
@@ -535,7 +535,7 @@ class SubscriptionController extends Controller
         $latestInvoice = \Stripe\Invoice::retrieve($latestInvoiceId);
         $url = $latestInvoice->hosted_invoice_url;
 
-        if ($url) {
+        if ($url && emailSendingStatus()) {
             $this->mailSendToActiveStripeSubscription($subscription, $product_details, $cost, $currency, $plan, $url, $user);
             Subscription::where('id', $subscription->id)->update(['subscribe_id' => $stripeResponse->id, 'autoRenew_status' => '2']);
         }

@@ -820,6 +820,7 @@ return [
     'product_controller' => [
         'name_required' => '제품 이름은 필수입니다.',
         'name_unique' => '이름은 고유해야 합니다.',
+        'name_unique_in_group' => '선택한 그룹에 이 이름의 제품이 이미 존재합니다. 다른 이름을 선택하거나 다른 그룹을 선택해 주세요.',
         'type_required' => '제품 유형은 필수입니다.',
         'description_required' => '제품 설명은 필수입니다.',
         'product_description_required' => '상세 제품 설명은 필수입니다.',

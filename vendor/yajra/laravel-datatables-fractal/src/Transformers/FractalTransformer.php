@@ -11,15 +11,10 @@ use League\Fractal\TransformerAbstract;
 
 class FractalTransformer
 {
-    protected Manager $fractal;
-
     /**
      * FractalTransformer constructor.
      */
-    public function __construct(Manager $fractal)
-    {
-        $this->fractal = $fractal;
-    }
+    public function __construct(protected Manager $fractal) {}
 
     /**
      * Transform output using the given transformer and serializer.
@@ -65,7 +60,7 @@ class FractalTransformer
             return $serializer;
         }
 
-        return new $serializer();
+        return new $serializer;
     }
 
     /**
@@ -79,6 +74,6 @@ class FractalTransformer
             return $transformer;
         }
 
-        return new $transformer();
+        return new $transformer;
     }
 }

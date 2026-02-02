@@ -13,7 +13,6 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use Psr\Clock\ClockInterface as PsrClockInterface;
 use Psr\EventDispatcher\EventDispatcherInterface as PsrEventDispatcherInterface;
-use Symfony\Bundle\FrameworkBundle\CacheWarmer\ConfigBuilderCacheWarmer;
 use Symfony\Bundle\FrameworkBundle\HttpCache\HttpCache;
 use Symfony\Component\Clock\Clock;
 use Symfony\Component\Clock\ClockInterface;
@@ -42,6 +41,7 @@ use Symfony\Component\HttpKernel\CacheClearer\ChainCacheClearer;
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerAggregate;
 use Symfony\Component\HttpKernel\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\ServicesResetter;
+use Symfony\Component\HttpKernel\DependencyInjection\ServicesResetterInterface;
 use Symfony\Component\HttpKernel\EventListener\LocaleAwareListener;
 use Symfony\Component\HttpKernel\HttpCache\Store;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
@@ -100,6 +100,7 @@ return static function (ContainerConfigurator $container) {
         ->alias(HttpKernelInterface::class, 'http_kernel')
 
         ->set('request_stack', RequestStack::class)
+            ->tag('kernel.reset', ['method' => 'resetRequestFormats', 'on_invalid' => 'ignore'])
             ->public()
         ->alias(RequestStack::class, 'request_stack')
 
@@ -114,7 +115,7 @@ return static function (ContainerConfigurator $container) {
 
         ->set('http_cache.store', Store::class)
             ->args([
-                param('kernel.cache_dir').'/http_cache',
+                param('kernel.share_dir').'/http_cache',
             ])
         ->alias(StoreInterface::class, 'http_cache.store')
 
@@ -156,6 +157,9 @@ return static function (ContainerConfigurator $container) {
         ->set('uri_signer', UriSigner::class)
             ->args([
                 new Parameter('kernel.secret'),
+                '_hash',
+                '_expiration',
+                service('clock')->nullOnInvalid(),
             ])
             ->lazy()
         ->alias(UriSigner::class, 'uri_signer')
@@ -176,6 +180,7 @@ return static function (ContainerConfigurator $container) {
 
         ->set('services_resetter', ServicesResetter::class)
             ->public()
+        ->alias(ServicesResetterInterface::class, 'services_resetter')
 
         ->set('reverse_container', ReverseContainer::class)
             ->args([
@@ -197,6 +202,7 @@ return static function (ContainerConfigurator $container) {
                 tagged_iterator('container.env_var_loader'),
             ])
             ->tag('container.env_var_processor')
+            ->tag('kernel.reset', ['method' => 'reset'])
 
         ->set('slugger', AsciiSlugger::class)
             ->args([
@@ -227,9 +233,6 @@ return static function (ContainerConfigurator $container) {
             ->args([
                 service('container.getenv'),
             ])
-        ->set('config_builder.warmer', ConfigBuilderCacheWarmer::class)
-            ->args([service(KernelInterface::class), service('logger')->nullOnInvalid()])
-            ->tag('kernel.cache_warmer')
 
         ->set('clock', Clock::class)
         ->alias(ClockInterface::class, 'clock')

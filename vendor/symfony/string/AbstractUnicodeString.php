@@ -135,15 +135,21 @@ abstract class AbstractUnicodeString extends AbstractString
             } elseif (!\function_exists('iconv')) {
                 $s = preg_replace('/[^\x00-\x7F]/u', '?', $s);
             } else {
-                $s = @preg_replace_callback('/[^\x00-\x7F]/u', static function ($c) {
-                    $c = (string) iconv('UTF-8', 'ASCII//TRANSLIT', $c[0]);
+                $previousLocale = setlocale(\LC_CTYPE, 0);
+                try {
+                    setlocale(\LC_CTYPE, 'C');
+                    $s = @preg_replace_callback('/[^\x00-\x7F]/u', static function ($c) {
+                        $c = (string) iconv('UTF-8', 'ASCII//TRANSLIT', $c[0]);
 
-                    if ('' === $c && '' === iconv('UTF-8', 'ASCII//TRANSLIT', '²')) {
-                        throw new \LogicException(\sprintf('"%s" requires a translit-able iconv implementation, try installing "gnu-libiconv" if you\'re using Alpine Linux.', static::class));
-                    }
+                        if ('' === $c && '' === iconv('UTF-8', 'ASCII//TRANSLIT', '²')) {
+                            throw new \LogicException(\sprintf('"%s" requires a translit-able iconv implementation, try installing "gnu-libiconv" if you\'re using Alpine Linux.', static::class));
+                        }
 
-                    return 1 < \strlen($c) ? ltrim($c, '\'`"^~') : ('' !== $c ? $c : '?');
-                }, $s);
+                        return 1 < \strlen($c) ? ltrim($c, '\'`"^~') : ('' !== $c ? $c : '?');
+                    }, $s);
+                } finally {
+                    setlocale(\LC_CTYPE, $previousLocale);
+                }
             }
         }
 
@@ -258,7 +264,7 @@ abstract class AbstractUnicodeString extends AbstractString
 
     public function normalize(int $form = self::NFC): static
     {
-        if (!\in_array($form, [self::NFC, self::NFD, self::NFKC, self::NFKD])) {
+        if (!\in_array($form, [self::NFC, self::NFD, self::NFKC, self::NFKD], true)) {
             throw new InvalidArgumentException('Unsupported normalization form.');
         }
 
@@ -354,7 +360,7 @@ abstract class AbstractUnicodeString extends AbstractString
     public function reverse(): static
     {
         $str = clone $this;
-        $str->string = implode('', array_reverse(preg_split('/(\X)/u', $str->string, -1, \PREG_SPLIT_DELIM_CAPTURE | \PREG_SPLIT_NO_EMPTY)));
+        $str->string = implode('', array_reverse(grapheme_str_split($str->string)));
 
         return $str;
     }

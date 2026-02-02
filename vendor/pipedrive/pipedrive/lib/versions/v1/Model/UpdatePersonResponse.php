@@ -225,12 +225,6 @@ class UpdatePersonResponse implements ModelInterface, ArrayAccess, JsonSerializa
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['related_objects'] === null) {
-            $invalidProperties[] = "'related_objects' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -273,7 +267,7 @@ class UpdatePersonResponse implements ModelInterface, ArrayAccess, JsonSerializa
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\PersonItem
+     * @return \Pipedrive\versions\v1\Model\PersonItem|null
      */
     public function getData()
     {
@@ -283,7 +277,7 @@ class UpdatePersonResponse implements ModelInterface, ArrayAccess, JsonSerializa
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\PersonItem $data data
+     * @param \Pipedrive\versions\v1\Model\PersonItem|null $data data
      *
      * @return self
      */
@@ -297,7 +291,7 @@ class UpdatePersonResponse implements ModelInterface, ArrayAccess, JsonSerializa
     /**
      * Gets related_objects
      *
-     * @return \Pipedrive\versions\v1\Model\ListProductsResponseAllOfRelatedObjects
+     * @return \Pipedrive\versions\v1\Model\ListProductsResponseAllOfRelatedObjects|null
      */
     public function getRelatedObjects()
     {
@@ -307,7 +301,7 @@ class UpdatePersonResponse implements ModelInterface, ArrayAccess, JsonSerializa
     /**
      * Sets related_objects
      *
-     * @param \Pipedrive\versions\v1\Model\ListProductsResponseAllOfRelatedObjects $related_objects related_objects
+     * @param \Pipedrive\versions\v1\Model\ListProductsResponseAllOfRelatedObjects|null $related_objects related_objects
      *
      * @return self
      */

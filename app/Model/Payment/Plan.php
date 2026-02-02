@@ -14,14 +14,14 @@ class Plan extends BaseModel
 
     protected $table = 'plans';
 
-    protected $fillable = ['name', 'product', 'allow_tax', 'days'];
+    protected $fillable = ['name', 'product', 'allow_tax', 'days', 'status'];
 
     protected $logName = 'plan';
 
     protected $logNameColumn = 'name';
 
     protected $logAttributes = [
-        'name', 'product', 'allow_tax', 'days',
+        'name', 'product', 'allow_tax', 'days', 'status',
     ];
 
     protected $logUrl = [
@@ -35,6 +35,7 @@ class Plan extends BaseModel
             'product' => ['Product', fn ($value) => \App\Model\Product\Product::find($value)?->name],
             'allow_tax' => ['Allow Tax', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
             'days' => ['Plan Days', fn ($value) => $value],
+            'status' => ['Status', fn ($value) => $value === 1 ? __('message.active') : __('message.inactive')],
         ];
     }
 

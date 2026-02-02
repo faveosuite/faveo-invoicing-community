@@ -23,6 +23,7 @@ use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassConst;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Const_;
 use PhpParser\Node\Stmt\Else_;
 use PhpParser\Node\Stmt\ElseIf_;
 use PhpParser\Node\Stmt\Enum_;
@@ -32,6 +33,7 @@ use PhpParser\Node\Stmt\Nop;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\TryCatch;
 use PhpParser\Node\UseItem;
+use PhpParser\Node\VarLikeIdentifier;
 use PhpParser\NodeVisitor\CommentAnnotatingVisitor;
 
 abstract class ParserAbstract implements Parser {
@@ -130,6 +132,11 @@ abstract class ParserAbstract implements Parser {
     /** @var \SplObjectStorage<Array_, null>|null Array nodes created during parsing, for postprocessing of empty elements. */
     protected ?\SplObjectStorage $createdArrays;
 
+    /** @var \SplObjectStorage<Expr\ArrowFunction, null>|null
+     *       Arrow functions that are wrapped in parentheses, to enforce the pipe operator parentheses requirements.
+     */
+    protected ?\SplObjectStorage $parenthesizedArrowFunctions;
+
     /** @var Token[] Tokens for the current parse */
     protected array $tokens;
     /** @var int Current position in token array */
@@ -180,6 +187,7 @@ abstract class ParserAbstract implements Parser {
     public function parse(string $code, ?ErrorHandler $errorHandler = null): ?array {
         $this->errorHandler = $errorHandler ?: new ErrorHandler\Throwing();
         $this->createdArrays = new \SplObjectStorage();
+        $this->parenthesizedArrowFunctions = new \SplObjectStorage();
 
         $this->tokens = $this->lexer->tokenize($code, $this->errorHandler);
         $result = $this->doParse();
@@ -203,6 +211,7 @@ abstract class ParserAbstract implements Parser {
         $this->semStack = [];
         $this->semValue = null;
         $this->createdArrays = null;
+        $this->parenthesizedArrowFunctions = null;
 
         if ($result !== null) {
             $traverser = new NodeTraverser(new CommentAnnotatingVisitor($this->tokens));
@@ -411,8 +420,6 @@ abstract class ParserAbstract implements Parser {
                 $rule = $state - $this->numNonLeafStates;
             }
         }
-
-        throw new \RuntimeException('Reached end of parser loop');
     }
 
     protected function emitError(Error $error): void {
@@ -736,6 +743,33 @@ abstract class ParserAbstract implements Parser {
         return Double::KIND_DOUBLE;
     }
 
+    protected function getIntCastKind(string $cast): int {
+        $cast = strtolower($cast);
+        if (strpos($cast, 'integer') !== false) {
+            return Expr\Cast\Int_::KIND_INTEGER;
+        }
+
+        return Expr\Cast\Int_::KIND_INT;
+    }
+
+    protected function getBoolCastKind(string $cast): int {
+        $cast = strtolower($cast);
+        if (strpos($cast, 'boolean') !== false) {
+            return Expr\Cast\Bool_::KIND_BOOLEAN;
+        }
+
+        return Expr\Cast\Bool_::KIND_BOOL;
+    }
+
+    protected function getStringCastKind(string $cast): int {
+        $cast = strtolower($cast);
+        if (strpos($cast, 'binary') !== false) {
+            return Expr\Cast\String_::KIND_BINARY;
+        }
+
+        return Expr\Cast\String_::KIND_STRING;
+    }
+
     /** @param array<string, mixed> $attributes */
     protected function parseLNumber(string $str, array $attributes, bool $allowInvalidOctal = false): Int_ {
         try {
@@ -976,7 +1010,7 @@ abstract class ParserAbstract implements Parser {
     }
 
     protected function fixupArrayDestructuring(Array_ $node): Expr\List_ {
-        $this->createdArrays->detach($node);
+        $this->createdArrays->offsetUnset($node);
         return new Expr\List_(array_map(function (Node\ArrayItem $item) {
             if ($item->value instanceof Expr\Error) {
                 // We used Error as a placeholder for empty elements, which are legal for destructuring.
@@ -1160,8 +1194,15 @@ abstract class ParserAbstract implements Parser {
         }
     }
 
+    protected function checkPropertyHooksForMultiProperty(Property $property, int $hookPos): void {
+        if (count($property->props) > 1) {
+            $this->emitError(new Error(
+                'Cannot use hooks when declaring multiple properties', $this->getAttributesAt($hookPos)));
+        }
+    }
+
     /** @param PropertyHook[] $hooks */
-    protected function checkPropertyHookList(array $hooks, int $hookPos): void {
+    protected function checkEmptyPropertyHookList(array $hooks, int $hookPos): void {
         if (empty($hooks)) {
             $this->emitError(new Error(
                 'Property hook list cannot be empty', $this->getAttributesAt($hookPos)));
@@ -1193,6 +1234,34 @@ abstract class ParserAbstract implements Parser {
             $this->emitError(new Error(
                 'Cannot use the ' . Modifiers::toString($b) . ' modifier on a property hook',
                 $this->getAttributesAt($modifierPos)));
+        }
+    }
+
+    protected function checkConstantAttributes(Const_ $node): void {
+        if ($node->attrGroups !== [] && count($node->consts) > 1) {
+            $this->emitError(new Error(
+                'Cannot use attributes on multiple constants at once', $node->getAttributes()));
+        }
+    }
+
+    protected function checkPipeOperatorParentheses(Expr $node): void {
+        if ($node instanceof Expr\ArrowFunction && !$this->parenthesizedArrowFunctions->offsetExists($node)) {
+            $this->emitError(new Error(
+                'Arrow functions on the right hand side of |> must be parenthesized', $node->getAttributes()));
+        }
+    }
+
+    /**
+     * @param Property|Param $node
+     */
+    protected function addPropertyNameToHooks(Node $node): void {
+        if ($node instanceof Property) {
+            $name = $node->props[0]->name->toString();
+        } else {
+            $name = $node->var->name;
+        }
+        foreach ($node->hooks as $hook) {
+            $hook->setAttribute('propertyName', $name);
         }
     }
 

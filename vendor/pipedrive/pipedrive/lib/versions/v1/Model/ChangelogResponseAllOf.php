@@ -219,12 +219,6 @@ class ChangelogResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class ChangelogResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\ChangelogResponseAllOfData[]
+     * @return \Pipedrive\versions\v1\Model\ChangelogResponseAllOfData[]|null
      */
     public function getData()
     {
@@ -253,7 +247,7 @@ class ChangelogResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\ChangelogResponseAllOfData[] $data data
+     * @param \Pipedrive\versions\v1\Model\ChangelogResponseAllOfData[]|null $data data
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class ChangelogResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\AdditionalDataWithCursorPagination
+     * @return \Pipedrive\versions\v1\Model\AdditionalDataWithCursorPagination|null
      */
     public function getAdditionalData()
     {
@@ -277,7 +271,7 @@ class ChangelogResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\AdditionalDataWithCursorPagination $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\AdditionalDataWithCursorPagination|null $additional_data additional_data
      *
      * @return self
      */

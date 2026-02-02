@@ -75,8 +75,7 @@ class PipelineDetails implements ModelInterface, ArrayAccess, JsonSerializable
         'deal_probability' => 'bool',
         'add_time' => 'string',
         'update_time' => 'string',
-        'selected' => 'bool',
-        'deals_summary' => '\Pipedrive\versions\v1\Model\DealSummary'
+        'selected' => 'bool'
     ];
 
     /**
@@ -95,8 +94,7 @@ class PipelineDetails implements ModelInterface, ArrayAccess, JsonSerializable
         'deal_probability' => null,
         'add_time' => null,
         'update_time' => null,
-        'selected' => null,
-        'deals_summary' => null
+        'selected' => null
     ];
 
     /**
@@ -138,8 +136,7 @@ class PipelineDetails implements ModelInterface, ArrayAccess, JsonSerializable
         'deal_probability' => 'deal_probability',
         'add_time' => 'add_time',
         'update_time' => 'update_time',
-        'selected' => 'selected',
-        'deals_summary' => 'deals_summary'
+        'selected' => 'selected'
     ];
 
     /**
@@ -156,8 +153,7 @@ class PipelineDetails implements ModelInterface, ArrayAccess, JsonSerializable
         'deal_probability' => 'setDealProbability',
         'add_time' => 'setAddTime',
         'update_time' => 'setUpdateTime',
-        'selected' => 'setSelected',
-        'deals_summary' => 'setDealsSummary'
+        'selected' => 'setSelected'
     ];
 
     /**
@@ -174,8 +170,7 @@ class PipelineDetails implements ModelInterface, ArrayAccess, JsonSerializable
         'deal_probability' => 'getDealProbability',
         'add_time' => 'getAddTime',
         'update_time' => 'getUpdateTime',
-        'selected' => 'getSelected',
-        'deals_summary' => 'getDealsSummary'
+        'selected' => 'getSelected'
     ];
 
     /**
@@ -254,7 +249,6 @@ class PipelineDetails implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['add_time'] = $data['add_time'] ?? null;
         $this->container['update_time'] = $data['update_time'] ?? null;
         $this->container['selected'] = $data['selected'] ?? null;
-        $this->container['deals_summary'] = $data['deals_summary'] ?? null;
     }
 
     /**
@@ -495,30 +489,6 @@ class PipelineDetails implements ModelInterface, ArrayAccess, JsonSerializable
     public function setSelected($selected): self
     {
         $this->container['selected'] = $selected;
-
-        return $this;
-    }
-
-    /**
-     * Gets deals_summary
-     *
-     * @return \Pipedrive\versions\v1\Model\DealSummary|null
-     */
-    public function getDealsSummary()
-    {
-        return $this->container['deals_summary'];
-    }
-
-    /**
-     * Sets deals_summary
-     *
-     * @param \Pipedrive\versions\v1\Model\DealSummary|null $deals_summary deals_summary
-     *
-     * @return self
-     */
-    public function setDealsSummary($deals_summary): self
-    {
-        $this->container['deals_summary'] = $deals_summary;
 
         return $this;
     }

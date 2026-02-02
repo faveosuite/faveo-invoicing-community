@@ -219,12 +219,6 @@ class OrganizationUpdateResponseAllOf implements ModelInterface, ArrayAccess, Js
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['related_objects'] === null) {
-            $invalidProperties[] = "'related_objects' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class OrganizationUpdateResponseAllOf implements ModelInterface, ArrayAccess, Js
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\BaseOrganizationItem
+     * @return \Pipedrive\versions\v1\Model\BaseOrganizationItem|null
      */
     public function getData()
     {
@@ -253,7 +247,7 @@ class OrganizationUpdateResponseAllOf implements ModelInterface, ArrayAccess, Js
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\BaseOrganizationItem $data data
+     * @param \Pipedrive\versions\v1\Model\BaseOrganizationItem|null $data data
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class OrganizationUpdateResponseAllOf implements ModelInterface, ArrayAccess, Js
     /**
      * Gets related_objects
      *
-     * @return \Pipedrive\versions\v1\Model\AllOrganizationsGetResponseAllOfRelatedObjects
+     * @return \Pipedrive\versions\v1\Model\AllOrganizationsGetResponseAllOfRelatedObjects|null
      */
     public function getRelatedObjects()
     {
@@ -277,7 +271,7 @@ class OrganizationUpdateResponseAllOf implements ModelInterface, ArrayAccess, Js
     /**
      * Sets related_objects
      *
-     * @param \Pipedrive\versions\v1\Model\AllOrganizationsGetResponseAllOfRelatedObjects $related_objects related_objects
+     * @param \Pipedrive\versions\v1\Model\AllOrganizationsGetResponseAllOfRelatedObjects|null $related_objects related_objects
      *
      * @return self
      */

@@ -15,7 +15,7 @@ use Iterator;
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements Iterator<int, File>
+ * @template-implements Iterator<non-negative-int, File>
  */
 final class FileCollectionIterator implements Iterator
 {
@@ -23,6 +23,10 @@ final class FileCollectionIterator implements Iterator
      * @var list<File>
      */
     private readonly array $files;
+
+    /**
+     * @var non-negative-int
+     */
     private int $position = 0;
 
     public function __construct(FileCollection $files)
@@ -40,6 +44,9 @@ final class FileCollectionIterator implements Iterator
         return $this->position < count($this->files);
     }
 
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
         return $this->position;

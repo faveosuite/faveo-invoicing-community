@@ -8,7 +8,6 @@ Method | HTTP request | Description
 [**addOrganizationFollower()**](OrganizationsApi.md#addOrganizationFollower) | **POST** /organizations/{id}/followers | Add a follower to an organization
 [**deleteOrganization()**](OrganizationsApi.md#deleteOrganization) | **DELETE** /organizations/{id} | Delete an organization
 [**deleteOrganizationFollower()**](OrganizationsApi.md#deleteOrganizationFollower) | **DELETE** /organizations/{id}/followers/{follower_id} | Delete a follower from an organization
-[**deleteOrganizations()**](OrganizationsApi.md#deleteOrganizations) | **DELETE** /organizations | Delete multiple organizations in bulk
 [**getOrganization()**](OrganizationsApi.md#getOrganization) | **GET** /organizations/{id} | Get details of an organization
 [**getOrganizationActivities()**](OrganizationsApi.md#getOrganizationActivities) | **GET** /organizations/{id}/activities | List activities associated with an organization
 [**getOrganizationChangelog()**](OrganizationsApi.md#getOrganizationChangelog) | **GET** /organizations/{id}/changelog | List updates about organization field values
@@ -276,71 +275,6 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**\Pipedrive\versions\v1\Model\OrganizationFollowerDeleteResponse**](../Model/OrganizationFollowerDeleteResponse.md)
-
-### Authorization
-
-[api_key](../README.md#api_key), [oauth2](../README.md#oauth2)
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: `application/json`
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
-[[Back to Model list]](../README.md#documentation-for-models)
-[[Back to README]](../README.md)
-
-## `deleteOrganizations()`
-
-```php
-deleteOrganizations($ids): \Pipedrive\versions\v1\Model\OrganizationsDeleteResponse
-```
-
-Delete multiple organizations in bulk
-
-Marks multiple organizations as deleted. After 30 days, the organizations will be permanently deleted. <br>This endpoint has been deprecated. Please use <a href=\"https://developers.pipedrive.com/docs/api/v1/Organizations#deleteOrganization\" target=\"_blank\" rel=\"noopener noreferrer\">DELETE /api/v2/organizations/{id}</a> instead.
-
-### Example
-
-```php
-<?php
-require_once(__DIR__ . '/vendor/autoload.php');
-
-
-// Configure API key authorization: api_key
-$config = (new Pipedrive\versions\v1\Configuration())->setApiKey('x-api-token', 'YOUR_API_KEY');
-// Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
-// $config = (new Pipedrive\versions\v1\Configuration())->setApiKeyPrefix('x-api-token', 'Bearer');
-
-// Configure OAuth2 access token for authorization: oauth2
-$config = (new Pipedrive\versions\v1\Configuration())->setAccessToken('YOUR_ACCESS_TOKEN');
-
-
-$apiInstance = new Pipedrive\versions\v1\Api\OrganizationsApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
-    $config
-);
-$ids = 'ids_example'; // string | The comma-separated IDs that will be deleted
-
-try {
-    $result = $apiInstance->deleteOrganizations($ids);
-    print_r($result);
-} catch (Exception $e) {
-    echo 'Exception when calling OrganizationsApi->deleteOrganizations: ', $e->getMessage(), PHP_EOL;
-}
-```
-
-### Parameters
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **ids** | **string**| The comma-separated IDs that will be deleted |
-
-### Return type
-
-[**\Pipedrive\versions\v1\Model\OrganizationsDeleteResponse**](../Model/OrganizationsDeleteResponse.md)
 
 ### Authorization
 

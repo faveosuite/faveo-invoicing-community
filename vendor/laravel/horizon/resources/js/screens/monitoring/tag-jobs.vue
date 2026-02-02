@@ -19,6 +19,7 @@
             };
         },
 
+
         /**
          * Components
          */
@@ -34,16 +35,6 @@
             document.title = "Horizon - Monitoring";
 
             this.loadJobs(this.$route.params.tag);
-
-            this.refreshJobsPeriodically();
-        },
-
-
-        /**
-         * Clean after the component is unmounted.
-         */
-        unmounted() {
-            clearInterval(this.interval);
         },
 
 
@@ -55,6 +46,12 @@
                 this.page = 1;
 
                 this.loadJobs(this.$route.params.tag);
+            },
+
+            '$root.autoLoadsNewEntries'(autoLoadsNewEntries) {
+                if (autoLoadsNewEntries && this.hasNewEntries) {
+                    this.hasNewEntries = false;
+                }
             }
         },
 
@@ -98,16 +95,14 @@
 
 
             /**
-             * Refresh the jobs every period of time.
+             * Poll handler to refresh the jobs at regular intervals.
              */
             refreshJobsPeriodically() {
-                this.interval = setInterval(() => {
-                    if (this.page != 1) {
-                        return;
-                    }
+                if (this.page != 1) {
+                    return;
+                }
 
-                    this.loadJobs(this.$route.params.tag, 0, true);
-                }, 3000);
+                this.loadJobs(this.$route.params.tag, 0, true);
             },
 
 
@@ -143,6 +138,8 @@
 
 <template>
     <div>
+        <poll @poll="refreshJobsPeriodically" />
+
         <div v-if="!ready" class="d-flex align-items-center justify-content-center card-bg-secondary p-5 bottom-radius">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" class="icon spin me-2 fill-text-color">
                 <path d="M12 10a2 2 0 0 1-3.41 1.41A2 2 0 0 1 10 8V0a9.97 9.97 0 0 1 10 10h-8zm7.9 1.41A10 10 0 1 1 8.59.1v2.03a8 8 0 1 0 9.29 9.29h2.02zm-4.07 0a6 6 0 1 1-7.25-7.25v2.1a3.99 3.99 0 0 0-1.4 6.57 4 4 0 0 0 6.56-1.42h2.1z"></path>
@@ -168,7 +165,7 @@
             </thead>
 
             <tbody>
-            <tr v-if="hasNewEntries" key="newEntries" class="dontanimate">
+            <tr v-if="hasNewEntries && !this.$root.autoLoadsNewEntries" key="newEntries" class="dontanimate">
                 <td colspan="100" class="text-center card-bg-secondary py-2">
                     <small><a href="#" v-on:click.prevent="loadNewEntries" v-if="!loadingNewEntries">Load New Entries</a></small>
 

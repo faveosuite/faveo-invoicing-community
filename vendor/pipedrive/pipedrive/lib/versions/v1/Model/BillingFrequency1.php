@@ -33,7 +33,7 @@ use Pipedrive\versions\v1\ObjectSerializer;
  * BillingFrequency1 Class Doc Comment
  *
  * @category Class
- * @description Only available in Advanced and above plans  How often a customer is billed for access to a service or product
+ * @description Only available in Growth and above plans  How often a customer is billed for access to a service or product
  * @package  Pipedrive\versions\v1
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech

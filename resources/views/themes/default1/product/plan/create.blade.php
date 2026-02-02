@@ -138,7 +138,7 @@
                         </td>
 
                         <td>
-                            <input type="number" min="0" step="any" class="form-control float-number-input" value="{{old('renew_price.1')}}" name="renew_price[]" id="renew_prices">
+                            <input type="number" min="0" step="any" class="form-control float-number-input" value="{{old('renew_price.0')}}" name="renew_price[]" id="renew_prices">
 
                         </td>
 
@@ -190,6 +190,15 @@
                       <span class="error-message"> {{$message}}</span>
                       @enderror
                       <div class="input-group-append"></div>
+                  </div>
+
+                  <div class="col-md-12 form-group">
+                      <div class="custom-control custom-switch">
+                          <input type="hidden" name="status" value="0">
+                          <input class="custom-control-input" type="checkbox" name="status" id="status" value="1" checked>
+                          <label class="custom-control-label" for="status">{{ __('message.active') }}</label>
+                          <i class="fa fa-info-circle" data-toggle="tooltip" title="{{ __('message.check_to_make_plan_active') }}"></i>
+                      </div>
                   </div>
               </div>
             </div>

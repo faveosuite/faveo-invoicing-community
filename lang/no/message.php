@@ -1078,6 +1078,9 @@ return [
     'price_per_agent' => 'Pris per agent:',
     'choose_no_desired_agents' => 'Velg ønsket antall agenter',
     'update_agents' => 'Oppdater agenter',
+    'increase' => 'Øk',
+    'decrease' => 'Reduser',
+    'agent_decrease_invalid' => 'Ugyldig operasjon: Antall agenter kan ikke reduseres under gjeldende tildeling.',
     'upgrade_downgrade_cloud_plan' => 'Oppgrader eller nedgrader skyplanen din',
     'select_new_plan' => 'Velg en ny plan',
     'total_credits_remaining' => 'Totalt kreditt igjen på din nåværende plan:',
@@ -2797,6 +2800,7 @@ return [
     'something_went_wrong_while_updating_mobile' => 'Noe gikk galt under oppdatering av mobilnummeret. Vennligst prøv igjen senere.',
     'no_available_plans_for_user_currency' => 'Den valgte brukerens valuta har ingen tilgjengelige planer for dette produktet. Vennligst legg til en plan for den valutaen for å fortsette.',
     'plan_exist' => 'Dette produktet har allerede en plan med samme periode',
+    'duplicate_plan_period_grouped' => 'Dupliserte planperioder er ikke tillatt fordi dette produktet er knyttet til et månedlig/årlig gruppert produkt.',
     'callback_url' => 'Webhook-URL',
     'callback_url_error' => 'Vennligst skriv inn en gyldig Webhook-URL.',
     'webhook_explanation' => 'Webhook-URL finnes under Tilleggs­konfigurasjon i WhatsApp-innstillingene i adminpanelet.',
@@ -2829,5 +2833,9 @@ return [
     'verify_token_error' => 'Vennligst skriv inn verifiseringstoken.',
     'manual_number_title' => 'Legg til nummer manuelt',
     'enable_reoon_logs_deletion' => 'Aktiver sletting av Reoon-logger',
+    'domain_check' => 'Domenet kan bare inneholde bokstaver og tall.',
 
+    'active_plan_exists' => 'En aktiv plan ":plan_name" finnes allerede for dette produktet og denne perioden. Vennligst deaktiver den først før du oppretter/oppdaterer en aktiv plan.',
+    'check_to_make_plan_active' => 'Merk av for å gjøre denne planen aktiv. Kun én aktiv plan er tillatt per produkt og periode.',
+    'active_plan_exists_simple' => 'En aktiv plan finnes allerede for dette produktet og denne perioden. Vennligst deaktiver den først.',
 ];

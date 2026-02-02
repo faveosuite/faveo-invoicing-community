@@ -824,6 +824,7 @@ Request file custom validation messages
     'product_controller' => [
         'name_required' => 'Se requiere el nombre del producto.',
         'name_unique' => 'El nombre debe ser único.',
+        'name_unique_in_group' => 'Ya existe un producto con este nombre en el grupo seleccionado. Por favor, elija un nombre diferente o seleccione otro grupo.',
         'type_required' => 'Se requiere el tipo de producto.',
         'description_required' => 'Se requiere la descripción del producto.',
         'product_description_required' => 'Se requiere una descripción detallada del producto.',

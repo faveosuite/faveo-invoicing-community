@@ -3,7 +3,27 @@
 ### Create transfers from payment
 
 ```php
-$api->payment->fetch($paymentId)->transfer(array('transfers' => array(array('account' => 'acc_I0QRP7PpvaHhpB','amount' => 100,'currency' => 'INR','notes' =>  array ('name' => 'Gaurav Kumar','roll_no' => 'IEC2011025',),'linked_account_notes' => array ('roll_no'),'on_hold' => true,'on_hold_until' => 1671222870))));
+
+$paymentId = "pay_I7watngocuEY4P";
+
+$api->payment->fetch($paymentId)->transfer(array(
+    'transfers' => array(
+        array(
+            'account' => 'acc_I0QRP7PpvaHhpB',
+            'amount' => 100,
+            'currency' => 'INR',
+            'notes' => array(
+                'name' => 'Gaurav Kumar',
+                'roll_no' => 'IEC2011025',
+            ),
+            'linked_account_notes' => array(
+                'roll_no'
+            ),
+            'on_hold' => true,
+            'on_hold_until' => 1671222870
+        )
+    )
+));
 ```
 
 **Parameters:**
@@ -59,7 +79,37 @@ $api->payment->fetch($paymentId)->transfer(array('transfers' => array(array('acc
 ### Create transfers from order
 
 ```php
-$api->order->create(array('amount' => 2000,'currency' => 'INR','transfers' => array(array('account' => 'acc_CPRsN1LkFccllA','amount' => 1000,'currency' => 'INR','notes' => array('branch' => 'Acme Corp Bangalore North','name' => 'Gaurav Kumar'),'linked_account_notes' => array('branch'),'on_hold' => 1,'on_hold_until' => 1671222870),array('account' => 'acc_CNo3jSI8OkFJJJ','amount' => 1000,'currency' => 'INR','notes' => array('branch' => 'Acme Corp Bangalore South','name' => 'Saurav Kumar'),'linked_account_notes' => array('branch'),'on_hold' => 0))));
+$api->order->create(
+  array(
+   'amount' => 2000,
+   'currency' => 'INR',
+   'transfers' => array(
+     array(
+      'account' => 'acc_CPRsN1LkFccllA',
+      'amount' => 1000,
+      'currency' => 'INR',
+      'notes' => array(
+        'branch' => 'Acme Corp Bangalore North',
+        'name' => 'Gaurav Kumar'
+       ),
+      'linked_account_notes' => array('branch'),
+      'on_hold' => true,
+      'on_hold_until' => 1671222870
+     ),
+     array(
+      'account' => 'acc_CNo3jSI8OkFJJJ',
+      'amount' => 1000,
+      'currency' => 'INR',
+      'notes' => array(
+       'branch' => 'Acme Corp Bangalore South',
+       'name' => 'Saurav Kumar'
+       ),
+     'linked_account_notes' => array('branch'),
+     'on_hold' => true
+     )
+    )
+  )
+);
 ```
 
 **Parameters:**
@@ -506,7 +556,7 @@ $api->transfer->all(array('expand[]'=> 'recipient_settlement'));
 ### Refund payments and reverse transfer from a linked account
 
 ```php
-$api->payment->fetch("pay_JsPSazUg9UnOX2")->refund(array('amount'=> '100','reverse_all'=>'1'));
+$api->payment->fetch("pay_JsPSazUg9UnOX2")->refund(array('amount'=> '100','reverse_all'=> true));
 ```
 
 **Parameters:**
@@ -515,7 +565,7 @@ $api->payment->fetch("pay_JsPSazUg9UnOX2")->refund(array('amount'=> '100','rever
 |---------------|-------------|---------------------------------------------|
 | paymentId*   | string      | The id of the payment to be fetched  |
 | amount*   | integer      | The amount to be captured (should be equal to the authorized amount, in paise) |
-| reverse_all   | boolean    | Reverses transfer made to a linked account. Possible values:<br> * `1` - Reverses transfer made to a linked account.<br>* `0` - Does not reverse transfer made to a linked account.|
+| reverse_all   | boolean    | Reverses transfer made to a linked account. Possible values:<br> * `true` - Reverses transfer made to a linked account.<br>* `false` - Does not reverse transfer made to a linked account.|
 
 **Response:**
 ```json
@@ -702,7 +752,7 @@ $api->payment->fetch($paymentId)->transfer(array('transfers' => array(array('acc
 
 ### Modify settlement hold for transfers
 ```php
-$api->transfer->fetch($transferId)->edit(array('on_hold' => '1', 'on_hold_until' => '1679691505'));
+$api->transfer->fetch($transferId)->edit(array('on_hold' => true, 'on_hold_until' => '1679691505'));
 ```
 
 **Parameters:**
@@ -710,7 +760,7 @@ $api->transfer->fetch($transferId)->edit(array('on_hold' => '1', 'on_hold_until'
 | Name          | Type        | Description                                 |
 |---------------|-------------|---------------------------------------------|
 | transferId*   | string      | The id of the transfer to be fetched  |
-| on_hold*   | boolean      | Possible values is `0` or `1`  |
+| on_hold*   | boolean      | Possible values is `true` or `false`  |
 | on_hold_until   | integer      | Timestamp, in Unix, that indicates until when the settlement of the transfer must be put on hold |
 
 **Response:**

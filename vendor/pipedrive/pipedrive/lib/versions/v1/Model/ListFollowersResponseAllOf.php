@@ -219,12 +219,6 @@ class ListFollowersResponseAllOf implements ModelInterface, ArrayAccess, JsonSer
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class ListFollowersResponseAllOf implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\ListFollowersResponseAllOfData[]
+     * @return \Pipedrive\versions\v1\Model\ListFollowersResponseAllOfData[]|null
      */
     public function getData()
     {
@@ -253,7 +247,7 @@ class ListFollowersResponseAllOf implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\ListFollowersResponseAllOfData[] $data The list of followers
+     * @param \Pipedrive\versions\v1\Model\ListFollowersResponseAllOfData[]|null $data The list of followers
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class ListFollowersResponseAllOf implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\AdditionalData
+     * @return \Pipedrive\versions\v1\Model\AdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -277,7 +271,7 @@ class ListFollowersResponseAllOf implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\AdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\AdditionalData|null $additional_data additional_data
      *
      * @return self
      */

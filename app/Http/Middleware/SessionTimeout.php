@@ -40,8 +40,9 @@ class SessionTimeout
         }
 
         // Check for timeout
-        $lastActivity = Carbon::createFromTimestamp(Session::get($sessionKey));
-        if ($now->diffInMinutes($lastActivity) >= $timeoutMinutes) {
+        $lastActivity = Carbon::createFromTimestampUTC(Session::get($sessionKey));
+        $elapsedMinutes = (int) $lastActivity->diffInMinutes($now, true);
+        if ($elapsedMinutes >= $timeoutMinutes) {
             $this->expireSession($sessionKey);
 
             return $request->expectsJson()

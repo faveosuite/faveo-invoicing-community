@@ -219,12 +219,6 @@ class DeleteProductFieldResponse implements ModelInterface, ArrayAccess, JsonSer
     {
         $invalidProperties = [];
 
-        if ($this->container['success'] === null) {
-            $invalidProperties[] = "'success' can't be null";
-        }
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class DeleteProductFieldResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets success
      *
-     * @return bool
+     * @return bool|null
      */
     public function getSuccess()
     {
@@ -253,7 +247,7 @@ class DeleteProductFieldResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets success
      *
-     * @param bool $success If the response is successful or not
+     * @param bool|null $success If the response is successful or not
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class DeleteProductFieldResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\DeleteProductFieldResponseData
+     * @return \Pipedrive\versions\v1\Model\DeleteProductFieldResponseData|null
      */
     public function getData()
     {
@@ -277,7 +271,7 @@ class DeleteProductFieldResponse implements ModelInterface, ArrayAccess, JsonSer
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\DeleteProductFieldResponseData $data data
+     * @param \Pipedrive\versions\v1\Model\DeleteProductFieldResponseData|null $data data
      *
      * @return self
      */

@@ -36,7 +36,7 @@ trait WithExportQueue
     public function exportQueue(): string
     {
         $job = new DataTableExportJob(
-            [self::class, $this->attributes],
+            [get_class($this), $this->attributes],
             request()->all(),
             Auth::id() ?? 0,
             $this->sheetName(),

@@ -213,9 +213,6 @@ class MergePersonsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeri
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -234,7 +231,7 @@ class MergePersonsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\MergePersonItem
+     * @return \Pipedrive\versions\v1\Model\MergePersonItem|null
      */
     public function getData()
     {
@@ -244,7 +241,7 @@ class MergePersonsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\MergePersonItem $data data
+     * @param \Pipedrive\versions\v1\Model\MergePersonItem|null $data data
      *
      * @return self
      */

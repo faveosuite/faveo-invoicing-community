@@ -266,7 +266,6 @@ All URIs are relative to *https://api.pipedrive.com/v1*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *ActivitiesApi* | [**addActivity**](Api/ActivitiesApi.md#addactivity) | **POST** /activities | Add an activity
-*ActivitiesApi* | [**deleteActivities**](Api/ActivitiesApi.md#deleteactivities) | **DELETE** /activities | Delete multiple activities in bulk
 *ActivitiesApi* | [**deleteActivity**](Api/ActivitiesApi.md#deleteactivity) | **DELETE** /activities/{id} | Delete an activity
 *ActivitiesApi* | [**getActivities**](Api/ActivitiesApi.md#getactivities) | **GET** /activities | Get all activities assigned to a particular user
 *ActivitiesApi* | [**getActivitiesCollection**](Api/ActivitiesApi.md#getactivitiescollection) | **GET** /activities/collection | Get all activities collection
@@ -275,7 +274,6 @@ Class | Method | HTTP request | Description
 *ActivityFieldsApi* | [**getActivityFields**](Api/ActivityFieldsApi.md#getactivityfields) | **GET** /activityFields | Get all activity fields
 *ActivityTypesApi* | [**addActivityType**](Api/ActivityTypesApi.md#addactivitytype) | **POST** /activityTypes | Add new activity type
 *ActivityTypesApi* | [**deleteActivityType**](Api/ActivityTypesApi.md#deleteactivitytype) | **DELETE** /activityTypes/{id} | Delete an activity type
-*ActivityTypesApi* | [**deleteActivityTypes**](Api/ActivityTypesApi.md#deleteactivitytypes) | **DELETE** /activityTypes | Delete multiple activity types in bulk
 *ActivityTypesApi* | [**getActivityTypes**](Api/ActivityTypesApi.md#getactivitytypes) | **GET** /activityTypes | Get all activity types
 *ActivityTypesApi* | [**updateActivityType**](Api/ActivityTypesApi.md#updateactivitytype) | **PUT** /activityTypes/{id} | Update an activity type
 *BillingApi* | [**getCompanyAddons**](Api/BillingApi.md#getcompanyaddons) | **GET** /billing/subscriptions/addons | Get all add-ons for a single company
@@ -303,7 +301,6 @@ Class | Method | HTTP request | Description
 *DealsApi* | [**deleteDealFollower**](Api/DealsApi.md#deletedealfollower) | **DELETE** /deals/{id}/followers/{follower_id} | Delete a follower from a deal
 *DealsApi* | [**deleteDealParticipant**](Api/DealsApi.md#deletedealparticipant) | **DELETE** /deals/{id}/participants/{deal_participant_id} | Delete a participant from a deal
 *DealsApi* | [**deleteDealProduct**](Api/DealsApi.md#deletedealproduct) | **DELETE** /deals/{id}/products/{product_attachment_id} | Delete an attached product from a deal
-*DealsApi* | [**deleteDeals**](Api/DealsApi.md#deletedeals) | **DELETE** /deals | Delete multiple deals in bulk
 *DealsApi* | [**duplicateDeal**](Api/DealsApi.md#duplicatedeal) | **POST** /deals/{id}/duplicate | Duplicate deal
 *DealsApi* | [**getArchivedDeals**](Api/DealsApi.md#getarchiveddeals) | **GET** /deals/archived | Get all archived deals
 *DealsApi* | [**getArchivedDealsSummary**](Api/DealsApi.md#getarchiveddealssummary) | **GET** /deals/summary/archived | Get archived deals summary
@@ -350,6 +347,7 @@ Class | Method | HTTP request | Description
 *GoalsApi* | [**updateGoal**](Api/GoalsApi.md#updategoal) | **PUT** /goals/{id} | Update existing goal
 *ItemSearchApi* | [**searchItem**](Api/ItemSearchApi.md#searchitem) | **GET** /itemSearch | Perform a search from multiple item types
 *ItemSearchApi* | [**searchItemByField**](Api/ItemSearchApi.md#searchitembyfield) | **GET** /itemSearch/field | Perform a search using a specific field from an item type
+*LeadFieldsApi* | [**getLeadFields**](Api/LeadFieldsApi.md#getleadfields) | **GET** /leadFields | Get all lead fields
 *LeadLabelsApi* | [**addLeadLabel**](Api/LeadLabelsApi.md#addleadlabel) | **POST** /leadLabels | Add a lead label
 *LeadLabelsApi* | [**deleteLeadLabel**](Api/LeadLabelsApi.md#deleteleadlabel) | **DELETE** /leadLabels/{id} | Delete a lead label
 *LeadLabelsApi* | [**getLeadLabels**](Api/LeadLabelsApi.md#getleadlabels) | **GET** /leadLabels | Get all lead labels
@@ -405,7 +403,6 @@ Class | Method | HTTP request | Description
 *OrganizationsApi* | [**addOrganizationFollower**](Api/OrganizationsApi.md#addorganizationfollower) | **POST** /organizations/{id}/followers | Add a follower to an organization
 *OrganizationsApi* | [**deleteOrganization**](Api/OrganizationsApi.md#deleteorganization) | **DELETE** /organizations/{id} | Delete an organization
 *OrganizationsApi* | [**deleteOrganizationFollower**](Api/OrganizationsApi.md#deleteorganizationfollower) | **DELETE** /organizations/{id}/followers/{follower_id} | Delete a follower from an organization
-*OrganizationsApi* | [**deleteOrganizations**](Api/OrganizationsApi.md#deleteorganizations) | **DELETE** /organizations | Delete multiple organizations in bulk
 *OrganizationsApi* | [**getOrganization**](Api/OrganizationsApi.md#getorganization) | **GET** /organizations/{id} | Get details of an organization
 *OrganizationsApi* | [**getOrganizationActivities**](Api/OrganizationsApi.md#getorganizationactivities) | **GET** /organizations/{id}/activities | List activities associated with an organization
 *OrganizationsApi* | [**getOrganizationChangelog**](Api/OrganizationsApi.md#getorganizationchangelog) | **GET** /organizations/{id}/changelog | List updates about organization field values
@@ -436,7 +433,6 @@ Class | Method | HTTP request | Description
 *PersonsApi* | [**deletePerson**](Api/PersonsApi.md#deleteperson) | **DELETE** /persons/{id} | Delete a person
 *PersonsApi* | [**deletePersonFollower**](Api/PersonsApi.md#deletepersonfollower) | **DELETE** /persons/{id}/followers/{follower_id} | Delete a follower from a person
 *PersonsApi* | [**deletePersonPicture**](Api/PersonsApi.md#deletepersonpicture) | **DELETE** /persons/{id}/picture | Delete person picture
-*PersonsApi* | [**deletePersons**](Api/PersonsApi.md#deletepersons) | **DELETE** /persons | Delete multiple persons in bulk
 *PersonsApi* | [**getPerson**](Api/PersonsApi.md#getperson) | **GET** /persons/{id} | Get details of a person
 *PersonsApi* | [**getPersonActivities**](Api/PersonsApi.md#getpersonactivities) | **GET** /persons/{id}/activities | List activities associated with a person
 *PersonsApi* | [**getPersonChangelog**](Api/PersonsApi.md#getpersonchangelog) | **GET** /persons/{id}/changelog | List updates about person field values
@@ -511,20 +507,10 @@ Class | Method | HTTP request | Description
 *RolesApi* | [**updateRolePipelines**](Api/RolesApi.md#updaterolepipelines) | **PUT** /roles/{id}/pipelines | Update pipeline visibility for a role
 *StagesApi* | [**addStage**](Api/StagesApi.md#addstage) | **POST** /stages | Add a new stage
 *StagesApi* | [**deleteStage**](Api/StagesApi.md#deletestage) | **DELETE** /stages/{id} | Delete a stage
-*StagesApi* | [**deleteStages**](Api/StagesApi.md#deletestages) | **DELETE** /stages | Delete multiple stages in bulk
 *StagesApi* | [**getStage**](Api/StagesApi.md#getstage) | **GET** /stages/{id} | Get one stage
 *StagesApi* | [**getStageDeals**](Api/StagesApi.md#getstagedeals) | **GET** /stages/{id}/deals | Get deals in a stage
 *StagesApi* | [**getStages**](Api/StagesApi.md#getstages) | **GET** /stages | Get all stages
 *StagesApi* | [**updateStage**](Api/StagesApi.md#updatestage) | **PUT** /stages/{id} | Update stage details
-*SubscriptionsApi* | [**addRecurringSubscription**](Api/SubscriptionsApi.md#addrecurringsubscription) | **POST** /subscriptions/recurring | Add a recurring subscription
-*SubscriptionsApi* | [**addSubscriptionInstallment**](Api/SubscriptionsApi.md#addsubscriptioninstallment) | **POST** /subscriptions/installment | Add an installment subscription
-*SubscriptionsApi* | [**cancelRecurringSubscription**](Api/SubscriptionsApi.md#cancelrecurringsubscription) | **PUT** /subscriptions/recurring/{id}/cancel | Cancel a recurring subscription
-*SubscriptionsApi* | [**deleteSubscription**](Api/SubscriptionsApi.md#deletesubscription) | **DELETE** /subscriptions/{id} | Delete a subscription
-*SubscriptionsApi* | [**findSubscriptionByDeal**](Api/SubscriptionsApi.md#findsubscriptionbydeal) | **GET** /subscriptions/find/{dealId} | Find subscription by deal
-*SubscriptionsApi* | [**getSubscription**](Api/SubscriptionsApi.md#getsubscription) | **GET** /subscriptions/{id} | Get details of a subscription
-*SubscriptionsApi* | [**getSubscriptionPayments**](Api/SubscriptionsApi.md#getsubscriptionpayments) | **GET** /subscriptions/{id}/payments | Get all payments of a subscription
-*SubscriptionsApi* | [**updateRecurringSubscription**](Api/SubscriptionsApi.md#updaterecurringsubscription) | **PUT** /subscriptions/recurring/{id} | Update a recurring subscription
-*SubscriptionsApi* | [**updateSubscriptionInstallment**](Api/SubscriptionsApi.md#updatesubscriptioninstallment) | **PUT** /subscriptions/installment/{id} | Update an installment subscription
 *TasksApi* | [**addTask**](Api/TasksApi.md#addtask) | **POST** /tasks | Add a task
 *TasksApi* | [**deleteTask**](Api/TasksApi.md#deletetask) | **DELETE** /tasks/{id} | Delete a task
 *TasksApi* | [**getTask**](Api/TasksApi.md#gettask) | **GET** /tasks/{id} | Get details of a task
@@ -564,9 +550,6 @@ Class | Method | HTTP request | Description
  - [ActivityRecordAdditionalData](Model/ActivityRecordAdditionalData.md)
  - [ActivityResponseObject](Model/ActivityResponseObject.md)
  - [ActivityResponseObjectAllOf](Model/ActivityResponseObjectAllOf.md)
- - [ActivityTypeBulkDeleteResponse](Model/ActivityTypeBulkDeleteResponse.md)
- - [ActivityTypeBulkDeleteResponseAllOf](Model/ActivityTypeBulkDeleteResponseAllOf.md)
- - [ActivityTypeBulkDeleteResponseAllOfData](Model/ActivityTypeBulkDeleteResponseAllOfData.md)
  - [ActivityTypeCount](Model/ActivityTypeCount.md)
  - [ActivityTypeCreateRequest](Model/ActivityTypeCreateRequest.md)
  - [ActivityTypeCreateUpdateDeleteResponse](Model/ActivityTypeCreateUpdateDeleteResponse.md)
@@ -749,13 +732,6 @@ Class | Method | HTTP request | Description
  - [DealStrictModeFields](Model/DealStrictModeFields.md)
  - [DealStrictWithMergeId](Model/DealStrictWithMergeId.md)
  - [DealStrictWithMergeIdAllOf](Model/DealStrictWithMergeIdAllOf.md)
- - [DealSummary](Model/DealSummary.md)
- - [DealSummaryPerCurrency](Model/DealSummaryPerCurrency.md)
- - [DealSummaryPerCurrencyFull](Model/DealSummaryPerCurrencyFull.md)
- - [DealSummaryPerCurrencyFullCURRENCYID](Model/DealSummaryPerCurrencyFullCURRENCYID.md)
- - [DealSummaryPerStages](Model/DealSummaryPerStages.md)
- - [DealSummaryPerStagesSTAGEID](Model/DealSummaryPerStagesSTAGEID.md)
- - [DealSummaryPerStagesSTAGEIDCURRENCYID](Model/DealSummaryPerStagesSTAGEIDCURRENCYID.md)
  - [DealTitleParameter](Model/DealTitleParameter.md)
  - [DealUserData](Model/DealUserData.md)
  - [DealUserDataWithId](Model/DealUserDataWithId.md)
@@ -765,8 +741,6 @@ Class | Method | HTTP request | Description
  - [DealsMovementsInfo](Model/DealsMovementsInfo.md)
  - [DealsMovementsInfoFormattedValues](Model/DealsMovementsInfoFormattedValues.md)
  - [DealsMovementsInfoValues](Model/DealsMovementsInfoValues.md)
- - [DeleteActivitiesResponse](Model/DeleteActivitiesResponse.md)
- - [DeleteActivitiesResponseData](Model/DeleteActivitiesResponseData.md)
  - [DeleteActivityResponse](Model/DeleteActivityResponse.md)
  - [DeleteActivityResponseData](Model/DeleteActivityResponseData.md)
  - [DeleteChannelSuccess](Model/DeleteChannelSuccess.md)
@@ -788,17 +762,12 @@ Class | Method | HTTP request | Description
  - [DeleteFileData](Model/DeleteFileData.md)
  - [DeleteGoalResponse](Model/DeleteGoalResponse.md)
  - [DeleteLeadIdResponse](Model/DeleteLeadIdResponse.md)
- - [DeleteMultipleDeals](Model/DeleteMultipleDeals.md)
- - [DeleteMultipleDealsData](Model/DeleteMultipleDealsData.md)
  - [DeleteMultipleProductFieldsResponse](Model/DeleteMultipleProductFieldsResponse.md)
  - [DeleteMultipleProductFieldsResponseData](Model/DeleteMultipleProductFieldsResponseData.md)
  - [DeleteNote](Model/DeleteNote.md)
  - [DeletePersonResponse](Model/DeletePersonResponse.md)
  - [DeletePersonResponseAllOf](Model/DeletePersonResponseAllOf.md)
  - [DeletePersonResponseAllOfData](Model/DeletePersonResponseAllOfData.md)
- - [DeletePersonsInBulkResponse](Model/DeletePersonsInBulkResponse.md)
- - [DeletePersonsInBulkResponseAllOf](Model/DeletePersonsInBulkResponseAllOf.md)
- - [DeletePersonsInBulkResponseAllOfData](Model/DeletePersonsInBulkResponseAllOfData.md)
  - [DeletePipelineResponse](Model/DeletePipelineResponse.md)
  - [DeletePipelineResponseData](Model/DeletePipelineResponseData.md)
  - [DeleteProductFieldResponse](Model/DeleteProductFieldResponse.md)
@@ -822,8 +791,6 @@ Class | Method | HTTP request | Description
  - [DeleteRoleResponseDataData](Model/DeleteRoleResponseDataData.md)
  - [DeleteStageResponse](Model/DeleteStageResponse.md)
  - [DeleteStageResponseData](Model/DeleteStageResponseData.md)
- - [DeleteStagesResponse](Model/DeleteStagesResponse.md)
- - [DeleteStagesResponseData](Model/DeleteStagesResponseData.md)
  - [DeleteTask](Model/DeleteTask.md)
  - [DeleteTaskData](Model/DeleteTaskData.md)
  - [DeleteTaskResponse](Model/DeleteTaskResponse.md)
@@ -956,7 +923,6 @@ Class | Method | HTTP request | Description
  - [GetRolesAllOf](Model/GetRolesAllOf.md)
  - [GetStageDeals](Model/GetStageDeals.md)
  - [GetStages](Model/GetStages.md)
- - [GetSubscriptionsIdResponseData](Model/GetSubscriptionsIdResponseData.md)
  - [GetTaskResponse](Model/GetTaskResponse.md)
  - [GetTasksResponse](Model/GetTasksResponse.md)
  - [GetUserConnectionsResponseData](Model/GetUserConnectionsResponseData.md)
@@ -1132,8 +1098,6 @@ Class | Method | HTTP request | Description
  - [OrganizationUpdateResponseAllOf](Model/OrganizationUpdateResponseAllOf.md)
  - [OrganizationsCollectionResponseObject](Model/OrganizationsCollectionResponseObject.md)
  - [OrganizationsCollectionResponseObjectAllOf](Model/OrganizationsCollectionResponseObjectAllOf.md)
- - [OrganizationsDeleteResponse](Model/OrganizationsDeleteResponse.md)
- - [OrganizationsDeleteResponseData](Model/OrganizationsDeleteResponseData.md)
  - [OrganizationsMergeResponse](Model/OrganizationsMergeResponse.md)
  - [OrganizationsMergeResponseData](Model/OrganizationsMergeResponseData.md)
  - [Owner](Model/Owner.md)
@@ -1143,9 +1107,6 @@ Class | Method | HTTP request | Description
  - [Params](Model/Params.md)
  - [ParticipantsChangelog](Model/ParticipantsChangelog.md)
  - [ParticipantsChangelogItem](Model/ParticipantsChangelogItem.md)
- - [PaymentItem](Model/PaymentItem.md)
- - [PaymentsResponse](Model/PaymentsResponse.md)
- - [PaymentsResponseAllOf](Model/PaymentsResponseAllOf.md)
  - [PermissionSets](Model/PermissionSets.md)
  - [PermissionSetsAllOf](Model/PermissionSetsAllOf.md)
  - [PermissionSetsItem](Model/PermissionSetsItem.md)
@@ -1183,7 +1144,6 @@ Class | Method | HTTP request | Description
  - [PictureDataWithValue1](Model/PictureDataWithValue1.md)
  - [Pipeline](Model/Pipeline.md)
  - [PipelineDetails](Model/PipelineDetails.md)
- - [PipelineDetailsAllOf](Model/PipelineDetailsAllOf.md)
  - [PostComment](Model/PostComment.md)
  - [PostDealParticipants](Model/PostDealParticipants.md)
  - [PostDealParticipantsRelatedObjects](Model/PostDealParticipantsRelatedObjects.md)
@@ -1257,7 +1217,7 @@ Class | Method | HTTP request | Description
  - [RelationshipOrganizationInfoItemWithActiveFlagAllOf](Model/RelationshipOrganizationInfoItemWithActiveFlagAllOf.md)
  - [RequiredPostProjectParameters](Model/RequiredPostProjectParameters.md)
  - [RequiredPostTaskParameters](Model/RequiredPostTaskParameters.md)
- - [RequredTitleParameter](Model/RequredTitleParameter.md)
+ - [RequiredTitleParameter](Model/RequiredTitleParameter.md)
  - [ResponseCallLogObject](Model/ResponseCallLogObject.md)
  - [ResponseCallLogObjectAllOf](Model/ResponseCallLogObjectAllOf.md)
  - [RoleAssignment](Model/RoleAssignment.md)
@@ -1270,20 +1230,12 @@ Class | Method | HTTP request | Description
  - [Stage](Model/Stage.md)
  - [StageConversions](Model/StageConversions.md)
  - [StageDetails](Model/StageDetails.md)
- - [StageDetailsData](Model/StageDetailsData.md)
  - [StageWithPipelineInfo](Model/StageWithPipelineInfo.md)
  - [StageWithPipelineInfo1](Model/StageWithPipelineInfo1.md)
  - [SubRole](Model/SubRole.md)
  - [SubRoleAllOf](Model/SubRoleAllOf.md)
  - [SubscriptionAddonsResponse](Model/SubscriptionAddonsResponse.md)
  - [SubscriptionAddonsResponseAllOf](Model/SubscriptionAddonsResponseAllOf.md)
- - [SubscriptionInstallmentCreateRequest](Model/SubscriptionInstallmentCreateRequest.md)
- - [SubscriptionInstallmentUpdateRequest](Model/SubscriptionInstallmentUpdateRequest.md)
- - [SubscriptionItem](Model/SubscriptionItem.md)
- - [SubscriptionRecurringCancelRequest](Model/SubscriptionRecurringCancelRequest.md)
- - [SubscriptionRecurringCreateRequest](Model/SubscriptionRecurringCreateRequest.md)
- - [SubscriptionRecurringUpdateRequest](Model/SubscriptionRecurringUpdateRequest.md)
- - [SubscriptionsIdResponse](Model/SubscriptionsIdResponse.md)
  - [TaskId](Model/TaskId.md)
  - [TaskMandatoryObjectFragment](Model/TaskMandatoryObjectFragment.md)
  - [TaskNotChangeableObjectFragment](Model/TaskNotChangeableObjectFragment.md)
@@ -1402,6 +1354,9 @@ Class | Method | HTTP request | Description
 - **contacts:full**: Create, read, update and delete persons and organizations and their followers; all notes, files, filters. Also grants read access to contacts-related fields
 - **products:read**: Read products, its fields, files, followers and products connected to a deal
 - **products:full**: Create, read, update and delete products and its fields; add products to deals
+- **deal-fields:full**: Create, read, update and delete deal fields
+- **product-fields:full**: Create, read, update and delete product fields
+- **contact-fields:full**: Create, read, update and delete person and organization fields
 - **projects:read**: Read projects and its fields, tasks and project templates
 - **projects:full**: Create, read, update and delete projects and its fields; add projects templates and project related tasks
 - **users:read**: Read data about users (people with access to a Pipedrive account), their permissions, roles and followers

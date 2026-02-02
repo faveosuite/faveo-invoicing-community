@@ -219,12 +219,6 @@ class UserProviderLinkSuccessResponse implements ModelInterface, ArrayAccess, Js
     {
         $invalidProperties = [];
 
-        if ($this->container['success'] === null) {
-            $invalidProperties[] = "'success' can't be null";
-        }
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class UserProviderLinkSuccessResponse implements ModelInterface, ArrayAccess, Js
     /**
      * Gets success
      *
-     * @return bool
+     * @return bool|null
      */
     public function getSuccess()
     {
@@ -253,7 +247,7 @@ class UserProviderLinkSuccessResponse implements ModelInterface, ArrayAccess, Js
     /**
      * Sets success
      *
-     * @param bool $success Boolean that indicates whether the request was successful or not
+     * @param bool|null $success Boolean that indicates whether the request was successful or not
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class UserProviderLinkSuccessResponse implements ModelInterface, ArrayAccess, Js
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\UserProviderLinkSuccessResponseData
+     * @return \Pipedrive\versions\v1\Model\UserProviderLinkSuccessResponseData|null
      */
     public function getData()
     {
@@ -277,7 +271,7 @@ class UserProviderLinkSuccessResponse implements ModelInterface, ArrayAccess, Js
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\UserProviderLinkSuccessResponseData $data data
+     * @param \Pipedrive\versions\v1\Model\UserProviderLinkSuccessResponseData|null $data data
      *
      * @return self
      */
