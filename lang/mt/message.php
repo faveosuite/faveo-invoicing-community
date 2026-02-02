@@ -2743,7 +2743,7 @@
      'verify_token_error' => 'Jekk jogħġbok daħħal it-Token ta’ Verifika.',
      'manual_number_title' => 'Żid Numru Manwalment',
      'plan_exist' => 'Dan il-prodott diġà għandu pjan bl-istess perjodu',
-    'duplicate_plan_period_grouped' => 'Perjodi ta\' pjan duplikati mhumiex permessi għax dan il-prodott huwa assoċjat ma\' prodott raggruppat Kull Xahar/Kull Sena.',
+     'duplicate_plan_period_grouped' => 'Perjodi ta\' pjan duplikati mhumiex permessi għax dan il-prodott huwa assoċjat ma\' prodott raggruppat Kull Xahar/Kull Sena.',
      'callback_url' => 'Webhook URL',
      'callback_url_error' => 'Jekk jogħġbok daħħal Webhook URL validu.',
      'webhook_explanation' => 'Il-Webhook URL jistaʼ jinstab taħt Konfigurazzjoni Addizzjonali fis-settings taʼ WhatsApp fil-Pannell tal-Amministratur.',
