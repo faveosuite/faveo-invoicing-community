@@ -46,12 +46,18 @@ class ClassMapGenerator
     private $classMap;
 
     /**
+     * @var non-empty-string
+     */
+    private $streamWrappersRegex;
+
+    /**
      * @param list<string> $extensions File extensions to scan for classes in the given paths
      */
     public function __construct(array $extensions = ['php', 'inc'])
     {
         $this->extensions = $extensions;
         $this->classMap = new ClassMap;
+        $this->streamWrappersRegex = sprintf('{^(?:%s)://}', implode('|', array_map('preg_quote', stream_get_wrappers())));
     }
 
     /**
@@ -142,18 +148,21 @@ class ClassMapGenerator
                 continue;
             }
 
-            if (!self::isAbsolutePath($filePath)) {
+            $isStreamWrapperPath = Preg::isMatch($this->streamWrappersRegex, $filePath);
+            if (!self::isAbsolutePath($filePath) && !$isStreamWrapperPath) {
                 $filePath = $cwd . '/' . $filePath;
                 $filePath = self::normalizePath($filePath);
             } else {
-                $filePath = Preg::replace('{[\\\\/]{2,}}', '/', $filePath);
+                $filePath = Preg::replace('{(?<!:)[\\\\/]{2,}}', '/', $filePath);
             }
 
             if ('' === $filePath) {
                 throw new \LogicException('Got an empty $filePath for '.$file->getPathname());
             }
 
-            $realPath = realpath($filePath);
+            $realPath = $isStreamWrapperPath
+                ? $filePath
+                : realpath($filePath);
 
             // fallback just in case but this really should not happen
             if (false === $realPath) {
@@ -271,7 +280,7 @@ class ClassMapGenerator
      * @param  string $path
      * @return bool
      */
-    private static function isAbsolutePath(string $path)
+    private static function isAbsolutePath(string $path): bool
     {
         return strpos($path, '/') === 0 || substr($path, 1, 1) === ':' || strpos($path, '\\\\') === 0;
     }
@@ -285,7 +294,7 @@ class ClassMapGenerator
      * @param  string $path Path to the file or directory
      * @return string
      */
-    private static function normalizePath(string $path)
+    private static function normalizePath(string $path): string
     {
         $parts = [];
         $path = strtr($path, '\\', '/');

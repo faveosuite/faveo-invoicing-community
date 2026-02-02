@@ -225,12 +225,6 @@ class ListActivitiesResponse implements ModelInterface, ArrayAccess, JsonSeriali
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -273,7 +267,7 @@ class ListActivitiesResponse implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\ActivityResponseObject[]
+     * @return \Pipedrive\versions\v1\Model\ActivityResponseObject[]|null
      */
     public function getData()
     {
@@ -283,7 +277,7 @@ class ListActivitiesResponse implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\ActivityResponseObject[] $data The array of activities
+     * @param \Pipedrive\versions\v1\Model\ActivityResponseObject[]|null $data The array of activities
      *
      * @return self
      */
@@ -297,7 +291,7 @@ class ListActivitiesResponse implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\ActivityDistributionDataWithAdditionalData
+     * @return \Pipedrive\versions\v1\Model\ActivityDistributionDataWithAdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -307,7 +301,7 @@ class ListActivitiesResponse implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\ActivityDistributionDataWithAdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\ActivityDistributionDataWithAdditionalData|null $additional_data additional_data
      *
      * @return self
      */

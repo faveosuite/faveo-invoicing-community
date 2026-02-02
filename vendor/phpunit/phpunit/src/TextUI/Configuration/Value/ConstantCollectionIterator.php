@@ -15,7 +15,7 @@ use Iterator;
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @template-implements Iterator<int, Constant>
+ * @template-implements Iterator<non-negative-int, Constant>
  */
 final class ConstantCollectionIterator implements Iterator
 {
@@ -23,6 +23,10 @@ final class ConstantCollectionIterator implements Iterator
      * @var list<Constant>
      */
     private readonly array $constants;
+
+    /**
+     * @var non-negative-int
+     */
     private int $position = 0;
 
     public function __construct(ConstantCollection $constants)
@@ -40,6 +44,9 @@ final class ConstantCollectionIterator implements Iterator
         return $this->position < count($this->constants);
     }
 
+    /**
+     * @return non-negative-int
+     */
     public function key(): int
     {
         return $this->position;

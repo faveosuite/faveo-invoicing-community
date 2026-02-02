@@ -219,12 +219,6 @@ class OrganizationFollowerPostResponse implements ModelInterface, ArrayAccess, J
     {
         $invalidProperties = [];
 
-        if ($this->container['success'] === null) {
-            $invalidProperties[] = "'success' can't be null";
-        }
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class OrganizationFollowerPostResponse implements ModelInterface, ArrayAccess, J
     /**
      * Gets success
      *
-     * @return bool
+     * @return bool|null
      */
     public function getSuccess()
     {
@@ -253,7 +247,7 @@ class OrganizationFollowerPostResponse implements ModelInterface, ArrayAccess, J
     /**
      * Sets success
      *
-     * @param bool $success If the request was successful or not
+     * @param bool|null $success If the request was successful or not
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class OrganizationFollowerPostResponse implements ModelInterface, ArrayAccess, J
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\OrganizationFollowerItem
+     * @return \Pipedrive\versions\v1\Model\OrganizationFollowerItem|null
      */
     public function getData()
     {
@@ -277,7 +271,7 @@ class OrganizationFollowerPostResponse implements ModelInterface, ArrayAccess, J
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\OrganizationFollowerItem $data data
+     * @param \Pipedrive\versions\v1\Model\OrganizationFollowerItem|null $data data
      *
      * @return self
      */

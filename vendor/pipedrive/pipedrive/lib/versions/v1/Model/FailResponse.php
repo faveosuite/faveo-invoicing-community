@@ -219,12 +219,6 @@ class FailResponse implements ModelInterface, ArrayAccess, JsonSerializable
     {
         $invalidProperties = [];
 
-        if ($this->container['success'] === null) {
-            $invalidProperties[] = "'success' can't be null";
-        }
-        if ($this->container['error'] === null) {
-            $invalidProperties[] = "'error' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class FailResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets success
      *
-     * @return bool
+     * @return bool|null
      */
     public function getSuccess()
     {
@@ -253,7 +247,7 @@ class FailResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets success
      *
-     * @param bool $success If the response is successful or not
+     * @param bool|null $success If the response is successful or not
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class FailResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets error
      *
-     * @return string
+     * @return string|null
      */
     public function getError()
     {
@@ -277,7 +271,7 @@ class FailResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets error
      *
-     * @param string $error The error message
+     * @param string|null $error The error message
      *
      * @return self
      */

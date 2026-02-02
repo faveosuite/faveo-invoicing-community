@@ -18,7 +18,7 @@ use IteratorAggregate;
  *
  * @immutable
  *
- * @template-implements IteratorAggregate<int, FilterDirectory>
+ * @template-implements IteratorAggregate<non-negative-int, FilterDirectory>
  */
 final readonly class FilterDirectoryCollection implements Countable, IteratorAggregate
 {
@@ -55,7 +55,7 @@ final readonly class FilterDirectoryCollection implements Countable, IteratorAgg
 
     public function notEmpty(): bool
     {
-        return !empty($this->directories);
+        return $this->directories !== [];
     }
 
     public function getIterator(): FilterDirectoryCollectionIterator

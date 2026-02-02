@@ -1,6 +1,6 @@
 <?php
 
-return array(
+return [
 
     /*
     |--------------------------------------------------------------------------
@@ -20,7 +20,7 @@ return array(
      */
     'convert_entities' => true,
 
-    'options' => array(
+    'options' => [
         /**
          * The location of the DOMPDF font directory
          *
@@ -45,7 +45,7 @@ return array(
          * Times-Roman, Times-Bold, Times-BoldItalic, Times-Italic,
          * Symbol, ZapfDingbats.
          */
-        "font_dir" => storage_path('fonts'), // advised by dompdf (https://github.com/dompdf/dompdf/pull/782)
+        'font_dir' => storage_path('fonts'), // advised by dompdf (https://github.com/dompdf/dompdf/pull/782)
 
         /**
          * The location of the DOMPDF font cache directory
@@ -55,7 +55,7 @@ return array(
          *
          * Note: This directory must exist and be writable by the webserver process.
          */
-        "font_cache" => storage_path('fonts'),
+        'font_cache' => storage_path('fonts'),
 
         /**
          * The location of a temporary directory.
@@ -64,7 +64,7 @@ return array(
          * The temporary directory is required to download remote images and when
          * using the PDFLib back end.
          */
-        "temp_dir" => sys_get_temp_dir(),
+        'temp_dir' => sys_get_temp_dir(),
 
         /**
          * ==== IMPORTANT ====
@@ -78,7 +78,7 @@ return array(
          * direct class use like:
          * $dompdf = new DOMPDF();  $dompdf->load_html($htmldata); $dompdf->render(); $pdfdata = $dompdf->output();
          */
-        "chroot" => realpath(base_path()),
+        'chroot' => realpath(base_path()),
 
         /**
          * Protocol whitelist
@@ -91,29 +91,35 @@ return array(
          * @var array
          */
         'allowed_protocols' => [
-            "file://" => ["rules" => []],
-            "http://" => ["rules" => []],
-            "https://" => ["rules" => []]
+            'data://' => ['rules' => []],
+            'file://' => ['rules' => []],
+            'http://' => ['rules' => []],
+            'https://' => ['rules' => []],
         ],
 
-         /**
-          * @var string
-          */
+        /**
+         * Operational artifact (log files, temporary files) path validation
+         */
+        'artifactPathValidation' => null,
+
+        /**
+         * @var string
+         */
         'log_output_file' => null,
 
         /**
          * Whether to enable font subsetting or not.
          */
-        "enable_font_subsetting" => false,
+        'enable_font_subsetting' => false,
 
         /**
          * The PDF rendering backend to use
          *
          * Valid settings are 'PDFLib', 'CPDF' (the bundled R&OS PDF class), 'GD' and
          * 'auto'. 'auto' will look for PDFLib and use it if found, or if not it will
-         * fall back on CPDF. 'GD' renders PDFs to graphic files. {@link
-         * Canvas_Factory} ultimately determines which rendering class to instantiate
-         * based on this setting.
+         * fall back on CPDF. 'GD' renders PDFs to graphic files.
+         * {@link * Canvas_Factory} ultimately determines which rendering class to
+         * instantiate based on this setting.
          *
          * Both PDFLib & CPDF rendering backends provide sufficient rendering
          * capabilities for dompdf, however additional features (e.g. object,
@@ -134,21 +140,7 @@ return array(
          * @link http://www.ros.co.nz/pdf
          * @link http://www.php.net/image
          */
-        "pdf_backend" => "CPDF",
-
-        /**
-         * PDFlib license key
-         *
-         * If you are using a licensed, commercial version of PDFlib, specify
-         * your license key here.  If you are using PDFlib-Lite or are evaluating
-         * the commercial version of PDFlib, comment out this setting.
-         *
-         * @link http://www.pdflib.com
-         *
-         * If pdflib present in web server and auto or selected explicitely above,
-         * a real license code must exist!
-         */
-        //"DOMPDF_PDFLIB_LICENSE" => "your license key here",
+        'pdf_backend' => 'CPDF',
 
         /**
          * html target media view which should be rendered into pdf.
@@ -160,7 +152,7 @@ return array(
          * the desired content might be different (e.g. screen or projection view of html file).
          * Therefore allow specification of content here.
          */
-        "default_media_type" => "screen",
+        'default_media_type' => 'screen',
 
         /**
          * The default paper size.
@@ -169,24 +161,25 @@ return array(
          *
          * @see CPDF_Adapter::PAPER_SIZES for valid sizes ('letter', 'legal', 'A4', etc.)
          */
-        "default_paper_size" => "a4",
+        'default_paper_size' => 'a4',
 
-         /**
-          * The default paper orientation.
-          *
-          * The orientation of the page (portrait or landscape).
-          *
-          * @var string
-          */
-        'default_paper_orientation' => "portrait",
+        /**
+         * The default paper orientation.
+         *
+         * The orientation of the page (portrait or landscape).
+         *
+         * @var string
+         */
+        'default_paper_orientation' => 'portrait',
 
         /**
          * The default font family
          *
          * Used if no suitable fonts can be found. This must exist in the font folder.
+         *
          * @var string
          */
-        "default_font" => "serif",
+        'default_font' => 'serif',
 
         /**
          * Image DPI setting
@@ -221,64 +214,88 @@ return array(
          *
          * @var int
          */
-        "dpi" => 96,
+        'dpi' => 96,
 
         /**
-         * Enable inline PHP
+         * Enable embedded PHP
          *
-         * If this setting is set to true then DOMPDF will automatically evaluate
-         * inline PHP contained within <script type="text/php"> ... </script> tags.
+         * If this setting is set to true then DOMPDF will automatically evaluate embedded PHP contained
+         * within <script type="text/php"> ... </script> tags.
          *
-         * Enabling this for documents you do not trust (e.g. arbitrary remote html
-         * pages) is a security risk.  Set this option to false if you wish to process
-         * untrusted documents.
+         * ==== IMPORTANT ==== Enabling this for documents you do not trust (e.g. arbitrary remote html pages)
+         * is a security risk.
+         * Embedded scripts are run with the same level of system access available to dompdf.
+         * Set this option to false (recommended) if you wish to process untrusted documents.
+         * This setting may increase the risk of system exploit.
+         * Do not change this settings without understanding the consequences.
+         * Additional documentation is available on the dompdf wiki at:
+         * https://github.com/dompdf/dompdf/wiki
          *
          * @var bool
          */
-        "enable_php" => false,
+        'enable_php' => false,
 
         /**
-         * Enable inline Javascript
+         * Rnable inline JavaScript
          *
-         * If this setting is set to true then DOMPDF will automatically insert
-         * JavaScript code contained within <script type="text/javascript"> ... </script> tags.
+         * If this setting is set to true then DOMPDF will automatically insert JavaScript code contained
+         * within <script type="text/javascript"> ... </script> tags as written into the PDF.
+         * NOTE: This is PDF-based JavaScript to be executed by the PDF viewer,
+         * not browser-based JavaScript executed by Dompdf.
          *
          * @var bool
          */
-        "enable_javascript" => true,
+        'enable_javascript' => true,
 
         /**
          * Enable remote file access
          *
-         * If this setting is set to true, DOMPDF will access remote sites for
-         * images and CSS files as required.
-         * This is required for part of test case www/test/image_variants.html through www/examples.php
+         *  If this setting is set to true, DOMPDF will access remote sites for
+         *  images and CSS files as required.
          *
-         * Attention!
-         * This can be a security risk, in particular in combination with DOMPDF_ENABLE_PHP and
-         * allowing remote access to dompdf.php or on allowing remote html code to be passed to
-         * $dompdf = new DOMPDF(, $dompdf->load_html(...,
-         * This allows anonymous users to download legally doubtful internet content which on
-         * tracing back appears to being downloaded by your server, or allows malicious php code
-         * in remote html pages to be executed by your server with your account privileges.
+         *  ==== IMPORTANT ====
+         *  This can be a security risk, in particular in combination with isPhpEnabled and
+         *  allowing remote html code to be passed to $dompdf = new DOMPDF(); $dompdf->load_html(...);
+         *  This allows anonymous users to download legally doubtful internet content which on
+         *  tracing back appears to being downloaded by your server, or allows malicious php code
+         *  in remote html pages to be executed by your server with your account privileges.
+         *
+         *  This setting may increase the risk of system exploit. Do not change
+         *  this settings without understanding the consequences. Additional
+         *  documentation is available on the dompdf wiki at:
+         *  https://github.com/dompdf/dompdf/wiki
          *
          * @var bool
          */
-        "enable_remote" => true,
+        'enable_remote' => false,
+
+        /**
+         * List of allowed remote hosts
+         *
+         * Each value of the array must be a valid hostname.
+         *
+         * This will be used to filter which resources can be loaded in combination with
+         * isRemoteEnabled. If enable_remote is FALSE, then this will have no effect.
+         *
+         * Leave to NULL to allow any remote host.
+         *
+         * @var array|null
+         */
+        'allowed_remote_hosts' => null,
 
         /**
          * A ratio applied to the fonts height to be more like browsers' line height
          */
-        "font_height_ratio" => 1.1,
+        'font_height_ratio' => 1.1,
 
         /**
          * Use the HTML5 Lib parser
          *
          * @deprecated This feature is now always on in dompdf 2.x
+         *
          * @var bool
          */
-        "enable_html5_parser" => true,
-    ),
+        'enable_html5_parser' => true,
+    ],
 
-
-);
+];

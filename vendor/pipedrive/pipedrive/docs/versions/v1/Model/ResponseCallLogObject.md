@@ -18,8 +18,8 @@ Name | Type | Description | Notes
 **deal_id** | **int** | The ID of the deal this call is associated with. A call log can be associated with either a deal or a lead, but not both at once. | [optional]
 **lead_id** | **string** | The ID of the lead in the UUID format this call is associated with. A call log can be associated with either a deal or a lead, but not both at once. | [optional]
 **note** | **string** | The note for the call log in HTML format | [optional]
-**id** | **string** | The call log ID, generated when the call log was created |
-**has_recording** | **bool** | If the call log has an audio recording attached, the value should be true |
-**company_id** | **int** | The company ID of the owner of the call log |
+**id** | **string** | The call log ID, generated when the call log was created | [optional]
+**has_recording** | **bool** | If the call log has an audio recording attached, the value should be true | [optional]
+**company_id** | **int** | The company ID of the owner of the call log | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

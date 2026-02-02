@@ -9,6 +9,8 @@ use Illuminate\Support\Collection;
 
 class Macro extends Method
 {
+    protected static $macroDefaults = [];
+
     /**
      * Macro constructor.
      *
@@ -32,6 +34,10 @@ class Macro extends Method
         parent::__construct($method, $alias, $class, $methodName, $interfaces, $classAliases, $returnTypeNormalizers);
     }
 
+    public static function setDefaultReturnTypes(array $map = [])
+    {
+        static::$macroDefaults = array_merge(static::$macroDefaults, $map);
+    }
     /**
      * @param \ReflectionFunctionAbstract $method
      */
@@ -75,6 +81,12 @@ class Macro extends Method
                 $type .= $return->allowsNull() ? '|null' : '';
             }
 
+            $this->phpdoc->appendTag(Tag::createInstance("@return {$type}"));
+        }
+
+        $class = ltrim($this->declaringClassName, '\\');
+        if (!$this->phpdoc->hasTag('return') && isset(static::$macroDefaults[$class])) {
+            $type = static::$macroDefaults[$class];
             $this->phpdoc->appendTag(Tag::createInstance("@return {$type}"));
         }
     }

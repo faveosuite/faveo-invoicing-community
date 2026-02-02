@@ -56,12 +56,12 @@ class CacheClearCommand extends Command
                 new InputOption('no-optional-warmers', '', InputOption::VALUE_NONE, 'Skip optional cache warmers (faster)'),
             ])
             ->setHelp(<<<'EOF'
-The <info>%command.name%</info> command clears and warms up the application cache for a given environment
-and debug mode:
+                The <info>%command.name%</info> command clears and warms up the application cache for a given environment
+                and debug mode:
 
-  <info>php %command.full_name% --env=dev</info>
-  <info>php %command.full_name% --env=prod --no-debug</info>
-EOF
+                  <info>php %command.full_name% --env=dev</info>
+                  <info>php %command.full_name% --env=prod --no-debug</info>
+                EOF
             )
         ;
     }
@@ -146,6 +146,16 @@ EOF
                     }
                     $this->warmupOptionals($useBuildDir ? $realCacheDir : $warmupDir, $warmupDir, $io);
                 }
+
+                // fix references to cached files with the real cache directory name
+                $search = [$warmupDir, str_replace('/', '\\/', $warmupDir), str_replace('\\', '\\\\', $warmupDir)];
+                $replace = str_replace('\\', '/', $realBuildDir);
+                foreach (Finder::create()->files()->in($warmupDir) as $file) {
+                    $content = str_replace($search, $replace, $this->filesystem->readFile($file), $count);
+                    if ($count) {
+                        file_put_contents($file, $content);
+                    }
+                }
             }
 
             if (!$fs->exists($warmupDir.'/'.$containerDir)) {
@@ -203,7 +213,7 @@ EOF
             if ('/' === \DIRECTORY_SEPARATOR && @is_readable('/proc/mounts') && $files = @file('/proc/mounts')) {
                 foreach ($files as $mount) {
                     $mount = \array_slice(explode(' ', $mount), 1, -3);
-                    if (!\in_array(array_pop($mount), ['vboxsf', 'nfs'])) {
+                    if (!\in_array(array_pop($mount), ['vboxsf', 'nfs'], true)) {
                         continue;
                     }
                     $mounts[] = implode(' ', $mount).'/';
@@ -227,16 +237,6 @@ EOF
             throw new \LogicException('Calling "cache:clear" with a kernel that does not implement "Symfony\Component\HttpKernel\RebootableInterface" is not supported.');
         }
         $kernel->reboot($warmupDir);
-
-        // fix references to cached files with the real cache directory name
-        $search = [$warmupDir, str_replace('\\', '\\\\', $warmupDir)];
-        $replace = str_replace('\\', '/', $realBuildDir);
-        foreach (Finder::create()->files()->in($warmupDir) as $file) {
-            $content = str_replace($search, $replace, $this->filesystem->readFile($file), $count);
-            if ($count) {
-                file_put_contents($file, $content);
-            }
-        }
     }
 
     private function warmupOptionals(string $cacheDir, string $warmupDir, SymfonyStyle $io): void

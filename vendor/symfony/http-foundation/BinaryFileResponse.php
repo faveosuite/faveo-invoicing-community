@@ -164,7 +164,7 @@ class BinaryFileResponse extends Response
             for ($i = 0, $filenameLength = mb_strlen($filename, $encoding); $i < $filenameLength; ++$i) {
                 $char = mb_substr($filename, $i, 1, $encoding);
 
-                if ('%' === $char || \ord($char) < 32 || \ord($char) > 126) {
+                if ('%' === $char || \ord($char[0]) < 32 || \ord($char[0]) > 126) {
                     $filenameFallback .= '_';
                 } else {
                     $filenameFallback .= $char;
@@ -189,7 +189,12 @@ class BinaryFileResponse extends Response
         }
 
         if (!$this->headers->has('Content-Type')) {
-            $this->headers->set('Content-Type', $this->file->getMimeType() ?: 'application/octet-stream');
+            $mimeType = null;
+            if (!$this->tempFileObject) {
+                $mimeType = $this->file->getMimeType();
+            }
+
+            $this->headers->set('Content-Type', $mimeType ?: 'application/octet-stream');
         }
 
         parent::prepare($request);
@@ -232,7 +237,7 @@ class BinaryFileResponse extends Response
                         $path = $location.substr($path, \strlen($pathPrefix));
                         // Only set X-Accel-Redirect header if a valid URI can be produced
                         // as nginx does not serve arbitrary file paths.
-                        $this->headers->set($type, $path);
+                        $this->headers->set($type, rawurlencode($path));
                         $this->maxlen = 0;
                         break;
                     }

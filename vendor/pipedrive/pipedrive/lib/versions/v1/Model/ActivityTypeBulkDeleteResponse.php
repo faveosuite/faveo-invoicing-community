@@ -219,9 +219,6 @@ class ActivityTypeBulkDeleteResponse implements ModelInterface, ArrayAccess, Jso
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -264,7 +261,7 @@ class ActivityTypeBulkDeleteResponse implements ModelInterface, ArrayAccess, Jso
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\ActivityTypeBulkDeleteResponseAllOfData
+     * @return \Pipedrive\versions\v1\Model\ActivityTypeBulkDeleteResponseAllOfData|null
      */
     public function getData()
     {
@@ -274,7 +271,7 @@ class ActivityTypeBulkDeleteResponse implements ModelInterface, ArrayAccess, Jso
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\ActivityTypeBulkDeleteResponseAllOfData $data data
+     * @param \Pipedrive\versions\v1\Model\ActivityTypeBulkDeleteResponseAllOfData|null $data data
      *
      * @return self
      */

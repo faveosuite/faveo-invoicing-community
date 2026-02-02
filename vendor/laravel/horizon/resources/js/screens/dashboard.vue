@@ -23,16 +23,6 @@
          */
         mounted() {
             document.title = "Horizon - Dashboard";
-
-            this.refreshStatsPeriodically();
-        },
-
-
-        /**
-         * Clean after the component is unmounted.
-         */
-        unmounted() {
-            clearTimeout(this.timeout);
         },
 
 
@@ -98,7 +88,7 @@
 
 
             /**
-             * Refresh the stats every period of time.
+             * Poll handler to refresh the stats at regular intervals.
              */
             refreshStatsPeriodically() {
                 Promise.all([
@@ -107,10 +97,6 @@
                     this.loadWorkload(),
                 ]).then(() => {
                     this.ready = true;
-
-                    this.timeout = setTimeout(() => {
-                        this.refreshStatsPeriodically();
-                    }, 5000);
                 });
             },
 
@@ -156,6 +142,8 @@
 
 <template>
     <div>
+        <poll @poll="refreshStatsPeriodically" :interval="5" />
+
         <div class="card overflow-hidden">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h2 class="h6 m-0">Overview</h2>
@@ -324,6 +312,7 @@
                 <thead>
                 <tr>
                     <th>Supervisor</th>
+                    <th>Connection</th>
                     <th>Queues</th>
                     <th class="text-end" style="width: 120px;">Processes</th>
                     <th class="text-end" style="width: 180px;">Balancing</th>
@@ -341,10 +330,11 @@
                         </svg>
                         {{ superVisorDisplayName(supervisor.name, worker.name) }}
                     </td>
+                    <td class="text-muted">{{ supervisor.options.connection }}</td>
                     <td class="text-muted">{{ supervisor.options.queue.replace(/,/g, ', ') }}</td>
                     <td class="text-end text-muted">{{ countProcesses(supervisor.processes) }}</td>
                     <td class="text-end text-muted" v-if="supervisor.options.balance">
-                        {{ supervisor.options.balance.charAt(0).toUpperCase() + supervisor.options.balance.slice(1) }}
+                        {{ upperFirst(supervisor.options.balance) }}
                     </td>
                     <td class="text-end text-muted" v-else>
                         Disabled

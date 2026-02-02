@@ -219,12 +219,6 @@ class GetProductFieldResponse implements ModelInterface, ArrayAccess, JsonSerial
     {
         $invalidProperties = [];
 
-        if ($this->container['success'] === null) {
-            $invalidProperties[] = "'success' can't be null";
-        }
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class GetProductFieldResponse implements ModelInterface, ArrayAccess, JsonSerial
     /**
      * Gets success
      *
-     * @return bool
+     * @return bool|null
      */
     public function getSuccess()
     {
@@ -253,7 +247,7 @@ class GetProductFieldResponse implements ModelInterface, ArrayAccess, JsonSerial
     /**
      * Sets success
      *
-     * @param bool $success If the response is successful or not
+     * @param bool|null $success If the response is successful or not
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class GetProductFieldResponse implements ModelInterface, ArrayAccess, JsonSerial
     /**
      * Gets data
      *
-     * @return ProductField
+     * @return ProductField|null
      */
     public function getData()
     {
@@ -277,7 +271,7 @@ class GetProductFieldResponse implements ModelInterface, ArrayAccess, JsonSerial
     /**
      * Sets data
      *
-     * @param ProductField $data All data for the product field
+     * @param ProductField|null $data All data for the product field
      *
      * @return self
      */

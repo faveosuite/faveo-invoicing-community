@@ -15,18 +15,20 @@
   ],
   "require": {
     "php": "^8.2",
-    "yajra/laravel-datatables-buttons": "^11",
-    "yajra/laravel-datatables-editor": "^11",
-    "yajra/laravel-datatables-export": "^11",
-    "yajra/laravel-datatables-fractal": "^11",
-    "yajra/laravel-datatables-html": "^11",
-    "yajra/laravel-datatables-oracle": "^11"
+    "yajra/laravel-datatables-buttons": "^12.1",
+    "yajra/laravel-datatables-editor": "^12",
+    "yajra/laravel-datatables-export": "^12",
+    "yajra/laravel-datatables-fractal": "^12",
+    "yajra/laravel-datatables-html": "^12",
+    "yajra/laravel-datatables-oracle": "^12"
   },
   "require-dev": {
-    "larastan/larastan": "^2.9.1",
-    "orchestra/testbench": "^9",
-    "laravel/pint": "^1.14",
-    "rector/rector": "^1.0"
+    "larastan/larastan": "^3.1",
+    "laravel/pint": "^1.21",
+    "orchestra/testbench": "^10",
+    "pestphp/pest": "^3.7",
+    "pestphp/pest-plugin-laravel": "^3.1",
+    "rector/rector": "^2.0.9"
   },
   "autoload-dev": {
     "psr-4": {
@@ -35,7 +37,7 @@
   },
   "extra": {
     "branch-alias": {
-      "dev-master": "11.x-dev"
+      "dev-master": "12.x-dev"
     }
   },
   "config": {
@@ -45,7 +47,7 @@
     }
   },
   "scripts": {
-    "test": "./vendor/bin/phpunit",
+    "test": "./vendor/bin/pest",
     "pint": "./vendor/bin/pint",
     "rector": "./vendor/bin/rector",
     "stan": "./vendor/bin/phpstan analyse --memory-limit=2G --ansi --no-progress --no-interaction --configuration=phpstan.neon.dist",

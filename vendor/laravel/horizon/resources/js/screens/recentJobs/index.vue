@@ -17,12 +17,14 @@
             };
         },
 
+
         /**
          * Components
          */
         components: {
             JobRow,
         },
+
 
         /**
          * Prepare the component.
@@ -31,15 +33,6 @@
             this.updatePageTitle();
 
             this.loadJobs();
-
-            this.refreshJobsPeriodically();
-        },
-
-        /**
-         * Clean after the component is unmounted.
-         */
-        unmounted() {
-            clearInterval(this.interval);
         },
 
 
@@ -53,6 +46,12 @@
                 this.page = 1;
 
                 this.loadJobs();
+            },
+
+            '$root.autoLoadsNewEntries'(autoLoadsNewEntries) {
+                if (autoLoadsNewEntries && this.hasNewEntries) {
+                    this.hasNewEntries = false;
+                }
             }
         },
 
@@ -91,16 +90,14 @@
 
 
             /**
-             * Refresh the jobs every period of time.
+             * Poll handler to refresh the jobs at regular intervals.
              */
             refreshJobsPeriodically() {
-                this.interval = setInterval(() => {
-                    if (this.page != 1) {
-                        return;
-                    }
+                if (this.page != 1) {
+                    return;
+                }
 
-                    this.loadJobs(-1, true);
-                }, 3000);
+                this.loadJobs(-1, true);
             },
 
 
@@ -131,17 +128,18 @@
                 this.hasNewEntries = false;
             },
 
+
             /**
              * Update the page title.
              */
             updatePageTitle() {
                 document.title = this.$route.params.type == 'pending'
-                        ? 'Horizon - Pending Jobs'
-                        : (
-                            this.$route.params.type == 'silenced'
-                                ? 'Horizon - Silenced Jobs'
-                                : 'Horizon - Completed Jobs'
-                        );
+                    ? 'Horizon - Pending Jobs'
+                    : (
+                        this.$route.params.type == 'silenced'
+                            ? 'Horizon - Silenced Jobs'
+                            : 'Horizon - Completed Jobs'
+                    );
             }
         }
     }
@@ -149,6 +147,8 @@
 
 <template>
     <div>
+        <poll @poll="refreshJobsPeriodically" />
+
         <div class="card overflow-hidden">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h2 class="h6 m-0" v-if="$route.params.type == 'pending'">Pending Jobs</h2>
@@ -168,7 +168,10 @@
 
             <div v-if="ready && jobs.length == 0"
                  class="d-flex flex-column align-items-center justify-content-center card-bg-secondary p-5 bottom-radius">
-                <span>There aren't any jobs.</span>
+                <span v-if="$route.params.type == 'pending'">There aren't any pending jobs.</span>
+                <span v-else-if="$route.params.type == 'completed'">There aren't any completed jobs.</span>
+                <span v-else-if="$route.params.type == 'silenced'">There aren't any silenced jobs.</span>
+                <span v-else>There aren't any jobs.</span>
             </div>
 
             <table v-if="ready && jobs.length > 0" class="table table-hover mb-0">
@@ -183,7 +186,7 @@
                 </thead>
 
                 <tbody>
-                    <tr v-if="hasNewEntries" key="newEntries" class="dontanimate">
+                    <tr v-if="hasNewEntries && !this.$root.autoLoadsNewEntries" key="newEntries" class="dontanimate">
                         <td colspan="100" class="text-center card-bg-secondary py-1">
                             <small><a href="#" v-on:click.prevent="loadNewEntries" v-if="!loadingNewEntries">Load New Entries</a></small>
 

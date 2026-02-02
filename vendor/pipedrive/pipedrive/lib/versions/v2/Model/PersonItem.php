@@ -84,7 +84,8 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
         'notes' => 'string',
         'im' => '\Pipedrive\versions\v2\Model\PersonItemIm[]',
         'birthday' => 'string',
-        'job_title' => 'string'
+        'job_title' => 'string',
+        'custom_fields' => 'array<string,object>'
     ];
 
     /**
@@ -113,7 +114,8 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
         'notes' => null,
         'im' => null,
         'birthday' => null,
-        'job_title' => null
+        'job_title' => null,
+        'custom_fields' => null
     ];
 
     /**
@@ -165,7 +167,8 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
         'notes' => 'notes',
         'im' => 'im',
         'birthday' => 'birthday',
-        'job_title' => 'job_title'
+        'job_title' => 'job_title',
+        'custom_fields' => 'custom_fields'
     ];
 
     /**
@@ -192,7 +195,8 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
         'notes' => 'setNotes',
         'im' => 'setIm',
         'birthday' => 'setBirthday',
-        'job_title' => 'setJobTitle'
+        'job_title' => 'setJobTitle',
+        'custom_fields' => 'setCustomFields'
     ];
 
     /**
@@ -219,7 +223,8 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
         'notes' => 'getNotes',
         'im' => 'getIm',
         'birthday' => 'getBirthday',
-        'job_title' => 'getJobTitle'
+        'job_title' => 'getJobTitle',
+        'custom_fields' => 'getCustomFields'
     ];
 
     /**
@@ -308,6 +313,7 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['im'] = $data['im'] ?? null;
         $this->container['birthday'] = $data['birthday'] ?? null;
         $this->container['job_title'] = $data['job_title'] ?? null;
+        $this->container['custom_fields'] = $data['custom_fields'] ?? null;
     }
 
     /**
@@ -788,6 +794,30 @@ class PersonItem implements ModelInterface, ArrayAccess, JsonSerializable
     public function setJobTitle($job_title): self
     {
         $this->container['job_title'] = $job_title;
+
+        return $this;
+    }
+
+    /**
+     * Gets custom_fields
+     *
+     * @return array<string,object>|null
+     */
+    public function getCustomFields()
+    {
+        return $this->container['custom_fields'];
+    }
+
+    /**
+     * Sets custom_fields
+     *
+     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes
+     *
+     * @return self
+     */
+    public function setCustomFields($custom_fields): self
+    {
+        $this->container['custom_fields'] = $custom_fields;
 
         return $this;
     }

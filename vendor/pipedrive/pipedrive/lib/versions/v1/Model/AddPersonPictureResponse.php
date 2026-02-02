@@ -219,9 +219,6 @@ class AddPersonPictureResponse implements ModelInterface, ArrayAccess, JsonSeria
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -264,7 +261,7 @@ class AddPersonPictureResponse implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\RelatedPictureData
+     * @return \Pipedrive\versions\v1\Model\RelatedPictureData|null
      */
     public function getData()
     {
@@ -274,7 +271,7 @@ class AddPersonPictureResponse implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\RelatedPictureData $data data
+     * @param \Pipedrive\versions\v1\Model\RelatedPictureData|null $data data
      *
      * @return self
      */

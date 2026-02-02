@@ -225,15 +225,6 @@ class DealFlowResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializ
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
-        if ($this->container['related_objects'] === null) {
-            $invalidProperties[] = "'related_objects' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -252,7 +243,7 @@ class DealFlowResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\DealFlowResponseAllOfData[]
+     * @return \Pipedrive\versions\v1\Model\DealFlowResponseAllOfData[]|null
      */
     public function getData()
     {
@@ -262,7 +253,7 @@ class DealFlowResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\DealFlowResponseAllOfData[] $data data
+     * @param \Pipedrive\versions\v1\Model\DealFlowResponseAllOfData[]|null $data data
      *
      * @return self
      */
@@ -276,7 +267,7 @@ class DealFlowResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\AdditionalData
+     * @return \Pipedrive\versions\v1\Model\AdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -286,7 +277,7 @@ class DealFlowResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\AdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\AdditionalData|null $additional_data additional_data
      *
      * @return self
      */
@@ -300,7 +291,7 @@ class DealFlowResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Gets related_objects
      *
-     * @return \Pipedrive\versions\v1\Model\DealFlowResponseAllOfRelatedObjects
+     * @return \Pipedrive\versions\v1\Model\DealFlowResponseAllOfRelatedObjects|null
      */
     public function getRelatedObjects()
     {
@@ -310,7 +301,7 @@ class DealFlowResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Sets related_objects
      *
-     * @param \Pipedrive\versions\v1\Model\DealFlowResponseAllOfRelatedObjects $related_objects related_objects
+     * @param \Pipedrive\versions\v1\Model\DealFlowResponseAllOfRelatedObjects|null $related_objects related_objects
      *
      * @return self
      */

@@ -5,6 +5,216 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Removed
+- Removed deprecated bulk delete endpoints:
+  - `DELETE /v1/activities`
+  - `DELETE /v1/activityTypes`
+  - `DELETE /v1/deals`
+  - `DELETE /v1/organizations`
+  - `DELETE /v1/persons`
+  - `DELETE /v1/stages`
+Please use the single delete endpoints instead, for example `DELETE /api/v2/activities/{id}`.
+
+### Added
+- Added `updated_since` query parameter to `GET /v1/leads` endpoint to filter leads by their `update_time`
+- Added `updated_since` query parameter to `GET /v1/notes` endpoint to filter notes by their `update_time`
+
+## [15.1.0](https://github.com/pipedrive/client-php/compare/15.0.0...15.1.0) (2026-01-27)
+
+## [15.0.0](https://github.com/pipedrive/client-php/compare/14.9.0...15.0.0) (2026-01-27)
+
+## [14.9.0](https://github.com/pipedrive/client-php/compare/14.8.0...14.9.0) (2026-01-27)
+
+### Added
+- Added three new visibility flags to ui_visibility in organization fields v2 endpoints: org_detail_visible_flag, person_detail_visible_flag, and deal_detail_visible_flag
+
+## [14.8.0](https://github.com/pipedrive/client-php/compare/14.7.1...14.8.0) (2026-01-27)
+
+## [14.7.1](https://github.com/pipedrive/client-php/compare/14.7.0...14.7.1) (2026-01-27)
+
+### Added
+- Added `subpremise` field to address structures in API v2 (`ActivityItemLocation`, `OrganizationItemAddress`, `PersonItemPostalAddress`) to support apartment/suite numbers
+
+## [14.7.0](https://github.com/pipedrive/client-php/compare/14.6.1...14.7.0) (2026-01-27)
+
+### Added
+- Added `GET /api/v2/persons/{id}/picture` endpoint to retrieve picture information for a specific person, including ID, file size, and URLs for both 128x128 (thumbnail) and 512x512 (full-size) versions of the person's profile picture
+
+## [14.6.1](https://github.com/pipedrive/client-php/compare/14.6.0...14.6.1) (2026-01-27)
+
+### Fixed
+- Removed `is_selected` from `/api/v2/pipelines` response, the field was never returned
+
+## [14.6.0](https://github.com/pipedrive/client-php/compare/14.5.0...14.6.0) (2025-12-05)
+
+### Added
+- Added three new OAuth2 scopes for field management:
+  - `deal-fields:full` - Allows applications to create, read, update and delete deal fields
+  - `product-fields:full` - Allows applications to create, read, update and delete product fields
+  - `contact-fields:full` - Allows applications to create, read, update and delete person and organization fields
+
+## [14.5.0](https://github.com/pipedrive/client-php/compare/14.4.0...14.5.0) (2025-12-02)
+
+### Added
+- Documented the following new v2 endpoints:
+  - `GET /api/v2/activityFields`
+  - `GET /api/v2/dealFields`
+  - `GET /api/v2/organizationFields`
+  - `GET /api/v2/personFields`
+  - `GET /api/v2/productFields`
+  - `GET /api/v2/activityFields/{field_code}`
+  - `GET /api/v2/dealFields/{field_code}`
+  - `GET /api/v2/organizationFields/{field_code}`
+  - `GET /api/v2/personFields/{field_code}`
+  - `GET /api/v2/productFields/{field_code}`
+  - `POST /api/v2/dealFields`
+  - `POST /api/v2/organizationFields`
+  - `POST /api/v2/personFields`
+  - `POST /api/v2/productFields`
+  - `DELETE /api/v2/dealFields/{field_code}`
+  - `DELETE /api/v2/organizationFields/{field_code}`
+  - `DELETE /api/v2/personFields/{field_code}`
+  - `DELETE /api/v2/productFields/{field_code}`
+  - `POST /api/v2/dealFields/{field_code}/options`
+  - `POST /api/v2/organizationFields/{field_code}/options`
+  - `POST /api/v2/personFields/{field_code}/options`
+  - `POST /api/v2/productFields/{field_code}/options`
+  - `PATCH /api/v2/dealFields/{field_code}/options`
+  - `PATCH /api/v2/organizationFields/{field_code}/options`
+  - `PATCH /api/v2/personFields/{field_code}/options`
+  - `PATCH /api/v2/productFields/{field_code}/options`
+  - `DELETE /api/v2/dealFields/{field_code}/options`
+  - `DELETE /api/v2/organizationFields/{field_code}/options`
+  - `DELETE /api/v2/personFields/{field_code}/options`
+  - `DELETE /api/v2/productFields/{field_code}/options`
+
+## [14.4.0](https://github.com/pipedrive/client-php/compare/14.3.3...14.4.0) (2025-11-25)
+
+### Fixed
+- API v2 configuration for the host base path: `/api/v2` instead of `/v2`. With this, API v1 configuration also changed from `/v1` to `/api/v1`, but this does not break backward compatibility as both `/api/v1` and `/v1` paths are supported for API v1.
+
+### Added
+
+- Added `POST /products/{id}/duplicate` endpoint for duplicating an existing product
+- Added `deal_id` query parameter to the GET `/v2/persons` endpoint
+- Added `GET /v1/leadFields` endpoint for fetching all lead fields
+
+## [14.3.3](https://github.com/pipedrive/client-php/compare/14.3.2...14.3.3) (2025-11-18)
+
+### Fixed
+- Prepared `nullable: true` to fields that can return null values in schemas for Field and Roles schemas
+
+## [14.3.2](https://github.com/pipedrive/client-php/compare/14.3.1...14.3.2) (2025-11-18)
+
+### Fixed
+- Fixed return type for `filesApi.downloadFile` function
+
+## [14.3.1](https://github.com/pipedrive/client-php/compare/14.3.0...14.3.1) (2025-11-18)
+
+### Fixed
+- Corrected `FieldResponse` schema to use `GetField` instead of `Field` to ensure GET responses accurately reflect all field types returned by the API
+
+## [14.3.0](https://github.com/pipedrive/client-php/compare/14.2.1...14.3.0) (2025-10-06)
+
+### Added
+- Added `is_archived` field in search response schemas for deals and leads
+
+## [14.2.1](https://github.com/pipedrive/client-php/compare/14.2.0...14.2.1) (2025-10-03)
+
+### Fixed
+- Fixed PHP SDK v2 Configuration to use correct `/v2` API endpoints after OAuth token refresh instead of defaulting to `/v1`
+
+## [14.2.0](https://github.com/pipedrive/client-php/compare/14.1.0...14.2.0) (2025-10-03)
+
+## [14.1.0](https://github.com/pipedrive/client-php/compare/14.0.0...14.1.0) (2025-10-03)
+
+### Added
+-   Added `POST /deals/{id}/products/bulk` endpoint for creating multiple deal products at once (max 100 per request)
+-   Added `DELETE /deals/{id}/products` endpoint for deleting multiple deal products at once (max 100 per request)
+
+## [14.0.0](https://github.com/pipedrive/client-php/compare/13.2.5...14.0.0) (2025-10-03)
+
+### Changed
+- Removed deprecated `person_name`, `organization_name`, and `email` lead fields from itemSearch endpoints
+
+## [13.2.5](https://github.com/pipedrive/client-php/compare/13.2.3...13.2.5) (2025-10-03)
+
+### Fixed
+- Fixed incorrect description for max `limit` parameter in itemSearch v2 endpoint
+
+## [13.2.3](https://github.com/pipedrive/client-php/compare/13.2.2...13.2.3) (2025-10-03)
+
+## [13.2.2](https://github.com/pipedrive/client-php/compare/13.2.1...13.2.2) (2025-09-08)
+
+### Fixed
+- Fixed incorrect `custom_fields` schema implementations by using the proper shared definition from `custom-fields.yaml`
+
+## [13.2.1](https://github.com/pipedrive/client-php/compare/13.2.0...13.2.1) (2025-09-08)
+
+### Added
+- Documented the `custom_fields` in /v2 api for create organization and update deal
+
+## [13.2.0](https://github.com/pipedrive/client-php/compare/13.1.0...13.2.0) (2025-09-08)
+
+### Added
+- Documented the `name` property in the Webhooks API for the following endpoints:
+  - `GET /v1/webhooks`
+  - `POST /v1/webhooks`
+
+## [13.1.0](https://github.com/pipedrive/client-php/compare/13.0.0...13.1.0) (2025-09-08)
+
+### Added
+- Add documentation for product images functionality:
+  - `GET` `/api/v2/products/{id}/images` endpoint
+  - `POST` `/api/v2/products/{id}/images` endpoint
+  - `PUT` `/api/v2/products/{id}/images` endpoint
+  - `DELETE` `/api/v2/products/{id}/images` endpoint
+
+## [13.0.0](https://github.com/pipedrive/client-php/compare/12.0.2...13.0.0) (2025-09-08)
+
+### Removed
+- Removed all endpoints of the Subscriptions feature
+  - GET /v1/subscriptions/{id} 
+  - GET /v1/subscriptions/find/{dealId}
+  - GET /v1/subscriptions/{id}/payments
+  - POST /v1/subscriptions/recurring
+  - POST /v1/subscriptions/installment
+  - PUT /v1/subscriptions/recurring/{id}
+  - PUT /v1/subscriptions/installment/{id}
+  - PUT /v1/subscriptions/recurring/{id}/cancel
+  - DELETE /v1/subscriptions/{id}
+
+## [12.0.2](https://github.com/pipedrive/client-php/compare/12.0.1...12.0.2) (2025-07-07)
+
+### Added
+- Added `custom_fields` type to `deal`, `person`, `organization`, `product` schemas
+
+## [12.0.1](https://github.com/pipedrive/client-php/compare/12.0.0...12.0.1) (2025-06-25)
+
+### Fixed
+- Removed not supported `add_time`, `update_time` and `stage_change_time` from `PATCH /v2/deals/:id` request body
+
+## [12.0.0](https://github.com/pipedrive/client-php/compare/11.1.1...12.0.0) (2025-06-17)
+
+### Removed
+- Removed `deals_summary` from `GET /v1/stages/:id` and `GET /v1/pipelines/:id`
+- Removed `totals_convert_currency` query parameter from `GET /v1/pipelines/:id`
+- Removed `everyone` query parameter from `GET /v1/stages/:id`
+
+## [11.1.1](https://github.com/pipedrive/client-php/compare/11.1.0...11.1.1) (2025-06-09)
+
+### Added
+- Documented `address` property in the Organization v2 API for add and update endpoints:
+  - `POST /v2/organizations`
+  - `PATCH /v2/organizations/{id}`
+
+## [11.1.0](https://github.com/pipedrive/client-php/compare/11.0.0...11.1.1) (2025-05-26)
+### Fixed
+- Fixed the OAuth scopes of Deal to Lead conversion and Lead to Deal conversion endpoints
+### Added
+- Added `smart_bcc_email` to optional `include_fields` in Deals API v2
+- Added `is_archived` to request bodies of POST `deals` endpoints and PUT/PATCH `/deals/:id` endpoints
+- Added `archive_time` to request bodies of POST `deals` endpoints
 
 ## [11.0.0](https://github.com/pipedrive/client-php/compare/10.0.0...11.0.0) (2025-05-09)
 

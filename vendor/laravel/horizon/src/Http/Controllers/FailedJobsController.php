@@ -46,12 +46,12 @@ class FailedJobsController extends Controller
     public function index(Request $request)
     {
         $jobs = ! $request->query('tag')
-                ? $this->paginate($request)
-                : $this->paginateByTag($request, $request->query('tag'));
+            ? $this->paginate($request)
+            : $this->paginateByTag($request, $request->query('tag'));
 
         $total = $request->query('tag')
-                ? $this->tags->count('failed:'.$request->query('tag'))
-                : $this->jobs->countFailed();
+            ? $this->tags->count('failed:'.$request->query('tag'))
+            : $this->jobs->countFailed();
 
         return [
             'jobs' => $jobs,
@@ -67,9 +67,9 @@ class FailedJobsController extends Controller
      */
     protected function paginate(Request $request)
     {
-        return $this->jobs->getFailed($request->query('starting_at') ?: -1)->map(function ($job) {
-            return $this->decode($job);
-        });
+        return $this->jobs
+            ->getFailed($request->query('starting_at') ?: -1)
+            ->map(fn ($job) => $this->decode($job));
     }
 
     /**
@@ -87,9 +87,9 @@ class FailedJobsController extends Controller
 
         $startingAt = $request->query('starting_at', 0);
 
-        return $this->jobs->getJobs($jobIds, $startingAt)->map(function ($job) {
-            return $this->decode($job);
-        });
+        return $this->jobs
+            ->getJobs($jobIds, $startingAt)
+            ->map(fn ($job) => $this->decode($job));
     }
 
     /**
@@ -100,9 +100,10 @@ class FailedJobsController extends Controller
      */
     public function show($id)
     {
-        return (array) $this->jobs->getJobs([$id])->map(function ($job) {
-            return $this->decode($job);
-        })->first();
+        return (array) $this->jobs
+            ->getJobs([$id])
+            ->map(fn ($job) => $this->decode($job))
+            ->first();
     }
 
     /**

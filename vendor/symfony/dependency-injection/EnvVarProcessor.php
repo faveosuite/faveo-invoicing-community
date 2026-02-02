@@ -335,7 +335,7 @@ class EnvVarProcessor implements EnvVarProcessorInterface, ResetInterface
         }
 
         if ('query_string' === $prefix) {
-            $queryString = parse_url($env, \PHP_URL_QUERY) ?: $env;
+            $queryString = parse_url($env, \PHP_URL_QUERY) ?: (parse_url($env, \PHP_URL_SCHEME) ? '' : $env);
             parse_str($queryString, $result);
 
             return $result;
@@ -380,5 +380,9 @@ class EnvVarProcessor implements EnvVarProcessorInterface, ResetInterface
     {
         $this->loadedVars = [];
         $this->loaders = $this->originalLoaders;
+
+        if ($this->container instanceof Container) {
+            $this->container->resetEnvCache();
+        }
     }
 }

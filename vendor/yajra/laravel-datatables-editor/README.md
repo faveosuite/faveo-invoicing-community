@@ -1,6 +1,6 @@
 # Laravel DataTables Editor Plugin.
 
-[![Laravel 11](https://img.shields.io/badge/Laravel-11-orange.svg)](http://laravel.com)
+[![Laravel 12.x](https://img.shields.io/badge/Laravel-12.x-orange.svg)](http://laravel.com)
 [![Latest Stable Version](https://img.shields.io/packagist/v/yajra/laravel-datatables-editor.svg)](https://packagist.org/packages/yajra/laravel-datatables-editor)
 
 [![Continuous Integration](https://github.com/yajra/laravel-datatables-editor/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/yajra/laravel-datatables-editor/actions/workflows/continuous-integration.yml)
@@ -18,8 +18,10 @@ This package is a plugin of [Laravel DataTables](https://github.com/yajra/larave
 
 ## Requirements
 
-- [Laravel 11.x](https://github.com/laravel/framework)
-- [Laravel DataTables 11.x](https://github.com/yajra/laravel-datatables)
+- [Laravel 12.x](https://github.com/laravel/framework)
+- [Laravel DataTables 12.x](https://github.com/yajra/laravel-datatables)
+- [DataTables 2.x](https://datatables.net)
+- [DataTables Editor 2.x](https://editor.datatables.net)
 
 ## Documentations
 
@@ -32,6 +34,7 @@ This package is a plugin of [Laravel DataTables](https://github.com/yajra/larave
 |:--------|:--------|
 | 5-10    | 1.x     |
 | 11.x    | 11.x    |
+| 12.x    | 12.x    |
 
 ## Features
 
@@ -44,7 +47,7 @@ This package is a plugin of [Laravel DataTables](https://github.com/yajra/larave
 
 ## Quick Installation
 
-`composer require yajra/laravel-datatables-editor:^11`
+`composer require yajra/laravel-datatables-editor:^12`
 
 And that's it! Start building out some awesome DataTables Editor!
 

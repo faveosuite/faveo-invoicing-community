@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @template TModel of Model
+ */
 trait WithEditAction
 {
     /**
@@ -67,6 +70,8 @@ trait WithEditAction
 
     /**
      * Get edit action validation rules.
+     *
+     * @param  TModel  $model
      */
     public function editRules(Model $model): array
     {
@@ -81,11 +86,18 @@ trait WithEditAction
         return [];
     }
 
+    /**
+     * @param  TModel  $model
+     */
     public function updating(Model $model, array $data): array
     {
         return $data;
     }
 
+    /**
+     * @param  TModel  $model
+     * @return TModel
+     */
     public function updated(Model $model, array $data): Model
     {
         return $model;

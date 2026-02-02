@@ -231,15 +231,6 @@ class PersonFlowResponse implements ModelInterface, ArrayAccess, JsonSerializabl
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
-        if ($this->container['related_objects'] === null) {
-            $invalidProperties[] = "'related_objects' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -282,7 +273,7 @@ class PersonFlowResponse implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\PersonFlowResponseAllOfData[]
+     * @return \Pipedrive\versions\v1\Model\PersonFlowResponseAllOfData[]|null
      */
     public function getData()
     {
@@ -292,7 +283,7 @@ class PersonFlowResponse implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\PersonFlowResponseAllOfData[] $data data
+     * @param \Pipedrive\versions\v1\Model\PersonFlowResponseAllOfData[]|null $data data
      *
      * @return self
      */
@@ -306,7 +297,7 @@ class PersonFlowResponse implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\AdditionalData
+     * @return \Pipedrive\versions\v1\Model\AdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -316,7 +307,7 @@ class PersonFlowResponse implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\AdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\AdditionalData|null $additional_data additional_data
      *
      * @return self
      */
@@ -330,7 +321,7 @@ class PersonFlowResponse implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Gets related_objects
      *
-     * @return \Pipedrive\versions\v1\Model\DealFlowResponseAllOfRelatedObjects
+     * @return \Pipedrive\versions\v1\Model\DealFlowResponseAllOfRelatedObjects|null
      */
     public function getRelatedObjects()
     {
@@ -340,7 +331,7 @@ class PersonFlowResponse implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Sets related_objects
      *
-     * @param \Pipedrive\versions\v1\Model\DealFlowResponseAllOfRelatedObjects $related_objects related_objects
+     * @param \Pipedrive\versions\v1\Model\DealFlowResponseAllOfRelatedObjects|null $related_objects related_objects
      *
      * @return self
      */

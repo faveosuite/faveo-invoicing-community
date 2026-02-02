@@ -6,6 +6,8 @@ use Closure;
 use DateTime;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 use ReflectionFunction;
 use ReflectionMethod;
@@ -17,8 +19,11 @@ class Helper
      */
     public static function includeInArray(array $item, array $array): array
     {
+        /** @var int|string $itemName */
+        $itemName = is_int($item['name']) || is_string($item['name']) ? $item['name'] : (string) $item['name'];
+
         if (self::isItemOrderInvalid($item, $array)) {
-            return array_merge($array, [$item['name'] => $item['content']]);
+            return array_merge($array, [$itemName => $item['content']]);
         }
 
         $count = 0;
@@ -35,7 +40,7 @@ class Helper
             $count++;
         }
 
-        return array_merge($first, [$item['name'] => $item['content']], $last);
+        return array_merge($first, [$itemName => $item['content']], $last);
     }
 
     /**
@@ -124,12 +129,7 @@ class Helper
             return view($str, $data)->render();
         }
 
-        ob_start() && extract($data, EXTR_SKIP);
-        eval('?>'.app('blade.compiler')->compileString($str));
-        $str = ob_get_contents();
-        ob_end_clean();
-
-        return $str;
+        return Blade::render($str, $data);
     }
 
     /**
@@ -358,8 +358,7 @@ class Helper
             return false;
         }
 
-        /** @var array $callbacks */
-        $callbacks = config('datatables.callback', ['$', '$.', 'function']);
+        $callbacks = Config::get('datatables.callback', ['$', '$.', 'function']);
 
         if (Str::startsWith($key, 'language.')) {
             return false;

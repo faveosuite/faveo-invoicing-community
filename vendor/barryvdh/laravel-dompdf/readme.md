@@ -3,9 +3,9 @@
 ### Laravel wrapper for [Dompdf HTML to PDF Converter](https://github.com/dompdf/dompdf)
 
 [![Tests](https://github.com/barryvdh/laravel-dompdf/workflows/Tests/badge.svg)](https://github.com/barryvdh/laravel-dompdf/actions)
-[![Packagist License](https://poser.pugx.org/barryvdh/laravel-dompdf/license.png)](http://choosealicense.com/licenses/mit/)
-[![Latest Stable Version](https://poser.pugx.org/barryvdh/laravel-dompdf/version.png)](https://packagist.org/packages/barryvdh/laravel-dompdf)
-[![Total Downloads](https://poser.pugx.org/barryvdh/laravel-dompdf/d/total.png)](https://packagist.org/packages/barryvdh/laravel-dompdf)
+[![Packagist License](https://img.shields.io/badge/Licence-MIT-blue)](http://choosealicense.com/licenses/mit/)
+[![Latest Stable Version](https://img.shields.io/packagist/v/barryvdh/laravel-dompdf?label=Stable)](https://packagist.org/packages/barryvdh/laravel-dompdf)
+[![Total Downloads](https://img.shields.io/packagist/dt/barryvdh/laravel-dompdf.svg?label=Downloads)](https://packagist.org/packages/barryvdh/laravel-dompdf)
 [![Fruitcake](https://img.shields.io/badge/Powered%20By-Fruitcake-b2bc35.svg)](https://fruitcake.nl/)
 
 ## Installation
@@ -91,9 +91,10 @@ Available options and their defaults:
 * __dpi__: 96 _(available in config/dompdf.php)_
 * __fontHeightRatio__: 1.1 _(available in config/dompdf.php)_
 * __isPhpEnabled__: false _(available in config/dompdf.php)_
-* __isRemoteEnabled__: true _(available in config/dompdf.php)_
+* __isRemoteEnabled__: false _(available in config/dompdf.php)_
 * __isJavascriptEnabled__: true _(available in config/dompdf.php)_
-* __isHtml5ParserEnabled__: false _(available in config/dompdf.php)_
+* __isHtml5ParserEnabled__: true _(available in config/dompdf.php)_
+* __allowedRemoteHosts__: null _(available in config/dompdf.php)_
 * __isFontSubsettingEnabled__: false _(available in config/dompdf.php)_
 * __debugPng__: false
 * __debugKeepTemp__: false
@@ -107,6 +108,9 @@ Available options and their defaults:
 * __pdflibLicense__: ""
 * __adminUsername__: "user"
 * __adminPassword__: "password"
+* __artifactPathValidation__: null _(available in config/dompdf.php)_
+
+#### Note: Since 3.x the remote access is disabled by default, to provide more security. Use with caution!
 
 ### Tip: UTF-8 support
 In your templates, set the UTF-8 Metatag:

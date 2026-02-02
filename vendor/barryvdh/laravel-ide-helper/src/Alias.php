@@ -13,13 +13,16 @@ namespace Barryvdh\LaravelIdeHelper;
 
 use Barryvdh\Reflection\DocBlock;
 use Barryvdh\Reflection\DocBlock\Context;
+use Barryvdh\Reflection\DocBlock\ContextFactory;
 use Barryvdh\Reflection\DocBlock\Serializer as DocBlockSerializer;
 use Barryvdh\Reflection\DocBlock\Tag\MethodTag;
+use Barryvdh\Reflection\DocBlock\Tag\TemplateTag;
 use Closure;
 use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\Facade;
+use Illuminate\Support\Traits\Macroable;
 use ReflectionClass;
 use Throwable;
 
@@ -34,6 +37,7 @@ class Alias
     protected $classType = 'class';
     protected $short;
     protected $namespace = '__root';
+    protected $parentClass;
     protected $root = null;
     protected $classes = [];
     protected $methods = [];
@@ -46,6 +50,9 @@ class Alias
 
     /** @var ConfigRepository  */
     protected $config;
+
+    /** @var string[] */
+    protected $templateNames;
 
     /**
      * @param ConfigRepository $config
@@ -79,9 +86,15 @@ class Alias
         $this->detectNamespace();
         $this->detectClassType();
         $this->detectExtendsNamespace();
+        $this->detectParentClass();
 
         if (!empty($this->namespace)) {
-            $this->classAliases = (new UsesResolver())->loadFromClass($this->root);
+            try {
+                $this->classAliases = (new ContextFactory())->createFromReflector(new ReflectionClass($this->root))->getNamespaceAliases();
+            } catch (Throwable $e) {
+                $this->classAliases = [];
+            }
+
 
             //Create a DocBlock and serializer instance
             $this->phpdoc = new DocBlock(new ReflectionClass($alias), new Context($this->namespace, $this->classAliases));
@@ -159,6 +172,25 @@ class Alias
     }
 
     /**
+     * Get the parent class of the class which this alias extends
+     *
+     * @return null|string
+     */
+    public function getParentClass()
+    {
+        return $this->parentClass;
+    }
+
+    /**
+     * Check if this class should extend the parent class
+     */
+    public function shouldExtendParentClass()
+    {
+        return $this->parentClass
+            && $this->getExtendsNamespace() !== '\\Illuminate\\Support\\Facades';
+    }
+
+    /**
      * Get the Alias by which this class is called
      *
      * @return string
@@ -224,6 +256,8 @@ class Alias
             if ($fake !== $real) {
                 $this->addClass(get_class($fake));
             }
+        } catch (Throwable $throwable) {
+            // Ignore error
         } finally {
             $facade::swap($real);
         }
@@ -253,6 +287,18 @@ class Alias
             $this->extendsClass = array_pop($nsParts);
             $this->extendsNamespace = implode('\\', $nsParts);
         }
+    }
+
+    /**
+     * Detect the parent class
+     */
+    protected function detectParentClass()
+    {
+        $reflection = new ReflectionClass($this->root);
+
+        $parentClass = $reflection->getParentClass();
+
+        $this->parentClass = $parentClass ? '\\' . $parentClass->getName() : null;
     }
 
     /**
@@ -341,7 +387,8 @@ class Alias
                         $magic,
                         $this->interfaces,
                         $this->classAliases,
-                        $this->getReturnTypeNormalizers($class)
+                        $this->getReturnTypeNormalizers($class),
+                        $this->getTemplateNames()
                     );
                 }
                 $this->usedMethods[] = $magic;
@@ -373,7 +420,8 @@ class Alias
                                 $method->name,
                                 $this->interfaces,
                                 $this->classAliases,
-                                $this->getReturnTypeNormalizers($reflection)
+                                $this->getReturnTypeNormalizers($reflection),
+                                $this->getTemplateNames(),
                             );
                         }
                         $this->usedMethods[] = $method->name;
@@ -383,15 +431,20 @@ class Alias
 
             // Check if the class is macroable
             // (Eloquent\Builder is also macroable but doesn't use Macroable trait)
-            $traits = collect($reflection->getTraitNames());
-            if ($traits->contains('Illuminate\Support\Traits\Macroable') || $class === EloquentBuilder::class) {
+            if ($class === EloquentBuilder::class || in_array(Macroable::class, $reflection->getTraitNames())) {
                 $properties = $reflection->getStaticProperties();
                 $macros = isset($properties['macros']) ? $properties['macros'] : [];
                 foreach ($macros as $macro_name => $macro_func) {
                     if (!in_array($macro_name, $this->usedMethods)) {
+                        try {
+                            $method = $this->getMacroFunction($macro_func);
+                        } catch (Throwable $e) {
+                            // Invalid method, skip
+                            continue;
+                        }
                         // Add macros
                         $this->methods[] = new Macro(
-                            $this->getMacroFunction($macro_func),
+                            $method,
                             $this->alias,
                             $reflection,
                             $macro_name,
@@ -466,6 +519,67 @@ class Alias
 
         $this->removeDuplicateMethodsFromPhpDoc();
         return $serializer->getDocComment($this->phpdoc);
+    }
+
+    /**
+     * @param $prefix
+     * @return string
+     */
+    public function getPhpDocTemplates($prefix = "\t\t")
+    {
+        $templateDoc = new DocBlock('');
+        $serializer = new DocBlockSerializer(1, $prefix);
+
+        foreach ($this->getTemplateNames() as $templateName) {
+            $template = new TemplateTag('template', $templateName);
+            $template->setBound('static');
+            $template->setDocBlock($templateDoc);
+            $templateDoc->appendTag($template);
+        }
+
+        return $serializer->getDocComment($templateDoc);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getTemplateNames()
+    {
+        if (!isset($this->templateNames)) {
+            $this->detectTemplateNames();
+        }
+        return $this->templateNames;
+    }
+
+    /**
+     * @return void
+     * @throws \ReflectionException
+     */
+    protected function detectTemplateNames()
+    {
+        $templateNames = [];
+        foreach ($this->classes as $class) {
+            $reflection = new ReflectionClass($class);
+            $traits = collect($reflection->getTraitNames());
+
+            $phpdoc = new DocBlock($reflection);
+            $templates = $phpdoc->getTagsByName('template');
+            /** @var TemplateTag $template */
+            foreach ($templates as $template) {
+                $templateNames[] = $template->getTemplateName();
+            }
+
+            foreach ($traits as $trait) {
+                $phpdoc = new DocBlock(new ReflectionClass($trait));
+                $templates = $phpdoc->getTagsByName('template');
+
+                /** @var TemplateTag $template */
+                foreach ($templates as $template) {
+                    $templateNames[] = $template->getTemplateName();
+                }
+            }
+        }
+        $this->templateNames = $templateNames;
     }
 
     /**

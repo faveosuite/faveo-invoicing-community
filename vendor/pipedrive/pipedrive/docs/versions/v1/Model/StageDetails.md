@@ -14,6 +14,5 @@ Name | Type | Description | Notes
 **rotten_days** | **int** | The number of days the deals not updated in this stage would become rotten. Applies only if the &#x60;rotten_flag&#x60; is set. | [optional]
 **add_time** | **string** | The stage creation time. Format: YYYY-MM-DD HH:MM:SS. | [optional]
 **update_time** | **string** | The stage update time. Format: YYYY-MM-DD HH:MM:SS. | [optional]
-**deals_summary** | [**\Pipedrive\versions\v1\Model\DealSummary**](DealSummary.md) |  | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

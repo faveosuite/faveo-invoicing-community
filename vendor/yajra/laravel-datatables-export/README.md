@@ -1,6 +1,6 @@
 # Laravel DataTables Export Plugin
 
-[![Laravel 11](https://img.shields.io/badge/Laravel-11-orange.svg)](http://laravel.com)
+[![Laravel 12.x](https://img.shields.io/badge/Laravel-12.x-orange.svg)](http://laravel.com)
 [![Latest Stable Version](https://img.shields.io/packagist/v/yajra/laravel-datatables-export.svg)](https://packagist.org/packages/yajra/laravel-datatables-export)
 [![Continuous Integration](https://github.com/yajra/laravel-datatables-export/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/yajra/laravel-datatables-export/actions/workflows/continuous-integration.yml)
 [![Static Analysis](https://github.com/yajra/laravel-datatables-export/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/yajra/laravel-datatables-export/actions/workflows/static-analysis.yml)
@@ -13,11 +13,11 @@ exporting using Queue, OpenSpout and Livewire.
 ## Requirements
 
 - [PHP >=8.2](http://php.net/)
-- [Laravel 11](https://github.com/laravel/framework)
+- [Laravel 12](https://github.com/laravel/framework)
 - [Laravel Livewire](https://laravel-livewire.com/)
 - [OpenSpout](https://github.com/openspout/openspout/)
-- [Laravel DataTables 11.x](https://github.com/yajra/laravel-datatables)
-- [jQuery DataTables v1.10.x](http://datatables.net/)
+- [Laravel DataTables 12.x](https://github.com/yajra/laravel-datatables)
+- [jQuery DataTables 2.x](http://datatables.net/)
 
 ## Documentations
 
@@ -31,10 +31,13 @@ exporting using Queue, OpenSpout and Livewire.
 | 9.x     | 1.x     |
 | 10.x    | 10.x    |
 | 11.x    | 11.x    |
+| 12.x    | 12.x    |
 
 ## Quick Installation
 
-`composer require yajra/laravel-datatables-export:^11.0`
+```
+composer require yajra/laravel-datatables-export:"^12.0"
+```
 
 The package also requires batch job:
 
@@ -43,13 +46,11 @@ php artisan queue:batches-table
 php artisan migrate
 ```
 
-#### Service Provider (Optional since Laravel 5.5+)
+### Configuration and Assets (Optional)
 
-`Yajra\DataTables\ExportServiceProvider::class`
-
-#### Configuration and Assets (Optional)
-
-`$ php artisan vendor:publish --tag=datatables-export --force`
+```
+php artisan vendor:publish --tag=datatables-export --force
+```
 
 ## Usage
 

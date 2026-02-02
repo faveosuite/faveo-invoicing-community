@@ -2,7 +2,16 @@
 
 ### Create customer
 ```php
-$api->customer->create(array('name' => 'Razorpay User', 'email' => 'customer@razorpay.com','contact'=>'9123456780', 'fail_existing'=> '0', 'notes'=> array('notes_key_1'=> 'Tea, Earl Grey, Hot','notes_key_2'=> 'Tea, Earl Grey… decaf')));
+$api->customer->create(array(
+  'name' => 'Gaurav Kumar', 
+  'email' => 'gaurav.kumar@example.com', 
+  'fail_existing' => "1", 
+  'contact'=>'9000090000',
+  'notes'=> array(
+    'notes_key_1'=> 'Tea, Earl Grey, Hot',
+    'notes_key_2'=> 'Tea, Earl Grey... decaf'
+   )
+);
 ```
 
 **Parameters:**
@@ -11,7 +20,7 @@ $api->customer->create(array('name' => 'Razorpay User', 'email' => 'customer@raz
 |---------------|-------------|---------------------------------------------|
 | name*          | string      | Name of the customer                        |
 | email        | string      | Email of the customer                       |
-| fail_existing | string | If a customer with the same details already exists, the request throws an exception by default. Possible value is `0` or `1`|
+| fail_existing | string | If a customer with the same details already exists, the request throws an exception by default. Possible value is `1` or `0`|
 | contact      | string      | Contact number of the customer              |
 | notes         | array      | A key-value pair                            |
 
@@ -66,7 +75,37 @@ Please refer this [doc](https://razorpay.com/docs/api/recurring-payments/emandat
 ### Create registration link
 
 ```php
-$api->subscription->createSubscriptionRegistration(array('customer'=>array('name'=>'Gaurav Kumar','email'=>'gaurav.kumar@example.com','contact'=>'9123456780'),'type'=>'link','amount'=>0,'currency'=>'INR','description'=>'Registration Link for Gaurav Kumar','subscription_registration'=>array('method'=>'emandate', 'auth_type'=>'netbanking', 'max_amount'=>'500', 'bank_account' => array('beneficiary_name' => 'Gaurav Kumar','account_number' => '1121431121541121','account_type' => 'savings','ifsc_code' => 'HDFC0001233'), 'expire_at'=>'1634215992'),'receipt'=>'Receipt No. 5','email_notify'=>1,'sms_notify'=>1,'expire_by'=>1634215992,'notes' => array('note_key 1' => 'Beam me up Scotty','note_key 2' => 'Tea. Earl Gray. Hot.')));
+$api->subscription->createSubscriptionRegistration(array(
+    'customer' => array(
+        'name' => 'Gaurav Kumar',
+        'email' => 'gaurav.kumar@example.com',
+        'contact' => '9123456780'
+    ),
+    'type' => 'link',
+    'amount' => 0,
+    'currency' => 'INR',
+    'description' => 'Registration Link for Gaurav Kumar',
+    'subscription_registration' => array(
+        'method' => 'emandate',
+        'auth_type' => 'netbanking',
+        'max_amount' => '500',
+        'bank_account' => array(
+            'beneficiary_name' => 'Gaurav Kumar',
+            'account_number' => '1121431121541121',
+            'account_type' => 'savings',
+            'ifsc_code' => 'HDFC0001233'
+        ),
+        'expire_at' => '1634215992'
+    ),
+    'receipt' => 'Receipt No. 5',
+    'email_notify' => true,
+    'sms_notify' => true,
+    'expire_by' => 1634215992,
+    'notes' => array(
+        'note_key 1' => 'Beam me up Scotty',
+        'note_key 2' => 'Tea. Earl Gray. Hot.'
+    )
+));
 ```
 
 **Parameters:**
@@ -79,7 +118,8 @@ $api->subscription->createSubscriptionRegistration(array('customer'=>array('name
 | amount*         | integer  | The payment amount in the smallest currency sub-unit.                 |
 | description*    | string  | A description that appears on the hosted page. For example, `12:30 p.m. Thali meals (Gaurav Kumar`).                                                             |
 | subscription_registration  | array  | All parameters listed [here](https://razorpay.com/docs/api/payments/recurring-payments/emandate/create-authorization-transaction/#121-create-a-registration-link) are supported  |
-| email_notify | boolean  | Email notifications are to be sent by Razorpay (default : 1)  |
+| sms_notify  | boolean  | SMS notifications are to be sent by Razorpay (default : true)  |
+| email_notify | boolean  | Email notifications are to be sent by Razorpay (default : true)  |
 | expire_by    | integer | The timestamp, in Unix format, till when the customer can make the authorization payment. |
 | receipt      | string  | Your system order reference id.  |
 | notes           | array  | A key-value pair  |
@@ -347,7 +387,17 @@ $api->order->create(array('amount' => 1000,'currency' => 'INR','payment_capture'
 ### Create a Recurring Payment
 
 ```php
-$api->payment->createRecurring(array('email'=>'gaurav.kumar@example.com','contact'=>'9123456789','amount'=>100,'currency'=>'INR','order_id'=>'order_1Aa00000000002','customer_id'=>'cust_1Aa00000000001','token'=>'token_1Aa00000000001','recurring'=>'1','description'=>'Creating recurring payment for Gaurav Kumar'));
+$api->payment->createRecurring(array(
+    'email'       => 'gaurav.kumar@example.com',
+    'contact'     => '9000090000',
+    'amount'      => 100,
+    'currency'    => 'INR',
+    'order_id'    => 'order_1Aa00000000002',
+    'customer_id' => 'cust_1Aa00000000001',
+    'token'       => 'token_1Aa00000000001',
+    'recurring'   => true,
+    'description' => 'Creating recurring payment for Gaurav Kumar'
+));
 ```
 
 **Parameters:**
@@ -361,7 +411,7 @@ $api->payment->createRecurring(array('email'=>'gaurav.kumar@example.com','contac
 | order_id*        | string  | The unique identifier of the order created. |
 | customer_id*        | string  | The `customer_id` for the customer you want to charge.  |
 | token*        | string  | The `token_id` generated when the customer successfully completes the authorization payment. Different payment instruments for the same customer have different `token_id`.|
-| recurring*        | string  | Determines if recurring payment is enabled or not. Possible values:<br>* `1` - Recurring is enabled.* `0` - Recurring is not enabled.|
+| recurring*        | string  | Determines if recurring payment is enabled or not. Possible values:<br>* `true` - Recurring is enabled.* `false` - Recurring is not enabled.|
 | description        | string  | A user-entered description for the payment.|
 | notes        | array  | Key-value pair that can be used to store additional information about the entity. Maximum 15 key-value pairs, 256 characters (maximum) each. |
 

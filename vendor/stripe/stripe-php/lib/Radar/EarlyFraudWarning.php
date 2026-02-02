@@ -8,7 +8,7 @@ namespace Stripe\Radar;
  * An early fraud warning indicates that the card issuer has notified us that a
  * charge may be fraudulent.
  *
- * Related guide: <a href="https://stripe.com/docs/disputes/measuring#early-fraud-warnings">Early fraud warnings</a>
+ * Related guide: <a href="https://docs.stripe.com/disputes/measuring#early-fraud-warnings">Early fraud warnings</a>
  *
  * @property string $id Unique identifier for the object.
  * @property string $object String representing the object's type. Objects of the same type share the same value.
@@ -23,9 +23,6 @@ class EarlyFraudWarning extends \Stripe\ApiResource
 {
     const OBJECT_NAME = 'radar.early_fraud_warning';
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Retrieve;
-
     const FRAUD_TYPE_CARD_NEVER_RECEIVED = 'card_never_received';
     const FRAUD_TYPE_FRAUDULENT_CARD_APPLICATION = 'fraudulent_card_application';
     const FRAUD_TYPE_MADE_WITH_COUNTERFEIT_CARD = 'made_with_counterfeit_card';
@@ -33,4 +30,44 @@ class EarlyFraudWarning extends \Stripe\ApiResource
     const FRAUD_TYPE_MADE_WITH_STOLEN_CARD = 'made_with_stolen_card';
     const FRAUD_TYPE_MISC = 'misc';
     const FRAUD_TYPE_UNAUTHORIZED_USE_OF_CARD = 'unauthorized_use_of_card';
+
+    /**
+     * Returns a list of early fraud warnings.
+     *
+     * @param null|array{charge?: string, created?: array|int, ending_before?: string, expand?: string[], limit?: int, payment_intent?: string, starting_after?: string} $params
+     * @param null|array|string $opts
+     *
+     * @return \Stripe\Collection<EarlyFraudWarning> of ApiResources
+     *
+     * @throws \Stripe\Exception\ApiErrorException if the request fails
+     */
+    public static function all($params = null, $opts = null)
+    {
+        $url = static::classUrl();
+
+        return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
+    }
+
+    /**
+     * Retrieves the details of an early fraud warning that has previously been
+     * created.
+     *
+     * Please refer to the <a href="#early_fraud_warning_object">early fraud
+     * warning</a> object reference for more details.
+     *
+     * @param array|string $id the ID of the API resource to retrieve, or an options array containing an `id` key
+     * @param null|array|string $opts
+     *
+     * @return EarlyFraudWarning
+     *
+     * @throws \Stripe\Exception\ApiErrorException if the request fails
+     */
+    public static function retrieve($id, $opts = null)
+    {
+        $opts = \Stripe\Util\RequestOptions::parse($opts);
+        $instance = new static($id, $opts);
+        $instance->refresh();
+
+        return $instance;
+    }
 }

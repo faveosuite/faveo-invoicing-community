@@ -4,7 +4,7 @@ namespace Yajra\DataTables\Html;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Yajra\DataTables\Html\Options\Plugins\SearchPanes;
+use Yajra\DataTables\Html\Options\Plugins;
 
 /**
  * @property array|string $data
@@ -28,13 +28,15 @@ use Yajra\DataTables\Html\Options\Plugins\SearchPanes;
  * @property string $contentPadding
  * @property string $createdCell
  * @property string $exportFormat
+ * @property callable $exportRender
  *
  * @see https://datatables.net/reference/option/#columns
  */
 class Column extends Fluent
 {
     use HasAuthorizations;
-    use SearchPanes;
+    use Plugins\ColumnControl;
+    use Plugins\SearchPanes;
 
     /**
      * @param  array  $attributes
@@ -82,6 +84,18 @@ class Column extends Fluent
     public function title(string $value): static
     {
         $this->attributes['title'] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Set column style.
+     *
+     * @return $this
+     */
+    public function style(string $css): static
+    {
+        $this->attributes['style'] = $css;
 
         return $this;
     }
@@ -502,7 +516,7 @@ class Column extends Fluent
             return $value($parameters);
         } elseif ($this->isBuiltInRenderFunction($value)) {
             return $value;
-        } elseif (strlen((string) $value) < 256 && $view->exists($value)) {
+        } elseif (is_string($value) && strlen($value) < 256 && $view->exists($value)) {
             return $view->make($value)->with($parameters)->render();
         }
 
@@ -577,6 +591,20 @@ class Column extends Fluent
     public function exportFormat(string|callable $format): static
     {
         $this->attributes['exportFormat'] = $format;
+
+        return $this;
+    }
+
+    /**
+     * Set column default content.
+     *
+     * @return $this
+     *
+     * @see https://datatables.net/reference/option/columns.defaultContent
+     */
+    public function defaultContent(string $content): static
+    {
+        $this->attributes['defaultContent'] = $content;
 
         return $this;
     }

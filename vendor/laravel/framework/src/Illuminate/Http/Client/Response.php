@@ -7,6 +7,7 @@ use GuzzleHttp\Psr7\StreamWrapper;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
 use Illuminate\Support\Traits\Macroable;
+use Illuminate\Support\Traits\Tappable;
 use LogicException;
 use Stringable;
 
@@ -15,7 +16,7 @@ use Stringable;
  */
 class Response implements ArrayAccess, Stringable
 {
-    use Concerns\DeterminesStatusCode, Macroable {
+    use Concerns\DeterminesStatusCode, Tappable, Macroable {
         __call as macroCall;
     }
 
@@ -34,6 +35,13 @@ class Response implements ArrayAccess, Stringable
     protected $decoded;
 
     /**
+     * The flags that were used when decoding the JSON response.
+     *
+     * @var int-mask<JSON_BIGINT_AS_STRING, JSON_INVALID_UTF8_IGNORE, JSON_INVALID_UTF8_SUBSTITUTE, JSON_OBJECT_AS_ARRAY, JSON_THROW_ON_ERROR>
+     */
+    protected int $decodingFlags;
+
+    /**
      * The request cookies.
      *
      * @var \GuzzleHttp\Cookie\CookieJar
@@ -48,10 +56,23 @@ class Response implements ArrayAccess, Stringable
     public $transferStats;
 
     /**
+     * The length at which request exceptions will be truncated.
+     *
+     * @var int<1, max>|false|null
+     */
+    protected $truncateExceptionsAt = null;
+
+    /**
+     * The flags passed to `json_decode` by default.
+     *
+     * @var int-mask<JSON_BIGINT_AS_STRING, JSON_INVALID_UTF8_IGNORE, JSON_INVALID_UTF8_SUBSTITUTE, JSON_OBJECT_AS_ARRAY, JSON_THROW_ON_ERROR>
+     */
+    public static int $defaultJsonDecodingFlags = 0;
+
+    /**
      * Create a new response instance.
      *
      * @param  \Psr\Http\Message\MessageInterface  $response
-     * @return void
      */
     public function __construct($response)
     {
@@ -73,12 +94,19 @@ class Response implements ArrayAccess, Stringable
      *
      * @param  string|null  $key
      * @param  mixed  $default
+     * @param  int-mask<JSON_BIGINT_AS_STRING, JSON_INVALID_UTF8_IGNORE, JSON_INVALID_UTF8_SUBSTITUTE, JSON_OBJECT_AS_ARRAY, JSON_THROW_ON_ERROR>|null  $flags
      * @return mixed
      */
-    public function json($key = null, $default = null)
+    public function json($key = null, $default = null, $flags = null)
     {
-        if (! $this->decoded) {
-            $this->decoded = json_decode($this->body(), true);
+        $flags = $flags ?? self::$defaultJsonDecodingFlags;
+
+        if (! $this->decoded || (isset($this->decodingFlags) && $this->decodingFlags !== $flags)) {
+            $this->decoded = json_decode(
+                $this->body(), true, flags: $flags
+            );
+
+            $this->decodingFlags = $flags;
         }
 
         if (is_null($key)) {
@@ -91,33 +119,36 @@ class Response implements ArrayAccess, Stringable
     /**
      * Get the JSON decoded body of the response as an object.
      *
+     * @param  int-mask<JSON_BIGINT_AS_STRING, JSON_INVALID_UTF8_IGNORE, JSON_INVALID_UTF8_SUBSTITUTE, JSON_OBJECT_AS_ARRAY, JSON_THROW_ON_ERROR>|null  $flags
      * @return object|null
      */
-    public function object()
+    public function object($flags = null)
     {
-        return json_decode($this->body(), false);
+        return json_decode($this->body(), false, flags: $flags ?? self::$defaultJsonDecodingFlags);
     }
 
     /**
      * Get the JSON decoded body of the response as a collection.
      *
      * @param  string|null  $key
+     * @param  int-mask<JSON_BIGINT_AS_STRING, JSON_INVALID_UTF8_IGNORE, JSON_INVALID_UTF8_SUBSTITUTE, JSON_OBJECT_AS_ARRAY, JSON_THROW_ON_ERROR>|null  $flags
      * @return \Illuminate\Support\Collection
      */
-    public function collect($key = null)
+    public function collect($key = null, $flags = null)
     {
-        return new Collection($this->json($key));
+        return new Collection($this->json($key, flags: $flags));
     }
 
     /**
      * Get the JSON decoded body of the response as a fluent object.
      *
      * @param  string|null  $key
+     * @param  int-mask<JSON_BIGINT_AS_STRING, JSON_INVALID_UTF8_IGNORE, JSON_INVALID_UTF8_SUBSTITUTE, JSON_OBJECT_AS_ARRAY, JSON_THROW_ON_ERROR>|null  $flags
      * @return \Illuminate\Support\Fluent
      */
-    public function fluent($key = null)
+    public function fluent($key = null, $flags = null)
     {
-        return new Fluent((array) $this->json($key));
+        return new Fluent((array) $this->json($key, flags: $flags));
     }
 
     /**
@@ -236,7 +267,7 @@ class Response implements ArrayAccess, Stringable
     /**
      * Execute the given callback if there was a server or client error.
      *
-     * @param  callable  $callback
+     * @param  callable|(\Closure(\Illuminate\Http\Client\Response): mixed)  $callback
      * @return $this
      */
     public function onError(callable $callback)
@@ -298,7 +329,7 @@ class Response implements ArrayAccess, Stringable
     public function toException()
     {
         if ($this->failed()) {
-            return new RequestException($this);
+            return new RequestException($this, $this->truncateExceptionsAt);
         }
     }
 
@@ -338,9 +369,22 @@ class Response implements ArrayAccess, Stringable
     }
 
     /**
+     * Throw an exception if a server or client error occurred and the given condition evaluates to false.
+     *
+     * @param  \Closure|bool  $condition
+     * @return $this
+     *
+     * @throws \Illuminate\Http\Client\RequestException
+     */
+    public function throwUnless($condition)
+    {
+        return $this->throwIf(! $condition);
+    }
+
+    /**
      * Throw an exception if the response status code matches the given code.
      *
-     * @param  callable|int  $statusCode
+     * @param  int|(\Closure(int, \Illuminate\Http\Client\Response): bool)|callable  $statusCode
      * @return $this
      *
      * @throws \Illuminate\Http\Client\RequestException
@@ -358,7 +402,7 @@ class Response implements ArrayAccess, Stringable
     /**
      * Throw an exception unless the response status code matches the given code.
      *
-     * @param  callable|int  $statusCode
+     * @param  int|(\Closure(int, \Illuminate\Http\Client\Response): bool)|callable  $statusCode
      * @return $this
      *
      * @throws \Illuminate\Http\Client\RequestException
@@ -394,6 +438,93 @@ class Response implements ArrayAccess, Stringable
     public function throwIfServerError()
     {
         return $this->serverError() ? $this->throw() : $this;
+    }
+
+    /**
+     * Indicate that request exceptions should be truncated to the given length.
+     *
+     * @param  int<1, max>  $length
+     * @return $this
+     */
+    public function truncateExceptionsAt(int $length)
+    {
+        $this->truncateExceptionsAt = $length;
+
+        return $this;
+    }
+
+    /**
+     * Indicate that request exceptions should not be truncated.
+     *
+     * @return $this
+     */
+    public function dontTruncateExceptions()
+    {
+        $this->truncateExceptionsAt = false;
+
+        return $this;
+    }
+
+    /**
+     * Dump the content from the response.
+     *
+     * @param  string|null  $key
+     * @return $this
+     */
+    public function dump($key = null)
+    {
+        $content = $this->body();
+
+        $json = json_decode($content);
+
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $content = $json;
+        }
+
+        if (! is_null($key)) {
+            dump(data_get($content, $key));
+        } else {
+            dump($content);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Dump the content from the response and end the script.
+     *
+     * @param  string|null  $key
+     * @return never
+     */
+    public function dd($key = null)
+    {
+        $this->dump($key);
+
+        exit(1);
+    }
+
+    /**
+     * Dump the headers from the response.
+     *
+     * @return $this
+     */
+    public function dumpHeaders()
+    {
+        dump($this->headers());
+
+        return $this;
+    }
+
+    /**
+     * Dump the headers from the response and end the script.
+     *
+     * @return never
+     */
+    public function ddHeaders()
+    {
+        $this->dumpHeaders();
+
+        exit(1);
     }
 
     /**
@@ -465,7 +596,15 @@ class Response implements ArrayAccess, Stringable
     public function __call($method, $parameters)
     {
         return static::hasMacro($method)
-                    ? $this->macroCall($method, $parameters)
-                    : $this->response->{$method}(...$parameters);
+            ? $this->macroCall($method, $parameters)
+            : $this->response->{$method}(...$parameters);
+    }
+
+    /**
+     * Flush the global state of the Response.
+     */
+    public static function flushState(): void
+    {
+        self::$defaultJsonDecodingFlags = 0;
     }
 }

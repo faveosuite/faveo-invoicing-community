@@ -2295,6 +2295,302 @@ class PersonsApi
     }
 
     /**
+     * Operation getPersonPicture
+     *
+     * Get picture of a person
+     *
+     * @param  int $id The ID of the person (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\PersonPictureResponse
+     */
+    public function getPersonPicture($id)
+    {
+        list($response) = $this->getPersonPictureWithHttpInfo($id);
+        return $response;
+    }
+
+    /**
+     * Operation getPersonPictureWithHttpInfo
+     *
+     * Get picture of a person
+     *
+     * @param  int $id The ID of the person (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\PersonPictureResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function getPersonPictureWithHttpInfo($id)
+    {
+        $request = $this->getPersonPictureRequest($id);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->getPersonPictureRequest($id);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\PersonPictureResponse' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\PersonPictureResponse', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\PersonPictureResponse' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\PersonPictureResponse', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\PersonPictureResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation getPersonPictureAsync
+     *
+     * Get picture of a person
+     *
+     * @param  int $id The ID of the person (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getPersonPictureAsync($id): PromiseInterface
+    {
+        return $this->getPersonPictureAsyncWithHttpInfo($id)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getPersonPictureAsyncWithHttpInfo
+     *
+     * Get picture of a person
+     *
+     * @param  int $id The ID of the person (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getPersonPictureAsyncWithHttpInfo($id): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\PersonPictureResponse';
+        $request = $this->getPersonPictureRequest($id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'getPersonPicture'
+     *
+     * @param  int $id The ID of the person (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function getPersonPictureRequest($id): Request
+    {
+        // verify the required parameter 'id' is set
+        /* @phpstan-ignore-next-line */
+        if ($id === null || (is_array($id) && count($id) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $id when calling getPersonPicture'
+            );
+        }
+
+        $resourcePath = '/persons/{id}/picture';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                '{' . 'id' . '}',
+                ObjectSerializer::toPathValue($id),
+                $resourcePath
+            );
+        }
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                []
+            );
+        }
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'GET',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
      * Operation getPersons
      *
      * Get all persons
@@ -2303,6 +2599,7 @@ class PersonsApi
      * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $org_id If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored. (optional)
+     * @param  int|null $deal_id If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only persons with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only persons with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
@@ -2316,9 +2613,9 @@ class PersonsApi
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v2\Model\GetPersons
      */
-    public function getPersons($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null)
+    public function getPersons($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null)
     {
-        list($response) = $this->getPersonsWithHttpInfo($filter_id, $ids, $owner_id, $org_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
+        list($response) = $this->getPersonsWithHttpInfo($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
         return $response;
     }
 
@@ -2331,6 +2628,7 @@ class PersonsApi
      * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $org_id If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored. (optional)
+     * @param  int|null $deal_id If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only persons with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only persons with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
@@ -2344,9 +2642,9 @@ class PersonsApi
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v2\Model\GetPersons, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getPersonsWithHttpInfo($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null)
+    public function getPersonsWithHttpInfo($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null)
     {
-        $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
+        $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
 
         try {
             $options = $this->createHttpClientOption();
@@ -2355,7 +2653,7 @@ class PersonsApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
+                    $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -2443,6 +2741,7 @@ class PersonsApi
      * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $org_id If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored. (optional)
+     * @param  int|null $deal_id If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only persons with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only persons with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
@@ -2455,9 +2754,9 @@ class PersonsApi
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getPersonsAsync($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null): PromiseInterface
+    public function getPersonsAsync($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null): PromiseInterface
     {
-        return $this->getPersonsAsyncWithHttpInfo($filter_id, $ids, $owner_id, $org_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor)
+        return $this->getPersonsAsyncWithHttpInfo($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2474,6 +2773,7 @@ class PersonsApi
      * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $org_id If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored. (optional)
+     * @param  int|null $deal_id If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only persons with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only persons with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
@@ -2486,10 +2786,10 @@ class PersonsApi
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getPersonsAsyncWithHttpInfo($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null): PromiseInterface
+    public function getPersonsAsyncWithHttpInfo($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null): PromiseInterface
     {
         $returnType = '\Pipedrive\versions\v2\Model\GetPersons';
-        $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
+        $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2532,6 +2832,7 @@ class PersonsApi
      * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
      * @param  int|null $owner_id If supplied, only persons owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  int|null $org_id If supplied, only persons linked to the specified organization are returned. If filter_id is provided, this is ignored. (optional)
+     * @param  int|null $deal_id If supplied, only persons linked to the specified deal are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only persons with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only persons with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
@@ -2544,7 +2845,7 @@ class PersonsApi
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function getPersonsRequest($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null): Request
+    public function getPersonsRequest($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null): Request
     {
 
         $resourcePath = '/persons';
@@ -2585,6 +2886,14 @@ class PersonsApi
         }
         if ($org_id !== null) {
             $queryParams['org_id'] = $org_id;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($deal_id)) {
+            $deal_id = ObjectSerializer::serializeCollection($deal_id, '', true);
+        }
+        if ($deal_id !== null) {
+            $queryParams['deal_id'] = $deal_id;
         }
         // query params
         /* @phpstan-ignore-next-line */

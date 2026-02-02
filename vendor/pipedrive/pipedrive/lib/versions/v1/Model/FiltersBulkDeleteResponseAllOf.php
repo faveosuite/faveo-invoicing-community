@@ -213,9 +213,6 @@ class FiltersBulkDeleteResponseAllOf implements ModelInterface, ArrayAccess, Jso
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -234,7 +231,7 @@ class FiltersBulkDeleteResponseAllOf implements ModelInterface, ArrayAccess, Jso
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\FiltersBulkDeleteResponseAllOfData
+     * @return \Pipedrive\versions\v1\Model\FiltersBulkDeleteResponseAllOfData|null
      */
     public function getData()
     {
@@ -244,7 +241,7 @@ class FiltersBulkDeleteResponseAllOf implements ModelInterface, ArrayAccess, Jso
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\FiltersBulkDeleteResponseAllOfData $data data
+     * @param \Pipedrive\versions\v1\Model\FiltersBulkDeleteResponseAllOfData|null $data data
      *
      * @return self
      */
