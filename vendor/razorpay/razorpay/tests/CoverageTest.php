@@ -7,83 +7,20 @@ use Razorpay\Api\Request;
 class CoverageTest extends TestCase
 {
     /**
-     * @covers \Razorpay\Api\Token::all
-     * @covers \Razorpay\Api\Token::fetch
-     * @covers \Razorpay\Api\Token::create
-     * @covers \Razorpay\Api\Token::fetchCardPropertiesByToken
-     * @covers \Razorpay\Api\Token::deleteToken
+     * @covers \Razorpay\Api\Order::create
+     * @covers \Razorpay\Api\Order::all
+     * @covers \Razorpay\Api\Order::fetch
+     * @covers \Razorpay\Api\Order::edit
      */
-    public function testTokenCoverage(){
-      $transfer = new TokenTest();
-      $transfer->setup();
-      $transfer->testFetchTokenByCustomerId();
-      $transfer->testCreateToken();
-      $transfer->testFetchTokenByPaymentId();
-      $transfer->testProcessPaymentOnAlternatePAorPG();
-      $transfer->testDeleteToken();
+    public function testOrderCoverage(){
+      $order = new OrdersTest();
+      $order->setup();
+      $order->testCreateOrder();
+      $order->testAllOrders();
+      $order->testFetchOrder();
+      $order->testUpdateOrder();
     }
     
-    /**
-     * @covers \Razorpay\Api\Account::create
-     * @covers \Razorpay\Api\Account::fetch
-     * @covers \Razorpay\Api\Account::edit
-     * @covers \Razorpay\Api\Account::delete
-     */
-    public function testAccountCoverage(){
-      $account = new PartnerTest();
-      $account->setup();
-      $account->testCreateAccount();
-      $account->testFetchAccount();
-      //$account->testEditAccount();
-      $account->testDeleteAccount();
-    }
-
-    /**
-     * @covers \Razorpay\Api\Stakeholder::create
-     * @covers \Razorpay\Api\Stakeholder::fetch
-     * @covers \Razorpay\Api\Stakeholder::all
-     */
-    public function testStakeholderCoverage(){
-      $stakeholder = new PartnerTest();
-      $stakeholder->setup();
-      $stakeholder->testCreateStakerholder();
-      $stakeholder->testFetchStakerholder();
-      $stakeholder->testFetchAllStakerholder();
-    }
-
-    /**
-     * @covers \Razorpay\Api\Product::requestProductConfiguration
-     * @covers \Razorpay\Api\Product::fetch
-     * @covers \Razorpay\Api\Product::edit
-     * @covers \Razorpay\Api\Product::fetchTnc
-     * @covers \Razorpay\Api\Stakeholder::edit
-     */
-    public function testProductCoverage(){
-      $product = new PartnerTest();
-      $product->setup();
-      $product->testProductConfiguration();
-      $product->testProductFetch();
-      $product->testProductEdit();
-      $product->testFetchTnc();
-      //$product->testEditStakerholder();
-    }
-
-    /**
-     * @covers \Razorpay\Api\Webhook::create
-     * @covers \Razorpay\Api\Webhook::fetch
-     * @covers \Razorpay\Api\Webhook::all
-     * @covers \Razorpay\Api\Webhook::edit
-     * @covers \Razorpay\Api\Webhook::delete
-     */
-    public function testWebhookCoverage(){
-      $webhook = new PartnerTest();
-      $webhook->setup();
-      $webhook->testWebhookCreate();
-      $webhook->testWebhookFetch();
-      $webhook->testFetchAllWebhook();
-      $webhook->testEditWebhook();
-      $webhook->testDeleteWebhook();
-    }
     /**
      * @covers \Razorpay\Api\Api::getAppsDetails
      * @uses \Razorpay\Api\Api::setAppDetails
@@ -136,21 +73,6 @@ class CoverageTest extends TestCase
       $qrCode->testCloseQrCode();
       $qrCode->testFetchAllQrCode();
       $qrCode->testFetchQrCodePaymentById();
-    }
-
-    /**
-     * @covers \Razorpay\Api\Refund::fetch
-     * @covers \Razorpay\Api\Refund::edit
-     * @covers \Razorpay\Api\Refund::all
-     * @covers \Razorpay\Api\Payment::fetchMultipleRefund
-     * @covers \Razorpay\Api\Payment::fetchRefund
-     */
-    public function testRefundCoverage(){
-      $refund = new RefundTest();
-      $refund->setup();
-      $refund->testFetchRefund();
-      $refund->testFetchAllRefund();
-      $refund->testFetchMultipalRefund();
     }
 
     /**
@@ -283,25 +205,8 @@ class CoverageTest extends TestCase
       $item = new ItemTest();
       $item->setup();
       $item->testcreate();
-      $item->testAllItems();
       $item->testfetchItem();
       $item->testUpdate();
-      $item->testDelete();
-    }
-
-    /**
-     * @covers \Razorpay\Api\Order::create
-     * @covers \Razorpay\Api\Order::all
-     * @covers \Razorpay\Api\Order::fetch
-     * @covers \Razorpay\Api\Order::edit
-     */
-    public function testOrderCoverage(){
-      $order = new OrdersTest();
-      $order->setup();
-      $order->testCreateOrder();
-      $order->testAllOrders();
-      $order->testFetchOrder();
-      $order->testUpdateOrder();
     }
 
     /**
@@ -322,7 +227,6 @@ class CoverageTest extends TestCase
       $order->testFetchOrderPayment();
       $order->testFetchCardWithPaymentId();
       $order->testfetchPaymentDowntime();
-      $order->testfetchPaymentDowntimeById();
     }
 
     /**
@@ -384,25 +288,5 @@ class CoverageTest extends TestCase
       $utility->testPaymentVerification();
       $utility->testPaymentLinkVerification();
       $utility->testSubscriptionVerification();
-    }
-
-    /**
-     * @covers \Razorpay\Api\Order::create
-     */
-    public function testSetHeaderJson()
-    {
-      $order = new ExceptionTest();
-      $order->setup();
-      $order->testCreateOrderSetHeaderException();
-    }
-        
-    /**
-     * @covers \Razorpay\Api\Order::create
-     */
-    public function testSendArrayPayload()
-    {
-      $order = new ExceptionTest();
-      $order->setup();
-      $order->testCreateOrderSuccess();
     }
 }

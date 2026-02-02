@@ -470,10 +470,10 @@ function userCountryId()
     return $country;
 }
 
-function getIndianCurrencySymbol($currency)
-{
-    return \DB::table('format_currencies')->where('code', $currency)->value('symbol');
-}
+//function getIndianCurrencySymbol($currency)
+//{
+//    return \DB::table('format_currencies')->where('code', $currency)->value('symbol');
+//}
 
 function getIndianCurrencyFormat($number)
 {

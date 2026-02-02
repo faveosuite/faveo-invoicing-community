@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -80,7 +80,7 @@ class ImplicitReturnPass extends CodeCleanerPass
                 'startLine' => $last->getStartLine(),
                 'endLine'   => $last->getEndLine(),
             ]);
-        // @codeCoverageIgnoreEnd
+            // @codeCoverageIgnoreEnd
         } elseif ($last instanceof Expression && !($last->expr instanceof Exit_)) {
             $nodes[\count($nodes) - 1] = new Return_($last->expr, [
                 'startLine' => $last->getStartLine(),

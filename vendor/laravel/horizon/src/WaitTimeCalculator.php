@@ -38,10 +38,11 @@ class WaitTimeCalculator
      * @param  \Laravel\Horizon\Contracts\MetricsRepository  $metrics
      * @return void
      */
-    public function __construct(QueueFactory $queue,
-                                SupervisorRepository $supervisors,
-                                MetricsRepository $metrics)
-    {
+    public function __construct(
+        QueueFactory $queue,
+        SupervisorRepository $supervisors,
+        MetricsRepository $metrics,
+    ) {
         $this->queue = $queue;
         $this->metrics = $metrics;
         $this->supervisors = $supervisors;
@@ -76,7 +77,10 @@ class WaitTimeCalculator
             [$connection, $queueName] = explode(':', $queue, 2);
 
             return [$queue => $this->calculateTimeToClear($connection, $queueName, $totalProcesses)];
-        })->sort()->reverse()->all();
+        })
+            ->sort()
+            ->reverse()
+            ->all();
     }
 
     /**
@@ -88,9 +92,10 @@ class WaitTimeCalculator
      */
     protected function queueNames($supervisors, $queue = null)
     {
-        $queues = $supervisors->map(function ($supervisor) {
-            return array_keys($supervisor->processes);
-        })->collapse()->unique()->values();
+        $queues = $supervisors->map(fn ($supervisor) => array_keys($supervisor->processes))
+            ->collapse()
+            ->unique()
+            ->values();
 
         return $queue ? $queues->intersect([$queue]) : $queues;
     }
@@ -115,11 +120,11 @@ class WaitTimeCalculator
      * @param  string  $connection
      * @param  string  $queue
      * @param  int  $totalProcesses
-     * @return int
+     * @return float
      */
     public function calculateTimeToClear($connection, $queue, $totalProcesses)
     {
-        $timeToClear = ! Str::contains($queue, ',')
+        $timeToClear = ! Str::contains($queue ?? '', ',')
             ? $this->timeToClearFor($connection, $queue)
             : collect(explode(',', $queue))->sum(function ($queueName) use ($connection) {
                 return $this->timeToClearFor($connection, $queueName);

@@ -219,9 +219,6 @@ class OrganizationRelationshipDeleteResponse implements ModelInterface, ArrayAcc
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -264,7 +261,7 @@ class OrganizationRelationshipDeleteResponse implements ModelInterface, ArrayAcc
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\OrganizationRelationshipDeleteResponseAllOfData
+     * @return \Pipedrive\versions\v1\Model\OrganizationRelationshipDeleteResponseAllOfData|null
      */
     public function getData()
     {
@@ -274,7 +271,7 @@ class OrganizationRelationshipDeleteResponse implements ModelInterface, ArrayAcc
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\OrganizationRelationshipDeleteResponseAllOfData $data data
+     * @param \Pipedrive\versions\v1\Model\OrganizationRelationshipDeleteResponseAllOfData|null $data data
      *
      * @return self
      */

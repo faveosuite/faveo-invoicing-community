@@ -219,12 +219,6 @@ class DeleteMultipleProductFieldsResponse implements ModelInterface, ArrayAccess
     {
         $invalidProperties = [];
 
-        if ($this->container['success'] === null) {
-            $invalidProperties[] = "'success' can't be null";
-        }
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class DeleteMultipleProductFieldsResponse implements ModelInterface, ArrayAccess
     /**
      * Gets success
      *
-     * @return bool
+     * @return bool|null
      */
     public function getSuccess()
     {
@@ -253,7 +247,7 @@ class DeleteMultipleProductFieldsResponse implements ModelInterface, ArrayAccess
     /**
      * Sets success
      *
-     * @param bool $success If the response is successful or not
+     * @param bool|null $success If the response is successful or not
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class DeleteMultipleProductFieldsResponse implements ModelInterface, ArrayAccess
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\DeleteMultipleProductFieldsResponseData
+     * @return \Pipedrive\versions\v1\Model\DeleteMultipleProductFieldsResponseData|null
      */
     public function getData()
     {
@@ -277,7 +271,7 @@ class DeleteMultipleProductFieldsResponse implements ModelInterface, ArrayAccess
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\DeleteMultipleProductFieldsResponseData $data data
+     * @param \Pipedrive\versions\v1\Model\DeleteMultipleProductFieldsResponseData|null $data data
      *
      * @return self
      */

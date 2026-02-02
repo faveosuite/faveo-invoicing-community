@@ -147,12 +147,12 @@ Name | Type | Description  | Notes
 ## `getPipeline()`
 
 ```php
-getPipeline($id, $totals_convert_currency): \Pipedrive\versions\v1\Model\GetOnePipeline
+getPipeline($id): \Pipedrive\versions\v1\Model\GetOnePipeline
 ```
 
 Get one pipeline
 
-Returns data about a specific pipeline. Also returns the summary of the deals in this pipeline across its stages.
+Returns data about a specific pipeline.
 
 ### Example
 
@@ -177,10 +177,9 @@ $apiInstance = new Pipedrive\versions\v1\Api\PipelinesApi(
     $config
 );
 $id = 56; // int | The ID of the pipeline
-$totals_convert_currency = 'totals_convert_currency_example'; // string | The 3-letter currency code of any of the supported currencies. When supplied, `per_stages_converted` is returned in `deals_summary` which contains the currency-converted total amounts in the given currency per each stage. You may also set this parameter to `default_currency` in which case users default currency is used.
 
 try {
-    $result = $apiInstance->getPipeline($id, $totals_convert_currency);
+    $result = $apiInstance->getPipeline($id);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling PipelinesApi->getPipeline: ', $e->getMessage(), PHP_EOL;
@@ -192,7 +191,6 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **int**| The ID of the pipeline |
- **totals_convert_currency** | **string**| The 3-letter currency code of any of the supported currencies. When supplied, &#x60;per_stages_converted&#x60; is returned in &#x60;deals_summary&#x60; which contains the currency-converted total amounts in the given currency per each stage. You may also set this parameter to &#x60;default_currency&#x60; in which case users default currency is used. | [optional]
 
 ### Return type
 

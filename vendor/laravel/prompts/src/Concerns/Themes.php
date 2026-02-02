@@ -5,9 +5,11 @@ namespace Laravel\Prompts\Concerns;
 use InvalidArgumentException;
 use Laravel\Prompts\Clear;
 use Laravel\Prompts\ConfirmPrompt;
+use Laravel\Prompts\Grid;
 use Laravel\Prompts\MultiSearchPrompt;
 use Laravel\Prompts\MultiSelectPrompt;
 use Laravel\Prompts\Note;
+use Laravel\Prompts\NumberPrompt;
 use Laravel\Prompts\PasswordPrompt;
 use Laravel\Prompts\PausePrompt;
 use Laravel\Prompts\Progress;
@@ -20,9 +22,11 @@ use Laravel\Prompts\TextareaPrompt;
 use Laravel\Prompts\TextPrompt;
 use Laravel\Prompts\Themes\Default\ClearRenderer;
 use Laravel\Prompts\Themes\Default\ConfirmPromptRenderer;
+use Laravel\Prompts\Themes\Default\GridRenderer;
 use Laravel\Prompts\Themes\Default\MultiSearchPromptRenderer;
 use Laravel\Prompts\Themes\Default\MultiSelectPromptRenderer;
 use Laravel\Prompts\Themes\Default\NoteRenderer;
+use Laravel\Prompts\Themes\Default\NumberPromptRenderer;
 use Laravel\Prompts\Themes\Default\PasswordPromptRenderer;
 use Laravel\Prompts\Themes\Default\PausePromptRenderer;
 use Laravel\Prompts\Themes\Default\ProgressRenderer;
@@ -49,6 +53,7 @@ trait Themes
     protected static array $themes = [
         'default' => [
             TextPrompt::class => TextPromptRenderer::class,
+            NumberPrompt::class => NumberPromptRenderer::class,
             TextareaPrompt::class => TextareaPromptRenderer::class,
             PasswordPrompt::class => PasswordPromptRenderer::class,
             SelectPrompt::class => SelectPromptRenderer::class,
@@ -63,6 +68,7 @@ trait Themes
             Table::class => TableRenderer::class,
             Progress::class => ProgressRenderer::class,
             Clear::class => ClearRenderer::class,
+            Grid::class => GridRenderer::class,
         ],
     ];
 

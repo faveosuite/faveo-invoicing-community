@@ -267,36 +267,6 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     {
         $invalidProperties = [];
 
-        if ($this->container['id'] === null) {
-            $invalidProperties[] = "'id' can't be null";
-        }
-        if ($this->container['owner_id'] === null) {
-            $invalidProperties[] = "'owner_id' can't be null";
-        }
-        if ($this->container['title'] === null) {
-            $invalidProperties[] = "'title' can't be null";
-        }
-        if ($this->container['type'] === null) {
-            $invalidProperties[] = "'type' can't be null";
-        }
-        if ($this->container['assignee'] === null) {
-            $invalidProperties[] = "'assignee' can't be null";
-        }
-        if ($this->container['interval'] === null) {
-            $invalidProperties[] = "'interval' can't be null";
-        }
-        if ($this->container['duration'] === null) {
-            $invalidProperties[] = "'duration' can't be null";
-        }
-        if ($this->container['expected_outcome'] === null) {
-            $invalidProperties[] = "'expected_outcome' can't be null";
-        }
-        if ($this->container['is_active'] === null) {
-            $invalidProperties[] = "'is_active' can't be null";
-        }
-        if ($this->container['report_ids'] === null) {
-            $invalidProperties[] = "'report_ids' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -315,7 +285,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets id
      *
-     * @return string
+     * @return string|null
      */
     public function getId()
     {
@@ -325,7 +295,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets id
      *
-     * @param string $id The ID of the goal
+     * @param string|null $id The ID of the goal
      *
      * @return self
      */
@@ -339,7 +309,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets owner_id
      *
-     * @return int
+     * @return int|null
      */
     public function getOwnerId()
     {
@@ -349,7 +319,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets owner_id
      *
-     * @param int $owner_id The ID of the creator of the goal
+     * @param int|null $owner_id The ID of the creator of the goal
      *
      * @return self
      */
@@ -363,7 +333,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets title
      *
-     * @return string
+     * @return string|null
      */
     public function getTitle()
     {
@@ -373,7 +343,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets title
      *
-     * @param string $title The title of the goal
+     * @param string|null $title The title of the goal
      *
      * @return self
      */
@@ -387,7 +357,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets type
      *
-     * @return \Pipedrive\versions\v1\Model\GoalType
+     * @return \Pipedrive\versions\v1\Model\GoalType|null
      */
     public function getType()
     {
@@ -397,7 +367,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets type
      *
-     * @param \Pipedrive\versions\v1\Model\GoalType $type type
+     * @param \Pipedrive\versions\v1\Model\GoalType|null $type type
      *
      * @return self
      */
@@ -411,7 +381,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets assignee
      *
-     * @return \Pipedrive\versions\v1\Model\Assignee
+     * @return \Pipedrive\versions\v1\Model\Assignee|null
      */
     public function getAssignee()
     {
@@ -421,7 +391,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets assignee
      *
-     * @param \Pipedrive\versions\v1\Model\Assignee $assignee assignee
+     * @param \Pipedrive\versions\v1\Model\Assignee|null $assignee assignee
      *
      * @return self
      */
@@ -435,7 +405,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets interval
      *
-     * @return string
+     * @return string|null
      */
     public function getInterval()
     {
@@ -445,7 +415,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets interval
      *
-     * @param string $interval The interval of the goal
+     * @param string|null $interval The interval of the goal
      *
      * @return self
      */
@@ -459,7 +429,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets duration
      *
-     * @return \Pipedrive\versions\v1\Model\Duration
+     * @return \Pipedrive\versions\v1\Model\Duration|null
      */
     public function getDuration()
     {
@@ -469,7 +439,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets duration
      *
-     * @param \Pipedrive\versions\v1\Model\Duration $duration duration
+     * @param \Pipedrive\versions\v1\Model\Duration|null $duration duration
      *
      * @return self
      */
@@ -483,7 +453,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets expected_outcome
      *
-     * @return \Pipedrive\versions\v1\Model\ExpectedOutcome
+     * @return \Pipedrive\versions\v1\Model\ExpectedOutcome|null
      */
     public function getExpectedOutcome()
     {
@@ -493,7 +463,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets expected_outcome
      *
-     * @param \Pipedrive\versions\v1\Model\ExpectedOutcome $expected_outcome expected_outcome
+     * @param \Pipedrive\versions\v1\Model\ExpectedOutcome|null $expected_outcome expected_outcome
      *
      * @return self
      */
@@ -507,7 +477,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets is_active
      *
-     * @return bool
+     * @return bool|null
      */
     public function getIsActive()
     {
@@ -517,7 +487,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets is_active
      *
-     * @param bool $is_active Whether the goal is currently active or not
+     * @param bool|null $is_active Whether the goal is currently active or not
      *
      * @return self
      */
@@ -531,7 +501,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets report_ids
      *
-     * @return string[]
+     * @return string[]|null
      */
     public function getReportIds()
     {
@@ -541,7 +511,7 @@ class GoalsResponseComponent implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets report_ids
      *
-     * @param string[] $report_ids The IDs of the reports that belong to the goal
+     * @param string[]|null $report_ids The IDs of the reports that belong to the goal
      *
      * @return self
      */

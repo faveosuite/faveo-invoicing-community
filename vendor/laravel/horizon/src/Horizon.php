@@ -181,6 +181,7 @@ class Horizon
     {
         return [
             'path' => config('horizon.path'),
+            'proxy_path' => config('horizon.proxy_path', ''),
         ];
     }
 
@@ -201,7 +202,7 @@ class Horizon
      * Specify the webhook URL and channel to which Slack notifications should be routed.
      *
      * @param  string  $url
-     * @param  string  $channel
+     * @param  string|null  $channel
      * @return static
      */
     public static function routeSlackNotificationsTo($url, $channel = null)

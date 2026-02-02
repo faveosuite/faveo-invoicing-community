@@ -2,6 +2,53 @@
 
 All notable changes to `spatie/laravel-activitylog` will be documented in this file
 
+## 4.10.2 - 2025-06-15
+
+### What's Changed
+
+* Update README.md by @alisalehi1380 in https://github.com/spatie/laravel-activitylog/pull/1380
+* Bump stefanzweifel/git-auto-commit-action from 5.1.0 to 5.2.0 by @dependabot in https://github.com/spatie/laravel-activitylog/pull/1385
+* Bump dependabot/fetch-metadata from 2.3.0 to 2.4.0 by @dependabot in https://github.com/spatie/laravel-activitylog/pull/1392
+
+### New Contributors
+
+* @alisalehi1380 made their first contribution in https://github.com/spatie/laravel-activitylog/pull/1380
+
+**Full Changelog**: https://github.com/spatie/laravel-activitylog/compare/4.10.1...4.10.2
+
+## 4.10.1 - 2025-02-10
+
+### What's Changed
+
+* Laravel 12.x Support by @erikn69 in https://github.com/spatie/laravel-activitylog/pull/1370
+
+**Full Changelog**: https://github.com/spatie/laravel-activitylog/compare/4.10.0...4.10.1
+
+## 4.10.0 - 2025-02-10
+
+### What's Changed
+
+* Bump stefanzweifel/git-auto-commit-action from 5.0.1 to 5.1.0 by @dependabot in https://github.com/spatie/laravel-activitylog/pull/1365
+* Bump actions/stale from 9.0.0 to 9.1.0 by @dependabot in https://github.com/spatie/laravel-activitylog/pull/1367
+* Bump dependabot/fetch-metadata from 2.2.0 to 2.3.0 by @dependabot in https://github.com/spatie/laravel-activitylog/pull/1368
+* Activity Facade by @stevebauman in https://github.com/spatie/laravel-activitylog/pull/1372
+
+**Full Changelog**: https://github.com/spatie/laravel-activitylog/compare/4.9.1...4.10.0
+
+## 4.9.1 - 2024-11-18
+
+### What's Changed
+
+* Update using-multiple-logs.md by @tobischulz in https://github.com/spatie/laravel-activitylog/pull/1345
+* fix: php 8.4 deprecation warnings by @ashleyshenton in https://github.com/spatie/laravel-activitylog/pull/1351
+
+### New Contributors
+
+* @tobischulz made their first contribution in https://github.com/spatie/laravel-activitylog/pull/1345
+* @ashleyshenton made their first contribution in https://github.com/spatie/laravel-activitylog/pull/1351
+
+**Full Changelog**: https://github.com/spatie/laravel-activitylog/compare/4.9.0...4.9.1
+
 ## 4.9.0 - 2024-10-18
 
 ### What's Changed

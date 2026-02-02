@@ -1084,6 +1084,302 @@ class BetaApi
     }
 
     /**
+     * Operation deleteProductImage
+     *
+     * Delete an image of a product
+     *
+     * @param  int $id The ID of the product (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\DeleteProductImageResponse
+     */
+    public function deleteProductImage($id)
+    {
+        list($response) = $this->deleteProductImageWithHttpInfo($id);
+        return $response;
+    }
+
+    /**
+     * Operation deleteProductImageWithHttpInfo
+     *
+     * Delete an image of a product
+     *
+     * @param  int $id The ID of the product (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\DeleteProductImageResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function deleteProductImageWithHttpInfo($id)
+    {
+        $request = $this->deleteProductImageRequest($id);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->deleteProductImageRequest($id);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\DeleteProductImageResponse' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\DeleteProductImageResponse', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\DeleteProductImageResponse' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\DeleteProductImageResponse', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\DeleteProductImageResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation deleteProductImageAsync
+     *
+     * Delete an image of a product
+     *
+     * @param  int $id The ID of the product (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function deleteProductImageAsync($id): PromiseInterface
+    {
+        return $this->deleteProductImageAsyncWithHttpInfo($id)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation deleteProductImageAsyncWithHttpInfo
+     *
+     * Delete an image of a product
+     *
+     * @param  int $id The ID of the product (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function deleteProductImageAsyncWithHttpInfo($id): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\DeleteProductImageResponse';
+        $request = $this->deleteProductImageRequest($id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'deleteProductImage'
+     *
+     * @param  int $id The ID of the product (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function deleteProductImageRequest($id): Request
+    {
+        // verify the required parameter 'id' is set
+        /* @phpstan-ignore-next-line */
+        if ($id === null || (is_array($id) && count($id) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $id when calling deleteProductImage'
+            );
+        }
+
+        $resourcePath = '/products/{id}/images';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                '{' . 'id' . '}',
+                ObjectSerializer::toPathValue($id),
+                $resourcePath
+            );
+        }
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                []
+            );
+        }
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'DELETE',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
      * Operation getDealConversionStatus
      *
      * Get Deal conversion status (BETA)
@@ -1960,6 +2256,302 @@ class BetaApi
     }
 
     /**
+     * Operation getProductImage
+     *
+     * Get image of a product
+     *
+     * @param  int $id The ID of the product (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\ProductImageResponse
+     */
+    public function getProductImage($id)
+    {
+        list($response) = $this->getProductImageWithHttpInfo($id);
+        return $response;
+    }
+
+    /**
+     * Operation getProductImageWithHttpInfo
+     *
+     * Get image of a product
+     *
+     * @param  int $id The ID of the product (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\ProductImageResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function getProductImageWithHttpInfo($id)
+    {
+        $request = $this->getProductImageRequest($id);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->getProductImageRequest($id);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\ProductImageResponse' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\ProductImageResponse', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\ProductImageResponse' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\ProductImageResponse', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\ProductImageResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation getProductImageAsync
+     *
+     * Get image of a product
+     *
+     * @param  int $id The ID of the product (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getProductImageAsync($id): PromiseInterface
+    {
+        return $this->getProductImageAsyncWithHttpInfo($id)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getProductImageAsyncWithHttpInfo
+     *
+     * Get image of a product
+     *
+     * @param  int $id The ID of the product (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function getProductImageAsyncWithHttpInfo($id): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\ProductImageResponse';
+        $request = $this->getProductImageRequest($id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'getProductImage'
+     *
+     * @param  int $id The ID of the product (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function getProductImageRequest($id): Request
+    {
+        // verify the required parameter 'id' is set
+        /* @phpstan-ignore-next-line */
+        if ($id === null || (is_array($id) && count($id) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $id when calling getProductImage'
+            );
+        }
+
+        $resourcePath = '/products/{id}/images';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                '{' . 'id' . '}',
+                ObjectSerializer::toPathValue($id),
+                $resourcePath
+            );
+        }
+
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                []
+            );
+        }
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'GET',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
      * Operation postInstallment
      *
      * Add an installment to a deal
@@ -2587,6 +3179,648 @@ class BetaApi
         $query = Query::build($queryParams);
         return new Request(
             'PATCH',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation updateProductImage
+     *
+     * Update an image for a product
+     *
+     * @param  int $id The ID of the product (required)
+     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\UpdateProductImageResponse
+     */
+    public function updateProductImage($id, $data)
+    {
+        list($response) = $this->updateProductImageWithHttpInfo($id, $data);
+        return $response;
+    }
+
+    /**
+     * Operation updateProductImageWithHttpInfo
+     *
+     * Update an image for a product
+     *
+     * @param  int $id The ID of the product (required)
+     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\UpdateProductImageResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function updateProductImageWithHttpInfo($id, $data)
+    {
+        $request = $this->updateProductImageRequest($id, $data);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->updateProductImageRequest($id, $data);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 200:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\UpdateProductImageResponse' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\UpdateProductImageResponse', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\UpdateProductImageResponse' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\UpdateProductImageResponse', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\UpdateProductImageResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation updateProductImageAsync
+     *
+     * Update an image for a product
+     *
+     * @param  int $id The ID of the product (required)
+     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function updateProductImageAsync($id, $data): PromiseInterface
+    {
+        return $this->updateProductImageAsyncWithHttpInfo($id, $data)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation updateProductImageAsyncWithHttpInfo
+     *
+     * Update an image for a product
+     *
+     * @param  int $id The ID of the product (required)
+     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function updateProductImageAsyncWithHttpInfo($id, $data): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\UpdateProductImageResponse';
+        $request = $this->updateProductImageRequest($id, $data);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'updateProductImage'
+     *
+     * @param  int $id The ID of the product (required)
+     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function updateProductImageRequest($id, $data): Request
+    {
+        // verify the required parameter 'id' is set
+        /* @phpstan-ignore-next-line */
+        if ($id === null || (is_array($id) && count($id) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $id when calling updateProductImage'
+            );
+        }
+        // verify the required parameter 'data' is set
+        /* @phpstan-ignore-next-line */
+        if ($data === null || (is_array($data) && count($data) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $data when calling updateProductImage'
+            );
+        }
+
+        $resourcePath = '/products/{id}/images';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                '{' . 'id' . '}',
+                ObjectSerializer::toPathValue($id),
+                $resourcePath
+            );
+        }
+
+        // form params
+        if ($data !== null) {
+            $multipart = true;
+            $formParams['data'] = [];
+            /* @phpstan-ignore-next-line */
+            $paramFiles = is_array($data) ? $data : [$data];
+            foreach ($paramFiles as $paramFile) {
+                $formParams['data'][] = \GuzzleHttp\Psr7\Utils::tryFopen(
+                    ObjectSerializer::toFormValue($paramFile),
+                    'rb'
+                );
+            }
+        }
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                ['multipart/form-data']
+            );
+        }
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'PUT',
+            $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation uploadProductImage
+     *
+     * Upload an image for a product
+     *
+     * @param  int $id The ID of the product (required)
+     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return \Pipedrive\versions\v2\Model\AddProductImageResponse
+     */
+    public function uploadProductImage($id, $data)
+    {
+        list($response) = $this->uploadProductImageWithHttpInfo($id, $data);
+        return $response;
+    }
+
+    /**
+     * Operation uploadProductImageWithHttpInfo
+     *
+     * Upload an image for a product
+     *
+     * @param  int $id The ID of the product (required)
+     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     *
+     * @throws ApiException on non-2xx response
+     * @throws InvalidArgumentException|GuzzleException
+     * @return array<mixed> of \Pipedrive\versions\v2\Model\AddProductImageResponse, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function uploadProductImageWithHttpInfo($id, $data)
+    {
+        $request = $this->uploadProductImageRequest($id, $data);
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
+                    $this->config->refreshToken();
+                    $request = $this->uploadProductImageRequest($id, $data);
+                    $response = $this->client->send($request, $options);
+                } else {
+                    throw new ApiException(
+                        "[{$e->getCode()}] {$e->getMessage()}",
+                        (int) $e->getCode(),
+                        $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                        $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                    );
+                }
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+
+            switch($statusCode) {
+                case 201:
+                    /* @phpstan-ignore-next-line */
+                    if ('\Pipedrive\versions\v2\Model\AddProductImageResponse' === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\AddProductImageResponse', []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+            }
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            /* @phpstan-ignore-next-line */
+            if ('\Pipedrive\versions\v2\Model\AddProductImageResponse' === '\SplFileObject') {
+                $content = $response->getBody(); //stream goes to serializer
+            } else {
+                $content = (string) $response->getBody();
+            }
+
+            return [
+                ObjectSerializer::deserialize($content, '\Pipedrive\versions\v2\Model\AddProductImageResponse', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 201:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Pipedrive\versions\v2\Model\AddProductImageResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    break;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation uploadProductImageAsync
+     *
+     * Upload an image for a product
+     *
+     * @param  int $id The ID of the product (required)
+     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function uploadProductImageAsync($id, $data): PromiseInterface
+    {
+        return $this->uploadProductImageAsyncWithHttpInfo($id, $data)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation uploadProductImageAsyncWithHttpInfo
+     *
+     * Upload an image for a product
+     *
+     * @param  int $id The ID of the product (required)
+     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return PromiseInterface
+     */
+    public function uploadProductImageAsyncWithHttpInfo($id, $data): PromiseInterface
+    {
+        $returnType = '\Pipedrive\versions\v2\Model\AddProductImageResponse';
+        $request = $this->uploadProductImageRequest($id, $data);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    /* @phpstan-ignore-next-line */
+                    if ($returnType === '\SplFileObject') {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        (string) $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'uploadProductImage'
+     *
+     * @param  int $id The ID of the product (required)
+     * @param  \SplFileObject $data One image supplied in the multipart/form-data encoding (required)
+     *
+     * @throws InvalidArgumentException|OAuthProviderException
+     * @return Request
+     */
+    public function uploadProductImageRequest($id, $data): Request
+    {
+        // verify the required parameter 'id' is set
+        /* @phpstan-ignore-next-line */
+        if ($id === null || (is_array($id) && count($id) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $id when calling uploadProductImage'
+            );
+        }
+        // verify the required parameter 'data' is set
+        /* @phpstan-ignore-next-line */
+        if ($data === null || (is_array($data) && count($data) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $data when calling uploadProductImage'
+            );
+        }
+
+        $resourcePath = '/products/{id}/images';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                '{' . 'id' . '}',
+                ObjectSerializer::toPathValue($id),
+                $resourcePath
+            );
+        }
+
+        // form params
+        if ($data !== null) {
+            $multipart = true;
+            $formParams['data'] = [];
+            /* @phpstan-ignore-next-line */
+            $paramFiles = is_array($data) ? $data : [$data];
+            foreach ($paramFiles as $paramFile) {
+                $formParams['data'][] = \GuzzleHttp\Psr7\Utils::tryFopen(
+                    ObjectSerializer::toFormValue($paramFile),
+                    'rb'
+                );
+            }
+        }
+
+        /* @phpstan-ignore-next-line */
+        if ($multipart) {
+            $headers = $this->headerSelector->selectHeadersForMultipart(
+                ['application/json']
+            );
+        } else {
+            $headers = $this->headerSelector->selectHeaders(
+                ['application/json'],
+                ['multipart/form-data']
+            );
+        }
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            /* @phpstan-ignore-next-line */
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+
+            } elseif ($headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($formParams);
+
+            } else {
+                // for HTTP post (form)
+                $httpBody = Query::build($formParams);
+            }
+        }
+
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('x-api-token');
+        if ($apiKey !== null) {
+            $headers['x-api-token'] = $apiKey;
+        }
+        // this endpoint requires OAuth (access token)
+        if ($this->config->getAccessToken() !== null) {
+            // If access token is expired
+            if ($this->config->isRefreshPossible() && $this->config->getExpiresAt() <= time()) {
+                $this->config->refreshToken();
+            }
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $query = Query::build($queryParams);
+        return new Request(
+            'POST',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
             $httpBody

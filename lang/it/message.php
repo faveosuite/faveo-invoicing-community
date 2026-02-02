@@ -2813,10 +2813,14 @@ return [
     'verify_token_error' => 'Inserisci il token di verifica.',
     'manual_number_title' => 'Aggiungi Numero Manualmente',
     'plan_exist' => 'Questo prodotto ha già un piano con lo stesso periodo',
+    'duplicate_plan_period_grouped' => 'I periodi di piano duplicati non sono consentiti perché questo prodotto è associato a un prodotto raggruppato Mensile/Annuale.',
     'callback_url' => 'URL Webhook',
     'callback_url_error' => 'Inserisci un URL Webhook valido.',
     'webhook_explanation' => 'L’URL del Webhook si trova nella sezione Configurazione Aggiuntiva delle impostazioni WhatsApp nel pannello di amministrazione.',
     'business_id_error' => 'Inserisci un ID aziendale valido.',
     'enable_reoon_logs_deletion' => 'Abilita eliminazione dei log Reoon',
 
+    'active_plan_exists' => 'Esiste già un piano attivo ":plan_name" per questo prodotto e periodo. Disabilitalo prima di creare/aggiornare un piano attivo.',
+    'check_to_make_plan_active' => 'Spunta per rendere attivo questo piano. È consentito un solo piano attivo per prodotto e periodo.',
+    'active_plan_exists_simple' => 'Esiste già un piano attivo per questo prodotto e periodo. Disabilitalo prima.',
 ];

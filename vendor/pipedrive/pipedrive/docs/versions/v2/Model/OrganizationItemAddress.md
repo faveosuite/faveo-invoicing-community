@@ -12,6 +12,7 @@ Name | Type | Description | Notes
 **sublocality** | **string** | Sublocality (e.g. neighborhood) of the organization | [optional]
 **route** | **string** | Route (e.g. street) of the organization | [optional]
 **street_number** | **string** | Street number of the organization | [optional]
+**subpremise** | **string** | Subpremise (e.g. apartment/suite number) of the organization | [optional]
 **postal_code** | **string** | Postal code of the organization | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

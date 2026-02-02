@@ -113,9 +113,11 @@ class ProcessPool implements Countable
             $this->processes, 0, $difference
         );
 
-        collect($terminatingProcesses)->each(function ($process) {
-            $this->markForTermination($process);
-        })->all();
+        collect($terminatingProcesses)
+            ->each(function ($process) {
+                $this->markForTermination($process);
+            })
+            ->all();
 
         $this->removeProcesses($difference);
 
@@ -176,8 +178,8 @@ class ProcessPool implements Countable
     protected function createProcess()
     {
         $class = config('horizon.fast_termination')
-                    ? BackgroundProcess::class
-                    : Process::class;
+            ? BackgroundProcess::class
+            : Process::class;
 
         return new WorkerProcess($class::fromShellCommandline(
             $this->options->toWorkerCommand(), $this->options->directory
@@ -253,11 +255,9 @@ class ProcessPool implements Countable
     {
         $this->stopTerminatingProcessesThatAreHanging();
 
-        $this->terminatingProcesses = collect(
-            $this->terminatingProcesses
-        )->filter(function ($process) {
-            return $process['process']->isRunning();
-        })->all();
+        $this->terminatingProcesses = collect($this->terminatingProcesses)
+            ->filter(fn ($process) => $process['process']->isRunning())
+            ->all();
     }
 
     /**
@@ -297,9 +297,9 @@ class ProcessPool implements Countable
             return $process['process'];
         });
 
-        return collect($this->processes)->concat($terminatingProcesses)->filter(function ($process) {
-            return $process->process->isRunning();
-        });
+        return collect($this->processes)
+            ->concat($terminatingProcesses)
+            ->filter(fn ($process) => $process->process->isRunning());
     }
 
     /**

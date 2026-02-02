@@ -2818,10 +2818,14 @@ return [
     'verify_token_error' => 'Por favor, ingresa el Token de Verificación.',
     'manual_number_title' => 'Agregar Número Manualmente',
     'plan_exist' => 'Este producto ya tiene un plan con el mismo período',
+    'duplicate_plan_period_grouped' => 'No se permiten períodos de plan duplicados porque este producto está asociado con un producto agrupado Mensual/Anual.',
     'callback_url' => 'URL del Webhook',
     'callback_url_error' => 'Por favor ingresa una URL de Webhook válida.',
     'webhook_explanation' => 'La URL del Webhook se encuentra en la sección de Configuración Adicional de los ajustes de WhatsApp en el panel de administración.',
     'business_id_error' => 'Por favor ingresa un Business ID válido.',
     'enable_reoon_logs_deletion' => 'Habilitar eliminación de registros de Reoon',
 
+    'active_plan_exists' => 'Ya existe un plan activo ":plan_name" para este producto y período. Por favor, desactívelo primero antes de crear/actualizar un plan activo.',
+    'check_to_make_plan_active' => 'Marque para activar este plan. Solo se permite un plan activo por producto y período.',
+    'active_plan_exists_simple' => 'Ya existe un plan activo para este producto y período. Por favor, desactívelo primero.',
 ];

@@ -721,16 +721,15 @@ class PipelinesApi
      * Get one pipeline
      *
      * @param  int $id The ID of the pipeline (required)
-     * @param  string|null $totals_convert_currency The 3-letter currency code of any of the supported currencies. When supplied, &#x60;per_stages_converted&#x60; is returned in &#x60;deals_summary&#x60; which contains the currency-converted total amounts in the given currency per each stage. You may also set this parameter to &#x60;default_currency&#x60; in which case users default currency is used. (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\GetOnePipeline
      * @deprecated
      */
-    public function getPipeline($id, $totals_convert_currency = null)
+    public function getPipeline($id)
     {
-        list($response) = $this->getPipelineWithHttpInfo($id, $totals_convert_currency);
+        list($response) = $this->getPipelineWithHttpInfo($id);
         return $response;
     }
 
@@ -740,16 +739,15 @@ class PipelinesApi
      * Get one pipeline
      *
      * @param  int $id The ID of the pipeline (required)
-     * @param  string|null $totals_convert_currency The 3-letter currency code of any of the supported currencies. When supplied, &#x60;per_stages_converted&#x60; is returned in &#x60;deals_summary&#x60; which contains the currency-converted total amounts in the given currency per each stage. You may also set this parameter to &#x60;default_currency&#x60; in which case users default currency is used. (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\GetOnePipeline, HTTP status code, HTTP response headers (array of strings)
      * @deprecated
      */
-    public function getPipelineWithHttpInfo($id, $totals_convert_currency = null)
+    public function getPipelineWithHttpInfo($id)
     {
-        $request = $this->getPipelineRequest($id, $totals_convert_currency);
+        $request = $this->getPipelineRequest($id);
 
         try {
             $options = $this->createHttpClientOption();
@@ -758,7 +756,7 @@ class PipelinesApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->getPipelineRequest($id, $totals_convert_currency);
+                    $request = $this->getPipelineRequest($id);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -843,15 +841,14 @@ class PipelinesApi
      * Get one pipeline
      *
      * @param  int $id The ID of the pipeline (required)
-     * @param  string|null $totals_convert_currency The 3-letter currency code of any of the supported currencies. When supplied, &#x60;per_stages_converted&#x60; is returned in &#x60;deals_summary&#x60; which contains the currency-converted total amounts in the given currency per each stage. You may also set this parameter to &#x60;default_currency&#x60; in which case users default currency is used. (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      * @deprecated
      */
-    public function getPipelineAsync($id, $totals_convert_currency = null): PromiseInterface
+    public function getPipelineAsync($id): PromiseInterface
     {
-        return $this->getPipelineAsyncWithHttpInfo($id, $totals_convert_currency)
+        return $this->getPipelineAsyncWithHttpInfo($id)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -865,16 +862,15 @@ class PipelinesApi
      * Get one pipeline
      *
      * @param  int $id The ID of the pipeline (required)
-     * @param  string|null $totals_convert_currency The 3-letter currency code of any of the supported currencies. When supplied, &#x60;per_stages_converted&#x60; is returned in &#x60;deals_summary&#x60; which contains the currency-converted total amounts in the given currency per each stage. You may also set this parameter to &#x60;default_currency&#x60; in which case users default currency is used. (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      * @deprecated
      */
-    public function getPipelineAsyncWithHttpInfo($id, $totals_convert_currency = null): PromiseInterface
+    public function getPipelineAsyncWithHttpInfo($id): PromiseInterface
     {
         $returnType = '\Pipedrive\versions\v1\Model\GetOnePipeline';
-        $request = $this->getPipelineRequest($id, $totals_convert_currency);
+        $request = $this->getPipelineRequest($id);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -914,13 +910,12 @@ class PipelinesApi
      * Create request for operation 'getPipeline'
      *
      * @param  int $id The ID of the pipeline (required)
-     * @param  string|null $totals_convert_currency The 3-letter currency code of any of the supported currencies. When supplied, &#x60;per_stages_converted&#x60; is returned in &#x60;deals_summary&#x60; which contains the currency-converted total amounts in the given currency per each stage. You may also set this parameter to &#x60;default_currency&#x60; in which case users default currency is used. (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      * @deprecated
      */
-    public function getPipelineRequest($id, $totals_convert_currency = null): Request
+    public function getPipelineRequest($id): Request
     {
         // verify the required parameter 'id' is set
         /* @phpstan-ignore-next-line */
@@ -937,14 +932,6 @@ class PipelinesApi
         $httpBody = '';
         $multipart = false;
 
-        // query params
-        /* @phpstan-ignore-next-line */
-        if (is_array($totals_convert_currency)) {
-            $totals_convert_currency = ObjectSerializer::serializeCollection($totals_convert_currency, '', true);
-        }
-        if ($totals_convert_currency !== null) {
-            $queryParams['totals_convert_currency'] = $totals_convert_currency;
-        }
 
 
         // path params

@@ -13,6 +13,9 @@ use RuntimeException;
 use SebastianBergmann\Diff\Differ;
 use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class ComparisonFailure extends RuntimeException
 {
     private mixed $expected;
@@ -52,7 +55,7 @@ final class ComparisonFailure extends RuntimeException
 
     public function getDiff(): string
     {
-        if (!$this->actualAsString && !$this->expectedAsString) {
+        if ($this->actualAsString === '' && $this->expectedAsString === '') {
             return '';
         }
 

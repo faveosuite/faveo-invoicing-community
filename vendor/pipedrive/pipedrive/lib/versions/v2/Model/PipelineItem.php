@@ -69,7 +69,6 @@ class PipelineItem implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => 'int',
         'name' => 'string',
         'order_nr' => 'int',
-        'is_selected' => 'bool',
         'is_deleted' => 'bool',
         'is_deal_probability_enabled' => 'bool',
         'add_time' => 'string',
@@ -87,7 +86,6 @@ class PipelineItem implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => null,
         'name' => null,
         'order_nr' => null,
-        'is_selected' => null,
         'is_deleted' => null,
         'is_deal_probability_enabled' => null,
         'add_time' => null,
@@ -128,7 +126,6 @@ class PipelineItem implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => 'id',
         'name' => 'name',
         'order_nr' => 'order_nr',
-        'is_selected' => 'is_selected',
         'is_deleted' => 'is_deleted',
         'is_deal_probability_enabled' => 'is_deal_probability_enabled',
         'add_time' => 'add_time',
@@ -144,7 +141,6 @@ class PipelineItem implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => 'setId',
         'name' => 'setName',
         'order_nr' => 'setOrderNr',
-        'is_selected' => 'setIsSelected',
         'is_deleted' => 'setIsDeleted',
         'is_deal_probability_enabled' => 'setIsDealProbabilityEnabled',
         'add_time' => 'setAddTime',
@@ -160,7 +156,6 @@ class PipelineItem implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => 'getId',
         'name' => 'getName',
         'order_nr' => 'getOrderNr',
-        'is_selected' => 'getIsSelected',
         'is_deleted' => 'getIsDeleted',
         'is_deal_probability_enabled' => 'getIsDealProbabilityEnabled',
         'add_time' => 'getAddTime',
@@ -237,7 +232,6 @@ class PipelineItem implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['id'] = $data['id'] ?? null;
         $this->container['name'] = $data['name'] ?? null;
         $this->container['order_nr'] = $data['order_nr'] ?? null;
-        $this->container['is_selected'] = $data['is_selected'] ?? null;
         $this->container['is_deleted'] = $data['is_deleted'] ?? null;
         $this->container['is_deal_probability_enabled'] = $data['is_deal_probability_enabled'] ?? null;
         $this->container['add_time'] = $data['add_time'] ?? null;
@@ -338,30 +332,6 @@ class PipelineItem implements ModelInterface, ArrayAccess, JsonSerializable
     public function setOrderNr($order_nr): self
     {
         $this->container['order_nr'] = $order_nr;
-
-        return $this;
-    }
-
-    /**
-     * Gets is_selected
-     *
-     * @return bool|null
-     */
-    public function getIsSelected()
-    {
-        return $this->container['is_selected'];
-    }
-
-    /**
-     * Sets is_selected
-     *
-     * @param bool|null $is_selected Whether this pipeline is selected or not
-     *
-     * @return self
-     */
-    public function setIsSelected($is_selected): self
-    {
-        $this->container['is_selected'] = $is_selected;
 
         return $this;
     }

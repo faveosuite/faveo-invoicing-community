@@ -831,6 +831,7 @@ return [
     'product_controller' => [
         'name_required' => '产品名称是必填的。',
         'name_unique' => '名称必须是唯一的。',
+        'name_unique_in_group' => '所选分组中已存在同名产品。请选择其他名称或选择其他分组。',
         'type_required' => '产品类型是必填的。',
         'description_required' => '产品描述是必填的。',
         'product_description_required' => '详细的产品描述是必填的。',

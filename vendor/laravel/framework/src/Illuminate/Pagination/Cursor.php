@@ -6,6 +6,7 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
 use UnexpectedValueException;
 
+/** @implements Arrayable<array-key, mixed> */
 class Cursor implements Arrayable
 {
     /**
@@ -59,9 +60,9 @@ class Cursor implements Arrayable
      */
     public function parameters(array $parameterNames)
     {
-        return (new Collection($parameterNames))->map(function ($parameterName) {
-            return $this->parameter($parameterName);
-        })->toArray();
+        return (new Collection($parameterNames))
+            ->map(fn ($parameterName) => $this->parameter($parameterName))
+            ->toArray();
     }
 
     /**

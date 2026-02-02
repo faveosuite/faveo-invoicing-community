@@ -7,6 +7,7 @@
             'stack-trace': StackTrace,
         },
 
+
         /**
          * The component's data.
          */
@@ -26,18 +27,6 @@
             this.loadFailedJob(this.$route.params.jobId);
 
             document.title = "Horizon - Failed Jobs";
-
-            this.interval = setInterval(() => {
-                this.reloadRetries();
-            }, 3000);
-        },
-
-
-        /**
-         * Clean after the component is unmounted.
-         */
-        unmounted() {
-            clearInterval(this.interval);
         },
 
 
@@ -61,7 +50,6 @@
                 this.$http.get(Horizon.basePath + '/api/jobs/failed/' + this.$route.params.jobId)
                     .then(response => {
                         this.job.retried_by = response.data.retried_by;
-
                     });
             },
 
@@ -107,6 +95,8 @@
 
 <template>
     <div>
+        <poll @poll="reloadRetries" :immediate="false" />
+
         <div class="card overflow-hidden">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h2 class="h6 m-0" v-if="!ready">Job Preview</h2>
@@ -133,6 +123,10 @@
                 <div class="row mb-2">
                     <div class="col-md-2 text-muted">ID</div>
                     <div class="col">{{job.id}}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-2 text-muted">Connection</div>
+                    <div class="col">{{job.connection}}</div>
                 </div>
                 <div class="row mb-2">
                     <div class="col-md-2 text-muted">Queue</div>
@@ -215,7 +209,7 @@
             <table class="table table-hover mb-0">
                 <thead>
                 <tr>
-                    <th>Job</th>
+                    <th>Status</th>
                     <th>ID</th>
                     <th class="text-end">Retry Time</th>
                 </tr>
@@ -237,7 +231,7 @@
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
                         </svg>
 
-                        <span class="ms-2">{{ retry.status.charAt(0).toUpperCase() + retry.status.slice(1) }}</span>
+                        <span class="ms-2">{{ upperFirst(retry.status) }}</span>
                     </td>
 
                     <td class="table-fit">

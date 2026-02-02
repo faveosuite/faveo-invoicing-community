@@ -8,13 +8,14 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-final class Configuration implements ConfigurationInterface
+final readonly class Configuration implements ConfigurationInterface
 {
+    /** @return TreeBuilder<'array'> */
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('endroid_qr_code');
 
-        /** @var ArrayNodeDefinition $rootNode */
+        /** @var ArrayNodeDefinition<TreeBuilder<'array'>> $rootNode */
         $rootNode = $treeBuilder->getRootNode();
 
         $rootNode

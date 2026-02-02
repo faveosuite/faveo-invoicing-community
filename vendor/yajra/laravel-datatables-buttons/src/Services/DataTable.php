@@ -15,6 +15,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\LazyCollection;
+use Illuminate\Support\Traits\Macroable;
 use Maatwebsite\Excel\ExcelServiceProvider;
 use OpenSpout\Common\Entity\Style\Style;
 use Rap2hpoutre\FastExcel\FastExcel;
@@ -29,6 +30,8 @@ use Yajra\DataTables\Utilities\Request;
 
 abstract class DataTable implements DataTableButtons
 {
+    use Macroable;
+
     /**
      * DataTables print preview view.
      *
@@ -148,6 +151,11 @@ abstract class DataTable implements DataTableButtons
      */
     protected string $pdfWriter = 'Dompdf';
 
+    /**
+     * @phpstan-var view-string|null
+     */
+    protected ?string $view = null;
+
     public function __construct()
     {
         /** @var Request $request */
@@ -160,6 +168,11 @@ abstract class DataTable implements DataTableButtons
         $this->htmlBuilder = $builder;
     }
 
+    public function __invoke(): mixed
+    {
+        return $this->render($this->view, $this->viewData(), $this->viewMergeData());
+    }
+
     /**
      * Process dataTables needed render output.
      *
@@ -169,12 +182,8 @@ abstract class DataTable implements DataTableButtons
      */
     public function render(?string $view = null, array $data = [], array $mergeData = [])
     {
-        if ($this->request()->ajax() && $this->request()->wantsJson()) {
-            return app()->call($this->ajax(...));
-        }
-
         /** @var string $action */
-        $action = $this->request()->get('action');
+        $action = $this->request()->action;
         $actionMethod = $action === 'print' ? 'printPreview' : $action;
 
         if (in_array($action, $this->actions) && method_exists($this, $actionMethod)) {
@@ -182,6 +191,10 @@ abstract class DataTable implements DataTableButtons
             $callback = [$this, $actionMethod];
 
             return app()->call($callback);
+        }
+
+        if ($this->request()->ajax() && $this->request()->wantsJson()) {
+            return app()->call($this->ajax(...));
         }
 
         /** @phpstan-ignore-next-line  */
@@ -530,7 +543,7 @@ abstract class DataTable implements DataTableButtons
         }
 
         // @phpstan-ignore-next-line
-        return $this->buildExcelFile()->download($path, $this->csvWriter);
+        return $excelFile->download($path, $this->csvWriter);
     }
 
     /**
@@ -738,5 +751,21 @@ abstract class DataTable implements DataTableButtons
         }
 
         return (new FastExcel($dataTable->toArray()['data']))->setColumnStyles($styles);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function viewData(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function viewMergeData(): array
+    {
+        return [];
     }
 }

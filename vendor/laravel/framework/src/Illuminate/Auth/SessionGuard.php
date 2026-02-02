@@ -97,11 +97,25 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     protected $timebox;
 
     /**
+     * The number of microseconds that the timebox should wait for.
+     *
+     * @var int
+     */
+    protected $timeboxDuration;
+
+    /**
      * Indicates if passwords should be rehashed on login if needed.
      *
      * @var bool
      */
     protected $rehashOnLogin;
+
+    /**
+     * The key used to hash recaller cookie values.
+     *
+     * @var string|null
+     */
+    protected $hashKey;
 
     /**
      * Indicates if the logout method has been called.
@@ -126,7 +140,8 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
      * @param  \Symfony\Component\HttpFoundation\Request|null  $request
      * @param  \Illuminate\Support\Timebox|null  $timebox
      * @param  bool  $rehashOnLogin
-     * @return void
+     * @param  int  $timeboxDuration
+     * @param  string|null  $hashKey
      */
     public function __construct(
         $name,
@@ -135,6 +150,8 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
         ?Request $request = null,
         ?Timebox $timebox = null,
         bool $rehashOnLogin = true,
+        int $timeboxDuration = 200000,
+        ?string $hashKey = null,
     ) {
         $this->name = $name;
         $this->session = $session;
@@ -142,6 +159,8 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
         $this->provider = $provider;
         $this->timebox = $timebox ?: new Timebox;
         $this->rehashOnLogin = $rehashOnLogin;
+        $this->timeboxDuration = $timeboxDuration;
+        $this->hashKey = $hashKey;
     }
 
     /**
@@ -239,8 +258,8 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
         }
 
         return $this->user()
-                    ? $this->user()->getAuthIdentifier()
-                    : $this->session->get($this->getName());
+            ? $this->user()->getAuthIdentifier()
+            : $this->session->get($this->getName());
     }
 
     /**
@@ -260,6 +279,8 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
 
             return true;
         }
+
+        $this->fireFailedEvent($this->lastAttempted, $credentials);
 
         return false;
     }
@@ -289,9 +310,17 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
      */
     public function validate(array $credentials = [])
     {
-        $this->lastAttempted = $user = $this->provider->retrieveByCredentials($credentials);
+        return $this->timebox->call(function ($timebox) use ($credentials) {
+            $this->lastAttempted = $user = $this->provider->retrieveByCredentials($credentials);
 
-        return $this->hasValidCredentials($user, $credentials);
+            $validated = $this->hasValidCredentials($user, $credentials);
+
+            if ($validated) {
+                $timebox->returnEarly();
+            }
+
+            return $validated;
+        }, $this->timeboxDuration);
     }
 
     /**
@@ -389,27 +418,31 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
      */
     public function attempt(array $credentials = [], $remember = false)
     {
-        $this->fireAttemptEvent($credentials, $remember);
+        return $this->timebox->call(function ($timebox) use ($credentials, $remember) {
+            $this->fireAttemptEvent($credentials, $remember);
 
-        $this->lastAttempted = $user = $this->provider->retrieveByCredentials($credentials);
+            $this->lastAttempted = $user = $this->provider->retrieveByCredentials($credentials);
 
-        // If an implementation of UserInterface was returned, we'll ask the provider
-        // to validate the user against the given credentials, and if they are in
-        // fact valid we'll log the users into the application and return true.
-        if ($this->hasValidCredentials($user, $credentials)) {
-            $this->rehashPasswordIfRequired($user, $credentials);
+            // If an implementation of UserInterface was returned, we'll ask the provider
+            // to validate the user against the given credentials, and if they are in
+            // fact valid we'll log the users into the application and return true.
+            if ($this->hasValidCredentials($user, $credentials)) {
+                $this->rehashPasswordIfRequired($user, $credentials);
 
-            $this->login($user, $remember);
+                $this->login($user, $remember);
 
-            return true;
-        }
+                $timebox->returnEarly();
 
-        // If the authentication attempt fails we will fire an event so that the user
-        // may be notified of any suspicious attempts to access their account from
-        // an unrecognized user. A developer may listen to this event as needed.
-        $this->fireFailedEvent($user, $credentials);
+                return true;
+            }
 
-        return false;
+            // If the authentication attempt fails we will fire an event so that the user
+            // may be notified of any suspicious attempts to access their account from
+            // an unrecognized user. A developer may listen to this event as needed.
+            $this->fireFailedEvent($user, $credentials);
+
+            return false;
+        }, $this->timeboxDuration);
     }
 
     /**
@@ -422,24 +455,28 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
      */
     public function attemptWhen(array $credentials = [], $callbacks = null, $remember = false)
     {
-        $this->fireAttemptEvent($credentials, $remember);
+        return $this->timebox->call(function ($timebox) use ($credentials, $callbacks, $remember) {
+            $this->fireAttemptEvent($credentials, $remember);
 
-        $this->lastAttempted = $user = $this->provider->retrieveByCredentials($credentials);
+            $this->lastAttempted = $user = $this->provider->retrieveByCredentials($credentials);
 
-        // This method does the exact same thing as attempt, but also executes callbacks after
-        // the user is retrieved and validated. If one of the callbacks returns falsy we do
-        // not login the user. Instead, we will fail the specific authentication attempt.
-        if ($this->hasValidCredentials($user, $credentials) && $this->shouldLogin($callbacks, $user)) {
-            $this->rehashPasswordIfRequired($user, $credentials);
+            // This method does the exact same thing as attempt, but also executes callbacks after
+            // the user is retrieved and validated. If one of the callbacks returns falsy we do
+            // not login the user. Instead, we will fail the specific authentication attempt.
+            if ($this->hasValidCredentials($user, $credentials) && $this->shouldLogin($callbacks, $user)) {
+                $this->rehashPasswordIfRequired($user, $credentials);
 
-            $this->login($user, $remember);
+                $this->login($user, $remember);
 
-            return true;
-        }
+                $timebox->returnEarly();
 
-        $this->fireFailedEvent($user, $credentials);
+                return true;
+            }
 
-        return false;
+            $this->fireFailedEvent($user, $credentials);
+
+            return false;
+        }, $this->timeboxDuration);
     }
 
     /**
@@ -451,17 +488,13 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
      */
     protected function hasValidCredentials($user, $credentials)
     {
-        return $this->timebox->call(function ($timebox) use ($user, $credentials) {
-            $validated = ! is_null($user) && $this->provider->validateCredentials($user, $credentials);
+        $validated = ! is_null($user) && $this->provider->validateCredentials($user, $credentials);
 
-            if ($validated) {
-                $timebox->returnEarly();
+        if ($validated) {
+            $this->fireValidatedEvent($user);
+        }
 
-                $this->fireValidatedEvent($user);
-            }
-
-            return $validated;
-        }, 200 * 1000);
+        return $validated;
     }
 
     /**
@@ -543,7 +576,7 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     }
 
     /**
-     * Update the session with the given ID.
+     * Update the session with the given ID and regenerate the session's token.
      *
      * @param  string  $id
      * @return void
@@ -552,7 +585,7 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     {
         $this->session->put($this->getName(), $id);
 
-        $this->session->migrate(true);
+        $this->session->regenerate(true);
     }
 
     /**
@@ -577,7 +610,9 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     protected function queueRecallerCookie(AuthenticatableContract $user)
     {
         $this->getCookieJar()->queue($this->createRecaller(
-            $user->getAuthIdentifier().'|'.$user->getRememberToken().'|'.$user->getAuthPassword()
+            $user->getAuthIdentifier().'|'.
+            $user->getRememberToken().'|'.
+            $this->hashPasswordForCookie($user->getAuthPassword())
         ));
     }
 
@@ -590,6 +625,21 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     protected function createRecaller($value)
     {
         return $this->getCookieJar()->make($this->getRecallerName(), $value, $this->getRememberDuration());
+    }
+
+    /**
+     * Create a HMAC of the password hash for storage in cookies.
+     *
+     * @param  string  $passwordHash
+     * @return string
+     */
+    public function hashPasswordForCookie($passwordHash)
+    {
+        return hash_hmac(
+            'sha256',
+            $passwordHash,
+            $this->hashKey ?? 'base-key-for-password-hash-mac'
+        );
     }
 
     /**

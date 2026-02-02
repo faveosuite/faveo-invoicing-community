@@ -2821,10 +2821,14 @@ return [
     'verify_token_error' => '認証トークンを入力してください。',
     'manual_number_title' => '番号を手動で追加',
     'plan_exist' => 'この製品には既に同じ期間のプランがあります',
+    'duplicate_plan_period_grouped' => 'この製品は月額/年額グループ製品に関連付けられているため、重複するプラン期間は許可されていません。',
     'callback_url' => 'Webhook URL',
     'callback_url_error' => '有効な Webhook URL を入力してください。',
     'webhook_explanation' => 'Webhook URL は管理パネルの WhatsApp 設定内の追加設定セクションにあります。',
     'business_id_error' => '有効な Business ID を入力してください。',
     'enable_reoon_logs_deletion' => 'Reoonログの削除を有効にする',
 
+    'active_plan_exists' => 'この製品と期間には、すでに有効なプラン ":plan_name" が存在します。有効なプランを作成/更新する前に、まずこれを無効にしてください。',
+    'check_to_make_plan_active' => 'このプランを有効にするにはチェックを入れてください。製品および期間ごとに許可される有効なプランは1つだけです。',
+    'active_plan_exists_simple' => 'この製品と期間には、すでに有効なプランが存在します。まずこれを無効にしてください。',
 ];

@@ -2,6 +2,10 @@
 
 ## Change Log
 
+### v12.0.0 - 2025-02-26
+
+- Add Laravel 12 support
+
 ### v11.0.0 - 2024-03-16
 
 - Add Laravel 11 support

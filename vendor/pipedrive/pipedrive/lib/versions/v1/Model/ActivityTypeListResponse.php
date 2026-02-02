@@ -219,9 +219,6 @@ class ActivityTypeListResponse implements ModelInterface, ArrayAccess, JsonSeria
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -264,7 +261,7 @@ class ActivityTypeListResponse implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\ActivityTypeObjectResponse[]
+     * @return \Pipedrive\versions\v1\Model\ActivityTypeObjectResponse[]|null
      */
     public function getData()
     {
@@ -274,7 +271,7 @@ class ActivityTypeListResponse implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\ActivityTypeObjectResponse[] $data The array of activity types
+     * @param \Pipedrive\versions\v1\Model\ActivityTypeObjectResponse[]|null $data The array of activity types
      *
      * @return self
      */

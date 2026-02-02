@@ -601,7 +601,7 @@ class OrderController extends BaseOrderController
     {
         $invoice_items = new InvoiceItem();
         $invoice_item = $invoice_items->find($itemid);
-        $product = $invoice_item->product_name;
+        $product = $invoice_item->product_id;
 
         return $product;
     }

@@ -219,12 +219,6 @@ class DeleteProductFollowerResponse implements ModelInterface, ArrayAccess, Json
     {
         $invalidProperties = [];
 
-        if ($this->container['success'] === null) {
-            $invalidProperties[] = "'success' can't be null";
-        }
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class DeleteProductFollowerResponse implements ModelInterface, ArrayAccess, Json
     /**
      * Gets success
      *
-     * @return bool
+     * @return bool|null
      */
     public function getSuccess()
     {
@@ -253,7 +247,7 @@ class DeleteProductFollowerResponse implements ModelInterface, ArrayAccess, Json
     /**
      * Sets success
      *
-     * @param bool $success If the response is successful or not
+     * @param bool|null $success If the response is successful or not
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class DeleteProductFollowerResponse implements ModelInterface, ArrayAccess, Json
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\DeleteProductFollowerResponseData
+     * @return \Pipedrive\versions\v1\Model\DeleteProductFollowerResponseData|null
      */
     public function getData()
     {
@@ -277,7 +271,7 @@ class DeleteProductFollowerResponse implements ModelInterface, ArrayAccess, Json
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\DeleteProductFollowerResponseData $data data
+     * @param \Pipedrive\versions\v1\Model\DeleteProductFollowerResponseData|null $data data
      *
      * @return self
      */

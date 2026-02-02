@@ -213,9 +213,6 @@ class DeleteResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializab
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -234,7 +231,7 @@ class DeleteResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\DeleteResponseAllOfData
+     * @return \Pipedrive\versions\v1\Model\DeleteResponseAllOfData|null
      */
     public function getData()
     {
@@ -244,7 +241,7 @@ class DeleteResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\DeleteResponseAllOfData $data data
+     * @param \Pipedrive\versions\v1\Model\DeleteResponseAllOfData|null $data data
      *
      * @return self
      */

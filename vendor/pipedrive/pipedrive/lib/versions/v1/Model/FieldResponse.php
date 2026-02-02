@@ -67,7 +67,7 @@ class FieldResponse implements ModelInterface, ArrayAccess, JsonSerializable
       */
     protected static array $openAPITypes = [
         'success' => 'bool',
-        'data' => '\Pipedrive\versions\v1\Model\Field'
+        'data' => '\Pipedrive\versions\v1\Model\GetField'
     ];
 
     /**
@@ -219,9 +219,6 @@ class FieldResponse implements ModelInterface, ArrayAccess, JsonSerializable
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -264,7 +261,7 @@ class FieldResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\Field
+     * @return \Pipedrive\versions\v1\Model\GetField|null
      */
     public function getData()
     {
@@ -274,7 +271,7 @@ class FieldResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\Field $data data
+     * @param \Pipedrive\versions\v1\Model\GetField|null $data data
      *
      * @return self
      */

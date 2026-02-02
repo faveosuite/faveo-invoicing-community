@@ -219,9 +219,6 @@ class AddFollowerToPersonResponse implements ModelInterface, ArrayAccess, JsonSe
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -264,7 +261,7 @@ class AddFollowerToPersonResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\AddFollowerToPersonResponseAllOfData
+     * @return \Pipedrive\versions\v1\Model\AddFollowerToPersonResponseAllOfData|null
      */
     public function getData()
     {
@@ -274,7 +271,7 @@ class AddFollowerToPersonResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\AddFollowerToPersonResponseAllOfData $data data
+     * @param \Pipedrive\versions\v1\Model\AddFollowerToPersonResponseAllOfData|null $data data
      *
      * @return self
      */

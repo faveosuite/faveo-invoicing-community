@@ -1,63 +1,45 @@
-# Laravel DataTables Html Plugin.
+# [12.7.0](https://github.com/yajra/laravel-datatables-html/compare/v12.6.0...v12.7.0) (2026-01-23)
 
-## CHANGELOG
 
-### UNRELEASED
+### Features
 
-### v11.7.0 (2024-11-29)
+* livewire 4 ([3247123](https://github.com/yajra/laravel-datatables-html/commit/3247123fd7ed58e9a2e48e66d72b3ae7b107eb78))
 
-- feat: clone the "working" Fluent class from laravel #230
-- Fixes #229 
-- Closes yajra/laravel-datatables#3201
-- Fix: #231
+# [12.5.0](https://github.com/yajra/laravel-datatables-html/compare/v12.4.0...v12.5.0) (2025-10-07)
 
-### v11.6.2 (2024-11-18)
 
-- fix: checking of closure instance missing import #228
-- fix: yajra/laravel-datatables#3197 
-- fix: #227
+### Features
 
-### v11.6.1 (2024-11-18)
+* **Builder:** add theadClass property getter ([a07184a](https://github.com/yajra/laravel-datatables-html/commit/a07184a943d9eac61c845aa6fd015603ee416673))
 
-- Fix Marcoable trait usage together with Fluent helper #227
-- fix: yajra/laravel-datatables#3190
-- 
-### v11.6.0 (2024-08-31)
+# [12.4.0](https://github.com/yajra/laravel-datatables-html/compare/v12.3.1...v12.4.0) (2025-10-07)
 
-- feat: add macro in editor builder #225
 
-### v11.5.1 (2024-08-31)
+### Features
 
-- fix: unauthorized columns being displayed by builder #223
-- fix: #222
+* column default content ([b9f1df4](https://github.com/yajra/laravel-datatables-html/commit/b9f1df477b96cb8756324a68c0b10057e8e9070a))
 
-### v11.5.0 (2024-08-31)
+## [12.3.1](https://github.com/yajra/laravel-datatables-html/compare/v12.3.0...v12.3.1) (2025-10-07)
 
-- feat: enable macro on Button builder #224
 
-### v11.4.0 (2024-05-31)
+### Bug Fixes
 
-- feat: add className method to Editor Field #220
+* cc footer search ([ad6f7a0](https://github.com/yajra/laravel-datatables-html/commit/ad6f7a0c2a3b573c4f10e63937aa16f03683dfdd)), closes [#3256](https://github.com/yajra/laravel-datatables/issues/3256)
 
-### v11.3.0 (2024-05-18)
 
-- feat: Allow passing view and livewire components to layout builder #219
+### v12.1.0 (2025-09-22)
 
-### v11.2.1 (2024-04-29)
+- feat: column control builder #244
 
-- fix: multiple config option of select2 #218
+### v12.0.2 (2025-04-28)
 
-### v11.2.0 (2024-04-24)
+- fix: use DOMContentLoaded #237
+- fix: https://github.com/yajra/laravel-datatables-html/pull/235
 
-- feat: load layout from view using selector #217
+### v12.0.1 (2025-03-31)
 
-### v11.1.0 (2024-04-24)
+- feat: select keyboard navigation and selection #236
 
-- feat: layout builder #216
-- https://datatables.net/reference/option/layout
+### v12.0.0 (2025-02-26)
 
-### v11.0.0 (2024-03-14)
-
-- Add support for Laravel 11.x
-- Fix editor scope compatibility with Fluent class scope
-- Rename Editor `scope` method to `formScope`
+- feat: Laravel 12 support #234

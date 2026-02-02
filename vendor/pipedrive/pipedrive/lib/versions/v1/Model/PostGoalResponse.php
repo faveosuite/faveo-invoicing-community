@@ -213,9 +213,6 @@ class PostGoalResponse implements ModelInterface, ArrayAccess, JsonSerializable
     {
         $invalidProperties = [];
 
-        if ($this->container['goal'] === null) {
-            $invalidProperties[] = "'goal' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -234,7 +231,7 @@ class PostGoalResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets goal
      *
-     * @return \Pipedrive\versions\v1\Model\GoalsResponseComponent
+     * @return \Pipedrive\versions\v1\Model\GoalsResponseComponent|null
      */
     public function getGoal()
     {
@@ -244,7 +241,7 @@ class PostGoalResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets goal
      *
-     * @param \Pipedrive\versions\v1\Model\GoalsResponseComponent $goal goal
+     * @param \Pipedrive\versions\v1\Model\GoalsResponseComponent|null $goal goal
      *
      * @return self
      */

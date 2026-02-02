@@ -88,8 +88,8 @@ class Supervisor implements Pausable, Restartable, Terminable
     public function createProcessPools()
     {
         return $this->options->balancing()
-                        ? $this->createProcessPoolPerQueue()
-                        : $this->createSingleProcessPool();
+            ? $this->createProcessPoolPerQueue()
+            : $this->createSingleProcessPool();
     }
 
     /**
@@ -99,9 +99,8 @@ class Supervisor implements Pausable, Restartable, Terminable
      */
     protected function createProcessPoolPerQueue()
     {
-        return collect(explode(',', $this->options->queue))->map(function ($queue) {
-            return $this->createProcessPool($this->options->withQueue($queue));
-        });
+        return collect(explode(',', $this->options->queue))
+            ->map(fn ($queue) => $this->createProcessPool($this->options->withQueue($queue)));
     }
 
     /**
@@ -238,7 +237,7 @@ class Supervisor implements Pausable, Restartable, Terminable
     protected function shouldWait()
     {
         return ! config('horizon.fast_termination') ||
-               app(CacheFactory::class)->get('horizon:terminate:wait');
+            app(CacheFactory::class)->get('horizon:terminate:wait');
     }
 
     /**
@@ -341,7 +340,7 @@ class Supervisor implements Pausable, Restartable, Terminable
     protected function autoScale()
     {
         $this->lastAutoScaled = $this->lastAutoScaled ?:
-                    CarbonImmutable::now()->subSeconds($this->options->balanceCooldown + 1);
+            CarbonImmutable::now()->subSeconds($this->options->balanceCooldown + 1);
 
         if (CarbonImmutable::now()->subSeconds($this->options->balanceCooldown)->gte($this->lastAutoScaled)) {
             $this->lastAutoScaled = CarbonImmutable::now();

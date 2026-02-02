@@ -231,15 +231,6 @@ class ListPersonsResponse implements ModelInterface, ArrayAccess, JsonSerializab
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
-        if ($this->container['related_objects'] === null) {
-            $invalidProperties[] = "'related_objects' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -282,7 +273,7 @@ class ListPersonsResponse implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\PersonItem[]
+     * @return \Pipedrive\versions\v1\Model\PersonItem[]|null
      */
     public function getData()
     {
@@ -292,7 +283,7 @@ class ListPersonsResponse implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\PersonItem[] $data The array of persons
+     * @param \Pipedrive\versions\v1\Model\PersonItem[]|null $data The array of persons
      *
      * @return self
      */
@@ -306,7 +297,7 @@ class ListPersonsResponse implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\AdditionalData
+     * @return \Pipedrive\versions\v1\Model\AdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -316,7 +307,7 @@ class ListPersonsResponse implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\AdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\AdditionalData|null $additional_data additional_data
      *
      * @return self
      */
@@ -330,7 +321,7 @@ class ListPersonsResponse implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Gets related_objects
      *
-     * @return \Pipedrive\versions\v1\Model\ListPersonsResponseAllOfRelatedObjects
+     * @return \Pipedrive\versions\v1\Model\ListPersonsResponseAllOfRelatedObjects|null
      */
     public function getRelatedObjects()
     {
@@ -340,7 +331,7 @@ class ListPersonsResponse implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets related_objects
      *
-     * @param \Pipedrive\versions\v1\Model\ListPersonsResponseAllOfRelatedObjects $related_objects related_objects
+     * @param \Pipedrive\versions\v1\Model\ListPersonsResponseAllOfRelatedObjects|null $related_objects related_objects
      *
      * @return self
      */

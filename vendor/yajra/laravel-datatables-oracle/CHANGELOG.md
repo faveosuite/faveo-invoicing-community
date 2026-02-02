@@ -1,41 +1,106 @@
+## [12.6.3](https://github.com/yajra/laravel-datatables/compare/v12.6.2...v12.6.3) (2025-12-09)
+
+
+### Bug Fixes
+
+* [#3266](https://github.com/yajra/laravel-datatables/issues/3266), replace ConfigRepository's type helper methods with get() ([#3267](https://github.com/yajra/laravel-datatables/issues/3267)) ([b9e5f78](https://github.com/yajra/laravel-datatables/commit/b9e5f785851a21779b0c88c2b0eb5c02e9714a76))
+* pint :robot: ([e74e6ce](https://github.com/yajra/laravel-datatables/commit/e74e6cea55d552dd4ac66483c73cc0029050f52e))
+
+## [12.6.2](https://github.com/yajra/laravel-datatables/compare/v12.6.1...v12.6.2) (2025-12-02)
+
+
+### Bug Fixes
+
+* pint :robot: ([41a22c7](https://github.com/yajra/laravel-datatables/commit/41a22c7b52f4d154e6ee8b9c0834c51d20001c00))
+* resolve PHPStan array key type errors ([3b5e668](https://github.com/yajra/laravel-datatables/commit/3b5e66832fd4c708c2fc6c4afffc12815c43b248))
+
+## [12.6.1](https://github.com/yajra/laravel-datatables/compare/v12.6.0...v12.6.1) (2025-10-11)
+
+
+### Bug Fixes
+
+* value when mask uses "/" ([c771900](https://github.com/yajra/laravel-datatables/commit/c77190030c713e5b64c433bd161d9f33a210f22b))
+
+# [12.6.0](https://github.com/yajra/laravel-datatables/compare/v12.5.1...v12.6.0) (2025-10-08)
+
+
+### Bug Fixes
+
+* replace unsafe eval() with Blade::render() in compileBlade ([7f46d58](https://github.com/yajra/laravel-datatables/commit/7f46d5872b0324493c28ecc8d848c182e88f30e0))
+
+
+### Features
+
+* add __isset() method to Request for attribute existence check ([33f44d4](https://github.com/yajra/laravel-datatables/commit/33f44d42d284d6ea0a054de81ad5a57c3050867d))
+
 # Laravel DataTables 
 
 ## CHANGELOG
 
 ### [Unreleased]
 
-### [v11.1.5](https://github.com/yajra/laravel-datatables/compare/v11.1.4...v11.1.5) - 2024-09-26
+### v12.5.1 - 2025-10-02
 
-- Add skip total records back #3170
-- Alternative to #3169. 
-- Partially reverts #3157.
+- fix: ambiguous column in columnControlSearch() method #3252
 
-### [v11.1.4](https://github.com/yajra/laravel-datatables/compare/v11.1.3...v11.1.4) - 2024-08-17
+### v12.5.0 - 2025-10-01
 
-- fix: Ensure dates are not turned into arrays by the processor #3163
-- fix: ##3156
+- feat: server-side column control #3251
+- fix: https://github.com/yajra/laravel-datatables/issues/3250
 
-### [v11.1.3](https://github.com/yajra/laravel-datatables/compare/v11.1.2...v11.1.3) - 2024-07-15
+### v12.4.2 - 2025-09-09
 
-- fix: make query for filteredRecords when totalRecords was manually set #3157
+- fix: remove @internal annotation from orderColumn() method #3248
 
-### [v11.1.2](https://github.com/yajra/laravel-datatables/compare/v11.1.1...v11.1.2) - 2024-07-03
+### v12.4.1 - 2025-08-29
 
-- fix: ErrorException when direction is null #3154
+- fix: request handling with playwright / pest 4 #3247
 
-### [v11.1.1](https://github.com/yajra/laravel-datatables/compare/v11.1.0...v11.1.1) - 2024-04-16
+### v12.4.0 - 2025-06-15
 
-- fix: mariadb support for scout search #3146
+- feat: add min search length control #3242
+- fix: #3241
 
-### [v11.1.0](https://github.com/yajra/laravel-datatables/compare/v11.0.0...v11.1.0) - 2024-04-16
+### v12.3.1 - 2025-06-10
 
-- feat: Optimize simple queries #3135
-- fix: #3133
+- fix: support for array notation #3243
 
-### [v11.0.0](https://github.com/yajra/laravel-datatables/compare/v11.0.0...master) - 2024-03-14
+### v12.3.0 - 2025-05-17
 
-- Laravel 11 support
+- feat: add option to enable alias on relation tables #3234
+- tests: Add tests to cover prefix detection #3239
+- fix: https://github.com/yajra/laravel-datatables/pull/1782
 
+### v12.2.1 - 2025-05-09
 
-[Unreleased]: https://github.com/yajra/laravel-datatables/compare/v11.0.0...master
+- fix: improve prefix detection #3238
+- fix: #3237
 
+### v12.2.0 - 2025-05-08
+
+- feat: add relation resolver param to order callback #3232
+- fix: improve column alias detection #3236
+- fix: #3235
+
+### v12.1.2 - 2025-05-07
+
+- fix: prevent prefixing null/empty string #3233
+
+### v12.1.1 - 2025-05-05
+
+- fix: prevent ambiguous column names #3227
+
+### v12.1.0 - 2025-04-28
+
+- feat: add relation resolver param to filter callbacks #3229
+
+### v12.0.1 - 2025-04-07
+
+- fix: query results improvements #3224
+
+### v12.0.0 - 2025-02-26
+
+- feat: Laravel v12 Compatibility #3217
+- fix: prevent duplicate table name errors #3216
+
+[Unreleased]: https://github.com/yajra/laravel-datatables/compare/v12.0.0...master

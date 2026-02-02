@@ -52,7 +52,7 @@ class SettingsControllerTest extends DBTestCase
             'card' => [
                 'number' => $cardNumber,
                 'exp_month' => 12,
-                'exp_year' => 25,
+                'exp_year' => 45,
                 'cvc' => '123',
             ],
         ]);
@@ -158,7 +158,7 @@ class SettingsControllerTest extends DBTestCase
         $plan = (object) ['days' => 30];
         $expectedArguments = ['id' => 'sub_1OyXYHI0SyY30M2QDkWSfCb2',
             'object' => 'subscription', ];
-        $status = 'active';
+        $status = 'incomplete';
         $stripeClientConstructorMock = $this->setupStripeClientMock($expectedArguments, $status);
         $this->SetAuthUser();
         $controller = new SettingsController($stripeClientConstructorMock);

@@ -2831,6 +2831,7 @@ return [
     'verify_token_error' => 'Lütfen Doğrulama Tokeni Giriniz.',
     'manual_number_title' => 'Numarayı Manuel Ekle',
     'plan_exist' => 'Bu ürün zaten aynı dönemli bir plana sahip',
+    'duplicate_plan_period_grouped' => 'Bu ürün Aylık/Yıllık gruplandırılmış bir ürünle ilişkili olduğundan yinelenen plan dönemlerine izin verilmez.',
     'callback_url' => 'Webhook URL',
     'callback_url_error' => 'Lütfen geçerli bir Webhook URL girin.',
     'webhook_explanation' => 'Webhook URL, Yönetici Panelindeki WhatsApp ayarlarında Ek Yapılandırma bölümünde bulunabilir.',
@@ -2838,4 +2839,7 @@ return [
     'email_validation_status' => 'E-posta doğrulama durumu başarıyla kaydedildi',
     'enable_reoon_logs_deletion' => 'Reoon Günlük Silmeyi Etkinleştir',
 
+    'active_plan_exists' => 'Bu ürün ve dönem için ":plan_name" adında aktif bir plan zaten var. Aktif bir plan oluşturmadan/güncellemeden önce lütfen bunu devre dışı bırakın.',
+    'check_to_make_plan_active' => 'Bu planı aktif yapmak için işaretleyin. Ürün ve dönem başına yalnızca bir aktif plana izin verilir.',
+    'active_plan_exists_simple' => 'Bu ürün ve dönem için aktif bir plan zaten var. Lütfen önce bunu devre dışı bırakın.',
 ];

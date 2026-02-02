@@ -237,21 +237,6 @@ class LeadLabelResponse implements ModelInterface, ArrayAccess, JsonSerializable
     {
         $invalidProperties = [];
 
-        if ($this->container['id'] === null) {
-            $invalidProperties[] = "'id' can't be null";
-        }
-        if ($this->container['name'] === null) {
-            $invalidProperties[] = "'name' can't be null";
-        }
-        if ($this->container['color'] === null) {
-            $invalidProperties[] = "'color' can't be null";
-        }
-        if ($this->container['add_time'] === null) {
-            $invalidProperties[] = "'add_time' can't be null";
-        }
-        if ($this->container['update_time'] === null) {
-            $invalidProperties[] = "'update_time' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -270,7 +255,7 @@ class LeadLabelResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets id
      *
-     * @return string
+     * @return string|null
      */
     public function getId()
     {
@@ -280,7 +265,7 @@ class LeadLabelResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets id
      *
-     * @param string $id The unique ID of the lead label
+     * @param string|null $id The unique ID of the lead label
      *
      * @return self
      */
@@ -294,7 +279,7 @@ class LeadLabelResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets name
      *
-     * @return string
+     * @return string|null
      */
     public function getName()
     {
@@ -304,7 +289,7 @@ class LeadLabelResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets name
      *
-     * @param string $name The name of the lead label
+     * @param string|null $name The name of the lead label
      *
      * @return self
      */
@@ -318,7 +303,7 @@ class LeadLabelResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets color
      *
-     * @return \Pipedrive\versions\v1\Model\LeadLabelColor
+     * @return \Pipedrive\versions\v1\Model\LeadLabelColor|null
      */
     public function getColor()
     {
@@ -328,7 +313,7 @@ class LeadLabelResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets color
      *
-     * @param \Pipedrive\versions\v1\Model\LeadLabelColor $color color
+     * @param \Pipedrive\versions\v1\Model\LeadLabelColor|null $color color
      *
      * @return self
      */
@@ -342,7 +327,7 @@ class LeadLabelResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets add_time
      *
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getAddTime()
     {
@@ -352,7 +337,7 @@ class LeadLabelResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets add_time
      *
-     * @param \DateTime $add_time The date and time of when the lead label was created. In ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
+     * @param \DateTime|null $add_time The date and time of when the lead label was created. In ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
      *
      * @return self
      */
@@ -366,7 +351,7 @@ class LeadLabelResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets update_time
      *
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getUpdateTime()
     {
@@ -376,7 +361,7 @@ class LeadLabelResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets update_time
      *
-     * @param \DateTime $update_time The date and time of when the lead label was last updated. In ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
+     * @param \DateTime|null $update_time The date and time of when the lead label was last updated. In ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
      *
      * @return self
      */

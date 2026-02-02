@@ -2822,10 +2822,14 @@ return [
     'verify_token_error' => 'נא להזין אסימון אימות.',
     'manual_number_title' => 'הוספת מספר ידנית',
     'plan_exist' => 'למוצר זה כבר קיימת תכנית עם אותה תקופה',
+    'duplicate_plan_period_grouped' => 'תקופות תכנית כפולות אינן מותרות מכיוון שמוצר זה משויך למוצר מקובץ חודשי/שנתי.',
     'callback_url' => 'כתובת Webhook',
     'callback_url_error' => 'אנא הזן כתובת Webhook תקפה.',
     'webhook_explanation' => 'כתובת ה-Webhook נמצאת תחת תצורה נוספת בהגדרות WhatsApp בלוח הניהול.',
     'business_id_error' => 'אנא הזן מזהה עסק תקף.',
     'enable_reoon_logs_deletion' => 'הפעלת מחיקת יומני Reoon',
 
+    'active_plan_exists' => 'תוכנית פעילה ":plan_name" כבר קיימת עבור מוצר ותקופה אלה. אנא בטל אותה תחילה לפני יצירה/עדכון של תוכנית פעילה.',
+    'check_to_make_plan_active' => 'סמן כדי להפוך תוכנית זו לפעילה. מותרת רק תוכנית פעילה אחת לכל מוצר ותקופה.',
+    'active_plan_exists_simple' => 'תוכנית פעילה כבר קיימת עבור מוצר ותקופה אלה. אנא בטל אותה תחילה.',
 ];

@@ -225,15 +225,6 @@ class UpdateProductResponse implements ModelInterface, ArrayAccess, JsonSerializ
     {
         $invalidProperties = [];
 
-        if ($this->container['success'] === null) {
-            $invalidProperties[] = "'success' can't be null";
-        }
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['related_objects'] === null) {
-            $invalidProperties[] = "'related_objects' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -252,7 +243,7 @@ class UpdateProductResponse implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Gets success
      *
-     * @return bool
+     * @return bool|null
      */
     public function getSuccess()
     {
@@ -262,7 +253,7 @@ class UpdateProductResponse implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Sets success
      *
-     * @param bool $success If the response is successful or not
+     * @param bool|null $success If the response is successful or not
      *
      * @return self
      */
@@ -276,7 +267,7 @@ class UpdateProductResponse implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\ProductWithArrayPrices
+     * @return \Pipedrive\versions\v1\Model\ProductWithArrayPrices|null
      */
     public function getData()
     {
@@ -286,7 +277,7 @@ class UpdateProductResponse implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\ProductWithArrayPrices $data data
+     * @param \Pipedrive\versions\v1\Model\ProductWithArrayPrices|null $data data
      *
      * @return self
      */
@@ -300,7 +291,7 @@ class UpdateProductResponse implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Gets related_objects
      *
-     * @return \Pipedrive\versions\v1\Model\GetActivitiesResponseRelatedObjects
+     * @return \Pipedrive\versions\v1\Model\GetActivitiesResponseRelatedObjects|null
      */
     public function getRelatedObjects()
     {
@@ -310,7 +301,7 @@ class UpdateProductResponse implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Sets related_objects
      *
-     * @param \Pipedrive\versions\v1\Model\GetActivitiesResponseRelatedObjects $related_objects related_objects
+     * @param \Pipedrive\versions\v1\Model\GetActivitiesResponseRelatedObjects|null $related_objects related_objects
      *
      * @return self
      */

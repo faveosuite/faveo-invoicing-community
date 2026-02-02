@@ -78,8 +78,8 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         'add_time' => 'string',
         'update_time' => 'string',
         'stage_change_time' => 'string',
-        'is_archived' => 'bool',
         'is_deleted' => 'bool',
+        'is_archived' => 'bool',
         'status' => 'string',
         'probability' => 'float',
         'lost_reason' => 'string',
@@ -95,7 +95,8 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         'channel_id' => 'string',
         'arr' => 'float',
         'mrr' => 'float',
-        'acv' => 'float'
+        'acv' => 'float',
+        'custom_fields' => 'array<string,object>'
     ];
 
     /**
@@ -118,8 +119,8 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         'add_time' => null,
         'update_time' => null,
         'stage_change_time' => null,
-        'is_archived' => null,
         'is_deleted' => null,
+        'is_archived' => null,
         'status' => null,
         'probability' => null,
         'lost_reason' => null,
@@ -135,7 +136,8 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         'channel_id' => null,
         'arr' => null,
         'mrr' => null,
-        'acv' => null
+        'acv' => null,
+        'custom_fields' => null
     ];
 
     /**
@@ -181,8 +183,8 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         'add_time' => 'add_time',
         'update_time' => 'update_time',
         'stage_change_time' => 'stage_change_time',
-        'is_archived' => 'is_archived',
         'is_deleted' => 'is_deleted',
+        'is_archived' => 'is_archived',
         'status' => 'status',
         'probability' => 'probability',
         'lost_reason' => 'lost_reason',
@@ -198,7 +200,8 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         'channel_id' => 'channel_id',
         'arr' => 'arr',
         'mrr' => 'mrr',
-        'acv' => 'acv'
+        'acv' => 'acv',
+        'custom_fields' => 'custom_fields'
     ];
 
     /**
@@ -219,8 +222,8 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         'add_time' => 'setAddTime',
         'update_time' => 'setUpdateTime',
         'stage_change_time' => 'setStageChangeTime',
-        'is_archived' => 'setIsArchived',
         'is_deleted' => 'setIsDeleted',
+        'is_archived' => 'setIsArchived',
         'status' => 'setStatus',
         'probability' => 'setProbability',
         'lost_reason' => 'setLostReason',
@@ -236,7 +239,8 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         'channel_id' => 'setChannelId',
         'arr' => 'setArr',
         'mrr' => 'setMrr',
-        'acv' => 'setAcv'
+        'acv' => 'setAcv',
+        'custom_fields' => 'setCustomFields'
     ];
 
     /**
@@ -257,8 +261,8 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         'add_time' => 'getAddTime',
         'update_time' => 'getUpdateTime',
         'stage_change_time' => 'getStageChangeTime',
-        'is_archived' => 'getIsArchived',
         'is_deleted' => 'getIsDeleted',
+        'is_archived' => 'getIsArchived',
         'status' => 'getStatus',
         'probability' => 'getProbability',
         'lost_reason' => 'getLostReason',
@@ -274,7 +278,8 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         'channel_id' => 'getChannelId',
         'arr' => 'getArr',
         'mrr' => 'getMrr',
-        'acv' => 'getAcv'
+        'acv' => 'getAcv',
+        'custom_fields' => 'getCustomFields'
     ];
 
     /**
@@ -356,8 +361,8 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['add_time'] = $data['add_time'] ?? null;
         $this->container['update_time'] = $data['update_time'] ?? null;
         $this->container['stage_change_time'] = $data['stage_change_time'] ?? null;
-        $this->container['is_archived'] = $data['is_archived'] ?? null;
         $this->container['is_deleted'] = $data['is_deleted'] ?? null;
+        $this->container['is_archived'] = $data['is_archived'] ?? null;
         $this->container['status'] = $data['status'] ?? null;
         $this->container['probability'] = $data['probability'] ?? null;
         $this->container['lost_reason'] = $data['lost_reason'] ?? null;
@@ -374,6 +379,7 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['arr'] = $data['arr'] ?? null;
         $this->container['mrr'] = $data['mrr'] ?? null;
         $this->container['acv'] = $data['acv'] ?? null;
+        $this->container['custom_fields'] = $data['custom_fields'] ?? null;
     }
 
     /**
@@ -691,30 +697,6 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
-     * Gets is_archived
-     *
-     * @return bool|null
-     */
-    public function getIsArchived()
-    {
-        return $this->container['is_archived'];
-    }
-
-    /**
-     * Sets is_archived
-     *
-     * @param bool|null $is_archived Whether the deal is archived or not
-     *
-     * @return self
-     */
-    public function setIsArchived($is_archived): self
-    {
-        $this->container['is_archived'] = $is_archived;
-
-        return $this;
-    }
-
-    /**
      * Gets is_deleted
      *
      * @return bool|null
@@ -734,6 +716,30 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
     public function setIsDeleted($is_deleted): self
     {
         $this->container['is_deleted'] = $is_deleted;
+
+        return $this;
+    }
+
+    /**
+     * Gets is_archived
+     *
+     * @return bool|null
+     */
+    public function getIsArchived()
+    {
+        return $this->container['is_archived'];
+    }
+
+    /**
+     * Sets is_archived
+     *
+     * @param bool|null $is_archived Whether the deal is archived or not
+     *
+     * @return self
+     */
+    public function setIsArchived($is_archived): self
+    {
+        $this->container['is_archived'] = $is_archived;
 
         return $this;
     }
@@ -1063,7 +1069,7 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets arr
      *
-     * @param float|null $arr Only available in Advanced and above plans  The Annual Recurring Revenue of the deal  Null if there are no products attached to the deal
+     * @param float|null $arr Only available in Growth and above plans  The Annual Recurring Revenue of the deal  Null if there are no products attached to the deal
      *
      * @return self
      */
@@ -1087,7 +1093,7 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets mrr
      *
-     * @param float|null $mrr Only available in Advanced and above plans  The Monthly Recurring Revenue of the deal  Null if there are no products attached to the deal
+     * @param float|null $mrr Only available in Growth and above plans  The Monthly Recurring Revenue of the deal  Null if there are no products attached to the deal
      *
      * @return self
      */
@@ -1111,13 +1117,37 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets acv
      *
-     * @param float|null $acv Only available in Advanced and above plans  The Annual Contract Value of the deal  Null if there are no products attached to the deal
+     * @param float|null $acv Only available in Growth and above plans  The Annual Contract Value of the deal  Null if there are no products attached to the deal
      *
      * @return self
      */
     public function setAcv($acv): self
     {
         $this->container['acv'] = $acv;
+
+        return $this;
+    }
+
+    /**
+     * Gets custom_fields
+     *
+     * @return array<string,object>|null
+     */
+    public function getCustomFields()
+    {
+        return $this->container['custom_fields'];
+    }
+
+    /**
+     * Sets custom_fields
+     *
+     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes
+     *
+     * @return self
+     */
+    public function setCustomFields($custom_fields): self
+    {
+        $this->container['custom_fields'] = $custom_fields;
 
         return $this;
     }

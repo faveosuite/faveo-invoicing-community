@@ -213,9 +213,6 @@ class SubscriptionAddonsResponseAllOf implements ModelInterface, ArrayAccess, Js
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -234,7 +231,7 @@ class SubscriptionAddonsResponseAllOf implements ModelInterface, ArrayAccess, Js
     /**
      * Gets data
      *
-     * @return object[]
+     * @return object[]|null
      */
     public function getData()
     {
@@ -244,7 +241,7 @@ class SubscriptionAddonsResponseAllOf implements ModelInterface, ArrayAccess, Js
     /**
      * Sets data
      *
-     * @param object[] $data An array of add-ons that the company has.
+     * @param object[]|null $data An array of add-ons that the company has.
      *
      * @return self
      */

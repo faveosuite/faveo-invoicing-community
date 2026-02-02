@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace Nette\Utils;
 
 use Nette;
+use function is_array, is_int, is_string;
+use const IMG_BMP, IMG_FLIP_BOTH, IMG_FLIP_HORIZONTAL, IMG_FLIP_VERTICAL, IMG_GIF, IMG_JPG, IMG_PNG, IMG_WEBP, PATHINFO_EXTENSION;
 
 
 /**
@@ -237,8 +239,8 @@ class Image
 	 */
 	public static function detectTypeFromFile(string $file, &$width = null, &$height = null): ?int
 	{
-		[$width, $height, $type] = @getimagesize($file); // @ - files smaller than 12 bytes causes read error
-		return isset(self::Formats[$type]) ? $type : null;
+		[$width, $height, $type] = Helpers::falseToNull(@getimagesize($file)); // @ - files smaller than 12 bytes causes read error
+		return $type && isset(self::Formats[$type]) ? $type : null;
 	}
 
 
@@ -248,8 +250,8 @@ class Image
 	 */
 	public static function detectTypeFromString(string $s, &$width = null, &$height = null): ?int
 	{
-		[$width, $height, $type] = @getimagesizefromstring($s); // @ - strings smaller than 12 bytes causes read error
-		return isset(self::Formats[$type]) ? $type : null;
+		[$width, $height, $type] = Helpers::falseToNull(@getimagesizefromstring($s)); // @ - strings smaller than 12 bytes causes read error
+		return $type && isset(self::Formats[$type]) ? $type : null;
 	}
 
 
@@ -718,42 +720,27 @@ class Image
 	 */
 	private function output(int $type, ?int $quality, ?string $file = null): void
 	{
-		switch ($type) {
-			case ImageType::JPEG:
-				$quality = $quality === null ? 85 : max(0, min(100, $quality));
-				$success = @imagejpeg($this->image, $file, $quality); // @ is escalated to exception
-				break;
+		[$defQuality, $min, $max] = match ($type) {
+			ImageType::JPEG => [85, 0, 100],
+			ImageType::PNG => [9, 0, 9],
+			ImageType::GIF => [null, null, null],
+			ImageType::WEBP => [80, 0, 100],
+			ImageType::AVIF => [30, 0, 100],
+			ImageType::BMP => [null, null, null],
+			default => throw new Nette\InvalidArgumentException("Unsupported image type '$type'."),
+		};
 
-			case ImageType::PNG:
-				$quality = $quality === null ? 9 : max(0, min(9, $quality));
-				$success = @imagepng($this->image, $file, $quality); // @ is escalated to exception
-				break;
-
-			case ImageType::GIF:
-				$success = @imagegif($this->image, $file); // @ is escalated to exception
-				break;
-
-			case ImageType::WEBP:
-				$quality = $quality === null ? 80 : max(0, min(100, $quality));
-				$success = @imagewebp($this->image, $file, $quality); // @ is escalated to exception
-				break;
-
-			case ImageType::AVIF:
-				$quality = $quality === null ? 30 : max(0, min(100, $quality));
-				$success = @imageavif($this->image, $file, $quality); // @ is escalated to exception
-				break;
-
-			case ImageType::BMP:
-				$success = @imagebmp($this->image, $file); // @ is escalated to exception
-				break;
-
-			default:
-				throw new Nette\InvalidArgumentException("Unsupported image type '$type'.");
+		$args = [$this->image, $file];
+		if ($defQuality !== null) {
+			$args[] = $quality === null ? $defQuality : max($min, min($max, $quality));
 		}
 
-		if (!$success) {
-			throw new ImageException(Helpers::getLastError() ?: 'Unknown error');
-		}
+		Callback::invokeSafe('image' . self::Formats[$type], $args, function (string $message) use ($file): void {
+			if ($file !== null) {
+				@unlink($file);
+			}
+			throw new ImageException($message);
+		});
 	}
 
 
@@ -786,7 +773,7 @@ class Image
 
 	public function __clone()
 	{
-		ob_start(function () {});
+		ob_start(fn() => '');
 		imagepng($this->image, null, 0);
 		$this->setImageResource(imagecreatefromstring(ob_get_clean()));
 	}
@@ -809,7 +796,7 @@ class Image
 	/**
 	 * Prevents serialization.
 	 */
-	public function __sleep(): array
+	public function __serialize(): array
 	{
 		throw new Nette\NotSupportedException('You cannot serialize or unserialize ' . self::class . ' instances.');
 	}

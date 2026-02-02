@@ -10,7 +10,7 @@ use Endroid\QrCode\Matrix\MatrixFactoryInterface;
 use Endroid\QrCode\Matrix\MatrixInterface;
 use Endroid\QrCode\QrCodeInterface;
 
-final class MatrixFactory implements MatrixFactoryInterface
+final readonly class MatrixFactory implements MatrixFactoryInterface
 {
     public function create(QrCodeInterface $qrCode): MatrixInterface
     {
@@ -23,7 +23,7 @@ final class MatrixFactory implements MatrixFactoryInterface
         for ($rowIndex = 0; $rowIndex < $rowCount; ++$rowIndex) {
             $blockValues[$rowIndex] = [];
             for ($columnIndex = 0; $columnIndex < $columnCount; ++$columnIndex) {
-                $blockValues[$rowIndex][$columnIndex] = $baconMatrix->get($columnIndex, $rowIndex);
+                $blockValues[$rowIndex][$columnIndex] = 1 === $baconMatrix->get($columnIndex, $rowIndex) ? 1 : 0;
             }
         }
 

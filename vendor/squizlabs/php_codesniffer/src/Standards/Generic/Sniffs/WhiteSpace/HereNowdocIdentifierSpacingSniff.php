@@ -4,7 +4,7 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2024 PHPCSStandards and contributors
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Sniffs\WhiteSpace;
@@ -27,8 +27,7 @@ class HereNowdocIdentifierSpacingSniff implements Sniff
             T_START_HEREDOC,
             T_START_NOWDOC,
         ];
-
-    }//end register()
+    }
 
 
     /**
@@ -40,7 +39,7 @@ class HereNowdocIdentifierSpacingSniff implements Sniff
      *
      * @return void
      */
-    public function process(File $phpcsFile, $stackPtr)
+    public function process(File $phpcsFile, int $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
 
@@ -54,7 +53,7 @@ class HereNowdocIdentifierSpacingSniff implements Sniff
 
         $phpcsFile->recordMetric($stackPtr, 'Heredoc/nowdoc identifier', 'space between <<< and ID');
 
-        $error = 'There should be no space between the <<< and the heredoc/nowdoc identifier string';
+        $error = 'There should be no space between the <<< and the heredoc/nowdoc identifier string. Found: %s';
         $data  = [$tokens[$stackPtr]['content']];
 
         $fix = $phpcsFile->addFixableError($error, $stackPtr, 'SpaceFound', $data);
@@ -62,8 +61,5 @@ class HereNowdocIdentifierSpacingSniff implements Sniff
             $replacement = str_replace([' ', "\t"], '', $tokens[$stackPtr]['content']);
             $phpcsFile->fixer->replaceToken($stackPtr, $replacement);
         }
-
-    }//end process()
-
-
-}//end class
+    }
+}

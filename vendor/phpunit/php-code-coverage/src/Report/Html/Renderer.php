@@ -44,6 +44,9 @@ abstract class Renderer
         $this->hasBranchCoverage = $hasBranchCoverage;
     }
 
+    /**
+     * @param array<non-empty-string, float|int|string> $data
+     */
     protected function renderItemTemplate(Template $template, array $data): string
     {
         $numSeparator = '&nbsp;/&nbsp;';
@@ -171,8 +174,8 @@ abstract class Renderer
                 'version'          => $this->version,
                 'runtime'          => $this->runtimeString(),
                 'generator'        => $this->generator,
-                'low_upper_bound'  => $this->thresholds->lowUpperBound(),
-                'high_lower_bound' => $this->thresholds->highLowerBound(),
+                'low_upper_bound'  => (string) $this->thresholds->lowUpperBound(),
+                'high_lower_bound' => (string) $this->thresholds->highLowerBound(),
             ],
         );
     }

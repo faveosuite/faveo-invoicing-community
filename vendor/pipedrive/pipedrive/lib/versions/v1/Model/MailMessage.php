@@ -237,18 +237,6 @@ class MailMessage implements ModelInterface, ArrayAccess, JsonSerializable
     {
         $invalidProperties = [];
 
-        if ($this->container['success'] === null) {
-            $invalidProperties[] = "'success' can't be null";
-        }
-        if ($this->container['status_code'] === null) {
-            $invalidProperties[] = "'status_code' can't be null";
-        }
-        if ($this->container['status_text'] === null) {
-            $invalidProperties[] = "'status_text' can't be null";
-        }
-        if ($this->container['service'] === null) {
-            $invalidProperties[] = "'service' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -267,7 +255,7 @@ class MailMessage implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets success
      *
-     * @return bool
+     * @return bool|null
      */
     public function getSuccess()
     {
@@ -277,7 +265,7 @@ class MailMessage implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets success
      *
-     * @param bool $success If the response is successful or not
+     * @param bool|null $success If the response is successful or not
      *
      * @return self
      */
@@ -291,7 +279,7 @@ class MailMessage implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets status_code
      *
-     * @return int
+     * @return int|null
      */
     public function getStatusCode()
     {
@@ -301,7 +289,7 @@ class MailMessage implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets status_code
      *
-     * @param int $status_code The email service specific status code and it is returned through the response body.
+     * @param int|null $status_code The email service specific status code and it is returned through the response body.
      *
      * @return self
      */
@@ -315,7 +303,7 @@ class MailMessage implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets status_text
      *
-     * @return string
+     * @return string|null
      */
     public function getStatusText()
     {
@@ -325,7 +313,7 @@ class MailMessage implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets status_text
      *
-     * @param string $status_text The status text of the response.
+     * @param string|null $status_text The status text of the response.
      *
      * @return self
      */
@@ -339,7 +327,7 @@ class MailMessage implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets service
      *
-     * @return string
+     * @return string|null
      */
     public function getService()
     {
@@ -349,7 +337,7 @@ class MailMessage implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets service
      *
-     * @param string $service The service name of the response.
+     * @param string|null $service The service name of the response.
      *
      * @return self
      */

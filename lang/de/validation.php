@@ -791,6 +791,7 @@ return [
     'product_controller' => [
         'name_required' => 'Der Produktname ist erforderlich.',
         'name_unique' => 'Der Name muss eindeutig sein.',
+        'name_unique_in_group' => 'Ein Produkt mit diesem Namen existiert bereits in der ausgewählten Gruppe. Bitte wählen Sie einen anderen Namen oder eine andere Gruppe.',
         'type_required' => 'Der Produkttyp ist erforderlich.',
         'description_required' => 'Die Produktbeschreibung ist erforderlich.',
         'product_description_required' => 'Die detaillierte Produktbeschreibung ist erforderlich.',

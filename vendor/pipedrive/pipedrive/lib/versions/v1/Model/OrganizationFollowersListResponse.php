@@ -225,15 +225,6 @@ class OrganizationFollowersListResponse implements ModelInterface, ArrayAccess, 
     {
         $invalidProperties = [];
 
-        if ($this->container['success'] === null) {
-            $invalidProperties[] = "'success' can't be null";
-        }
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -252,7 +243,7 @@ class OrganizationFollowersListResponse implements ModelInterface, ArrayAccess, 
     /**
      * Gets success
      *
-     * @return bool
+     * @return bool|null
      */
     public function getSuccess()
     {
@@ -262,7 +253,7 @@ class OrganizationFollowersListResponse implements ModelInterface, ArrayAccess, 
     /**
      * Sets success
      *
-     * @param bool $success If the request was successful or not
+     * @param bool|null $success If the request was successful or not
      *
      * @return self
      */
@@ -276,7 +267,7 @@ class OrganizationFollowersListResponse implements ModelInterface, ArrayAccess, 
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\OrganizationFollowerItem[]
+     * @return \Pipedrive\versions\v1\Model\OrganizationFollowerItem[]|null
      */
     public function getData()
     {
@@ -286,7 +277,7 @@ class OrganizationFollowersListResponse implements ModelInterface, ArrayAccess, 
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\OrganizationFollowerItem[] $data The array of followers
+     * @param \Pipedrive\versions\v1\Model\OrganizationFollowerItem[]|null $data The array of followers
      *
      * @return self
      */
@@ -300,7 +291,7 @@ class OrganizationFollowersListResponse implements ModelInterface, ArrayAccess, 
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\ItemSearchAdditionalData
+     * @return \Pipedrive\versions\v1\Model\ItemSearchAdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -310,7 +301,7 @@ class OrganizationFollowersListResponse implements ModelInterface, ArrayAccess, 
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\ItemSearchAdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\ItemSearchAdditionalData|null $additional_data additional_data
      *
      * @return self
      */

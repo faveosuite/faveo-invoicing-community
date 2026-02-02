@@ -58,7 +58,10 @@ class InstallerController extends Controller
             if (Cache::get('databasename') != env('DB_DATABASE')) {
                 throw new Exception(\Lang::get('installer_messages.db_connection_error'), 500);
             }
-            $tableNames = \Schema::getTableListing();
+            $tableNames = \Schema::getTableListing(
+                schema: DB::getDatabaseName(),
+                schemaQualified: false
+            );
             //allowing migrations table in db as it does not get removed on "migrate:reset"
             $tableNames = array_unique(array_merge(['migrations'], $tableNames));
             if (count($tableNames) === 1) {

@@ -23,6 +23,9 @@ use Symfony\Component\HttpFoundation\Exception\UnexpectedValueException;
  */
 class ParameterBag implements \IteratorAggregate, \Countable
 {
+    /**
+     * @param array<string, mixed> $parameters
+     */
     public function __construct(
         protected array $parameters = [],
     ) {
@@ -31,7 +34,13 @@ class ParameterBag implements \IteratorAggregate, \Countable
     /**
      * Returns the parameters.
      *
-     * @param string|null $key The name of the parameter to return or null to get them all
+     * @template TKey of string|null
+     *
+     * @param TKey $key The name of the parameter to return or null to get them all
+     *
+     * @return (TKey is null ? array<string, mixed> : array<mixed>)
+     *
+     * @throws BadRequestException if the value is not an array
      */
     public function all(?string $key = null): array
     {
@@ -48,6 +57,8 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Returns the parameter keys.
+     *
+     * @return list<string>
      */
     public function keys(): array
     {
@@ -56,6 +67,8 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Replaces the current parameters by a new set.
+     *
+     * @param array<string, mixed> $parameters
      */
     public function replace(array $parameters = []): void
     {
@@ -64,6 +77,8 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Adds parameters.
+     *
+     * @param array<string, mixed> $parameters
      */
     public function add(array $parameters = []): void
     {
@@ -98,6 +113,8 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Returns the alphabetic characters of the parameter value.
+     *
+     * @throws UnexpectedValueException if the value cannot be converted to string
      */
     public function getAlpha(string $key, string $default = ''): string
     {
@@ -106,6 +123,8 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Returns the alphabetic characters and digits of the parameter value.
+     *
+     * @throws UnexpectedValueException if the value cannot be converted to string
      */
     public function getAlnum(string $key, string $default = ''): string
     {
@@ -114,6 +133,8 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Returns the digits of the parameter value.
+     *
+     * @throws UnexpectedValueException if the value cannot be converted to string
      */
     public function getDigits(string $key, string $default = ''): string
     {
@@ -122,6 +143,8 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Returns the parameter as string.
+     *
+     * @throws UnexpectedValueException if the value cannot be converted to string
      */
     public function getString(string $key, string $default = ''): string
     {
@@ -135,6 +158,8 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Returns the parameter value converted to integer.
+     *
+     * @throws UnexpectedValueException if the value cannot be converted to integer
      */
     public function getInt(string $key, int $default = 0): int
     {
@@ -143,6 +168,8 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Returns the parameter value converted to boolean.
+     *
+     * @throws UnexpectedValueException if the value cannot be converted to a boolean
      */
     public function getBoolean(string $key, bool $default = false): bool
     {
@@ -160,6 +187,8 @@ class ParameterBag implements \IteratorAggregate, \Countable
      * @return ?T
      *
      * @psalm-return ($default is null ? T|null : T)
+     *
+     * @throws UnexpectedValueException if the parameter value cannot be converted to an enum
      */
     public function getEnum(string $key, string $class, ?\BackedEnum $default = null): ?\BackedEnum
     {
@@ -172,7 +201,7 @@ class ParameterBag implements \IteratorAggregate, \Countable
         try {
             return $class::from($value);
         } catch (\ValueError|\TypeError $e) {
-            throw new UnexpectedValueException(\sprintf('Parameter "%s" cannot be converted to enum: %s.', $key, $e->getMessage()), $e->getCode(), $e);
+            throw new UnexpectedValueException(\sprintf('Parameter "%s" cannot be converted to enum: ', $key).$e->getMessage().'.', $e->getCode(), $e);
         }
     }
 
@@ -183,6 +212,9 @@ class ParameterBag implements \IteratorAggregate, \Countable
      * @param int|array{flags?: int, options?: array} $options Flags from FILTER_* constants
      *
      * @see https://php.net/filter-var
+     *
+     * @throws UnexpectedValueException if the parameter value is a non-stringable object
+     * @throws UnexpectedValueException if the parameter value is invalid and \FILTER_NULL_ON_FAILURE is not set
      */
     public function filter(string $key, mixed $default = null, int $filter = \FILTER_DEFAULT, mixed $options = []): mixed
     {

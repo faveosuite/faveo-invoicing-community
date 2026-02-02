@@ -213,9 +213,6 @@ class AddFollowerToPersonResponseAllOf implements ModelInterface, ArrayAccess, J
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -234,7 +231,7 @@ class AddFollowerToPersonResponseAllOf implements ModelInterface, ArrayAccess, J
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\AddFollowerToPersonResponseAllOfData
+     * @return \Pipedrive\versions\v1\Model\AddFollowerToPersonResponseAllOfData|null
      */
     public function getData()
     {
@@ -244,7 +241,7 @@ class AddFollowerToPersonResponseAllOf implements ModelInterface, ArrayAccess, J
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\AddFollowerToPersonResponseAllOfData $data data
+     * @param \Pipedrive\versions\v1\Model\AddFollowerToPersonResponseAllOfData|null $data data
      *
      * @return self
      */

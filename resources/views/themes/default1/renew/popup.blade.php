@@ -47,6 +47,7 @@
                                           $plans = App\Model\Payment\Plan::join('products', 'plans.product', '=', 'products.id')
                                                   ->leftJoin('plan_prices','plans.id','=','plan_prices.plan_id')
                                                   ->where('plans.product',$productid)
+                                                  ->where('plans.status', 1)
                                                   ->where('plan_prices.currency', '=', $userCurrency)
                                                   ->where('plan_prices.renew_price','!=','0')
                                                   ->pluck('plans.name', 'plans.id')

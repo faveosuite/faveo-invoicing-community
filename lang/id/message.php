@@ -2813,6 +2813,7 @@ return [
     'verify_token_error' => 'Silakan masukkan token verifikasi.',
     'manual_number_title' => 'Tambahkan Nomor Secara Manual',
     'plan_exist' => 'Produk ini sudah memiliki paket dengan periode yang sama',
+    'duplicate_plan_period_grouped' => 'Periode paket duplikat tidak diperbolehkan karena produk ini terkait dengan produk yang dikelompokkan Bulanan/Tahunan.',
     'callback_url' => 'URL Webhook',
     'callback_url_error' => 'Harap masukkan URL Webhook yang valid.',
     'webhook_explanation' => 'URL Webhook dapat ditemukan di bagian Konfigurasi Tambahan di pengaturan WhatsApp pada Panel Admin.',
@@ -2820,4 +2821,7 @@ return [
     'email_validation_status' => 'Status validasi email berhasil disimpan',
     'enable_reoon_logs_deletion' => 'Aktifkan Penghapusan Log Reoon',
 
+    'active_plan_exists' => 'Paket aktif ":plan_name" sudah ada untuk produk dan periode ini. Harap nonaktifkan terlebih dahulu sebelum membuat/memperbarui paket aktif.',
+    'check_to_make_plan_active' => 'Centang untuk mengaktifkan paket ini. Hanya satu paket aktif yang diperbolehkan per produk dan periode.',
+    'active_plan_exists_simple' => 'Paket aktif sudah ada untuk produk dan periode ini. Harap nonaktifkan terlebih dahulu.',
 ];

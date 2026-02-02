@@ -2750,10 +2750,14 @@ return [
     'verify_token_error' => 'Molimo unesite verifikacijski token.',
     'manual_number_title' => 'Ručno dodavanje broja',
     'plan_exist' => 'Ovaj proizvod već ima plan sa istim periodom',
+    'duplicate_plan_period_grouped' => 'Dupliranje perioda plana nije dozvoljeno jer je ovaj proizvod povezan sa grupiranim mjesečnim/godišnjim proizvodom.',
     'callback_url' => 'Webhook URL',
     'callback_url_error' => 'Molimo unesite važeći Webhook URL.',
     'webhook_explanation' => 'Webhook URL se može pronaći u sekciji Dodatna konfiguracija u postavkama WhatsApp-a u administratorskom panelu.',
     'business_id_error' => 'Molimo unesite važeći Business ID.',
     'enable_reoon_logs_deletion' => 'Omogući brisanje Reoon zapisa',
 
+    'active_plan_exists' => 'Aktivni plan ":plan_name" već postoji za ovaj proizvod i period. Molimo vas da ga prvo onemogućite prije kreiranja/ažuriranja aktivnog plana.',
+    'check_to_make_plan_active' => 'Označite da biste aktivirali ovaj plan. Dozvoljen je samo jedan aktivni plan po proizvodu i periodu.',
+    'active_plan_exists_simple' => 'Aktivni plan već postoji za ovaj proizvod i period. Molimo vas da ga prvo onemogućite.',
 ];

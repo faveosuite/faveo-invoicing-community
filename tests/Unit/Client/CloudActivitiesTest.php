@@ -544,7 +544,7 @@ class CloudActivitiesTest extends DBTestCase
         $licensetype->permissions()->attach($permissionid);
         $product = Product::create(['name' => 'FreeHelpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name, 'quantity' => '1', 'subtotal' => 5000]);
+        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name, 'product_id' => $product->id, 'quantity' => '1', 'subtotal' => 5000]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => 'eyJpdiI6IkpI0005']);
         $installationDetail = InstallationDetail::create(['order_id' => $order->id, 'installation_path' => '/path']);

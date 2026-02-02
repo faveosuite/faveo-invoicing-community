@@ -4,7 +4,7 @@
  *
  * @author    Juliette Reinders Folmer <phpcs_nospam@adviesenzo.nl>
  * @copyright 2024 PHPCSStandards and contributors
- * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/master/licence.txt BSD Licence
+ * @license   https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/HEAD/licence.txt BSD Licence
  */
 
 namespace PHP_CodeSniffer\Standards\Generic\Sniffs\Strings;
@@ -15,6 +15,35 @@ use PHP_CodeSniffer\Sniffs\Sniff;
 class UnnecessaryHeredocSniff implements Sniff
 {
 
+    /**
+     * Escape chars which are supported in heredocs, but not in nowdocs.
+     *
+     * @var array<string>
+     */
+    private const ESCAPE_CHARS = [
+        // Octal sequences.
+        '\0',
+        '\1',
+        '\2',
+        '\3',
+        '\4',
+        '\5',
+        '\6',
+        '\7',
+
+        // Various whitespace and the escape char.
+        '\n',
+        '\r',
+        '\t',
+        '\v',
+        '\e',
+        '\f',
+
+        // Hex and unicode sequences.
+        '\x',
+        '\u',
+    ];
+
 
     /**
      * Returns an array of tokens this test wants to listen for.
@@ -24,8 +53,7 @@ class UnnecessaryHeredocSniff implements Sniff
     public function register()
     {
         return [T_START_HEREDOC];
-
-    }//end register()
+    }
 
 
     /**
@@ -37,7 +65,7 @@ class UnnecessaryHeredocSniff implements Sniff
      *
      * @return void
      */
-    public function process(File $phpcsFile, $stackPtr)
+    public function process(File $phpcsFile, int $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
 
@@ -77,21 +105,37 @@ class UnnecessaryHeredocSniff implements Sniff
                 $phpcsFile->recordMetric($stackPtr, 'Heredoc contains interpolation or expression', 'yes');
                 return;
             }
-        }//end foreach
+        }
 
         $phpcsFile->recordMetric($stackPtr, 'Heredoc contains interpolation or expression', 'no');
+
+        // Check for escape sequences which aren't supported in nowdocs.
+        foreach (self::ESCAPE_CHARS as $testChar) {
+            if (strpos($body, $testChar) !== false) {
+                return;
+            }
+        }
 
         $warning = 'Detected heredoc without interpolation or expressions. Use nowdoc syntax instead';
 
         $fix = $phpcsFile->addFixableWarning($warning, $stackPtr, 'Found');
         if ($fix === true) {
+            $phpcsFile->fixer->beginChangeset();
+
             $identifier  = trim(ltrim($tokens[$stackPtr]['content'], '<'));
-            $replaceWith = "'".trim($identifier, '"')."'";
+            $replaceWith = "'" . trim($identifier, '"') . "'";
             $replacement = str_replace($identifier, $replaceWith, $tokens[$stackPtr]['content']);
             $phpcsFile->fixer->replaceToken($stackPtr, $replacement);
+
+            for ($i = ($stackPtr + 1); $i < $closer; $i++) {
+                $content = $tokens[$i]['content'];
+                $content = str_replace(['\\$', '\\\\'], ['$', '\\'], $content);
+                if ($tokens[$i]['content'] !== $content) {
+                    $phpcsFile->fixer->replaceToken($i, $content);
+                }
+            }
+
+            $phpcsFile->fixer->endChangeset();
         }
-
-    }//end process()
-
-
-}//end class
+    }
+}

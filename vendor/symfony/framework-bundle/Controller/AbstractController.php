@@ -17,6 +17,8 @@ use Psr\Link\LinkInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\Flow\FormFlowInterface;
+use Symfony\Component\Form\Flow\FormFlowTypeInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -35,6 +37,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authorization\AccessDecision;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -66,18 +69,6 @@ abstract class AbstractController implements ServiceSubscriberInterface
         return $previous;
     }
 
-    /**
-     * Gets a container parameter by its name.
-     */
-    protected function getParameter(string $name): array|bool|string|int|float|\UnitEnum|null
-    {
-        if (!$this->container->has('parameter_bag')) {
-            throw new ServiceNotFoundException('parameter_bag.', null, null, [], \sprintf('The "%s::getParameter()" method is missing a parameter bag to work properly. Did you forget to register your controller as a service subscriber? This can be fixed either by using autoconfiguration or by manually wiring a "parameter_bag" in the service locator passed to the controller.', static::class));
-        }
-
-        return $this->container->get('parameter_bag')->get($name);
-    }
-
     public static function getSubscribedServices(): array
     {
         return [
@@ -93,6 +84,18 @@ abstract class AbstractController implements ServiceSubscriberInterface
             'parameter_bag' => '?'.ContainerBagInterface::class,
             'web_link.http_header_serializer' => '?'.HttpHeaderSerializer::class,
         ];
+    }
+
+    /**
+     * Gets a container parameter by its name.
+     */
+    protected function getParameter(string $name): array|bool|string|int|float|\UnitEnum|null
+    {
+        if (!$this->container->has('parameter_bag')) {
+            throw new ServiceNotFoundException('parameter_bag.', null, null, [], \sprintf('The "%s::getParameter()" method is missing a parameter bag to work properly. Did you forget to register your controller as a service subscriber? This can be fixed either by using autoconfiguration or by manually wiring a "parameter_bag" in the service locator passed to the controller.', static::class));
+        }
+
+        return $this->container->get('parameter_bag')->get($name);
     }
 
     /**
@@ -154,6 +157,10 @@ abstract class AbstractController implements ServiceSubscriberInterface
             return new JsonResponse($json, $status, $headers, true);
         }
 
+        if (null === $data) {
+            return new JsonResponse('null', $status, $headers, true);
+        }
+
         return new JsonResponse($data, $status, $headers);
     }
 
@@ -203,6 +210,21 @@ abstract class AbstractController implements ServiceSubscriberInterface
     }
 
     /**
+     * Checks if the attribute is granted against the current authentication token and optionally supplied subject.
+     */
+    protected function getAccessDecision(mixed $attribute, mixed $subject = null): AccessDecision
+    {
+        if (!$this->container->has('security.authorization_checker')) {
+            throw new \LogicException('The SecurityBundle is not registered in your application. Try running "composer require symfony/security-bundle".');
+        }
+
+        $accessDecision = new AccessDecision();
+        $accessDecision->isGranted = $this->container->get('security.authorization_checker')->isGranted($attribute, $subject, $accessDecision);
+
+        return $accessDecision;
+    }
+
+    /**
      * Throws an exception unless the attribute is granted against the current authentication token and optionally
      * supplied subject.
      *
@@ -210,12 +232,19 @@ abstract class AbstractController implements ServiceSubscriberInterface
      */
     protected function denyAccessUnlessGranted(mixed $attribute, mixed $subject = null, string $message = 'Access Denied.'): void
     {
-        if (!$this->isGranted($attribute, $subject)) {
-            $exception = $this->createAccessDeniedException($message);
-            $exception->setAttributes([$attribute]);
-            $exception->setSubject($subject);
+        $accessDecision = $this->getAccessDecision($attribute, $subject);
+        $isGranted = $accessDecision->isGranted;
 
-            throw $exception;
+        if (!$isGranted) {
+            $e = $this->createAccessDeniedException(3 > \func_num_args() && $accessDecision ? $accessDecision->getMessage() : $message);
+            $e->setAttributes([$attribute]);
+            $e->setSubject($subject);
+
+            if ($accessDecision) {
+                $e->setAccessDecision($accessDecision);
+            }
+
+            throw $e;
         }
     }
 
@@ -317,6 +346,8 @@ abstract class AbstractController implements ServiceSubscriberInterface
 
     /**
      * Creates and returns a Form instance from the type of the form.
+     *
+     * @return ($type is class-string<FormFlowTypeInterface> ? FormFlowInterface : FormInterface)
      */
     protected function createForm(string $type, mixed $data = null, array $options = []): FormInterface
     {

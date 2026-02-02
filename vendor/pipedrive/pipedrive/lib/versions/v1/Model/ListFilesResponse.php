@@ -225,12 +225,6 @@ class ListFilesResponse implements ModelInterface, ArrayAccess, JsonSerializable
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -273,7 +267,7 @@ class ListFilesResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\FileItem[]
+     * @return \Pipedrive\versions\v1\Model\FileItem[]|null
      */
     public function getData()
     {
@@ -283,7 +277,7 @@ class ListFilesResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\FileItem[] $data The array of files
+     * @param \Pipedrive\versions\v1\Model\FileItem[]|null $data The array of files
      *
      * @return self
      */
@@ -297,7 +291,7 @@ class ListFilesResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\AdditionalData
+     * @return \Pipedrive\versions\v1\Model\AdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -307,7 +301,7 @@ class ListFilesResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\AdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\AdditionalData|null $additional_data additional_data
      *
      * @return self
      */

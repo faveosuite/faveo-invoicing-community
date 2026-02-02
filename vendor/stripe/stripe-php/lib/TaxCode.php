@@ -16,6 +16,41 @@ class TaxCode extends ApiResource
 {
     const OBJECT_NAME = 'tax_code';
 
-    use ApiOperations\All;
-    use ApiOperations\Retrieve;
+    /**
+     * A list of <a href="https://stripe.com/docs/tax/tax-categories">all tax codes
+     * available</a> to add to Products in order to allow specific tax calculations.
+     *
+     * @param null|array{ending_before?: string, expand?: string[], limit?: int, starting_after?: string} $params
+     * @param null|array|string $opts
+     *
+     * @return Collection<TaxCode> of ApiResources
+     *
+     * @throws Exception\ApiErrorException if the request fails
+     */
+    public static function all($params = null, $opts = null)
+    {
+        $url = static::classUrl();
+
+        return static::_requestPage($url, Collection::class, $params, $opts);
+    }
+
+    /**
+     * Retrieves the details of an existing tax code. Supply the unique tax code ID and
+     * Stripe will return the corresponding tax code information.
+     *
+     * @param array|string $id the ID of the API resource to retrieve, or an options array containing an `id` key
+     * @param null|array|string $opts
+     *
+     * @return TaxCode
+     *
+     * @throws Exception\ApiErrorException if the request fails
+     */
+    public static function retrieve($id, $opts = null)
+    {
+        $opts = Util\RequestOptions::parse($opts);
+        $instance = new static($id, $opts);
+        $instance->refresh();
+
+        return $instance;
+    }
 }

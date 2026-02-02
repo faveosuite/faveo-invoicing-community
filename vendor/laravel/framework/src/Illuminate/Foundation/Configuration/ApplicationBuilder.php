@@ -92,12 +92,12 @@ class ApplicationBuilder
     /**
      * Register the core event service provider for the application.
      *
-     * @param  array|bool  $discover
+     * @param  iterable<int, string>|bool  $discover
      * @return $this
      */
-    public function withEvents(array|bool $discover = [])
+    public function withEvents(iterable|bool $discover = true)
     {
-        if (is_array($discover) && count($discover) > 0) {
+        if (is_iterable($discover)) {
             AppEventServiceProvider::setEventDiscoveryPaths($discover);
         }
 
@@ -161,6 +161,10 @@ class ApplicationBuilder
     {
         if (is_null($using) && (is_string($web) || is_array($web) || is_string($api) || is_array($api) || is_string($pages) || is_string($health)) || is_callable($then)) {
             $using = $this->buildRoutingCallback($web, $api, $pages, $health, $apiPrefix, $then);
+
+            if (is_string($health)) {
+                PreventRequestsDuringMaintenance::except($health);
+            }
         }
 
         AppRouteServiceProvider::loadRoutesUsing($using);
@@ -212,8 +216,6 @@ class ApplicationBuilder
             }
 
             if (is_string($health)) {
-                PreventRequestsDuringMaintenance::except($health);
-
                 Route::get($health, function () {
                     $exception = null;
 
@@ -361,7 +363,7 @@ class ApplicationBuilder
     /**
      * Register and configure the application's exception handler.
      *
-     * @param  callable|null  $using
+     * @param  callable(\Illuminate\Foundation\Configuration\Exceptions)|null  $using
      * @return $this
      */
     public function withExceptions(?callable $using = null)
@@ -371,12 +373,12 @@ class ApplicationBuilder
             \Illuminate\Foundation\Exceptions\Handler::class
         );
 
-        $using ??= fn () => true;
-
-        $this->app->afterResolving(
-            \Illuminate\Foundation\Exceptions\Handler::class,
-            fn ($handler) => $using(new Exceptions($handler)),
-        );
+        if ($using !== null) {
+            $this->app->afterResolving(
+                \Illuminate\Foundation\Exceptions\Handler::class,
+                fn ($handler) => $using(new Exceptions($handler)),
+            );
+        }
 
         return $this;
     }
@@ -410,6 +412,25 @@ class ApplicationBuilder
                     $app->singleton($abstract, $concrete);
                 } else {
                     $app->singleton($concrete);
+                }
+            }
+        });
+    }
+
+    /**
+     * Register an array of scoped singleton container bindings to be bound when the application is booting.
+     *
+     * @param  array  $scopedSingletons
+     * @return $this
+     */
+    public function withScopedSingletons(array $scopedSingletons)
+    {
+        return $this->registered(function ($app) use ($scopedSingletons) {
+            foreach ($scopedSingletons as $abstract => $concrete) {
+                if (is_string($abstract)) {
+                    $app->scoped($abstract, $concrete);
+                } else {
+                    $app->scoped($concrete);
                 }
             }
         });

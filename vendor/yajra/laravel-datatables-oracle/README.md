@@ -4,12 +4,12 @@
 [![Donate](https://img.shields.io/badge/donate-paypal-blue.svg)](https://www.paypal.me/yajra)
 [![Donate](https://img.shields.io/badge/donate-patreon-blue.svg)](https://www.patreon.com/bePatron?u=4521203)
 
-[![Laravel 4.2|5.x|6|7|8|9|10|11](https://img.shields.io/badge/Laravel-4.2|5.x|6|7|8|9|10|11-orange.svg)](http://laravel.com)
+[![Laravel 12](https://img.shields.io/badge/Laravel-12-orange.svg)](http://laravel.com)
 [![Latest Stable Version](https://img.shields.io/packagist/v/yajra/laravel-datatables-oracle.svg)](https://packagist.org/packages/yajra/laravel-datatables-oracle)
 [![Continuous Integration](https://github.com/yajra/laravel-datatables/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/yajra/laravel-datatables/actions/workflows/continuous-integration.yml)
 [![Static Analysis](https://github.com/yajra/laravel-datatables/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/yajra/laravel-datatables/actions/workflows/static-analysis.yml)
 
-[![Total Downloads](https://poser.pugx.org/yajra/laravel-datatables-oracle/downloads.png)](https://packagist.org/packages/yajra/laravel-datatables-oracle)
+[![Total Downloads](https://poser.pugx.org/yajra/laravel-datatables-oracle/d/total.svg)](https://packagist.org/packages/yajra/laravel-datatables-oracle)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://packagist.org/packages/yajra/laravel-datatables-oracle)
 
 Laravel package for handling [server-side](https://www.datatables.net/manual/server-side) works of [DataTables](http://datatables.net) jQuery Plugin via [AJAX option](https://datatables.net/reference/option/ajax) by using Eloquent ORM, Fluent Query Builder or Collection.
@@ -28,24 +28,41 @@ return DataTables::make(User::all())->toJson();
 
 ## Sponsors
 
-<a href="https://editor.datatables.net?utm_source=laravel-datatables&utm_medium=github_readme&utm_campaign=logo">
-    <img src="http://datatables.net/media/images/logo.png" alt="DataTables" height="64">
-</a>
+<table>
+    <body>
+        <tr>
+            <td>
+                <img src="https://www.npmjs.com/npm-avatar/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdmF0YXJVUkwiOiJodHRwczovL3MuZ3JhdmF0YXIuY29tL2F2YXRhci9lZDQwMmM1NjY2YjJlNjUxMTIyOWE4ZjM0NDdkNWMzYT9zaXplPTEwMCZkZWZhdWx0PXJldHJvIn0.aWU-snChAWu9abJV3dtBo-iy-2v_7JAxXUN1UHL_pDQ" height="50" alt="DataTables Logo">
+            </td>
+            <td>A big thank you to <a href="https://editor.datatables.net">DataTables</a> for supporting this project with a free DataTables Editor license.</td>
+        </tr>
+    </body>
+</table>
 
-<a href="https://jb.gg/OpenSourceSupport">
-    <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" alt="JetBrains.com" height="128">
-</a>
+<table>
+    <body>
+        <tr>
+            <td>
+                <img height="50" src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.png" alt="JetBrains logo.">
+            </td>
+            <td>A big thank you to <a href="https://jb.gg/OpenSource">JetBrains</a> for supporting this project with free open-source licenses of their IDEs.</td>
+        </tr>
+    </body>
+</table>
 
-<a href="https://blackfire.io/docs/introduction?utm_source=laravel-datatables&utm_medium=github_readme&utm_campaign=logo">
-    <img src="https://i.imgur.com/zR8rsqk.png" alt="Blackfire.io" height="64">
-</a>
-
-
+<table>
+    <body>
+        <tr>
+            <td><img src="https://i.imgur.com/zR8rsqk.png" height="50" alt="Blackfire.io Logo"></td>
+            <td>A big thank you to <a href="https://blackfire.io/docs/introduction?utm_source=laravel-datatables&utm_medium=github_readme&utm_campaign=logo">Blackfire.io</a> for supporting this project with a free open-source license.</td>
+        </tr>
+    </body>
+</table>
 
 ## Requirements
 - [PHP >= 8.2](http://php.net/)
 - [Laravel Framework](https://github.com/laravel/framework)
-- [jQuery DataTables](http://datatables.net/)
+- [DataTables](http://datatables.net/)
 
 ## Documentations
 
@@ -73,16 +90,25 @@ return DataTables::make(User::all())->toJson();
 | 9.x     | 10.x     |
 | 10.x    | 10.x     |
 | 11.x    | 11.x     |
+| 12.x    | 12.x     |
 
 ## Quick Installation
 
+### Option 1: Install all DataTables libraries
+
 ```bash
-composer require yajra/laravel-datatables-oracle:"^11"
+composer require yajra/laravel-datatables:"^12"
+```
+
+### Option 2: Install only this library
+
+```bash
+composer require yajra/laravel-datatables-oracle:"^12"
 ```
 
 #### Service Provider & Facade (Optional on Laravel 5.5+)
 
-Register provider and facade on your `config/app.php` file.
+Register the provider and facade on your `config/app.php` file.
 ```php
 'providers' => [
     ...,
@@ -107,11 +133,12 @@ And that's it! Start building out some awesome DataTables!
 
 To enable debugging mode, just set `APP_DEBUG=true` and the package will include the queries and inputs used when processing the table.
 
-**IMPORTANT:** Please make sure that APP_DEBUG is set to false when your app is on production.
+> [!IMPORTANT]
+> Please ensure that the `APP_DEBUG` config is set to false when your app is in production.
 
 ## PHP ARTISAN SERVE BUG
 
-Please avoid using `php artisan serve` when developing with the package.
+Please avoid using `php artisan serve` when developing the package.
 There are known bugs when using this where Laravel randomly returns a redirect and 401 (Unauthorized) if the route requires authentication and a 404 NotFoundHttpException on valid routes.
 
 It is advised to use [Homestead](https://laravel.com/docs/5.4/homestead) or [Valet](https://laravel.com/docs/5.4/valet) when working with the package.
@@ -122,7 +149,7 @@ Please see [CONTRIBUTING](https://github.com/yajra/laravel-datatables/blob/maste
 
 ## Security
 
-If you discover any security related issues, please email [aqangeles@gmail.com](mailto:aqangeles@gmail.com) instead of using the issue tracker.
+If you discover any security-related issues, please email [aqangeles@gmail.com](mailto:aqangeles@gmail.com) instead of using the issue tracker.
 
 ## Credits
 

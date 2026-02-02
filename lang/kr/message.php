@@ -2838,10 +2838,14 @@ return [
     'verify_token_error' => '검증 토큰을 입력하세요.',
     'manual_number_title' => '번호 수동 추가',
     'plan_exist' => '이 제품에는 동일한 기간의 계획이 이미 있습니다',
+    'duplicate_plan_period_grouped' => '이 제품은 월간/연간 그룹화된 제품과 연결되어 있으므로 중복된 요금제 기간은 허용되지 않습니다.',
     'callback_url' => 'Webhook URL',
     'callback_url_error' => '유효한 Webhook URL을 입력하세요.',
     'webhook_explanation' => 'Webhook URL은 관리자 패널의 WhatsApp 설정에 있는 추가 구성 섹션에서 확인할 수 있습니다.',
     'business_id_error' => '유효한 Business ID를 입력하세요.',
     'enable_reoon_logs_deletion' => 'Reoon 로그 삭제 활성화',
 
+    'active_plan_exists' => '이 제품 및 기간에 대해 활성 요금제 ":plan_name"이(가) 이미 존재합니다. 활성 요금제를 생성/업데이트하기 전에 먼저 비활성화하십시오.',
+    'check_to_make_plan_active' => '이 요금제를 활성화하려면 선택하십시오. 제품 및 기간당 하나의 활성 요금제만 허용됩니다.',
+    'active_plan_exists_simple' => '이 제품 및 기간에 대해 활성 요금제가 이미 존재합니다. 먼저 비활성화하십시오.',
 ];

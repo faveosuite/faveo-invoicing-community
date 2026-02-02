@@ -27,7 +27,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Spatie\Activitylog\Models\Activity;
+use Illuminate\Validation\Rule;
 use Yajra\DataTables\DataTables;
 
 // use Input;
@@ -225,7 +225,7 @@ class ProductController extends BaseProductController
         );
 
         try {
-            $product_id = Product::where('name', $request->input('productname'))->select('id')->first();
+            $product_id = Product::find($request->input('product_id'));
 
             $this->product_upload->product_id = $product_id->id;
             $this->product_upload->title = $request->input('producttitle');
@@ -312,7 +312,10 @@ class ProductController extends BaseProductController
         $input = $request->all();
 
         $v = \Validator::make($input, [
-            'name' => 'required|unique:products,name',
+            'name' => [
+                'required',
+                Rule::unique('products', 'name')->where('group', $request->group),
+            ],
             'type' => 'required',
             'description' => 'required',
             'product_description' => 'required',
@@ -324,7 +327,7 @@ class ProductController extends BaseProductController
             // 'version' => 'required',
         ], [
             'product_sku.unique' => __('validation.product_sku_unique'),
-            'name.unique' => __('validation.product_name_unique'),
+            'name.unique' => __('validation.product_controller.name_unique_in_group'),
             'show_agent.required' => __('validation.product_show_agent_required'),
         ]);
 
@@ -448,9 +451,11 @@ class ProductController extends BaseProductController
      */
     public function update($id, Request $request)
     {
-        $input = $request->all();
-        $v = \Validator::make($input, [
-            'name' => 'required',
+        $request->validate([
+            'name' => [
+                'required',
+                Rule::unique('products', 'name')->where('group', $request->group)->ignore($id),
+            ],
             'type' => 'required',
             'description' => 'required',
             'product_description' => 'required',
@@ -460,7 +465,7 @@ class ProductController extends BaseProductController
         ],
             [
                 'name.required' => __('validation.product_controller.name_required'),
-                'name.unique' => __('validation.product_controller.name_unique'),
+                'name.unique' => __('validation.product_controller.name_unique_in_group'),
                 'type.required' => __('validation.product_controller.type_required'),
                 'description.required' => __('validation.product_controller.description_required'),
                 'short_description.required' => __('validation.product_controller.short_description_required'),
@@ -471,10 +476,6 @@ class ProductController extends BaseProductController
                 'group.required' => __('validation.product_controller.group_required'),
                 'show_agent.required' => __('validation.product_controller.show_agent_required'),
             ]);
-
-        if ($v->fails()) {
-            return redirect()->back()->with('errors', $v->errors());
-        }
 
 //       To Delete the uploaded files when it is removed from the tinymce
         $product = $this->product->where('id', $id)->first();

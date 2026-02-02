@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Http\Controllers\Common;
+namespace Tests\Unit\Common;
 
 use App\ApiKey;
 use App\Http\Controllers\Common\PipedriveController;
