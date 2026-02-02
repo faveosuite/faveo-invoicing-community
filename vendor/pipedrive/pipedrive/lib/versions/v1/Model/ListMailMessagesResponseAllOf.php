@@ -219,12 +219,6 @@ class ListMailMessagesResponseAllOf implements ModelInterface, ArrayAccess, Json
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class ListMailMessagesResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\ListMailMessagesResponseAllOfData[]
+     * @return \Pipedrive\versions\v1\Model\ListMailMessagesResponseAllOfData[]|null
      */
     public function getData()
     {
@@ -253,7 +247,7 @@ class ListMailMessagesResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\ListMailMessagesResponseAllOfData[] $data The array of mail messages
+     * @param \Pipedrive\versions\v1\Model\ListMailMessagesResponseAllOfData[]|null $data The array of mail messages
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class ListMailMessagesResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\AdditionalData
+     * @return \Pipedrive\versions\v1\Model\AdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -277,7 +271,7 @@ class ListMailMessagesResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\AdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\AdditionalData|null $additional_data additional_data
      *
      * @return self
      */

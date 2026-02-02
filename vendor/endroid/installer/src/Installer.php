@@ -114,7 +114,7 @@ final class Installer implements PluginInterface, EventSubscriberInterface
     {
         $changed = false;
 
-        /** @var \RecursiveDirectoryIterator $iterator */
+        /** @var \RecursiveIteratorIterator<\RecursiveDirectoryIterator> $iterator */
         $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($sourcePath, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST);
 
         /** @var \SplFileInfo $fileInfo */

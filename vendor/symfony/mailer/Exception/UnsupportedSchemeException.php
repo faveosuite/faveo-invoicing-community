@@ -20,6 +20,10 @@ use Symfony\Component\Mailer\Transport\Dsn;
 class UnsupportedSchemeException extends LogicException
 {
     private const SCHEME_TO_PACKAGE_MAP = [
+        'ahasend' => [
+            'class' => Bridge\AhaSend\Transport\AhaSendTransportFactory::class,
+            'package' => 'symfony/aha-send-mailer',
+        ],
         'azure' => [
             'class' => Bridge\Azure\Transport\AzureTransportFactory::class,
             'package' => 'symfony/azure-mailer',
@@ -71,6 +75,10 @@ class UnsupportedSchemeException extends LogicException
         'mailtrap' => [
             'class' => Bridge\Mailtrap\Transport\MailtrapTransportFactory::class,
             'package' => 'symfony/mailtrap-mailer',
+        ],
+        'microsoftgraph' => [
+            'class' => Bridge\MicrosoftGraph\Transport\MicrosoftGraphTransportFactory::class,
+            'package' => 'symfony/microsoft-graph-mailer',
         ],
         'resend' => [
             'class' => Bridge\Resend\Transport\ResendTransportFactory::class,

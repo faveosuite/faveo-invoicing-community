@@ -11,7 +11,6 @@ namespace PHPUnit\Util;
 
 use const PHP_MAJOR_VERSION;
 use const PHP_MINOR_VERSION;
-use function array_keys;
 use function array_reverse;
 use function array_shift;
 use function assert;
@@ -40,9 +39,9 @@ use Closure;
 final readonly class GlobalState
 {
     /**
-     * @var list<string>
+     * @var non-empty-list<non-empty-string>
      */
-    private const SUPER_GLOBAL_ARRAYS = [
+    private const array SUPER_GLOBAL_ARRAYS = [
         '_ENV',
         '_POST',
         '_GET',
@@ -53,9 +52,9 @@ final readonly class GlobalState
     ];
 
     /**
-     * @var array<string, array<string, true>>
+     * @var non-empty-array<non-empty-string, non-empty-array<non-empty-string, true>>
      */
-    private const DEPRECATED_INI_SETTINGS = [
+    private const array DEPRECATED_INI_SETTINGS = [
         '7.3' => [
             'iconv.input_encoding'       => true,
             'iconv.output_encoding'      => true,
@@ -123,6 +122,42 @@ final readonly class GlobalState
             'mbstring.internal_encoding'   => true,
             'oci8.old_oci_close_semantics' => true,
         ],
+
+        '8.4' => [
+            'auto_detect_line_endings'     => true,
+            'filter.default'               => true,
+            'iconv.input_encoding'         => true,
+            'iconv.output_encoding'        => true,
+            'iconv.internal_encoding'      => true,
+            'mbstring.http_input'          => true,
+            'mbstring.http_output'         => true,
+            'mbstring.internal_encoding'   => true,
+            'oci8.old_oci_close_semantics' => true,
+        ],
+
+        '8.5' => [
+            'auto_detect_line_endings'     => true,
+            'filter.default'               => true,
+            'iconv.input_encoding'         => true,
+            'iconv.output_encoding'        => true,
+            'iconv.internal_encoding'      => true,
+            'mbstring.http_input'          => true,
+            'mbstring.http_output'         => true,
+            'mbstring.internal_encoding'   => true,
+            'oci8.old_oci_close_semantics' => true,
+        ],
+
+        '8.6' => [
+            'auto_detect_line_endings'     => true,
+            'filter.default'               => true,
+            'iconv.input_encoding'         => true,
+            'iconv.output_encoding'        => true,
+            'iconv.internal_encoding'      => true,
+            'mbstring.http_input'          => true,
+            'mbstring.http_output'         => true,
+            'mbstring.internal_encoding'   => true,
+            'oci8.old_oci_close_semantics' => true,
+        ],
     ];
 
     /**
@@ -161,7 +196,9 @@ final readonly class GlobalState
         }
 
         foreach (array_reverse($files) as $file) {
-            if (!empty($GLOBALS['__PHPUNIT_ISOLATION_EXCLUDE_LIST']) &&
+            if (isset($GLOBALS['__PHPUNIT_ISOLATION_EXCLUDE_LIST']) &&
+                is_array($GLOBALS['__PHPUNIT_ISOLATION_EXCLUDE_LIST']) &&
+                $GLOBALS['__PHPUNIT_ISOLATION_EXCLUDE_LIST'] !== [] &&
                 in_array($file, $GLOBALS['__PHPUNIT_ISOLATION_EXCLUDE_LIST'], true)) {
                 continue;
             }
@@ -171,7 +208,7 @@ final readonly class GlobalState
             }
 
             // Skip virtual file system protocols
-            if (preg_match('/^(vfs|phpvfs[a-z0-9]+):/', $file)) {
+            if (preg_match('/^(vfs|phpvfs[a-z0-9]+):/', $file) > 0) {
                 continue;
             }
 
@@ -231,8 +268,8 @@ final readonly class GlobalState
 
         foreach (self::SUPER_GLOBAL_ARRAYS as $superGlobalArray) {
             if (isset($GLOBALS[$superGlobalArray]) && is_array($GLOBALS[$superGlobalArray])) {
-                foreach (array_keys($GLOBALS[$superGlobalArray]) as $key) {
-                    if ($GLOBALS[$superGlobalArray][$key] instanceof Closure) {
+                foreach ($GLOBALS[$superGlobalArray] as $key => $value) {
+                    if ($value instanceof Closure) {
                         continue;
                     }
 
@@ -249,12 +286,12 @@ final readonly class GlobalState
         $excludeList   = self::SUPER_GLOBAL_ARRAYS;
         $excludeList[] = 'GLOBALS';
 
-        foreach (array_keys($GLOBALS) as $key) {
-            if (!$GLOBALS[$key] instanceof Closure && !in_array($key, $excludeList, true)) {
+        foreach ($GLOBALS as $key => $value) {
+            if (!$value instanceof Closure && !in_array($key, $excludeList, true)) {
                 $result .= sprintf(
                     '$GLOBALS[\'%s\'] = %s;' . "\n",
                     $key,
-                    self::exportVariable($GLOBALS[$key]),
+                    self::exportVariable($value),
                 );
             }
         }

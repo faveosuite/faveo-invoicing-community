@@ -43,7 +43,7 @@ class PostmarkTransport implements TransportInterface
     ) {
     }
 
-    public function send(RawMessage $message, Envelope $envelope = null): ?SentMessage
+    public function send(RawMessage $message, ?Envelope $envelope = null): ?SentMessage
     {
         $envelope = $envelope ?? Envelope::create($message);
 

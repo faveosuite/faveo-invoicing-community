@@ -74,6 +74,8 @@ class NewDealParameters implements ModelInterface, ArrayAccess, JsonSerializable
         'org_id' => 'int',
         'pipeline_id' => 'int',
         'stage_id' => 'int',
+        'is_archived' => 'bool',
+        'archive_time' => 'string',
         'status' => 'string',
         'origin_id' => 'string',
         'channel' => 'int',
@@ -97,6 +99,8 @@ class NewDealParameters implements ModelInterface, ArrayAccess, JsonSerializable
         'org_id' => null,
         'pipeline_id' => null,
         'stage_id' => null,
+        'is_archived' => null,
+        'archive_time' => null,
         'status' => null,
         'origin_id' => null,
         'channel' => null,
@@ -143,6 +147,8 @@ class NewDealParameters implements ModelInterface, ArrayAccess, JsonSerializable
         'org_id' => 'org_id',
         'pipeline_id' => 'pipeline_id',
         'stage_id' => 'stage_id',
+        'is_archived' => 'is_archived',
+        'archive_time' => 'archive_time',
         'status' => 'status',
         'origin_id' => 'origin_id',
         'channel' => 'channel',
@@ -164,6 +170,8 @@ class NewDealParameters implements ModelInterface, ArrayAccess, JsonSerializable
         'org_id' => 'setOrgId',
         'pipeline_id' => 'setPipelineId',
         'stage_id' => 'setStageId',
+        'is_archived' => 'setIsArchived',
+        'archive_time' => 'setArchiveTime',
         'status' => 'setStatus',
         'origin_id' => 'setOriginId',
         'channel' => 'setChannel',
@@ -185,6 +193,8 @@ class NewDealParameters implements ModelInterface, ArrayAccess, JsonSerializable
         'org_id' => 'getOrgId',
         'pipeline_id' => 'getPipelineId',
         'stage_id' => 'getStageId',
+        'is_archived' => 'getIsArchived',
+        'archive_time' => 'getArchiveTime',
         'status' => 'getStatus',
         'origin_id' => 'getOriginId',
         'channel' => 'getChannel',
@@ -288,6 +298,8 @@ class NewDealParameters implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['org_id'] = $data['org_id'] ?? null;
         $this->container['pipeline_id'] = $data['pipeline_id'] ?? null;
         $this->container['stage_id'] = $data['stage_id'] ?? null;
+        $this->container['is_archived'] = $data['is_archived'] ?? null;
+        $this->container['archive_time'] = $data['archive_time'] ?? null;
         $this->container['status'] = $data['status'] ?? null;
         $this->container['origin_id'] = $data['origin_id'] ?? null;
         $this->container['channel'] = $data['channel'] ?? null;
@@ -518,6 +530,54 @@ class NewDealParameters implements ModelInterface, ArrayAccess, JsonSerializable
     public function setStageId($stage_id): self
     {
         $this->container['stage_id'] = $stage_id;
+
+        return $this;
+    }
+
+    /**
+     * Gets is_archived
+     *
+     * @return bool|null
+     */
+    public function getIsArchived()
+    {
+        return $this->container['is_archived'];
+    }
+
+    /**
+     * Sets is_archived
+     *
+     * @param bool|null $is_archived Whether the deal is archived or not. If omitted, is_archived will be set to false.
+     *
+     * @return self
+     */
+    public function setIsArchived($is_archived): self
+    {
+        $this->container['is_archived'] = $is_archived;
+
+        return $this;
+    }
+
+    /**
+     * Gets archive_time
+     *
+     * @return string|null
+     */
+    public function getArchiveTime()
+    {
+        return $this->container['archive_time'];
+    }
+
+    /**
+     * Sets archive_time
+     *
+     * @param string|null $archive_time The optional date and time of archiving the deal in UTC. Format: YYYY-MM-DD HH:MM:SS. If omitted and `is_archived` is true, it will be set to the current date and time.
+     *
+     * @return self
+     */
+    public function setArchiveTime($archive_time): self
+    {
+        $this->container['archive_time'] = $archive_time;
 
         return $this;
     }

@@ -9,6 +9,9 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @template TModel of Model
+ */
 trait WithRemoveAction
 {
     /**
@@ -69,6 +72,8 @@ trait WithRemoveAction
 
     /**
      * Get remove action validation rules.
+     *
+     * @param  TModel  $model
      */
     public function removeRules(Model $model): array
     {
@@ -83,11 +88,18 @@ trait WithRemoveAction
         return [];
     }
 
+    /**
+     * @param  TModel  $model
+     */
     public function deleting(Model $model, array $data): array
     {
         return $data;
     }
 
+    /**
+     * @param  TModel  $model
+     * @return TModel
+     */
     public function deleted(Model $model, array $data): Model
     {
         return $model;

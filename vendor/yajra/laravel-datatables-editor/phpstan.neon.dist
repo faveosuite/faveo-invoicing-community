@@ -9,7 +9,13 @@ parameters:
     level: max
 
     ignoreErrors:
+        -   identifier: missingType.iterableValue
+        -   identifier: argument.type
+        -   identifier: cast.string
+        -   identifier: binaryOp.invalid
+        -   identifier: offsetAccess.nonOffsetAccessible
+        -   identifier: return.type
+        -   identifier: assign.propertyType
+        -   identifier: offsetAccess.notFound
 
     excludePaths:
-
-    checkMissingIterableValueType: false

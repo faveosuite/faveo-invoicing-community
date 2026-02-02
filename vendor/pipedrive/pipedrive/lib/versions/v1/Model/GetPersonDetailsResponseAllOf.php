@@ -225,15 +225,6 @@ class GetPersonDetailsResponseAllOf implements ModelInterface, ArrayAccess, Json
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
-        if ($this->container['related_objects'] === null) {
-            $invalidProperties[] = "'related_objects' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -252,7 +243,7 @@ class GetPersonDetailsResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\PersonItem
+     * @return \Pipedrive\versions\v1\Model\PersonItem|null
      */
     public function getData()
     {
@@ -262,7 +253,7 @@ class GetPersonDetailsResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\PersonItem $data data
+     * @param \Pipedrive\versions\v1\Model\PersonItem|null $data data
      *
      * @return self
      */
@@ -276,7 +267,7 @@ class GetPersonDetailsResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\GetPersonDetailsResponseAllOfAdditionalData
+     * @return \Pipedrive\versions\v1\Model\GetPersonDetailsResponseAllOfAdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -286,7 +277,7 @@ class GetPersonDetailsResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\GetPersonDetailsResponseAllOfAdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\GetPersonDetailsResponseAllOfAdditionalData|null $additional_data additional_data
      *
      * @return self
      */
@@ -300,7 +291,7 @@ class GetPersonDetailsResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Gets related_objects
      *
-     * @return \Pipedrive\versions\v1\Model\AllOrganizationsGetResponseAllOfRelatedObjects
+     * @return \Pipedrive\versions\v1\Model\AllOrganizationsGetResponseAllOfRelatedObjects|null
      */
     public function getRelatedObjects()
     {
@@ -310,7 +301,7 @@ class GetPersonDetailsResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Sets related_objects
      *
-     * @param \Pipedrive\versions\v1\Model\AllOrganizationsGetResponseAllOfRelatedObjects $related_objects related_objects
+     * @param \Pipedrive\versions\v1\Model\AllOrganizationsGetResponseAllOfRelatedObjects|null $related_objects related_objects
      *
      * @return self
      */

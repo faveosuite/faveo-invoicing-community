@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Http\Middleware\Install;
 use App\Model\Common\StatusSetting;
+use App\Plugins\Recaptcha\Model\RecaptchaSetting;
 use App\User;
 use App\VerificationAttempt;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -222,6 +223,13 @@ class LoginTest extends DBTestCase
                 'recaptcha_status' => 1,
             ]
         );
+
+        RecaptchaSetting::firstOrNew()->fill([
+            'v2_site_key' => 'dummy-site-key',
+            'v2_secret_key' => 'dummy-v2-secret-key',
+            'captcha_version' => 'v2_checkbox',
+            'failover_action' => 'none',
+        ])->save();
 
         $this->withoutMiddleware([Install::class]);
 

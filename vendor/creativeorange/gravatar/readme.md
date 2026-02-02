@@ -1,4 +1,4 @@
-# Gravatar for Laravel 5 - 10
+# Gravatar for Laravel 5 - 12
 
 [![Total Downloads](https://poser.pugx.org/creativeorange/gravatar/d/total.svg)](https://packagist.org/packages/creativeorange/gravatar)
 [![Latest Stable Version](https://poser.pugx.org/creativeorange/gravatar/v/stable.svg)](https://packagist.org/packages/creativeorange/gravatar)
@@ -67,7 +67,7 @@ Within your controllers or views, you can use
 this will return the URL to the gravatar image of the specified email address.
 In case of a non-existing gravatar, it will return return a URL to a placeholder image. 
 You can set the type of the placeholder in the configuration option `fallback`. 
-For more information, visit [gravatar.com](http://en.gravatar.com/site/implement/images/#default-image)
+For more information, visit [gravatar.com](https://docs.gravatar.com/api/avatars/images/#default-image)
 
 Alternatively, you can check for the existence of a gravatar image by using
 

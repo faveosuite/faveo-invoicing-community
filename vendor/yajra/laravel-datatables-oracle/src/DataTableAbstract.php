@@ -122,6 +122,8 @@ abstract class DataTableAbstract implements DataTable
 
     protected bool $editOnlySelectedColumns = false;
 
+    protected int $minSearchLength = 0;
+
     /**
      * Can the DataTable engine be created with these parameters.
      *
@@ -431,7 +433,9 @@ abstract class DataTableAbstract implements DataTable
         if (is_array($key)) {
             $this->appends = $key;
         } else {
-            $this->appends[$key] = value($value);
+            /** @var int|string $arrayKey */
+            $arrayKey = is_int($key) || is_string($key) ? $key : (string) $key;
+            $this->appends[$arrayKey] = value($value);
         }
 
         return $this;
@@ -728,8 +732,14 @@ abstract class DataTableAbstract implements DataTable
         }
 
         $this->columnSearch();
+        $this->columnControlSearch();
         $this->searchPanesSearch();
         $this->filteredCount();
+    }
+
+    public function columnControlSearch(): void
+    {
+        // Not implemented in the abstract class.
     }
 
     /**
@@ -779,7 +789,7 @@ abstract class DataTableAbstract implements DataTable
     /**
      * Count filtered items.
      */
-    protected function filteredCount(): int
+    public function filteredCount(): int
     {
         return $this->filteredRecords ??= $this->count();
     }
@@ -988,5 +998,27 @@ abstract class DataTableAbstract implements DataTable
     protected function getPrimaryKeyName(): string
     {
         return 'id';
+    }
+
+    public function minSearchLength(int $length): static
+    {
+        $this->minSearchLength = $length;
+
+        return $this;
+    }
+
+    protected function validateMinLengthSearch(): void
+    {
+        if ($this->request->isSearchable()
+            && $this->minSearchLength > 0
+            && Str::length($this->request->keyword()) < $this->minSearchLength
+        ) {
+            $this->totalRecords = 0;
+            $this->filteredRecords = 0;
+            throw new \Exception(
+                __('Please enter at least :length characters to search.', ['length' => $this->minSearchLength]),
+                400
+            );
+        }
     }
 }

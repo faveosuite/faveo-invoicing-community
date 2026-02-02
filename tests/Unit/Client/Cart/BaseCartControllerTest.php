@@ -362,6 +362,7 @@ class BaseCartControllerTest extends DBTestCase
         $invoiceItem = InvoiceItem::create([
             'invoice_id' => $invoice->id,
             'product_name' => 'Helpdesk Advance',
+            'product_id' => $product->id,
             'regular_price' => 10000,
             'quantity' => 1,
             'tax_name' => 'CGST+SGST',

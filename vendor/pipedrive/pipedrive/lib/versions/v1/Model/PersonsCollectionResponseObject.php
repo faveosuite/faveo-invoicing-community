@@ -297,51 +297,6 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     {
         $invalidProperties = [];
 
-        if ($this->container['id'] === null) {
-            $invalidProperties[] = "'id' can't be null";
-        }
-        if ($this->container['active_flag'] === null) {
-            $invalidProperties[] = "'active_flag' can't be null";
-        }
-        if ($this->container['owner_id'] === null) {
-            $invalidProperties[] = "'owner_id' can't be null";
-        }
-        if ($this->container['org_id'] === null) {
-            $invalidProperties[] = "'org_id' can't be null";
-        }
-        if ($this->container['name'] === null) {
-            $invalidProperties[] = "'name' can't be null";
-        }
-        if ($this->container['email'] === null) {
-            $invalidProperties[] = "'email' can't be null";
-        }
-        if ($this->container['phone'] === null) {
-            $invalidProperties[] = "'phone' can't be null";
-        }
-        if ($this->container['update_time'] === null) {
-            $invalidProperties[] = "'update_time' can't be null";
-        }
-        if ($this->container['delete_time'] === null) {
-            $invalidProperties[] = "'delete_time' can't be null";
-        }
-        if ($this->container['add_time'] === null) {
-            $invalidProperties[] = "'add_time' can't be null";
-        }
-        if ($this->container['visible_to'] === null) {
-            $invalidProperties[] = "'visible_to' can't be null";
-        }
-        if ($this->container['picture_id'] === null) {
-            $invalidProperties[] = "'picture_id' can't be null";
-        }
-        if ($this->container['label'] === null) {
-            $invalidProperties[] = "'label' can't be null";
-        }
-        if ($this->container['label_ids'] === null) {
-            $invalidProperties[] = "'label_ids' can't be null";
-        }
-        if ($this->container['cc_email'] === null) {
-            $invalidProperties[] = "'cc_email' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -360,7 +315,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Gets id
      *
-     * @return int
+     * @return int|null
      */
     public function getId()
     {
@@ -370,7 +325,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Sets id
      *
-     * @param int $id The ID of the person
+     * @param int|null $id The ID of the person
      *
      * @return self
      */
@@ -384,7 +339,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Gets active_flag
      *
-     * @return bool
+     * @return bool|null
      */
     public function getActiveFlag()
     {
@@ -394,7 +349,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Sets active_flag
      *
-     * @param bool $active_flag Whether the person is active or not
+     * @param bool|null $active_flag Whether the person is active or not
      *
      * @return self
      */
@@ -408,7 +363,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Gets owner_id
      *
-     * @return int
+     * @return int|null
      */
     public function getOwnerId()
     {
@@ -418,7 +373,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Sets owner_id
      *
-     * @param int $owner_id The ID of the owner related to the person
+     * @param int|null $owner_id The ID of the owner related to the person
      *
      * @return self
      */
@@ -432,7 +387,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Gets org_id
      *
-     * @return int
+     * @return int|null
      */
     public function getOrgId()
     {
@@ -442,7 +397,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Sets org_id
      *
-     * @param int $org_id The ID of the organization related to the person
+     * @param int|null $org_id The ID of the organization related to the person
      *
      * @return self
      */
@@ -456,7 +411,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Gets name
      *
-     * @return string
+     * @return string|null
      */
     public function getName()
     {
@@ -466,7 +421,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Sets name
      *
-     * @param string $name The name of the person
+     * @param string|null $name The name of the person
      *
      * @return self
      */
@@ -480,7 +435,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Gets email
      *
-     * @return \Pipedrive\versions\v1\Model\BasicPersonEmail[]
+     * @return \Pipedrive\versions\v1\Model\BasicPersonEmail[]|null
      */
     public function getEmail()
     {
@@ -490,7 +445,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Sets email
      *
-     * @param \Pipedrive\versions\v1\Model\BasicPersonEmail[] $email An email address as a string or an array of email objects related to the person. The structure of the array is as follows: `[{ \"value\": \"mail@example.com\", \"primary\": \"true\", \"label\": \"main\" }]`. Please note that only `value` is required.
+     * @param \Pipedrive\versions\v1\Model\BasicPersonEmail[]|null $email An email address as a string or an array of email objects related to the person. The structure of the array is as follows: `[{ \"value\": \"mail@example.com\", \"primary\": \"true\", \"label\": \"main\" }]`. Please note that only `value` is required.
      *
      * @return self
      */
@@ -504,7 +459,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Gets phone
      *
-     * @return \Pipedrive\versions\v1\Model\BasePersonItemPhone[]
+     * @return \Pipedrive\versions\v1\Model\BasePersonItemPhone[]|null
      */
     public function getPhone()
     {
@@ -514,7 +469,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Sets phone
      *
-     * @param \Pipedrive\versions\v1\Model\BasePersonItemPhone[] $phone A phone number supplied as a string or an array of phone objects related to the person. The structure of the array is as follows: `[{ \"value\": \"12345\", \"primary\": \"true\", \"label\": \"mobile\" }]`. Please note that only `value` is required.
+     * @param \Pipedrive\versions\v1\Model\BasePersonItemPhone[]|null $phone A phone number supplied as a string or an array of phone objects related to the person. The structure of the array is as follows: `[{ \"value\": \"12345\", \"primary\": \"true\", \"label\": \"mobile\" }]`. Please note that only `value` is required.
      *
      * @return self
      */
@@ -528,7 +483,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Gets update_time
      *
-     * @return string
+     * @return string|null
      */
     public function getUpdateTime()
     {
@@ -538,7 +493,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Sets update_time
      *
-     * @param string $update_time The last updated date and time of the person. Format: YYYY-MM-DD HH:MM:SS
+     * @param string|null $update_time The last updated date and time of the person. Format: YYYY-MM-DD HH:MM:SS
      *
      * @return self
      */
@@ -552,7 +507,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Gets delete_time
      *
-     * @return string
+     * @return string|null
      */
     public function getDeleteTime()
     {
@@ -562,7 +517,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Sets delete_time
      *
-     * @param string $delete_time The date and time this person was deleted. Format: YYYY-MM-DD HH:MM:SS
+     * @param string|null $delete_time The date and time this person was deleted. Format: YYYY-MM-DD HH:MM:SS
      *
      * @return self
      */
@@ -576,7 +531,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Gets add_time
      *
-     * @return string
+     * @return string|null
      */
     public function getAddTime()
     {
@@ -586,7 +541,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Sets add_time
      *
-     * @param string $add_time The date and time when the person was added/created. Format: YYYY-MM-DD HH:MM:SS
+     * @param string|null $add_time The date and time when the person was added/created. Format: YYYY-MM-DD HH:MM:SS
      *
      * @return self
      */
@@ -600,7 +555,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Gets visible_to
      *
-     * @return string
+     * @return string|null
      */
     public function getVisibleTo()
     {
@@ -610,7 +565,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Sets visible_to
      *
-     * @param string $visible_to The visibility group ID of who can see the person
+     * @param string|null $visible_to The visibility group ID of who can see the person
      *
      * @return self
      */
@@ -624,7 +579,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Gets picture_id
      *
-     * @return int
+     * @return int|null
      */
     public function getPictureId()
     {
@@ -634,7 +589,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Sets picture_id
      *
-     * @param int $picture_id The ID of the picture associated with the item
+     * @param int|null $picture_id The ID of the picture associated with the item
      *
      * @return self
      */
@@ -648,7 +603,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Gets label
      *
-     * @return int
+     * @return int|null
      */
     public function getLabel()
     {
@@ -658,7 +613,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Sets label
      *
-     * @param int $label The label assigned to the person. When the `label` field is updated, the `label_ids` field value will be overwritten by the `label` field value.
+     * @param int|null $label The label assigned to the person. When the `label` field is updated, the `label_ids` field value will be overwritten by the `label` field value.
      *
      * @return self
      */
@@ -672,7 +627,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Gets label_ids
      *
-     * @return int[]
+     * @return int[]|null
      */
     public function getLabelIds()
     {
@@ -682,7 +637,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Sets label_ids
      *
-     * @param int[] $label_ids The IDs of labels assigned to the person. When the `label_ids` field is updated, the `label` field value will be set to the first value of the `label_ids` field.
+     * @param int[]|null $label_ids The IDs of labels assigned to the person. When the `label_ids` field is updated, the `label` field value will be set to the first value of the `label_ids` field.
      *
      * @return self
      */
@@ -696,7 +651,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Gets cc_email
      *
-     * @return string
+     * @return string|null
      */
     public function getCcEmail()
     {
@@ -706,7 +661,7 @@ class PersonsCollectionResponseObject implements ModelInterface, ArrayAccess, Js
     /**
      * Sets cc_email
      *
-     * @param string $cc_email The BCC email associated with the person
+     * @param string|null $cc_email The BCC email associated with the person
      *
      * @return self
      */

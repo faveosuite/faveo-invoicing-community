@@ -6,7 +6,7 @@
 
   },
   "requisites": [ "PHP Version", "Database version", "PHP exec function", "env", "max_execution_time", "allow_url_fopen", "cURL", "app_url", "ssl_certificate"],
-  "min_php_version": "8.2.0",
+  "min_php_version": "8.4.0",
   "min_mysql_version": [50700, "v5.7.0"],
   "max_mysql_version": [50800, "v8.0.0"],
   "min_mariadb_version": [100300, "v10.3"],

@@ -46,12 +46,10 @@ class RegisterControllerArgumentLocatorsPass implements CompilerPassInterface
 
         $publicAliases = [];
         foreach ($container->getAliases() as $id => $alias) {
-            if ($alias->isPublic() && !$alias->isPrivate()) {
+            if ($alias->isPublic()) {
                 $publicAliases[(string) $alias][] = $id;
             }
         }
-
-        $emptyAutowireAttributes = class_exists(Autowire::class) ? null : [];
 
         foreach ($container->findTaggedServiceIds('controller.service_arguments', true) as $id => $tags) {
             $def = $container->getDefinition($id);
@@ -129,7 +127,7 @@ class RegisterControllerArgumentLocatorsPass implements CompilerPassInterface
                     /** @var \ReflectionParameter $p */
                     $type = preg_replace('/(^|[(|&])\\\\/', '\1', $target = ltrim(ProxyHelper::exportType($p) ?? '', '?'));
                     $invalidBehavior = ContainerInterface::IGNORE_ON_INVALID_REFERENCE;
-                    $autowireAttributes = $autowire ? $emptyAutowireAttributes : [];
+                    $autowireAttributes = null;
                     $parsedName = $p->name;
                     $k = null;
 
@@ -155,9 +153,9 @@ class RegisterControllerArgumentLocatorsPass implements CompilerPassInterface
                         $args[$p->name] = $bindingValue;
 
                         continue;
-                    } elseif (!$autowire || (!($autowireAttributes ??= $p->getAttributes(Autowire::class, \ReflectionAttribute::IS_INSTANCEOF)) && (!$type || '\\' !== $target[0]))) {
+                    } elseif (!$autowire || (!($autowireAttributes = $p->getAttributes(Autowire::class, \ReflectionAttribute::IS_INSTANCEOF)) && (!$type || '\\' !== $target[0]))) {
                         continue;
-                    } elseif (is_subclass_of($type, \UnitEnum::class)) {
+                    } elseif (!$autowireAttributes && is_subclass_of($type, \UnitEnum::class)) {
                         // do not attempt to register enum typed arguments if not already present in bindings
                         continue;
                     } elseif (!$p->allowsNull()) {

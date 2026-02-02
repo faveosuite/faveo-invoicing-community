@@ -18,10 +18,18 @@ use Illuminate\Http\Request;
  */
 abstract class DataTablesEditor
 {
+    /** @use \Yajra\DataTables\Concerns\WithCreateAction<TModel> */
     use Concerns\WithCreateAction;
+
+    /** @use \Yajra\DataTables\Concerns\WithEditAction<TModel> */
     use Concerns\WithEditAction;
+
     use Concerns\WithForceDeleteAction;
+    use Concerns\WithReadAction;
+
+    /** @use \Yajra\DataTables\Concerns\WithRemoveAction<TModel> */
     use Concerns\WithRemoveAction;
+
     use Concerns\WithRestoreAction;
     use Concerns\WithUploadAction;
     use ValidatesRequests;
@@ -43,12 +51,13 @@ abstract class DataTablesEditor
         'upload',
         'forceDelete',
         'restore',
+        'read',
     ];
 
     /**
      * List of custom editor actions.
      *
-     * @var string[]
+     * @var array<array-key, string|class-string>
      */
     protected array $customActions = [];
 
@@ -87,27 +96,32 @@ abstract class DataTablesEditor
      */
     protected array $currentData = [];
 
+    public function __invoke(): JsonResponse
+    {
+        return $this->process();
+    }
+
     /**
      * Process dataTables editor action request.
-     *
-     * @return JsonResponse
-     *
-     * @throws DataTablesEditorException
      */
-    public function process(Request $request): mixed
+    public function process(?Request $request = null): JsonResponse
     {
-        if ($request->get('action') && is_string($request->get('action'))) {
-            $this->action = $request->get('action');
-        } else {
-            throw new DataTablesEditorException('Invalid action requested!');
-        }
+        $request ??= request();
+        $this->action = $request->get('action');
 
-        if (! in_array($this->action, array_merge($this->actions, $this->customActions))) {
-            throw new DataTablesEditorException(sprintf('Requested action (%s) not supported!', $this->action));
-        }
+        throw_unless(
+            $this->isValidAction($request),
+            DataTablesEditorException::class,
+            'Invalid action requested!'
+        );
 
         try {
-            return $this->{$this->action}($request);
+            if (method_exists($this, $this->action)) {
+                return $this->{$this->action}($request);
+            }
+
+            // @phpstan-ignore-next-line  method.nonObject
+            return resolve($this->customActions[$this->action], ['editor' => $this])->handle($request);
         } catch (Exception $exception) {
             $error = config('app.debug')
                 ? '<strong>Server Error:</strong> '.$exception->getMessage()
@@ -119,7 +133,19 @@ abstract class DataTablesEditor
         }
     }
 
-    protected function getUseFriendlyErrorMessage(): string
+    public function isValidAction(Request $request): bool
+    {
+        $validActions = $this->actions;
+        foreach ($this->customActions as $key => $action) {
+            $validActions[] = is_numeric($key) ? $action : $key;
+        }
+
+        return in_array($this->action, $validActions)
+            && $request->get('action')
+            && is_string($request->get('action'));
+    }
+
+    public function getUseFriendlyErrorMessage(): string
     {
         return 'An error occurs while processing your request.';
     }
@@ -127,7 +153,7 @@ abstract class DataTablesEditor
     /**
      * Display success data in dataTables editor format.
      */
-    protected function toJson(array $data, array $errors = [], string|array $error = ''): JsonResponse
+    public function toJson(array $data, array $errors = [], string|array $error = ''): JsonResponse
     {
         $code = 200;
 
@@ -159,6 +185,8 @@ abstract class DataTablesEditor
 
     /**
      * Get dataTables model.
+     *
+     * @return class-string<TModel>|TModel|null
      */
     public function getModel(): Model|string|null
     {
@@ -185,7 +213,7 @@ abstract class DataTablesEditor
         return [];
     }
 
-    protected function formatErrors(Validator $validator): array
+    public function formatErrors(Validator $validator): array
     {
         $errors = [];
 
@@ -223,7 +251,11 @@ abstract class DataTablesEditor
      */
     protected function resolveModel(): Model
     {
-        if (! $this->model instanceof Model) {
+        if (is_null($this->model)) {
+            throw new DataTablesEditorException('Model not set.');
+        }
+
+        if (is_string($this->model)) {
             $this->model = new $this->model;
         }
 
@@ -233,9 +265,7 @@ abstract class DataTablesEditor
     }
 
     /**
-     * Set model unguard state.
-     *
-     * @return $this
+     * Set model unguarded state.
      */
     public function unguard(bool $state = true): static
     {
@@ -244,16 +274,23 @@ abstract class DataTablesEditor
         return $this;
     }
 
-    protected function dataFromRequest(Request $request): array
+    public function dataFromRequest(Request $request): array
     {
         return (array) $request->get('data');
     }
 
+    /**
+     * @param  TModel  $model
+     */
     public function saving(Model $model, array $data): array
     {
         return $data;
     }
 
+    /**
+     * @param  TModel  $model
+     * @return TModel
+     */
     public function saved(Model $model, array $data): Model
     {
         return $model;

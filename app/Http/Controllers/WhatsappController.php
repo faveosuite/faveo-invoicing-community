@@ -60,7 +60,9 @@ class WhatsappController extends Controller
     {
         $user_id = \Auth::user()->id;
 
-        return view('themes.default1.common.whatsapp-index', compact('user_id'));
+        return response()
+            ->view('themes.default1.common.whatsapp-index', compact('user_id'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate');
     }
 
     public function urlSave(Request $request)

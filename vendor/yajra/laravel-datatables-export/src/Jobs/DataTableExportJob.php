@@ -9,7 +9,7 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\File;
 use Illuminate\Queue\InteractsWithQueue;
@@ -76,7 +76,7 @@ class DataTableExportJob implements ShouldBeUnique, ShouldQueue
 
         /** @var DataTable $oTable */
         $oTable = resolve($this->dataTable);
-        request()->merge($this->request);
+        request()->replace($this->request);
 
         $query = app()->call([$oTable->with($this->attributes), 'query']);
 
@@ -125,12 +125,6 @@ class DataTableExportJob implements ShouldBeUnique, ShouldQueue
         foreach ($query as $row) {
             $cells = [];
 
-            $row = $row instanceof Arrayable ? $row->toArray() : (array) $row;
-
-            if ($this->usesLazyMethod() && is_array($row)) {
-                $row = Arr::dot($row);
-            }
-
             $defaultDateFormat = 'yyyy-mm-dd';
             if (config('datatables-export.default_date_format')
                 && is_string(config('datatables-export.default_date_format'))
@@ -147,7 +141,12 @@ class DataTableExportJob implements ShouldBeUnique, ShouldQueue
                 }
 
                 /** @var array|bool|int|string|null|DateTimeInterface $value */
-                $value = $row[$property] ?? '';
+                $value = $this->getValue($row, $property) ?? '';
+
+                if (isset($column->exportRender)) {
+                    $callback = $column->exportRender;
+                    $value = $callback($row, $value);
+                }
 
                 if (is_array($value)) {
                     $value = json_encode($value);
@@ -199,7 +198,7 @@ class DataTableExportJob implements ShouldBeUnique, ShouldQueue
             Storage::disk($this->getS3Disk())->putFileAs('', (new File($path)), $filename);
         }
 
-        $emailTo = request('emailTo');
+        $emailTo = request()->emailTo;
         if ($emailTo && is_string($emailTo)) {
             $data = ['email' => urldecode($emailTo), 'path' => $path];
             $this->sendResults($data);
@@ -224,6 +223,24 @@ class DataTableExportJob implements ShouldBeUnique, ShouldQueue
         $columns = $dataTable->html()->getColumns();
 
         return $columns->filter(fn (Column $column) => $column->exportable);
+    }
+
+    protected function getValue(array|Model|\stdClass $row, string $property): mixed
+    {
+        [$currentProperty, $glue, $childProperty] = array_pad(preg_split('/\[(.*?)\]\.?/', $property, 2, PREG_SPLIT_DELIM_CAPTURE), 3, null);
+
+        if ($glue === '') {
+            $glue = ', ';
+        }
+
+        /** @var string $currentProperty */
+        $value = data_get($row, $currentProperty.($childProperty ? '.*' : ''));
+
+        if ($childProperty) {
+            $value = Arr::map($value, fn ($v) => $this->getValue($v, $childProperty));
+        }
+
+        return isset($glue) ? Arr::join($value, $glue) : $value;
     }
 
     protected function usesLazyMethod(): bool

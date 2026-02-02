@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class PlanRequest extends FormRequest
 {
@@ -34,6 +35,16 @@ class PlanRequest extends FormRequest
             'days' => 'nullable|numeric',
             'product_quantity' => 'required_without:no_of_agents|integer|min:0',
             'no_of_agents' => 'required_without:product_quantity|integer|min:0',
+            'status' => [
+                'required',
+                Rule::unique('plans')
+                    ->where(fn ($q) => $q
+                        ->where('product', $this->product)
+                        ->where('days', $this->days)
+                        ->where('status', 1)
+                    )
+                    ->ignore(optional($this->route('plan'))->id),
+            ],
         ];
     }
 
@@ -51,6 +62,7 @@ class PlanRequest extends FormRequest
             'currency.*.required_with' => trans('message.currency_missing'),
             'offer_price.*.between' => __('validation.plan_request.offer_price'),
             'offer_price.*.numeric' => __('validation.plan_request.offer_price'),
+            'status.unique' => __('message.active_plan_exists_simple'),
         ];
     }
 }

@@ -267,7 +267,7 @@ class TenantController extends Controller
                     if (empty($subscription_date)) {
                         return '--';
                     }
-                    $days = \DB::table('expiry_mail_days')->where('cloud_days', '!=', null)->value('cloud_days');
+                    $days = (int) \DB::table('expiry_mail_days')->where('cloud_days', '!=', null)->value('cloud_days');
                     $originalDate = Carbon::parse($subscription_date)->addDays($days);
                     $formattedDate = Carbon::parse($originalDate)->format('d M Y');
 

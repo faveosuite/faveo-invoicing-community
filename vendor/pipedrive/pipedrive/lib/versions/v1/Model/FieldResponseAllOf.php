@@ -66,7 +66,7 @@ class FieldResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializabl
       * @phpsalm-var array<string, string>
       */
     protected static array $openAPITypes = [
-        'data' => '\Pipedrive\versions\v1\Model\Field'
+        'data' => '\Pipedrive\versions\v1\Model\GetField'
     ];
 
     /**
@@ -213,9 +213,6 @@ class FieldResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializabl
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -234,7 +231,7 @@ class FieldResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\Field
+     * @return \Pipedrive\versions\v1\Model\GetField|null
      */
     public function getData()
     {
@@ -244,7 +241,7 @@ class FieldResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\Field $data data
+     * @param \Pipedrive\versions\v1\Model\GetField|null $data data
      *
      * @return self
      */

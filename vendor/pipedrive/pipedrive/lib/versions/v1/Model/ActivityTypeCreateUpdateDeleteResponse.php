@@ -219,9 +219,6 @@ class ActivityTypeCreateUpdateDeleteResponse implements ModelInterface, ArrayAcc
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -264,7 +261,7 @@ class ActivityTypeCreateUpdateDeleteResponse implements ModelInterface, ArrayAcc
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\ActivityTypeObjectResponse
+     * @return \Pipedrive\versions\v1\Model\ActivityTypeObjectResponse|null
      */
     public function getData()
     {
@@ -274,7 +271,7 @@ class ActivityTypeCreateUpdateDeleteResponse implements ModelInterface, ArrayAcc
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\ActivityTypeObjectResponse $data data
+     * @param \Pipedrive\versions\v1\Model\ActivityTypeObjectResponse|null $data data
      *
      * @return self
      */

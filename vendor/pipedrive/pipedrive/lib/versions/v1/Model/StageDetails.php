@@ -76,8 +76,7 @@ class StageDetails implements ModelInterface, ArrayAccess, JsonSerializable
         'rotten_flag' => 'bool',
         'rotten_days' => 'int',
         'add_time' => 'string',
-        'update_time' => 'string',
-        'deals_summary' => '\Pipedrive\versions\v1\Model\DealSummary'
+        'update_time' => 'string'
     ];
 
     /**
@@ -97,8 +96,7 @@ class StageDetails implements ModelInterface, ArrayAccess, JsonSerializable
         'rotten_flag' => null,
         'rotten_days' => null,
         'add_time' => null,
-        'update_time' => null,
-        'deals_summary' => null
+        'update_time' => null
     ];
 
     /**
@@ -141,8 +139,7 @@ class StageDetails implements ModelInterface, ArrayAccess, JsonSerializable
         'rotten_flag' => 'rotten_flag',
         'rotten_days' => 'rotten_days',
         'add_time' => 'add_time',
-        'update_time' => 'update_time',
-        'deals_summary' => 'deals_summary'
+        'update_time' => 'update_time'
     ];
 
     /**
@@ -160,8 +157,7 @@ class StageDetails implements ModelInterface, ArrayAccess, JsonSerializable
         'rotten_flag' => 'setRottenFlag',
         'rotten_days' => 'setRottenDays',
         'add_time' => 'setAddTime',
-        'update_time' => 'setUpdateTime',
-        'deals_summary' => 'setDealsSummary'
+        'update_time' => 'setUpdateTime'
     ];
 
     /**
@@ -179,8 +175,7 @@ class StageDetails implements ModelInterface, ArrayAccess, JsonSerializable
         'rotten_flag' => 'getRottenFlag',
         'rotten_days' => 'getRottenDays',
         'add_time' => 'getAddTime',
-        'update_time' => 'getUpdateTime',
-        'deals_summary' => 'getDealsSummary'
+        'update_time' => 'getUpdateTime'
     ];
 
     /**
@@ -260,7 +255,6 @@ class StageDetails implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['rotten_days'] = $data['rotten_days'] ?? null;
         $this->container['add_time'] = $data['add_time'] ?? null;
         $this->container['update_time'] = $data['update_time'] ?? null;
-        $this->container['deals_summary'] = $data['deals_summary'] ?? null;
     }
 
     /**
@@ -525,30 +519,6 @@ class StageDetails implements ModelInterface, ArrayAccess, JsonSerializable
     public function setUpdateTime($update_time): self
     {
         $this->container['update_time'] = $update_time;
-
-        return $this;
-    }
-
-    /**
-     * Gets deals_summary
-     *
-     * @return \Pipedrive\versions\v1\Model\DealSummary|null
-     */
-    public function getDealsSummary()
-    {
-        return $this->container['deals_summary'];
-    }
-
-    /**
-     * Sets deals_summary
-     *
-     * @param \Pipedrive\versions\v1\Model\DealSummary|null $deals_summary deals_summary
-     *
-     * @return self
-     */
-    public function setDealsSummary($deals_summary): self
-    {
-        $this->container['deals_summary'] = $deals_summary;
 
         return $this;
     }

@@ -55,7 +55,7 @@ class PurgeCommand extends Command
     public function __construct(
         SupervisorRepository $supervisors,
         ProcessRepository $processes,
-        ProcessInspector $inspector
+        ProcessInspector $inspector,
     ) {
         parent::__construct();
 
@@ -73,8 +73,8 @@ class PurgeCommand extends Command
     public function handle(MasterSupervisorRepository $masters)
     {
         $signal = is_numeric($signal = $this->option('signal'))
-                        ? $signal
-                        : constant($signal);
+            ? $signal
+            : constant($signal);
 
         foreach ($masters->names() as $master) {
             if (Str::startsWith($master, MasterSupervisor::basename())) {

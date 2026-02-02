@@ -219,12 +219,6 @@ class OrganizationPostResponseAllOf implements ModelInterface, ArrayAccess, Json
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['related_objects'] === null) {
-            $invalidProperties[] = "'related_objects' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class OrganizationPostResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\BaseOrganizationItemWithEditNameFlag
+     * @return \Pipedrive\versions\v1\Model\BaseOrganizationItemWithEditNameFlag|null
      */
     public function getData()
     {
@@ -253,7 +247,7 @@ class OrganizationPostResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\BaseOrganizationItemWithEditNameFlag $data data
+     * @param \Pipedrive\versions\v1\Model\BaseOrganizationItemWithEditNameFlag|null $data data
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class OrganizationPostResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Gets related_objects
      *
-     * @return \Pipedrive\versions\v1\Model\AllOrganizationsGetResponseAllOfRelatedObjects
+     * @return \Pipedrive\versions\v1\Model\AllOrganizationsGetResponseAllOfRelatedObjects|null
      */
     public function getRelatedObjects()
     {
@@ -277,7 +271,7 @@ class OrganizationPostResponseAllOf implements ModelInterface, ArrayAccess, Json
     /**
      * Sets related_objects
      *
-     * @param \Pipedrive\versions\v1\Model\AllOrganizationsGetResponseAllOfRelatedObjects $related_objects related_objects
+     * @param \Pipedrive\versions\v1\Model\AllOrganizationsGetResponseAllOfRelatedObjects|null $related_objects related_objects
      *
      * @return self
      */

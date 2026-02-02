@@ -451,7 +451,7 @@
             processing: true,
             serverSide: true,
             stateSave: false, 
-            order: [[1, "asc"]], 
+            order: [[15, "desc"]],
             "scrollX": true,
             "scrollCollapse": true,
 
@@ -518,7 +518,8 @@
                 {data: 'order_status', name: 'order_status'},
                 {data: 'order_date', name: 'order_date'},
                 {data: 'update_ends_at', name: 'update_ends_at'},
-                {data: 'action', name: 'action'}
+                {data: 'action', name: 'action'},
+                {data: 'id', name: 'id', visible: false}
             ],
 
     

@@ -5,8 +5,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **success** | **bool** | If the response is successful or not | [optional]
-**data** | [**\Pipedrive\versions\v1\Model\DealFlowResponseAllOfData[]**](DealFlowResponseAllOfData.md) |  |
-**additional_data** | [**\Pipedrive\versions\v1\Model\AdditionalData**](AdditionalData.md) |  |
-**related_objects** | [**\Pipedrive\versions\v1\Model\DealFlowResponseAllOfRelatedObjects**](DealFlowResponseAllOfRelatedObjects.md) |  |
+**data** | [**\Pipedrive\versions\v1\Model\DealFlowResponseAllOfData[]**](DealFlowResponseAllOfData.md) |  | [optional]
+**additional_data** | [**\Pipedrive\versions\v1\Model\AdditionalData**](AdditionalData.md) |  | [optional]
+**related_objects** | [**\Pipedrive\versions\v1\Model\DealFlowResponseAllOfRelatedObjects**](DealFlowResponseAllOfRelatedObjects.md) |  | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

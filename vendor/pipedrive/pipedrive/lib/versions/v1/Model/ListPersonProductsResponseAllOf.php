@@ -219,12 +219,6 @@ class ListPersonProductsResponseAllOf implements ModelInterface, ArrayAccess, Js
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class ListPersonProductsResponseAllOf implements ModelInterface, ArrayAccess, Js
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\ListPersonProductsResponseAllOfData[]
+     * @return \Pipedrive\versions\v1\Model\ListPersonProductsResponseAllOfData[]|null
      */
     public function getData()
     {
@@ -253,7 +247,7 @@ class ListPersonProductsResponseAllOf implements ModelInterface, ArrayAccess, Js
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\ListPersonProductsResponseAllOfData[] $data The array of deal products
+     * @param \Pipedrive\versions\v1\Model\ListPersonProductsResponseAllOfData[]|null $data The array of deal products
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class ListPersonProductsResponseAllOf implements ModelInterface, ArrayAccess, Js
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\ItemSearchAdditionalData
+     * @return \Pipedrive\versions\v1\Model\ItemSearchAdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -277,7 +271,7 @@ class ListPersonProductsResponseAllOf implements ModelInterface, ArrayAccess, Js
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\ItemSearchAdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\ItemSearchAdditionalData|null $additional_data additional_data
      *
      * @return self
      */

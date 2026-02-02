@@ -111,11 +111,11 @@ class Configuration
      */
     protected string $host = 'https://api.pipedrive.com/v1';
     /**
-     * User agent of the HTTP request, set to "Pipedrive-SDK-PHP-11.x" by default
+     * User agent of the HTTP request, set to "Pipedrive-SDK-PHP-15.x" by default
      *
      * @var string
      */
-    protected string $userAgent = 'Pipedrive-SDK-PHP-11.x';
+    protected string $userAgent = 'Pipedrive-SDK-PHP-15.x';
 
     /**
      * Debug switch (default set to false)
@@ -674,7 +674,7 @@ class Configuration
         }
 
         if (property_exists($oAuthToken, 'api_domain') && $oAuthToken->api_domain !== null) {
-            $this->setHost($oAuthToken->api_domain.'/v1');
+            $this->setHost($oAuthToken->api_domain.'/api/v1');
         }
 
         if (is_callable($this->getOAuthTokenUpdateCallback())) {
@@ -847,7 +847,7 @@ class Configuration
     {
         return [
             [
-                "url" => "https://api.pipedrive.com/v1",
+                "url" => "https://api.pipedrive.com/api/v1",
                 "description" => "No description provided",
             ]
         ];

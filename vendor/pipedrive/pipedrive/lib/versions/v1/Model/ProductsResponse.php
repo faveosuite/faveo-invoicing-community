@@ -231,18 +231,6 @@ class ProductsResponse implements ModelInterface, ArrayAccess, JsonSerializable
     {
         $invalidProperties = [];
 
-        if ($this->container['success'] === null) {
-            $invalidProperties[] = "'success' can't be null";
-        }
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
-        if ($this->container['related_objects'] === null) {
-            $invalidProperties[] = "'related_objects' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -261,7 +249,7 @@ class ProductsResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets success
      *
-     * @return bool
+     * @return bool|null
      */
     public function getSuccess()
     {
@@ -271,7 +259,7 @@ class ProductsResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets success
      *
-     * @param bool $success If the response is successful or not
+     * @param bool|null $success If the response is successful or not
      *
      * @return self
      */
@@ -285,7 +273,7 @@ class ProductsResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\ProductResponse[]
+     * @return \Pipedrive\versions\v1\Model\ProductResponse[]|null
      */
     public function getData()
     {
@@ -295,7 +283,7 @@ class ProductsResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\ProductResponse[] $data Array containing data for all products
+     * @param \Pipedrive\versions\v1\Model\ProductResponse[]|null $data Array containing data for all products
      *
      * @return self
      */
@@ -309,7 +297,7 @@ class ProductsResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\AdditionalData
+     * @return \Pipedrive\versions\v1\Model\AdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -319,7 +307,7 @@ class ProductsResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\AdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\AdditionalData|null $additional_data additional_data
      *
      * @return self
      */
@@ -333,7 +321,7 @@ class ProductsResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets related_objects
      *
-     * @return \Pipedrive\versions\v1\Model\GetActivitiesResponseRelatedObjects
+     * @return \Pipedrive\versions\v1\Model\GetActivitiesResponseRelatedObjects|null
      */
     public function getRelatedObjects()
     {
@@ -343,7 +331,7 @@ class ProductsResponse implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets related_objects
      *
-     * @param \Pipedrive\versions\v1\Model\GetActivitiesResponseRelatedObjects $related_objects related_objects
+     * @param \Pipedrive\versions\v1\Model\GetActivitiesResponseRelatedObjects|null $related_objects related_objects
      *
      * @return self
      */

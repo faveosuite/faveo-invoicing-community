@@ -851,6 +851,7 @@ return [
     'product_controller' => [
         'name_required' => 'Nama produk wajib diisi.',
         'name_unique' => 'Nama harus unik.',
+        'name_unique_in_group' => 'Produk dengan nama ini sudah ada di grup yang dipilih. Silakan pilih nama lain atau pilih grup lain.',
         'type_required' => 'Jenis produk wajib diisi.',
         'description_required' => 'Deskripsi produk wajib diisi.',
         'product_description_required' => 'Deskripsi lengkap produk wajib diisi.',

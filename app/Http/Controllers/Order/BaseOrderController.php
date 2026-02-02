@@ -246,7 +246,7 @@ class BaseOrderController extends ExtendedOrderController
      * @param  int  $days  [No of days that would get addeed to the current date ]
      * @return string [The final License Expiry date that is generated]
      */
-    protected function getLicenseExpiryDate(bool $permissions, $days)
+    protected function getLicenseExpiryDate(bool $permissions, int $days)
     {
         $ends_at = '';
         if ($days > 0 && $permissions == 1) {
@@ -264,7 +264,7 @@ class BaseOrderController extends ExtendedOrderController
      * @param  int  $days  [No of days that would get added to the current date ]
      * @return string [The final Updates Expiry date that is generated]
      */
-    protected function getUpdatesExpiryDate(bool $permissions, $days)
+    protected function getUpdatesExpiryDate(bool $permissions, int $days)
     {
         $update_ends_at = '';
         if ($days > 0 && $permissions == 1) {
@@ -282,7 +282,7 @@ class BaseOrderController extends ExtendedOrderController
      * @param  int  $days  [No of days that would get added to the current date ]
      * @return string [The final Suport Expiry date that is generated]
      */
-    protected function getSupportExpiryDate(bool $permissions, $days)
+    protected function getSupportExpiryDate(bool $permissions, int $days)
     {
         $support_ends_at = '';
         if ($days > 0 && $permissions == 1) {
@@ -310,7 +310,7 @@ class BaseOrderController extends ExtendedOrderController
         //product
         $product = $this->product($itemid);
         //user
-        $productId = Product::where('name', $product)->pluck('id')->first();
+        $productId = Product::where('id', $product)->value('id');
         $users = new User();
         $user = $users->find($userid);
         //check in the settings
@@ -328,13 +328,14 @@ class BaseOrderController extends ExtendedOrderController
         $myaccounturl = url('my-order/'.$orderid);
         $invoiceurl = $this->invoiceUrl($orderid);
         //template
-        $mail = $this->getMail($setting, $user, $downloadurl, $invoiceurl, $order, $product, $orderid, $myaccounturl, $order->serial_key);
+        $mail = $this->getMail($setting, $user, $downloadurl, $invoiceurl, $order, $productId, $orderid, $myaccounturl, $order->serial_key);
     }
 
-    public function getMail($setting, $user, $downloadurl, $invoiceurl, $order, $product, $orderid, $myaccounturl, $licenseCode)
+    public function getMail($setting, $user, $downloadurl, $invoiceurl, $order, $productId, $orderid, $myaccounturl, $licenseCode)
     {
         $contact = getContactData();
-        $value = Product::where('name', $product)->value('type');
+        $product = Product::where('id', $productId)->first();
+        $value = $product->type;
 
         $templates = new \App\Model\Common\Template();
         $temp_id = TemplateType::where('name', 'order_mail')->value('id');
@@ -361,7 +362,7 @@ class BaseOrderController extends ExtendedOrderController
             'serialkeyurl' => $myaccounturl,
             'downloadurl' => $orderUrl,
             'invoiceurl' => $invoiceurl,
-            'product' => $product,
+            'product' => $product->name,
             'number' => $order->number,
             'expiry' => $end,
             'url' => app(\App\Http\Controllers\Order\OrderController::class)->renew($orderid),
@@ -382,7 +383,7 @@ class BaseOrderController extends ExtendedOrderController
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
 
         if ($order->invoice->grand_total) {
-            SettingsController::sendPaymentSuccessMailtoAdmin($order->invoice, $order->invoice->grand_total, $user, $product);
+            SettingsController::sendPaymentSuccessMailtoAdmin($order->invoice, $order->invoice->grand_total, $user, $product->name);
         }
     }
 

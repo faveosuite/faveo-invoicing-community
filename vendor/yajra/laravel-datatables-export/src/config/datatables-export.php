@@ -78,27 +78,8 @@ return [
     */
     'date_formats' => [
         'mm/dd/yyyy',
-        NumberFormat::FORMAT_DATE_DATETIME,
-        NumberFormat::FORMAT_DATE_YYYYMMDD,
-        NumberFormat::FORMAT_DATE_XLSX22,
-        NumberFormat::FORMAT_DATE_DDMMYYYY,
-        NumberFormat::FORMAT_DATE_DMMINUS,
-        NumberFormat::FORMAT_DATE_DMYMINUS,
-        NumberFormat::FORMAT_DATE_DMYSLASH,
-        NumberFormat::FORMAT_DATE_MYMINUS,
-        NumberFormat::FORMAT_DATE_TIME1,
-        NumberFormat::FORMAT_DATE_TIME2,
-        NumberFormat::FORMAT_DATE_TIME3,
-        NumberFormat::FORMAT_DATE_TIME4,
-        NumberFormat::FORMAT_DATE_TIME5,
-        NumberFormat::FORMAT_DATE_TIME6,
-        NumberFormat::FORMAT_DATE_TIME7,
-        NumberFormat::FORMAT_DATE_XLSX14,
-        NumberFormat::FORMAT_DATE_XLSX15,
-        NumberFormat::FORMAT_DATE_XLSX16,
-        NumberFormat::FORMAT_DATE_XLSX17,
-        NumberFormat::FORMAT_DATE_YYYYMMDD2,
-        NumberFormat::FORMAT_DATE_YYYYMMDDSLASH,
+        ...NumberFormat::DATE_TIME_OR_DATETIME_ARRAY,
+        ...NumberFormat::TIME_OR_DATETIME_ARRAY,
     ],
 
     /*
@@ -110,9 +91,8 @@ return [
     |
     */
     'text_formats' => [
-        '@',
-        NumberFormat::FORMAT_GENERAL,
         NumberFormat::FORMAT_TEXT,
+        NumberFormat::FORMAT_GENERAL,
     ],
 
     /*

@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @template TModel of Model
+ */
 trait WithCreateAction
 {
     /**
@@ -80,11 +83,18 @@ trait WithCreateAction
         return [];
     }
 
+    /**
+     * @param  TModel  $model
+     */
     public function creating(Model $model, array $data): array
     {
         return $data;
     }
 
+    /**
+     * @param  TModel  $model
+     * @return TModel
+     */
     public function created(Model $model, array $data): Model
     {
         return $model;

@@ -1,14 +1,6 @@
 <?php
 
 return  [
-    'anhskohbo/no-captcha' => [
-        'aliases' => [
-            'NoCaptcha' => 'Anhskohbo\\NoCaptcha\\Facades\\NoCaptcha',
-        ],
-        'providers' => [
-            0 => 'Anhskohbo\\NoCaptcha\\NoCaptchaServiceProvider',
-        ],
-    ],
     'barryvdh/laravel-debugbar' => [
         'aliases' => [
             'Debugbar' => 'Barryvdh\\Debugbar\\Facades\\Debugbar',
@@ -58,14 +50,6 @@ return  [
         ],
         'providers' => [
             0 => 'Darryldecode\\Cart\\CartServiceProvider',
-        ],
-    ],
-    'devio/pipedrive' => [
-        'aliases' => [
-            'Pipedrive' => 'Devio\\Pipedrive\\PipedriveFacade',
-        ],
-        'providers' => [
-            0 => 'Devio\\Pipedrive\\PipedriveServiceProvider',
         ],
     ],
     'graham-campbell/markdown' => [
@@ -129,11 +113,11 @@ return  [
         ],
     ],
     'maatwebsite/excel' => [
-        'providers' => [
-            0 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
-        ],
         'aliases' => [
             'Excel' => 'Maatwebsite\\Excel\\Facades\\Excel',
+        ],
+        'providers' => [
+            0 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
         ],
     ],
     'nesbot/carbon' => [
@@ -157,24 +141,11 @@ return  [
         ],
     ],
     'pragmarx/google2fa-laravel' => [
-        'providers' => [
-            0 => 'PragmaRX\\Google2FALaravel\\ServiceProvider',
-        ],
         'aliases' => [
             'Google2FA' => 'PragmaRX\\Google2FALaravel\\Facade',
         ],
-    ],
-    'rachidlaasri/laravel-installer' => [
         'providers' => [
-            0 => 'RachidLaasri\\LaravelInstaller\\Providers\\LaravelInstallerServiceProvider',
-        ],
-    ],
-    'simplesoftwareio/simple-qrcode' => [
-        'providers' => [
-            0 => 'SimpleSoftwareIO\\QrCode\\QrCodeServiceProvider',
-        ],
-        'aliases' => [
-            'QrCode' => 'SimpleSoftwareIO\\QrCode\\Facades\\QrCode',
+            0 => 'PragmaRX\\Google2FALaravel\\ServiceProvider',
         ],
     ],
     'spatie/laravel-activitylog' => [
@@ -188,11 +159,11 @@ return  [
         ],
     ],
     'spatie/laravel-html' => [
-        'providers' => [
-            0 => 'Spatie\\Html\\HtmlServiceProvider',
-        ],
         'aliases' => [
             'Html' => 'Spatie\\Html\\Facades\\Html',
+        ],
+        'providers' => [
+            0 => 'Spatie\\Html\\HtmlServiceProvider',
         ],
     ],
     'spatie/laravel-ignition' => [
@@ -208,20 +179,12 @@ return  [
             0 => 'Spatie\\Referer\\RefererServiceProvider',
         ],
     ],
-    'torann/currency' => [
-        'providers' => [
-            0 => 'Torann\\Currency\\CurrencyServiceProvider',
-        ],
-        'aliases' => [
-            'Currency' => 'Torann\\Currency\\Facades\\Currency',
-        ],
-    ],
     'torann/geoip' => [
-        'providers' => [
-            0 => 'Torann\\GeoIP\\GeoIPServiceProvider',
-        ],
         'aliases' => [
             'GeoIP' => 'Torann\\GeoIP\\Facades\\GeoIP',
+        ],
+        'providers' => [
+            0 => 'Torann\\GeoIP\\GeoIPServiceProvider',
         ],
     ],
     'vemcogroup/laravel-sparkpost-driver' => [

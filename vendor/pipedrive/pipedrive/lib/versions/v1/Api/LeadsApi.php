@@ -1717,15 +1717,16 @@ class LeadsApi
      * @param  int|null $person_id If supplied, only leads matching the given person will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;person_id&#x60; when supplied. (optional)
      * @param  int|null $organization_id If supplied, only leads matching the given organization will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;organization_id&#x60; when supplied. (optional)
      * @param  int|null $filter_id The ID of the filter to use (optional)
+     * @param  string|null $updated_since If set, only leads with an &#x60;update_time&#x60; later than or equal to this time are returned. In ISO 8601 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $sort The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\GetLeadsResponse
      */
-    public function getLeads($limit = null, $start = null, $owner_id = null, $person_id = null, $organization_id = null, $filter_id = null, $sort = null)
+    public function getLeads($limit = null, $start = null, $owner_id = null, $person_id = null, $organization_id = null, $filter_id = null, $updated_since = null, $sort = null)
     {
-        list($response) = $this->getLeadsWithHttpInfo($limit, $start, $owner_id, $person_id, $organization_id, $filter_id, $sort);
+        list($response) = $this->getLeadsWithHttpInfo($limit, $start, $owner_id, $person_id, $organization_id, $filter_id, $updated_since, $sort);
         return $response;
     }
 
@@ -1740,15 +1741,16 @@ class LeadsApi
      * @param  int|null $person_id If supplied, only leads matching the given person will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;person_id&#x60; when supplied. (optional)
      * @param  int|null $organization_id If supplied, only leads matching the given organization will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;organization_id&#x60; when supplied. (optional)
      * @param  int|null $filter_id The ID of the filter to use (optional)
+     * @param  string|null $updated_since If set, only leads with an &#x60;update_time&#x60; later than or equal to this time are returned. In ISO 8601 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $sort The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\GetLeadsResponse, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getLeadsWithHttpInfo($limit = null, $start = null, $owner_id = null, $person_id = null, $organization_id = null, $filter_id = null, $sort = null)
+    public function getLeadsWithHttpInfo($limit = null, $start = null, $owner_id = null, $person_id = null, $organization_id = null, $filter_id = null, $updated_since = null, $sort = null)
     {
-        $request = $this->getLeadsRequest($limit, $start, $owner_id, $person_id, $organization_id, $filter_id, $sort);
+        $request = $this->getLeadsRequest($limit, $start, $owner_id, $person_id, $organization_id, $filter_id, $updated_since, $sort);
 
         try {
             $options = $this->createHttpClientOption();
@@ -1757,7 +1759,7 @@ class LeadsApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->getLeadsRequest($limit, $start, $owner_id, $person_id, $organization_id, $filter_id, $sort);
+                    $request = $this->getLeadsRequest($limit, $start, $owner_id, $person_id, $organization_id, $filter_id, $updated_since, $sort);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -1847,14 +1849,15 @@ class LeadsApi
      * @param  int|null $person_id If supplied, only leads matching the given person will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;person_id&#x60; when supplied. (optional)
      * @param  int|null $organization_id If supplied, only leads matching the given organization will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;organization_id&#x60; when supplied. (optional)
      * @param  int|null $filter_id The ID of the filter to use (optional)
+     * @param  string|null $updated_since If set, only leads with an &#x60;update_time&#x60; later than or equal to this time are returned. In ISO 8601 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $sort The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getLeadsAsync($limit = null, $start = null, $owner_id = null, $person_id = null, $organization_id = null, $filter_id = null, $sort = null): PromiseInterface
+    public function getLeadsAsync($limit = null, $start = null, $owner_id = null, $person_id = null, $organization_id = null, $filter_id = null, $updated_since = null, $sort = null): PromiseInterface
     {
-        return $this->getLeadsAsyncWithHttpInfo($limit, $start, $owner_id, $person_id, $organization_id, $filter_id, $sort)
+        return $this->getLeadsAsyncWithHttpInfo($limit, $start, $owner_id, $person_id, $organization_id, $filter_id, $updated_since, $sort)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1873,15 +1876,16 @@ class LeadsApi
      * @param  int|null $person_id If supplied, only leads matching the given person will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;person_id&#x60; when supplied. (optional)
      * @param  int|null $organization_id If supplied, only leads matching the given organization will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;organization_id&#x60; when supplied. (optional)
      * @param  int|null $filter_id The ID of the filter to use (optional)
+     * @param  string|null $updated_since If set, only leads with an &#x60;update_time&#x60; later than or equal to this time are returned. In ISO 8601 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $sort The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getLeadsAsyncWithHttpInfo($limit = null, $start = null, $owner_id = null, $person_id = null, $organization_id = null, $filter_id = null, $sort = null): PromiseInterface
+    public function getLeadsAsyncWithHttpInfo($limit = null, $start = null, $owner_id = null, $person_id = null, $organization_id = null, $filter_id = null, $updated_since = null, $sort = null): PromiseInterface
     {
         $returnType = '\Pipedrive\versions\v1\Model\GetLeadsResponse';
-        $request = $this->getLeadsRequest($limit, $start, $owner_id, $person_id, $organization_id, $filter_id, $sort);
+        $request = $this->getLeadsRequest($limit, $start, $owner_id, $person_id, $organization_id, $filter_id, $updated_since, $sort);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1926,12 +1930,13 @@ class LeadsApi
      * @param  int|null $person_id If supplied, only leads matching the given person will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;person_id&#x60; when supplied. (optional)
      * @param  int|null $organization_id If supplied, only leads matching the given organization will be returned. However, &#x60;filter_id&#x60; takes precedence over &#x60;organization_id&#x60; when supplied. (optional)
      * @param  int|null $filter_id The ID of the filter to use (optional)
+     * @param  string|null $updated_since If set, only leads with an &#x60;update_time&#x60; later than or equal to this time are returned. In ISO 8601 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $sort The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function getLeadsRequest($limit = null, $start = null, $owner_id = null, $person_id = null, $organization_id = null, $filter_id = null, $sort = null): Request
+    public function getLeadsRequest($limit = null, $start = null, $owner_id = null, $person_id = null, $organization_id = null, $filter_id = null, $updated_since = null, $sort = null): Request
     {
 
         $resourcePath = '/leads';
@@ -1988,6 +1993,14 @@ class LeadsApi
         }
         if ($filter_id !== null) {
             $queryParams['filter_id'] = $filter_id;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($updated_since)) {
+            $updated_since = ObjectSerializer::serializeCollection($updated_since, '', true);
+        }
+        if ($updated_since !== null) {
+            $queryParams['updated_since'] = $updated_since;
         }
         // query params
         /* @phpstan-ignore-next-line */

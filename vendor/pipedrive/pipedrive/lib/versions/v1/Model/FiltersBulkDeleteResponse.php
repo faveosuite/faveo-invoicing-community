@@ -219,9 +219,6 @@ class FiltersBulkDeleteResponse implements ModelInterface, ArrayAccess, JsonSeri
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -264,7 +261,7 @@ class FiltersBulkDeleteResponse implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\FiltersBulkDeleteResponseAllOfData
+     * @return \Pipedrive\versions\v1\Model\FiltersBulkDeleteResponseAllOfData|null
      */
     public function getData()
     {
@@ -274,7 +271,7 @@ class FiltersBulkDeleteResponse implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\FiltersBulkDeleteResponseAllOfData $data data
+     * @param \Pipedrive\versions\v1\Model\FiltersBulkDeleteResponseAllOfData|null $data data
      *
      * @return self
      */

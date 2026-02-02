@@ -513,159 +513,6 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     {
         $invalidProperties = [];
 
-        if ($this->container['id'] === null) {
-            $invalidProperties[] = "'id' can't be null";
-        }
-        if ($this->container['note'] === null) {
-            $invalidProperties[] = "'note' can't be null";
-        }
-        if ($this->container['done'] === null) {
-            $invalidProperties[] = "'done' can't be null";
-        }
-        if ($this->container['subject'] === null) {
-            $invalidProperties[] = "'subject' can't be null";
-        }
-        if ($this->container['type'] === null) {
-            $invalidProperties[] = "'type' can't be null";
-        }
-        if ($this->container['user_id'] === null) {
-            $invalidProperties[] = "'user_id' can't be null";
-        }
-        if ($this->container['participants'] === null) {
-            $invalidProperties[] = "'participants' can't be null";
-        }
-        if ($this->container['busy_flag'] === null) {
-            $invalidProperties[] = "'busy_flag' can't be null";
-        }
-        if ($this->container['attendees'] === null) {
-            $invalidProperties[] = "'attendees' can't be null";
-        }
-        if ($this->container['company_id'] === null) {
-            $invalidProperties[] = "'company_id' can't be null";
-        }
-        if ($this->container['reference_type'] === null) {
-            $invalidProperties[] = "'reference_type' can't be null";
-        }
-        if ($this->container['reference_id'] === null) {
-            $invalidProperties[] = "'reference_id' can't be null";
-        }
-        if ($this->container['conference_meeting_client'] === null) {
-            $invalidProperties[] = "'conference_meeting_client' can't be null";
-        }
-        if ($this->container['conference_meeting_url'] === null) {
-            $invalidProperties[] = "'conference_meeting_url' can't be null";
-        }
-        if ($this->container['conference_meeting_id'] === null) {
-            $invalidProperties[] = "'conference_meeting_id' can't be null";
-        }
-        if ($this->container['add_time'] === null) {
-            $invalidProperties[] = "'add_time' can't be null";
-        }
-        if ($this->container['marked_as_done_time'] === null) {
-            $invalidProperties[] = "'marked_as_done_time' can't be null";
-        }
-        if ($this->container['last_notification_time'] === null) {
-            $invalidProperties[] = "'last_notification_time' can't be null";
-        }
-        if ($this->container['last_notification_user_id'] === null) {
-            $invalidProperties[] = "'last_notification_user_id' can't be null";
-        }
-        if ($this->container['notification_language_id'] === null) {
-            $invalidProperties[] = "'notification_language_id' can't be null";
-        }
-        if ($this->container['active_flag'] === null) {
-            $invalidProperties[] = "'active_flag' can't be null";
-        }
-        if ($this->container['update_time'] === null) {
-            $invalidProperties[] = "'update_time' can't be null";
-        }
-        if ($this->container['update_user_id'] === null) {
-            $invalidProperties[] = "'update_user_id' can't be null";
-        }
-        if ($this->container['gcal_event_id'] === null) {
-            $invalidProperties[] = "'gcal_event_id' can't be null";
-        }
-        if ($this->container['google_calendar_id'] === null) {
-            $invalidProperties[] = "'google_calendar_id' can't be null";
-        }
-        if ($this->container['google_calendar_etag'] === null) {
-            $invalidProperties[] = "'google_calendar_etag' can't be null";
-        }
-        if ($this->container['calendar_sync_include_context'] === null) {
-            $invalidProperties[] = "'calendar_sync_include_context' can't be null";
-        }
-        if ($this->container['source_timezone'] === null) {
-            $invalidProperties[] = "'source_timezone' can't be null";
-        }
-        if ($this->container['rec_rule'] === null) {
-            $invalidProperties[] = "'rec_rule' can't be null";
-        }
-        if ($this->container['rec_rule_extension'] === null) {
-            $invalidProperties[] = "'rec_rule_extension' can't be null";
-        }
-        if ($this->container['rec_master_activity_id'] === null) {
-            $invalidProperties[] = "'rec_master_activity_id' can't be null";
-        }
-        if ($this->container['series'] === null) {
-            $invalidProperties[] = "'series' can't be null";
-        }
-        if ($this->container['created_by_user_id'] === null) {
-            $invalidProperties[] = "'created_by_user_id' can't be null";
-        }
-        if ($this->container['location_subpremise'] === null) {
-            $invalidProperties[] = "'location_subpremise' can't be null";
-        }
-        if ($this->container['location_street_number'] === null) {
-            $invalidProperties[] = "'location_street_number' can't be null";
-        }
-        if ($this->container['location_route'] === null) {
-            $invalidProperties[] = "'location_route' can't be null";
-        }
-        if ($this->container['location_sublocality'] === null) {
-            $invalidProperties[] = "'location_sublocality' can't be null";
-        }
-        if ($this->container['location_locality'] === null) {
-            $invalidProperties[] = "'location_locality' can't be null";
-        }
-        if ($this->container['location_admin_area_level_1'] === null) {
-            $invalidProperties[] = "'location_admin_area_level_1' can't be null";
-        }
-        if ($this->container['location_admin_area_level_2'] === null) {
-            $invalidProperties[] = "'location_admin_area_level_2' can't be null";
-        }
-        if ($this->container['location_country'] === null) {
-            $invalidProperties[] = "'location_country' can't be null";
-        }
-        if ($this->container['location_postal_code'] === null) {
-            $invalidProperties[] = "'location_postal_code' can't be null";
-        }
-        if ($this->container['location_formatted_address'] === null) {
-            $invalidProperties[] = "'location_formatted_address' can't be null";
-        }
-        if ($this->container['org_name'] === null) {
-            $invalidProperties[] = "'org_name' can't be null";
-        }
-        if ($this->container['person_name'] === null) {
-            $invalidProperties[] = "'person_name' can't be null";
-        }
-        if ($this->container['deal_title'] === null) {
-            $invalidProperties[] = "'deal_title' can't be null";
-        }
-        if ($this->container['owner_name'] === null) {
-            $invalidProperties[] = "'owner_name' can't be null";
-        }
-        if ($this->container['person_dropbox_bcc'] === null) {
-            $invalidProperties[] = "'person_dropbox_bcc' can't be null";
-        }
-        if ($this->container['deal_dropbox_bcc'] === null) {
-            $invalidProperties[] = "'deal_dropbox_bcc' can't be null";
-        }
-        if ($this->container['assigned_to_user_id'] === null) {
-            $invalidProperties[] = "'assigned_to_user_id' can't be null";
-        }
-        if ($this->container['file'] === null) {
-            $invalidProperties[] = "'file' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -684,7 +531,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets id
      *
-     * @return int
+     * @return int|null
      */
     public function getId()
     {
@@ -694,7 +541,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets id
      *
-     * @param int $id The ID of the activity, generated when the activity was created
+     * @param int|null $id The ID of the activity, generated when the activity was created
      *
      * @return self
      */
@@ -708,7 +555,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets note
      *
-     * @return string
+     * @return string|null
      */
     public function getNote()
     {
@@ -718,7 +565,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets note
      *
-     * @param string $note The note of the activity (HTML format)
+     * @param string|null $note The note of the activity (HTML format)
      *
      * @return self
      */
@@ -732,7 +579,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets done
      *
-     * @return bool
+     * @return bool|null
      */
     public function getDone()
     {
@@ -742,7 +589,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets done
      *
-     * @param bool $done Whether the activity is done or not
+     * @param bool|null $done Whether the activity is done or not
      *
      * @return self
      */
@@ -756,7 +603,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets subject
      *
-     * @return string
+     * @return string|null
      */
     public function getSubject()
     {
@@ -766,7 +613,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets subject
      *
-     * @param string $subject The subject of the activity
+     * @param string|null $subject The subject of the activity
      *
      * @return self
      */
@@ -780,7 +627,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets type
      *
-     * @return string
+     * @return string|null
      */
     public function getType()
     {
@@ -790,7 +637,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets type
      *
-     * @param string $type The type of the activity. This is in correlation with the `key_string` parameter of ActivityTypes.
+     * @param string|null $type The type of the activity. This is in correlation with the `key_string` parameter of ActivityTypes.
      *
      * @return self
      */
@@ -804,7 +651,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets user_id
      *
-     * @return int
+     * @return int|null
      */
     public function getUserId()
     {
@@ -814,7 +661,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets user_id
      *
-     * @param int $user_id The ID of the user whom the activity is assigned to
+     * @param int|null $user_id The ID of the user whom the activity is assigned to
      *
      * @return self
      */
@@ -828,7 +675,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets participants
      *
-     * @return object[]
+     * @return object[]|null
      */
     public function getParticipants()
     {
@@ -838,7 +685,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets participants
      *
-     * @param object[] $participants List of multiple persons (participants) this activity is associated with
+     * @param object[]|null $participants List of multiple persons (participants) this activity is associated with
      *
      * @return self
      */
@@ -852,7 +699,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets busy_flag
      *
-     * @return bool
+     * @return bool|null
      */
     public function getBusyFlag()
     {
@@ -862,7 +709,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets busy_flag
      *
-     * @param bool $busy_flag Marks if the activity is set as 'Busy' or 'Free'. If the flag is set to `true`, your customers will not be able to book that time slot through any Scheduler links. The flag can also be unset. When the value of the flag is unset (`null`), the flag defaults to 'Busy' if it has a time set, and 'Free' if it is an all-day event without specified time.
+     * @param bool|null $busy_flag Marks if the activity is set as 'Busy' or 'Free'. If the flag is set to `true`, your customers will not be able to book that time slot through any Scheduler links. The flag can also be unset. When the value of the flag is unset (`null`), the flag defaults to 'Busy' if it has a time set, and 'Free' if it is an all-day event without specified time.
      *
      * @return self
      */
@@ -876,7 +723,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets attendees
      *
-     * @return object[]
+     * @return object[]|null
      */
     public function getAttendees()
     {
@@ -886,7 +733,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets attendees
      *
-     * @param object[] $attendees The attendees of the activity. This can be either your existing Pipedrive contacts or an external email address.
+     * @param object[]|null $attendees The attendees of the activity. This can be either your existing Pipedrive contacts or an external email address.
      *
      * @return self
      */
@@ -900,7 +747,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets company_id
      *
-     * @return int
+     * @return int|null
      */
     public function getCompanyId()
     {
@@ -910,7 +757,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets company_id
      *
-     * @param int $company_id The user's company ID
+     * @param int|null $company_id The user's company ID
      *
      * @return self
      */
@@ -924,7 +771,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets reference_type
      *
-     * @return string
+     * @return string|null
      */
     public function getReferenceType()
     {
@@ -934,7 +781,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets reference_type
      *
-     * @param string $reference_type If the activity references some other object, it is indicated here. For example, value `Salesphone` refers to activities created with Caller.
+     * @param string|null $reference_type If the activity references some other object, it is indicated here. For example, value `Salesphone` refers to activities created with Caller.
      *
      * @return self
      */
@@ -948,7 +795,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets reference_id
      *
-     * @return int
+     * @return int|null
      */
     public function getReferenceId()
     {
@@ -958,7 +805,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets reference_id
      *
-     * @param int $reference_id Together with the `reference_type`, gives the ID of the other object
+     * @param int|null $reference_id Together with the `reference_type`, gives the ID of the other object
      *
      * @return self
      */
@@ -972,7 +819,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets conference_meeting_client
      *
-     * @return string
+     * @return string|null
      */
     public function getConferenceMeetingClient()
     {
@@ -982,7 +829,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets conference_meeting_client
      *
-     * @param string $conference_meeting_client The ID of the Marketplace app, which is connected to this activity
+     * @param string|null $conference_meeting_client The ID of the Marketplace app, which is connected to this activity
      *
      * @return self
      */
@@ -996,7 +843,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets conference_meeting_url
      *
-     * @return string
+     * @return string|null
      */
     public function getConferenceMeetingUrl()
     {
@@ -1006,7 +853,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets conference_meeting_url
      *
-     * @param string $conference_meeting_url The link to join the meeting which is associated with this activity
+     * @param string|null $conference_meeting_url The link to join the meeting which is associated with this activity
      *
      * @return self
      */
@@ -1020,7 +867,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets conference_meeting_id
      *
-     * @return string
+     * @return string|null
      */
     public function getConferenceMeetingId()
     {
@@ -1030,7 +877,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets conference_meeting_id
      *
-     * @param string $conference_meeting_id The meeting ID of the meeting provider (Zoom, MS Teams etc.) that is associated with this activity
+     * @param string|null $conference_meeting_id The meeting ID of the meeting provider (Zoom, MS Teams etc.) that is associated with this activity
      *
      * @return self
      */
@@ -1044,7 +891,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets add_time
      *
-     * @return string
+     * @return string|null
      */
     public function getAddTime()
     {
@@ -1054,7 +901,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets add_time
      *
-     * @param string $add_time The creation date and time of the activity in UTC. Format: YYYY-MM-DD HH:MM:SS.
+     * @param string|null $add_time The creation date and time of the activity in UTC. Format: YYYY-MM-DD HH:MM:SS.
      *
      * @return self
      */
@@ -1068,7 +915,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets marked_as_done_time
      *
-     * @return string
+     * @return string|null
      */
     public function getMarkedAsDoneTime()
     {
@@ -1078,7 +925,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets marked_as_done_time
      *
-     * @param string $marked_as_done_time The date and time this activity was marked as done. Format: YYYY-MM-DD HH:MM:SS.
+     * @param string|null $marked_as_done_time The date and time this activity was marked as done. Format: YYYY-MM-DD HH:MM:SS.
      *
      * @return self
      */
@@ -1092,7 +939,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets last_notification_time
      *
-     * @return string
+     * @return string|null
      */
     public function getLastNotificationTime()
     {
@@ -1102,7 +949,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets last_notification_time
      *
-     * @param string $last_notification_time The date and time of latest notifications sent about this activity to the participants or the attendees of this activity
+     * @param string|null $last_notification_time The date and time of latest notifications sent about this activity to the participants or the attendees of this activity
      *
      * @return self
      */
@@ -1116,7 +963,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets last_notification_user_id
      *
-     * @return int
+     * @return int|null
      */
     public function getLastNotificationUserId()
     {
@@ -1126,7 +973,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets last_notification_user_id
      *
-     * @param int $last_notification_user_id The ID of the user who triggered the sending of the latest notifications about this activity to the participants or the attendees of this activity
+     * @param int|null $last_notification_user_id The ID of the user who triggered the sending of the latest notifications about this activity to the participants or the attendees of this activity
      *
      * @return self
      */
@@ -1140,7 +987,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets notification_language_id
      *
-     * @return int
+     * @return int|null
      */
     public function getNotificationLanguageId()
     {
@@ -1150,7 +997,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets notification_language_id
      *
-     * @param int $notification_language_id The ID of the language the notifications are sent in
+     * @param int|null $notification_language_id The ID of the language the notifications are sent in
      *
      * @return self
      */
@@ -1164,7 +1011,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets active_flag
      *
-     * @return bool
+     * @return bool|null
      */
     public function getActiveFlag()
     {
@@ -1174,7 +1021,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets active_flag
      *
-     * @param bool $active_flag Whether the activity is active or not
+     * @param bool|null $active_flag Whether the activity is active or not
      *
      * @return self
      */
@@ -1188,7 +1035,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets update_time
      *
-     * @return string
+     * @return string|null
      */
     public function getUpdateTime()
     {
@@ -1198,7 +1045,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets update_time
      *
-     * @param string $update_time The last update date and time of the activity. Format: YYYY-MM-DD HH:MM:SS.
+     * @param string|null $update_time The last update date and time of the activity. Format: YYYY-MM-DD HH:MM:SS.
      *
      * @return self
      */
@@ -1212,7 +1059,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets update_user_id
      *
-     * @return int
+     * @return int|null
      */
     public function getUpdateUserId()
     {
@@ -1222,7 +1069,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets update_user_id
      *
-     * @param int $update_user_id The ID of the user who was the last to update this activity
+     * @param int|null $update_user_id The ID of the user who was the last to update this activity
      *
      * @return self
      */
@@ -1236,7 +1083,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets gcal_event_id
      *
-     * @return string
+     * @return string|null
      */
     public function getGcalEventId()
     {
@@ -1246,7 +1093,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets gcal_event_id
      *
-     * @param string $gcal_event_id For the activity which syncs to Google calendar, this is the Google event ID. NB! This field is related to old Google calendar sync and will be deprecated soon.
+     * @param string|null $gcal_event_id For the activity which syncs to Google calendar, this is the Google event ID. NB! This field is related to old Google calendar sync and will be deprecated soon.
      *
      * @return self
      */
@@ -1260,7 +1107,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets google_calendar_id
      *
-     * @return string
+     * @return string|null
      */
     public function getGoogleCalendarId()
     {
@@ -1270,7 +1117,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets google_calendar_id
      *
-     * @param string $google_calendar_id The Google calendar ID that this activity syncs to. NB! This field is related to old Google calendar sync and will be deprecated soon.
+     * @param string|null $google_calendar_id The Google calendar ID that this activity syncs to. NB! This field is related to old Google calendar sync and will be deprecated soon.
      *
      * @return self
      */
@@ -1284,7 +1131,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets google_calendar_etag
      *
-     * @return string
+     * @return string|null
      */
     public function getGoogleCalendarEtag()
     {
@@ -1294,7 +1141,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets google_calendar_etag
      *
-     * @param string $google_calendar_etag The Google calendar API etag (version) that is used for syncing this activity. NB! This field is related to old Google calendar sync and will be deprecated soon.
+     * @param string|null $google_calendar_etag The Google calendar API etag (version) that is used for syncing this activity. NB! This field is related to old Google calendar sync and will be deprecated soon.
      *
      * @return self
      */
@@ -1308,7 +1155,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets calendar_sync_include_context
      *
-     * @return string
+     * @return string|null
      */
     public function getCalendarSyncIncludeContext()
     {
@@ -1318,7 +1165,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets calendar_sync_include_context
      *
-     * @param string $calendar_sync_include_context For activities that sync to an external calendar, this setting indicates if the activity syncs with context (what are the deals, persons, organizations this activity is related to)
+     * @param string|null $calendar_sync_include_context For activities that sync to an external calendar, this setting indicates if the activity syncs with context (what are the deals, persons, organizations this activity is related to)
      *
      * @return self
      */
@@ -1332,7 +1179,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets source_timezone
      *
-     * @return string
+     * @return string|null
      */
     public function getSourceTimezone()
     {
@@ -1342,7 +1189,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets source_timezone
      *
-     * @param string $source_timezone The timezone the activity was created in an external calendar
+     * @param string|null $source_timezone The timezone the activity was created in an external calendar
      *
      * @return self
      */
@@ -1356,7 +1203,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets rec_rule
      *
-     * @return string
+     * @return string|null
      */
     public function getRecRule()
     {
@@ -1366,7 +1213,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets rec_rule
      *
-     * @param string $rec_rule The rule for the recurrence of the activity. Is important for activities synced into Pipedrive from an external calendar. Example: \"RRULE:FREQ=WEEKLY;BYDAY=WE\"
+     * @param string|null $rec_rule The rule for the recurrence of the activity. Is important for activities synced into Pipedrive from an external calendar. Example: \"RRULE:FREQ=WEEKLY;BYDAY=WE\"
      *
      * @return self
      */
@@ -1380,7 +1227,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets rec_rule_extension
      *
-     * @return string
+     * @return string|null
      */
     public function getRecRuleExtension()
     {
@@ -1390,7 +1237,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets rec_rule_extension
      *
-     * @param string $rec_rule_extension Additional rules for the recurrence of the activity, extend the `rec_rule`. Is important for activities synced into Pipedrive from an external calendar.
+     * @param string|null $rec_rule_extension Additional rules for the recurrence of the activity, extend the `rec_rule`. Is important for activities synced into Pipedrive from an external calendar.
      *
      * @return self
      */
@@ -1404,7 +1251,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets rec_master_activity_id
      *
-     * @return int
+     * @return int|null
      */
     public function getRecMasterActivityId()
     {
@@ -1414,7 +1261,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets rec_master_activity_id
      *
-     * @param int $rec_master_activity_id The ID of parent activity for a recurrent activity if the current activity is an exception to recurrence rules
+     * @param int|null $rec_master_activity_id The ID of parent activity for a recurrent activity if the current activity is an exception to recurrence rules
      *
      * @return self
      */
@@ -1428,7 +1275,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets series
      *
-     * @return object[]
+     * @return object[]|null
      */
     public function getSeries()
     {
@@ -1438,7 +1285,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets series
      *
-     * @param object[] $series The list of recurring activity instances. It is in a structure as follows: `[{due_date: \"2020-06-24\", due_time: \"10:00:00\"}]`
+     * @param object[]|null $series The list of recurring activity instances. It is in a structure as follows: `[{due_date: \"2020-06-24\", due_time: \"10:00:00\"}]`
      *
      * @return self
      */
@@ -1452,7 +1299,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets created_by_user_id
      *
-     * @return int
+     * @return int|null
      */
     public function getCreatedByUserId()
     {
@@ -1462,7 +1309,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets created_by_user_id
      *
-     * @param int $created_by_user_id The ID of the user who created the activity
+     * @param int|null $created_by_user_id The ID of the user who created the activity
      *
      * @return self
      */
@@ -1476,7 +1323,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets location_subpremise
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationSubpremise()
     {
@@ -1486,7 +1333,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets location_subpremise
      *
-     * @param string $location_subpremise A subfield of the location field. Indicates apartment/suite number.
+     * @param string|null $location_subpremise A subfield of the location field. Indicates apartment/suite number.
      *
      * @return self
      */
@@ -1500,7 +1347,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets location_street_number
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationStreetNumber()
     {
@@ -1510,7 +1357,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets location_street_number
      *
-     * @param string $location_street_number A subfield of the location field. Indicates house number.
+     * @param string|null $location_street_number A subfield of the location field. Indicates house number.
      *
      * @return self
      */
@@ -1524,7 +1371,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets location_route
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationRoute()
     {
@@ -1534,7 +1381,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets location_route
      *
-     * @param string $location_route A subfield of the location field. Indicates street name.
+     * @param string|null $location_route A subfield of the location field. Indicates street name.
      *
      * @return self
      */
@@ -1548,7 +1395,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets location_sublocality
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationSublocality()
     {
@@ -1558,7 +1405,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets location_sublocality
      *
-     * @param string $location_sublocality A subfield of the location field. Indicates district/sublocality.
+     * @param string|null $location_sublocality A subfield of the location field. Indicates district/sublocality.
      *
      * @return self
      */
@@ -1572,7 +1419,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets location_locality
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationLocality()
     {
@@ -1582,7 +1429,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets location_locality
      *
-     * @param string $location_locality A subfield of the location field. Indicates city/town/village/locality.
+     * @param string|null $location_locality A subfield of the location field. Indicates city/town/village/locality.
      *
      * @return self
      */
@@ -1596,7 +1443,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets location_admin_area_level_1
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationAdminAreaLevel1()
     {
@@ -1606,7 +1453,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets location_admin_area_level_1
      *
-     * @param string $location_admin_area_level_1 A subfield of the location field. Indicates state/county.
+     * @param string|null $location_admin_area_level_1 A subfield of the location field. Indicates state/county.
      *
      * @return self
      */
@@ -1620,7 +1467,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets location_admin_area_level_2
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationAdminAreaLevel2()
     {
@@ -1630,7 +1477,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets location_admin_area_level_2
      *
-     * @param string $location_admin_area_level_2 A subfield of the location field. Indicates region.
+     * @param string|null $location_admin_area_level_2 A subfield of the location field. Indicates region.
      *
      * @return self
      */
@@ -1644,7 +1491,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets location_country
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationCountry()
     {
@@ -1654,7 +1501,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets location_country
      *
-     * @param string $location_country A subfield of the location field. Indicates country.
+     * @param string|null $location_country A subfield of the location field. Indicates country.
      *
      * @return self
      */
@@ -1668,7 +1515,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets location_postal_code
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationPostalCode()
     {
@@ -1678,7 +1525,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets location_postal_code
      *
-     * @param string $location_postal_code A subfield of the location field. Indicates ZIP/postal code.
+     * @param string|null $location_postal_code A subfield of the location field. Indicates ZIP/postal code.
      *
      * @return self
      */
@@ -1692,7 +1539,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets location_formatted_address
      *
-     * @return string
+     * @return string|null
      */
     public function getLocationFormattedAddress()
     {
@@ -1702,7 +1549,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets location_formatted_address
      *
-     * @param string $location_formatted_address A subfield of the location field. Indicates full/combined address.
+     * @param string|null $location_formatted_address A subfield of the location field. Indicates full/combined address.
      *
      * @return self
      */
@@ -1716,7 +1563,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets org_name
      *
-     * @return string
+     * @return string|null
      */
     public function getOrgName()
     {
@@ -1726,7 +1573,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets org_name
      *
-     * @param string $org_name The name of the organization this activity is associated with
+     * @param string|null $org_name The name of the organization this activity is associated with
      *
      * @return self
      */
@@ -1740,7 +1587,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets person_name
      *
-     * @return string
+     * @return string|null
      */
     public function getPersonName()
     {
@@ -1750,7 +1597,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets person_name
      *
-     * @param string $person_name The name of the person this activity is associated with
+     * @param string|null $person_name The name of the person this activity is associated with
      *
      * @return self
      */
@@ -1764,7 +1611,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets deal_title
      *
-     * @return string
+     * @return string|null
      */
     public function getDealTitle()
     {
@@ -1774,7 +1621,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets deal_title
      *
-     * @param string $deal_title The name of the deal this activity is associated with
+     * @param string|null $deal_title The name of the deal this activity is associated with
      *
      * @return self
      */
@@ -1788,7 +1635,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets owner_name
      *
-     * @return string
+     * @return string|null
      */
     public function getOwnerName()
     {
@@ -1798,7 +1645,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets owner_name
      *
-     * @param string $owner_name The name of the user this activity is owned by
+     * @param string|null $owner_name The name of the user this activity is owned by
      *
      * @return self
      */
@@ -1812,7 +1659,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets person_dropbox_bcc
      *
-     * @return string
+     * @return string|null
      */
     public function getPersonDropboxBcc()
     {
@@ -1822,7 +1669,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets person_dropbox_bcc
      *
-     * @param string $person_dropbox_bcc The BCC email address of the person
+     * @param string|null $person_dropbox_bcc The BCC email address of the person
      *
      * @return self
      */
@@ -1836,7 +1683,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets deal_dropbox_bcc
      *
-     * @return string
+     * @return string|null
      */
     public function getDealDropboxBcc()
     {
@@ -1846,7 +1693,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets deal_dropbox_bcc
      *
-     * @param string $deal_dropbox_bcc The BCC email address of the deal
+     * @param string|null $deal_dropbox_bcc The BCC email address of the deal
      *
      * @return self
      */
@@ -1860,7 +1707,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets assigned_to_user_id
      *
-     * @return int
+     * @return int|null
      */
     public function getAssignedToUserId()
     {
@@ -1870,7 +1717,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets assigned_to_user_id
      *
-     * @param int $assigned_to_user_id The ID of the user to whom the activity is assigned to. Equal to `user_id`.
+     * @param int|null $assigned_to_user_id The ID of the user to whom the activity is assigned to. Equal to `user_id`.
      *
      * @return self
      */
@@ -1884,7 +1731,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets file
      *
-     * @return object
+     * @return object|null
      */
     public function getFile()
     {
@@ -1894,7 +1741,7 @@ class ActivityResponseObjectAllOf implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets file
      *
-     * @param object $file The file that is attached to this activity. For example, this can be a reference to an audio note file generated with Pipedrive mobile app.
+     * @param object|null $file The file that is attached to this activity. For example, this can be a reference to an audio note file generated with Pipedrive mobile app.
      *
      * @return self
      */

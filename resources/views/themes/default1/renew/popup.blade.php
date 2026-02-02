@@ -47,6 +47,7 @@
                                           $plans = App\Model\Payment\Plan::join('products', 'plans.product', '=', 'products.id')
                                                   ->leftJoin('plan_prices','plans.id','=','plan_prices.plan_id')
                                                   ->where('plans.product',$productid)
+                                                  ->where('plans.status', 1)
                                                   ->where('plan_prices.currency', '=', $userCurrency)
                                                   ->where('plan_prices.renew_price','!=','0')
                                                   ->pluck('plans.name', 'plans.id')
@@ -59,7 +60,7 @@
                                                 $planDetails = userCurrencyAndPrice(Auth::user()->id, $plan);
                                                 $currency = $planDetails['currency'];
                                                 $price = $planDetails['plan']->renew_price ?? 0;
-                                                if(isAgentAllowed($productid)) {
+                                                if(isAgentAllowed($productid, $planId)) {
                                                     $noOfAgents = $planDetails['plan']->no_of_agents;
                                                     $priceForAgents = $price / $noOfAgents;
                                                     $plans[$planId] .= " (Renewal price-per agent: " . currencyFormat($priceForAgents, $currency, true, false) . ")";

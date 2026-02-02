@@ -7,7 +7,6 @@ use App\Model\Common\Country;
 use App\Model\Common\Setting;
 use App\Model\Payment\Currency;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Lang;
 
 class CurrencyController extends Controller
@@ -296,15 +295,6 @@ HTML;
                 $currency = Currency::findOrFail($request->input('current_id'));
 
                 $newStatus = $request->input('current_status') == '1' ? 0 : 1;
-
-                if ($newStatus) {
-                    Artisan::call('currency:manage', [
-                        'action' => 'add',
-                        'currency' => $currency->code,
-                    ]);
-
-                    Artisan::call('currency:cleanup');
-                }
 
                 $currency->update(['status' => $newStatus]);
 

@@ -850,6 +850,7 @@ return [
     'product_controller' => [
         'name_required' => '產品名稱是必需的。',
         'name_unique' => '名稱必須是唯一的。',
+        'name_unique_in_group' => '所選群組中已存在同名產品。請選擇其他名稱或選擇其他群組。',
         'type_required' => '產品類型是必需的。',
         'description_required' => '產品描述是必需的。',
         'product_description_required' => '詳細的產品描述是必需的。',

@@ -63,7 +63,7 @@
         <tr>
             <td>
                 @if(!empty($set->logo))
-                    <img alt="Logo" src="{{ $set->logo }}" width="100" height="50">
+                    <img alt="Logo" src="{{ $base64 }}" width="100" height="50">
                 @else
                     <strong style="font-size:18px">{{ ucfirst($set->company) }}</strong>
                 @endif

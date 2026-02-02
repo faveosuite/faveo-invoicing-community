@@ -282,13 +282,7 @@ $days = $pay->where('product','117')->value('days');
                                         @foreach($social as $media)
                                             <li class="nav-item pe-2 mx-1">
                                                 <a href="{{$media->link}}" target="_blank" data-bs-toggle="tooltip" title="{{$media->name}}" class="text-color-default text-color-hover-primary text-4">
-                                                    @if ($media->name === 'Facebook')
-                                                        <i class="fab fa-facebook-f"></i>
-                                                    @elseif ($media->name === 'Twitter')
-                                                        <i class="fab fa-twitter"></i>
-                                                    @elseif ($media->name === 'Linkedin')
-                                                        <i class="fab fa-linkedin-in"></i>
-                                                    @endif
+                                                    <i class="fab fa-{{ strtolower($media->name) }}"></i>
                                                 </a>
                                             </li>
                                         @endforeach
@@ -729,7 +723,7 @@ $days = $pay->where('product','117')->value('days');
                             <hr>
                             @if($dataCenters->count()==1)
                                 <div class="text-center">
-                                    <p>{{ __('message.data_center_location') }} <b data-nearest-center="">{!! array_first($dataCenters)->cloud_countries !!} </b><!--<a role="button" href="javascript:void(0)" data-center-link="" aria-labelledby="data-center-text-label-dataCenter119678097062480"><b>Change</b></a>--></p>
+                                    <p>{{ __('message.data_center_location') }} <b data-nearest-center="">{!! $dataCenters->first()->cloud_countries !!} </b><!--<a role="button" href="javascript:void(0)" data-center-link="" aria-labelledby="data-center-text-label-dataCenter119678097062480"><b>Change</b></a>--></p>
                                 </div>
                             @else
                                 <label style="margin-top: 2px; text-align: left;"><b>{{ __('message.choose_data_center') }}</b></label>
@@ -813,7 +807,7 @@ $days = $pay->where('product','117')->value('days');
                                     <div class="col col-12">
                                         @if($dataCenters->count()==1)
                                             <div class="text-center">
-                                                <p>{{ __('message.data_center_location') }} <b data-nearest-center="">{!! array_first($dataCenters)->cloud_countries !!} </b><!--<a role="button" href="javascript:void(0)" data-center-link="" aria-labelledby="data-center-text-label-dataCenter119678097062480"><b>Change</b></a>--></p>
+                                                <p>{{ __('message.data_center_location') }} <b data-nearest-center="">{!! $dataCenters->first()->cloud_countries !!} </b><!--<a role="button" href="javascript:void(0)" data-center-link="" aria-labelledby="data-center-text-label-dataCenter119678097062480"><b>Change</b></a>--></p>
                                             </div>
                                         @else
                                             <label style="margin-top: 2px; text-align: left;"><b>{{ __('message.choose_data_center') }}</b></label>
@@ -1271,72 +1265,85 @@ setTimeout(function() {
         var domain = $('#userdomain').val();
         var password = $('#password').val();
         var product = $('#serviceType').val();
-        $.ajax({
-            type: 'POST',
-            data: {'id':id,'password': password,'domain' : domain,'product':product},
-            url: "{{url('first-login')}}",
-            success: function (data) {
-                $('#createTenant').attr('disabled',false)
-                $("#createTenant").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
-                if(data.status == 'validationFailure') {
+        const alphanumeric = /^[a-zA-Z0-9]+$/;
+        if ( !alphanumeric.test(domain)) {
 
-                    var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
-                    for (var key in data.message)
-                    {
-                        html += '<li>' + data.message[key][0] + '</li>'
+            var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
+            html += '<li>{{__('message.domain_check')}}</li>'
+            document.getElementById('clouderror').innerHTML = html;
+            $("#createTenant").html(" {{ __('message.submit') }}");
+            $('#createTenant').attr('disabled',false)
+
+        }else {
+            $.ajax({
+                type: 'POST',
+                data: {'id': id, 'password': password, 'domain': domain, 'product': product},
+                url: "{{url('first-login')}}",
+                success: function (data) {
+                    $('#createTenant').attr('disabled', false)
+                    $("#createTenant").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
+                    if (data.status == 'validationFailure') {
+
+                        var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
+                        for (var key in data.message) {
+                            html += '<li>' + data.message[key][0] + '</li>'
+                        }
+                        html += '</ul></div>';
+                        $('#clouderror').show();
+                        $('#cloudsuccess').hide();
+                        document.getElementById('error').innerHTML = html;
+                    } else if (data.status == 'false') {
+                        $('#clouderror').show();
+                        $('#cloudsuccess').hide();
+                        var result = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}!!<br><ul><li>' + data.message + '</li></ul></div>';
+                        $('#clouderror').html(result);
+                    } else if (data.status == 'success_with_warning') {
+                        $('#clouderror').show();
+                        $('#cloudsuccess').hide();
+                        var result = '<div class="alert alert-warning alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong><br><ul><li>' + translate('instance_not_created', {
+                            'installationUrl': data.installationUrl,
+                            'reason': data.reason
+                        }) + '</li></ul></div>';
+                        $('#clouderror').html(result);
+                    } else {
+                        $('#clouderror').hide();
+                        $('#cloudsuccess').show();
+                        var result = '<div class="alert alert-success alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button><strong>{{ __('message.success') }}! </strong>' + translate('instance_successfully_created', {'installationUrl': data.installationUrl}) + '!</div>';
+                        $('#cloudsuccess').html(result);
                     }
+                }, error: function (response) {
+                    $('#createTenant').attr('disabled', false)
+                    $("#createTenant").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
+                    $("#generate").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
+
+                    var html = '<div class="alert alert-danger alert-dismissible">' +
+                        '<button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button>' +
+                        '<strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
+
+                    if (response.status == 422) {
+                        for (var key in response.responseJSON.errors) {
+                            html += '<li>' + response.responseJSON.errors[key][0] + '</li>';
+                        }
+
+                    } else {
+                        html += '<li>' + response.responseJSON.message + '</li>';
+                    }
+
                     html += '</ul></div>';
+
                     $('#clouderror').show();
                     $('#cloudsuccess').hide();
-                    document.getElementById('error').innerHTML = html;
-                } else if(data.status == 'false') {
-                    $('#clouderror').show();
-                    $('#cloudsuccess').hide();
-                    var result =  '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}!!<br><ul><li>'+data.message+'</li></ul></div>';
-                    $('#clouderror').html(result);
-                } else if(data.status == 'success_with_warning') {
-                    $('#clouderror').show();
-                    $('#cloudsuccess').hide();
-                    var result =  '<div class="alert alert-warning alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong><br><ul><li>'+translate('instance_not_created',{'installationUrl':data.installationUrl,'reason':data.reason})+'</li></ul></div>';
-                    $('#clouderror').html(result);
-                } else {
-                    $('#clouderror').hide();
-                    $('#cloudsuccess').show();
-                    var result =  '<div class="alert alert-success alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button><strong>{{ __('message.success') }}! </strong>'+translate('instance_successfully_created',{'installationUrl':data.installationUrl})+'!</div>';
-                    $('#cloudsuccess').html(result);
-                }
-            },error: function (response) {
-                $('#createTenant').attr('disabled',false)
-                $("#createTenant").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
-                $("#generate").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
+                    document.getElementById('clouderror').innerHTML = html;
 
-                var html = '<div class="alert alert-danger alert-dismissible">' +
-                    '<button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button>' +
-                    '<strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
-
-                if (response.status == 422) {
-                    for (var key in response.responseJSON.errors) {
-                        html += '<li>' + response.responseJSON.errors[key][0] + '</li>';
-                    }
-
-                } else {
-                    html += '<li>' + response.responseJSON.message + '</li>';
+                    // Hide the error message after 5 seconds (5000 milliseconds)
+                    setTimeout(function () {
+                        $('#clouderror').fadeOut('slow');
+                    }, 5000);
                 }
 
-                html += '</ul></div>';
 
-                $('#clouderror').show();
-                $('#cloudsuccess').hide();
-                document.getElementById('clouderror').innerHTML = html;
-
-                // Hide the error message after 5 seconds (5000 milliseconds)
-                setTimeout(function () {
-                    $('#clouderror').fadeOut('slow');
-                }, 5000);
-            }
-
-
-        }) ;
+            });
+        }
     }
 
 
@@ -1566,68 +1573,75 @@ setTimeout(function() {
             })
         });
 
-        function createtenancy(){
-            $('#createtenancy').attr('disabled',true)
-            $("#createtenancy").html("<i class='fas fa-circle-notch fa-spin'></i> {{ __('message.please_wait') }}");
+        function createtenancy(e){
+            const alphanumeric = /^[a-zA-Z0-9]+$/;
             var domain = $('#userdomainPurchase').val();
-            var order = $('#orderId').val();
-            $.ajax({
-                url: "{{url('create/tenant/purchase')}}",
-                type: "POST",
-                data: {'domain': domain, 'id': order},
-                success: function (data) {
-                    $('#createtenancy').attr('disabled',false)
-                    $("#createtenancy").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
-                    if(data.status == 'validationFailure') {
 
-                        var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
-                        for (var key in data.message)
-                        {
-                            html += '<li>' + data.message[key][0] + '</li>'
+            if ( !alphanumeric.test(domain)) {
+
+                var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
+                html += '<li>{{__('message.domain_check')}}</li>'
+                document.getElementById('error').innerHTML = html;
+            }else {
+                $('#createtenancy').attr('disabled', true)
+                $("#createtenancy").html("<i class='fas fa-circle-notch fa-spin'></i> {{ __('message.please_wait') }}");
+                var order = $('#orderId').val();
+                $.ajax({
+                    url: "{{url('create/tenant/purchase')}}",
+                    type: "POST",
+                    data: {'domain': domain, 'id': order},
+                    success: function (data) {
+                        $('#createtenancy').attr('disabled', false)
+                        $("#createtenancy").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
+                        if (data.status == 'validationFailure') {
+
+                            var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
+                            for (var key in data.message) {
+                                html += '<li>' + data.message[key][0] + '</li>'
+                            }
+                            html += '</ul></div>';
+                            $('#error').show();
+                            $('#success').hide();
+                            document.getElementById('error').innerHTML = html;
+                        } else if (data.status == 'false') {
+                            $('#error').show();
+                            $('#success').hide();
+                            var result = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}!<br><ul><li>' + data.message + '</li></ul></div>';
+                            $('#error').html(result);
+                        } else if (data.status == 'success_with_warning') {
+                            console.log('here');
+                            $('#error').show();
+                            $('#success').hide();
+                            var result = '<div class="alert alert-warning alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong><br><ul><li>' + data.message + '</li></ul></div>';
+                            $('#error').html(result);
+                        } else {
+                            window.location.href = data.redirectTo;
                         }
+                    }, error: function (response) {
+                        $('#createtenancy').attr('disabled', false)
+                        $("#createtenancy").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
+                        $("#generate").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
+                        if (response.status == 422) {
+
+                            var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
+                            for (var key in response.responseJSON.errors) {
+                                html += '<li>' + response.responseJSON.errors[key][0] + '</li>'
+                            }
+
+                        } else {
+                            var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
+                            html += '<li>' + response.responseJSON.message + '</li>'
+                        }
+
                         html += '</ul></div>';
                         $('#error').show();
                         $('#success').hide();
                         document.getElementById('error').innerHTML = html;
-                    } else if(data.status == 'false') {
-                        $('#error').show();
-                        $('#success').hide();
-                        var result =  '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}!<br><ul><li>'+data.message+'</li></ul></div>';
-                        $('#error').html(result);
-                    } else if(data.status == 'success_with_warning') {
-                        console.log('here');
-                        $('#error').show();
-                        $('#success').hide();
-                        var result =  '<div class="alert alert-warning alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong><br><ul><li>'+data.message+'</li></ul></div>';
-                        $('#error').html(result);
-                    } else {
-                        window.location.href = data.redirectTo;
-                    }
-                },error: function (response) {
-                    $('#createtenancy').attr('disabled',false)
-                    $("#createtenancy").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
-                    $("#generate").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
-                    if(response.status == 422) {
 
-                        var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
-                        for (var key in response.responseJSON.errors)
-                        {
-                            html += '<li>' + response.responseJSON.errors[key][0] + '</li>'
-                        }
-
-                    } else {
-                        var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
-                        html += '<li>' + response.responseJSON.message + '</li>'
                     }
 
-                    html += '</ul></div>';
-                    $('#error').show();
-                    $('#success').hide();
-                    document.getElementById('error').innerHTML = html;
-
-                }
-
-            })
+                })
+            }
         }
 
 

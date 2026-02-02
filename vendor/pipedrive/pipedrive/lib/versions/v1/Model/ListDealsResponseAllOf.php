@@ -225,15 +225,6 @@ class ListDealsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
-        if ($this->container['related_objects'] === null) {
-            $invalidProperties[] = "'related_objects' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -252,7 +243,7 @@ class ListDealsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\DealNonStrict[]
+     * @return \Pipedrive\versions\v1\Model\DealNonStrict[]|null
      */
     public function getData()
     {
@@ -262,7 +253,7 @@ class ListDealsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\DealNonStrict[] $data The array of deals
+     * @param \Pipedrive\versions\v1\Model\DealNonStrict[]|null $data The array of deals
      *
      * @return self
      */
@@ -276,7 +267,7 @@ class ListDealsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\AdditionalData
+     * @return \Pipedrive\versions\v1\Model\AdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -286,7 +277,7 @@ class ListDealsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\AdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\AdditionalData|null $additional_data additional_data
      *
      * @return self
      */
@@ -300,7 +291,7 @@ class ListDealsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets related_objects
      *
-     * @return \Pipedrive\versions\v1\Model\ListDealsResponseAllOfRelatedObjects
+     * @return \Pipedrive\versions\v1\Model\ListDealsResponseAllOfRelatedObjects|null
      */
     public function getRelatedObjects()
     {
@@ -310,7 +301,7 @@ class ListDealsResponseAllOf implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets related_objects
      *
-     * @param \Pipedrive\versions\v1\Model\ListDealsResponseAllOfRelatedObjects $related_objects related_objects
+     * @param \Pipedrive\versions\v1\Model\ListDealsResponseAllOfRelatedObjects|null $related_objects related_objects
      *
      * @return self
      */

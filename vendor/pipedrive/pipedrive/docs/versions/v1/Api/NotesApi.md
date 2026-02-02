@@ -484,7 +484,7 @@ Name | Type | Description  | Notes
 ## `getNotes()`
 
 ```php
-getNotes($user_id, $lead_id, $deal_id, $person_id, $org_id, $project_id, $start, $limit, $sort, $start_date, $end_date, $pinned_to_lead_flag, $pinned_to_deal_flag, $pinned_to_organization_flag, $pinned_to_person_flag, $pinned_to_project_flag): \Pipedrive\versions\v1\Model\GetNotes
+getNotes($user_id, $lead_id, $deal_id, $person_id, $org_id, $project_id, $start, $limit, $sort, $start_date, $end_date, $updated_since, $pinned_to_lead_flag, $pinned_to_deal_flag, $pinned_to_organization_flag, $pinned_to_person_flag, $pinned_to_project_flag): \Pipedrive\versions\v1\Model\GetNotes
 ```
 
 Get all notes
@@ -524,6 +524,7 @@ $limit = 56; // int | Items shown per page
 $sort = 'sort_example'; // string | The field names and sorting mode separated by a comma (`field_name_1 ASC`, `field_name_2 DESC`). Only first-level field keys are supported (no nested keys). Supported fields: `id`, `user_id`, `deal_id`, `person_id`, `org_id`, `content`, `add_time`, `update_time`.
 $start_date = new \DateTime("2013-10-20T19:20:30+01:00"); // \DateTime | The date in format of YYYY-MM-DD from which notes to fetch
 $end_date = new \DateTime("2013-10-20T19:20:30+01:00"); // \DateTime | The date in format of YYYY-MM-DD until which notes to fetch to
+$updated_since = 2025-01-01T10:20Z; // \DateTime | If set, only notes with an `update_time` later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z.
 $pinned_to_lead_flag = new \Pipedrive\versions\v1\Model\\Pipedrive\versions\v1\Model\NumberBoolean(); // \Pipedrive\versions\v1\Model\NumberBoolean | If set, the results are filtered by note to lead pinning state
 $pinned_to_deal_flag = new \Pipedrive\versions\v1\Model\\Pipedrive\versions\v1\Model\NumberBoolean(); // \Pipedrive\versions\v1\Model\NumberBoolean | If set, the results are filtered by note to deal pinning state
 $pinned_to_organization_flag = new \Pipedrive\versions\v1\Model\\Pipedrive\versions\v1\Model\NumberBoolean(); // \Pipedrive\versions\v1\Model\NumberBoolean | If set, the results are filtered by note to organization pinning state
@@ -531,7 +532,7 @@ $pinned_to_person_flag = new \Pipedrive\versions\v1\Model\\Pipedrive\versions\v1
 $pinned_to_project_flag = new \Pipedrive\versions\v1\Model\\Pipedrive\versions\v1\Model\NumberBoolean(); // \Pipedrive\versions\v1\Model\NumberBoolean | If set, the results are filtered by note to project pinning state
 
 try {
-    $result = $apiInstance->getNotes($user_id, $lead_id, $deal_id, $person_id, $org_id, $project_id, $start, $limit, $sort, $start_date, $end_date, $pinned_to_lead_flag, $pinned_to_deal_flag, $pinned_to_organization_flag, $pinned_to_person_flag, $pinned_to_project_flag);
+    $result = $apiInstance->getNotes($user_id, $lead_id, $deal_id, $person_id, $org_id, $project_id, $start, $limit, $sort, $start_date, $end_date, $updated_since, $pinned_to_lead_flag, $pinned_to_deal_flag, $pinned_to_organization_flag, $pinned_to_person_flag, $pinned_to_project_flag);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling NotesApi->getNotes: ', $e->getMessage(), PHP_EOL;
@@ -553,6 +554,7 @@ Name | Type | Description  | Notes
  **sort** | **string**| The field names and sorting mode separated by a comma (&#x60;field_name_1 ASC&#x60;, &#x60;field_name_2 DESC&#x60;). Only first-level field keys are supported (no nested keys). Supported fields: &#x60;id&#x60;, &#x60;user_id&#x60;, &#x60;deal_id&#x60;, &#x60;person_id&#x60;, &#x60;org_id&#x60;, &#x60;content&#x60;, &#x60;add_time&#x60;, &#x60;update_time&#x60;. | [optional]
  **start_date** | **\DateTime**| The date in format of YYYY-MM-DD from which notes to fetch | [optional]
  **end_date** | **\DateTime**| The date in format of YYYY-MM-DD until which notes to fetch to | [optional]
+ **updated_since** | **\DateTime**| If set, only notes with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. | [optional]
  **pinned_to_lead_flag** | [**\Pipedrive\versions\v1\Model\NumberBoolean**](../Model/.md)| If set, the results are filtered by note to lead pinning state | [optional]
  **pinned_to_deal_flag** | [**\Pipedrive\versions\v1\Model\NumberBoolean**](../Model/.md)| If set, the results are filtered by note to deal pinning state | [optional]
  **pinned_to_organization_flag** | [**\Pipedrive\versions\v1\Model\NumberBoolean**](../Model/.md)| If set, the results are filtered by note to organization pinning state | [optional]

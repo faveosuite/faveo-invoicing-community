@@ -156,8 +156,10 @@ class GroupController extends Controller
             $allProductsHavePlans = true;
 
             foreach ($products as $product) {
-                $monthlyPlan = Plan::where('product', $product->id)->where('days', 30)->first();
-                $yearlyPlan = Plan::where('product', $product->id)->where('days', 365)->orWhere('days', 366)->first();
+                $monthlyPlan = Plan::where('product', $product->id)->where('status', 1)->where('days', 30)->first();
+                $yearlyPlan = Plan::where('product', $product->id)->where('status', 1)->where(function ($q) {
+                    $q->where('days', 365)->orWhere('days', 366);
+                })->first();
 
                 if (! $monthlyPlan || ! $yearlyPlan) {
                     $allProductsHavePlans = false;

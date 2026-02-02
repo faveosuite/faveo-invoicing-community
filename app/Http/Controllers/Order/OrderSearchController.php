@@ -121,22 +121,26 @@ class OrderSearchController extends Controller
         if ($version) {
             if ($productId == 'paid') {
                 $latestVersion = ProductUpload::orderBy('version', 'desc')->value('version');
-                if ($version == 'Latest') {
+                if ($version == 'Latest' && $latestVersion) {
                     $baseQuery->where('subscriptions.version', '=', $latestVersion);
-                } elseif ($version == 'Outdated') {
+                } elseif ($version == 'Outdated' && $latestVersion) {
                     $baseQuery->where('subscriptions.version', '<', $latestVersion);
                 }
             } elseif ($productId == 'unpaid') {
                 $latestVersion = ProductUpload::orderBy('version', 'desc')->value('version');
-                if ($version == 'Latest') {
+                if ($version == 'Latest' && $latestVersion) {
                     $baseQuery->where('subscriptions.version', '=', $latestVersion);
-                } elseif ($version == 'Outdated') {
+                } elseif ($version == 'Outdated' && $latestVersion) {
                     $baseQuery->where('subscriptions.version', '<', $latestVersion);
                 }
             } elseif ($version == 'Outdated') {
                 $latestVersion = Subscription::where('product_id', $productId)->orderBy('version', 'desc')->value('version');
 
-                $baseQuery->where('subscriptions.version', '!=', null)->where('subscriptions.version', '!=', '')->where('subscriptions.version', '<', $latestVersion);
+                if (! empty($latestVersion)) {
+                    $baseQuery->whereNotNull('subscriptions.version')
+                        ->where('subscriptions.version', '!=', '')
+                        ->where('subscriptions.version', '<', $latestVersion);
+                }
             } else {
                 $baseQuery->where('subscriptions.version', '=', $version);
             }

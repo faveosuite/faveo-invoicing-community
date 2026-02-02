@@ -401,7 +401,7 @@ class Email extends Message
 
     private function ensureBodyValid(): void
     {
-        if (null === $this->text && null === $this->html && !$this->attachments) {
+        if (null === $this->text && null === $this->html && !$this->attachments && null === parent::getBody()) {
             throw new LogicException('A message must have a text or an HTML part or attachments.');
         }
     }
@@ -492,7 +492,7 @@ class Email extends Message
                 }
 
                 if ($name !== $part->getContentId()) {
-                    $html = str_replace('cid:'.$name, 'cid:'.$part->getContentId(), $html, $count);
+                    $html = str_replace('cid:'.$name, 'cid:'.$part->getContentId(), $html);
                 }
                 $relatedParts[$name] = $part;
                 $part->setName($part->getContentId())->asInline();

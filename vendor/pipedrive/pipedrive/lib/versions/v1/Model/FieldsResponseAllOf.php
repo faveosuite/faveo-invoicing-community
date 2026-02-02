@@ -219,12 +219,6 @@ class FieldsResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializab
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -243,7 +237,7 @@ class FieldsResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\GetField[]
+     * @return \Pipedrive\versions\v1\Model\GetField[]|null
      */
     public function getData()
     {
@@ -253,7 +247,7 @@ class FieldsResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\GetField[] $data data
+     * @param \Pipedrive\versions\v1\Model\GetField[]|null $data data
      *
      * @return self
      */
@@ -267,7 +261,7 @@ class FieldsResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Gets additional_data
      *
-     * @return \Pipedrive\versions\v1\Model\AdditionalData
+     * @return \Pipedrive\versions\v1\Model\AdditionalData|null
      */
     public function getAdditionalData()
     {
@@ -277,7 +271,7 @@ class FieldsResponseAllOf implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets additional_data
      *
-     * @param \Pipedrive\versions\v1\Model\AdditionalData $additional_data additional_data
+     * @param \Pipedrive\versions\v1\Model\AdditionalData|null $additional_data additional_data
      *
      * @return self
      */

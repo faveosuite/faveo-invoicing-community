@@ -170,13 +170,31 @@ function getDateHtmlcopy(?string $dateTimeString = null)
 }
 function getExpiryLabel($expiryDate, $badge = 'badge')
 {
-    if ($expiryDate < (new Carbon())->toDateTimeString()) {
-        return getDateHtml($expiryDate).'&nbsp;<span class="'.$badge.' '.$badge.'-danger">
-        <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('validation.order_has_Expired').'">
-        </label>'.__('message.expired').'</span>';
-    } else {
-        return getDateHtml($expiryDate);
+    if (empty($expiryDate)) {
+        return '--';
     }
+
+    try {
+        $expiry = Carbon::parse($expiryDate);
+    } catch (\Exception $e) {
+        return '--';
+    }
+
+    $dateHtml = getDateHtml($expiryDate);
+
+    if ($expiry->isPast()) {
+        return $dateHtml.
+            '&nbsp;<span class="'.$badge.' '.$badge.'-danger">
+                <label data-toggle="tooltip"
+                       style="font-weight:500;"
+                       data-placement="top"
+                       title="'.__('validation.order_has_Expired').'">
+                </label>'.
+            __('message.expired').
+            '</span>';
+    }
+
+    return $dateHtml;
 }
 
 function getVersionAndLabel($productVersion, $productId, $badge = 'label', $path = null)
@@ -470,10 +488,10 @@ function userCountryId()
     return $country;
 }
 
-function getIndianCurrencySymbol($currency)
-{
-    return \DB::table('format_currencies')->where('code', $currency)->value('symbol');
-}
+//function getIndianCurrencySymbol($currency)
+//{
+//    return \DB::table('format_currencies')->where('code', $currency)->value('symbol');
+//}
 
 function getIndianCurrencyFormat($number)
 {
@@ -579,7 +597,7 @@ function setServiceConfig($emailConfig)
     \Config::set('mail.username', $emailConfig['email']);
 
     //setting the config again in the service container
-    (new \Illuminate\Mail\MailServiceProvider(app()))->register();
+    new \Illuminate\Mail\MailServiceProvider(app())->register();
 }
 
 function persistentCache($key, Closure $closure, $noOfSeconds = 30, array $variables = [])
@@ -932,11 +950,23 @@ function createUrl(string $path): string
 
     return rtrim($baseUrl, '/').'/'.ltrim($path, '/');
 }
-function isAgentAllowed($productId)
+function isAgentAllowed($productId, $planId): bool
 {
-    $product = \App\Model\Product\Product::find($productId);
+    $planAgents = \App\Model\Payment\PlanPrice::where('plan_id', $planId)
+        ->value('no_of_agents');
 
-    return in_array($productId, cloudPopupProducts()) || $product->can_modify_agent;
+    // No agents configured → immediately false
+    if (empty($planAgents)) {
+        return false;
+    }
+
+    // Cloud popup products are always allowed
+    if (in_array($productId, cloudPopupProducts(), true)) {
+        return true;
+    }
+
+    return (bool) \App\Model\Product\Product::find($productId)
+        ->value('can_modify_agent');
 }
 function isCurrencySupportedForPayments(string $currency, array|string $paymentMethods): bool
 {

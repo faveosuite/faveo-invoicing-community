@@ -69,6 +69,7 @@ class AddWebhookRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'subscription_url' => 'string',
         'event_action' => 'string',
         'event_object' => 'string',
+        'name' => 'string',
         'user_id' => 'int',
         'http_auth_user' => 'string',
         'http_auth_password' => 'string',
@@ -86,6 +87,7 @@ class AddWebhookRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'subscription_url' => null,
         'event_action' => null,
         'event_object' => null,
+        'name' => null,
         'user_id' => null,
         'http_auth_user' => null,
         'http_auth_password' => null,
@@ -126,6 +128,7 @@ class AddWebhookRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'subscription_url' => 'subscription_url',
         'event_action' => 'event_action',
         'event_object' => 'event_object',
+        'name' => 'name',
         'user_id' => 'user_id',
         'http_auth_user' => 'http_auth_user',
         'http_auth_password' => 'http_auth_password',
@@ -141,6 +144,7 @@ class AddWebhookRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'subscription_url' => 'setSubscriptionUrl',
         'event_action' => 'setEventAction',
         'event_object' => 'setEventObject',
+        'name' => 'setName',
         'user_id' => 'setUserId',
         'http_auth_user' => 'setHttpAuthUser',
         'http_auth_password' => 'setHttpAuthPassword',
@@ -156,6 +160,7 @@ class AddWebhookRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'subscription_url' => 'getSubscriptionUrl',
         'event_action' => 'getEventAction',
         'event_object' => 'getEventObject',
+        'name' => 'getName',
         'user_id' => 'getUserId',
         'http_auth_user' => 'getHttpAuthUser',
         'http_auth_password' => 'getHttpAuthPassword',
@@ -305,6 +310,7 @@ class AddWebhookRequest implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['subscription_url'] = $data['subscription_url'] ?? null;
         $this->container['event_action'] = $data['event_action'] ?? null;
         $this->container['event_object'] = $data['event_object'] ?? null;
+        $this->container['name'] = $data['name'] ?? null;
         $this->container['user_id'] = $data['user_id'] ?? null;
         $this->container['http_auth_user'] = $data['http_auth_user'] ?? null;
         $this->container['http_auth_password'] = $data['http_auth_password'] ?? null;
@@ -347,6 +353,13 @@ class AddWebhookRequest implements ModelInterface, ArrayAccess, JsonSerializable
                 $this->container['event_object'],
                 implode("', '", $allowedValues)
             );
+        }
+
+        if ($this->container['name'] === null) {
+            $invalidProperties[] = "'name' can't be null";
+        }
+        if ((mb_strlen($this->container['name']) > 255)) {
+            $invalidProperties[] = "invalid value for 'name', the character length must be smaller than or equal to 255.";
         }
 
         $allowedValues = $this->getVersionAllowableValues();
@@ -461,6 +474,34 @@ class AddWebhookRequest implements ModelInterface, ArrayAccess, JsonSerializable
             );
         }
         $this->container['event_object'] = $event_object;
+
+        return $this;
+    }
+
+    /**
+     * Gets name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->container['name'];
+    }
+
+    /**
+     * Sets name
+     *
+     * @param string $name The webhook's name
+     *
+     * @return self
+     */
+    public function setName($name): self
+    {
+        if ((mb_strlen($name) > 255)) {
+            throw new \InvalidArgumentException('invalid length for $name when calling AddWebhookRequest., must be smaller than or equal to 255.');
+        }
+
+        $this->container['name'] = $name;
 
         return $this;
     }

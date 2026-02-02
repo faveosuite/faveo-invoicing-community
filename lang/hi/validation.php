@@ -813,6 +813,7 @@ return [
     'product_controller' => [
         'name_required' => 'उत्पाद का नाम आवश्यक है।',
         'name_unique' => 'नाम अद्वितीय होना चाहिए।',
+        'name_unique_in_group' => 'इस नाम का उत्पाद चयनित समूह में पहले से मौजूद है। कृपया कोई अलग नाम चुनें या दूसरा समूह चुनें।',
         'type_required' => 'उत्पाद प्रकार आवश्यक है।',
         'description_required' => 'उत्पाद का विवरण आवश्यक है।',
         'product_description_required' => 'विस्तृत उत्पाद विवरण आवश्यक है।',

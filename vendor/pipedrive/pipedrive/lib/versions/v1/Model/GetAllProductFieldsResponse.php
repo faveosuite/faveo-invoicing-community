@@ -225,15 +225,6 @@ class GetAllProductFieldsResponse implements ModelInterface, ArrayAccess, JsonSe
     {
         $invalidProperties = [];
 
-        if ($this->container['success'] === null) {
-            $invalidProperties[] = "'success' can't be null";
-        }
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['additional_data'] === null) {
-            $invalidProperties[] = "'additional_data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -252,7 +243,7 @@ class GetAllProductFieldsResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets success
      *
-     * @return bool
+     * @return bool|null
      */
     public function getSuccess()
     {
@@ -262,7 +253,7 @@ class GetAllProductFieldsResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets success
      *
-     * @param bool $success If the response is successful or not
+     * @param bool|null $success If the response is successful or not
      *
      * @return self
      */
@@ -276,7 +267,7 @@ class GetAllProductFieldsResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\GetProductField[]
+     * @return \Pipedrive\versions\v1\Model\GetProductField[]|null
      */
     public function getData()
     {
@@ -286,7 +277,7 @@ class GetAllProductFieldsResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\GetProductField[] $data Array containing data for all product fields
+     * @param \Pipedrive\versions\v1\Model\GetProductField[]|null $data Array containing data for all product fields
      *
      * @return self
      */
@@ -300,7 +291,7 @@ class GetAllProductFieldsResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Gets additional_data
      *
-     * @return object
+     * @return object|null
      */
     public function getAdditionalData()
     {
@@ -310,7 +301,7 @@ class GetAllProductFieldsResponse implements ModelInterface, ArrayAccess, JsonSe
     /**
      * Sets additional_data
      *
-     * @param object $additional_data Additional data for the product field, such as pagination
+     * @param object|null $additional_data Additional data for the product field, such as pagination
      *
      * @return self
      */

@@ -5,17 +5,19 @@ namespace App\Http\Controllers\Common;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Email\EmailSettingRequest;
 use App\Model\Common\Setting;
-use Swift_SmtpTransport;
+use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 
 class EmailSettingsController extends Controller
 {
     protected $emailConfig;
 
+    protected $error;
+
     protected function checkSConnection(Setting $emailConfig)
     {
         try {
             $this->emailConfig = $emailConfig;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->error = $e;
 
             return false;
@@ -79,7 +81,7 @@ class EmailSettingsController extends Controller
     {
         try {
             $this->emailConfig = $emailConfig;
-            $this->emailConfig;
+
             //if sending protocol is mail, no connection check is required
             if ($this->emailConfig->driver == 'mail') {
                 return $this->checkMailConnection();
@@ -93,7 +95,7 @@ class EmailSettingsController extends Controller
             }
 
             return $this->checkServices();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->error = $e;
 
             return false;
@@ -118,7 +120,7 @@ class EmailSettingsController extends Controller
     /**
      * Checks services status by raw sending mail and waiting for the response.
      *
-     * @return bool true if success else false
+     * @return \Illuminate\Mail\SentMessage true if success else false
      */
     private function checkServices()
     {
@@ -126,17 +128,9 @@ class EmailSettingsController extends Controller
             $protocolName = $this->emailConfig->sending_protocol;
 
             //sending a text message and checking if respond comes. If yes, connection is considered to be successful
-            \Mail::raw("This is a test mail for successful $protocolName connection", function ($message) {
+            return \Mail::raw("This is a test mail for successful $protocolName connection", function ($message) {
                 $message->to($this->emailConfig->email_address);
             });
-
-            if (count(\Mail::failures()) > 0) {
-                $this->error = Lang::get('message.unknown_error_occured');
-
-                return false;
-            }
-
-            return true;
         } catch (\Exception $e) {
             $this->error = $e;
 
@@ -144,28 +138,24 @@ class EmailSettingsController extends Controller
         }
     }
 
+    /**
+     * Checks smtp connection stream. If an exception is found, it writes the exception method to $this->error
+     * TO DO: it is not required to set email configuration before checking the stream in above method,
+     * because it is in this method too.
+     *
+     * @return bool true if success else false
+     */
     private function checkSMTPConnection()
     {
         try {
-            $https = [];
-            $https['ssl']['verify_peer'] = false;
-            $https['ssl']['verify_peer_name'] = false;
-
-            $transport = new  Swift_SmtpTransport(\Config::get('mail.host'), \Config::get('mail.port'), \Config::get('mail.security'));
-
+            $transport = new  EsmtpTransport(\Config::get('mail.host'), \Config::get('mail.port'));
             $transport->setUsername(\Config::get('mail.username'));
             $transport->setPassword(\Config::get('mail.password'));
-            $transport->setStreamOptions($https);
-            $mailer = new \Swift_Mailer($transport);
 
-            $mailer->getTransport()->start();
+            $transport->start();
 
             return true;
-        } catch (\TransportExceptionInterface $e) {
-            $this->error = $e;
-
-            return false;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->error = $e;
 
             return false;

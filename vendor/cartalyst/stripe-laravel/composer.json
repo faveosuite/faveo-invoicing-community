@@ -16,9 +16,9 @@
         }
     ],
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "cartalyst/stripe": "^2.0",
-        "illuminate/support": "^11.0"
+        "illuminate/support": "^12.0"
     },
     "require-dev": {
         "cartalyst/php-cs-fixer-config": "^1.0",
@@ -42,7 +42,7 @@
     "extra": {
         "component": "implementation",
         "branch-alias": {
-            "dev-master": "16.0.x-dev"
+            "dev-master": "17.0.x-dev"
         },
         "laravel": {
             "providers": [

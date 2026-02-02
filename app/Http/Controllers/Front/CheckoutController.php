@@ -529,8 +529,11 @@ class CheckoutController extends InfoController
                 $payment = new \App\Http\Controllers\Order\InvoiceController();
                 $payment->postRazorpayPayment($invoice);
 
-                $order = new \App\Http\Controllers\Order\OrderController();
-                $order->executeOrder($invoice->id, $order_status = 'executed');
+                $alreadyExecuted = \App\Model\Order\Order::where('invoice_id', $invoice->id)->exists();
+                if (! $alreadyExecuted) {
+                    $order = new \App\Http\Controllers\Order\OrderController();
+                    $order->executeOrder($invoice->id, $order_status = 'executed');
+                }
             }
 
             return 'success';

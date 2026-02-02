@@ -96,8 +96,9 @@ class SupervisorCommand extends Command
 
         $supervisor->working = ! $this->option('paused');
 
+        $balancedWorkerCount = floor(($this->option('min-processes') + $this->option('max-processes')) / 2);
         $supervisor->scale(max(
-            0, $this->option('max-processes') - $supervisor->totalSystemProcessCount()
+            0, $balancedWorkerCount - $supervisor->totalSystemProcessCount()
         ));
 
         $supervisor->monitor();
@@ -111,8 +112,8 @@ class SupervisorCommand extends Command
     protected function supervisorOptions()
     {
         $backoff = $this->hasOption('backoff')
-                    ? $this->option('backoff')
-                    : $this->option('delay');
+            ? $this->option('backoff')
+            : $this->option('delay');
 
         $balance = $this->option('balance');
 

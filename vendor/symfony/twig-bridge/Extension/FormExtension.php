@@ -62,6 +62,7 @@ final class FormExtension extends AbstractExtension
             new TwigFunction('csrf_token', [FormRenderer::class, 'renderCsrfToken']),
             new TwigFunction('form_parent', 'Symfony\Bridge\Twig\Extension\twig_get_form_parent'),
             new TwigFunction('field_name', $this->getFieldName(...)),
+            new TwigFunction('field_id', $this->getFieldId(...)),
             new TwigFunction('field_value', $this->getFieldValue(...)),
             new TwigFunction('field_label', $this->getFieldLabel(...)),
             new TwigFunction('field_help', $this->getFieldHelp(...)),
@@ -91,6 +92,11 @@ final class FormExtension extends AbstractExtension
         $view->setRendered();
 
         return $view->vars['full_name'];
+    }
+
+    public function getFieldId(FormView $view): string
+    {
+        return $view->vars['id'];
     }
 
     public function getFieldValue(FormView $view): string|array
@@ -155,7 +161,7 @@ final class FormExtension extends AbstractExtension
                 continue;
             }
 
-            /* @var ChoiceView $choice */
+            /** @var ChoiceView $choice */
             $translatableLabel = $this->createFieldTranslation($choice->label, $choice->labelTranslationParameters, $translationDomain);
             yield $translatableLabel => $choice->value;
         }

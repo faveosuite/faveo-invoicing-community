@@ -211,7 +211,7 @@ class ClientOrderControllerTest extends DBTestCase
         $date = '2025-03-02 18:15:02';
         $product = Product::create(['name' => 'Helpdesk Advance']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name, 'regular_price' => 1000,
+        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name, 'quantity' => 1, 'regular_price' => 1000,
             'tax_name' => 'GST', 'tax_percentage' => '10', 'subtotal' => 300, ]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);

@@ -439,7 +439,7 @@ class RenewController extends BaseRenewController
     }
 
     //Update License Expiry Date
-    public function getExpiryDate($permissions, $sub, $days)
+    public function getExpiryDate($permissions, $sub, int $days)
     {
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {
@@ -451,7 +451,7 @@ class RenewController extends BaseRenewController
     }
 
     //Update Updates Expiry Date
-    public function getUpdatesExpiryDate($permissions, $sub, $days)
+    public function getUpdatesExpiryDate($permissions, $sub, int $days)
     {
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {
@@ -463,7 +463,7 @@ class RenewController extends BaseRenewController
     }
 
     //Update Support Expiry Date
-    public function getSupportExpiryDate($permissions, $sub, $days)
+    public function getSupportExpiryDate($permissions, $sub, int $days)
     {
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {

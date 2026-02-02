@@ -178,12 +178,27 @@ input:checked + .slider:before {
                                 <tbody><tr><td><b>{{ __('message.name_page') }}:</b></td><td><a href="{{url('clients/'.$user->id)}}">{{ucfirst($user->first_name)}}</a></td></tr>
                                     <tr><td><b>{{ __('message.email') }}:</b></td><td>{{$user->email}}</td></tr>
                                     <tr><td><b>{{ __('message.mobile') }}:</b></td><td>@if($user->mobile_code)(<b>+</b>{{$user->mobile_code}})@endif&nbsp;{{$user->mobile}}</td></tr>
-                                    <tr><td><b>{{ __('message.address') }}:</b></td><td>{{$user->address}},
-                                            {{ucfirst($user->town)}}, 
-                                            @if(key_exists('name',getStateByCode($user->country, $user->state)))
-                                            {{getStateByCode($user->country, $user->state)['name']}}
-                                            @endif
-                                        </td></tr>
+                                @php
+                                    $addressParts = [];
+
+                                    if (!empty($user->address)) {
+                                        $addressParts[] = $user->address;
+                                    }
+
+                                    if (!empty($user->town)) {
+                                        $addressParts[] = ucfirst($user->town);
+                                    }
+
+                                    $state = getStateByCode($user->country, $user->state);
+                                    if (!empty($state['name'])) {
+                                        $addressParts[] = $state['name'];
+                                    }
+                                @endphp
+
+                                <tr>
+                                    <td><b>{{ __('message.address') }}:</b></td>
+                                    <td>{{ implode(', ', $addressParts) }}</td>
+                                </tr>
                                     <tr><td><b>{{ __('message.country') }}:</b></td><td>{{getCountryByCode($user->country)}}</td></tr>
 
                                 </tbody>
@@ -995,73 +1010,35 @@ input:checked + .slider:before {
     }
 
         $("#reissueLic").click(function(){
-          if ($('#domainRes').val() == 1) {
             var oldDomainId = $(this).attr('data-id');
             $("#orderId").val(oldDomainId);
             $("#domainModal").modal();
             $("#domainSave").on('click',function(){
 
-                 var id = $('#orderId').val();
-            $.ajax ({
-                type: 'patch',
-                url : "{{url('reissue-license')}}",
-                data : {'id':id},
-                  beforeSend: function () {
-                 $('#response1').html( '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>');
+                var id = $('#orderId').val();
+                $.ajax ({
+                    type: 'patch',
+                    url : "{{url('reissue-license')}}",
+                    data : {'id':id},
+                    beforeSend: function () {
+                        $('#response1').html( '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>');
 
-                },
-          
-                success: function (data) {
-               if (data.message =='success'){
-                 var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong> '+data.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
-                  $('#response1').html(result);
-                     $('#response1').css('color', 'green');
-                setTimeout(function(){
-                    window.location.reload();
-                },2000);
-                  }
-               
-                }
-                
-             });
+                    },
+
+                    success: function (data) {
+                        if (data.message =='success'){
+                            var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong> '+data.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
+                            $('#response1').html(result);
+                            $('#response1').css('color', 'green');
+                            setTimeout(function(){
+                                window.location.reload();
+                            },2000);
+                        }
+
+                    }
+
+                });
             });
-
-          } else {
-             var oldDomainName = $(this).attr('data-name');
-            var oldDomainId = $(this).attr('data-id');
-            $("#licesnseModal").modal();
-           $("#newDomain").val(oldDomainName);
-           $("#orderId").val(oldDomainId);
-           $("#licenseSave").on('click',function(){
-      
-            var domain = $('#newDomain').val();
-            var id = $('#orderId').val();
-             
-            $.ajax ({
-                type: 'patch',
-                url : "{{url('change-domain')}}",
-                data : {'domain':domain,'id':id},
-                  beforeSend: function () {
-                 $('#response').html( '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>');
-
-                },
-          
-                success: function (data) {
-               if (data.message =='success'){
-                 var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong> '+data.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
-                  $('#response').html(result);
-                     $('#response').css('color', 'green');
-                setTimeout(function(){
-                    window.location.reload();
-                },3000);
-                  }
-               
-                }
-                
-             });
-            });
-          }
-           
         });
 
 

@@ -164,7 +164,7 @@ class ClientFooterGeneralTest extends DBTestCase
 
         $response = $this->call('POST', 'first-login', ['domain' => 'test', 'id' => $user->id, 'product' => $product->name]);
         $content = $response->json();
-        $this->assertEquals($content['status'], 'false');
+        $this->assertEquals($content['success'], false);
         $this->assertEquals($content['message'], 'It has come to our notice that you have crossed the free trial limit, please delete your existing instances to proceed further.');
     }
 }

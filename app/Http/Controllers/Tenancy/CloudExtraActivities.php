@@ -227,11 +227,17 @@ class CloudExtraActivities extends Controller
     {
         try {
             $newAgents = $request->newAgents;
+
             if (empty($newAgents)) {
                 return errorResponse(trans('message.agent_zero'));
             }
             $orderId = $request->input('orderId');
             $order = Order::where('id', $orderId)->first();
+            $oldAgents = ltrim(substr($order->serial_key, 12), '0');
+            if ($request->agentAction == 'decrease' && $oldAgents <= $newAgents) {
+                return errorResponse(trans('message.agent_decrease_invalid'));
+            }
+            $totalAgents = $request->agentAction == 'increase' ? $oldAgents + $newAgents : $oldAgents - $newAgents;
             if ($order->client != \Auth::user()->id) {
                 return errorResponse(trans('message.invalid_user'));
             }
@@ -241,18 +247,18 @@ class CloudExtraActivities extends Controller
             }
             $product_id = $request->product_id;
 
-            if ($this->checktheAgent($newAgents, $installation_path)) {
+            if ($this->checktheAgent($totalAgents, $installation_path)) {
                 return errorResponse(trans('message.agent_reduce'));
             }
 
 //            $oldLicense = Order::where('id', $orderId)->latest()->value('serial_key');
             $oldLicense = $order->serial_key;
-            $items = $this->getThePaymentCalculation($newAgents, $oldLicense, $orderId);
-            $invoice = (new RenewController())->renewBySubId($request->subId, $items['planId'], '', $items['price'], '', false, $newAgents);
+            $items = $this->getThePaymentCalculation($newAgents, $oldLicense, $orderId, null, $request->agentAction);
+            $invoice = (new RenewController())->renewBySubId($request->subId, $items['planId'], '', $items['price'], '', false, $totalAgents);
 
             if ($invoice) {
                 \Session::put('AgentAlteration', $request->subId);
-                \Session::put('newAgents', $newAgents);
+                \Session::put('newAgents', $totalAgents);
                 \Session::put('orderId', $orderId);
                 \Session::put('installation_path', $installation_path);
                 \Session::put('product_id', $product_id);
@@ -319,7 +325,7 @@ class CloudExtraActivities extends Controller
      *
      * @throws
      */
-    private function getThePaymentCalculation($newAgents, $oldAgents, $orderId, $planId = null)
+    private function getThePaymentCalculation($newAgents, $oldAgents, $orderId, $planId = null, $agentAction)
     {
         try {
             \Session::forget('upgradeDowngradeProduct');
@@ -343,13 +349,25 @@ class CloudExtraActivities extends Controller
             $ends_at = Subscription::where('order_id', $orderId)->value('ends_at');
             $base_price = $currency['plan']?->add_price;
             $oldAgents = substr($oldAgents, 12, 16);
-            if ($newAgents > $oldAgents) {
-                $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays);
-            } else {
-                $price = $this->newAgentlessthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays);
+            switch($agentAction) {
+                case 'increase':
+                    $totalAgents = $newAgents + $oldAgents;
+                    $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+                    break;
+                case 'decrease':
+                    $totalAgents = $oldAgents - $newAgents;
+                    $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+                    break;
             }
+//            $totalAgents=$newAgents;
+//            if ($newAgents >= $oldAgents) {
+//                $totalAgents=$newAgents+$oldAgents;
+//                $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+//            } else {
+//                $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+//            }
             $items = ['id' => $product_id, 'name' => $product->name, 'price' => round($price), 'planId' => $planId,
-                'quantity' => 1, 'attributes' => ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $newAgents], 'associatedModel' => $product];
+                'quantity' => 1, 'attributes' => ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $totalAgents], 'associatedModel' => $product];
 
             return $items;
         } catch(\Exception $e) {
@@ -381,7 +399,7 @@ class CloudExtraActivities extends Controller
             $pricePerDay = $base_price / $planDays;
             $futureDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $ends_at);
             $currentDateTime = Carbon::now();
-            $daysRemain = $futureDateTime->diffInDays($currentDateTime);
+            $daysRemain = (int) $futureDateTime->diffInDays($currentDateTime, true);
             $pricePerThatAgent = $pricePerDay * $daysRemain;
             $price = $agentsAdded * $pricePerThatAgent;
         }
@@ -409,7 +427,7 @@ class CloudExtraActivities extends Controller
         } else {
             $futureDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $ends_at);
             $currentDateTime = Carbon::now();
-            $daysRemain = $futureDateTime->diffInDays($currentDateTime);
+            $daysRemain = (int) $futureDateTime->diffInDays($currentDateTime, true);
             $priceForNewAgents = $base_price * $newAgents;
             $priceForOldAgents = $base_price * $oldAgents;
             $pricePerDayForNewAgents = $priceForNewAgents / $planDays;
@@ -530,7 +548,7 @@ class CloudExtraActivities extends Controller
         } else {
             $futureDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $ends_at);
             $currentDateTime = Carbon::now();
-            $daysRemain = $futureDateTime->diffInDays($currentDateTime);
+            $daysRemain = (int) $futureDateTime->diffInDays($currentDateTime, true);
 
             $pricePerDayForNewPlan = $base_price_new / $planDaysNew;
 
@@ -644,7 +662,7 @@ class CloudExtraActivities extends Controller
             $pricePerDayOld = $base_priceOld / $planDaysOld; //1600
             $futureDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $ends_at);
             $currentDateTime = Carbon::now();
-            $daysRemain = $futureDateTime->diffInDays($currentDateTime);
+            $daysRemain = (int) $futureDateTime->diffInDays($currentDateTime, true);
 
             if ($planDaysNew !== $planDaysOld) {
                 $variables = $this->newPlanDaysNotEqualToOld($planDaysNew, $planDaysOld, $daysRemain, $pricePerDayNew, $pricePerDayOld);
@@ -733,7 +751,7 @@ class CloudExtraActivities extends Controller
         } else {
             $futureDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $ends_at);
             $currentDateTime = Carbon::now();
-            $daysRemain = $futureDateTime->diffInDays($currentDateTime);
+            $daysRemain = (int) $futureDateTime->diffInDays($currentDateTime, true);
             $variables = $this->currentDateLessThanEndDate($planDaysNew, $planDaysOld, $daysRemain, $orderId);
             $price = $variables['price'];
             $priceRemaining = $variables['priceRemaining'];
@@ -1093,7 +1111,7 @@ class CloudExtraActivities extends Controller
             $pricePerDayOld = $base_priceOld / $planDaysOld; //1600
             $futureDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $ends_at);
             $currentDateTime = Carbon::now();
-            $daysRemain = $futureDateTime->diffInDays($currentDateTime);
+            $daysRemain = (int) $futureDateTime->diffInDays($currentDateTime, true);
 
             if ($planDaysNew !== $planDaysOld) {
                 $daysRemainNew = $planDaysOld - $daysRemain;
@@ -1125,7 +1143,7 @@ class CloudExtraActivities extends Controller
         } else {
             $futureDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $ends_at);
             $currentDateTime = Carbon::now();
-            $daysRemain = $futureDateTime->diffInDays($currentDateTime);
+            $daysRemain = (int) $futureDateTime->diffInDays($currentDateTime, true);
             $pricePerDayForNewPlan = $base_price_new / $planDaysNew;
             $pricePerDayForOldPlan = $base_priceOld / $planDaysOld;
 
@@ -1191,6 +1209,9 @@ class CloudExtraActivities extends Controller
             $newAgents = $request->get('number');
 
             $oldAgents = $request->get('oldAgents');
+            if ($request->agentAction == 'decrease' && $oldAgents <= $newAgents) {
+                return errorResponse(trans('message.agent_decrease_invalid'));
+            }
             $orderId = $request->get('orderId');
             $planId = Subscription::where('order_id', $orderId)->value('plan_id');
 
@@ -1208,13 +1229,25 @@ class CloudExtraActivities extends Controller
             if (empty($newAgents)) {
                 return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => 0, 'priceToPay' => 0];
             }
-            if ($newAgents > $oldAgents) {
-                $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays);
-            } else {
-                $price = $this->newAgentlessthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays);
+            switch($request->agentAction) {
+                case 'increase':
+                    $totalAgents = $newAgents + $oldAgents;
+                    $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+                    break;
+                case 'decrease':
+                    $totalAgents = $oldAgents - $newAgents;
+                    $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+                    break;
             }
+//            $totalAgents=$newAgents;
+//            if ($newAgents >= $oldAgents) {
+//                $totalAgents=$newAgents+$oldAgents;
+//                $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+//            } else {
+//                $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+//            }
 
-            return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => currencyFormat($base_price * $newAgents, $currency['currency'], true), 'priceToPay' => currencyFormat($price, $currency['currency'], true)];
+            return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => currencyFormat($base_price * $totalAgents, $currency['currency'], true), 'priceToPay' => currencyFormat($price, $currency['currency'], true)];
         } catch(\Exception $e) {
             \Logger::exception($e);
 
@@ -1224,20 +1257,27 @@ class CloudExtraActivities extends Controller
 
     public function storeTenantTillPurchase(Request $request)
     {
-//        if (! $this->checkDomain($request->input('domain'))) {
-//
-//            return response(['status' => false, 'message' => trans('message.domain_taken')]);
-//        }
+        $request->validate([
+            'domain' => 'required|alpha_num',
+        ]);
+        if (! $this->checkDomain($request->input('domain'))) {
+            return response(['status' => false, 'message' => trans('message.domain_taken')]);
+        }
         \Session::forget('plan_id');
         (new CartController())->cart($request);
 
-        return response()->json(['redirectTo' => env('APP_URL').'/show/cart']);
+        return response()->json(['redirectTo' => url('/show/cart')]);
     }
 
     public function checkDomain($domain)
     {
         $client = new Client([]);
-        $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
+        $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')
+            ->first(['app_key', 'app_secret']);
+
+        if (! $keys || empty($keys->app_key)) {
+            throw new \Exception(__('message.something_bad'));
+        }
 
         $data = ['domain' => $domain, 'key' => $keys->app_key];
         $response = $client->request(

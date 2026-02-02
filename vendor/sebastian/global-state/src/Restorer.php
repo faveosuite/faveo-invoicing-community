@@ -13,6 +13,7 @@ use function array_diff;
 use function array_key_exists;
 use function array_keys;
 use function array_merge;
+use function assert;
 use function in_array;
 use function is_array;
 use ReflectionClass;
@@ -95,7 +96,9 @@ final class Restorer
             );
 
             foreach ($keys as $key) {
-                if (isset($superGlobalVariables[$superGlobalArray][$key])) {
+                assert(isset($GLOBALS[$superGlobalArray]) && is_array($GLOBALS[$superGlobalArray]));
+
+                if (array_key_exists($key, $superGlobalVariables[$superGlobalArray])) {
                     $GLOBALS[$superGlobalArray][$key] = $superGlobalVariables[$superGlobalArray][$key];
                 } else {
                     unset($GLOBALS[$superGlobalArray][$key]);

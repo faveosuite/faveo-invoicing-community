@@ -213,9 +213,6 @@ class DeletePersonsInBulkResponseAllOf implements ModelInterface, ArrayAccess, J
     {
         $invalidProperties = [];
 
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -234,7 +231,7 @@ class DeletePersonsInBulkResponseAllOf implements ModelInterface, ArrayAccess, J
     /**
      * Gets data
      *
-     * @return \Pipedrive\versions\v1\Model\DeletePersonsInBulkResponseAllOfData
+     * @return \Pipedrive\versions\v1\Model\DeletePersonsInBulkResponseAllOfData|null
      */
     public function getData()
     {
@@ -244,7 +241,7 @@ class DeletePersonsInBulkResponseAllOf implements ModelInterface, ArrayAccess, J
     /**
      * Sets data
      *
-     * @param \Pipedrive\versions\v1\Model\DeletePersonsInBulkResponseAllOfData $data data
+     * @param \Pipedrive\versions\v1\Model\DeletePersonsInBulkResponseAllOfData|null $data data
      *
      * @return self
      */

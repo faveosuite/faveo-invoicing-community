@@ -339,39 +339,6 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     {
         $invalidProperties = [];
 
-        if ($this->container['id'] === null) {
-            $invalidProperties[] = "'id' can't be null";
-        }
-        if ($this->container['active_flag'] === null) {
-            $invalidProperties[] = "'active_flag' can't be null";
-        }
-        if ($this->container['owner_id'] === null) {
-            $invalidProperties[] = "'owner_id' can't be null";
-        }
-        if ($this->container['name'] === null) {
-            $invalidProperties[] = "'name' can't be null";
-        }
-        if ($this->container['update_time'] === null) {
-            $invalidProperties[] = "'update_time' can't be null";
-        }
-        if ($this->container['delete_time'] === null) {
-            $invalidProperties[] = "'delete_time' can't be null";
-        }
-        if ($this->container['add_time'] === null) {
-            $invalidProperties[] = "'add_time' can't be null";
-        }
-        if ($this->container['visible_to'] === null) {
-            $invalidProperties[] = "'visible_to' can't be null";
-        }
-        if ($this->container['label'] === null) {
-            $invalidProperties[] = "'label' can't be null";
-        }
-        if ($this->container['label_ids'] === null) {
-            $invalidProperties[] = "'label_ids' can't be null";
-        }
-        if ($this->container['cc_email'] === null) {
-            $invalidProperties[] = "'cc_email' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -654,7 +621,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Gets id
      *
-     * @return int
+     * @return int|null
      */
     public function getId()
     {
@@ -664,7 +631,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Sets id
      *
-     * @param int $id The ID of the organization
+     * @param int|null $id The ID of the organization
      *
      * @return self
      */
@@ -678,7 +645,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Gets active_flag
      *
-     * @return bool
+     * @return bool|null
      */
     public function getActiveFlag()
     {
@@ -688,7 +655,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Sets active_flag
      *
-     * @param bool $active_flag Whether the organization is active or not
+     * @param bool|null $active_flag Whether the organization is active or not
      *
      * @return self
      */
@@ -702,7 +669,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Gets owner_id
      *
-     * @return int
+     * @return int|null
      */
     public function getOwnerId()
     {
@@ -712,7 +679,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Sets owner_id
      *
-     * @param int $owner_id The ID of the owner
+     * @param int|null $owner_id The ID of the owner
      *
      * @return self
      */
@@ -726,7 +693,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Gets name
      *
-     * @return string
+     * @return string|null
      */
     public function getName()
     {
@@ -736,7 +703,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Sets name
      *
-     * @param string $name The name of the organization
+     * @param string|null $name The name of the organization
      *
      * @return self
      */
@@ -750,7 +717,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Gets update_time
      *
-     * @return string
+     * @return string|null
      */
     public function getUpdateTime()
     {
@@ -760,7 +727,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Sets update_time
      *
-     * @param string $update_time The last updated date and time of the organization. Format: YYYY-MM-DD HH:MM:SS
+     * @param string|null $update_time The last updated date and time of the organization. Format: YYYY-MM-DD HH:MM:SS
      *
      * @return self
      */
@@ -774,7 +741,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Gets delete_time
      *
-     * @return string
+     * @return string|null
      */
     public function getDeleteTime()
     {
@@ -784,7 +751,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Sets delete_time
      *
-     * @param string $delete_time The date and time this organization was deleted. Format: YYYY-MM-DD HH:MM:SS
+     * @param string|null $delete_time The date and time this organization was deleted. Format: YYYY-MM-DD HH:MM:SS
      *
      * @return self
      */
@@ -798,7 +765,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Gets add_time
      *
-     * @return string
+     * @return string|null
      */
     public function getAddTime()
     {
@@ -808,7 +775,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Sets add_time
      *
-     * @param string $add_time The date and time when the organization was added/created. Format: YYYY-MM-DD HH:MM:SS
+     * @param string|null $add_time The date and time when the organization was added/created. Format: YYYY-MM-DD HH:MM:SS
      *
      * @return self
      */
@@ -822,7 +789,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Gets visible_to
      *
-     * @return string
+     * @return string|null
      */
     public function getVisibleTo()
     {
@@ -832,7 +799,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Sets visible_to
      *
-     * @param string $visible_to The visibility group ID of who can see the organization
+     * @param string|null $visible_to The visibility group ID of who can see the organization
      *
      * @return self
      */
@@ -846,7 +813,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Gets label
      *
-     * @return int
+     * @return int|null
      */
     public function getLabel()
     {
@@ -856,7 +823,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Sets label
      *
-     * @param int $label The label assigned to the organization. When the `label` field is updated, the `label_ids` field value will be overwritten by the `label` field value.
+     * @param int|null $label The label assigned to the organization. When the `label` field is updated, the `label_ids` field value will be overwritten by the `label` field value.
      *
      * @return self
      */
@@ -870,7 +837,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Gets label_ids
      *
-     * @return int[]
+     * @return int[]|null
      */
     public function getLabelIds()
     {
@@ -880,7 +847,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Sets label_ids
      *
-     * @param int[] $label_ids The IDs of labels assigned to the organization. When the `label_ids` field is updated, the `label` field value will be set to the first value of the `label_ids` field.
+     * @param int[]|null $label_ids The IDs of labels assigned to the organization. When the `label_ids` field is updated, the `label` field value will be set to the first value of the `label_ids` field.
      *
      * @return self
      */
@@ -894,7 +861,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Gets cc_email
      *
-     * @return string
+     * @return string|null
      */
     public function getCcEmail()
     {
@@ -904,7 +871,7 @@ class OrganizationsCollectionResponseObject implements ModelInterface, ArrayAcce
     /**
      * Sets cc_email
      *
-     * @param string $cc_email The BCC email associated with the organization
+     * @param string|null $cc_email The BCC email associated with the organization
      *
      * @return self
      */
