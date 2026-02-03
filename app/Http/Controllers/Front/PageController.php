@@ -314,7 +314,7 @@ class PageController extends Controller
         $countryCheck = true;
         try {
             $cost[0] = 'Free';
-            $plans = Plan::where('product', $id)->get();
+            $plans = Plan::where('product', $id)->where('status', 1)->get();
             $product = Product::find($id);
             $prices = [];
             if ($plans->count() > 0) {
@@ -449,7 +449,7 @@ class PageController extends Controller
         $countryCheck = true;
         try {
             $cost = 'Free';
-            $plans = Plan::where('product', $id)->get();
+            $plans = Plan::where('product', $id)->where('status', 1)->get();
 
             $prices = [];
             if ($plans->count() > 0) {
@@ -680,7 +680,7 @@ class PageController extends Controller
             $plans = $plan->where('product', '=', $id)->pluck('name', 'id')->toArray();
             $product = Product::find($id);
             $type = Product::find($id);
-            $planid = Plan::where('product', $id)->value('id');
+            $planid = Plan::where('product', $id)->where('status', 1)->value('id');
             $price = PlanPrice::where('plan_id', $planid)->value('renew_price');
 
             $plans = $this->prices($id);
@@ -712,7 +712,7 @@ class PageController extends Controller
     public function prices($id)
     {
         try {
-            $plans = Plan::where('product', $id)->orderBy('id', 'desc')->get();
+            $plans = Plan::where('product', $id)->where('status', 1)->orderBy('id', 'desc')->get();
             $price = [];
             foreach ($plans as $value) {
                 $offer = PlanPrice::where('plan_id', $value->id)->value('offer_price');
@@ -781,7 +781,7 @@ class PageController extends Controller
     {
         try {
             $product = Product::find($id);
-            $plans = Plan::where('product', $id)->get();
+            $plans = Plan::where('product', $id)->where('status', 1)->get();
 
             $cost = 'Free';
             $currency = '';
@@ -875,7 +875,7 @@ class PageController extends Controller
 
             $priceDescription = '';
 
-            $plans = Plan::where('product', $productid)->get();
+            $plans = Plan::where('product', $productid)->where('status', 1)->get();
 
             if ($plans) {
                 foreach ($plans as $plan) {
@@ -921,6 +921,7 @@ class PageController extends Controller
             }
 
             $plans = Plan::where('product', $productId)
+                        ->where('status', 1)
                         ->with('planPrice')
                         ->cursor();
 

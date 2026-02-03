@@ -2750,4 +2750,7 @@
      'business_id_error' => 'Jekk jogħġbok daħħal Business ID validu.',
      'enable_reoon_logs_deletion' => 'Ippermetti t-tħassir tal-logs Reoon',
 
+    'active_plan_exists' => 'Pjan attiv ":plan_name" diġà jeżisti għal dan il-prodott u l-perjodu. Jekk jogħġbok iddiżattivah l-ewwel qabel ma toħloq/taġġorna pjan attiv.',
+    'check_to_make_plan_active' => 'Iċċekkja biex tagħmel dan il-pjan attiv. Pjan attiv wieħed biss huwa permess għal kull prodott u perjodu.',
+    'active_plan_exists_simple' => 'Pjan attiv diġà jeżisti għal dan il-prodott u l-perjodu. Jekk jogħġbok iddiżattivah l-ewwel.',
  ];

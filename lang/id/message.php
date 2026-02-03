@@ -2821,4 +2821,7 @@ return [
     'email_validation_status' => 'Status validasi email berhasil disimpan',
     'enable_reoon_logs_deletion' => 'Aktifkan Penghapusan Log Reoon',
 
+    'active_plan_exists' => 'Paket aktif ":plan_name" sudah ada untuk produk dan periode ini. Harap nonaktifkan terlebih dahulu sebelum membuat/memperbarui paket aktif.',
+    'check_to_make_plan_active' => 'Centang untuk mengaktifkan paket ini. Hanya satu paket aktif yang diperbolehkan per produk dan periode.',
+    'active_plan_exists_simple' => 'Paket aktif sudah ada untuk produk dan periode ini. Harap nonaktifkan terlebih dahulu.',
 ];

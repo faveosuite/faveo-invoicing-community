@@ -50,6 +50,7 @@
                             <th>{{ __('message.products') }}</th>
                             <th>{{ __('message.price') }}</th>
                             <th>{{ __('message.currency') }}</th>
+                            <th>{{ __('message.status') }}</th>
                             <th>{{ __('message.action') }}</th>
                         </tr></thead>
                      </table>
@@ -113,9 +114,10 @@
                 {data: 'checkbox', name: 'checkbox'},
                 {data: 'name', name: 'name'},
                 {data: 'days', name: 'days'},
-                {data: 'product', name: 'name'},
+                {data: 'product', name: 'product'},
                 {data: 'price', name: 'price'},
                 {data: 'currency', name: 'currency'},
+                {data: 'status', name: 'status'},
                 {data: 'action', name: 'action'}
             ],
             "fnDrawCallback": function( oSettings ) {

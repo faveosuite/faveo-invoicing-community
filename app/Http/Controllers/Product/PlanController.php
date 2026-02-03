@@ -68,7 +68,7 @@ class PlanController extends ExtendedPlanController
     {
         $new_plan = Plan::leftJoin('products', 'products.id', '=', 'plans.product')
             ->leftJoin('plan_prices', 'plan_prices.plan_id', '=', 'plans.id')
-            ->select('plans.id', 'plans.name', 'plans.days', 'products.name as product', 'plan_prices.add_price', 'plan_prices.currency');
+            ->select('plans.id', 'plans.name', 'plans.days', 'plans.status', 'products.name as product', 'plan_prices.add_price', 'plan_prices.currency');
         $defaultCurrency = Setting::where('id', 1)->value('default_currency');
 
         return DataTables::of($new_plan)
@@ -77,6 +77,7 @@ class PlanController extends ExtendedPlanController
                         ->orderColumn('product', '-plans.id  $1')
                         ->orderColumn('price', '-plans.id  $1')
                         ->orderColumn('currency', '-plans.id  $1')
+                        ->orderColumn('status', '-plans.id  $1')
                         ->addColumn('checkbox', function ($model) {
                             return "<input type='checkbox' class='plan_checkbox' 
                             value=".$model->id.' name=select[] id=check>';
@@ -121,6 +122,13 @@ class PlanController extends ExtendedPlanController
                                  return 'Not Available';
                              }
                          })
+                         ->addColumn('status', function ($model) {
+                             if ($model->status == 1) {
+                                 return '<span class="badge badge-success">'.__('message.active').'</span>';
+                             } else {
+                                 return '<span class="badge badge-secondary">'.__('message.inactive').'</span>';
+                             }
+                         })
                         ->addColumn('action', function ($model) {
                             return '<a href='.url('plans/'.$model->id.'/edit')." 
                             class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit' 
@@ -142,7 +150,7 @@ class PlanController extends ExtendedPlanController
                                   $sql = 'plan_prices.add_price like ?';
                                   $query->whereRaw($sql, ["%{$keyword}%"]);
                               })
-                        ->rawColumns(['checkbox', 'name', 'days', 'product', 'price', 'currency', 'action'])
+                        ->rawColumns(['checkbox', 'name', 'days', 'product', 'price', 'currency', 'status', 'action'])
                         ->make(true);
     }
 
@@ -175,17 +183,6 @@ class PlanController extends ExtendedPlanController
     public function store(PlanRequest $request)
     {
         try {
-            // Check if a plan already exists for a toggled product,
-            // we don't allow duplicate plans for toggled products,
-            // because it makes confusion which plan to choose while showing in the store
-            $planExists = Plan::where('product', $request->product)
-                ->where('days', $request->days)
-                ->whereHas('product', fn ($query) => $query->where('status', 1))
-                ->exists();
-
-            if ($planExists) {
-                return back()->withErrors(['product' => __('message.duplicate_plan_period_grouped')]);
-            }
             $add_prices = $request->add_price;
             $renew_prices = $request->renew_price;
             $offer_prices = $request->offer_price;
@@ -276,23 +273,6 @@ class PlanController extends ExtendedPlanController
     {
         $add_prices = $request->add_price;
         $renew_prices = $request->renew_price;
-
-        // Check if a plan already exists for a toggled product,
-        // we don't allow duplicate plans for toggled products,
-        // because it makes confusion which plan to choose while showing in the store
-        $planExists = Plan::where('product', $request->product)
-            ->where('days', $request->days)
-            ->where('id', '!=', $plan->id)
-            ->whereHas('product', fn ($query) => $query->where('status', 1))
-            ->exists();
-
-        if (
-            $request->filled('days') && $planExists
-        ) {
-            return redirect()->back()
-                ->with('fails', __('message.duplicate_plan_period_grouped'));
-        }
-        $offer_prices = $request->input('offer_price');
         $plan->fill($request->input())->save();
         //To change the plan days,whenever we update plan
         if ($request->input('days') != '') {

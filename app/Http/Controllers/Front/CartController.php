@@ -124,7 +124,7 @@ class CartController extends BaseCartController
             if (\Session::has('plan_id')) { //If a plan is selected from dropdown in pricing page, this is true
                 $planid = \Session::get('plan_id');
             } else {
-                $query = Plan::where('product', $id);
+                $query = Plan::where('product', $id)->where('status', 1);
 
                 switch (Session::get('toggleState')) {
                     case 'yearly':
@@ -338,6 +338,7 @@ class CartController extends BaseCartController
             $days = $toggle === 'monthly' ? [30, 31] : [365, 366];
 
             $planID = Plan::where('product', $product->id)
+                ->where('status', 1)
                 ->whereIn('days', $days)
                 ->value('id');
 

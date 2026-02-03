@@ -2816,4 +2816,7 @@ return [
     'business_id_error' => 'Veuillez entrer un identifiant d’entreprise valide.',
     'enable_reoon_logs_deletion' => 'Activer la suppression des journaux Reoon',
 
+    'active_plan_exists' => 'Un plan actif ":plan_name" existe déjà pour ce produit et cette période. Veuillez d\'abord le désactiver avant de créer/mettre à jour un plan actif.',
+    'check_to_make_plan_active' => 'Cochez pour rendre ce plan actif. Un seul plan actif est autorisé par produit et par période.',
+    'active_plan_exists_simple' => 'Un plan actif existe déjà pour ce produit et cette période. Veuillez d\'abord le désactiver.',
 ];

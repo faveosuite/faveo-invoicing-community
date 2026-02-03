@@ -260,7 +260,7 @@ class TemplateController extends Controller
     {
         try {
             $cost = 'Free';
-            $plans = Plan::where('product', $id)->whereIn('days', [30, 31])->get();
+            $plans = Plan::where('product', $id)->where('status', 1)->whereIn('days', [30, 31])->get();
             $prices = [];
             $currency = '';
             foreach ($plans as $plan) {
@@ -304,6 +304,7 @@ class TemplateController extends Controller
     {
         try {
             $plans = Plan::where('product', $id)
+                ->where('status', 1)
                 ->with(['planPrice', 'periods'])
                 ->orderByDesc('id')
                 ->get();
@@ -371,7 +372,7 @@ class TemplateController extends Controller
     public function getPriceList($id)
     {
         try {
-            $plans = Plan::where('product', $id)->orderBy('id', 'desc')->get();
+            $plans = Plan::where('product', $id)->where('status', 1)->orderBy('id', 'desc')->get();
             $prices = [];
             $cheapestPlanId = null;
             $minPrice = PHP_INT_MAX;

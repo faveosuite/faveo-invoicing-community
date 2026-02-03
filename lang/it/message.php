@@ -2820,4 +2820,7 @@ return [
     'business_id_error' => 'Inserisci un ID aziendale valido.',
     'enable_reoon_logs_deletion' => 'Abilita eliminazione dei log Reoon',
 
+    'active_plan_exists' => 'Esiste già un piano attivo ":plan_name" per questo prodotto e periodo. Disabilitalo prima di creare/aggiornare un piano attivo.',
+    'check_to_make_plan_active' => 'Spunta per rendere attivo questo piano. È consentito un solo piano attivo per prodotto e periodo.',
+    'active_plan_exists_simple' => 'Esiste già un piano attivo per questo prodotto e periodo. Disabilitalo prima.',
 ];

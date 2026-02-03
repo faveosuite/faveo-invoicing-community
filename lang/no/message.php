@@ -2831,4 +2831,7 @@ return [
     'manual_number_title' => 'Legg til nummer manuelt',
     'enable_reoon_logs_deletion' => 'Aktiver sletting av Reoon-logger',
 
+    'active_plan_exists' => 'En aktiv plan ":plan_name" finnes allerede for dette produktet og denne perioden. Vennligst deaktiver den først før du oppretter/oppdaterer en aktiv plan.',
+    'check_to_make_plan_active' => 'Merk av for å gjøre denne planen aktiv. Kun én aktiv plan er tillatt per produkt og periode.',
+    'active_plan_exists_simple' => 'En aktiv plan finnes allerede for dette produktet og denne perioden. Vennligst deaktiver den først.',
 ];

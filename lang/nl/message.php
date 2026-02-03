@@ -2790,4 +2790,7 @@ return [
     'business_id_error' => 'Voer een geldige Business ID in.',
     'enable_reoon_logs_deletion' => 'Reoon-logboeken verwijderen inschakelen',
 
+    'active_plan_exists' => 'Er bestaat al een actief plan ":plan_name" voor dit product en deze periode. Schakel dit eerst uit voordat u een actief plan maakt/bijwerkt.',
+    'check_to_make_plan_active' => 'Vink aan om dit plan actief te maken. Er is slechts één actief plan toegestaan per product en periode.',
+    'active_plan_exists_simple' => 'Er bestaat al een actief plan voor dit product en deze periode. Schakel dit eerst uit.',
 ];

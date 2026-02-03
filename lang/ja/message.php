@@ -2828,4 +2828,7 @@ return [
     'business_id_error' => '有効な Business ID を入力してください。',
     'enable_reoon_logs_deletion' => 'Reoonログの削除を有効にする',
 
+    'active_plan_exists' => 'この製品と期間には、すでに有効なプラン ":plan_name" が存在します。有効なプランを作成/更新する前に、まずこれを無効にしてください。',
+    'check_to_make_plan_active' => 'このプランを有効にするにはチェックを入れてください。製品および期間ごとに許可される有効なプランは1つだけです。',
+    'active_plan_exists_simple' => 'この製品と期間には、すでに有効なプランが存在します。まずこれを無効にしてください。',
 ];

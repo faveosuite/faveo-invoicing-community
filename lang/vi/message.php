@@ -2826,4 +2826,7 @@ return [
     'business_id_error' => 'Vui lòng nhập Business ID hợp lệ.',
     'enable_reoon_logs_deletion' => 'Bật xóa nhật ký Reoon',
 
+    'active_plan_exists' => 'Gói hoạt động ":plan_name" đã tồn tại cho sản phẩm và khoảng thời gian này. Vui lòng vô hiệu hóa nó trước khi tạo/cập nhật gói hoạt động.',
+    'check_to_make_plan_active' => 'Đánh dấu để kích hoạt gói này. Chỉ cho phép một gói hoạt động cho mỗi sản phẩm và khoảng thời gian.',
+    'active_plan_exists_simple' => 'Gói hoạt động đã tồn tại cho sản phẩm và khoảng thời gian này. Vui lòng vô hiệu hóa nó trước.',
 ];

@@ -2757,4 +2757,7 @@ return [
     'business_id_error' => 'Molimo unesite važeći Business ID.',
     'enable_reoon_logs_deletion' => 'Omogući brisanje Reoon zapisa',
 
+    'active_plan_exists' => 'Aktivni plan ":plan_name" već postoji za ovaj proizvod i period. Molimo vas da ga prvo onemogućite prije kreiranja/ažuriranja aktivnog plana.',
+    'check_to_make_plan_active' => 'Označite da biste aktivirali ovaj plan. Dozvoljen je samo jedan aktivni plan po proizvodu i periodu.',
+    'active_plan_exists_simple' => 'Aktivni plan već postoji za ovaj proizvod i period. Molimo vas da ga prvo onemogućite.',
 ];

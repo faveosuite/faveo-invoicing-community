@@ -2896,4 +2896,7 @@ return [
     'business_id_error' => 'Please Enter a valid Business ID.',
     'email_validation_status' => 'Email validation status successfully saved',
     'enable_reoon_logs_deletion' => 'Enable Reoon Logs Deletion',
+    'active_plan_exists' => 'An active plan ":plan_name" already exists for this product and period. Please disable it first before creating/updating an active plan.',
+    'check_to_make_plan_active' => 'Check to make this plan active. Only one active plan is allowed per product and period.',
+    'active_plan_exists_simple' => 'An active plan already exists for this product and period. Please disable it first.',
 ];

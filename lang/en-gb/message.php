@@ -2824,4 +2824,7 @@ return [
     'plan_exist' => 'This product already has a plan with the same period',
     'duplicate_plan_period_grouped' => 'Duplicate plan periods are not allowed because this product is associated with a Monthly/Yearly grouped product.',
 
+    'active_plan_exists' => 'An active plan ":plan_name" already exists for this product and period. Please disable it first before creating/updating an active plan.',
+    'check_to_make_plan_active' => 'Check to make this plan active. Only one active plan is allowed per product and period.',
+    'active_plan_exists_simple' => 'An active plan already exists for this product and period. Please disable it first.',
 ];

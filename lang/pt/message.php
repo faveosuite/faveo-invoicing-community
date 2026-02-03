@@ -2803,4 +2803,7 @@ return [
     'business_id_error' => 'Por favor, insira um Business ID válido.',
     'enable_reoon_logs_deletion' => 'Ativar exclusão de logs do Reoon',
 
+    'active_plan_exists' => 'Já existe um plano ativo ":plan_name" para este produto e período. Por favor, desative-o primeiro antes de criar/atualizar um plano ativo.',
+    'check_to_make_plan_active' => 'Marque para tornar este plano ativo. Apenas um plano ativo é permitido por produto e período.',
+    'active_plan_exists_simple' => 'Já existe um plano ativo para este produto e período. Por favor, desative-o primeiro.',
 ];
