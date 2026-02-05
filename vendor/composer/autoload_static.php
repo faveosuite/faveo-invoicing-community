@@ -3423,7 +3423,7 @@ class ComposerStaticInit2955b800a3d45855083212747d565e16
         'Database\\Seeders\\v4_0_2_4_RC_1\\DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeders/v4_0_2_4_RC_1/DatabaseSeeder.php',
         'Database\\Seeders\\v4_0_2_5_RC_1\\DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeders/v4_0_2_5_RC_1/DatabaseSeeder.php',
         'Database\\Seeders\\v4_0_2_5_RC_2\\DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeders/v4_0_2_5_RC_2/DatabaseSeeder.php',
-        'Database\\Seeders\\v4_0_2_6\\DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeders/v4_0_2_6/DatabaseSeeder.php',
+        'Database\\Seeders\\v4_0_2_6_RC_1\\DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeders/v4_0_2_6_RC_1/DatabaseSeeder.php',
         'DateError' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateError.php',
         'DateException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateException.php',
         'DateInvalidOperationException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateInvalidOperationException.php',

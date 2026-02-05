@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\v4_0_2_6;
+namespace Database\Seeders\v4_0_2_6_RC_1;
 
 use App\Model\Common\FaveoCloud;
 use App\Model\Order\InstallationDetail;

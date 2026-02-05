@@ -2253,7 +2253,7 @@ return array(
     'Database\\Seeders\\v4_0_2_4_RC_1\\DatabaseSeeder' => $baseDir . '/database/seeders/v4_0_2_4_RC_1/DatabaseSeeder.php',
     'Database\\Seeders\\v4_0_2_5_RC_1\\DatabaseSeeder' => $baseDir . '/database/seeders/v4_0_2_5_RC_1/DatabaseSeeder.php',
     'Database\\Seeders\\v4_0_2_5_RC_2\\DatabaseSeeder' => $baseDir . '/database/seeders/v4_0_2_5_RC_2/DatabaseSeeder.php',
-    'Database\\Seeders\\v4_0_2_6\\DatabaseSeeder' => $baseDir . '/database/seeders/v4_0_2_6/DatabaseSeeder.php',
+    'Database\\Seeders\\v4_0_2_6_RC_1\\DatabaseSeeder' => $baseDir . '/database/seeders/v4_0_2_6_RC_1/DatabaseSeeder.php',
     'DateError' => $vendorDir . '/symfony/polyfill-php83/Resources/stubs/DateError.php',
     'DateException' => $vendorDir . '/symfony/polyfill-php83/Resources/stubs/DateException.php',
     'DateInvalidOperationException' => $vendorDir . '/symfony/polyfill-php83/Resources/stubs/DateInvalidOperationException.php',
