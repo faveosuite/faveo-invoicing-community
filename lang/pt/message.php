@@ -2802,6 +2802,7 @@ return [
     'webhook_explanation' => 'A URL do Webhook pode ser encontrada na seção de Configuração Adicional das configurações do WhatsApp no Painel de Administração.',
     'business_id_error' => 'Por favor, insira um Business ID válido.',
     'enable_reoon_logs_deletion' => 'Ativar exclusão de logs do Reoon',
+    'domain_check' => 'O domínio deve conter apenas letras e números.',
 
     'active_plan_exists' => 'Já existe um plano ativo ":plan_name" para este produto e período. Por favor, desative-o primeiro antes de criar/atualizar um plano ativo.',
     'check_to_make_plan_active' => 'Marque para tornar este plano ativo. Apenas um plano ativo é permitido por produto e período.',

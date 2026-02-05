@@ -290,7 +290,7 @@
                                data-hash-offset-lg="500" data-hash-delay="500">{{ __('message.payment_receipts')}}
                             </a>
                         </li>
-                        @if(in_array($product->id,cloudPopupProducts()) && $order->order_status!='Terminated')
+                        @if(in_array($product->id,cloudPopupProducts()) && $order->order_status!='Terminated' && $subscription->is_deleted == 0)
 
                             <li class="nav-item">
 

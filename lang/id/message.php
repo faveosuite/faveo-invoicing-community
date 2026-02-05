@@ -2820,6 +2820,7 @@ return [
     'business_id_error' => 'Harap masukkan Business ID yang valid.',
     'email_validation_status' => 'Status validasi email berhasil disimpan',
     'enable_reoon_logs_deletion' => 'Aktifkan Penghapusan Log Reoon',
+    'domain_check' => 'Domain hanya boleh berisi huruf dan angka.',
 
     'active_plan_exists' => 'Paket aktif ":plan_name" sudah ada untuk produk dan periode ini. Harap nonaktifkan terlebih dahulu sebelum membuat/memperbarui paket aktif.',
     'check_to_make_plan_active' => 'Centang untuk mengaktifkan paket ini. Hanya satu paket aktif yang diperbolehkan per produk dan periode.',

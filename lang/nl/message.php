@@ -2789,6 +2789,7 @@ return [
     'webhook_explanation' => 'De Webhook URL is te vinden onder de Aanvullende Configuratie in de WhatsApp-instellingen van het beheerpaneel.',
     'business_id_error' => 'Voer een geldige Business ID in.',
     'enable_reoon_logs_deletion' => 'Reoon-logboeken verwijderen inschakelen',
+    'domain_check' => 'Het domein mag alleen letters en cijfers bevatten.',
 
     'active_plan_exists' => 'Er bestaat al een actief plan ":plan_name" voor dit product en deze periode. Schakel dit eerst uit voordat u een actief plan maakt/bijwerkt.',
     'check_to_make_plan_active' => 'Vink aan om dit plan actief te maken. Er is slechts één actief plan toegestaan per product en periode.',

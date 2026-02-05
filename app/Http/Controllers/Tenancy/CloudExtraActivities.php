@@ -1224,10 +1224,12 @@ class CloudExtraActivities extends Controller
 
     public function storeTenantTillPurchase(Request $request)
     {
-//        if (! $this->checkDomain($request->input('domain'))) {
-//
-//            return response(['status' => false, 'message' => trans('message.domain_taken')]);
-//        }
+        $request->validate([
+            'domain' => 'required|alpha_num',
+        ]);
+        if (! $this->checkDomain($request->input('domain'))) {
+            return response(['status' => false, 'message' => trans('message.domain_taken')]);
+        }
         \Session::forget('plan_id');
         (new CartController())->cart($request);
 

@@ -2756,6 +2756,7 @@ return [
     'webhook_explanation' => 'Webhook URL se može pronaći u sekciji Dodatna konfiguracija u postavkama WhatsApp-a u administratorskom panelu.',
     'business_id_error' => 'Molimo unesite važeći Business ID.',
     'enable_reoon_logs_deletion' => 'Omogući brisanje Reoon zapisa',
+    'domain_check' => 'Domena smije sadržavati samo slova i brojeve.',
 
     'active_plan_exists' => 'Aktivni plan ":plan_name" već postoji za ovaj proizvod i period. Molimo vas da ga prvo onemogućite prije kreiranja/ažuriranja aktivnog plana.',
     'check_to_make_plan_active' => 'Označite da biste aktivirali ovaj plan. Dozvoljen je samo jedan aktivni plan po proizvodu i periodu.',

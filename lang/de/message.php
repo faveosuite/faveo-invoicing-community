@@ -2820,6 +2820,7 @@ return [
     'webhook_explanation' => 'Die Webhook-URL finden Sie im Bereich Zusätzliche Konfiguration in den WhatsApp-Einstellungen des Admin-Panels.',
     'business_id_error' => 'Bitte geben Sie eine gültige Business-ID ein.',
     'enable_reoon_logs_deletion' => 'Löschen von Reoon-Protokollen aktivieren',
+    'domain_check' => 'Die Domain darf nur Buchstaben und Zahlen enthalten.',
 
     'active_plan_exists' => 'Ein aktiver Plan ":plan_name" existiert bereits für dieses Produkt und diesen Zeitraum. Bitte deaktivieren Sie ihn zuerst, bevor Sie einen aktiven Plan erstellen/aktualisieren.',
     'check_to_make_plan_active' => 'Wählen Sie dies aus, um diesen Plan zu aktivieren. Nur ein aktiver Plan ist pro Produkt und Zeitraum zulässig.',

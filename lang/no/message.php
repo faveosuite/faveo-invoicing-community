@@ -2830,6 +2830,7 @@ return [
     'verify_token_error' => 'Vennligst skriv inn verifiseringstoken.',
     'manual_number_title' => 'Legg til nummer manuelt',
     'enable_reoon_logs_deletion' => 'Aktiver sletting av Reoon-logger',
+    'domain_check' => 'Domenet kan bare inneholde bokstaver og tall.',
 
     'active_plan_exists' => 'En aktiv plan ":plan_name" finnes allerede for dette produktet og denne perioden. Vennligst deaktiver den først før du oppretter/oppdaterer en aktiv plan.',
     'check_to_make_plan_active' => 'Merk av for å gjøre denne planen aktiv. Kun én aktiv plan er tillatt per produkt og periode.',

@@ -2838,6 +2838,7 @@ return [
     'business_id_error' => 'Lütfen geçerli bir Business ID girin.',
     'email_validation_status' => 'E-posta doğrulama durumu başarıyla kaydedildi',
     'enable_reoon_logs_deletion' => 'Reoon Günlük Silmeyi Etkinleştir',
+    'domain_check' => 'Alan adı yalnızca harf ve rakamlardan oluşmalıdır.',
 
     'active_plan_exists' => 'Bu ürün ve dönem için ":plan_name" adında aktif bir plan zaten var. Aktif bir plan oluşturmadan/güncellemeden önce lütfen bunu devre dışı bırakın.',
     'check_to_make_plan_active' => 'Bu planı aktif yapmak için işaretleyin. Ürün ve dönem başına yalnızca bir aktif plana izin verilir.',
