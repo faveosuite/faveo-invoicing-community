@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Events\UserOrderDelete;
+use App\Model\Product\Subscription;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -123,7 +124,10 @@ class SoftDeleteController extends ClientController
                         $tenants = $user->order()->pluck('id');
                         foreach ($tenants as $tenant) {
                             $installation_path = \DB::table('installation_details')->where('order_id', $tenant)->where('installation_path', '!=', cloudCentralDomain())->value('installation_path');
-                            if ($installation_path) {
+                            $isCloudDeleted = Subscription::where('order_id', $tenants)
+                                ->where('is_deleted', 1)
+                                ->exists();
+                            if ($installation_path && !$isCloudDeleted) {
                                 event(new UserOrderDelete($installation_path, $tenant));
                             }
                         }
