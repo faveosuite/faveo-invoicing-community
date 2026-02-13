@@ -579,7 +579,7 @@ function setServiceConfig($emailConfig)
     \Config::set('mail.username', $emailConfig['email']);
 
     //setting the config again in the service container
-    (new \Illuminate\Mail\MailServiceProvider(app()))->register();
+    new \Illuminate\Mail\MailServiceProvider(app())->register();
 }
 
 function persistentCache($key, Closure $closure, $noOfSeconds = 30, array $variables = [])
