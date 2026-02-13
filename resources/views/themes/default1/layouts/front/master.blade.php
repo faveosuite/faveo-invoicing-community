@@ -813,7 +813,7 @@ $days = $pay->where('product','117')->value('days');
                                     <div class="col col-12">
                                         @if($dataCenters->count()==1)
                                             <div class="text-center">
-                                                <p>{{ __('message.data_center_location') }} <b data-nearest-center="">{!! array_first($dataCenters)->cloud_countries !!} </b><!--<a role="button" href="javascript:void(0)" data-center-link="" aria-labelledby="data-center-text-label-dataCenter119678097062480"><b>Change</b></a>--></p>
+                                                <p>{{ __('message.data_center_location') }} <b data-nearest-center="">{!! $dataCenters->first()->cloud_countries !!} </b><!--<a role="button" href="javascript:void(0)" data-center-link="" aria-labelledby="data-center-text-label-dataCenter119678097062480"><b>Change</b></a>--></p>
                                             </div>
                                         @else
                                             <label style="margin-top: 2px; text-align: left;"><b>{{ __('message.choose_data_center') }}</b></label>
