@@ -451,6 +451,8 @@ class ProductController extends BaseProductController
      */
     public function update($id, Request $request)
     {
+        $input = $request->all();
+
         $request->validate([
             'name' => [
                 'required',
