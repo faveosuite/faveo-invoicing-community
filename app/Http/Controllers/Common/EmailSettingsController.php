@@ -11,7 +11,6 @@ class EmailSettingsController extends Controller
 {
     protected $emailConfig;
 
-
     protected $error;
 
     protected function checkSConnection(Setting $emailConfig)
@@ -144,9 +143,8 @@ class EmailSettingsController extends Controller
      * TO DO: it is not required to set email configuration before checking the stream in above method,
      * because it is in this method too.
      *
-     * @return bool      true if success else false
+     * @return bool true if success else false
      */
-
     private function checkSMTPConnection()
     {
         try {
