@@ -138,20 +138,15 @@
 
 
 <script>
-    $(document).on('input', '#cloud_domain', function (e) {
-        console.time('change-handler');
-
+    $(document).on('input', '#cloud_domain', function () {
         const alphanumeric = /^[a-zA-Z0-9]+$/;
         if (!alphanumeric.test(this.value)) {
             $('#cloud-msg').text("{{ __('message.domain_check') }}");
-            $('#generate').attr('disabled',true);
+            $('#generate').attr('disabled', true);
         } else {
             $('#cloud-msg').text('');
-            $('#generate').attr('disabled',false);
-
+            $('#generate').attr('disabled', false);
         }
-
-        console.timeEnd('change-handler');
     });
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'add_invoice';
@@ -372,6 +367,10 @@
                 const element2 = document.getElementById('agents')
                 if (element2) {
                     element2.innerHTML = agents
+                }
+
+                if (document.getElementById('cloud_domain') && !document.getElementById('cloud_domain').value) {
+                    $('#generate').attr('disabled', true);
                 }
 
             }
