@@ -170,13 +170,31 @@ function getDateHtmlcopy(?string $dateTimeString = null)
 }
 function getExpiryLabel($expiryDate, $badge = 'badge')
 {
-    if ($expiryDate < (new Carbon())->toDateTimeString()) {
-        return getDateHtml($expiryDate).'&nbsp;<span class="'.$badge.' '.$badge.'-danger">
-        <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('validation.order_has_Expired').'">
-        </label>'.__('message.expired').'</span>';
-    } else {
-        return getDateHtml($expiryDate);
+    if (empty($expiryDate)) {
+        return '--';
     }
+
+    try {
+        $expiry = Carbon::parse($expiryDate);
+    } catch (\Exception $e) {
+        return '--';
+    }
+
+    $dateHtml = getDateHtml($expiryDate);
+
+    if ($expiry->isPast()) {
+        return $dateHtml .
+            '&nbsp;<span class="' . $badge . ' ' . $badge . '-danger">
+                <label data-toggle="tooltip"
+                       style="font-weight:500;"
+                       data-placement="top"
+                       title="' . __('validation.order_has_Expired') . '">
+                </label>' .
+            __('message.expired') .
+            '</span>';
+    }
+
+    return $dateHtml;
 }
 
 function getVersionAndLabel($productVersion, $productId, $badge = 'label', $path = null)

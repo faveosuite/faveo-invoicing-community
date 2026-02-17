@@ -331,11 +331,11 @@
             showError(currency, userRequiredFields.currency);
             isValid = false;
           }
-          if (regular.length && (!regular.val() || parseFloat(regular.val()) <= 0)) {
+          if (regular.length && (!regular.val() || parseFloat(regular.val()) < 0)) {
             showError(regular, userRequiredFields.regular_price);
             isValid = false;
           }
-          if (renew.length && (!renew.val() || parseFloat(renew.val()) <= 0)) {
+          if (renew.length && (!renew.val() || parseFloat(renew.val()) < 0)) {
             showError(renew, userRequiredFields.renew_price);
             isValid = false;
           }

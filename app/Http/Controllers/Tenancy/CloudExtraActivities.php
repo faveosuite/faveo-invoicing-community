@@ -1233,7 +1233,7 @@ class CloudExtraActivities extends Controller
         \Session::forget('plan_id');
         (new CartController())->cart($request);
 
-        return response()->json(['redirectTo' => env('APP_URL').'/show/cart']);
+        return response()->json(['redirectTo' => url('/show/cart')]);
     }
 
     public function checkDomain($domain)

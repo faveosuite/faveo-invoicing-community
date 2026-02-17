@@ -178,12 +178,27 @@ input:checked + .slider:before {
                                 <tbody><tr><td><b>{{ __('message.name_page') }}:</b></td><td><a href="{{url('clients/'.$user->id)}}">{{ucfirst($user->first_name)}}</a></td></tr>
                                     <tr><td><b>{{ __('message.email') }}:</b></td><td>{{$user->email}}</td></tr>
                                     <tr><td><b>{{ __('message.mobile') }}:</b></td><td>@if($user->mobile_code)(<b>+</b>{{$user->mobile_code}})@endif&nbsp;{{$user->mobile}}</td></tr>
-                                    <tr><td><b>{{ __('message.address') }}:</b></td><td>{{$user->address}},
-                                            {{ucfirst($user->town)}}, 
-                                            @if(key_exists('name',getStateByCode($user->country, $user->state)))
-                                            {{getStateByCode($user->country, $user->state)['name']}}
-                                            @endif
-                                        </td></tr>
+                                @php
+                                    $addressParts = [];
+
+                                    if (!empty($user->address)) {
+                                        $addressParts[] = $user->address;
+                                    }
+
+                                    if (!empty($user->town)) {
+                                        $addressParts[] = ucfirst($user->town);
+                                    }
+
+                                    $state = getStateByCode($user->country, $user->state);
+                                    if (!empty($state['name'])) {
+                                        $addressParts[] = $state['name'];
+                                    }
+                                @endphp
+
+                                <tr>
+                                    <td><b>{{ __('message.address') }}:</b></td>
+                                    <td>{{ implode(', ', $addressParts) }}</td>
+                                </tr>
                                     <tr><td><b>{{ __('message.country') }}:</b></td><td>{{getCountryByCode($user->country)}}</td></tr>
 
                                 </tbody>
