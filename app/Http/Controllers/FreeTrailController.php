@@ -110,11 +110,13 @@ class FreeTrailController extends Controller
                 } catch (\Exception $ex) {
                     DB::rollback(); // Rollback the transaction
                     \Logger::exception($ex);
+
                     return errorResponse(__('message.cannot_generate_freetrial_cloud_instance'));
                 }
             }
         } catch (\Exception $ex) {
             \Logger::exception($ex);
+
             return errorResponse(__('message.cannot_generate_freetrial_cloud_instance'));
         }
     }
