@@ -183,14 +183,14 @@ function getExpiryLabel($expiryDate, $badge = 'badge')
     $dateHtml = getDateHtml($expiryDate);
 
     if ($expiry->isPast()) {
-        return $dateHtml .
-            '&nbsp;<span class="' . $badge . ' ' . $badge . '-danger">
+        return $dateHtml.
+            '&nbsp;<span class="'.$badge.' '.$badge.'-danger">
                 <label data-toggle="tooltip"
                        style="font-weight:500;"
                        data-placement="top"
-                       title="' . __('validation.order_has_Expired') . '">
-                </label>' .
-            __('message.expired') .
+                       title="'.__('validation.order_has_Expired').'">
+                </label>'.
+            __('message.expired').
             '</span>';
     }
 
