@@ -138,7 +138,7 @@ class Product extends BaseModel
     public function getImageAttribute($value)
     {
         if (! $value) {
-            $image = asset('storage/common/images/No-image-found.png');
+            $image = asset('common/images/image.png');
         } else {
             $image = Attach::getUrlPath('common/images/'.$value);
         }

@@ -389,7 +389,15 @@
          }
 
          // Exit early if no product is selected
-         if (!productId) return;
+         if (!productId) {
+             $('#fields1').empty();   // remove subscription/plan
+             $('#fields').empty();    // remove dynamic fields
+             $('#qty').empty();       // remove quantity
+             $('#agents').empty();    // remove agents
+             $('#price').val('');     // reset price
+             $('#generate').attr('disabled', false);
+             return;
+         }
 
          $.ajax({
              type: 'GET',

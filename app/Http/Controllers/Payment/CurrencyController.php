@@ -297,15 +297,6 @@ HTML;
 
                 $newStatus = $request->input('current_status') == '1' ? 0 : 1;
 
-                if ($newStatus) {
-                    Artisan::call('currency:manage', [
-                        'action' => 'add',
-                        'currency' => $currency->code,
-                    ]);
-
-                    Artisan::call('currency:cleanup');
-                }
-
                 $currency->update(['status' => $newStatus]);
 
                 return successResponse(__('message.updated-successfully'));

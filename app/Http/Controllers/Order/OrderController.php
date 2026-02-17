@@ -132,11 +132,11 @@ class OrderController extends BaseOrderController
 
             return \DataTables::of($query)
                 ->orderColumn('client', '-orders.created_at $1')
-                ->orderColumn('product_name', 'orders.created_at $1')
+                ->orderColumn('product_name', 'product_name $1')
                 ->orderColumn('version', 'orders.created_at $1')
                 ->orderColumn('agents', 'orders.created_at $1')
-                ->orderColumn('number', 'orders.created_at $1')
-                ->orderColumn('order_status', 'orders.created_at $1')
+                ->orderColumn('number', 'orders.number $1')
+                ->orderColumn('order_status', 'orders.order_status $1')
                 ->orderColumn('order_date', 'orders.created_at $1')
                 ->orderColumn('update_ends_at', 'orders.created_at $1')
 

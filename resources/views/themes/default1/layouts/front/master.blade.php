@@ -282,13 +282,7 @@ $days = $pay->where('product','117')->value('days');
                                         @foreach($social as $media)
                                             <li class="nav-item pe-2 mx-1">
                                                 <a href="{{$media->link}}" target="_blank" data-bs-toggle="tooltip" title="{{$media->name}}" class="text-color-default text-color-hover-primary text-4">
-                                                    @if ($media->name === 'Facebook')
-                                                        <i class="fab fa-facebook-f"></i>
-                                                    @elseif ($media->name === 'Twitter')
-                                                        <i class="fab fa-twitter"></i>
-                                                    @elseif ($media->name === 'Linkedin')
-                                                        <i class="fab fa-linkedin-in"></i>
-                                                    @endif
+                                                    <i class="fab fa-{{ strtolower($media->name) }}"></i>
                                                 </a>
                                             </li>
                                         @endforeach

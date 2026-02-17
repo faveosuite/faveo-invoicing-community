@@ -1,5 +1,21 @@
 <?php
 
+// This will trigger when the phpversion is below the required version
+if (version_compare(phpversion(), '8.4', '<')) {
+    $envFile = '..' . DIRECTORY_SEPARATOR . '.env';
+
+    if (file_exists($envFile)) {
+        $env_array = parse_ini_file($envFile, false, INI_SCANNER_RAW);
+
+        foreach ($env_array as $key => $value) {
+            if ($key === 'APP_URL' && $value !== 'true') {
+                header('Location: ' . $value . DIRECTORY_SEPARATOR . 'updateToLatestPhp.html');
+                exit();
+            }
+        }
+    }
+}
+
 /**
  * Laravel - A PHP Framework For Web Artisans.
  *
