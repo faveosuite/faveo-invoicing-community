@@ -7,7 +7,6 @@ use App\Model\Common\Country;
 use App\Model\Common\Setting;
 use App\Model\Payment\Currency;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Lang;
 
 class CurrencyController extends Controller
