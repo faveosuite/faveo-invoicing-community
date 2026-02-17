@@ -15,6 +15,7 @@ yarn-error.log
 
 public/images.zip
 .env.testing
+.env.dusk.testing
 storage/products
 
 # Packages #
