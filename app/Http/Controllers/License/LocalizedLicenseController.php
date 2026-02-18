@@ -339,7 +339,7 @@ class LocalizedLicenseController extends Controller
             'api_key_secret' => $this->api_key_secret,
         ]);
 
-        $schema = $this->postCurl($this->url.'api/admin/getLicenseSchema', $query , $token);
+        $schema = $this->postCurl($this->url.'api/admin/getLicenseSchema', $query, $token);
 
         $response = json_decode($schema, true);
 
@@ -366,13 +366,13 @@ class LocalizedLicenseController extends Controller
 
         return json_encode([
             'license' => $licenseData,
-            'signature' => $signature
+            'signature' => $signature,
         ]);
     }
 
     public function downloadLicense($orderId, $domain)
     {
-        $licenseData  = $this->generateLicenseData($orderId, $domain);
+        $licenseData = $this->generateLicenseData($orderId, $domain);
         $licenseJson = $this->generateLicenseFile($licenseData);
 
         return response()->streamDownload(
@@ -391,7 +391,7 @@ class LocalizedLicenseController extends Controller
         $order = Order::find($orderId);
         $subscription = Subscription::where('order_id', $order->id)->first();
         // this 100-year comparison because some dates contain 0000.00.00 vales in the database that values, we refine it as null
-        $formatDate = fn($date) => ($d = Carbon::make($date)) && $d->gte(now()->subYears(100))
+        $formatDate = fn ($date) => ($d = Carbon::make($date)) && $d->gte(now()->subYears(100))
             ? $d->format('Y-m-d H:i:s')
             : null;
 
@@ -406,7 +406,7 @@ class LocalizedLicenseController extends Controller
             'updates_expiry' => $formatDate($subscription->update_ends_at ?? null),
             'support_expiry' => $formatDate($subscription->support_ends_at ?? null),
             'domain' => $this->normalizeDomain($domain),
-            'scheme_query' => $licenseSchema
+            'scheme_query' => $licenseSchema,
         ];
 
         ksort($licenseData);
@@ -414,11 +414,10 @@ class LocalizedLicenseController extends Controller
         return $licenseData;
     }
 
-
     private function normalizeDomain(string $domain): string
     {
-        if (!\Str::startsWith($domain, ['http://', 'https://'])) {
-            $domain = 'https://' . $domain;
+        if (! \Str::startsWith($domain, ['http://', 'https://'])) {
+            $domain = 'https://'.$domain;
         }
 
         $parts = parse_url($domain);
@@ -431,7 +430,6 @@ class LocalizedLicenseController extends Controller
             ? rtrim($parts['path'], '/')
             : '';
 
-        return 'https://' . $parts['host'] . $path;
+        return 'https://'.$parts['host'].$path;
     }
-
 }

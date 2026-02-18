@@ -635,9 +635,9 @@ class LicenseController extends Controller
                 'isLicenseSearchApi' => $isLicenseSearchApi ? 1 : 0,
             ]);
 
-            $url = rtrim($this->url, '/') . "/api/admin/search";
+            $url = rtrim($this->url, '/').'/api/admin/search';
 
-            $details = json_decode($this->postCurl($url,$query, $token), true);
+            $details = json_decode($this->postCurl($url, $query, $token), true);
 
             if (
                 $details &&
