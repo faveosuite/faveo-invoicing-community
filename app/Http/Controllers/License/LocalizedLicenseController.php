@@ -6,6 +6,7 @@ use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LocalizedLicenseRequest;
 use App\Model\Order\Order;
+use App\Model\Product\Subscription;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -329,4 +330,108 @@ class LocalizedLicenseController extends Controller
 
         return $license_data_array;
     }
+
+    public function getLicenseSchemas()
+    {
+        $token = $this->oauthAuthorization()->access_token;
+
+        $query = http_build_query([
+            'api_key_secret' => $this->api_key_secret,
+        ]);
+
+        $schema = $this->postCurl($this->url.'api/admin/getLicenseSchema', $query , $token);
+
+        $response = json_decode($schema, true);
+
+        if ($response['success'] == false) {
+            throw new \Exception($schema->message);
+        }
+
+        return $response['data'];
+    }
+
+    public function generateLicenseFile(array $licenseData)
+    {
+        $ed25519 = new Ed25519Controller();
+
+        $payload = json_encode(
+            $licenseData,
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+        );
+
+        $signature = $ed25519->sign(
+            $payload,
+            getenv('ED25519_PRIVATE_KEY')
+        );
+
+        return json_encode([
+            'license' => $licenseData,
+            'signature' => $signature
+        ]);
+    }
+
+    public function downloadLicense($orderId, $domain)
+    {
+        $licenseData  = $this->generateLicenseData($orderId, $domain);
+        $licenseJson = $this->generateLicenseFile($licenseData);
+
+        return response()->streamDownload(
+            function () use ($licenseJson) {
+                echo $licenseJson;
+            },
+            'license.json',
+            [
+                'Content-Type' => 'application/json',
+            ]
+        );
+    }
+
+    public function generateLicenseData(int $orderId, string $domain): array
+    {
+        $order = Order::find($orderId);
+        $subscription = Subscription::where('order_id', $order->id)->first();
+        // this 100-year comparison because some dates contain 0000.00.00 vales in the database that values, we refine it as null
+        $formatDate = fn($date) => ($d = Carbon::make($date)) && $d->gte(now()->subYears(100))
+            ? $d->format('Y-m-d H:i:s')
+            : null;
+
+        // this will give all license schemas; by using this we can add any table with the local license approach
+        $licenseSchema = $this->getLicenseSchemas();
+
+        $licenseData = [
+            'product_id' => $order->product,
+            'license_code' => $order->serial_key,
+            'license_mode' => $order->license_mode,
+            'license_expiry' => $formatDate($subscription->ends_at ?? null),
+            'updates_expiry' => $formatDate($subscription->update_ends_at ?? null),
+            'support_expiry' => $formatDate($subscription->support_ends_at ?? null),
+            'domain' => $this->normalizeDomain($domain),
+            'scheme_query' => $licenseSchema
+        ];
+
+        ksort($licenseData);
+
+        return $licenseData;
+    }
+
+
+    private function normalizeDomain(string $domain): string
+    {
+        if (!\Str::startsWith($domain, ['http://', 'https://'])) {
+            $domain = 'https://' . $domain;
+        }
+
+        $parts = parse_url($domain);
+
+        if (empty($parts['host'])) {
+            return '';
+        }
+
+        $path = isset($parts['path'])
+            ? rtrim($parts['path'], '/')
+            : '';
+
+        return 'https://' . $parts['host'] . $path;
+    }
+
 }

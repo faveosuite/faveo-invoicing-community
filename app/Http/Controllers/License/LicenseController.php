@@ -622,4 +622,34 @@ class LicenseController extends Controller
             throw new \Exception(__('message.configure_valid_license'));
         }
     }
+
+    public function advanceSearch(string $searchType, string $searchKey, bool $isLicenseSearchApi = true)
+    {
+        try {
+            $token = $this->oauthAuthorization()->access_token;
+
+            $query = http_build_query([
+                'api_key_secret' => $this->api_key_secret,
+                'search_type' => $searchType,
+                'search_keyword' => $searchKey,
+                'isLicenseSearchApi' => $isLicenseSearchApi ? 1 : 0,
+            ]);
+
+            $url = rtrim($this->url, '/') . "/api/admin/search";
+
+            $details = json_decode($this->postCurl($url,$query, $token), true);
+
+            if (
+                $details &&
+                ($details['api_error_detected'] ?? 1) == 0 &&
+                isset($details['page_message'][0])
+            ) {
+                return collect($details['page_message'])->toArray();
+            }
+
+            return [];
+        } catch (\Exception $ex) {
+            throw new \Exception(__('message.configure_valid_license'));
+        }
+    }
 }
