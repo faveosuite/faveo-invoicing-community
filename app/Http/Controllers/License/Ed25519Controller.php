@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\License;
 
 use App\Http\Controllers\Controller;
-use Exception;
 
 class Ed25519Controller extends Controller
 {
@@ -25,8 +24,8 @@ class Ed25519Controller extends Controller
     /**
      * Sign a message with the private key.
      *
-     * @param string $message The message to sign
-     * @param string $privateKey Base64 encoded private key
+     * @param  string  $message  The message to sign
+     * @param  string  $privateKey  Base64 encoded private key
      * @return string Base64 encoded signature
      */
     public function sign(string $message, string $privateKey): string
@@ -40,9 +39,9 @@ class Ed25519Controller extends Controller
     /**
      * Verify a signature with the public key.
      *
-     * @param string $message The original message
-     * @param string $signature Base64 encoded signature
-     * @param string $publicKey Base64 encoded public key
+     * @param  string  $message  The original message
+     * @param  string  $signature  Base64 encoded signature
+     * @param  string  $publicKey  Base64 encoded public key
      * @return bool True if signature is valid
      */
     public function verify(string $message, string $signature, string $publicKey): bool
@@ -56,8 +55,8 @@ class Ed25519Controller extends Controller
     /**
      * Sign a message and return the signed message (message + signature).
      *
-     * @param string $message The message to sign
-     * @param string $privateKey Base64 encoded private key
+     * @param  string  $message  The message to sign
+     * @param  string  $privateKey  Base64 encoded private key
      * @return string Base64 encoded signed message
      */
     public function signMessage(string $message, string $privateKey): string
@@ -71,8 +70,8 @@ class Ed25519Controller extends Controller
     /**
      * Open a signed message and return the original message.
      *
-     * @param string $signedMessage Base64 encoded signed message
-     * @param string $publicKey Base64 encoded public key
+     * @param  string  $signedMessage  Base64 encoded signed message
+     * @param  string  $publicKey  Base64 encoded public key
      * @return string|false Original message or false if verification fails
      */
     public function openSignedMessage(string $signedMessage, string $publicKey)
