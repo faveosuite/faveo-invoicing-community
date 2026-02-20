@@ -2,7 +2,6 @@
 
 namespace App\Plugins\Recaptcha\Middleware;
 
-use App\Model\Common\StatusSetting;
 use App\Plugins\Recaptcha\Model\RecaptchaSetting;
 use Closure;
 use Illuminate\Http\Request;
@@ -15,7 +14,7 @@ class RecaptchaMiddleware
     {
         // Early exit if reCAPTCHA is disabled
         $statusEnabled = RecaptchaSetting::isCaptchaCanRun();
-        if (!$statusEnabled) {
+        if (! $statusEnabled) {
             return $next($request);
         }
 
