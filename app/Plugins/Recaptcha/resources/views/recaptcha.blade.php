@@ -1,10 +1,6 @@
 @php
     $recaptcha = \App\Plugins\Recaptcha\Model\RecaptchaSetting::first();
-    $statusEnabled =
-    (optional(\App\Model\Common\StatusSetting::first())->recaptcha_status ?? false)
-    && auth()->guest()
-    && !empty($v2SiteKey)
-    && !empty($v3SiteKey);
+    $statusEnabled = \App\Plugins\Recaptcha\Model\RecaptchaSetting::isCaptchaCanRun();
 
 
     $captchaVersion = $recaptcha?->captcha_version ?? 'v3';

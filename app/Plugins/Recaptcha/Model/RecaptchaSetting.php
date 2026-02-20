@@ -3,6 +3,7 @@
 namespace App\Plugins\Recaptcha\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RecaptchaSetting extends Model
 {
@@ -18,4 +19,15 @@ class RecaptchaSetting extends Model
         'size',
         'badge_position',
     ];
+
+    public static function isCaptchaCanRun(): bool
+    {
+        $statusSetting = \App\Model\Common\StatusSetting::first();
+        $recaptchaSetting = self::first();
+        
+        return auth()->guest() 
+            && ($statusSetting?->recaptcha_status ?? false)
+            && !empty($recaptchaSetting?->v2_site_key) 
+            && !empty($recaptchaSetting?->v3_site_key);
+    }
 }

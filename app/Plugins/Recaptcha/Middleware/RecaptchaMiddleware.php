@@ -14,8 +14,8 @@ class RecaptchaMiddleware
     public function handle(Request $request, Closure $next, string $action): mixed
     {
         // Early exit if reCAPTCHA is disabled
-        $statusSetting = StatusSetting::query()->first();
-        if (auth()->check() || ! $statusSetting?->recaptcha_status) {
+        $statusEnabled = RecaptchaSetting::isCaptchaCanRun();
+        if (!$statusEnabled) {
             return $next($request);
         }
 
