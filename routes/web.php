@@ -936,3 +936,8 @@ Route::patch('reports/setting', [ReportController::class, 'updateReportsSettings
 Route::get('dashboard', [DashboardController::class, 'dashboard']);
 
 Route::get('module-settings', [Common\SettingsController::class, 'getModuleSettings']);
+
+// Admin Vue Panel
+Route::get('/admin/{any?}', function () {
+    return view('admin');
+})->where('any', '.*');
