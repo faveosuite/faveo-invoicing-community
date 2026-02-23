@@ -9,10 +9,10 @@ $cdnBase = rtrim(env('CDN_URL', 'https://your-cdn-server.com'), '/');
 $themes = [
     'adminlte' => [
         // ── CSS ────────────────────────────────────────────────────────────────
-        'bootstrap-icons-css'   => 'themes/adminlte/plugins/bootstrap-icons/bootstrap-icons.min.css',
-        'adminlte-css'          => 'themes/adminlte/css/adminlte.min.css',
-        'fontawesome-css'       => 'themes/common/fonts/fontawesome/css/all.min.css',
-        'flag-icons-css'        => 'themes/common/flag-icons/css/flag-icons.min.css',
+        'bootstrap-icons-css' => 'themes/adminlte/plugins/bootstrap-icons/bootstrap-icons.min.css',
+        'adminlte-css' => 'themes/adminlte/css/adminlte.min.css',
+        'fontawesome-css' => 'themes/common/fonts/fontawesome/css/all.min.css',
+        'flag-icons-css' => 'themes/common/flag-icons/css/flag-icons.min.css',
         // async (non-critical — only used on dashboard / reports)
         'overlayscrollbars-css' => 'themes/adminlte/plugins/overlayscrollbars/overlayscrollbars.min.css',
         'apexcharts-css' => 'themes/adminlte/plugins/apexcharts/apexcharts.css',

@@ -941,8 +941,9 @@ Route::get('module-settings', [Common\SettingsController::class, 'getModuleSetti
 // Admin Vue Panel — guard at the server level so unauthenticated users never
 // receive the blade/JS bundle and see a flash of the admin UI.
 Route::get('/admin/{any?}', function () {
-    if (!auth()->check()) {
+    if (! auth()->check()) {
         return redirect(url('/login'));
     }
+
     return view('admin');
 })->where('any', '.*');
