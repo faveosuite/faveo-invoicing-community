@@ -5,16 +5,6 @@
 
     <main class="app-main">
 
-        <!-- ── Global notification alert ─────────────────────────────────── -->
-        <Transition name="alert-slide">
-            <div v-if="visible"
-                 :class="`alert alert-${type} alert-dismissible global-alert`"
-                 role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" aria-label="Close" @click="dismiss" />
-            </div>
-        </Transition>
-
         <!-- ── Content header: page title + breadcrumb ──────────────────── -->
         <div class="app-content-header">
             <div class="container-fluid">
@@ -45,7 +35,19 @@
 
         <!-- ── Page content ──────────────────────────────────────────────── -->
         <div class="app-content" id="main" role="main" tabindex="-1">
+
             <div class="container-fluid">
+
+                <!-- ── Global notification alert ──────────────────────────── -->
+                <Transition name="alert-slide">
+                    <div v-if="visible"
+                         :class="`alert alert-${type} alert-dismissible`"
+                         role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" aria-label="Close" @click="dismiss" />
+                    </div>
+                </Transition>
+
                 <RouterView v-slot="{ Component }">
                     <Suspense>
                         <component :is="Component" />

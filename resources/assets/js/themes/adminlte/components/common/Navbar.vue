@@ -68,42 +68,33 @@
                 </li>
 
                 <!-- Profile -->
-                <li class="nav-item dropdown user-menu">
+                <li class="nav-item dropdown">
                     <a href="#"
-                       class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                       class="nav-link d-flex align-items-center gap-2"
                        data-bs-toggle="dropdown"
+                       data-bs-offset="0,8"
                        role="button"
                        :aria-label="`User menu for ${userName}`"
                        aria-haspopup="true">
+                        <span class="d-none d-md-inline">{{ userName }}</span>
                         <img :src="avatarUrl"
-                             class="user-image rounded-circle shadow"
+                             class="user-image rounded-circle"
                              alt=""
                              @error="e => e.target.src = fallbackAvatar" />
-                        <span class="d-none d-md-inline">{{ userName }}</span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-label="User menu">
-                        <!-- Header -->
-                        <li class="user-header text-bg-primary">
-                            <img :src="avatarUrl"
-                                 class="rounded-circle shadow"
-                                 :alt="`${userName} avatar`"
-                                 @error="e => e.target.src = fallbackAvatar" />
-                            <p>
-                                {{ userName }}
-                                <small v-if="userEmail">{{ userEmail }}</small>
-                            </p>
-                        </li>
-                        <!-- Actions -->
-                        <li class="user-footer">
-                            <a href="#" class="btn btn-default btn-flat">
-                                <i class="bi bi-person me-1" aria-hidden="true"></i>
+                    <ul class="dropdown-menu dropdown-menu-end user-dropdown" aria-label="User menu">
+                        <li>
+                            <RouterLink to="/profile" class="dropdown-item">
+                                <i class="bi bi-person me-2" aria-hidden="true"></i>
                                 Profile
-                            </a>
+                            </RouterLink>
+                        </li>
+                        <li>
                             <a href="#"
-                               class="btn btn-default btn-flat float-end text-danger"
+                               class="dropdown-item"
                                @click.prevent="logout">
-                                <i class="bi bi-box-arrow-right me-1" aria-hidden="true"></i>
-                                Sign out
+                                <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>
+                                Log out
                             </a>
                         </li>
                     </ul>

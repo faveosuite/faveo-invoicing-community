@@ -1,10 +1,53 @@
-/* ── Global notification alert ─────────────────────────────────────────────── */
-.global-alert {
-    position: sticky;
-    top: 0;
-    z-index: 1050;
-    border-radius: 0;
-    margin-bottom: 0;
+/* ── Sidebar active states ─────────────────────────────────────────────────── */
+
+/* Active direct link and active parent/child in treeview */
+.app-sidebar .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.10) !important;
+    color: #fff !important;
+    border-radius: 0 !important;
+}
+
+/* Parent item when its group is open */
+.app-sidebar .nav-item.menu-open > .nav-link {
+    background-color: rgba(255, 255, 255, 0.07) !important;
+    color: #fff !important;
+}
+
+/* ── Sidebar logo white ─────────────────────────────────────────────────────── */
+.sidebar-brand .brand-image {
+    filter: brightness(0) invert(1);
+}
+
+/* ── User profile dropdown ─────────────────────────────────────────────────── */
+.navbar .user-image {
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+}
+
+.user-dropdown {
+    background-color: #4b5563;
+    border: none;
+    min-width: 160px;
+    padding: 0.25rem 0;
+}
+.user-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: 12px;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-bottom: 7px solid #4b5563;
+}
+.user-dropdown .dropdown-item {
+    color: #d1d5db;
+    padding: 0.6rem 1.25rem;
+}
+.user-dropdown .dropdown-item:hover,
+.user-dropdown .dropdown-item:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
 }
 
 /* ── Alert slide transition ────────────────────────────────────────────────── */

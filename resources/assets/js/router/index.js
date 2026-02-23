@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import dashboardRoutes from './routes/dashboard.js'
+import profileRoutes from './routes/profile.js'
 import userRoutes from './routes/users.js'
 import orderRoutes from './routes/orders.js'
 import invoiceRoutes from './routes/invoices.js'
@@ -16,6 +17,7 @@ import widgetRoutes from './routes/settings/widgets.js'
 const routes = [
     { path: '/', redirect: '/dashboard' },
     ...dashboardRoutes,
+    ...profileRoutes,
     ...userRoutes,
     ...orderRoutes,
     ...invoiceRoutes,
@@ -55,6 +57,12 @@ router.beforeEach((to, from, next) => {
     } else {
         next()
     }
+})
+
+// Update browser tab title on every navigation
+const appName = el?.dataset?.appName || 'Admin Panel'
+router.afterEach((to) => {
+    document.title = to.meta?.title ? `${to.meta.title} | ${appName}` : appName
 })
 
 export default router

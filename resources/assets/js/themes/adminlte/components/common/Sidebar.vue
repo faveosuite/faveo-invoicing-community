@@ -6,9 +6,8 @@
         <div class="sidebar-brand">
             <RouterLink to="/dashboard" class="brand-link">
                 <img :src="logoUrl" alt="Logo"
-                     class="brand-image opacity-75 shadow"
+                     class="brand-image"
                      @error="e => e.target.style.display = 'none'" />
-                <span class="brand-text fw-light">Admin Panel</span>
             </RouterLink>
         </div>
 
@@ -275,7 +274,7 @@ import { asset } from '@/core/utils/asset.js'
 
 const route = useRoute()
 
-const logoUrl = asset('themes/common/images/faveo.png')
+const logoUrl = asset('themes/common/images/faveo-logo.png')
 
 // ── Treeview open/close state ─────────────────────────────────────────────────
 const openItems = ref(new Set())
