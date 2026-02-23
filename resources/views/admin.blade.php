@@ -14,7 +14,7 @@
         @endif
     @endforeach
 
-    @vite(['resources/js/main.js'])
+    @vite(['resources/assets/js/main.js'])
 </head>
 <body>
     <div
