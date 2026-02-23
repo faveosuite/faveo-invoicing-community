@@ -1,5 +1,5 @@
 export default [
-    { path: '/settings/email/settings', component: () => import('../../../pages/settings/email/EmailSettings.vue') },
-    { path: '/settings/email/template-settings', component: () => import('../../../pages/settings/email/TemplateSettings.vue') },
-    { path: '/settings/email/templates', component: () => import('../../../pages/settings/email/Templates.vue') },
+    { path: '/settings/email/settings',          component: () => import('../../../pages/settings/email/EmailSettings.vue'),    meta: { title: 'Email Settings' } },
+    { path: '/settings/email/template-settings', component: () => import('../../../pages/settings/email/TemplateSettings.vue'), meta: { title: 'Template Settings' } },
+    { path: '/settings/email/templates',         component: () => import('../../../pages/settings/email/Templates.vue'),        meta: { title: 'Email Templates' } },
 ]

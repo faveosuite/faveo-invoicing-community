@@ -1240,3 +1240,23 @@ function isV3Api(): bool
 {
     return str_contains(str_replace(\Request::root().'/', '', \URL::current()), 'v3/');
 }
+
+/**
+ * Resolve a named theme asset to its URL (local or CDN).
+ *
+ * Usage in Blade:
+ *   themeAsset('adminlte-css')   → public/themes/adminlte/css/adminlte.min.css (local)
+ *                                → https://cdn.example.com/themes/... (CDN)
+ *
+ * Asset aliases are defined in config/theme.php under 'assets'.
+ */
+function themeAsset(string $key): string
+{
+    $path = config("theme.assets.{$key}", '');
+
+    if (config('theme.use_cdn')) {
+        return rtrim(config('theme.cdn_base', ''), '/').'/'.ltrim($path, '/');
+    }
+
+    return asset($path);
+}
