@@ -2,12 +2,23 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router/index.js'
 import pinia from './plugins/pinia.js'
-import themeLoader from './plugins/themeLoader.js'
 
-const app = createApp(App)
+const el = document.getElementById('app-root')
+const theme = el?.dataset?.theme || 'adminlte'
 
-app.use(pinia)
-app.use(router)
-app.use(themeLoader)
+// load theme first, then mount
+import(`./themes/${theme}/index.js`).then(themeModule => {
+    const app = createApp(App)
 
-app.mount('#app-root')
+    // register all theme components globally
+    const components = themeModule.components || themeModule.default?.components
+    if (components) {
+        Object.entries(components).forEach(([name, component]) => {
+            app.component(name, component)
+        })
+    }
+
+    app.use(pinia)
+    app.use(router)
+    app.mount('#app-root')
+})
