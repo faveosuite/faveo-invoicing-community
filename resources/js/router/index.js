@@ -29,9 +29,31 @@ const routes = [
     ...widgetRoutes,
 ]
 
+// Read the admin base path from the blade-rendered data attribute.
+// Falls back to '/admin' if the attribute is missing.
+const el = document.getElementById('app-root')
+const adminUrl = el?.dataset?.adminUrl ?? ''
+const base = adminUrl ? new URL(adminUrl).pathname : '/admin'
+
 const router = createRouter({
-    history: createWebHistory('/faveo-invoicing-community/public/admin'),
-    routes
+    history: createWebHistory(base),
+    routes,
+})
+
+// Auth navigation guard
+// Login is handled by the client panel (not the admin Vue SPA).
+// If the session expires mid-session, redirect back to the client panel login.
+const isAuthenticated = () => el?.dataset?.authenticated === 'true'
+
+router.beforeEach((to, from, next) => {
+    const requiresAuth = to.meta?.requiresAuth !== false
+
+    if (requiresAuth && !isAuthenticated()) {
+        // Send user to client panel login; it will redirect back after auth
+        window.location.href = (el?.dataset?.baseUrl ?? '') + '/auth/login'
+    } else {
+        next()
+    }
 })
 
 export default router
