@@ -14,6 +14,7 @@ import commonRoutes from './routes/settings/common.js'
 import widgetRoutes from './routes/settings/widgets.js'
 
 const routes = [
+    { path: '/', redirect: '/dashboard' },
     ...dashboardRoutes,
     ...userRoutes,
     ...orderRoutes,

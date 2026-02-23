@@ -91,8 +91,8 @@ class LoginController extends Controller
                 'linkedin_status' => $linkedin_status,
             ];
 
-            return successResponse('Login Page', $data);
-//            return view('themes.default1.front.auth.login-register', compact('bussinesses', 'location', 'status', 'apiKeys', 'analyticsTag', 'google_status', 'github_status', 'linkedin_status', 'twitter_status'));
+//            return successResponse('Login Page', $data);
+            return view('themes.default1.front.auth.login-register', compact('bussinesses', 'location', 'status', 'apiKeys', 'analyticsTag', 'google_status', 'github_status', 'linkedin_status', 'twitter_status'));
         } catch (\Exception $ex) {
             \Logger::exception($ex);
             $error = $ex->getMessage();
