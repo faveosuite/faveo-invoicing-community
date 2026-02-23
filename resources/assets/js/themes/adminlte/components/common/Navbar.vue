@@ -39,21 +39,30 @@
                        data-bs-toggle="dropdown"
                        href="#"
                        role="button"
-                       aria-label="Change language, current: {{ currentLang }}"
+                       :aria-label="`Change language, current: ${currentLocale}`"
                        aria-haspopup="true">
-                        <i class="bi bi-translate" aria-hidden="true"></i>
-                        <span class="d-none d-md-inline">{{ currentLang }}</span>
+                        <span :class="`fi fi-${flagCode(currentLocale)}`" :title="currentLocale.toUpperCase()"></span>
+                        <span class="d-none d-md-inline">{{ currentLocale.toUpperCase() }}</span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end" role="listbox" aria-label="Languages">
-                        <li v-for="lang in languages" :key="lang.code" role="option">
+                    <ul ref="langMenu"
+                        class="dropdown-menu dropdown-menu-end lang-dropdown"
+                        role="listbox"
+                        aria-label="Languages"
+                        @scroll="onMenuScroll">
+                        <li v-for="lang in languages" :key="lang.id" role="option">
                             <a class="dropdown-item d-flex align-items-center gap-2"
                                href="#"
-                               :class="{ active: lang.code === currentLang }"
-                               :aria-current="lang.code === currentLang ? 'true' : undefined"
-                               @click.prevent="currentLang = lang.code">
-                                <span aria-hidden="true">{{ lang.flag }}</span>
-                                <span>{{ lang.label }}</span>
+                               :class="{ active: lang.locale === currentLocale }"
+                               :aria-current="lang.locale === currentLocale ? 'true' : undefined"
+                               @click.prevent="selectLang(lang)">
+                                <span :class="`fi fi-${flagCode(lang.locale)}`"></span>
+                                <span>{{ lang.name }}{{ nativeName(lang.locale) ? ` (${nativeName(lang.locale)})` : '' }}</span>
                             </a>
+                        </li>
+                        <li v-if="loadingLangs" class="d-flex justify-content-center py-2">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                <span class="visually-hidden">Loading…</span>
+                            </div>
                         </li>
                     </ul>
                 </li>
@@ -90,7 +99,9 @@
                                 <i class="bi bi-person me-1" aria-hidden="true"></i>
                                 Profile
                             </a>
-                            <a href="#" class="btn btn-default btn-flat float-end text-danger">
+                            <a href="#"
+                               class="btn btn-default btn-flat float-end text-danger"
+                               @click.prevent="logout">
                                 <i class="bi bi-box-arrow-right me-1" aria-hidden="true"></i>
                                 Sign out
                             </a>
@@ -104,31 +115,133 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { asset } from '@/core/utils/asset.js'
-import { useSidebar } from '@/core/composables/useSidebar.js'
+import { ref, onMounted }    from 'vue'
+import { asset }             from '@/core/utils/asset.js'
+import { useSidebar }        from '@/core/composables/useSidebar.js'
+import { useNotification }   from '@/core/composables/useNotification.js'
+import http, { parseErrorMessage } from '@/core/services/http.js'
 
 const { isOpen, toggle } = useSidebar()
+const { notify }         = useNotification()
 
 const el = document.getElementById('app-root')
 
 // ── URLs ──────────────────────────────────────────────────────────────────────
 const baseUrl = el?.dataset?.baseUrl ?? '/'
 
+// ── Logout ────────────────────────────────────────────────────────────────────
+async function logout() {
+    await http.get('auth/logout')
+    window.location.href = baseUrl + '/login'
+}
+
 // ── User ──────────────────────────────────────────────────────────────────────
-const userName      = el?.dataset?.userName  ?? 'Admin'
-const userEmail     = el?.dataset?.userEmail ?? ''
-const avatarUrl     = el?.dataset?.userAvatar || asset('themes/adminlte/assets/img/avatar.png')
+const userName       = el?.dataset?.userName  ?? 'Admin'
+const userEmail      = el?.dataset?.userEmail ?? ''
+const avatarUrl      = el?.dataset?.userAvatar || asset('themes/adminlte/assets/img/avatar.png')
 const fallbackAvatar = asset('themes/adminlte/assets/img/avatar.png')
 
 // ── Language ──────────────────────────────────────────────────────────────────
-const currentLang = ref(el?.dataset?.locale ?? 'EN')
+const LIMIT = 10
 
-const languages = [
-    { code: 'EN', flag: '🇬🇧', label: 'English'  },
-    { code: 'DE', flag: '🇩🇪', label: 'Deutsch'  },
-    { code: 'FR', flag: '🇫🇷', label: 'Français' },
-    { code: 'ES', flag: '🇪🇸', label: 'Español'  },
-    { code: 'AR', flag: '🇸🇦', label: 'العربية'  },
-]
+// locale stored in lowercase (e.g. "en", "ar")
+const currentLocale = ref((el?.dataset?.locale ?? 'en').toLowerCase())
+
+const languages    = ref([])
+const loadingLangs = ref(false)
+const hasMore      = ref(true)
+const page         = ref(1)
+const langMenu     = ref(null)
+
+// Maps language locale codes → ISO 3166-1 alpha-2 country codes used by flag-icons.
+// Needed because locale codes identify languages (en, zh, ar) while flag-icons
+// needs country codes (us, cn, sa) — they don't always match.
+const LOCALE_TO_CC = {
+    'en': 'us', 'en-us': 'us', 'en-gb': 'gb', 'en-uk': 'gb',
+    'ar': 'sa',
+    'fr': 'fr', 'de': 'de', 'es': 'es',
+    // Chinese — handle hyphens, underscores and script subtags
+    'zh': 'cn',
+    'zh-cn': 'cn', 'zh_cn': 'cn',
+    'zh-hans': 'cn', 'zh_hans': 'cn',
+    'zh-tw': 'tw', 'zh_tw': 'tw',
+    'zh-hant': 'tw', 'zh_hant': 'tw',
+    'ja': 'jp', 'ko': 'kr',
+    'pt': 'pt', 'pt-br': 'br',
+    'ru': 'ru', 'it': 'it', 'nl': 'nl', 'pl': 'pl',
+    'tr': 'tr', 'vi': 'vn', 'hi': 'in', 'ta': 'in',
+    'he': 'il', 'id': 'id', 'ms': 'my', 'th': 'th',
+    'bs': 'ba', 'no': 'no', 'nb': 'no', 'sv': 'se',
+    'da': 'dk', 'fi': 'fi', 'hu': 'hu', 'cs': 'cz',
+    'sk': 'sk', 'ro': 'ro', 'bg': 'bg', 'hr': 'hr',
+    'sl': 'si', 'uk': 'ua', 'sr': 'rs', 'mt': 'mt',
+}
+
+function flagCode(locale) {
+    // Normalise to lowercase and try the full locale first,
+    // then the bare 2-letter language code as a last resort.
+    const lc = locale.toLowerCase()
+    return LOCALE_TO_CC[lc] ?? LOCALE_TO_CC[lc.slice(0, 2)] ?? 'un'
+}
+
+function nativeName(locale) {
+    try {
+        const display = new Intl.DisplayNames([locale], { type: 'language' })
+        return display.of(locale) ?? ''
+    } catch {
+        return ''
+    }
+}
+
+async function loadLanguages() {
+    if (loadingLangs.value || !hasMore.value) return
+    loadingLangs.value = true
+    try {
+        const { data } = await http.get('languages', {
+            params: { 'sort-order': 'asc', limit: LIMIT, page: page.value },
+        })
+        const batch           = data?.data?.languages?.data ?? []
+        const defaultLocale   = data?.data?.default_language
+        languages.value.push(...batch)
+        hasMore.value = batch.length === LIMIT
+        page.value++
+        // Use API default locale if blade locale not set
+        if (page.value === 2 && defaultLocale && !el?.dataset?.locale) {
+            currentLocale.value = defaultLocale.toLowerCase()
+        }
+    } catch (err) {
+        console.error('Failed to load languages', err)
+    } finally {
+        loadingLangs.value = false
+    }
+}
+
+function onMenuScroll() {
+    const menu = langMenu.value
+    if (!menu) return
+    const nearBottom = menu.scrollTop + menu.clientHeight >= menu.scrollHeight - 60
+    if (nearBottom) loadLanguages()
+}
+
+async function selectLang(lang) {
+    currentLocale.value = lang.locale.toLowerCase()
+    try {
+        const { data } = await http.post('language-toggle', { locale: lang.locale, status: true })
+        notify(data.message, 'success')
+    } catch (err) {
+        notify(parseErrorMessage(err), 'danger')
+    }
+}
+
+onMounted(() => {
+    loadLanguages()
+})
 </script>
+
+<style scoped>
+.lang-dropdown {
+    max-height: 300px;
+    overflow-y: auto;
+    min-width: 260px;
+}
+</style>

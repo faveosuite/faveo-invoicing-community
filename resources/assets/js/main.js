@@ -1,3 +1,4 @@
+import '../css/app.css'
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
@@ -10,6 +11,11 @@ const theme = el?.dataset?.theme || 'adminlte'
 import(`./themes/${theme}/index.js`).then(themeModule => {
     const app = createApp(App)
 
+    // surface Vue runtime errors in the console
+    app.config.errorHandler = (err, instance, info) => {
+        console.error('[Vue error]', info, err)
+    }
+
     // register all theme components globally
     const components = themeModule.components || themeModule.default?.components
     if (components) {
@@ -21,4 +27,6 @@ import(`./themes/${theme}/index.js`).then(themeModule => {
     app.use(pinia)
     app.use(router)
     app.mount('#app-root')
+}).catch(err => {
+    console.error('[Theme load failed]', err)
 })

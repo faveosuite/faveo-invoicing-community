@@ -5,6 +5,16 @@
 
     <main class="app-main">
 
+        <!-- ── Global notification alert ─────────────────────────────────── -->
+        <Transition name="alert-slide">
+            <div v-if="visible"
+                 :class="`alert alert-${type} alert-dismissible global-alert`"
+                 role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" aria-label="Close" @click="dismiss" />
+            </div>
+        </Transition>
+
         <!-- ── Content header: page title + breadcrumb ──────────────────── -->
         <div class="app-content-header">
             <div class="container-fluid">
@@ -64,13 +74,15 @@
 </template>
 
 <script setup>
-import { watch }         from 'vue'
-import { useRoute }      from 'vue-router'
-import { useSidebar }    from '@/core/composables/useSidebar.js'
-import { useBreadcrumb } from '@/core/composables/useBreadcrumb.js'
+import { watch }              from 'vue'
+import { useRoute }           from 'vue-router'
+import { useSidebar }         from '@/core/composables/useSidebar.js'
+import { useBreadcrumb }      from '@/core/composables/useBreadcrumb.js'
+import { useNotification }    from '@/core/composables/useNotification.js'
 
 const { isOpen, close }          = useSidebar()
 const { pageTitle, breadcrumbs } = useBreadcrumb()
+const { message, type, visible, dismiss } = useNotification()
 const route                      = useRoute()
 
 // Close sidebar on navigation when in mobile overlay mode (viewport < lg / 992 px)

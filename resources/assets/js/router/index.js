@@ -51,7 +51,7 @@ router.beforeEach((to, from, next) => {
 
     if (requiresAuth && !isAuthenticated()) {
         // Send user to client panel login; it will redirect back after auth
-        window.location.href = (el?.dataset?.baseUrl ?? '') + '/auth/login'
+        window.location.href = (el?.dataset?.baseUrl ?? '') + '/login'
     } else {
         next()
     }

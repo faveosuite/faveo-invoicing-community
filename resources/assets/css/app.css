@@ -1,0 +1,19 @@
+/* ── Global notification alert ─────────────────────────────────────────────── */
+.global-alert {
+    position: sticky;
+    top: 0;
+    z-index: 1050;
+    border-radius: 0;
+    margin-bottom: 0;
+}
+
+/* ── Alert slide transition ────────────────────────────────────────────────── */
+.alert-slide-enter-active,
+.alert-slide-leave-active {
+    transition: all 0.25s ease;
+}
+.alert-slide-enter-from,
+.alert-slide-leave-to {
+    opacity: 0;
+    transform: translateY(-8px);
+}

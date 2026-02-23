@@ -1,5 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
+<?php
+
+//        $company = App\Model\helpdesk\Settings\Company::where('id', '=', '1')->first();
+//
+//        $portal = App\Model\helpdesk\Theme\Portal::where('id', '=', 1)->first();
+//
+//        $title = App\Model\helpdesk\Settings\System::where('id', '=', '1')->value('name');
+//
+//        $title_name = $title ?? "SUPPORT CENTER";
+//
+//        $is2faEnforced = App\Model\helpdesk\Settings\Security::where('id',1)->value('is_2fa_enforced');
+//
+//        $is2faActiveForUser = \App\User::where('id',\Auth::user()->id)->value('is_2fa_enabled');
+//
+//        $isUpdatedVersion = (Schema::hasColumn('settings_system', 'is_updated'))?
+//                             App\Model\helpdesk\Settings\System::where('id',1)->value('is_updated'):0;
+//
+//        $rtl_class = "";
+//
+//        if (str_contains($portal->admin_header_color, 'skin')) {
+//
+//            $portal->admin_sidebar_color = str_replace("skin","sidebar-dark", $portal->admin_header_color);
+//
+//        }
+//
+//        $portal->admin_header_color = $portal->admin_header_color ? str_replace("skin","navbar-dark navbar", $portal->admin_header_color) : 'navbar-light';
+//
+//        $encryption = \Event::dispatch('encryption.process', [], true) ?? '';
+//
+    ?>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,6 +49,7 @@
     <link rel="stylesheet" href="{{ themeAsset('bootstrap-icons-css') }}">
     <link rel="stylesheet" href="{{ themeAsset('adminlte-css') }}">
     <link rel="stylesheet" href="{{ themeAsset('fontawesome-css') }}">
+    <link rel="stylesheet" href="{{ themeAsset('flag-icons-css') }}">
 
     {{-- ── NON-CRITICAL CSS (async — zero render-blocking) ─────────────────────
          media="print" tricks the browser into downloading without blocking paint.
@@ -58,7 +90,7 @@
          data-company-name="Ladybird Web Solution Pvt Ltd">
 
         {{-- Shown until Vue mounts — uses critical CSS already loaded above --}}
-        <div style="display:flex;align-items:center;justify-content:center;min-height:100vh">
+        <div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9999">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading…</span>
             </div>

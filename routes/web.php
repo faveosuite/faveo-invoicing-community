@@ -222,7 +222,8 @@ Route::middleware('installAgora')->group(function () {
         Route::delete('delete', [Common\SocialMediaController::class, 'deleteSocialMedia']);
     });
 
-    Route::get('/', [DashboardController::class, 'index']);
+//    Route::get('/', [DashboardController::class, 'index']);
+    Route::get('/', fn () => redirect(url('admin/dashboard')));
 
     Route::get('/auth/redirect/{provider}', [Auth\LoginController::class, 'redirectToGithub']);
     Route::get('/auth/callback/{provider}', [Auth\LoginController::class, 'handler']);
@@ -937,7 +938,11 @@ Route::get('dashboard', [DashboardController::class, 'dashboard']);
 
 Route::get('module-settings', [Common\SettingsController::class, 'getModuleSettings']);
 
-// Admin Vue Panel
+// Admin Vue Panel — guard at the server level so unauthenticated users never
+// receive the blade/JS bundle and see a flash of the admin UI.
 Route::get('/admin/{any?}', function () {
+    if (!auth()->check()) {
+        return redirect(url('/login'));
+    }
     return view('admin');
 })->where('any', '.*');
