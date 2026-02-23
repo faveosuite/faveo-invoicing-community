@@ -8,11 +8,12 @@ $cdnBase = env('CDN_URL', 'https://your-cdn-server.com');
 $themes = [
     'adminlte' => [
         'local_css' => [
-            'themes/adminlte/plugins/overlayscrollbars/overlayscrollbars.min.css',
-            'themes/adminlte/plugins/bootstrap-icons/bootstrap-icons.min.css',
-            'themes/adminlte/plugins/apexcharts/apexcharts.css',
-            'themes/adminlte/plugins/jsvectormap/jsvectormap.min.css',
-            'themes/adminlte/css/adminlte.min.css',
+            "themes/adminlte/plugins/overlayscrollbars/overlayscrollbars.min.css",
+            "themes/adminlte/plugins/bootstrap-icons/bootstrap-icons.min.css",
+            "themes/adminlte/plugins/apexcharts/apexcharts.css",
+            "themes/adminlte/plugins/jsvectormap/jsvectormap.min.css",
+            "themes/adminlte/css/adminlte.min.css",
+            "themes/common/fonts/fontawesome/css/all.min.css"
         ],
         'local_js' => [
             'themes/adminlte/plugins/popperjs/popper.min.js',
@@ -30,6 +31,7 @@ $themes = [
             "{$cdnBase}/themes/adminlte/plugins/apexcharts/apexcharts.css",
             "{$cdnBase}/themes/adminlte/plugins/jsvectormap/jsvectormap.min.css",
             "{$cdnBase}/themes/adminlte/css/adminlte.min.css",
+            "{$cdnBase}/themes/common/fonts/fontawesome/css/all.min.css",
         ],
         'cdn_js' => [
             "{$cdnBase}/themes/adminlte/plugins/popperjs/popper.min.js",
