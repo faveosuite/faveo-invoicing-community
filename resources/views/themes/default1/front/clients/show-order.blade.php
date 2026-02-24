@@ -682,7 +682,7 @@
                         $planName = \App\Model\Payment\Plan::where('id',$planIdOld)->value('name');
                         $ExistingPlanPirce= \App\Model\Payment\PlanPrice::where('plan_id',$planIdOld)->where('currency',getCurrencyForClient(\Auth::user()->country))->latest()->value('add_price');
                         ?>
-                        @if(strpos($planName,'free')==false)
+{{--                        @if(strpos($planName,'free')==false)--}}
 
                             <div class="col-lg-6 mb-5 mb-lg-0 mt-3">
 
@@ -709,9 +709,9 @@
                                     </div>
                                 </div>
                             </div>
-                        @else
-                            <h6 class="mb-1"><i>{{ __('message.current_plan')}} {{$planName}}</i></h6>
-                        @endif
+{{--                        @else--}}
+{{--                            <h6 class="mb-1"><i>{{ __('message.current_plan')}} {{$planName}}</i></h6>--}}
+{{--                        @endif--}}
 
 
                     </div>

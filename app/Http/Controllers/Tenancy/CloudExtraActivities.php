@@ -227,11 +227,14 @@ class CloudExtraActivities extends Controller
     {
         try {
             $newAgents = $request->newAgents;
+
             if (empty($newAgents)) {
                 return errorResponse(trans('message.agent_zero'));
             }
             $orderId = $request->input('orderId');
             $order = Order::where('id', $orderId)->first();
+            $latestAgents = ltrim(substr($order->serial_key, 12), '0');
+            $totalAgents= $latestAgents+$newAgents;
             if ($order->client != \Auth::user()->id) {
                 return errorResponse(trans('message.invalid_user'));
             }
@@ -241,7 +244,7 @@ class CloudExtraActivities extends Controller
             }
             $product_id = $request->product_id;
 
-            if ($this->checktheAgent($newAgents, $installation_path)) {
+            if ($this->checktheAgent($totalAgents, $installation_path)) {
                 return errorResponse(trans('message.agent_reduce'));
             }
 
