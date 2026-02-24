@@ -138,7 +138,7 @@
                         </td>
 
                         <td>
-                            <input type="number" min="0" step="any" class="form-control float-number-input" value="{{old('renew_price.1')}}" name="renew_price[]" id="renew_prices">
+                            <input type="number" min="0" step="any" class="form-control float-number-input" value="{{old('renew_price.0')}}" name="renew_price[]" id="renew_prices">
 
                         </td>
 
