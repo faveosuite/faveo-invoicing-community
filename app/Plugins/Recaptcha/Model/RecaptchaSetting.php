@@ -26,7 +26,8 @@ class RecaptchaSetting extends Model
 
         return auth()->guest()
             && ($statusSetting?->recaptcha_status ?? false)
-            && ! empty($recaptchaSetting?->v2_site_key)
-            && ! empty($recaptchaSetting?->v3_site_key);
+            && (
+                ! empty($recaptchaSetting?->v2_site_key) || ! empty($recaptchaSetting?->v3_site_key)
+            );
     }
 }
