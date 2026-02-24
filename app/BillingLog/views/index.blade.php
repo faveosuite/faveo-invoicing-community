@@ -1250,6 +1250,17 @@
             const iframe = document.getElementById('emailBody');
             iframe.srcdoc = decodedBody;
 
+            iframe.onload = function () {
+                try {
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    iframeDoc.querySelectorAll('a').forEach(function (link) {
+                        link.addEventListener('click', function (e) {
+                            e.preventDefault();
+                        });
+                    });
+                } catch (err) {}
+            };
+
             $('#emailModal').modal('show');
         });
 

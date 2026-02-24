@@ -517,12 +517,8 @@
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-check"></i>{{ __('message.success') }}! </strong>'+data.message.success+'!</div>';
                     $('#successs').html(result);
                     setTimeout(function(){
-                        $("#successs").slideUp(1000);
-                    },10000);
-                     $('#formoid').trigger("reset");
-                     $('select').prop('selectedIndex', 0);
-                     $("#users").val("");
-                     $("#users").trigger("change");
+                        window.location.reload();
+                    },3000);
                 }
             },
             error: function (response) {
