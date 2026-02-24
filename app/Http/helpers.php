@@ -950,11 +950,23 @@ function createUrl(string $path): string
 
     return rtrim($baseUrl, '/').'/'.ltrim($path, '/');
 }
-function isAgentAllowed($productId)
+function isAgentAllowed($productId, $planId): bool
 {
-    $product = \App\Model\Product\Product::find($productId);
+    $planAgents = \App\Model\Payment\PlanPrice::where('plan_id', $planId)
+        ->value('no_of_agents');
 
-    return in_array($productId, cloudPopupProducts()) || $product->can_modify_agent;
+    // No agents configured → immediately false
+    if (empty($planAgents)) {
+        return false;
+    }
+
+    // Cloud popup products are always allowed
+    if (in_array($productId, cloudPopupProducts(), true)) {
+        return true;
+    }
+
+    return (bool) \App\Model\Product\Product::find($productId)
+        ->value('can_modify_agent');
 }
 function isCurrencySupportedForPayments(string $currency, array|string $paymentMethods): bool
 {

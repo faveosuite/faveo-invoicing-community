@@ -60,7 +60,7 @@
                                                 $planDetails = userCurrencyAndPrice(Auth::user()->id, $plan);
                                                 $currency = $planDetails['currency'];
                                                 $price = $planDetails['plan']->renew_price ?? 0;
-                                                if(isAgentAllowed($productid)) {
+                                                if(isAgentAllowed($productid, $planId)) {
                                                     $noOfAgents = $planDetails['plan']->no_of_agents;
                                                     $priceForAgents = $price / $noOfAgents;
                                                     $plans[$planId] .= " (Renewal price-per agent: " . currencyFormat($priceForAgents, $currency, true, false) . ")";

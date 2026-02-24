@@ -202,7 +202,7 @@ class SubscriptionController extends Controller
                     throw new \Exception(__('message.order_no_active_plan_cancelled', ['order_number' => $order->number]));
                 }
                 $price = $planDetails['plan']->renew_price ?? 0;
-                if (isAgentAllowed($subscription->product_id)) {
+                if (isAgentAllowed($subscription->product_id, $subscription->plan_id)) {
                     $noOfAgents = $planDetails['plan']->no_of_agents;
                     $priceForAgents = $price / $noOfAgents;
                     $cost = $this->getPriceforCloud($order, $priceForAgents);

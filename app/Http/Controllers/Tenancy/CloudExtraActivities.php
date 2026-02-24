@@ -1242,7 +1242,12 @@ class CloudExtraActivities extends Controller
     public function checkDomain($domain)
     {
         $client = new Client([]);
-        $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
+        $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')
+            ->first(['app_key', 'app_secret']);
+
+        if (! $keys || empty($keys->app_key)) {
+            throw new \Exception(__('message.something_bad'));
+        }
 
         $data = ['domain' => $domain, 'key' => $keys->app_key];
         $response = $client->request(

@@ -2011,7 +2011,6 @@
 
 
         $("#reissueLic").click(function(){
-            if ($('#domainRes').val() == 1) {
                 var oldDomainId = $(this).attr('data-id');
                 $("#orderId").val(oldDomainId);
                 $("#domainModal").modal('show');
@@ -2040,58 +2039,6 @@
 
                     });
                 });
-            } else {
-                var oldDomainName = $(this).attr('data-name');
-                var oldDomainId = $(this).attr('data-id');
-                $("#licesnseModal").modal();
-                $("#newDomain").val(oldDomainName);
-                $("#orderId").val(oldDomainId);
-
-                $("#licenseSave").on('click',function(){
-                    var pattern = new RegExp(/^((?!-))(xn--)?[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]{0,1}\.(xn--)?([a-z0-9\-]{1,61}|[a-z0-9-]{1,30}\.[a-z]{2,})$/);
-                    var ip_pattern = new RegExp(/^\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b/);
-                    if (pattern.test($('#newDomain').val()) || ip_pattern.test($('#newDomain').val())) {
-                        $('#domaincheck').hide();
-                        $('#newDomain').css("border-color","");
-                    }
-                    else{
-                        $('#domaincheck').show();
-                        $('#domaincheck').html(@json(__('message.enter_domain_form')));
-                        $('#domaincheck').focus();
-                        $('#newDomain').css("border-color","red");
-                        $('#domaincheck').css({"color":"red","margin-top":"5px"});
-                        domErr = false;
-                        return false;
-
-                    }
-                    var domain = $('#newDomain').val();
-                    var id = $('#orderId').val();
-
-                    $.ajax ({
-                        type: 'patch',
-                        url : "{{url('change-domain')}}",
-                        data : {'domain':domain,'id':id},
-                        beforeSend: function () {
-                            $('#response').html( "<img id='blur-bg' class='backgroundfadein' style='top:40%;left:50%; width: 50px; height:50 px; display: block; position:    fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
-
-                        },
-                        success: function (data) {
-                            if (data.message =='success'){
-                                var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="far fa-thumbs-up"></i> {{ __('message.well_done')}} </strong> '+data.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
-                                $('#response').html(result);
-                                $('#response').css('color', 'green');
-                                setTimeout(function(){
-                                    window.location.reload();
-                                },3000);
-                            }
-
-                        }, error: function(err) {
-                            console.log(err);
-                        }
-
-                    });
-                });
-            }
         });
 
 
