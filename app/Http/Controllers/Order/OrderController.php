@@ -131,14 +131,15 @@ class OrderController extends BaseOrderController
             $cont = new \App\Http\Controllers\License\LicenseController();
 
             return \DataTables::of($query)
-                ->orderColumn('client', '-orders.created_at $1')
-                ->orderColumn('product_name', 'product_name $1')
-                ->orderColumn('version', 'orders.created_at $1')
-                ->orderColumn('agents', 'orders.created_at $1')
+                ->orderColumn('client', "concat(users.first_name, ' ', users.last_name) $1")
+                ->orderColumn('product_name', 'products.name $1')
+                ->orderColumn('version', 'subscriptions.version $1')
+                ->orderColumn('agents', '-orders.id $1')
                 ->orderColumn('number', 'orders.number $1')
                 ->orderColumn('order_status', 'orders.order_status $1')
                 ->orderColumn('order_date', 'orders.created_at $1')
-                ->orderColumn('update_ends_at', 'orders.created_at $1')
+                ->orderColumn('update_ends_at', 'subscriptions.update_ends_at $1')
+                ->orderColumn('id', 'orders.id $1')
 
                 ->setTotalRecords($count)
 

@@ -735,11 +735,12 @@ class ClientController extends BaseClientController
             }
 
             return \DataTables::of($orders)
-                        ->orderColumn('products.name', '-orders.id $1')
-                        ->orderColumn('date', '-orders.id $1')
-                        ->orderColumn('orders.number', '-orders.id $1')
+                        ->orderColumn('product_name', 'products.name $1')
+                        ->orderColumn('date', 'orders.created_at $1')
+                        ->orderColumn('number', 'orders.number $1')
                         ->orderColumn('agents', '-orders.id $1')
-                        ->orderColumn('expiry', '-orders.id $1')
+                        ->orderColumn('expiry', 'subscriptions.update_ends_at $1')
+                        ->orderColumn('id', 'orders.id $1')
 
                             ->addColumn('id', function ($model) {
                                 return $model->id;
