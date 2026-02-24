@@ -225,8 +225,8 @@ class LoginTest extends DBTestCase
         );
 
         RecaptchaSetting::firstOrNew()->fill([
-            'v2_site_key'     => 'dummy-site-key',
-            'v2_secret_key'   => 'dummy-v2-secret-key',
+            'v2_site_key' => 'dummy-site-key',
+            'v2_secret_key' => 'dummy-v2-secret-key',
             'captcha_version' => 'v2_checkbox',
             'failover_action' => 'none',
         ])->save();
