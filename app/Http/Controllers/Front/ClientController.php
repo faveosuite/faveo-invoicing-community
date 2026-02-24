@@ -543,7 +543,12 @@ class ClientController extends BaseClientController
 
             $processingFeeAmount = ($percent / 100) * ($itemsSubtotal + $taxDeducted);
         }
-
+        $base64='';
+        if($set->logo) {
+            $type = pathinfo($set->logo, PATHINFO_EXTENSION);
+            $data = file_get_contents($set->logo);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        }
         return compact(
             'payments',
             'user',
@@ -557,7 +562,8 @@ class ClientController extends BaseClientController
             'itemsSubtotal',
             'taxAmt',
             'gstSplit',
-            'processingFeeAmount'
+            'processingFeeAmount',
+            'base64'
         );
     }
 

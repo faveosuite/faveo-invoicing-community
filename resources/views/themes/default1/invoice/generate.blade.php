@@ -242,45 +242,57 @@
                 isValid = false;
             }
 
-            if(!document.getElementsByName('plan')[0].value){
+            if(document.getElementsByName('plan')[0] && !document.getElementsByName('plan')[0].value){
+                console.log('hii');
+                isValid=false;
                 plan=document.getElementsByName('plan');
                 plan[0].classList.add('is-invalid');
-                document.getElementById('subscription-msg').innerHTML =@json(trans('message.subscription-error-message'));
-                isValid=false;
-            }else{
+                var subMsg = document.getElementById('subscription-msg');
+                if(subMsg) subMsg.innerHTML =@json(trans('message.subscription-error-message'));
+            }else if(document.getElementsByName('plan')[0]){
+                plan=document.getElementsByName('plan');
                 plan[0].classList.remove('is-invalid');
 
             }
 
-            if(!document.getElementsByName('agents')[0].value){
+            if(document.getElementsByName('agents')[0] && !document.getElementsByName('agents')[0].value){
+                isValid=false;
                 plan=document.getElementsByName('agents');
                 plan[0].classList.add('is-invalid');
-                document.getElementById('agents-msg').innerHTML =@json(trans('message.agents-error-message'));
-                isValid=false;
-            }else{
+                var agentsMsg = document.getElementById('agents-msg');
+                if(agentsMsg) agentsMsg.innerHTML =@json(trans('message.agents-error-message'));
+            }else if(document.getElementsByName('agents')[0]){
+                plan=document.getElementsByName('agents');
                 plan[0].classList.remove('is-invalid');
-                document.getElementById('agents-msg').innerHTML ='';
+                var agentsMsg = document.getElementById('agents-msg');
+                if(agentsMsg) agentsMsg.innerHTML ='';
             }
 
-            if(!document.getElementsByName('cloud_domain')[0].value){
+            if(document.getElementsByName('cloud_domain')[0] && !document.getElementsByName('cloud_domain')[0].value){
+                isValid=false;
                 plan=document.getElementsByName('cloud_domain');
                 plan[0].classList.add('is-invalid');
-                document.getElementById('cloud-msg').innerHTML =@json(trans('message.cloud-error-message'));
-                isValid=false;
-            }else{
+                var cloudMsg = document.getElementById('cloud-msg');
+                if(cloudMsg) cloudMsg.innerHTML =@json(trans('message.cloud-error-message'));
+            }else if(document.getElementsByName('cloud_domain')[0]){
+                plan=document.getElementsByName('cloud_domain');
                 plan[0].classList.remove('is-invalid');
-                document.getElementById('cloud-msg').innerHTML ='';
+                var cloudMsg = document.getElementById('cloud-msg');
+                if(cloudMsg) cloudMsg.innerHTML ='';
 
             }
 
-            if(!document.getElementsByName('quantity')[0].value){
+            if(document.getElementsByName('quantity')[0] && !document.getElementsByName('quantity')[0].value){
+                isValid=false;
                 plan=document.getElementsByName('quantity');
                 plan[0].classList.add('is-invalid');
-                document.getElementById('quantity-msg').innerHTML =@json(trans('message.quantity-error-message'));
-                isValid=false;
-            }else{
+                var qtyMsg = document.getElementById('quantity-msg');
+                if(qtyMsg) qtyMsg.innerHTML =@json(trans('message.quantity-error-message'));
+            }else if(document.getElementsByName('quantity')[0]){
+                plan=document.getElementsByName('quantity');
                 plan[0].classList.remove('is-invalid');
-                document.getElementById('quantity-msg').innerHTML ='';
+                var qtyMsg = document.getElementById('quantity-msg');
+                if(qtyMsg) qtyMsg.innerHTML ='';
 
             }
 
