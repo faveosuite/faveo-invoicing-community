@@ -136,7 +136,7 @@ class OrderSearchController extends Controller
             } elseif ($version == 'Outdated') {
                 $latestVersion = Subscription::where('product_id', $productId)->orderBy('version', 'desc')->value('version');
 
-                if (!empty($latestVersion)) {
+                if (! empty($latestVersion)) {
                     $baseQuery->whereNotNull('subscriptions.version')
                         ->where('subscriptions.version', '!=', '')
                         ->where('subscriptions.version', '<', $latestVersion);
