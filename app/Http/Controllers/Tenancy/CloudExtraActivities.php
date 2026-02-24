@@ -234,7 +234,7 @@ class CloudExtraActivities extends Controller
             $orderId = $request->input('orderId');
             $order = Order::where('id', $orderId)->first();
             $latestAgents = ltrim(substr($order->serial_key, 12), '0');
-            $totalAgents= $latestAgents+$newAgents;
+            $totalAgents = $latestAgents + $newAgents;
             if ($order->client != \Auth::user()->id) {
                 return errorResponse(trans('message.invalid_user'));
             }
