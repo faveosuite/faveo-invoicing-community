@@ -1052,6 +1052,8 @@ return [
     'price_per_agent' => 'Prijs per agent:',
     'choose_no_desired_agents' => 'Kies je gewenste aantal agents',
     'update_agents' => 'Update Agents',
+    'increase' => 'Verhogen',
+    'decrease' => 'Verlagen',
     'upgrade_downgrade_cloud_plan' => 'Upgrade of downgrade je cloud plan',
     'select_new_plan' => 'Selecteer een nieuw plan',
     'total_credits_remaining' => 'Totaal resterende credits op je huidige plan:',

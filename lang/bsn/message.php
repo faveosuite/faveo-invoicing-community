@@ -1000,6 +1000,8 @@ return [
     'price_per_agent' => 'Cijena po agentu:',
     'choose_no_desired_agents' => 'Odaberite željeni broj agenata',
     'update_agents' => 'Ažuriraj agente',
+    'increase' => 'Povećaj',
+    'decrease' => 'Smanji',
     'upgrade_downgrade_cloud_plan' => 'Nadogradite ili smanjite svoj cloud plan',
     'select_new_plan' => 'Odaberite novi plan',
     'total_credits_remaining' => 'Ukupni preostali krediti na vašem trenutnom planu:',

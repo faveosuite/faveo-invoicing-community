@@ -233,8 +233,11 @@ class CloudExtraActivities extends Controller
             }
             $orderId = $request->input('orderId');
             $order = Order::where('id', $orderId)->first();
-            $latestAgents = ltrim(substr($order->serial_key, 12), '0');
-            $totalAgents = $latestAgents + $newAgents;
+            $oldAgents = ltrim(substr($order->serial_key, 12), '0');
+            if($request->agentAction=='decrease' && $oldAgents<=$newAgents){
+                errorResponse('Invalid operation: The number of agents cannot be reduced below the current allocation.');
+            }
+            $totalAgents = $request->agentAction=='increase'?$oldAgents+$newAgents:$newAgents-$oldAgents;
             if ($order->client != \Auth::user()->id) {
                 return errorResponse(trans('message.invalid_user'));
             }
@@ -250,7 +253,7 @@ class CloudExtraActivities extends Controller
 
 //            $oldLicense = Order::where('id', $orderId)->latest()->value('serial_key');
             $oldLicense = $order->serial_key;
-            $items = $this->getThePaymentCalculation($newAgents, $oldLicense, $orderId);
+            $items = $this->getThePaymentCalculation($newAgents, $oldLicense, $orderId,$request->agentAction);
             $invoice = (new RenewController())->renewBySubId($request->subId, $items['planId'], '', $items['price'], '', false, $newAgents);
 
             if ($invoice) {
@@ -322,7 +325,7 @@ class CloudExtraActivities extends Controller
      *
      * @throws
      */
-    private function getThePaymentCalculation($newAgents, $oldAgents, $orderId, $planId = null)
+    private function getThePaymentCalculation($newAgents, $oldAgents, $orderId, $planId = null,$agentAction)
     {
         try {
             \Session::forget('upgradeDowngradeProduct');
@@ -346,13 +349,23 @@ class CloudExtraActivities extends Controller
             $ends_at = Subscription::where('order_id', $orderId)->value('ends_at');
             $base_price = $currency['plan']?->add_price;
             $oldAgents = substr($oldAgents, 12, 16);
-            $totalAgents = $newAgents;
-            if ($newAgents >= $oldAgents) {
-                $totalAgents = $newAgents + $oldAgents;
-                $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
-            } else {
-                $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+            switch($agentAction) {
+                case 'increase':
+                    $totalAgents=$newAgents+$oldAgents;
+                    $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+                    break;
+                case 'decrease':
+                    $totalAgents=$oldAgents-$newAgents;
+                    $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+                    break;
             }
+//            $totalAgents=$newAgents;
+//            if ($newAgents >= $oldAgents) {
+//                $totalAgents=$newAgents+$oldAgents;
+//                $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+//            } else {
+//                $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+//            }
             $items = ['id' => $product_id, 'name' => $product->name, 'price' => round($price), 'planId' => $planId,
                 'quantity' => 1, 'attributes' => ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $totalAgents], 'associatedModel' => $product];
 
@@ -1196,6 +1209,9 @@ class CloudExtraActivities extends Controller
             $newAgents = $request->get('number');
 
             $oldAgents = $request->get('oldAgents');
+            if($request->agentAction=='decrease' && $oldAgents<=$newAgents){
+                return errorResponse('Invalid operation: The number of agents cannot be reduced below the current allocation.');
+            }
             $orderId = $request->get('orderId');
             $planId = Subscription::where('order_id', $orderId)->value('plan_id');
 
@@ -1213,13 +1229,23 @@ class CloudExtraActivities extends Controller
             if (empty($newAgents)) {
                 return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => 0, 'priceToPay' => 0];
             }
-            $totalAgents = $newAgents;
-            if ($newAgents >= $oldAgents) {
-                $totalAgents = $newAgents + $oldAgents;
-                $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
-            } else {
-                $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+            switch($request->agentAction) {
+                case 'increase':
+                    $totalAgents=$newAgents+$oldAgents;
+                    $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+                    break;
+                case 'decrease':
+                    $totalAgents=$oldAgents-$newAgents;
+                    $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+                    break;
             }
+//            $totalAgents=$newAgents;
+//            if ($newAgents >= $oldAgents) {
+//                $totalAgents=$newAgents+$oldAgents;
+//                $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+//            } else {
+//                $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+//            }
 
             return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => currencyFormat($base_price * $totalAgents, $currency['currency'], true), 'priceToPay' => currencyFormat($price, $currency['currency'], true)];
         } catch(\Exception $e) {

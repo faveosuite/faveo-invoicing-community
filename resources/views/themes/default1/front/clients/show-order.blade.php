@@ -1067,6 +1067,14 @@
                     <div class="row">
 
 
+                        <div class="form-group mb-3">
+                            <label class="text-black"><strong>{{ __('message.action') }}</strong> <span class="text-danger">*</span></label>
+                            <select class="form-control" id="agentAction">
+                                <option value="increase">{{ __('message.increase') }}</option>
+                                <option value="decrease">{{ __('message.decrease') }}</option>
+                            </select>
+                        </div>
+
                         <label class="text-black"><strong>{{ __('message.choose_no_desired_agents') }}</strong> <span class="text-danger">*</span></label>
 
                         <div class="quantity">
@@ -2109,6 +2117,7 @@
                 $('.loader-wrapper').show();
                 $('.overlay').show(); // Show the overlay
                 $('.modal-body').css('pointer-events', 'none');
+                var agentAction=$('#agentAction').val()
                 var newAgents = $('#numberAGt').val();
                 var orderId = {!! $id !!};
                 var productId ={!! $product->id !!};
@@ -2116,7 +2125,7 @@
 
                 $.ajax({
                     type: "POST",
-                    data: { 'newAgents': newAgents, 'orderId': orderId, 'product_id':productId, 'subId': subId},
+                    data: { 'newAgents': newAgents, 'orderId': orderId, 'product_id':productId, 'subId': subId, 'agentAction':agentAction},
                     beforeSend: function() {
                         $('#response').html("<img id='blur-bg' class='backgroundfadein' style='width: 50px; height: 50px; display: block; position: fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
                     },
@@ -2187,6 +2196,7 @@
                 var selectedNumber = $(this).val();
                 var oldAgents = '{{$latestAgents}}';
                 var orderId = '{{$id}}';
+                var agentAction=$('#agentAction').val();
                 $('.loader-wrapper').show();
                 $('.overlay').show(); // Show the overlay
                 $('.modal-body').css('pointer-events', 'none');
@@ -2194,7 +2204,7 @@
                 $.ajax({
                     type: 'POST',
                     url: "{{url('get-agent-inc-dec-cost')}}",
-                    data: { 'number': selectedNumber, 'oldAgents':  oldAgents, 'orderId' : orderId},
+                    data: { 'number': selectedNumber, 'oldAgents':  oldAgents, 'orderId' : orderId, 'agentAction': agentAction},
                     success: function (data) {
                         // Update the other fields based on the API response
                         $('#priceagent').text(data.pricePerAgent);
@@ -2205,6 +2215,24 @@
                         $('.overlay').hide(); // Hide the overlay
                         $('.modal-body').css('pointer-events', 'auto');
                     },
+                    error: function(data) {
+                        if (data.responseJSON.success == false) {
+                            $('#agentNumber').attr('disabled', false);
+                            $('#agentNumber').html("<i class='fa fa-users'>&nbsp;&nbsp;</i> " + @json(__('message.update_agents')));
+                            var result = '<div class="alert alert-danger alert-dismissable"><strong><i class="far fa-thumbs-down"></i>' + @json( __('message.error_oops')) + ' </strong> ' + data.responseJSON.message + ' </div>';
+                            $('#failure-agent').html(result).css('color', 'red').show();
+                            $('.loader-wrapper').hide();
+                            $('.overlay').hide(); // Hide the overlay
+                            $('.modal-body').css('pointer-events', 'auto');
+
+                            // Auto-disappear after 5 seconds (5000 milliseconds)
+                            setTimeout(function() {
+                                $('#failure-agent').fadeOut('slow', function() {
+                                    $(this).empty().hide();
+                                });
+                            }, 10000);
+                        }
+                    }
                 });
                 $(this).prop("disabled", false);
 

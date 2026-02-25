@@ -1067,6 +1067,8 @@ return [
     'price_per_agent' => 'Prezzo per agente:',
     'choose_no_desired_agents' => 'Scegli il numero desiderato di agenti',
     'update_agents' => 'Aggiorna Agenti',
+    'increase' => 'Aumenta',
+    'decrease' => 'Diminuisci',
     'upgrade_downgrade_cloud_plan' => 'Aggiorna o diminuisci il tuo piano cloud',
     'select_new_plan' => 'Seleziona un nuovo piano',
     'total_credits_remaining' => 'Crediti totali rimanenti nel tuo piano attuale:',

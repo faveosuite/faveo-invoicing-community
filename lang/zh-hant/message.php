@@ -1051,6 +1051,8 @@ return [
     'price_per_agent' => '每個代理人價格：',
     'choose_no_desired_agents' => '選擇您所需的代理人數量',
     'update_agents' => '更新代理人數量',
+    'increase' => '增加',
+    'decrease' => '減少',
     'upgrade_downgrade_cloud_plan' => '升級或降級您的雲端計劃',
     'select_new_plan' => '選擇新計劃',
     'total_credits_remaining' => '您當前計劃的剩餘總信用額：',

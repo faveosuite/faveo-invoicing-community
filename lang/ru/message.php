@@ -1072,6 +1072,8 @@ return [
     'price_per_agent' => 'Цена за агента:',
     'choose_no_desired_agents' => 'Выберите желаемое количество агентов',
     'update_agents' => 'Обновить агентов',
+    'increase' => 'Увеличить',
+    'decrease' => 'Уменьшить',
     'upgrade_downgrade_cloud_plan' => 'Обновить или понизить облачный план',
     'select_new_plan' => 'Выберите новый план',
     'total_credits_remaining' => 'Оставшиеся кредиты на вашем текущем плане:',

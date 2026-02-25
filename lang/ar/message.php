@@ -960,6 +960,8 @@ return [
     'price_per_agent' => 'السعر لكل وكيل:',
     'choose_no_desired_agents' => 'اختر عدد الوكلاء الذي ترغب فيه',
     'update_agents' => 'تحديث الوكلاء',
+    'increase' => 'زيادة',
+    'decrease' => 'تقليل',
     'upgrade_downgrade_cloud_plan' => 'ترقية أو خفض خطة السحابة',
     'select_new_plan' => 'اختر خطة جديدة',
     'total_credits_remaining' => 'إجمالي الرصيد المتبقي على خطتك الحالية:',

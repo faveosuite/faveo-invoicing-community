@@ -1054,6 +1054,8 @@ return [
     'price_per_agent' => '每个代理商的价格：',
     'choose_no_desired_agents' => '选择您所需的代理商数量',
     'update_agents' => '更新代理商',
+    'increase' => '增加',
+    'decrease' => '减少',
     'upgrade_downgrade_cloud_plan' => '升级或降级您的云计划',
     'select_new_plan' => '选择一个新计划',
     'total_credits_remaining' => '您当前计划剩余的总信用：',

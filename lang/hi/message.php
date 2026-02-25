@@ -1280,6 +1280,8 @@ return [
     'price_per_agent' => 'प्रति एजेंट मूल्य:',
     'choose_no_desired_agents' => 'अपने इच्छित एजेंट्स की संख्या चुनें',
     'update_agents' => 'एजेंट्स अपडेट करें',
+    'increase' => 'बढ़ाएं',
+    'decrease' => 'घटाएं',
     'upgrade_downgrade_cloud_plan' => 'अपनी क्लाउड योजना को उन्नत या डाउनग्रेड करें',
     'select_new_plan' => 'नई योजना चुनें',
     'total_credits_remaining' => 'आपकी वर्तमान योजना पर शेष कुल क्रेडिट:',

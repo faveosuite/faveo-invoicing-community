@@ -1067,6 +1067,8 @@ return [
     'price_per_agent' => 'Harga per agen:',
     'choose_no_desired_agents' => 'Pilih jumlah agen yang diinginkan',
     'update_agents' => 'Perbarui Agen',
+    'increase' => 'Tambah',
+    'decrease' => 'Kurangi',
     'upgrade_downgrade_cloud_plan' => 'Tingkatkan atau turunkan paket cloud Anda',
     'select_new_plan' => 'Pilih paket baru',
     'total_credits_remaining' => 'Total kredit yang tersisa pada paket Anda saat ini:',

@@ -1274,6 +1274,8 @@ return [
     'price_per_agent' => 'エージェントあたりの価格:',
     'choose_no_desired_agents' => '希望するエージェント数を選択してください',
     'update_agents' => 'エージェントを更新',
+    'increase' => '増加',
+    'decrease' => '減少',
     'upgrade_downgrade_cloud_plan' => 'クラウドプランをアップグレードまたはダウングレード',
     'select_new_plan' => '新しいプランを選択',
     'total_credits_remaining' => '現在のプランで残っているクレジットの総額:',

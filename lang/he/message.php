@@ -1275,6 +1275,8 @@ return [
     'price_per_agent' => 'מחיר לכל סוכן:',
     'choose_no_desired_agents' => 'בחר את מספר הסוכנים הרצוי',
     'update_agents' => 'עדכן סוכנים',
+    'increase' => 'הגדל',
+    'decrease' => 'הקטן',
     'upgrade_downgrade_cloud_plan' => 'שדרג או הורד את תוכנית הענן שלך',
     'select_new_plan' => 'בחר תוכנית חדשה',
     'total_credits_remaining' => 'היתרה הכוללת של האשראי בתוכנית הנוכחית שלך:',

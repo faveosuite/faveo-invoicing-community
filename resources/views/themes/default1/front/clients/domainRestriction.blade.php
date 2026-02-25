@@ -19,7 +19,7 @@
 
                     <div class="modal-footer">
 
-                        <button type="button" id="close" class="btn btn-default mr-auto" data-dismiss="modal">{{ __('message.close')}}</button>
+                        <button type="button" id="close" class="btn btn-default mr-auto" data-bs-dismiss="modal">{{ __('message.close')}}</button>
 
                         <button type="submit" id="domainSave" class="btn btn-primary">{{ __('message.proceed')}}</button>
                     </div>

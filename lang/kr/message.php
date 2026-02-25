@@ -1072,6 +1072,8 @@ return [
     'price_per_agent' => '에이전트당 가격:',
     'choose_no_desired_agents' => '원하는 에이전트 수를 선택하세요',
     'update_agents' => '에이전트 업데이트',
+    'increase' => '증가',
+    'decrease' => '감소',
     'upgrade_downgrade_cloud_plan' => '클라우드 플랜 업그레이드 또는 다운그레이드',
     'select_new_plan' => '새 플랜 선택',
     'total_credits_remaining' => '현재 플랜에서 남은 총 크레딧:',

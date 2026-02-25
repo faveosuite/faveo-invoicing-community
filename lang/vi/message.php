@@ -1071,6 +1071,8 @@ return [
     'price_per_agent' => 'Giá mỗi đại lý:',
     'choose_no_desired_agents' => 'Chọn số lượng đại lý bạn mong muốn',
     'update_agents' => 'Cập nhật đại lý',
+    'increase' => 'Tăng',
+    'decrease' => 'Giảm',
     'upgrade_downgrade_cloud_plan' => 'Nâng cấp hoặc hạ cấp gói đám mây của bạn',
     'select_new_plan' => 'Chọn gói mới',
     'total_credits_remaining' => 'Tổng số tín dụng còn lại trên gói hiện tại của bạn:',

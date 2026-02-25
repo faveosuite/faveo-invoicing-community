@@ -1078,6 +1078,8 @@ return [
     'price_per_agent' => 'Pris per agent:',
     'choose_no_desired_agents' => 'Velg ønsket antall agenter',
     'update_agents' => 'Oppdater agenter',
+    'increase' => 'Øk',
+    'decrease' => 'Reduser',
     'upgrade_downgrade_cloud_plan' => 'Oppgrader eller nedgrader skyplanen din',
     'select_new_plan' => 'Velg en ny plan',
     'total_credits_remaining' => 'Totalt kreditt igjen på din nåværende plan:',

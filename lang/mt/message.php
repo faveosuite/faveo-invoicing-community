@@ -1011,6 +1011,8 @@
      'price_per_agent' => 'Prezz kull aġent:',
      'choose_no_desired_agents' => 'Agħżel in-numru ta\' aġenti mixtieqa',
      'update_agents' => 'Aġġorna l-Aġenti',
+     'increase' => 'Żid',
+     'decrease' => 'Naqqas',
      'upgrade_downgrade_cloud_plan' => 'Aġġorna jew innaqqas il-pjan tal-cloud tiegħek',
      'select_new_plan' => 'Agħżel pjan ġdid',
      'total_credits_remaining' => 'Krediti totali li fadal fuq il-pjan attwali:',

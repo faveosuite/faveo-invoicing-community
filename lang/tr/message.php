@@ -1283,6 +1283,8 @@ return [
     'price_per_agent' => 'Ajan başına fiyat:',
     'choose_no_desired_agents' => 'İstediğiniz ajan sayısını seçin',
     'update_agents' => 'Ajanları Güncelle',
+    'increase' => 'Artır',
+    'decrease' => 'Azalt',
     'upgrade_downgrade_cloud_plan' => 'Bulut planınızı yükseltin veya düşürün',
     'select_new_plan' => 'Yeni bir plan seçin',
     'total_credits_remaining' => 'Mevcut planınızdaki toplam kredi miktarı:',
