@@ -1,57 +1,45 @@
 <template>
+
     <nav class="app-header navbar navbar-expand bg-body" role="banner">
+
         <div class="container-fluid">
 
             <!-- ── Left ───────────────────────────────────────────────────── -->
-            <ul class="navbar-nav" role="navigation" aria-label="Primary navigation">
+            <ul class="navbar-nav" role="listbox" aria-label="Primary navigation">
 
                 <!-- Sidebar toggle -->
                 <li class="nav-item">
-                    <button type="button"
-                            class="nav-link btn btn-link"
-                            :aria-expanded="isOpen"
-                            aria-controls="app-sidebar"
-                            aria-label="Toggle sidebar"
-                            @click="toggle">
+                    <button type="button" class="nav-link btn btn-link" :aria-expanded="isOpen"
+                        aria-controls="app-sidebar" aria-label="Toggle sidebar" @click="toggle">
                         <i class="bi bi-list" aria-hidden="true"></i>
                     </button>
                 </li>
 
                 <!-- Go to client panel -->
                 <li class="nav-item d-none d-md-block">
-                    <a :href="baseUrl"
-                       class="nav-link"
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       aria-label="Go to client panel (opens in new tab)">
+                    <a :href="baseUrl" class="nav-link" target="_blank" rel="noopener noreferrer" aria-label="Go to client panel (opens in new tab)">
                         <i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>
-                        Go to Client Panel
+                        {{ __('message.go_to_client') }}
                     </a>
                 </li>
             </ul>
 
             <!-- ── Right ──────────────────────────────────────────────────── -->
-            <ul class="navbar-nav ms-auto" role="navigation" aria-label="User navigation">
+            <ul class="navbar-nav ms-auto" role="listbox" aria-label="User navigation">
 
                 <!-- Language -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-1"
-                       data-bs-toggle="dropdown"
-                       href="#"
-                       role="button"
-                       :aria-label="`Change language, current: ${currentLocale}`"
-                       aria-haspopup="true">
+
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" data-bs-toggle="dropdown"
+                       href="javascript:;" role="button" :aria-label="`Change language, current: ${currentLocale}`" aria-haspopup="true">
                         <span :class="`fi fi-${flagCode(currentLocale)}`" :title="currentLocale.toUpperCase()"></span>
                         <span class="d-none d-md-inline">{{ currentLocale.toUpperCase() }}</span>
                     </a>
-                    <ul ref="langMenu"
-                        class="dropdown-menu dropdown-menu-end lang-dropdown"
-                        role="listbox"
-                        aria-label="Languages"
-                        @scroll="onMenuScroll">
+
+                    <ul ref="langMenu" class="dropdown-menu dropdown-menu-end lang-dropdown" role="listbox" aria-label="Languages" @scroll="onMenuScroll">
+
                         <li v-for="lang in languages" :key="lang.id" role="option">
-                            <a class="dropdown-item d-flex align-items-center gap-2"
-                               href="#"
+                            <a class="dropdown-item d-flex align-items-center gap-2" href="javascript:;"
                                :class="{ active: lang.locale === currentLocale }"
                                :aria-current="lang.locale === currentLocale ? 'true' : undefined"
                                @click.prevent="selectLang(lang)">
@@ -59,9 +47,10 @@
                                 <span>{{ lang.name }}{{ nativeName(lang.locale) ? ` (${nativeName(lang.locale)})` : '' }}</span>
                             </a>
                         </li>
+
                         <li v-if="loadingLangs" class="d-flex justify-content-center py-2">
                             <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                <span class="visually-hidden">Loading…</span>
+                                <span class="visually-hidden">{{__('message.loading')}}</span>
                             </div>
                         </li>
                     </ul>
@@ -69,32 +58,26 @@
 
                 <!-- Profile -->
                 <li class="nav-item dropdown">
-                    <a href="#"
-                       class="nav-link d-flex align-items-center gap-2"
-                       data-bs-toggle="dropdown"
-                       data-bs-offset="0,8"
-                       role="button"
-                       :aria-label="`User menu for ${userName}`"
-                       aria-haspopup="true">
+
+                    <a href="javascript:;" class="nav-link d-flex align-items-center gap-2" data-bs-toggle="dropdown"
+                       data-bs-offset="0,8" role="button" :aria-label="`User menu for ${userName}`" aria-haspopup="true">
+
                         <span class="d-none d-md-inline">{{ userName }}</span>
-                        <img :src="avatarUrl"
-                             class="user-image rounded-circle"
-                             alt=""
-                             @error="e => e.target.src = fallbackAvatar" />
+
+                        <img :src="avatarUrl" class="user-image rounded-circle" alt="Avatar" @error="e => e.target.src = fallbackAvatar" />
                     </a>
+
                     <ul class="dropdown-menu dropdown-menu-end user-dropdown" aria-label="User menu">
+
                         <li>
                             <RouterLink to="/profile" class="dropdown-item">
-                                <i class="bi bi-person me-2" aria-hidden="true"></i>
-                                Profile
+                                <i class="bi bi-person me-2" aria-hidden="true"></i>{{ __('message.profile') }}
                             </RouterLink>
                         </li>
+
                         <li>
-                            <a href="#"
-                               class="dropdown-item"
-                               @click.prevent="logout">
-                                <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>
-                                Log out
+                            <a href="javascript:;" class="dropdown-item" @click.prevent="logout">
+                                <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>{{ __('message.log_out') }}
                             </a>
                         </li>
                     </ul>
@@ -127,8 +110,7 @@ async function logout() {
 }
 
 // ── User ──────────────────────────────────────────────────────────────────────
-const userName       = el?.dataset?.userName  ?? 'Admin'
-const userEmail      = el?.dataset?.userEmail ?? ''
+const userName       = el?.dataset?.userName  ?? 'Admin';
 const avatarUrl      = el?.dataset?.userAvatar || asset('themes/adminlte/assets/img/avatar.png')
 const fallbackAvatar = asset('themes/adminlte/assets/img/avatar.png')
 
@@ -215,10 +197,10 @@ function onMenuScroll() {
 }
 
 async function selectLang(lang) {
-    currentLocale.value = lang.locale.toLowerCase()
     try {
-        const { data } = await http.post('language-toggle', { locale: lang.locale, status: true })
+        const { data } = await http.post('lang/update', { language: lang.locale })
         notify(data.message, 'success')
+        setTimeout(() => window.location.reload(), 2000)
     } catch (err) {
         notify(parseErrorMessage(err), 'danger')
     }
@@ -230,9 +212,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.lang-dropdown {
-    max-height: 300px;
-    overflow-y: auto;
-    min-width: 260px;
-}
+    .lang-dropdown {
+        max-height: 300px;
+        overflow-y: auto;
+        min-width: 260px;
+    }
 </style>

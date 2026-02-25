@@ -46,6 +46,11 @@
         <link rel="stylesheet" href="{{ themeAsset('jsvectormap-css') }}">
     </noscript>
 
+    {{-- ── Translations exposed to Vue ──────────────────────────────────────────
+         Loads all lang/*.php files for the current locale into window.translator.
+         Cached by the browser for 30 days; busted automatically on locale change. --}}
+    <script type="text/javascript" src="{{ url('js/lang') }}"></script>
+
     {{-- ── Vue app (type="module" → always deferred, never render-blocking) ─────
          Vite also injects its own CSS <link> here at build time.                  --}}
     @vite(['resources/assets/js/main.js'])
@@ -62,7 +67,7 @@
          data-user-name="{{ auth()->user() ? auth()->user()->first_name . ' ' . auth()->user()->last_name : 'Admin' }}"
          data-user-email="{{ auth()->user()?->email ?? '' }}"
          data-user-avatar="{{ auth()->user()?->profile_pic ?? '' }}"
-         data-locale="{{ strtoupper(app()->getLocale()) }}"
+         data-locale="{{ app()->getLocale() }}"
          data-app-version="{{ config('app.version', '') }}"
          data-page-title="{{ $set->favicon_title }}"
          data-app-title="{{ $set->title }}"

@@ -155,6 +155,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('master-data', [Front\ClientController::class, 'masterData'])->name('master-data');
     Route::post('demo-request', [Front\PageController::class, 'postDemoReq'])->withoutMiddleware(['auth']);
     Route::get('language/control', [LanguageController::class, 'fetchLangDropdownUsers']);
+    Route::get('js/lang', [LanguageController::class, 'getLanguageFile'])->name('assets.lang');
     Route::post('trial-cloud-products', [Tenancy\CloudExtraActivities::class, 'trialCloudProducts']);
     Route::post('create/tenant/purchase', [Tenancy\CloudExtraActivities::class, 'storeTenantTillPurchase']);
     Route::post('available-groups', [Product\GroupController::class, 'getAvailableGroups'])->withoutMiddleware(['auth', 'admin']);

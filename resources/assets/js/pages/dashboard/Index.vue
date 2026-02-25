@@ -4,6 +4,7 @@
     </div>
     <div class="content">
         <!-- Index page content goes here -->
+        {{ __('message.dashboard') }}
     </div>
 </template>
 
