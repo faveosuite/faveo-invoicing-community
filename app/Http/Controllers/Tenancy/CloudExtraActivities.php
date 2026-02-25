@@ -1211,9 +1211,9 @@ class CloudExtraActivities extends Controller
             if (empty($newAgents)) {
                 return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => 0, 'priceToPay' => 0];
             }
-            $totalAgents=$newAgents;
+            $totalAgents = $newAgents;
             if ($newAgents >= $oldAgents) {
-                $totalAgents=$newAgents+$oldAgents;
+                $totalAgents = $newAgents + $oldAgents;
                 $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
             } else {
                 $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
