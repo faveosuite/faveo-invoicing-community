@@ -24,7 +24,7 @@ class LanguageController extends Controller
         header('Content-Type: text/javascript');
         header('Cache-Control: max-age=2592000');
         echo 'translator = '.json_encode($languageArray).';';
-        exit();
+        exit;
     }
 
     private function appendCoreLanguage(string $languageName, array &$languageArray): void
