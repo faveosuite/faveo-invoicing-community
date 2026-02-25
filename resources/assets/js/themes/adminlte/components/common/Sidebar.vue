@@ -213,56 +213,13 @@
                     </li>
 
                     <!-- ── Settings ────────────────────────────────────────── -->
-                    <li class="nav-item" :class="{ 'menu-open': isOpen('settings') }">
-                        <a class="nav-link" :class="{ active: isGroupActive('/settings') }"
-                           @click.prevent="toggle('settings')">
+                    <li class="nav-item">
+                        <RouterLink to="/settings" class="nav-link"
+                                    :class="{ active: isGroupActive('/settings') }"
+                                    active-class="" exact-active-class="">
                             <i class="nav-icon bi bi-gear-fill"></i>
-                            <p>{{ __('message.settings') }} <i class="nav-arrow bi bi-chevron-right"></i></p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <RouterLink to="/settings/system" class="nav-link"
-                                            :class="{ active: isExact('/settings/system') }"
-                                            active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.system') }}</p>
-                                </RouterLink>
-                            </li>
-                            <li class="nav-item">
-                                <RouterLink to="/settings/email/settings" class="nav-link"
-                                            :class="{ active: isGroupActive('/settings/email') }"
-                                            active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.email') }}</p>
-                                </RouterLink>
-                            </li>
-                            <li class="nav-item">
-                                <RouterLink to="/settings/common/currency" class="nav-link"
-                                            :class="{ active: isGroupActive('/settings/common') }"
-                                            active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.common') }}</p>
-                                </RouterLink>
-                            </li>
-                            <li class="nav-item">
-                                <RouterLink to="/settings/logs/system" class="nav-link"
-                                            :class="{ active: isGroupActive('/settings/logs') }"
-                                            active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.logs') }}</p>
-                                </RouterLink>
-                            </li>
-                            <li class="nav-item">
-                                <RouterLink to="/settings/widgets/footer" class="nav-link"
-                                            :class="{ active: isGroupActive('/settings/widgets') }"
-                                            active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.widgets') }}</p>
-                                </RouterLink>
-                            </li>
-                            <li class="nav-item">
-                                <RouterLink to="/settings/api/pipedrive" class="nav-link"
-                                            :class="{ active: isGroupActive('/settings/api') }"
-                                            active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.api_integrations') }}</p>
-                                </RouterLink>
-                            </li>
-                        </ul>
+                            <p>{{ __('message.settings') }}</p>
+                        </RouterLink>
                     </li>
 
                 </ul>
@@ -293,7 +250,6 @@ const routeGroupMap = {
     '/pages':    'pages',
     '/products': 'products',
     '/reports':  'reports',
-    '/settings': 'settings',
 }
 
 function toggle(key) {
