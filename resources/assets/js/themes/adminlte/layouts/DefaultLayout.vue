@@ -15,7 +15,7 @@
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-end mb-0" aria-label="Breadcrumb">
                             <li class="breadcrumb-item">
-                                <RouterLink to="/dashboard">Home</RouterLink>
+                                <RouterLink to="/dashboard">{{ __('message.home') }}</RouterLink>
                             </li>
                             <li v-for="(crumb, i) in breadcrumbs"
                                 :key="i"
@@ -55,7 +55,7 @@
                             <div class="d-flex justify-content-center align-items-center"
                                  style="min-height: 400px">
                                 <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading…</span>
+                                    <span class="visually-hidden">{{ __('message.loading') }}</span>
                                 </div>
                             </div>
                         </template>

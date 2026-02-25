@@ -2,15 +2,15 @@
     <footer class="app-footer">
         <!-- Right: version -->
         <div class="float-end d-none d-sm-inline">
-            <strong>Version</strong> {{ appVersion }}
+            <strong>{{ __('message.version') }}</strong> {{ appVersion }}
         </div>
 
         <!-- Left: copyright -->
-        <strong>Copyright &copy; {{ year }}&nbsp;
+        <strong>{{ __('message.copyright') }} &copy; {{ year }}&nbsp;
             <a :href="website" class="text-decoration-none fw-semibold" target="_blank" rel="noopener noreferrer">{{ companyName }}</a>.
         </strong>
 
-        All rights reserved. Powered by
+        {{ __('message.all_rights') }}
         <a :href="website" class="text-decoration-none fw-semibold" target="_blank" rel="noopener noreferrer">Faveo</a>
     </footer>
 </template>

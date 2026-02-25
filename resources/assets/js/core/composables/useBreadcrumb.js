@@ -1,33 +1,32 @@
 /**
  * useBreadcrumb — derives page title and breadcrumb chain from the current route.
  *
- * Strategy: walk the path segments from left to right, calling router.resolve()
- * on each accumulated sub-path.  If a segment resolves to a named route that
- * carries a meta.title, add it to the chain.  Pure numeric segments (dynamic IDs
- * like /users/5) are skipped — they won't match a static route anyway.
- *
- * Examples
- *   /dashboard                   → Home › Dashboard
- *   /users/create                → Home › Users › New User
- *   /users/5/edit                → Home › Users › Edit User
- *   /products/coupons/3/edit     → Home › Products › Coupons › Edit Coupon
- *   /settings/email/settings     → Home › Email Settings
+ * Titles are translated via __() using meta.titleKey.
+ * Falls back to meta.title (English string) if no translation is found.
  */
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+
+function translateTitle(meta) {
+    if (!meta?.title) return 'Admin Panel'
+    if (meta.titleKey) {
+        const translated = __(meta.titleKey)
+        if (translated !== meta.titleKey) return translated
+    }
+    return meta.title
+}
 
 export function useBreadcrumb() {
     const route  = useRoute()
     const router = useRouter()
 
-    const pageTitle = computed(() => route.meta?.title ?? 'Admin Panel')
+    const pageTitle = computed(() => translateTitle(route.meta))
 
     const breadcrumbs = computed(() => {
         const crumbs   = []
         const segments = route.path.split('/').filter(Boolean)
 
         for (let i = 1; i <= segments.length; i++) {
-            // Skip pure numeric segments — they are dynamic IDs, not named sections
             if (/^\d+$/.test(segments[i - 1])) continue
 
             const partialPath = '/' + segments.slice(0, i).join('/')
@@ -37,7 +36,7 @@ export function useBreadcrumb() {
 
             const isLast = i === segments.length
             crumbs.push({
-                title:    resolved.meta.title,
+                title:    translateTitle(resolved.meta),
                 to:       partialPath,
                 isActive: isLast,
             })

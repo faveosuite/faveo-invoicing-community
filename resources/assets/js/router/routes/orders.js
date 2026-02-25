@@ -1,3 +1,3 @@
 export default [
-    { path: '/orders', component: () => import('../../pages/orders/Index.vue'), meta: { title: 'Orders' } },
+    { path: '/orders', component: () => import('../../pages/orders/Index.vue'), meta: { title: 'Orders', titleKey: 'message.orders' } },
 ]

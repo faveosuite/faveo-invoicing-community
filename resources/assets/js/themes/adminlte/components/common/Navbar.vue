@@ -212,9 +212,21 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.lang-dropdown {
+    max-height: 300px;
+    overflow-y: auto;
+    min-width: 260px;
+}
+
+@media (max-width: 576px) {
     .lang-dropdown {
-        max-height: 300px;
-        overflow-y: auto;
-        min-width: 260px;
+        position: fixed !important;
+        top: 57px !important;
+        left: 10px !important;
+        right: 10px !important;
+        width: auto !important;
+        min-width: unset !important;
+        transform: none !important;
     }
+}
 </style>
