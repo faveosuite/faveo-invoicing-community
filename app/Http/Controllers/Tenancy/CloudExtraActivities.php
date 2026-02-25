@@ -255,7 +255,7 @@ class CloudExtraActivities extends Controller
 
             if ($invoice) {
                 \Session::put('AgentAlteration', $request->subId);
-                \Session::put('newAgents', $newAgents);
+                \Session::put('newAgents', $totalAgents);
                 \Session::put('orderId', $orderId);
                 \Session::put('installation_path', $installation_path);
                 \Session::put('product_id', $product_id);
@@ -1211,13 +1211,15 @@ class CloudExtraActivities extends Controller
             if (empty($newAgents)) {
                 return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => 0, 'priceToPay' => 0];
             }
-            if ($newAgents > $oldAgents) {
-                $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays);
+            $totalAgents=$newAgents;
+            if ($newAgents >= $oldAgents) {
+                $totalAgents=$newAgents+$oldAgents;
+                $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
             } else {
-                $price = $this->newAgentlessthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays);
+                $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
             }
 
-            return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => currencyFormat($base_price * $newAgents, $currency['currency'], true), 'priceToPay' => currencyFormat($price, $currency['currency'], true)];
+            return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => currencyFormat($base_price * $totalAgents, $currency['currency'], true), 'priceToPay' => currencyFormat($price, $currency['currency'], true)];
         } catch(\Exception $e) {
             \Logger::exception($e);
 
