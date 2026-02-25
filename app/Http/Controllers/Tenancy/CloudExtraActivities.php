@@ -346,13 +346,15 @@ class CloudExtraActivities extends Controller
             $ends_at = Subscription::where('order_id', $orderId)->value('ends_at');
             $base_price = $currency['plan']?->add_price;
             $oldAgents = substr($oldAgents, 12, 16);
-            if ($newAgents > $oldAgents) {
-                $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays);
+            $totalAgents=$newAgents;
+            if ($newAgents >= $oldAgents) {
+                $totalAgents=$newAgents+$oldAgents;
+                $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
             } else {
-                $price = $this->newAgentlessthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays);
+                $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
             }
             $items = ['id' => $product_id, 'name' => $product->name, 'price' => round($price), 'planId' => $planId,
-                'quantity' => 1, 'attributes' => ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $newAgents], 'associatedModel' => $product];
+                'quantity' => 1, 'attributes' => ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $totalAgents], 'associatedModel' => $product];
 
             return $items;
         } catch(\Exception $e) {
