@@ -42,7 +42,7 @@
                 <option value="">{{ __('message.choose') }}</option>
 
                 @foreach($products as $key=>$product)
-                  <option value="{{$key}}"  <?php  if(in_array($product, $selectedProduct) ) { echo "selected";} ?>>{{$product}}</option>
+                  <option value="{{$key}}"  <?php  if(array_key_exists($key, $selectedProduct) ) { echo "selected";} ?>>{{$product}}</option>
                 @endforeach
               </select>
               @error('product')
@@ -255,7 +255,6 @@
       // ===========================
       function myProduct() {
         let product = $('#planproduct').val();
-
         $.ajax({
           type: 'GET',
           url: "{{url('get-period')}}",
