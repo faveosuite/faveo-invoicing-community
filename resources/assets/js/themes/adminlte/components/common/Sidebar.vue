@@ -4,17 +4,22 @@
 
         <!-- Brand -->
         <div class="sidebar-brand">
-            <RouterLink to="/dashboard" class="brand-link">
+            <RouterLink v-if="logoUrl" to="/dashboard" class="brand-link">
                 <img :src="logoUrl" alt="Logo"
                      class="brand-image"
                      @error="e => e.target.style.display = 'none'" />
+            </RouterLink>
+
+            <RouterLink v-else to="/" class="brand-link">
+
+                <span class="brand-text"><b>{{appTitle}}</b></span>
             </RouterLink>
         </div>
 
         <!-- Sidebar Wrapper -->
         <div class="sidebar-wrapper">
             <nav class="mt-2">
-                <ul class="nav sidebar-menu flex-column"
+                <ul class="nav sidebar-menu flex-column nav-child-indent"
                     role="navigation"
                     aria-label="Main navigation">
 
@@ -274,7 +279,9 @@ import { asset } from '@/core/utils/asset.js'
 
 const route = useRoute()
 
-const logoUrl = asset('themes/common/images/faveo-logo.png')
+const el = document.getElementById('app-root')
+const logoUrl = el?.dataset?.appLogo ?? '';
+const appTitle = el?.dataset?.appTitle ?? '';
 
 // ── Treeview open/close state ─────────────────────────────────────────────────
 const openItems = ref(new Set())

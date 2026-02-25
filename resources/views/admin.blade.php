@@ -2,41 +2,17 @@
 <html lang="en">
 
 <?php
-
-//        $company = App\Model\helpdesk\Settings\Company::where('id', '=', '1')->first();
-//
-//        $portal = App\Model\helpdesk\Theme\Portal::where('id', '=', 1)->first();
-//
-//        $title = App\Model\helpdesk\Settings\System::where('id', '=', '1')->value('name');
-//
-//        $title_name = $title ?? "SUPPORT CENTER";
-//
-//        $is2faEnforced = App\Model\helpdesk\Settings\Security::where('id',1)->value('is_2fa_enforced');
-//
-//        $is2faActiveForUser = \App\User::where('id',\Auth::user()->id)->value('is_2fa_enabled');
-//
-//        $isUpdatedVersion = (Schema::hasColumn('settings_system', 'is_updated'))?
-//                             App\Model\helpdesk\Settings\System::where('id',1)->value('is_updated'):0;
-//
-//        $rtl_class = "";
-//
-//        if (str_contains($portal->admin_header_color, 'skin')) {
-//
-//            $portal->admin_sidebar_color = str_replace("skin","sidebar-dark", $portal->admin_header_color);
-//
-//        }
-//
-//        $portal->admin_header_color = $portal->admin_header_color ? str_replace("skin","navbar-dark navbar", $portal->admin_header_color) : 'navbar-light';
-//
-//        $encryption = \Event::dispatch('encryption.process', [], true) ?? '';
-//
-    ?>
+    $set = new \App\Model\Common\Setting();
+    $set = $set->findOrFail(1);
+?>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Admin Panel') }}</title>
-    <link rel="icon" type="image/png" href="{{ asset('themes/common/images/faveo-logo.png') }}">
+
+    @if($set->fav_icon)
+        <link rel="shortcut icon" href='{{ $set->fav_icon }}' type="image/x-icon" />
+    @endif
 
     {{-- CDN: open a connection early so asset requests don't pay DNS + TCP cost --}}
     @if(config('theme.use_cdn') && config('theme.cdn_host'))
@@ -83,13 +59,16 @@
          data-base-url="{{ url('/') }}"
          data-admin-url="{{ url('/admin') }}"
          data-asset-url="{{ asset('') }}"
-         data-user-name="{{ auth()->user()?->name ?? 'Admin' }}"
+         data-user-name="{{ auth()->user() ? auth()->user()->first_name . ' ' . auth()->user()->last_name : 'Admin' }}"
          data-user-email="{{ auth()->user()?->email ?? '' }}"
          data-user-avatar="{{ auth()->user()?->profile_pic ?? '' }}"
          data-locale="{{ strtoupper(app()->getLocale()) }}"
          data-app-version="{{ config('app.version', '') }}"
-         data-app-name="{{ config('app.name', 'Admin Panel') }}"
-         data-company-name="Ladybird Web Solution Pvt Ltd">
+         data-page-title="{{ $set->favicon_title }}"
+         data-app-title="{{ $set->title }}"
+         data-app-logo="{{ $set->admin_logo }}"
+         data-website="{{ $set->website }}"
+         data-company="{{ $set->company }}">
 
         {{-- Shown until Vue mounts — uses critical CSS already loaded above --}}
         <div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9999">

@@ -60,7 +60,7 @@ router.beforeEach((to, from, next) => {
 })
 
 // Update browser tab title on every navigation
-const appName = el?.dataset?.appName || 'Admin Panel'
+const appName = el?.dataset?.pageTitle || 'Admin Panel'
 router.afterEach((to) => {
     document.title = to.meta?.title ? `${to.meta.title} | ${appName}` : appName
 })
