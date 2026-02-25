@@ -237,7 +237,7 @@ class CloudExtraActivities extends Controller
             if ($request->agentAction == 'decrease' && $oldAgents <= $newAgents) {
                 errorResponse('Invalid operation: The number of agents cannot be reduced below the current allocation.');
             }
-            $totalAgents = $request->agentAction == 'increase' ? $oldAgents + $newAgents : $oldAgents-$newAgents;
+            $totalAgents = $request->agentAction == 'increase' ? $oldAgents + $newAgents : $oldAgents - $newAgents;
             if ($order->client != \Auth::user()->id) {
                 return errorResponse(trans('message.invalid_user'));
             }
@@ -253,7 +253,7 @@ class CloudExtraActivities extends Controller
 
 //            $oldLicense = Order::where('id', $orderId)->latest()->value('serial_key');
             $oldLicense = $order->serial_key;
-            $items = $this->getThePaymentCalculation($newAgents, $oldLicense, $orderId,null,$request->agentAction);
+            $items = $this->getThePaymentCalculation($newAgents, $oldLicense, $orderId, null, $request->agentAction);
             $invoice = (new RenewController())->renewBySubId($request->subId, $items['planId'], '', $items['price'], '', false, $totalAgents);
 
             if ($invoice) {
