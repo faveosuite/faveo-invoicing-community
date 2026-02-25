@@ -208,7 +208,7 @@ $json = json_encode($data);
                                     {{$item->quantity}}
                                 </td>
                                 <td class="product-total">
-                                    <span class="amount">{{currencyFormat($item->regular_price,$code = $currency)}}</span>
+                                    <span class="amount">{{currencyFormat($item->quantity * $item->regular_price,$code = $currency)}}</span>
                                 </td>
                             </tr>
                             @empty 
@@ -232,8 +232,8 @@ $json = json_encode($data);
             <tbody>
                 <tr class="cart-subtotal">
                     <?php 
-                    $subtotals = App\Model\Order\InvoiceItem::where('invoice_id',$invoice->id)->pluck('regular_price')->toArray();
-                    $subtotal = array_sum($subtotals);
+                    $subtotals = App\Model\Order\InvoiceItem::where('invoice_id',$invoice->id)->get(['quantity','regular_price']);
+                    $subtotal = $subtotals->sum(fn($item) => $item->quantity * $item->regular_price);
                     ?>
                     <th>
                         <strong>{{ __('message.cart_subtotal')}}</strong>

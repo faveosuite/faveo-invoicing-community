@@ -125,7 +125,7 @@
 
                                     <td class="product-subtotal text-end">
 
-                                        <span class="amount text-color-dark font-weight-bold text-3">{{currencyFormat(($item->regular_price),$code = $currency)}}</span>
+                                        <span class="amount text-color-dark font-weight-bold text-3">{{currencyFormat(($item->quantity * $item->regular_price),$code = $currency)}}</span>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -149,8 +149,8 @@
 
                                     <tbody>
                                 <?php 
-                                $subtotals = App\Model\Order\InvoiceItem::where('invoice_id',$invoice->id)->pluck('regular_price')->toArray();
-                                $subtotal = array_sum($subtotals);
+                                $subtotals = App\Model\Order\InvoiceItem::where('invoice_id',$invoice->id)->get(['quantity','regular_price']);
+                                $subtotal = $subtotals->sum(fn($item) => $item->quantity * $item->regular_price);
                                 ?>
 
                                     <tr class="border-top">
