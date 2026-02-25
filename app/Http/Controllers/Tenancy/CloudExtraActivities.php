@@ -346,9 +346,9 @@ class CloudExtraActivities extends Controller
             $ends_at = Subscription::where('order_id', $orderId)->value('ends_at');
             $base_price = $currency['plan']?->add_price;
             $oldAgents = substr($oldAgents, 12, 16);
-            $totalAgents=$newAgents;
+            $totalAgents = $newAgents;
             if ($newAgents >= $oldAgents) {
-                $totalAgents=$newAgents+$oldAgents;
+                $totalAgents = $newAgents + $oldAgents;
                 $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
             } else {
                 $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
