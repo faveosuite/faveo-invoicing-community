@@ -1056,6 +1056,7 @@ return [
     'update_agents' => '更新代理商',
     'increase' => '增加',
     'decrease' => '减少',
+    'agent_decrease_invalid' => '无效操作：代理数量不能低于当前分配数量。',
     'upgrade_downgrade_cloud_plan' => '升级或降级您的云计划',
     'select_new_plan' => '选择一个新计划',
     'total_credits_remaining' => '您当前计划剩余的总信用：',

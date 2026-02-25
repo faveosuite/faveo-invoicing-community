@@ -1054,6 +1054,7 @@ return [
     'update_agents' => 'Update Agents',
     'increase' => 'Verhogen',
     'decrease' => 'Verlagen',
+    'agent_decrease_invalid' => 'Ongeldige bewerking: Het aantal agents kan niet worden verminderd onder de huidige toewijzing.',
     'upgrade_downgrade_cloud_plan' => 'Upgrade of downgrade je cloud plan',
     'select_new_plan' => 'Selecteer een nieuw plan',
     'total_credits_remaining' => 'Totaal resterende credits op je huidige plan:',

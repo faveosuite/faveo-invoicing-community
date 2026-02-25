@@ -1073,6 +1073,7 @@ return [
     'update_agents' => 'Cập nhật đại lý',
     'increase' => 'Tăng',
     'decrease' => 'Giảm',
+    'agent_decrease_invalid' => 'Thao tác không hợp lệ: Số lượng đại lý không thể giảm xuống dưới mức phân bổ hiện tại.',
     'upgrade_downgrade_cloud_plan' => 'Nâng cấp hoặc hạ cấp gói đám mây của bạn',
     'select_new_plan' => 'Chọn gói mới',
     'total_credits_remaining' => 'Tổng số tín dụng còn lại trên gói hiện tại của bạn:',

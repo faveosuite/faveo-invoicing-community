@@ -1511,6 +1511,7 @@ return [
     'update_agents' => 'Update Agents',
     'increase' => 'Increase',
     'decrease' => 'Decrease',
+    'agent_decrease_invalid' => 'Invalid operation: The number of agents cannot be reduced below the current allocation.',
     'upgrade_downgrade_cloud_plan' => 'Upgrade or downgrade your cloud plan',
     'select_new_plan' => 'Select a new plan',
     'total_credits_remaining' => 'Total Credits remaining on your current plan:',

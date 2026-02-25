@@ -1062,6 +1062,7 @@ return [
     'update_agents' => 'Atualizar Agentes',
     'increase' => 'Aumentar',
     'decrease' => 'Diminuir',
+    'agent_decrease_invalid' => 'Operação inválida: O número de agentes não pode ser reduzido abaixo da alocação atual.',
     'upgrade_downgrade_cloud_plan' => 'Atualizar ou diminuir o plano da nuvem',
     'select_new_plan' => 'Selecione um novo plano',
     'total_credits_remaining' => 'Créditos totais restantes no seu plano atual:',

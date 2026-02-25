@@ -1285,6 +1285,7 @@ return [
     'update_agents' => 'Ajanları Güncelle',
     'increase' => 'Artır',
     'decrease' => 'Azalt',
+    'agent_decrease_invalid' => 'Geçersiz işlem: Ajan sayısı mevcut tahsisin altına indirilemez.',
     'upgrade_downgrade_cloud_plan' => 'Bulut planınızı yükseltin veya düşürün',
     'select_new_plan' => 'Yeni bir plan seçin',
     'total_credits_remaining' => 'Mevcut planınızdaki toplam kredi miktarı:',

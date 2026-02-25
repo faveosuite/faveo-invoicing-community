@@ -1053,6 +1053,7 @@ return [
     'update_agents' => '更新代理人數量',
     'increase' => '增加',
     'decrease' => '減少',
+    'agent_decrease_invalid' => '無效操作：代理人數量不能低於當前分配數量。',
     'upgrade_downgrade_cloud_plan' => '升級或降級您的雲端計劃',
     'select_new_plan' => '選擇新計劃',
     'total_credits_remaining' => '您當前計劃的剩餘總信用額：',

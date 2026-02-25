@@ -1067,6 +1067,7 @@ return [
     'update_agents' => 'Mettre à jour les agents',
     'increase' => 'Augmenter',
     'decrease' => 'Diminuer',
+    'agent_decrease_invalid' => 'Opération invalide : le nombre d\'agents ne peut pas être réduit en dessous de l\'allocation actuelle.',
     'upgrade_downgrade_cloud_plan' => 'Mettre à niveau ou rétrograder votre plan cloud',
     'select_new_plan' => 'Sélectionnez un nouveau plan',
     'total_credits_remaining' => 'Crédits restants sur votre plan actuel :',

@@ -1069,6 +1069,7 @@ return [
     'update_agents' => 'Perbarui Agen',
     'increase' => 'Tambah',
     'decrease' => 'Kurangi',
+    'agent_decrease_invalid' => 'Operasi tidak valid: Jumlah agen tidak dapat dikurangi di bawah alokasi saat ini.',
     'upgrade_downgrade_cloud_plan' => 'Tingkatkan atau turunkan paket cloud Anda',
     'select_new_plan' => 'Pilih paket baru',
     'total_credits_remaining' => 'Total kredit yang tersisa pada paket Anda saat ini:',

@@ -1282,6 +1282,7 @@ return [
     'update_agents' => 'एजेंट्स अपडेट करें',
     'increase' => 'बढ़ाएं',
     'decrease' => 'घटाएं',
+    'agent_decrease_invalid' => 'अमान्य ऑपरेशन: एजेंट्स की संख्या को वर्तमान आवंटन से कम नहीं किया जा सकता।',
     'upgrade_downgrade_cloud_plan' => 'अपनी क्लाउड योजना को उन्नत या डाउनग्रेड करें',
     'select_new_plan' => 'नई योजना चुनें',
     'total_credits_remaining' => 'आपकी वर्तमान योजना पर शेष कुल क्रेडिट:',

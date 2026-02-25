@@ -1080,6 +1080,7 @@ return [
     'update_agents' => 'Oppdater agenter',
     'increase' => 'Øk',
     'decrease' => 'Reduser',
+    'agent_decrease_invalid' => 'Ugyldig operasjon: Antall agenter kan ikke reduseres under gjeldende tildeling.',
     'upgrade_downgrade_cloud_plan' => 'Oppgrader eller nedgrader skyplanen din',
     'select_new_plan' => 'Velg en ny plan',
     'total_credits_remaining' => 'Totalt kreditt igjen på din nåværende plan:',

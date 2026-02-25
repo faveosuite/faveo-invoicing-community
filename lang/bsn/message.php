@@ -1002,6 +1002,7 @@ return [
     'update_agents' => 'Ažuriraj agente',
     'increase' => 'Povećaj',
     'decrease' => 'Smanji',
+    'agent_decrease_invalid' => 'Nevažeća operacija: Broj agenata ne može biti smanjen ispod trenutne raspodjele.',
     'upgrade_downgrade_cloud_plan' => 'Nadogradite ili smanjite svoj cloud plan',
     'select_new_plan' => 'Odaberite novi plan',
     'total_credits_remaining' => 'Ukupni preostali krediti na vašem trenutnom planu:',

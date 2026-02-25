@@ -1277,6 +1277,7 @@ return [
     'update_agents' => 'עדכן סוכנים',
     'increase' => 'הגדל',
     'decrease' => 'הקטן',
+    'agent_decrease_invalid' => 'פעולה לא חוקית: לא ניתן להפחית את מספר הסוכנים מתחת להקצאה הנוכחית.',
     'upgrade_downgrade_cloud_plan' => 'שדרג או הורד את תוכנית הענן שלך',
     'select_new_plan' => 'בחר תוכנית חדשה',
     'total_credits_remaining' => 'היתרה הכוללת של האשראי בתוכנית הנוכחית שלך:',

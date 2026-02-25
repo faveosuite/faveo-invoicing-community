@@ -1068,6 +1068,7 @@ return [
     'update_agents' => 'Agenten aktualisieren',
     'increase' => 'Erhöhen',
     'decrease' => 'Verringern',
+    'agent_decrease_invalid' => 'Ungültige Operation: Die Anzahl der Agenten kann nicht unter die aktuelle Zuteilung reduziert werden.',
     'upgrade_downgrade_cloud_plan' => 'Cloud-Plan upgraden oder downgraden',
     'select_new_plan' => 'Wählen Sie einen neuen Plan',
     'total_credits_remaining' => 'Verbleibendes Guthaben auf Ihrem aktuellen Plan:',

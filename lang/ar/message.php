@@ -962,6 +962,7 @@ return [
     'update_agents' => 'تحديث الوكلاء',
     'increase' => 'زيادة',
     'decrease' => 'تقليل',
+    'agent_decrease_invalid' => 'عملية غير صالحة: لا يمكن تقليل عدد الوكلاء إلى أقل من التخصيص الحالي.',
     'upgrade_downgrade_cloud_plan' => 'ترقية أو خفض خطة السحابة',
     'select_new_plan' => 'اختر خطة جديدة',
     'total_credits_remaining' => 'إجمالي الرصيد المتبقي على خطتك الحالية:',

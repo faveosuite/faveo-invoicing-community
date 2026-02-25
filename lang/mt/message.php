@@ -1013,6 +1013,7 @@
      'update_agents' => 'Aġġorna l-Aġenti',
      'increase' => 'Żid',
      'decrease' => 'Naqqas',
+    'agent_decrease_invalid' => 'Operazzjoni mhux valida: in-numru ta\' aġenti ma jistax jitnaqqas taħt l-allokazzjoni attwali.',
      'upgrade_downgrade_cloud_plan' => 'Aġġorna jew innaqqas il-pjan tal-cloud tiegħek',
      'select_new_plan' => 'Agħżel pjan ġdid',
      'total_credits_remaining' => 'Krediti totali li fadal fuq il-pjan attwali:',

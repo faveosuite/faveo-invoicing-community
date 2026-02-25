@@ -1276,6 +1276,7 @@ return [
     'update_agents' => 'エージェントを更新',
     'increase' => '増加',
     'decrease' => '減少',
+    'agent_decrease_invalid' => '無効な操作：エージェントの数を現在の割り当て以下に減らすことはできません。',
     'upgrade_downgrade_cloud_plan' => 'クラウドプランをアップグレードまたはダウングレード',
     'select_new_plan' => '新しいプランを選択',
     'total_credits_remaining' => '現在のプランで残っているクレジットの総額:',

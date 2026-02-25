@@ -235,7 +235,7 @@ class CloudExtraActivities extends Controller
             $order = Order::where('id', $orderId)->first();
             $oldAgents = ltrim(substr($order->serial_key, 12), '0');
             if ($request->agentAction == 'decrease' && $oldAgents <= $newAgents) {
-                errorResponse('Invalid operation: The number of agents cannot be reduced below the current allocation.');
+                return errorResponse(trans('message.agent_decrease_invalid'));
             }
             $totalAgents = $request->agentAction == 'increase' ? $oldAgents + $newAgents : $oldAgents - $newAgents;
             if ($order->client != \Auth::user()->id) {
@@ -1210,7 +1210,7 @@ class CloudExtraActivities extends Controller
 
             $oldAgents = $request->get('oldAgents');
             if ($request->agentAction == 'decrease' && $oldAgents <= $newAgents) {
-                return errorResponse('Invalid operation: The number of agents cannot be reduced below the current allocation.');
+                return errorResponse(trans('message.agent_decrease_invalid'));
             }
             $orderId = $request->get('orderId');
             $planId = Subscription::where('order_id', $orderId)->value('plan_id');
