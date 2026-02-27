@@ -12,6 +12,10 @@ class FileManagerController extends Controller
     {
         $path = $request->input('path');
 
+        if (Attach::exists($path)){
+            abort(404, __('message.file_not_exist'));
+        }
+
         $fileStream = Attach::readStream($path);
 
         $fileMetadata = Attach::getMetadata($path);
