@@ -100,4 +100,5 @@ return [
     'verify_new_email' => 'تحقق من البريد الإلكتروني الجديد',
     'confirm_old_email' => 'تأكيد البريد الإلكتروني القديم',
     'confirm_mobile_number_change' => 'تأكيد تغيير رقم الجوال',
+    'logs:delete' => 'حذف سجلات النظام',
 ];

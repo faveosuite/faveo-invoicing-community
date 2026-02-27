@@ -2827,4 +2827,5 @@ return [
     'active_plan_exists' => '此产品和期间已存在活动计划“:plan_name”。请在创建/更新活动计划之前先将其禁用。',
     'check_to_make_plan_active' => '选中以使此计划处于活动状态。每个产品和期间仅允许一个活动计划。',
     'active_plan_exists_simple' => '此产品和期间已存在活动计划。请先将其禁用。',
+    'unauthorized_action' => '您没有执行此操作所需的权限。',
 ];

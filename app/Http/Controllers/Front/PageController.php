@@ -28,7 +28,7 @@ class PageController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth', ['except' => ['pageTemplates', 'contactUs', 'postDemoReq', 'postContactUs']]);
+        $this->middleware(['auth', 'admin'], ['except' => ['pageTemplates', 'contactUs', 'postDemoReq', 'postContactUs']]);
         $this->middleware('recaptcha:contact')->only('postContactUs');
         $this->middleware('recaptcha:demo')->only('postDemoReq');
         $page = new FrontendPage();

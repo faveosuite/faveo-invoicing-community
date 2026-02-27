@@ -141,7 +141,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('my-profile', [Front\ClientController::class, 'profile']);
     Route::patch('my-profile', [Front\ClientController::class, 'postProfile']);
     Route::patch('my-password', [Front\ClientController::class, 'postPassword']);
-    Route::get('paynow/{id}', [Front\CheckoutController::class, 'payNow']);
+    Route::get('paynow/{id}', [Front\CheckoutController::class, 'payNow'])->middleware(['auth']);
 
     Route::delete('invoices/delete/{id}', [Front\ClientController::class, 'invoiceDelete']);
 
@@ -250,25 +250,25 @@ Route::middleware('installAgora')->group(function () {
     Route::get('/email-log/body/{id}', [Common\SettingsController::class, 'getBody'])->name('email-log.body');
     Route::delete('activity-delete', [Common\SettingsController::class, 'destroy'])->name('activity-delete');
     Route::delete('email-delete', [Common\SettingsController::class, 'destroyEmail'])->name('email-delete');
-    Route::post('licenseDetails', [Common\BaseSettingsController::class, 'licenseDetails'])->name('licenseDetails');
-    Route::post('licenseStatus', [Common\BaseSettingsController::class, 'licenseStatus'])->name('licenseStatus');
-    Route::post('updateDetails', [Common\BaseSettingsController::class, 'updateDetails'])->name('updateDetails');
-    Route::post('updatemobileDetails', [Common\BaseSettingsController::class, 'updateMobileDetails'])->name('updatemobileDetails');
-    Route::post('updateemailDetails', [Common\BaseSettingsController::class, 'updateEmailDetails'])->name('updateemailDetails');
-    Route::post('updatetwitterDetails', [Common\BaseSettingsController::class, 'updateTwitterDetails'])->name('updatetwitterDetails');
-    Route::post('updateMailchimpDetails', [Common\BaseSettingsController::class, 'updateMailchimpDetails'])->name('updateMailchimpDetails');
-    Route::post('updateTermsDetails', [Common\BaseSettingsController::class, 'updateTermsDetails'])->name('updateTermsDetails');
-    Route::post('updatezohoDetails', [Common\BaseSettingsController::class, 'updateZohoDetails'])->name('updatezohoDetails');
-    Route::post('updatepipedriveDetails', [Common\BaseSettingsController::class, 'updatepipedriveDetails'])->name('updatepipedriveDetails');
-    Route::post('mailchimp-prod-status', [Common\BaseSettingsController::class, 'updateMailchimpProductStatus'])->name('mailchimp-prod-status');
-    Route::post('mailchimp-paid-status', [Common\BaseSettingsController::class, 'updateMailchimpIsPaidStatus'])->name('mailchimp-paid-status');
-    Route::post('updatedomainCheckDetails', [Common\BaseSettingsController::class, 'updatedomainCheckDetails'])->name('updatedomainCheckDetails');
+    Route::post('licenseDetails', [Common\SettingsController::class, 'licenseDetails'])->name('licenseDetails');
+    Route::post('licenseStatus', [Common\SettingsController::class, 'licenseStatus'])->name('licenseStatus');
+    Route::post('updateDetails', [Common\SettingsController::class, 'updateDetails'])->name('updateDetails');
+    Route::post('updatemobileDetails', [Common\SettingsController::class, 'updateMobileDetails'])->name('updatemobileDetails');
+    Route::post('updateemailDetails', [Common\SettingsController::class, 'updateEmailDetails'])->name('updateemailDetails');
+    Route::post('updatetwitterDetails', [Common\SettingsController::class, 'updateTwitterDetails'])->name('updatetwitterDetails');
+    Route::post('updateMailchimpDetails', [Common\SettingsController::class, 'updateMailchimpDetails'])->name('updateMailchimpDetails');
+    Route::post('updateTermsDetails', [Common\SettingsController::class, 'updateTermsDetails'])->name('updateTermsDetails');
+    Route::post('updatezohoDetails', [Common\SettingsController::class, 'updateZohoDetails'])->name('updatezohoDetails');
+    Route::post('updatepipedriveDetails', [Common\SettingsController::class, 'updatepipedriveDetails'])->name('updatepipedriveDetails');
+    Route::post('mailchimp-prod-status', [Common\SettingsController::class, 'updateMailchimpProductStatus'])->name('mailchimp-prod-status');
+    Route::post('mailchimp-paid-status', [Common\SettingsController::class, 'updateMailchimpIsPaidStatus'])->name('mailchimp-paid-status');
+    Route::post('updatedomainCheckDetails', [Common\SettingsController::class, 'updatedomainCheckDetails'])->name('updatedomainCheckDetails');
     Route::get('system-managers', [Common\SystemManagerController::class, 'getSystemManagers'])->name('system-managers');
     Route::get('search-admins', [Common\SystemManagerController::class, 'searchAdmin'])->name('search-admins');
     Route::post('updateSystemManager', [Common\SystemManagerController::class, 'updateManagerSettings']);
     Route::get('debugg', [Common\SettingsController::class, 'debugSettings']);
     Route::post('save/debugg', [Common\SettingsController::class, 'postdebugSettings']);
-    Route::post('v3captchaDetails', [Common\BaseSettingsController::class, 'v3captchaDetails'])->name('v3captchaDetails');
+    Route::post('v3captchaDetails', [Common\SettingsController::class, 'v3captchaDetails'])->name('v3captchaDetails');
     Route::get('demo/page', [Front\PageController::class, 'VewDemoPage']);
     Route::post('save/demo', [Front\PageController::class, 'saveDemoPage']);
     Route::get('settings/paymentlog', [Common\SettingsController::class, 'settingsPayment']);
@@ -400,7 +400,8 @@ Route::middleware('installAgora')->group(function () {
     Route::get('get-orders', [Order\OrderController::class, 'getOrders'])->name('get-orders');
     Route::get('get-product-versions/{product}', [Order\OrderSearchController::class, 'getProductVersions'])->name('get-product-versions');
     Route::delete('orders-delete', [Order\OrderController::class, 'destroy'])->name('orders-delete');
-    Route::patch('change-domain', [Order\ExtendedOrderController::class, 'changeDomain']);
+//    This isn't used anywhere
+//    Route::patch('change-domain', [Order\ExtendedOrderController::class, 'changeDomain']);
     Route::patch('reissue-license', [Order\ExtendedOrderController::class, 'reissueLicense']);
     Route::post('edit-update-expiry', [Order\BaseOrderController::class, 'editUpdateExpiry']);
     Route::post('edit-license-expiry', [Order\BaseOrderController::class, 'editLicenseExpiry']);
@@ -410,7 +411,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('choose', [License\LocalizedLicenseController::class, 'chooseLicenseMode']);
     Route::get('LocalizedLicense', function () {
         return view('themes.default1.common.Localized');
-    })->middleware('auth');
+    })->middleware(['auth', 'admin']);
     Route::get('LocalizedLicense/delete/{fileName}', [License\LocalizedLicenseController::class, 'deleteFile']);
     //Route::post('LocalizedLicense/updateLicenseFile/{fileName}',[LocalizedLicenseController::class,'fileEdit']);
     Route::get('get-installation-details/{orderId}', [Order\OrderController::class, 'getInstallationDetails']);
@@ -547,7 +548,8 @@ Route::middleware('installAgora')->group(function () {
     Route::post('verify-php-path', [Common\SettingsController::class, 'checkPHPExecutablePath'])->name('verify-cron');
     Route::get('file-storage', [Common\SettingsController::class, 'showFileStorage']);
     Route::post('file-storage-path', [Common\SettingsController::class, 'updateStoragePath']);
-    Route::get('expired-subscriptions', [Common\CronController::class, 'eachSubscription']);
+//    We don't use this so commanded this
+//    Route::get('expired-subscriptions', [Common\CronController::class, 'eachSubscription']);
 
     /*
 
@@ -633,9 +635,9 @@ Route::middleware('installAgora')->group(function () {
 
     Route::delete('remove-location', [Tenancy\CloudExtraActivities::class, 'removeLocation'])->name('remove-location');
 
-    Route::post('cloud-data-center-store', [Tenancy\CloudExtraActivities::class, 'storeCloudDataCenter'])->name('cloud-data-center-store');
+    Route::post('cloud-data-center-store', [Tenancy\CloudExtraActivities::class, 'storeCloudDataCenter'])->middleware('admin')->name('cloud-data-center-store');
 
-    Route::get('export-tenats', [Tenancy\TenantController::class, 'exportTenats'])->name('export-tenats');
+    Route::get('export-tenats', [Tenancy\TenantController::class, 'exportTenats'])->middleware('admin')->name('export-tenats');
 
     /*
      * Api
@@ -727,7 +729,7 @@ Route::get('/product/detail', [Product\BaseProductController::class, 'getProduct
 Route::get('footer1', [Front\WidgetController::class, 'footer1'])->name('footer1')->withoutMiddleware(['auth', 'admin']);
 
 //language
-Route::get('languages', [LanguageController::class, 'viewLanguage'])->middleware('auth');
+Route::get('languages', [LanguageController::class, 'viewLanguage']);
 Route::post('language-toggle', [LanguageController::class, 'toggleLanguageStatus']);
 Route::get('language/control', [LanguageController::class, 'fetchLangDropdownUsers']);
 

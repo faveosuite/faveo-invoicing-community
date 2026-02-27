@@ -100,4 +100,5 @@ return [
     'verify_new_email' => 'אמת אימייל חדש',
     'confirm_old_email' => 'אשר אימייל ישן',
     'confirm_mobile_number_change' => 'אשר שינוי מספר נייד',
+    'logs:delete' => 'מחיקת יומני מערכת',
 ];

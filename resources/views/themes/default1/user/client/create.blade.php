@@ -585,7 +585,8 @@
 
         function validateUserName(userName) {
             const userNamePattern = /^[a-zA-Z0-9_]+$/; // Allows only alphanumeric characters and underscores
-            return userNamePattern.test(userName);
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})*$/;
+            return userNamePattern.test(userName) || emailPattern.test(userName);
         }
 
     });

@@ -101,4 +101,5 @@ return [
     'confirm_old_email' => '古いメールを確認してください',
     'confirm_mobile_number_change' => '携帯番号の変更を確認してください',
 
+    'logs:delete' => 'システムログを削除',
 ];

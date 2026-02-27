@@ -313,8 +313,8 @@
                      let recaptchaToken = await window.resetRecaptcha.tokenValidation("reset");
                      if (!recaptchaToken) return;
 
-                     // Collect form data
-                     let formData = $form.serializeArray();
+                     // Collect form data (filter out auto-injected g-recaptcha-response from v2 widget)
+                     let formData = $form.serializeArray().filter(field => field.name !== 'g-recaptcha-response');
                      if (!window.resetRecaptcha.isDisabled() && recaptchaToken) {
                          formData.push({ name: "g-recaptcha-response", value: recaptchaToken });
                          formData.push({ name: "page_id", value: window.pageId });

@@ -100,4 +100,5 @@ return [
     'verify_new_email' => '驗證新電子郵件',
     'confirm_old_email' => '確認舊電子郵件',
     'confirm_mobile_number_change' => '確認更改手機號碼',
+    'logs:delete' => '刪除系統日誌',
 ];

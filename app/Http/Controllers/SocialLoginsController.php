@@ -8,6 +8,12 @@ use Illuminate\Support\Facades\Session;
 
 class SocialLoginsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware('admin');
+    }
+
     public function view()
     {
         $socialLoginss = SocialLogin::get();

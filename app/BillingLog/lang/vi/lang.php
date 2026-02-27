@@ -100,4 +100,5 @@ return [
     'verify_new_email' => 'Xác minh email mới',
     'confirm_old_email' => 'Xác nhận email cũ',
     'confirm_mobile_number_change' => 'Xác nhận thay đổi số điện thoại',
+    'logs:delete' => 'Xóa nhật ký hệ thống',
 ];

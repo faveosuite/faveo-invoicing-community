@@ -251,8 +251,8 @@
                 $('#mobile_code_hiddenDemo').val('+' + $('#mobilenumdemo').attr('data-dial-code'));
                 $('#mobilenumdemo').val($('#mobilenumdemo').val().replace(/\D/g, ''));
 
-                // Collect form data
-                let formData = $form.serializeArray();
+                // Collect form data (filter out auto-injected g-recaptcha-response from v2 widget)
+                let formData = $form.serializeArray().filter(field => field.name !== 'g-recaptcha-response');
 
                 if (!window.demoRecaptcha.isDisabled() && recaptchaToken) {
                     formData.push({ name: "g-recaptcha-response", value: recaptchaToken });

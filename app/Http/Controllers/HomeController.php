@@ -435,7 +435,6 @@ class HomeController extends BaseHomeController
                 } else {
                     $message = ['error' => 'product_not_found'];
                 }
-                $message = ['version' => str_replace('v', '', $product->version)];
             }
         } catch (\Exception $e) {
             \Logger::exception($e);
@@ -738,6 +737,8 @@ class HomeController extends BaseHomeController
         $client = new Client();
 
         $licenseUrl = ApiKey::value('license_api_url');
+
+        throttleApiRequest($licenseUrl.'api/pluginLicense');
 
         $response = $client->get($licenseUrl.'api/pluginLicense', [
             'query' => ['license_code' => json_encode($licenses)],

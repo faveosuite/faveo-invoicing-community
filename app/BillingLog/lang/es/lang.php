@@ -100,4 +100,5 @@ return [
     'verify_new_email' => 'Verificar nuevo correo electrónico',
     'confirm_old_email' => 'Confirmar correo electrónico antiguo',
     'confirm_mobile_number_change' => 'Confirmar cambio de número móvil',
+    'logs:delete' => 'Eliminar registros del sistema',
 ];
