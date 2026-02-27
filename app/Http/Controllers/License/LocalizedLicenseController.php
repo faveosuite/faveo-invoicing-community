@@ -44,16 +44,31 @@ class LocalizedLicenseController extends Controller
      * */
     private function oauthAuthorization()
     {
-        $url = $this->url;
-        $data = [
-            'client_id' => $this->client_id,
-            'client_secret' => $this->client_secret,
-            'grant_type' => $this->grant_type,
-        ];
-        $response = $this->postCurl($url.'oauth/token', $data);
-        $response = json_decode($response);
+        $cacheKey = 'license_response_'.md5($this->url.$this->client_id);
 
-        return $response;
+        return \Cache::lock('oauth_lock_'.$cacheKey, 30)->block(15, function () use ($cacheKey) {
+            return \Cache::remember($cacheKey, now()->addMinutes(30), function () use ($cacheKey) {
+                $response = json_decode(
+                    $this->postCurl($this->url.'oauth/token', [
+                        'client_id' => $this->client_id,
+                        'client_secret' => $this->client_secret,
+                        'grant_type' => $this->grant_type,
+                    ])
+                );
+
+                if (! $response || ! isset($response->access_token)) {
+                    throw new \Exception('OAuth token not received');
+                }
+
+                $ttl = isset($response->expires_in)
+                    ? now()->addSeconds($response->expires_in - 60)
+                    : now()->addMinutes(30);
+
+                \Cache::put($cacheKey, $response, $ttl);
+
+                return $response;
+            });
+        });
     }
 
     private function postCurl($post_url, $post_info, $token = null)
