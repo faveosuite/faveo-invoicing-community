@@ -95,12 +95,11 @@ class ExtendedBaseProductController extends Controller
     public function editProductUpload($id)
     {
         try {
-
             $model = ProductUpload::with('product')->findOrFail($id);
 
             $selectedProduct = $model->product?->name;
 
-            if (!$selectedProduct) {
+            if (! $selectedProduct) {
                 return redirect()->back()
                     ->with('fails', __('message.product_not_found'));
             }
@@ -109,7 +108,6 @@ class ExtendedBaseProductController extends Controller
                 'themes.default1.product.product.edit-upload-option',
                 compact('model', 'selectedProduct')
             );
-
         } catch (ModelNotFoundException $e) {
             return redirect()->to('products')
                 ->with('fails', __('message.product_not_found'));
