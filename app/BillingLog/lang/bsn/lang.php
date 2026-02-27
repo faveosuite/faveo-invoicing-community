@@ -100,4 +100,5 @@ return [
     'verify_new_email' => 'Potvrdite novi email',
     'confirm_old_email' => 'Potvrdite stari email',
     'confirm_mobile_number_change' => 'Potvrdite promjenu broja mobitela',
+    'logs:delete' => 'Hapus Log Sistem',
 ];

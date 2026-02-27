@@ -100,4 +100,5 @@ return [
     'verify_new_email' => '验证新邮箱',
     'confirm_old_email' => '确认旧邮箱',
     'confirm_mobile_number_change' => '确认更改手机号',
+    'logs:delete' => '删除系统日志',
 ];

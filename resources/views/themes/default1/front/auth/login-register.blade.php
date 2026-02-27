@@ -690,8 +690,8 @@ foreach($scripts as $script) {
                     let recaptchaToken = await window.loginRecaptcha.tokenValidation("login");
                     if (!recaptchaToken) return;
 
-                    // Collect form data
-                    let formData = $form.serializeArray();
+                    // Collect form data (filter out auto-injected g-recaptcha-response from v2 widget)
+                    let formData = $form.serializeArray().filter(field => field.name !== 'g-recaptcha-response');
                     if (!window.loginRecaptcha.isDisabled() && recaptchaToken) {
                         formData.push({ name: "g-recaptcha-response", value: recaptchaToken });
                         formData.push({ name: "page_id", value: window.pageId });
@@ -871,8 +871,8 @@ foreach($scripts as $script) {
                     $("#mobile_country_iso").val(input.getAttribute("data-country-iso").toUpperCase());
                     input.value = input.value.replace(/\D/g, "");
 
-                    // Collect form data
-                    let formData = $form.serializeArray();
+                    // Collect form data (filter out auto-injected g-recaptcha-response from v2 widget)
+                    let formData = $form.serializeArray().filter(field => field.name !== 'g-recaptcha-response');
 
                     if (!window.registerRecaptcha.isDisabled() && recaptchaToken) {
                         formData.push({ name: "g-recaptcha-response", value: recaptchaToken });

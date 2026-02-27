@@ -107,7 +107,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             if ($date->isPast()) {
                 $date = now();
             }
-            $expiry_date = $date->addDays($days);
+            $expiry_date = $date->addDays((int) $days);
         }
 
         return $expiry_date;
@@ -121,7 +121,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             if ($date->isPast()) {
                 $date = now();
             }
-            $expiry_date = $date->addDays($days);
+            $expiry_date = $date->addDays((int) $days);
         }
 
         return $expiry_date;
@@ -135,7 +135,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             if ($date->isPast()) {
                 $date = now();
             }
-            $expiry_date = $date->addDays($days);
+            $expiry_date = $date->addDays((int) $days);
         }
 
         return $expiry_date;

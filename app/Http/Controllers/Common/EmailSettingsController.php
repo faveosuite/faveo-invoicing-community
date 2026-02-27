@@ -13,6 +13,12 @@ class EmailSettingsController extends Controller
 
     protected $error;
 
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware('admin');
+    }
+
     protected function checkSConnection(Setting $emailConfig)
     {
         try {

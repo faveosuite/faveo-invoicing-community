@@ -2828,4 +2828,5 @@ return [
     'active_plan_exists' => 'Paket aktif ":plan_name" sudah ada untuk produk dan periode ini. Harap nonaktifkan terlebih dahulu sebelum membuat/memperbarui paket aktif.',
     'check_to_make_plan_active' => 'Centang untuk mengaktifkan paket ini. Hanya satu paket aktif yang diperbolehkan per produk dan periode.',
     'active_plan_exists_simple' => 'Paket aktif sudah ada untuk produk dan periode ini. Harap nonaktifkan terlebih dahulu.',
+    'unauthorized_action' => 'Anda tidak memiliki izin yang diperlukan untuk melakukan tindakan ini.',
 ];

@@ -101,4 +101,5 @@ return [
     'verify_new_email' => 'Verify New Email',
     'confirm_old_email' => 'Confirm Old Email',
     'confirm_mobile_number_change' => 'Confirm Mobile Number Change',
+    'logs:delete' => 'Delete System Logs',
 ];

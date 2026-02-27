@@ -2797,4 +2797,5 @@ return [
     'active_plan_exists' => 'Er bestaat al een actief plan ":plan_name" voor dit product en deze periode. Schakel dit eerst uit voordat u een actief plan maakt/bijwerkt.',
     'check_to_make_plan_active' => 'Vink aan om dit plan actief te maken. Er is slechts één actief plan toegestaan per product en periode.',
     'active_plan_exists_simple' => 'Er bestaat al een actief plan voor dit product en deze periode. Schakel dit eerst uit.',
+    'unauthorized_action' => 'U heeft niet de benodigde rechten om deze actie uit te voeren.',
 ];

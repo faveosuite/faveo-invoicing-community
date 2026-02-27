@@ -96,4 +96,5 @@ return [
     'verify_new_email' => 'Nieuw e-mailadres verifiëren',
     'confirm_old_email' => 'Oud e-mailadres bevestigen',
     'confirm_mobile_number_change' => 'Wijziging van mobiel nummer bevestigen',
+    'logs:delete' => 'Systeemlogboeken verwijderen',
 ];

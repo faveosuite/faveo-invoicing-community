@@ -273,8 +273,8 @@ $(document).ready(function() {
             $('#mobile_code_hiddenco').val('+' + $('#mobilenumcon').attr('data-dial-code'));
             $('#mobilenumcon').val($('#mobilenumcon').val().replace(/\D/g, ''));
 
-            // Collect form data
-            let formData = $form.serializeArray();
+            // Collect form data (filter out auto-injected g-recaptcha-response from v2 widget)
+            let formData = $form.serializeArray().filter(field => field.name !== 'g-recaptcha-response');
 
             if (!window.contactRecaptcha.isDisabled() && recaptchaToken) {
                 formData.push({ name: "g-recaptcha-response", value: recaptchaToken });

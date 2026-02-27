@@ -117,7 +117,7 @@ class Kernel extends ConsoleKernel
 
                 case 'deleteLogs':
                     if ($logDeleteStatus == 1) {
-                        return $this->getCondition($schedule->command('activitylog:clean'), $command);
+                        return $this->getCondition($schedule->command('activitylog:clean --force'), $command);
                     }
 
                 case 'subsExpirymail':

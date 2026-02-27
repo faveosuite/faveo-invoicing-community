@@ -96,4 +96,5 @@ return [
     'verify_new_email' => 'Yeni e-postayı doğrulayın',
     'confirm_old_email' => 'Eski e-postayı onaylayın',
     'confirm_mobile_number_change' => 'Mobil numara değişikliğini onaylayın',
+    'logs:delete' => 'Sistem günlüklerini sil',
 ];

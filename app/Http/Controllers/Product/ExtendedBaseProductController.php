@@ -10,6 +10,7 @@ use App\Model\Payment\TaxProductRelation;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
@@ -93,10 +94,24 @@ class ExtendedBaseProductController extends Controller
      */
     public function editProductUpload($id)
     {
-        $model = ProductUpload::where('id', $id)->first();
-        $selectedProduct = $model->product->name;
+        try {
+            $model = ProductUpload::with('product')->findOrFail($id);
 
-        return view('themes.default1.product.product.edit-upload-option', compact('model', 'selectedProduct'));
+            $selectedProduct = $model->product?->name;
+
+            if (! $selectedProduct) {
+                return redirect()->back()
+                    ->with('fails', __('message.product_not_found'));
+            }
+
+            return view(
+                'themes.default1.product.product.edit-upload-option',
+                compact('model', 'selectedProduct')
+            );
+        } catch (ModelNotFoundException $e) {
+            return redirect()->to('products')
+                ->with('fails', __('message.product_not_found'));
+        }
     }
 
     //Update the File Info

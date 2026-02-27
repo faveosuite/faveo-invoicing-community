@@ -183,49 +183,43 @@ class RegisterController extends Controller
 
             $state = getStateByCode($location['iso_code'], $location['state']);
 
-            $user = [
-                'state' => $state['id'],
-                'town' => $location['city'],
-                'password' => \Hash::make($request->input('password')),
-                'profile_pic' => '',
-                'active' => 1,
-                'mobile_verified' => 0,
-                'email_verified' => 0,
-                'mobile' => ltrim($request->input('mobile'), '0'),
-                'mobile_code' => $request->input('mobile_code'),
-                'mobile_country_iso' => $request->input('mobile_country_iso'),
-                'country' => $request->input('country'),
-                'role' => 'user',
-                'company' => strip_tags($request->input('company')),
-                'address' => strip_tags($request->input('address')),
-                'email' => strip_tags($request->input('email')),
-                'user_name' => strip_tags($request->input('email')),
-                'first_name' => strip_tags($request->input('first_name')),
-                'last_name' => strip_tags($request->input('last_name')),
-                'account_manager' => $accountManagerStatus ? $user->assignManagerByPosition('account_manager') : null,
-                'manager' => $salesManagerStatus ? $user->assignManagerByPosition('manager') : null,
-                'ip' => $location['ip'],
-                'timezone_id' => getTimezoneByName($location['timezone']),
-                'referrer' => Referer::get(),
-
-            ];
-
-            $userInput = User::create($user);
+            $user->state = $state['id'];
+            $user->town = $location['city'];
+            $user->password = \Hash::make($request->input('password'));
+            $user->profile_pic = '';
+            $user->mobile_verified = 0;
+            $user->email_verified = 0;
+            $user->mobile = ltrim($request->input('mobile'), '0');
+            $user->mobile_code = $request->input('mobile_code');
+            $user->mobile_country_iso = $request->input('mobile_country_iso');
+            $user->country = $request->input('country');
+            $user->company = strip_tags($request->input('company'));
+            $user->address = strip_tags($request->input('address'));
+            $user->email = strip_tags($request->input('email'));
+            $user->user_name = strip_tags($request->input('email'));
+            $user->first_name = strip_tags($request->input('first_name'));
+            $user->last_name = strip_tags($request->input('last_name'));
+            $user->ip = $location['ip'];
+            $user->timezone_id = getTimezoneByName($location['timezone']);
+            $user->referrer = Referer::get();
+            $user->active = 1;
+            $user->role = 'user';
+            $user->account_manager = $accountManagerStatus ? $user->assignManagerByPosition('account_manager') : null;
+            $user->manager = $salesManagerStatus ? $user->assignManagerByPosition('manager') : null;
+            $user->save();
 
             $need_verify = $this->getEmailMobileStatusResponse();
 
-            AddUserToExternalService::dispatch($userInput, 'register');
-
-            $userInput->save();
+            AddUserToExternalService::dispatch($user, 'register');
 
             \Session::put([
                 'justStarted' => true,
-                'verification_user_id' => $userInput->id,
+                'verification_user_id' => $user->id,
             ]);
 
-            $this->logActivityRegister($userInput);
+            $this->logActivityRegister($user);
 
-            \Session::flash('user', $userInput);
+            \Session::flash('user', $user);
 
             return successResponse(__('message.registration_complete'), ['need_verify' => $need_verify]);
         } catch (Exception $ex) {

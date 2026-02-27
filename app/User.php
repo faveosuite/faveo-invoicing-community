@@ -46,9 +46,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     protected $fillable = ['first_name', 'last_name', 'user_name', 'company', 'zip',
         'state', 'town', 'mobile', 'mobile_country_iso',
-        'email', 'password', 'role', 'active', 'profile_pic',
+        'email', 'password', 'profile_pic',
         'address', 'country', 'currency', 'currency_symbol', 'timezone_id', 'mobile_code', 'bussiness',
-        'company_type', 'company_size', 'ip', 'mobile_verified', 'email_verified', 'position', 'skype', 'manager', 'currency_symbol', 'account_manager', 'referrer', 'google2fa_secret', 'is_2fa_enabled', 'google2fa_activation_date', 'backup_code', 'code_usage_count', 'gstin', 'language'];
+        'company_type', 'company_size', 'ip', 'mobile_verified', 'email_verified', 'skype', 'currency_symbol', 'referrer', 'google2fa_secret', 'is_2fa_enabled', 'google2fa_activation_date', 'backup_code', 'code_usage_count', 'gstin', 'language'];
 
     protected $logName = 'user';
     protected $logNameColumn = 'user_name';
@@ -152,7 +152,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function getBussinessAttribute($value)
     {
-        $short = $this->attributes['bussiness'];
+        $short = $this->attributes['bussiness'] ?? null;
         $name = '--';
         $bussiness = \App\Model\Common\Bussiness::where('short', $short)->first();
         if ($bussiness) {
@@ -164,7 +164,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function getCompanyTypeAttribute()
     {
-        $short = $this->attributes['company_type'];
+        $short = $this->attributes['company_type'] ?? null;
         $name = '--';
         $company = \DB::table('company_types')->where('short', $short)->first();
         if ($company) {

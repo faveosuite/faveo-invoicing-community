@@ -97,4 +97,5 @@ return [
     'confirm_old_email' => 'Ikkonferma l-email l-antika',
     'confirm_mobile_number_change' => 'Ikkonferma l-bidla fin-numru tal-mowbajl',
 
+    'logs:delete' => 'Ħassar ir-reġistri tas-sistema',
 ];
