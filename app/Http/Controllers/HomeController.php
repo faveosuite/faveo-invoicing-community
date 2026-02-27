@@ -435,7 +435,6 @@ class HomeController extends BaseHomeController
                 } else {
                     $message = ['error' => 'product_not_found'];
                 }
-                $message = ['version' => str_replace('v', '', $product->version)];
             }
         } catch (\Exception $e) {
             \Logger::exception($e);
