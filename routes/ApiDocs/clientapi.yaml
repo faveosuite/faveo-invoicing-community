@@ -89,9 +89,16 @@ paths:
               schema:
                 type: object
                 properties:
-                  redirect:
+                  success:
+                    type: boolean
+                  message:
                     type: string
-                    example: /client-dashboard
+                  data:
+                    type: object
+                    properties:
+                      redirect:
+                        type: string
+                        example: /client-dashboard
         '422':
           description: Invalid credentials.
         '500':
@@ -113,10 +120,12 @@ paths:
                 - last_name
                 - email
                 - password
+                - password_confirmation
                 - company
                 - address
                 - mobile
                 - mobile_code
+                - mobile_country_iso
                 - country
               properties:
                 first_name:
@@ -129,6 +138,9 @@ paths:
                 password:
                   type: string
                   format: password
+                password_confirmation:
+                  type: string
+                  format: password
                 company:
                   type: string
                 address:
@@ -137,6 +149,9 @@ paths:
                   type: string
                 mobile_code:
                   type: string
+                mobile_country_iso:
+                  type: string
+                  description: ISO country code for the mobile number (e.g. IN, US)
                 country:
                   type: string
       responses:
@@ -147,11 +162,16 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
                   message:
                     type: string
-                  need_verify:
-                    type: integer
-                    example: 1
+                  data:
+                    type: object
+                    properties:
+                      need_verify:
+                        type: integer
+                        example: 1
   /logout:
     get:
       summary: User logout
@@ -266,10 +286,16 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
                   message:
                     type: string
-                  redirect:
-                    type: string
+                  data:
+                    type: object
+                    properties:
+                      redirect:
+                        type: string
+                        example: /login
   /password/reset/{token}:
     get:
       summary: Show password reset form
@@ -318,6 +344,8 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
                   message:
                     type: string
                     example: active
@@ -358,22 +386,22 @@ paths:
                   type: string
       responses:
         '200':
-          description: 2FA token is valid.
+          description: 2FA token is valid. Returns a redirect URL on success.
           content:
             application/json:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
                   message:
                     type: string
-                    description: User role is sent.
-                    data:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          role:
-                            type: string
+                  data:
+                    type: object
+                    properties:
+                      redirect:
+                        type: string
+                        example: /client-dashboard
   /verify-recovery-code:
     post:
       summary: Verify recovery code
@@ -393,22 +421,22 @@ paths:
                   type: string
       responses:
         '200':
-          description: Recovery code is valid.
+          description: Recovery code is valid. Returns a redirect URL on success.
           content:
             application/json:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
                   message:
                     type: string
-                    description: User role is sent.
-                    data:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          role:
-                            type: string
+                  data:
+                    type: object
+                    properties:
+                      redirect:
+                        type: string
+                        example: /client-dashboard
   /2fa/enable:
     post:
       summary: Enable 2FA
@@ -423,10 +451,19 @@ paths:
               schema:
                 type: object
                 properties:
-                  image:
+                  success:
+                    type: boolean
+                  message:
                     type: string
-                  secret:
-                    type: string
+                  data:
+                    type: object
+                    properties:
+                      image:
+                        type: string
+                        description: Base64-encoded QR code SVG image URI
+                      secret:
+                        type: string
+                        description: Base32-encoded TOTP secret key
   /2fa/disable/{userId}:
     post:
       summary: Disable 2FA
@@ -436,7 +473,7 @@ paths:
       parameters:
         - name: userId
           in: path
-          required: false
+          required: true
           schema:
             type: integer
       responses:
@@ -462,6 +499,16 @@ paths:
       responses:
         '200':
           description: 2FA setup validated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: valid_passcode
   /verify-password:
     get:
       summary: Verify password
@@ -471,18 +518,29 @@ paths:
       parameters:
         - name: user_password
           in: query
-          required: true
+          required: false
           schema:
             type: string
             format: password
         - name: login_type
           in: query
-          required: true
+          required: false
           schema:
             type: string
+            description: Set to 'social' for social login accounts (no password required)
       responses:
         '200':
           description: Password verified.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: password_verified
   /2fa-recovery-code:
     post:
       summary: Generate recovery code
@@ -497,8 +555,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  code:
-                    type: string
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      code:
+                        type: string
   /get-recovery-code:
     get:
       summary: Get recovery code
@@ -513,8 +576,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  code:
-                    type: string
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      code:
+                        type: string
   /verify-2fa-admin:
     post:
       summary: Verify 2FA for admin
@@ -535,6 +603,16 @@ paths:
       responses:
         '200':
           description: 2FA setup validated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: valid_passcode
   /get-loginstate/{state}:
     get:
       summary: Get states by country
@@ -587,8 +665,15 @@ paths:
               schema:
                 type: object
                 properties:
-                  code:
+                  success:
+                    type: boolean
+                  message:
                     type: string
+                  data:
+                    type: object
+                    properties:
+                      code:
+                        type: string
   /get-currency:
     get:
       summary: Get currency by country
@@ -609,8 +694,15 @@ paths:
               schema:
                 type: object
                 properties:
-                  Currency:
+                  success:
+                    type: boolean
+                  message:
                     type: string
+                  data:
+                    type: object
+                    properties:
+                      Currency:
+                        type: string
   /client-dashboard-details:
     get:
       summary: Get client dashboard details
@@ -658,40 +750,47 @@ paths:
               schema:
                 type: object
                 properties:
-                  dataCenters:
-                    type: array
-                    items:
-                      type: object
-                  setting:
-                    type: object
-                  cloudSubDomain:
+                  success:
+                    type: boolean
+                  message:
                     type: string
-                  flagClass:
-                    type: string
-                  cloudPopUpDetails:
+                  data:
                     type: object
-                  status:
-                    type: object
-                  cart:
-                    type: object
-                  Demo_page_status:
-                    type: integer
-                  scripts:
-                    type: array
-                    items:
-                      type: object
-                  pages:
-                    type: array
-                    items:
-                      type: object
-                  apiKeys:
-                    type: object
-                  social:
-                    type: array
-                    items:
-                      type: object
-                  productGroup:
-                    type: object
+                    properties:
+                      dataCenters:
+                        type: array
+                        items:
+                          type: object
+                      setting:
+                        type: object
+                      cloudSubDomain:
+                        type: string
+                      flagClass:
+                        type: string
+                      cloudPopUpDetails:
+                        type: object
+                      status:
+                        type: object
+                      cart:
+                        type: object
+                      Demo_page_status:
+                        type: integer
+                      scripts:
+                        type: array
+                        items:
+                          type: object
+                      pages:
+                        type: array
+                        items:
+                          type: object
+                      apiKeys:
+                        type: object
+                      social:
+                        type: array
+                        items:
+                          type: object
+                      productGroup:
+                        type: object
   /demo-request:
     post:
       summary: Request a demo
@@ -728,6 +827,15 @@ paths:
       responses:
         '200':
           description: Demo request sent.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
   /language/control:
     get:
       summary: Get language dropdown
@@ -740,9 +848,27 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        locale:
+                          type: string
+                        name:
+                          type: string
+                        translation:
+                          type: string
+                        status:
+                          type: integer
   /trial-cloud-products:
     post:
       summary: Get trial cloud products
@@ -763,8 +889,16 @@ paths:
       tags:
         - Master Data
       responses:
-        '302':
-          description: Redirect to cart.
+        '200':
+          description: Redirect URL to cart page.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  redirectTo:
+                    type: string
+                    example: /show/cart
   /available-groups:
     post:
       summary: Get available groups
@@ -799,6 +933,15 @@ paths:
       responses:
         '200':
           description: Subscribed to Mailchimp.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
   /first-login:
     post:
       summary: First login attempt
@@ -825,6 +968,24 @@ paths:
       responses:
         '200':
           description: First login attempt successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                      message:
+                        type: string
+                      Free_trial_domain:
+                        type: string
   /store-basic-details:
     post:
       summary: Store basic details
@@ -846,8 +1007,17 @@ paths:
                 address:
                   type: string
       responses:
-        '302':
-          description: Redirect back.
+        '200':
+          description: Basic details stored successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
   /my-invoices:
     get:
       summary: Get my invoices
@@ -951,6 +1121,14 @@ paths:
                         action:
                           type: string
                           description: HTML for action buttons (view, pay, delete).
+                  current_page:
+                    type: integer
+                  per_page:
+                    type: integer
+                  total:
+                    type: integer
+                  has_more_pages:
+                    type: boolean
   /invoices/delete/{id}:
     delete:
       summary: Delete invoice
@@ -966,6 +1144,15 @@ paths:
       responses:
         '200':
           description: Invoice deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
   /paynow/{id}:
     get:
       summary: Pay now
@@ -1004,6 +1191,33 @@ paths:
       operationId: getClientOrderVue
       tags:
         - Orders
+      parameters:
+        - name: search-query
+          in: query
+          description: Search filter across order fields.
+          schema:
+            type: string
+        - name: sort-order
+          in: query
+          description: Sort direction.
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: sort-field
+          in: query
+          description: Field to sort by.
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Number of results per page.
+          schema:
+            type: integer
+        - name: updated_ends_at
+          in: query
+          description: Filter for expired orders (pass "expired").
+          schema:
+            type: string
       responses:
         '200':
           description: List of orders.
@@ -1095,6 +1309,12 @@ paths:
           required: true
           schema:
             type: integer
+        - name: search.value
+          in: query
+          required: false
+          description: Search by version number, title, or description.
+          schema:
+            type: string
       responses:
         '200':
           description: List of versions.
@@ -1160,6 +1380,8 @@ paths:
                   type: string
                 last_name:
                   type: string
+                user_name:
+                  type: string
                 email:
                   type: string
                   format: email
@@ -1167,6 +1389,9 @@ paths:
                   type: string
                 mobile_code:
                   type: string
+                mobile_country_iso:
+                  type: string
+                  description: ISO country code for the mobile number (e.g. IN, US)
                 mobile:
                   type: string
                 address:
@@ -1178,6 +1403,14 @@ paths:
                 state:
                   type: string
                 zip:
+                  type: string
+                company_size:
+                  type: string
+                company_type:
+                  type: string
+                bussiness:
+                  type: string
+                gstin:
                   type: string
       responses:
         '200':
@@ -1221,7 +1454,7 @@ paths:
             type: integer
         - name: agents
           in: path
-          required: false
+          required: true
           schema:
             type: integer
       responses:
@@ -1249,6 +1482,10 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - plan
+                - payment_method
+                - cost
               properties:
                 plan:
                   type: integer
@@ -1281,13 +1518,17 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - plan
               properties:
                 plan:
                   type: integer
                 user:
                   type: integer
+                  description: User ID (optional, defaults to authenticated user)
                 code:
                   type: string
+                  description: Promotion code (optional)
                 agents:
                   type: integer
       responses:
@@ -1298,8 +1539,15 @@ paths:
               schema:
                 type: object
                 properties:
-                  redirectTo:
+                  success:
+                    type: boolean
+                  message:
                     type: string
+                  data:
+                    type: array
+                    items:
+                      type: string
+                    description: Array containing the payment URL (e.g. ["/paynow/123"])
   /autopaynow/{id}:
     get:
       summary: Auto-renew a subscription
@@ -1313,8 +1561,22 @@ paths:
           schema:
             type: integer
       responses:
-        '302':
-          description: Redirect to the payment page.
+        '200':
+          description: Returns the payment URL to redirect to.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: string
+                    description: Array containing the payment URL (e.g. ["/paynow/123"])
   /cart-access:
     get:
       summary: Access cart information
@@ -1452,8 +1714,17 @@ paths:
                 razorpay_payment_id:
                   type: string
       responses:
-        '302':
-          description: Redirects back with a success or failure message.
+        '200':
+          description: Razorpay auto-renewal enabled successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
   /payment/{invoice}:
     post:
       summary: Process a Razorpay payment
@@ -1477,6 +1748,9 @@ paths:
               properties:
                 razorpay_payment_id:
                   type: string
+                razorpay_payment_signature:
+                  type: string
+                  description: Signature for payment verification
       responses:
         '302':
           description: Redirect to checkout with a success or failure message.
@@ -1554,7 +1828,6 @@ paths:
               type: object
               required:
                 - waba_id
-                - phone_number_id
                 - business_id
                 - code
                 - order_id
@@ -1628,6 +1901,13 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  price_to_be_paid:
+                    type: number
+                  discount:
+                    type: number
+                  currency:
+                    type: string
   /changeAgents:
     post:
       summary: Change agents
@@ -1657,6 +1937,21 @@ paths:
       responses:
         '200':
           description: Agents changed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        description: Payment URL to redirect to (e.g. /paynow/123)
   /upgradeDowngradeCloud:
     post:
       summary: Upgrade or downgrade a cloud product
@@ -1688,8 +1983,16 @@ paths:
               schema:
                 type: object
                 properties:
-                  redirectTo:
+                  success:
+                    type: boolean
+                  message:
                     type: string
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        description: Checkout URL to redirect to
   /api/takeCloudDomain:
     post:
       summary: Autofill domain for a cloud order
@@ -1715,8 +2018,16 @@ paths:
               schema:
                 type: object
                 properties:
-                  data:
+                  success:
+                    type: boolean
+                  message:
                     type: string
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        description: The installation path / autofilled domain value
   /create/tenant:
     post:
       summary: Create a new tenant
@@ -1737,9 +2048,27 @@ paths:
                   type: string
                 domain:
                   type: string
+                  description: Alphanumeric subdomain name only
+                userInfo:
+                  type: integer
+                  description: Optional user ID (defaults to authenticated user)
       responses:
         '200':
           description: Tenant created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                  installationUrl:
+                    type: string
+                  Free_trial_domain:
+                    type: string
   /change/domain:
     post:
       summary: Change a domain
@@ -1771,7 +2100,17 @@ paths:
                   type: integer
       responses:
         '200':
-          description: Domain changed successfully
+          description: Domain changed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    description: Status key (e.g. cloud_domain_change, not_allowed_domain, cname, wrong_domain)
   /store_toggle_state:
     post:
       summary: Store the toggle state
@@ -1815,8 +2154,23 @@ paths:
           schema:
             type: string
       responses:
-        '302':
-          description: Redirect to the cart page.
+        '200':
+          description: Product added to cart. Returns a redirect URL to the cart page.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        example: /show/cart
   /group/{templateid}/{groupid}:
     get:
       summary: Get page templates for a group
@@ -1847,6 +2201,20 @@ paths:
       operationId: updateAgentQty
       tags:
         - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productid
+                - planid
+              properties:
+                productid:
+                  type: integer
+                planid:
+                  type: integer
       responses:
         '200':
           description: Agent quantity updated successfully.
@@ -1856,6 +2224,20 @@ paths:
       operationId: updateProductQty
       tags:
         - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productid
+                - planid
+              properties:
+                productid:
+                  type: integer
+                planid:
+                  type: integer
       responses:
         '200':
           description: Product quantity updated successfully.
@@ -1865,6 +2247,20 @@ paths:
       operationId: reduceProductQty
       tags:
         - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productid
+                - planid
+              properties:
+                productid:
+                  type: integer
+                planid:
+                  type: integer
       responses:
         '200':
           description: Product quantity reduced successfully.
@@ -1874,6 +2270,20 @@ paths:
       operationId: reduceAgentQty
       tags:
         - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productid
+                - planid
+              properties:
+                productid:
+                  type: integer
+                planid:
+                  type: integer
       responses:
         '200':
           description: Agent quantity reduced successfully.
@@ -1886,6 +2296,16 @@ paths:
       responses:
         '200':
           description: Cart cleared successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: removed_successfully
   /show/cart:
     get:
       summary: Show the cart
@@ -1924,6 +2344,8 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - checkout_token
               properties:
                 cost:
                   type: number
@@ -1931,11 +2353,48 @@ paths:
                   type: integer
                 payment_gateway:
                   type: string
+                  description: Required when cost is greater than 0
                 checkout_token:
                   type: string
+                  description: Token used to prevent duplicate submissions
+                domain:
+                  type: object
+                  description: Optional map of domain values keyed by cart item
       responses:
         '200':
           description: Checkout and payment processed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        invoice:
+                          type: object
+                        date:
+                          type: string
+                        product:
+                          type: object
+                        items:
+                          type: array
+                          items:
+                            type: object
+                        orders:
+                          type: array
+                          items:
+                            type: object
+                        orderNumber:
+                          type: string
+                        show:
+                          type: boolean
   /pricing/update:
     post:
       summary: Update pricing with a coupon
@@ -1956,6 +2415,15 @@ paths:
       responses:
         '200':
           description: Pricing updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
 components:
   securitySchemes:
     bearerAuth:
