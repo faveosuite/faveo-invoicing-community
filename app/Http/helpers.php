@@ -1154,21 +1154,18 @@ function getSupportedCountriesForIntlInput()
     })->toArray();
 }
 
+function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds = 60): void
+{
+    $endpoint = parse_url($url, PHP_URL_HOST).parse_url($url, PHP_URL_PATH);
 
-function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds = 60): void {
-
-    $endpoint = parse_url($url, PHP_URL_HOST) . parse_url($url, PHP_URL_PATH);
-
-    $key = 'api_rate_next_allowed_' . md5($endpoint);
+    $key = 'api_rate_next_allowed_'.md5($endpoint);
 
     $interval = $perSeconds / $maxRequests; // spacing between requests
 
     $waitSeconds = 0;
 
     try {
-
         \Cache::lock($key.'_lock', 5)->block(3, function () use ($key, $interval, &$waitSeconds) {
-
             $now = microtime(true);
 
             // next allowed execution time
@@ -1185,7 +1182,6 @@ function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds 
             // reserve next slot
             \Cache::put($key, $nextAllowed, 300);
         });
-
     } catch (\Throwable $e) {
         // NEVER fail API because limiter failed
         return;
@@ -1193,6 +1189,6 @@ function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds 
 
     // each request waits its OWN turn
     if ($waitSeconds > 0) {
-        usleep((int)($waitSeconds * 1_000_000));
+        usleep((int) ($waitSeconds * 1_000_000));
     }
 }
