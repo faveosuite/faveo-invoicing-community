@@ -1153,3 +1153,46 @@ function getSupportedCountriesForIntlInput()
         return in_array(strtoupper($iso), $unsupportedIso);
     })->toArray();
 }
+
+
+function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds = 60): void {
+
+    $endpoint = parse_url($url, PHP_URL_HOST) . parse_url($url, PHP_URL_PATH);
+
+    $key = 'api_rate_next_allowed_' . md5($endpoint);
+
+    $interval = $perSeconds / $maxRequests; // spacing between requests
+
+    $waitSeconds = 0;
+
+    try {
+
+        \Cache::lock($key.'_lock', 5)->block(3, function () use ($key, $interval, &$waitSeconds) {
+
+            $now = microtime(true);
+
+            // next allowed execution time
+            $nextAllowed = \Cache::get($key, $now);
+
+            // if previous requests already reserved future slots
+            if ($nextAllowed > $now) {
+                $waitSeconds = $nextAllowed - $now;
+                $nextAllowed += $interval;
+            } else {
+                $nextAllowed = $now + $interval;
+            }
+
+            // reserve next slot
+            \Cache::put($key, $nextAllowed, 300);
+        });
+
+    } catch (\Throwable $e) {
+        // NEVER fail API because limiter failed
+        return;
+    }
+
+    // each request waits its OWN turn
+    if ($waitSeconds > 0) {
+        usleep((int)($waitSeconds * 1_000_000));
+    }
+}

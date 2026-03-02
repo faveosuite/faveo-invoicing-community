@@ -738,6 +738,8 @@ class HomeController extends BaseHomeController
 
         $licenseUrl = ApiKey::value('license_api_url');
 
+        throttleApiRequest($licenseUrl.'api/pluginLicense');
+
         $response = $client->get($licenseUrl.'api/pluginLicense', [
             'query' => ['license_code' => json_encode($licenses)],
         ]);

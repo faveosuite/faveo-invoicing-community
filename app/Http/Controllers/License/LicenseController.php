@@ -65,6 +65,8 @@ class LicenseController extends Controller
 
     private function postCurl($post_url, $post_info, $token = null)
     {
+        throttleApiRequest($post_url);
+
         if (! empty($token)) {
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $post_url);
@@ -101,6 +103,8 @@ class LicenseController extends Controller
      */
     private function getCurl($get_url, $token = null)
     {
+        throttleApiRequest($get_url);
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $get_url);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BEARER);
