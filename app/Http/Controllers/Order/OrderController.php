@@ -298,7 +298,7 @@ class OrderController extends BaseOrderController
         try {
             $order = $this->order->findOrFail($orderId);
 
-            if(!authorizeOwnership($order->client)){
+            if (! authorizeOwnership($order->client)) {
                 return redirect()->back()->with('fails', __('messages.unauthorized_action'));
             }
 

@@ -1240,7 +1240,7 @@ class ClientController extends BaseClientController
     public function getPaymentByOrderIdClient($orderid, $userid)
     {
         try {
-            if(!authorizeOwnership($userid)){
+            if (! authorizeOwnership($userid)) {
                 return redirect()->back()->with('fails', __('messages.unauthorized_action'));
             }
 
@@ -1336,7 +1336,7 @@ class ClientController extends BaseClientController
             return response()->json(['error' => 'Invoice not found'], 404);
         }
 
-        if (!authorizeOwnership($invoice->user_id)) {
+        if (! authorizeOwnership($invoice->user_id)) {
             return errorResponse(__('message.unauthorized_action'), 403);
         }
 
