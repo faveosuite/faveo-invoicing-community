@@ -152,7 +152,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function getBussinessAttribute($value)
     {
-        $short = $this->attributes['bussiness'];
+        $short = $this->attributes['bussiness'] ?? null;
         $name = '--';
         $bussiness = \App\Model\Common\Bussiness::where('short', $short)->first();
         if ($bussiness) {
@@ -164,7 +164,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function getCompanyTypeAttribute()
     {
-        $short = $this->attributes['company_type'];
+        $short = $this->attributes['company_type'] ?? null;
         $name = '--';
         $company = \DB::table('company_types')->where('short', $short)->first();
         if ($company) {

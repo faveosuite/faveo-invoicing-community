@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
@@ -11,7 +12,11 @@ class SocialLoginTest extends TestCase
 
     public function test_updates_social_login_settings_successfully()
     {
-        $response = $this->call('POST', 'update-social-login', [
+        $admin = User::factory()->create([
+            'role' => 'admin'
+        ]);
+
+        $response = $this->actingAs($admin)->call('POST', 'update-social-login', [
             'type' => 'Google',
             'client_id' => 'new-client-id',
             'client_secret' => 'new-client-secret',

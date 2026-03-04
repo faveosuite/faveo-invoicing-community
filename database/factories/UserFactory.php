@@ -36,8 +36,8 @@ class UserFactory extends Factory
             'timezone_id' => 79,
             'remember_token' => str_random(10),
             'mobile_verified' => 1,
-            'active' => 1,
             'role' => 'user',
+            'active' => 1,
         ];
     }
 }
