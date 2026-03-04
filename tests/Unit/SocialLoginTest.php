@@ -13,7 +13,7 @@ class SocialLoginTest extends TestCase
     public function test_updates_social_login_settings_successfully()
     {
         $admin = User::factory()->create([
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
 
         $response = $this->actingAs($admin)->call('POST', 'update-social-login', [
