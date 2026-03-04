@@ -259,6 +259,10 @@ class BaseClientController extends Controller
                 ->where('client', $userid)
                 ->firstOrFail();
 
+            if(!authorizeOwnership($userid)){
+                return redirect()->back()->with('fails', __('message.unauthorized_action'));
+            }
+
             $invoiceIds = $order->invoiceRelation()->pluck('invoice_id');
 
             $query = Invoice::query()

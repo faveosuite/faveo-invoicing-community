@@ -93,6 +93,13 @@ class ClientController extends BaseClientController
             $currency = getCurrencyForClient(\Auth::user()->country);
             $amount = getMinimumAmountForPayments($currency, 'stripe');
             $orderid = $request->get('order_id');
+
+            $order = Order::findOrFail($orderid);
+
+            if(!authorizeOwnership($order->client)){
+                return errorResponse(__('message.unauthorized_action'), 403);
+            }
+
             $url = url('my-order/'.$orderid.'#auto-renew');
             $controller = new SettingsController();
             $confirm = $controller->handlePayment($request, $amount, $currency, $url);
@@ -148,7 +155,12 @@ class ClientController extends BaseClientController
         try {
             $orderid = $request->get('order_id');
             $userid = Subscription::where('order_id', $orderid)->value('user_id');
-            $user = User::find($userid);
+            User::findOrfail($userid);
+
+            if(!authorizeOwnership($userid)){
+                return errorResponse(__('message.unauthorized_action'), 403);
+            }
+
             $subscription = Subscription::where('order_id', $orderid)->first();
             $this->autoRenewalSubOps($subscription, $orderid);
             $response = ['type' => 'success', 'message' => __('message.auto_subscription_disabled')];
@@ -193,6 +205,13 @@ class ClientController extends BaseClientController
             $amount = currencyFormat('1', $currency);
             $orderid = $request->route('orderid');
             $subscription = Subscription::where('order_id', $orderid)->first();
+
+            User::findOrfail($subscription->user_id);
+
+            if(!authorizeOwnership($subscription->user_id)){
+                return redirect()->back()->with('fails', __('message.unauthorized_action'));
+            }
+
             $input = $request->all();
             $error = 'Payment Failed';
             $rzp_key = ApiKey::where('id', 1)->value('rzp_key');
@@ -584,6 +603,11 @@ class ClientController extends BaseClientController
     public function getVersionList(Request $request, $productid, $clientid, $invoiceid)
     {
         try {
+
+            if(!authorizeOwnership((int)$clientid)){
+                return redirect()->back()->with('fails', __('message.unauthorized_action'));
+            }
+
             $searchValue = $request->input('search.value');
             $invoice_id = Invoice::where('number', $invoiceid)->pluck('id')->first();
             $order = Order::where('invoice_id', '=', $invoice_id)->first();
@@ -655,6 +679,10 @@ class ClientController extends BaseClientController
     public function getGithubVersionList($productid, $clientid, $invoiceid)
     {
         try {
+
+            if(!authorizeOwnership((int)$clientid)){
+                return redirect()->back()->with('fails', __('message.unauthorized_action'));
+            }
             $products = $this->product::where('id', $productid)
             ->select('name', 'version', 'github_owner', 'github_repository')->get();
             $owner = '';
@@ -1185,7 +1213,11 @@ class ClientController extends BaseClientController
     public function getPaymentByOrderId($orderid, $userid)
     {
         try {
-            // dd($orderid);
+
+            if(!authorizeOwnership($userid)){
+                return redirect()->back()->with('fails', __('messages.unauthorized_action'));
+            }
+
             $order = $this->order->where('id', $orderid)->where('client', $userid)->first();
             // dd($order);
             $relation = $order->invoiceRelation()->pluck('invoice_id')->toArray();
