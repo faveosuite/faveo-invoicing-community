@@ -96,7 +96,7 @@ class ClientController extends BaseClientController
 
             $order = Order::findOrFail($orderid);
 
-            if(!authorizeOwnership($order->client)){
+            if (! authorizeOwnership($order->client)) {
                 return errorResponse(__('message.unauthorized_action'), 403);
             }
 
@@ -157,7 +157,7 @@ class ClientController extends BaseClientController
             $userid = Subscription::where('order_id', $orderid)->value('user_id');
             User::findOrfail($userid);
 
-            if(!authorizeOwnership($userid)){
+            if (! authorizeOwnership($userid)) {
                 return errorResponse(__('message.unauthorized_action'), 403);
             }
 
@@ -208,7 +208,7 @@ class ClientController extends BaseClientController
 
             User::findOrfail($subscription->user_id);
 
-            if(!authorizeOwnership($subscription->user_id)){
+            if (! authorizeOwnership($subscription->user_id)) {
                 return redirect()->back()->with('fails', __('message.unauthorized_action'));
             }
 
@@ -603,8 +603,7 @@ class ClientController extends BaseClientController
     public function getVersionList(Request $request, $productid, $clientid, $invoiceid)
     {
         try {
-
-            if(!authorizeOwnership((int)$clientid)){
+            if (! authorizeOwnership((int) $clientid)) {
                 return redirect()->back()->with('fails', __('message.unauthorized_action'));
             }
 
@@ -679,8 +678,7 @@ class ClientController extends BaseClientController
     public function getGithubVersionList($productid, $clientid, $invoiceid)
     {
         try {
-
-            if(!authorizeOwnership((int)$clientid)){
+            if (! authorizeOwnership((int) $clientid)) {
                 return redirect()->back()->with('fails', __('message.unauthorized_action'));
             }
             $products = $this->product::where('id', $productid)
@@ -1213,8 +1211,7 @@ class ClientController extends BaseClientController
     public function getPaymentByOrderId($orderid, $userid)
     {
         try {
-
-            if(!authorizeOwnership($userid)){
+            if (! authorizeOwnership($userid)) {
                 return redirect()->back()->with('fails', __('messages.unauthorized_action'));
             }
 
