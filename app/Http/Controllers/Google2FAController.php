@@ -25,6 +25,7 @@ class Google2FAController extends Controller
     public function __construct()
     {
         $this->middleware('web');
+        $this->middleware('auth', ['only' => ['enableTwoFactor', 'disableTwoFactor' ,'generateRecoveryCode', 'getRecoveryCode', 'showRecoveryCode', 'postSetupValidateToken']]);
         $this->middleware('recaptcha:login_2fa')->only('postLoginValidateToken');
         $this->middleware('recaptcha:login_recovery')->only('verifyRecoveryCode');
     }

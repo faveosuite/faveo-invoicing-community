@@ -1192,3 +1192,14 @@ function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds 
         usleep((int) ($waitSeconds * 1_000_000));
     }
 }
+
+/**
+ * Check if the authenticated user owns the resource.
+ *
+ * @param int $userID
+ * @return bool
+ */
+function authorizeOwnership(int $userID): bool
+{
+    return $userID === auth()->id();
+}

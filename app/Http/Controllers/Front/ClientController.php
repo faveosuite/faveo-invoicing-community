@@ -1240,6 +1240,10 @@ class ClientController extends BaseClientController
     public function getPaymentByOrderIdClient($orderid, $userid)
     {
         try {
+            if(!authorizeOwnership($userid)){
+                return redirect()->back()->with('fails', __('messages.unauthorized_action'));
+            }
+
             $order = $this->order->where('id', $orderid)->where('client', $userid)->first();
             // dd($order);
             $relation = $order->invoiceRelation()->pluck('invoice_id')->toArray();
@@ -1330,6 +1334,10 @@ class ClientController extends BaseClientController
 
         if (! $invoice) {
             return response()->json(['error' => 'Invoice not found'], 404);
+        }
+
+        if (!authorizeOwnership($invoice->user_id)) {
+            return errorResponse(__('message.unauthorized_action'), 403);
         }
 
         if ($this->canDeleteInvoice($invoice)) {

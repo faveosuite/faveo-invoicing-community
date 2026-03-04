@@ -177,13 +177,14 @@ class InstallDB extends LoggableCommand
             'last_name' => 'Admin',
             'user_name' => 'demo',
             'email' => 'demo@admin.com',
-            'role' => 'admin',
             'password' => \Hash::make('Demo@1234'),
-            'active' => 1,
             'mobile_verified' => 1,
             'email_verified' => 1,
             'currency' => 'INR',
         ]);
+        $admin->role = 'admin';
+        $admin->active = 1;
+        $admin->save();
 
         // Update settings
         \App\Model\Common\Setting::where('id', 1)

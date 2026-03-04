@@ -265,13 +265,10 @@ class ClientController extends AdvanceSearchController
                 'last_name' => $request->input('last_name'),
                 'email' => $request->input('email'),
                 'password' => $password,
-                'active' => 1,
                 'company' => $request->input('company'),
                 'bussiness' => $request->input('bussiness'),
                 'email_verified' => $request->input('active'),
                 'mobile_verified' => $request->input('mobile_verified'),
-                'role' => $request->input('role'),
-                'position' => $request->input('position'),
                 'mobile_country_iso' => $request->input('mobile_country_iso'),
                 'company_type' => $request->input('company_type'),
                 'company_size' => $request->input('company_size'),
@@ -284,12 +281,16 @@ class ClientController extends AdvanceSearchController
                 'mobile_code' => $mobile_code,
                 'mobile' => $request->input('mobile'),
                 'skype' => $request->input('skype'),
-                'manager' => $request->input('manager'),
-                'account_manager' => $request->input('account_manager'),
                 'ip' => $location['ip'],
             ];
 
             $userInput = User::create($user);
+            $userInput->active = 1;
+            $userInput->role = $request->input('role');
+            $userInput->position = $request->input('position');
+            $userInput->manager = $request->input('manager');
+            $userInput->account_manager = $request->input('account_manager');
+            $userInput->save();
 
             if (emailSendingStatus()) {
                 $this->sendWelcomeMail($userInput);
@@ -439,7 +440,13 @@ class ClientController extends AdvanceSearchController
     {
         try {
             $user = $this->user->where('id', $id)->first();
-            $user->fill($request->input())->save();
+            $user->fill($request->input());
+            $user->role = $request->input('role', $user->role);
+            $user->active = $request->input('active', $user->active);
+            $user->position = $request->input('position', $user->position);
+            $user->manager = $request->input('manager', $user->manager);
+            $user->account_manager = $request->input('account_manager', $user->account_manager);
+            $user->save();
 
             // \Session::put('test', 1000);
             return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));

@@ -20,6 +20,11 @@ class WhatsappController extends Controller
 
     public function __construct()
     {
+        $this->middleware('auth');
+        $this->middleware('admin',[
+            'except' => ['urlSave', 'saveAccessToken', 'saveWabaId', 'getWebhookUrl', 'webhookUrlEdit' , 'whatsappClientTable' , 'deregister'],
+        ]);
+
         $this->client = new Client();
         $this->base_url = config('whatsappurl.base_url');
         $this->api_version = config('whatsappurl.api_version');

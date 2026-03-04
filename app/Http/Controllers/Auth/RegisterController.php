@@ -188,29 +188,29 @@ class RegisterController extends Controller
                 'town' => $location['city'],
                 'password' => \Hash::make($request->input('password')),
                 'profile_pic' => '',
-                'active' => 1,
                 'mobile_verified' => 0,
                 'email_verified' => 0,
                 'mobile' => ltrim($request->input('mobile'), '0'),
                 'mobile_code' => $request->input('mobile_code'),
                 'mobile_country_iso' => $request->input('mobile_country_iso'),
                 'country' => $request->input('country'),
-                'role' => 'user',
                 'company' => strip_tags($request->input('company')),
                 'address' => strip_tags($request->input('address')),
                 'email' => strip_tags($request->input('email')),
                 'user_name' => strip_tags($request->input('email')),
                 'first_name' => strip_tags($request->input('first_name')),
                 'last_name' => strip_tags($request->input('last_name')),
-                'account_manager' => $accountManagerStatus ? $user->assignManagerByPosition('account_manager') : null,
-                'manager' => $salesManagerStatus ? $user->assignManagerByPosition('manager') : null,
                 'ip' => $location['ip'],
                 'timezone_id' => getTimezoneByName($location['timezone']),
                 'referrer' => Referer::get(),
-
             ];
 
             $userInput = User::create($user);
+            $userInput->active = 1;
+            $userInput->role = 'user';
+            $userInput->account_manager = $accountManagerStatus ? $userInput->assignManagerByPosition('account_manager') : null;
+            $userInput->manager = $salesManagerStatus ? $userInput->assignManagerByPosition('manager') : null;
+            $userInput->save();
 
             $need_verify = $this->getEmailMobileStatusResponse();
 

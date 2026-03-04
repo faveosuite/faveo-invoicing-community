@@ -297,6 +297,11 @@ class OrderController extends BaseOrderController
     {
         try {
             $order = $this->order->findOrFail($orderId);
+
+            if(!authorizeOwnership($order->client)){
+                return redirect()->back()->with('fails', __('messages.unauthorized_action'));
+            }
+
             $licenseStatus = StatusSetting::pluck('license_status')->first();
             $installationDetails = [];
 

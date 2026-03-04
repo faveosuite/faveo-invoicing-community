@@ -254,14 +254,15 @@ class LoginController extends Controller
                 'email' => $githubUser->getEmail(),
                 'user_name' => $githubUser->getEmail(),
                 'first_name' => $githubUser->getName(),
-                'active' => '1',
-                'role' => 'user',
                 'ip' => $location['ip'],
                 'timezone_id' => getTimezoneByName($location['timezone']),
                 'state' => $state['id'],
                 'town' => $location['city'],
                 'country' => Country::where('country_name', strtoupper($location['country']))->value('country_code_char2'),
             ]);
+            $user->active = 1;
+            $user->role = 'user';
+            $user->save();
         }
 
         if ($user && ($user->active == 1 && $user->mobile_verified !== 1)) {//check for mobile verification
