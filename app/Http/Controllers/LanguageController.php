@@ -9,10 +9,9 @@ use Illuminate\Support\Facades\File;
 
 class LanguageController extends Controller
 {
-
     public function __construct()
     {
-        $this->middleware(['auth', 'admin'] , ['except' => ['fetchLangDropdownUsers']]);
+        $this->middleware(['auth', 'admin'], ['except' => ['fetchLangDropdownUsers']]);
     }
 
     public function viewLanguage()
