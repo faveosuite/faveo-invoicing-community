@@ -2829,4 +2829,8 @@ return [
     'check_to_make_plan_active' => 'Wählen Sie dies aus, um diesen Plan zu aktivieren. Nur ein aktiver Plan ist pro Produkt und Zeitraum zulässig.',
     'active_plan_exists_simple' => 'Ein aktiver Plan existiert bereits für dieses Produkt und diesen Zeitraum. Bitte deaktivieren Sie ihn zuerst.',
     'unauthorized_action' => 'Sie haben nicht die erforderlichen Berechtigungen, um diese Aktion auszuführen.',
+
+    'attempt' => 'Versuch',
+    'sent_at' => 'Gesendet am',
+    'delivered_at' => 'Zugestellt am',
 ];

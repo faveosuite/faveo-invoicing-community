@@ -2824,4 +2824,8 @@ return [
     'check_to_make_plan_active' => 'Cochez pour rendre ce plan actif. Un seul plan actif est autorisé par produit et par période.',
     'active_plan_exists_simple' => 'Un plan actif existe déjà pour ce produit et cette période. Veuillez d\'abord le désactiver.',
     'unauthorized_action' => 'Vous ne disposez pas des autorisations nécessaires pour effectuer cette action.',
+
+    'attempt' => 'Tentative',
+    'sent_at' => 'Envoyé le',
+    'delivered_at' => 'Livré le',
 ];

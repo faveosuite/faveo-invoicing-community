@@ -2836,4 +2836,8 @@ return [
     'check_to_make_plan_active' => 'このプランを有効にするにはチェックを入れてください。製品および期間ごとに許可される有効なプランは1つだけです。',
     'active_plan_exists_simple' => 'この製品と期間には、すでに有効なプランが存在します。まずこれを無効にしてください。',
     'unauthorized_action' => 'この操作を実行するために必要な権限がありません。',
+
+    'attempt' => '試行',
+    'sent_at' => '送信日時',
+    'delivered_at' => '配信日時',
 ];

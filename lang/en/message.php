@@ -1149,6 +1149,9 @@ return [
     'failure_reason' => 'Failure Reason',
     'date_from' => 'Date From',
     'date_to' => 'Date To',
+    'attempt' => 'Attempt',
+    'sent_at' => 'Sent At',
+    'delivered_at' => 'Delivered At',
 
     'select_status' => 'Select Status',
     'delivered' => 'Delivered',

@@ -2798,4 +2798,8 @@ return [
     'check_to_make_plan_active' => 'Vink aan om dit plan actief te maken. Er is slechts één actief plan toegestaan per product en periode.',
     'active_plan_exists_simple' => 'Er bestaat al een actief plan voor dit product en deze periode. Schakel dit eerst uit.',
     'unauthorized_action' => 'U heeft niet de benodigde rechten om deze actie uit te voeren.',
+
+    'attempt' => 'Poging',
+    'sent_at' => 'Verzonden op',
+    'delivered_at' => 'Afgeleverd op',
 ];

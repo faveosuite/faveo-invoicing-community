@@ -2834,4 +2834,8 @@ return [
     'check_to_make_plan_active' => 'Đánh dấu để kích hoạt gói này. Chỉ cho phép một gói hoạt động cho mỗi sản phẩm và khoảng thời gian.',
     'active_plan_exists_simple' => 'Gói hoạt động đã tồn tại cho sản phẩm và khoảng thời gian này. Vui lòng vô hiệu hóa nó trước.',
     'unauthorized_action' => 'Bạn không có quyền cần thiết để thực hiện hành động này.',
+
+    'attempt' => 'Lần thử',
+    'sent_at' => 'Đã gửi lúc',
+    'delivered_at' => 'Đã giao lúc',
 ];

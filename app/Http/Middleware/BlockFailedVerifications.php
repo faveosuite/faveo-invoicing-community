@@ -55,7 +55,7 @@ class BlockFailedVerifications
                 // For login, use IP + login input for security
                 $loginInput = request()->input('email_username');
 
-                return (new LoginController())->getLoginRateLimitKey($loginInput);
+                return new LoginController()->getLoginRateLimitKey($loginInput);
 
             case 'verify':
             case '2fa':

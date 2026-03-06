@@ -133,8 +133,8 @@
                     <th>{{ __('message.attempt') }}</th>
                     <th>{{ __('message.status') }}</th>
                     <th>{{ __('message.failure_reason') }}</th>
-                    <th>{{ __('message.otp_sent_at') }}</th>
-                    <th>{{ __('message.otp_delivered_at') }}</th>
+                    <th>{{ __('message.sent_at') }}</th>
+                    <th>{{ __('message.delivered_at') }}</th>
                 </tr>
                 </thead>
             </table>
