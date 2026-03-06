@@ -96,7 +96,7 @@ class LoginController extends Controller
         $credentials = $this->buildCredentials($request);
 
         $rateLimitKey = $this->getLoginRateLimitKey($request->input('email_username'));
-        RateLimiter::hit("login-attempt:{$rateLimitKey}");
+        RateLimiter::hit("login-attempt:{$rateLimitKey}", 600);
 
         // 2. Attempt to authenticate the user
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {

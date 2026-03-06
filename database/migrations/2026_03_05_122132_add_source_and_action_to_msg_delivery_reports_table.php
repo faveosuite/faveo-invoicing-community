@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::table('msg_delivery_reports', function (Blueprint $table) {
             $table->string('source')->nullable()->after('country_iso');
             $table->string('action')->nullable()->after('source');
+            $table->dropUnique(['request_id']);
+            $table->index('request_id');
         });
     }
 
@@ -24,6 +26,8 @@ return new class extends Migration
     {
         Schema::table('msg_delivery_reports', function (Blueprint $table) {
             $table->dropColumn(['source', 'action']);
+            $table->dropIndex(['request_id']);
+            $table->unique('request_id');
         });
     }
 };

@@ -593,7 +593,7 @@
 
         // Resend OTP for new mobile number
         function resentOtpForMobile(type,btnResendOtpMob) {
-            let fullMobile = window.AppGlobals.newMobileFull;
+            let cleanPhone = window.AppGlobals.cleanPhone;
             let dialCode = window.AppGlobals.dialCode;
             let isoCode = window.AppGlobals.isoCode;
 
@@ -602,7 +602,7 @@
                 type: "POST",
                 data: {
                     _token: csrfToken,
-                    mobile_to_verify: fullMobile,
+                    mobile_to_verify: cleanPhone,
                     dial_code: dialCode,
                     type: type,
                     country_iso: isoCode

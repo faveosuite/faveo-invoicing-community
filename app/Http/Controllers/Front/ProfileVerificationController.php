@@ -41,7 +41,7 @@ class ProfileVerificationController extends BaseAuthController
             if ($newEmailOrExisting === $user->email) {
                 $emailType = $isMobile ? 'mobile' : 'old_email';
                 $this->sendActivationForEdit($user, $user->email, $method, $emailType);
-                RateLimiter::hit("email-otp:{$user->id}");
+                RateLimiter::hit("email-otp:{$user->id}", 600);
 
                 return successResponse(__('message.otp_code_sent_exist'));
             }
@@ -61,7 +61,7 @@ class ProfileVerificationController extends BaseAuthController
 
             // Send new activation email
             $this->sendActivationForEdit($user, $newEmailOrExisting, $method, 'new_email');
-            RateLimiter::hit("email-otp:{$user->id}");
+            RateLimiter::hit("email-otp:{$user->id}", 600);
 
             return successResponse(
                 $method === 'GET'
@@ -159,7 +159,7 @@ class ProfileVerificationController extends BaseAuthController
 
             $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
 
-            RateLimiter::hit('email-verify:'.auth()->id());
+            RateLimiter::hit('email-verify:'.auth()->id(), 600);
 
             if (! $account || $account->token !== $otp) {
                 return errorResponse(__('message.email_verification.invalid_token'));
@@ -268,7 +268,7 @@ class ProfileVerificationController extends BaseAuthController
                 $responseNewMobileOtp = app(SmsOtpController::class)->sendOtp($fullMobile, auth()->id(), 'profile-update', $mobileInfo);
             }
 
-            RateLimiter::hit('mobile-otp:'.auth()->id());
+            RateLimiter::hit('mobile-otp:'.auth()->id(), 600);
 
             if ($responseNewMobileOtp['type'] === 'error') {
                 return errorResponse($responseNewMobileOtp['message']);
@@ -357,7 +357,7 @@ class ProfileVerificationController extends BaseAuthController
             }
 
             $response = app(SmsOtpController::class)->sendVerifyOTP($otp, $mobile, auth()->id(), 'profile-update');
-            RateLimiter::hit('mobile-verify:'.auth()->id());
+            RateLimiter::hit('mobile-verify:'.auth()->id(), 600);
 
             if (! isset($response['type']) || $response['type'] !== 'success') {
                 return errorResponse($response['message'] ?? __('message.otp_invalid'));

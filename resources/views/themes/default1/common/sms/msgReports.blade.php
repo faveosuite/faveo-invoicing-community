@@ -69,19 +69,19 @@
                                     @foreach($sources as $source)
                                         <option value="{{ $source }}"
                                                 {{ request('source') === (string) $source ? 'selected' : '' }}>
-                                            {{ ucfirst(str_replace('_', ' ', $source)) }}
+                                            {{ ucwords(str_replace(['_', '-'], ' ', $source)) }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="col-md-3 form-group">
-                                <label for="action">{{ __('message.action') }}</label>
+                                <label for="action">{{ __('message.attempt') }}</label>
                                 <select name="action" class="form-control">
-                                    <option value="">{{ __('message.select') }} {{ __('message.action') }}</option>
+                                    <option value="">{{ __('message.select') }} {{ __('message.attempt') }}</option>
                                     @foreach($actions as $action)
                                         <option value="{{ $action }}"
                                                 {{ request('action') === (string) $action ? 'selected' : '' }}>
-                                            {{ ucfirst(str_replace('_', ' ', $action)) }}
+                                            {{ ucwords(str_replace(['_', '-'], ' ', $action)) }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -130,11 +130,11 @@
                     <th>{{ __('message.email') }}</th>
                     <th>{{ __('message.mobile_number') }}</th>
                     <th>{{ __('message.source') }}</th>
-                    <th>{{ __('message.action') }}</th>
+                    <th>{{ __('message.attempt') }}</th>
                     <th>{{ __('message.status') }}</th>
                     <th>{{ __('message.failure_reason') }}</th>
-                    <th>{{ __('message.date') }}</th>
-                    <th>{{ __('message.created_at') }}</th>
+                    <th>{{ __('message.otp_sent_at') }}</th>
+                    <th>{{ __('message.otp_delivered_at') }}</th>
                 </tr>
                 </thead>
             </table>
@@ -234,7 +234,7 @@
                                 return '---';
                             }
 
-                            return data.replace(/_/g, ' ');
+                            return data.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
                         }
                     },
                     {
@@ -245,7 +245,19 @@
                                 return '---';
                             }
 
-                            return data.replace(/_/g, ' ');
+                            const ordinals = ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
+                            if (data === 'send') {
+                                return 'First OTP sent';
+                            }
+
+                            const match = data.match(/^retry_(\d+)$/);
+                            if (match) {
+                                const num = parseInt(match[1]);
+                                const label = ordinals[num - 1] || `#${num}`;
+                                return `${label} retry`;
+                            }
+
+                            return data.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
                         }
                     },
                     {
@@ -267,13 +279,13 @@
                             return data ? `<span>${data}</span>` : '---';
                         }
                     },
-                    {data: 'date', name: 'date'},
                     {
                         data: 'created_at',
                         name: 'created_at',
-                    }
+                    },
+                    {data: 'date', name: 'date'}
                 ],
-                order: [[9, 'desc']],
+                order: [[8, 'desc']],
                 drawCallback: function(settings) {
                     $('[data-toggle="tooltip"]').tooltip({
                         container: 'body'

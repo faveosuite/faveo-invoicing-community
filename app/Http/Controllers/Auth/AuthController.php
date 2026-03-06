@@ -163,7 +163,7 @@ class AuthController extends BaseAuthController
 
             $response = app(SmsOtpController::class)->sendOtp($user->mobile_code.$user->mobile, $user->id, 'registration-verify');
 
-            RateLimiter::hit("mobile-otp:{$user->id}");
+            RateLimiter::hit("mobile-otp:{$user->id}", 600);
 
             $this->updateVerificationAttempts($user, 'mobile');
 
@@ -207,7 +207,7 @@ class AuthController extends BaseAuthController
 
             $response = app(SmsOtpController::class)->sendForReOtp($user->mobile_code.$user->mobile, $type, $user->id, 'registration-verify');
 
-            RateLimiter::hit("mobile-otp:{$user->id}");
+            RateLimiter::hit("mobile-otp:{$user->id}", 600);
 
             $this->updateVerificationAttempts($user, 'mobile');
 
@@ -244,7 +244,7 @@ class AuthController extends BaseAuthController
 
             $this->sendActivation($email, $method);
 
-            RateLimiter::hit("email-otp:{$user->id}");
+            RateLimiter::hit("email-otp:{$user->id}", 600);
 
             $this->updateVerificationAttempts($user, 'email');
 
@@ -282,7 +282,7 @@ class AuthController extends BaseAuthController
             // Find the user by email
             $user = User::where('email', $email)->firstOrFail();
 
-            RateLimiter::hit("mobile-verify:{$user->id}");
+            RateLimiter::hit("mobile-verify:{$user->id}", 600);
 
             // Validate OTP
             if (! is_numeric($request->otp)) {
@@ -331,7 +331,7 @@ class AuthController extends BaseAuthController
 
             $user = User::where('email', $email)->firstOrFail();
 
-            RateLimiter::hit("email-verify:{$user->id}");
+            RateLimiter::hit("email-verify:{$user->id}", 600);
 
             $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
 
