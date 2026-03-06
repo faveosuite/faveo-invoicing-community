@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\ApiKey;
 use App\Http\Controllers\Common\PipedriveController;
+use App\Http\Controllers\Common\Sms\SmsOtpController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\License\LicenseController;
 use App\Jobs\AddUserToExternalService;
@@ -160,7 +161,7 @@ class AuthController extends BaseAuthController
                 return errorResponse(__('message.mobile_already_verified'));
             }
 
-            $response = $this->sendOtp($user->mobile_code.$user->mobile, $user->id);
+            $response = app(SmsOtpController::class)->sendOtp($user->mobile_code.$user->mobile, $user->id, 'registration-verify');
 
             RateLimiter::hit("mobile-otp:{$user->id}");
 
@@ -204,7 +205,7 @@ class AuthController extends BaseAuthController
 
             $user = User::where('email', $email)->firstOrFail();
 
-            $response = $this->sendForReOtp($user->mobile_code.$user->mobile, $type);
+            $response = app(SmsOtpController::class)->sendForReOtp($user->mobile_code.$user->mobile, $type, $user->id, 'registration-verify');
 
             RateLimiter::hit("mobile-otp:{$user->id}");
 
@@ -288,7 +289,7 @@ class AuthController extends BaseAuthController
                 return errorResponse(__('message.otp_invalid_format'));
             }
 
-            $response = $this->sendVerifyOTP($otp, $user->mobile_code.$user->mobile);
+            $response = app(SmsOtpController::class)->sendVerifyOTP($otp, $user->mobile_code.$user->mobile, $user->id, 'registration-verify');
             if ($response['type'] === 'error') {
                 return errorResponse($response['message']);
             }

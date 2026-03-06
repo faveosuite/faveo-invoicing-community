@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Admin\User;
 
+use App\Http\Controllers\Common\Sms\SmsOtpController;
 use App\Http\Controllers\Front\ProfileVerificationController;
 use App\Model\User\AccountActivate;
 use App\User;
@@ -191,14 +192,15 @@ class ProfileVerificationControllerTest extends DBTestCase
                 'message' => 'Request successfully completed',
             ]);
 
-        $this->profileVerificationController
-            ->shouldReceive('sendVerifyOTP')
+        $smsController = Mockery::mock(SmsOtpController::class);
+        $smsController->shouldReceive('sendVerifyOTP')
             ->once()
             ->with('123456', '8123456789')
             ->andReturn([
                 'type' => 'success',
                 'message' => __('message.otp_verified'),
             ]);
+        $this->app->instance(SmsOtpController::class, $smsController);
 
         // Step 1: Send OTP
         $response = $this->postJson('/newMobileNoVerify', [

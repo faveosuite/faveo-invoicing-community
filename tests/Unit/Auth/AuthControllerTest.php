@@ -4,6 +4,7 @@ namespace Tests\Unit\Auth;
 
 use App\ApiKey;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Common\Sms\SmsOtpController;
 use App\Model\User\AccountActivate;
 use App\User;
 use App\VerificationAttempt;
@@ -77,13 +78,14 @@ class AuthControllerTest extends TestCase
             'otp' => '123456',
         ]);
 
-        // Assume OTP verification succeeds
-        $this->authController->shouldReceive('sendVerifyOTP')
+        $smsController = Mockery::mock(SmsOtpController::class);
+        $smsController->shouldReceive('sendVerifyOTP')
             ->once()
             ->andReturn([
                 'type' => 'success',
                 'message' => __('message.otp_verified'),
             ]);
+        $this->app->instance(SmsOtpController::class, $smsController);
 
         $response = json_decode($this->authController->verifyOtp($request)->getContent());
 
@@ -101,12 +103,14 @@ class AuthControllerTest extends TestCase
             'otp' => '123456',
         ]);
 
-        $this->authController->shouldReceive('sendVerifyOTP')
+        $smsController = Mockery::mock(SmsOtpController::class);
+        $smsController->shouldReceive('sendVerifyOTP')
             ->once()
             ->andReturn([
                 'type' => 'error',
                 'message' => __('message.otp_invalid'),
             ]);
+        $this->app->instance(SmsOtpController::class, $smsController);
 
         $response = json_decode($this->authController->verifyOtp($request)->getContent());
 

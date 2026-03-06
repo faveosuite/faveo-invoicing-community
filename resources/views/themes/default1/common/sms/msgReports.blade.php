@@ -63,6 +63,30 @@
                                 </select>
                             </div>
                             <div class="col-md-3 form-group">
+                                <label for="source">{{ __('message.source') }}</label>
+                                <select name="source" class="form-control">
+                                    <option value="">{{ __('message.select') }} {{ __('message.source') }}</option>
+                                    @foreach($sources as $source)
+                                        <option value="{{ $source }}"
+                                                {{ request('source') === (string) $source ? 'selected' : '' }}>
+                                            {{ ucfirst(str_replace('_', ' ', $source)) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3 form-group">
+                                <label for="action">{{ __('message.action') }}</label>
+                                <select name="action" class="form-control">
+                                    <option value="">{{ __('message.select') }} {{ __('message.action') }}</option>
+                                    @foreach($actions as $action)
+                                        <option value="{{ $action }}"
+                                                {{ request('action') === (string) $action ? 'selected' : '' }}>
+                                            {{ ucfirst(str_replace('_', ' ', $action)) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3 form-group">
                                 <label for="failure_reason">{{ __('message.failure_reason') }}</label>
                                 <input type="text" name="failure_reason" class="form-control" value="{{ old('failure_reason', request('failure_reason')) }}">
                             </div>
@@ -105,6 +129,8 @@
                     <th>{{ __('message.user') }}</th>
                     <th>{{ __('message.email') }}</th>
                     <th>{{ __('message.mobile_number') }}</th>
+                    <th>{{ __('message.source') }}</th>
+                    <th>{{ __('message.action') }}</th>
                     <th>{{ __('message.status') }}</th>
                     <th>{{ __('message.failure_reason') }}</th>
                     <th>{{ __('message.date') }}</th>
@@ -136,6 +162,8 @@
                         d.mobile_number = $('input[name="mobile_number"]').val().replace(/\D/g, '');
                         d.country_iso = input.getAttribute('data-country-iso')?.toUpperCase();
                         d.status = $('select[name="status"]').val();
+                        d.source = $('select[name="source"]').val();
+                        d.action = $('select[name="action"]').val();
                         d.failure_reason = $('input[name="failure_reason"]').val();
                         d.date_from = $('input[name="date_from"]').val();
                         d.date_to = $('input[name="date_to"]').val();
@@ -199,6 +227,28 @@
                         }
                     },
                     {
+                        data: 'source',
+                        name: 'source',
+                        render: function(data) {
+                            if (!data || data === '---') {
+                                return '---';
+                            }
+
+                            return data.replace(/_/g, ' ');
+                        }
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        render: function(data) {
+                            if (!data || data === '---') {
+                                return '---';
+                            }
+
+                            return data.replace(/_/g, ' ');
+                        }
+                    },
+                    {
                         data: 'readable_status',
                         name: 'status',
                         render: function(data, type, row) {
@@ -223,7 +273,7 @@
                         name: 'created_at',
                     }
                 ],
-                order: [[7, 'desc']],
+                order: [[9, 'desc']],
                 drawCallback: function(settings) {
                     $('[data-toggle="tooltip"]').tooltip({
                         container: 'body'
@@ -235,6 +285,10 @@
                     const hasSearchParams = urlParams.has('request_id') ||
                         urlParams.has('mobile_number') ||
                         urlParams.has('status') ||
+                        urlParams.has('source') ||
+                        urlParams.has('action') ||
+                        urlParams.has('date_from') ||
+                        urlParams.has('date_to') ||
                         urlParams.has('date') ||
                         urlParams.has('failure_reason');
 
