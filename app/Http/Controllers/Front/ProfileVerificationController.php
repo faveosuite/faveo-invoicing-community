@@ -255,11 +255,17 @@ class ProfileVerificationController extends BaseAuthController
             $countryIso = $request->country_iso;
             $fullMobile = preg_replace('/\D/', '', $dialCode.$mobileNo);
 
+            $mobileInfo = [
+                'country_iso' => $countryIso,
+                'mobile' => $mobileNo,
+                'mobile_code' => $dialCode,
+            ];
+
             if ($isResend === 'GET') {
                 $type = $request->input('retry_type', 'text');
-                $responseNewMobileOtp = app(SmsOtpController::class)->sendForReOtp($fullMobile, $type, auth()->id(), 'profile-update');
+                $responseNewMobileOtp = app(SmsOtpController::class)->sendForReOtp($fullMobile, $type, auth()->id(), 'profile-update', $mobileInfo);
             } else {
-                $responseNewMobileOtp = $this->sendOtpForNewMobileNo($dialCode, $mobileNo, $countryIso);
+                $responseNewMobileOtp = app(SmsOtpController::class)->sendOtp($fullMobile, auth()->id(), 'profile-update', $mobileInfo);
             }
 
             RateLimiter::hit('mobile-otp:'.auth()->id());
@@ -280,15 +286,6 @@ class ProfileVerificationController extends BaseAuthController
         }
     }
 
-    /**
-     * Send OTP to a new mobile number via SmsOtpController.
-     */
-    public function sendOtpForNewMobileNo($dialCode, $mobileNo, $countryIso): array
-    {
-        $fullMobile = preg_replace('/\D/', '', $dialCode.$mobileNo);
-
-        return app(SmsOtpController::class)->sendOtp($fullMobile, auth()->id(), 'profile-update');
-    }
 
     /**
      * check mobile number already exist in the system.
