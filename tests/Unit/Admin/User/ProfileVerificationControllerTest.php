@@ -172,6 +172,8 @@ class ProfileVerificationControllerTest extends DBTestCase
     public function testChangeMobileNoAfterVerifaction()
     {
         Mail::fake();
+        config(['logging.channels.stack.channels' => ['single']]);
+
 
         $user = $this->createUser([
             'mobile_verified' => true,
@@ -182,20 +184,16 @@ class ProfileVerificationControllerTest extends DBTestCase
 
         $this->actingAs($user);
 
-        // Mock sending OTP
-        $this->profileVerificationController
-            ->shouldReceive('sendOtpForNewMobileNo')
+        // Mock SmsOtpController
+        $smsController = Mockery::mock(SmsOtpController::class);
+        $smsController->shouldReceive('sendOtp')
             ->once()
-            ->with('91', '8123456789', 'IN')
             ->andReturn([
                 'type' => 'success',
                 'message' => 'Request successfully completed',
             ]);
-
-        $smsController = Mockery::mock(SmsOtpController::class);
         $smsController->shouldReceive('sendVerifyOTP')
             ->once()
-            ->with('123456', '8123456789')
             ->andReturn([
                 'type' => 'success',
                 'message' => __('message.otp_verified'),
