@@ -59,8 +59,8 @@ class BlockFailedVerifications
 
             case 'verify':
             case '2fa':
-                // For verification/2fa, use user ID from session
-                $userId = \Session::get('verification_user_id');
+                // For verification/2fa, use authenticated user ID or session fallback (registration flow)
+                $userId = auth()->id() ?? \Session::get('verification_user_id');
 
                 return $userId ? (string) $userId : null;
 

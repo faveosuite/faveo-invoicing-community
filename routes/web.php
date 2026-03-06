@@ -4,7 +4,7 @@ use App\Http\Controllers\Api;
 use App\Http\Controllers\Auth;
 use App\Http\Controllers\Common;
 use App\Http\Controllers\Common\FileManagerController;
-use App\Http\Controllers\Common\MSG91Controller;
+use App\Http\Controllers\Common\Sms\MSG91Controller;
 use App\Http\Controllers\Common\PipedriveController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FreeTrailController;
@@ -659,7 +659,6 @@ Route::middleware('installAgora')->group(function () {
     Route::middleware(['blockFailedVerifications:verify', 'session.timeout:10,verify'])->group(function () {
         Route::get('verify/session-check', [Auth\AuthController::class, 'verifySession'])->name('verify.session.check');
         Route::post('otp/send', [Auth\AuthController::class, 'requestOtp']);
-        Route::post('otp/sendByAjax', [Auth\AuthController::class, 'requestOtpFromAjax']);
         Route::post('otp/verify', [Auth\AuthController::class, 'verifyOtp']);
         Route::post('email/verify', [Auth\AuthController::class, 'verifyEmail']);
         Route::post('resend_otp', [Auth\AuthController::class, 'retryOTP']);
@@ -672,11 +671,11 @@ Route::middleware('installAgora')->group(function () {
         Route::post('productExist', [Product\BaseProductController::class, 'productFileExist']);
         Route::post('updateInstallationStatus', [Product\BaseProductController::class, 'updateStatus']);
 //        it receive the reports form the MSG91
-        Route::post('msg91/reports/{app_key}/{app_secret}', [Common\MSG91Controller::class, 'handleReports'])->withoutMiddleware(['admin', 'auth']);
+        Route::post('msg91/reports/{app_key}/{app_secret}', [Common\Sms\MSG91Controller::class, 'handleReports'])->withoutMiddleware(['admin', 'auth']);
     });
 
-    Route::get('sms/reports', [Common\MSG91Controller::class, 'msg91Reports']);
-    Route::get('getMsgReports', [Common\MSG91Controller::class, 'getMsg91Reports']);
+    Route::get('sms/reports', [Common\Sms\MSG91Controller::class, 'msg91Reports']);
+    Route::get('getMsgReports', [Common\Sms\MSG91Controller::class, 'getMsg91Reports']);
     Route::get('msgThirdPartyUpdate/{thirdPartyId}', [MSG91Controller::class, 'getThirdPartyMsgDetails']);
 
     //preview image
@@ -688,15 +687,17 @@ Route::middleware('installAgora')->group(function () {
     Route::get('syncing/pipedriveFields', [PipedriveController::class, 'syncFields']);
     Route::post('pipedrive/get-dropdown', [PipedriveController::class, 'getDropdown']);
 
-    Route::post('emailUpdateEditProfile', [Front\ProfileVerificationController::class, 'sendNewEmailVerification']);
-    Route::post('otpVerifyForNewEmail', [Front\ProfileVerificationController::class, 'verifyOtpForEditEmail']);
+    Route::middleware(['blockFailedVerifications:verify'])->group(function () {
+        Route::post('emailUpdateEditProfile', [Front\ProfileVerificationController::class, 'sendNewEmailVerification']);
+        Route::post('otpVerifyForNewEmail', [Front\ProfileVerificationController::class, 'verifyOtpForEditEmail']);
+        Route::post('newMobileNoVerify', [Front\ProfileVerificationController::class, 'requestOtpForNewMobileNo']);
+        Route::post('verify/newMobileNoOtp', [Front\ProfileVerificationController::class, 'verifyOtpMobileNew']);
+        Route::post('resendOtp/email-mobile', [Front\ProfileVerificationController::class, 'resentOtpProfile']);
+    });
     Route::post('user/change-email', [Front\ProfileVerificationController::class, 'changeEmailOldToNew']);
     Route::post('check-email/exist', [Front\ProfileVerificationController::class, 'checkEmailExist']);
-    Route::post('newMobileNoVerify', [Front\ProfileVerificationController::class, 'requestOtpForNewMobileNo']);
     Route::post('mobileNoexist', [Front\ProfileVerificationController::class, 'checkMobileNoExist']);
-    Route::post('verify/newMobileNoOtp', [Front\ProfileVerificationController::class, 'verifyOtpMobileNew']);
     Route::post('user/change-mobile-no', [Front\ProfileVerificationController::class, 'changeMobileOldToNew']);
-    Route::post('resendOtp/email-mobile', [Front\ProfileVerificationController::class, 'resentOtpProfile']);
 });
 /*
 * Faveo APIs

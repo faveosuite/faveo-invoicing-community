@@ -3,7 +3,7 @@
 namespace Tests\Unit\Common;
 
 use App\ApiKey;
-use App\Http\Controllers\Common\MSG91Controller;
+use App\Http\Controllers\Common\Sms\MSG91Controller;
 use App\Model\Common\MsgDeliveryReports;
 use App\ThirdPartyApp;
 use App\User;

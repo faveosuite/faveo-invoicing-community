@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Common;
+namespace App\Http\Controllers\Common\Sms;
 
 use App\ApiKey;
 use App\Http\Controllers\Controller;
@@ -66,33 +66,97 @@ class MSG91Controller extends Controller
      */
     protected function processIndividualReport(array $reportData)
     {
-        MsgDeliveryReports::where('request_id', $reportData['request_id'])
-            ->update([
+        $record = MsgDeliveryReports::where('request_id', $reportData['request_id'])
+            ->where('status', 0)
+            ->oldest()
+            ->first();
+
+        if ($record) {
+            $record->update([
                 'status' => $reportData['status'],
                 'date' => $reportData['date'],
                 'failure_reason' => $reportData['failure_reason'],
             ]);
+        }
     }
 
-    public function updateOtpRequest($requestId, $status, $country_iso, $mobile, $mobile_code, $userID = null)
+    public function updateOtpRequest($requestId, $status, $country_iso, $mobile, $mobile_code, $userID = null, $source = null, $action = null)
     {
-        MsgDeliveryReports::updateOrCreate(
-            ['request_id' => $requestId],
-            [
-                'user_id' => $userID,
-                'status' => $status,
-                'country_iso' => $country_iso,
-                'mobile_number' => $mobile,
-                'mobile_code' => $mobile_code,
-            ]
-        );
+        $attributes = [
+            'user_id' => $userID,
+            'status' => $status,
+            'country_iso' => $country_iso,
+            'mobile_number' => $mobile,
+            'mobile_code' => $mobile_code,
+            'source' => $source,
+            'action' => $action,
+        ];
+
+        if ($requestId) {
+            MsgDeliveryReports::updateOrCreate(
+                ['request_id' => $requestId],
+                $attributes
+            );
+        } else {
+            MsgDeliveryReports::create($attributes);
+        }
+    }
+
+    /**
+     * Create a new retry row for the OTP request.
+     *
+     * Each retry gets its own row so webhook delivery status is tracked independently.
+     */
+    public function appendOtpRetry(array $response, string $countryIso, string $mobile, string $mobileCode, int $userID, string $source): void
+    {
+        $requestId = $response['body']['request_id'] ?? null;
+
+        if (! $requestId) {
+            $requestId = MsgDeliveryReports::where('user_id', $userID)
+                ->where('source', $source)
+                ->latest()
+                ->value('request_id');
+        }
+
+        if (! $requestId) {
+            return;
+        }
+
+        $retryCount = MsgDeliveryReports::where('request_id', $requestId)
+            ->where('action', 'like', 'retry_%')
+            ->count() + 1;
+
+        MsgDeliveryReports::create([
+            'request_id' => $requestId,
+            'status' => 0,
+            'country_iso' => $countryIso,
+            'mobile_number' => $mobile,
+            'mobile_code' => $mobileCode,
+            'user_id' => $userID,
+            'source' => $source,
+            'action' => 'retry_'.$retryCount,
+        ]);
     }
 
     public function msg91Reports()
     {
         $status = Msg91Status::orderBy('status_label')->get();
+        $sources = MsgDeliveryReports::query()
+            ->whereNotNull('source')
+            ->where('source', '!=', '')
+            ->select('source')
+            ->distinct()
+            ->orderBy('source')
+            ->pluck('source');
+        $actions = MsgDeliveryReports::query()
+            ->whereNotNull('action')
+            ->where('action', '!=', '')
+            ->select('action')
+            ->distinct()
+            ->orderBy('action')
+            ->pluck('action');
 
-        return view('themes.default1.common.sms.msgReports', compact('status'));
+        return view('themes.default1.common.sms.msgReports', compact('status', 'sources', 'actions'));
     }
 
     public function getMsg91Reports(Request $request)
@@ -108,6 +172,12 @@ class MSG91Controller extends Controller
             })
             ->addColumn('user.email', function ($model) {
                 return $model->user ? $model->user->email : '---';
+            })
+            ->addColumn('source', function ($model) {
+                return $model->source ?: '---';
+            })
+            ->addColumn('action', function ($model) {
+                return $model->action ?: '---';
             })
             ->addColumn('readable_status', function ($model) {
                 return $model->readableStatus ? $model->readableStatus->status_label : '---';
@@ -139,6 +209,12 @@ class MSG91Controller extends Controller
             ->filterColumn('request_id', function ($query, $keyword) {
                 $query->where('request_id', 'like', "%{$keyword}%");
             })
+            ->filterColumn('source', function ($query, $keyword) {
+                $query->where('source', 'like', "%{$keyword}%");
+            })
+            ->filterColumn('action', function ($query, $keyword) {
+                $query->where('action', 'like', "%{$keyword}%");
+            })
             ->filterColumn('status', function ($query, $keyword) {
                 $normalizedKeyword = ucfirst(strtolower($keyword));
 
@@ -159,6 +235,8 @@ class MSG91Controller extends Controller
             // Sorting
             ->orderColumn('request_id', 'request_id $1')
             ->orderColumn('mobile_number', 'mobile_number $1')
+            ->orderColumn('source', 'source $1')
+            ->orderColumn('action', 'action $1')
             ->orderColumn('status', function ($query, $direction) {
                 $query->leftJoin('msg91_statuses as ms', 'msg_delivery_reports.status', '=', 'ms.status_code')
                     ->orderBy('ms.status_label', $direction)
@@ -202,6 +280,8 @@ class MSG91Controller extends Controller
         });
 
         $query->when($request->filled('failure_reason'), fn ($q) => $q->where('failure_reason', 'like', '%'.$request->input('failure_reason').'%'));
+        $query->when($request->filled('source'), fn ($q) => $q->where('source', $request->input('source')));
+        $query->when($request->filled('action'), fn ($q) => $q->where('action', $request->input('action')));
 
         $query->when($request->filled('status'), function ($q) use ($request) {
             $q->whereHas('readableStatus', function ($subQuery) use ($request) {

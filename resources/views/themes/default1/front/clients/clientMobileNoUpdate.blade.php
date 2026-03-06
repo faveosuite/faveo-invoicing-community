@@ -205,6 +205,7 @@
             dialCode: null,
             isoCode: null,
             cleanPhone: null,
+            emailVerificationRequired: false,
         };
         // Open the New Mobile Modal
         $('#editMobileBtn').on('click', function() {
@@ -314,6 +315,8 @@
                     country_iso: isoCode
                 },
                 success: function (response) {
+                    window.AppGlobals.emailVerificationRequired = response.data.email_verification_required ?? false;
+
                     if (response.data.mobile_verification_required === false) {
                         changeMobileFinal();
                     }
@@ -418,9 +421,13 @@
                     $("#verifyOtpMobileBtn").prop("disabled", true).text("{{ __('message.2fa_verifying') }}");
                 },
                 success: function (response) {
-                    let existEmailVal = $('#existEmail').val();
                     if (response.success) {
-                        sentOtpCodeToAuthEmail(existEmailVal);
+                        if (window.AppGlobals.emailVerificationRequired) {
+                            let existEmailVal = $('#existEmail').val();
+                            sentOtpCodeToAuthEmail(existEmailVal);
+                        } else {
+                            changeMobileFinal();
+                        }
                     }
                     else {
                         $("#verifyOtpMobileBtn").prop("disabled", false).text("{{ __('message.verify') }}");
@@ -747,7 +754,7 @@
         }
 
 
-        const RESEND_DURATION = 60; // 1 min lock
+        const RESEND_DURATION = 120; // 1 min lock
 
         function updateTimer(display, countdown) {
             display.textContent = countdown.toString().padStart(2, '0') + " seconds";
