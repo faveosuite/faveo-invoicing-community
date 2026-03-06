@@ -67,8 +67,8 @@ class SmsOtpController extends Controller
             ])
                 ->withOptions([
                     'curl' => [
-                        CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4
-                    ]
+                        CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                    ],
                 ])
                 ->send($method, $url, [
                     'query' => $queryParams,
@@ -80,6 +80,7 @@ class SmsOtpController extends Controller
             ];
         } catch (\Exception $e) {
             \Logger::exception($e);
+
             return $this->errorPayload('There was an error processing your request');
         }
     }
@@ -88,7 +89,7 @@ class SmsOtpController extends Controller
      * Send OTP to a mobile number via MSG91.
      *
      * @param  string  $mobile  Full mobile number with country code (e.g. "919876543210")
-     * @param int|null $userID  Optional user ID for tracking the OTP request in delivery reports
+     * @param  int|null  $userID  Optional user ID for tracking the OTP request in delivery reports
      * @return array{type: string, message: string}
      */
     public function sendOtp(string $mobile, ?int $userID = null, string $source = 'register'): array
