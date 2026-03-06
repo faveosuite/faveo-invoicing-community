@@ -92,7 +92,7 @@ class SmsOtpController extends Controller
      * @param  int|null  $userID  Optional user ID for tracking the OTP request in delivery reports
      * @return array{type: string, message: string}
      */
-    public function sendOtp(string $mobile, ?int $userID = null, string $source = 'register'): array
+    public function sendOtp(string $mobile, ?int $userID = null, string $source = 'register', array $mobileInfo = []): array
     {
         $mobile = $this->sanitizeMobile($mobile);
         $credentials = $this->getCredentials();
@@ -107,7 +107,7 @@ class SmsOtpController extends Controller
 
         $response = $this->makeRequest('POST', self::BASE_URL, $queryParams);
 
-        $this->trackOtpRequest($response, $userID, $source, 'send');
+        $this->trackOtpRequest($response, $userID, $source, 'send', $mobileInfo);
 
         return $this->responseHandler($response);
     }
@@ -119,7 +119,7 @@ class SmsOtpController extends Controller
      * @param  string  $type  Retry type: 'text' for SMS, 'voice' for voice call
      * @return array{type: string, message: string}
      */
-    public function sendForReOtp(string $mobile, string $type, $userID = null, string $source = 'register'): array
+    public function sendForReOtp(string $mobile, string $type, $userID = null, string $source = 'register', array $mobileInfo = []): array
     {
         $mobile = $this->sanitizeMobile($mobile);
 
@@ -130,7 +130,7 @@ class SmsOtpController extends Controller
 
         $response = $this->makeRequest('GET', self::BASE_URL.'/retry', $queryParams);
 
-        $this->trackOtpRequest($response, $userID, $source, 'resend');
+        $this->trackOtpRequest($response, $userID, $source, 'resend', $mobileInfo);
 
         return $this->responseHandler($response);
     }
@@ -196,16 +196,27 @@ class SmsOtpController extends Controller
      * On 'send': creates a new record with action = 'send'.
      * On 'resend': appends retry attempt to the same record (e.g. 'send, retry_1').
      */
-    protected function trackOtpRequest(array $response, $userID, string $source, string $action): void
+    protected function trackOtpRequest(array $response, $userID, string $source, string $action, array $mobileInfo = []): void
     {
         if (! $userID) {
             return;
         }
 
-        $user = User::select('mobile_country_iso', 'mobile', 'mobile_code')->find($userID);
+        // Use provided mobile info (e.g. profile update with new number), or fall back to user's saved mobile
+        if ($mobileInfo) {
+            $countryIso = $mobileInfo['country_iso'];
+            $mobileNumber = $mobileInfo['mobile'];
+            $mobileCode = $mobileInfo['mobile_code'];
+        } else {
+            $user = User::select('mobile_country_iso', 'mobile', 'mobile_code')->find($userID);
 
-        if (! $user) {
-            return;
+            if (! $user) {
+                return;
+            }
+
+            $countryIso = $user->mobile_country_iso;
+            $mobileNumber = $user->mobile;
+            $mobileCode = $user->mobile_code;
         }
 
         try {
@@ -214,9 +225,9 @@ class SmsOtpController extends Controller
             if ($action === 'resend') {
                 $controller->appendOtpRetry(
                     $response,
-                    $user->mobile_country_iso,
-                    $user->mobile,
-                    $user->mobile_code,
+                    $countryIso,
+                    $mobileNumber,
+                    $mobileCode,
                     $userID,
                     $source
                 );
@@ -224,9 +235,9 @@ class SmsOtpController extends Controller
                 $controller->updateOtpRequest(
                     $response['body']['request_id'] ?? null,
                     0,
-                    $user->mobile_country_iso,
-                    $user->mobile,
-                    $user->mobile_code,
+                    $countryIso,
+                    $mobileNumber,
+                    $mobileCode,
                     $userID,
                     $source,
                     'send'
