@@ -9,7 +9,6 @@ use App\Model\Mailjob\ActivityLogDay;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Traits\ApiKeySettings;
 use Carbon\Carbon;
-use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 
@@ -136,18 +135,11 @@ class BaseSettingsController extends PaymentSettingsController
                 $performedBy = (array) request()->performed_by;
                 $query->whereIn('activity_log.causer_id', $performedBy);
             })
-            ->when($from || $till, function ($query) use ($from, $till) {
-                $from = $from
-                    ? Carbon::parse($from)->startOfDay()
-                    : CarbonImmutable::startOfTime();
-
-                $till = $till
-                    ? Carbon::parse($till)->endOfDay()
-                    : Carbon::now();
-
-                if ($from->lessThanOrEqualTo($till)) {
-                    $query->whereBetween('activity_log.created_at', [$from, $till]);
-                }
+            ->when($from, function ($query) use ($from) {
+                $query->where('activity_log.created_at', '>=', Carbon::parse($from)->startOfDay());
+            })
+            ->when($till, function ($query) use ($till) {
+                $query->where('activity_log.created_at', '<=', Carbon::parse($till)->endOfDay());
             });
     }
 

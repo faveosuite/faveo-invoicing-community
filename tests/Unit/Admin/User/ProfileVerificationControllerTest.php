@@ -2,11 +2,12 @@
 
 namespace Tests\Unit\Admin\User;
 
+use App\Http\Controllers\Common\Sms\SmsOtpController;
 use App\Http\Controllers\Front\ProfileVerificationController;
+use App\Model\Common\StatusSetting;
 use App\Model\User\AccountActivate;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Mockery;
 use Tests\DBTestCase;
@@ -38,7 +39,6 @@ class ProfileVerificationControllerTest extends DBTestCase
     {
         Mail::fake();
 
-        //Create & authenticate user
         $user = User::factory()->create([
             'email' => 'old@example.com',
             'email_verified' => 0,
@@ -48,8 +48,8 @@ class ProfileVerificationControllerTest extends DBTestCase
 
         $newEmail = 'new@example.com';
 
-        // Request OTP
-        $this->postJson('/emailUpdateEditProfile', [
+        // Send OTP to new email
+        $this->postJson('/profile/email/send-otp', [
             'email_to_verify' => $newEmail,
         ])->assertStatus(200);
 
@@ -58,22 +58,17 @@ class ProfileVerificationControllerTest extends DBTestCase
         $this->assertNotNull($record, 'OTP record not created');
         $otp = $record->token;
 
-        // Verify OTP
-        $this->postJson('/otpVerifyForNewEmail', [
+        // Verify OTP — should auto-update email
+        $this->postJson('/profile/email/verify-otp', [
             'email_to_verify' => $newEmail,
             'otp' => $otp,
-        ])->assertStatus(200)
-            ->assertJson([
-                'message' => __('message.email_verification.email_verified'),
-            ]);
-
-        // Change email
-        $this->postJson('/user/change-email', [
-            'newEmail' => $newEmail,
+            'verify_type' => 'new_email',
         ])->assertStatus(200)
             ->assertJson([
                 'message' => __('message.new_email_updated'),
-            ]);
+            ])
+            ->assertJsonPath('data.email_updated', true)
+            ->assertJsonPath('data.email', $newEmail);
 
         // Assert DB updated
         $this->assertDatabaseHas('users', [
@@ -83,13 +78,12 @@ class ProfileVerificationControllerTest extends DBTestCase
     }
 
     /**
-     * Check wrong OTP case for old email.
+     * Test wrong OTP for new email verification.
      */
-    public function testCheckwithWrognOtpCodeForNewEmailVerification()
+    public function test_wrong_otp_for_new_email_verification()
     {
         Mail::fake();
 
-        // Create & authenticate user
         $user = User::factory()->create([
             'email' => 'old@example.com',
             'email_verified' => 0,
@@ -99,38 +93,32 @@ class ProfileVerificationControllerTest extends DBTestCase
 
         $newEmail = 'new@example.com';
 
-        // Request OTP
-        $this->postJson('/emailUpdateEditProfile', [
+        // Send OTP
+        $this->postJson('/profile/email/send-otp', [
             'email_to_verify' => $newEmail,
         ])->assertStatus(200);
 
-        // OTP should be stored in DB
         $record = AccountActivate::where('email', $newEmail)->first();
         $this->assertNotNull($record, 'OTP record not created');
-        $otp = $record->token;
 
-        // Try verifying with WRONG OTP
-        $response = $this->postJson('/otpVerifyForNewEmail', [
+        // Verify with wrong OTP
+        $this->postJson('/profile/email/verify-otp', [
             'email_to_verify' => $newEmail,
-            'otp' => '192922', // wrong OTP
-        ]);
-
-        // Assert the API gives correct error
-        $response->assertStatus(400)
-        ->assertJson([
-            'success' => false,
-            'message' => __('message.email_verification.invalid_token'),
-        ]);
+            'otp' => '192922',
+        ])->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => __('message.email_verification.invalid_token'),
+            ]);
     }
 
     /**
-     * Check wrong OTP case for old email.
+     * Test wrong OTP for old email verification.
      */
-    public function testCheckwithWrognOtpCodeForOldEmailVerification()
+    public function test_wrong_otp_for_old_email_verification()
     {
         Mail::fake();
 
-        // Create & authenticate user
         $user = User::factory()->create([
             'email' => 'old@example.com',
             'email_verified' => 0,
@@ -140,18 +128,16 @@ class ProfileVerificationControllerTest extends DBTestCase
 
         $newEmail = 'new@example.com';
 
-        // Request OTP
-        $this->postJson('/emailUpdateEditProfile', [
+        // Send OTP
+        $this->postJson('/profile/email/send-otp', [
             'email_to_verify' => $newEmail,
         ])->assertStatus(200);
 
-        // OTP should be stored in DB
         $record = AccountActivate::where('email', $newEmail)->first();
         $this->assertNotNull($record, 'OTP record not created');
-        $otp = $record->token;
 
-        // Verify OTP
-        $this->postJson('/otpVerifyForNewEmail', [
+        // First wrong OTP attempt
+        $this->postJson('/profile/email/verify-otp', [
             'email_to_verify' => $newEmail,
             'otp' => '911111',
         ])->assertStatus(400)
@@ -159,16 +145,100 @@ class ProfileVerificationControllerTest extends DBTestCase
                 'message' => __('message.email_verification.invalid_token'),
             ]);
 
-        $response = $this->postJson('/otpVerifyForNewEmail', [
+        // Second wrong OTP attempt
+        $this->postJson('/profile/email/verify-otp', [
             'email_to_verify' => $newEmail,
-            'otp' => '192922', // wrong OTP
-        ]);
+            'otp' => '192922',
+        ])->assertStatus(400);
     }
 
     /**
-     * @return void testChange mobile number after verification
+     * Test mobile number change after verification.
      */
-    public function testChangeMobileNoAfterVerifaction()
+    public function test_user_can_change_mobile_after_verification()
+    {
+        Mail::fake();
+
+        StatusSetting::updateOrCreate(
+            ['id' => 1],
+            [
+                'emailverification_status' => 1,
+                'msg91_status' => 1,
+                'recaptcha_status' => 0,
+            ]
+        );
+
+        $user = $this->createUser([
+            'mobile_verified' => true,
+            'mobile' => 9123456789,
+            'mobile_country_iso' => 'IN',
+            'mobile_code' => 91,
+        ]);
+
+        $this->actingAs($user);
+
+        // Mock SmsOtpController
+        $smsController = Mockery::mock(SmsOtpController::class);
+        $smsController->shouldReceive('sendOtp')
+            ->once()
+            ->andReturn([
+                'type' => 'success',
+                'message' => 'Request successfully completed',
+            ]);
+        $smsController->shouldReceive('sendVerifyOTP')
+            ->once()
+            ->andReturn([
+                'type' => 'success',
+                'message' => __('message.otp_verified'),
+            ]);
+        $this->app->instance(SmsOtpController::class, $smsController);
+
+        $newMobile = '8123456789';
+        $dialCode = '91';
+        $countryIso = 'IN';
+
+        // Step 1: Send mobile OTP
+        $this->postJson('/profile/mobile/send-otp', [
+            'mobile_to_verify' => $newMobile,
+            'dial_code' => $dialCode,
+            'country_iso' => $countryIso,
+        ])->assertStatus(200);
+
+        // Step 2: Verify mobile OTP — stores verified mobile in session
+        $this->postJson('/profile/mobile/verify-otp', [
+            'mobile_to_verify' => $newMobile,
+            'otp' => '123456',
+            'new_mobile' => $newMobile,
+            'dial_code' => $dialCode,
+            'country_iso' => $countryIso,
+        ])->assertStatus(200)
+            ->assertJsonPath('data.email_verification_required', true);
+
+        // Step 3: Send email OTP for confirmation
+        $this->postJson('/profile/email/send-otp', [
+            'email_to_verify' => $user->email,
+        ])->assertStatus(200);
+
+        $record = AccountActivate::where('email', $user->email)->first();
+        $this->assertNotNull($record, 'OTP record not created');
+        $otp = $record->token;
+
+        // Step 4: Verify email OTP — mobile data comes from session, not request
+        $this->postJson('/profile/email/verify-otp', [
+            'email_to_verify' => $user->email,
+            'otp' => $otp,
+            'verify_type' => 'mobile_email',
+        ])->assertStatus(200)
+            ->assertJson([
+                'message' => __('message.new_mobile_no_updated'),
+            ])
+            ->assertJsonPath('data.mobile_updated', true);
+    }
+
+    /**
+     * Test mobile_email verify fails without prior mobile OTP verification.
+     */
+    public function test_mobile_email_verify_fails_without_mobile_otp()
     {
         Mail::fake();
 
@@ -181,42 +251,8 @@ class ProfileVerificationControllerTest extends DBTestCase
 
         $this->actingAs($user);
 
-        // Mock sending OTP
-        $this->profileVerificationController
-            ->shouldReceive('sendOtpForNewMobileNo')
-            ->once()
-            ->with('91', '8123456789', 'IN')
-            ->andReturn([
-                'type' => 'success',
-                'message' => 'Request successfully completed',
-            ]);
-
-        $this->profileVerificationController
-            ->shouldReceive('sendVerifyOTP')
-            ->once()
-            ->with('123456', '8123456789')
-            ->andReturn([
-                'type' => 'success',
-                'message' => __('message.otp_verified'),
-            ]);
-
-        // Step 1: Send OTP
-        $response = $this->postJson('/newMobileNoVerify', [
-            'mobile_to_verify' => '8123456789',
-            'dial_code' => '91',
-            'country_iso' => 'IN',
-        ]);
-        $response->assertStatus(200);
-
-        // Step 2: Verify OTP
-        $verifyResponse = $this->postJson('/verify/newMobileNoOtp', [
-            'mobile_to_verify' => '8123456789',
-            'otp' => '123456',
-        ]);
-        $verifyResponse->assertStatus(200);
-
-        // Step 3: Request email OTP
-        $this->postJson('/emailUpdateEditProfile', [
+        // Send email OTP
+        $this->postJson('/profile/email/send-otp', [
             'email_to_verify' => $user->email,
         ])->assertStatus(200);
 
@@ -224,30 +260,21 @@ class ProfileVerificationControllerTest extends DBTestCase
         $this->assertNotNull($record, 'OTP record not created');
         $otp = $record->token;
 
-        // Step 4: Verify email OTP
-        $this->postJson('/otpVerifyForNewEmail', [
+        // Try to verify with mobile_email type without prior mobile OTP — should fail
+        $this->postJson('/profile/email/verify-otp', [
             'email_to_verify' => $user->email,
             'otp' => $otp,
-        ])->assertStatus(200)
+            'verify_type' => 'mobile_email',
+        ])->assertStatus(400)
             ->assertJson([
-                'message' => __('message.email_verification.email_verified'),
-            ]);
-
-        // Step 5: Change mobile number
-        $this->postJson('/user/change-mobile-no', [
-            'newMobile' => '8123456789',
-            'dial_code' => '91',
-            'country_iso' => 'IN',
-        ])->assertStatus(200)
-            ->assertJson([
-                'message' => __('message.new_mobile_no_updated'),
+                'message' => __('message.mobile_verification_required'),
             ]);
     }
 
     /**
-     * Check wrong OTP case for new email.
+     * Test wrong OTP for new email (alternate scenario).
      */
-    public function testCheckwithWrongOtpCodeForNewEmailVerification()
+    public function test_wrong_otp_rejected_for_new_email()
     {
         Mail::fake();
 
@@ -256,16 +283,16 @@ class ProfileVerificationControllerTest extends DBTestCase
 
         $newEmail = 'new@example.com';
 
-        $this->postJson('/emailUpdateEditProfile', [
+        $this->postJson('/profile/email/send-otp', [
             'email_to_verify' => $newEmail,
         ])->assertStatus(200);
 
         $record = AccountActivate::where('email', $newEmail)->first();
         $this->assertNotNull($record, 'OTP record not created');
 
-        $this->postJson('/otpVerifyForNewEmail', [
+        $this->postJson('/profile/email/verify-otp', [
             'email_to_verify' => $newEmail,
-            'otp' => '999999', // wrong OTP
+            'otp' => '999999',
         ])->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -274,29 +301,30 @@ class ProfileVerificationControllerTest extends DBTestCase
     }
 
     /**
-     * Check email already exists validation.
+     * Test duplicate email is rejected during send OTP.
      */
-    public function testCheckEmailExistOrNot()
+    public function test_duplicate_email_rejected_on_send_otp()
     {
         $user = $this->createUser([
             'email' => 'old@example.com',
             'email_verified' => 0,
         ]);
 
-        $response = $this->postJson('/check-email/exist', [
-            'email' => $user->email,
-        ]);
+        $this->actingAs($user);
 
-        $response->assertStatus(400)
+        $this->postJson('/profile/email/send-otp', [
+            'email_to_verify' => $user->email,
+            'new_email' => $user->email,
+        ])->assertStatus(400)
             ->assertJson([
                 'message' => __('message.email_already_used'),
             ]);
     }
 
     /**
-     * Check mobile number already exists validation.
+     * Test duplicate mobile number is rejected during send OTP.
      */
-    public function testCheckMobileNoExist()
+    public function test_duplicate_mobile_rejected_on_send_otp()
     {
         $user = $this->createUser([
             'mobile' => '8123456789',
@@ -304,15 +332,42 @@ class ProfileVerificationControllerTest extends DBTestCase
             'mobile_country_iso' => 'IN',
         ]);
 
-        $response = $this->postJson('/mobileNoexist', [
+        $this->actingAs($user);
+
+        $this->postJson('/profile/mobile/send-otp', [
             'mobile_to_verify' => $user->mobile,
             'dial_code' => $user->mobile_code,
             'country_iso' => $user->mobile_country_iso,
-        ]);
-
-        $response->assertStatus(400)
+        ])->assertStatus(400)
             ->assertJson([
                 'message' => __('message.mobile_no_already_used'),
             ]);
+    }
+
+    /**
+     * Test invalid verify_type is rejected.
+     */
+    public function test_invalid_verify_type_rejected()
+    {
+        Mail::fake();
+
+        $user = $this->createUser(['email_verified' => 0]);
+        $this->actingAs($user);
+
+        $newEmail = 'new@example.com';
+
+        $this->postJson('/profile/email/send-otp', [
+            'email_to_verify' => $newEmail,
+        ])->assertStatus(200);
+
+        $record = AccountActivate::where('email', $newEmail)->first();
+        $this->assertNotNull($record, 'OTP record not created');
+
+        // Send invalid verify_type — should be rejected by validation
+        $this->postJson('/profile/email/verify-otp', [
+            'email_to_verify' => $newEmail,
+            'otp' => $record->token,
+            'verify_type' => 'hacked_type',
+        ])->assertStatus(422);
     }
 }

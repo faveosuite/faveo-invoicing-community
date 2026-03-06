@@ -2853,4 +2853,15 @@ return [
     'check_to_make_plan_active' => '이 요금제를 활성화하려면 선택하십시오. 제품 및 기간당 하나의 활성 요금제만 허용됩니다.',
     'active_plan_exists_simple' => '이 제품 및 기간에 대해 활성 요금제가 이미 존재합니다. 먼저 비활성화하십시오.',
     'unauthorized_action' => '이 작업을 수행하는 데 필요한 권한이 없습니다.',
+
+    'attempt' => '시도',
+    'sent_at' => '발송 시간',
+    'delivered_at' => '전달 시간',
+
+    'sms_service_disabled' => 'SMS 서비스가 현재 비활성화되어 있습니다.',
+
+    'method_not_allowed' => '허용되지 않는 메서드',
+    'invalid-api-endpoint' => '잘못된 API 엔드포인트',
+    'request_entity_too_large_maxsize' => '업로드 실패. 지원되는 최대 파일 크기는 :maxsize MB입니다 ',
+    'internal-server-error' => '내부 서버 오류',
 ];

@@ -3,16 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\ApiKey;
-use App\Http\Controllers\Common\MSG91Controller;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Country;
-use App\Model\Common\Setting;
 use App\Model\Common\State;
-use App\Model\Common\StatusSetting;
 use App\Model\User\AccountActivate;
 use App\User;
 use App\VerificationAttempt;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
 class BaseAuthController extends Controller
@@ -56,179 +52,6 @@ class BaseAuthController extends Controller
         }
     }
 
-    protected function makeRequest(string $method, string $url, array $queryParams = [])
-    {
-        $msgKey = ApiKey::find(1, ['msg91_auth_key', 'msg91_sender', 'msg91_template_id']);
-        $client = new Client();
-        $authKey = $msgKey->msg91_auth_key;
-
-        try {
-            $response = $client->request($method, $url, [
-                'headers' => [
-                    'authkey' => $authKey,
-                    'Content-Type' => 'application/json',
-                ],
-                'query' => $queryParams,
-            ]);
-
-            return [
-                'status' => $response->getStatusCode(),
-                'body' => json_decode($response->getBody(), true),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'status' => 200,
-                'body' => ['type' => 'error', 'message' => 'There was an error processing your request'],
-            ];
-        }
-    }
-
-    public function sendOtp(string $mobile, $userID = null): array
-    {
-        // Remove any non-numeric characters
-        $mobile = preg_replace('/\D/', '', $mobile);
-        $msgKey = ApiKey::find(1, ['msg91_auth_key', 'msg91_sender', 'msg91_template_id']);
-        $sender = $msgKey->msg91_sender;
-        $templateId = $msgKey->msg91_template_id;
-        $queryParams = [
-            'template_id' => $templateId,
-            'sender' => $sender,
-            'mobile' => $mobile,
-            'otp_length' => 6,
-            'otp_expiry' => 10,
-        ];
-
-        $response = $this->makeRequest('POST', 'https://api.msg91.com/api/v5/otp', $queryParams);
-
-        if (isset($response['body']['request_id'])) {
-            $user = User::select('mobile_country_iso', 'mobile', 'mobile_code')->find($userID);
-
-            if ($user) {
-                (new MSG91Controller())->updateOtpRequest(
-                    $response['body']['request_id'],
-                    0,
-                    $user->mobile_country_iso,
-                    $user->mobile,
-                    $user->mobile_code,
-                    $userID
-                );
-            }
-        }
-
-        return $this->responseHandler($response);
-    }
-
-    public function sendForReOtp(string $mobile, string $type): array
-    {
-        // Remove any non-numeric characters
-        $mobile = preg_replace('/\D/', '', $mobile);
-        $queryParams = [
-            'mobile' => $mobile,
-            'retrytype' => $type,
-        ];
-
-        $response = $this->makeRequest('GET', 'https://api.msg91.com/api/v5/otp/retry', $queryParams);
-
-        return $this->responseHandler($response);
-    }
-
-    public function sendVerifyOTP(string $otp, string $mobile): array
-    {
-        // Remove any non-numeric characters
-        $mobile = preg_replace('/\D/', '', $mobile);
-        $queryParams = [
-            'otp' => $otp,
-            'mobile' => $mobile,
-        ];
-
-        $response = $this->makeRequest('GET', 'https://api.msg91.com/api/v5/otp/verify', $queryParams);
-
-        return $this->responseHandler($response);
-    }
-
-    protected function responseHandler($response): array
-    {
-        if ($response['status'] === 200) {
-            if ($response['body']['type'] === 'error') {
-                return [
-                    'type' => 'error',
-                    'message' => $response['body']['message'],
-                ];
-            } elseif ($response['body']['type'] === 'success') {
-                return [
-                    'type' => 'success',
-                    'message' => 'Request successfully completed',
-                ];
-            }
-        }
-
-        return [
-            'type' => 'error',
-            'message' => __('message.msg_service_down'),
-        ];
-    }
-
-    /**
-     * Sends otp and email for confirmatiob.
-     */
-    public function requestOtpFromAjax(Request $request)
-    {
-        $this->validate($request, [
-            'verify_email' => 'sometimes|required|verify_email|email',
-            'verify_email' => 'sometimes|required||verify_country_code|numeric',
-            'verify_email' => 'sometimes|required|verify_number|numeric',
-        ]);
-        $email = $request->oldemail;
-        $newEmail = $request->newemail;
-        $number = ltrim($request->oldnumber, '0');
-        $newNumber = ltrim($request->newnumber, '0');
-        $newCode = $request->code;
-        $newCountry = $this->getNewCountry($newCode);
-        User::where('email', $email)->update(['email' => $newEmail, 'mobile' => $newNumber, 'mobile_code' => $newCode, 'country' => $newCountry]);
-
-        try {
-            $code = $request->input('code');
-            $mobile = ltrim($request->input('mobile'), '0');
-            $userid = $request->input('id');
-            $email = $request->input('email');
-            $pass = $request->input('password');
-            $number = '(+'.$code.') '.$mobile;
-            $mobileStatus = StatusSetting::pluck('msg91_status')->first();
-            $companyEmail = Setting::find(1)->company_email;
-            $msg1 = '';
-            $msg2 = '';
-            if ($mobileStatus == 1) {
-                $result = $this->sendOtp($mobile, $code);
-                $msg1 = __('message.otp_has_sent').$number.'.<br>'.__('message.enter_otp_received').' <a href=mailto:'.$companyEmail.'>'.$companyEmail.'</a>';
-            }
-            $method = 'POST';
-            $emailStatus = StatusSetting::pluck('emailverification_status')->first();
-            if ($emailStatus == 1) {
-                $this->sendActivation($email, $method, $pass);
-                $msg2 = 'Activation link has been sent to '.$email;
-            }
-            $user = User::where('email', $email)->first();
-            $emailAttempt = ($user->active == 1) ? 1 : 0;
-            $mobileAttempt = ($user->mobile_verified == 1) ? 1 : 0;
-
-            verificationAttempt::create([
-                'user_id' => $user->id,
-                'email_attempt' => $emailAttempt,
-                'mobile_attempt' => $mobileAttempt,
-            ]);
-            $response = ['type' => 'success',
-                'message' => $msg1.'<br><br>'.$msg2, ];
-
-            return response()->json($response);
-        } catch (\Exception $ex) {
-            $response = ['type' => 'fail',
-                'message' => $ex->getMessage(), ];
-            $result = [$ex->getMessage()];
-
-            return response()->json(compact('response'), 500);
-        }
-    }
-
     public function sendActivation($email, $method)
     {
         $user = User::where('email', $email)->first();
@@ -244,16 +67,16 @@ class BaseAuthController extends Controller
                 $response = $activate_model->where('email', $email)->first();
 
                 if ($response) {
-                    $token = mt_rand(100000, 999999);
+                    $token = random_int(100000, 999999);
                     $response->update(['token' => $token]);
                 } else {
                     // Create a new record if it doesn't exist
-                    $token = mt_rand(100000, 999999);
+                    $token = random_int(100000, 999999);
                     $activate_model->create(['email' => $email, 'token' => $token]);
                 }
             } else {
                 // For non-GET methods, always create a new record
-                $token = mt_rand(100000, 999999);
+                $token = random_int(100000, 999999);
                 $activate_model->create(['email' => $email, 'token' => $token]);
             }
 

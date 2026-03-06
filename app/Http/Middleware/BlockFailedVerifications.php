@@ -7,34 +7,107 @@ use Cache;
 use Closure;
 use Illuminate\Http\Request;
 use RateLimiter;
+use Session;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Blocks requests when a user exceeds the allowed number of failed attempts
+ * for login, verification (email/mobile OTP), or two-factor authentication.
+ *
+ * How it works:
+ * - Each action type (e.g. email-verify, mobile-otp) has a max attempt limit.
+ * - Once any limit is reached, all routes using this middleware are blocked.
+ * - Lockout durations escalate progressively: 30min -> 1hr -> 3hr -> 6hr.
+ * - Penalty level is shared per user per context, so repeated violations
+ *   across different types escalate together.
+ * - Penalty tracking is per type, so hitting one type's limit doesn't
+ *   prevent another type from getting its own penalty applied.
+ *
+ * Usage in routes:
+ *   - Check all limits: middleware('blockFailedVerifications:verify')
+ *   - Check specific types: middleware('blockFailedVerifications:verify,email-verify,mobile-verify')
+ *     When specific types are passed, only those are checked instead of all.
+ *     This is used to verify OTP routes so that OTP send limits don't block verification.
+ *
+ * The actual RateLimiter::hit() calls happen in the controllers on failure/action,
+ * not in this middleware. This middleware only reads and enforces the limits.
+ *
+ * Contexts:
+ *   - login: tracks failed login attempts (identifier: IP + email/username hash)
+ *   - verify: tracks OTP sends and failed verifications (identifier: user ID)
+ *   - 2fa: tracks failed 2FA code attempts (identifier: user ID)
+ *
+ * Cache keys used:
+ *   - penalty_level:{context}:{identifier} — current escalation level (1-4), expires in 24h
+ *   - penalty_applied:{context}:{type}:{identifier} — whether penalty was already applied for this cycle
+ */
 class BlockFailedVerifications
 {
-    public function handle(Request $request, Closure $next, string $context = 'verify', ?string $identifier = null): Response
-    {
-        // 1. Get the identifier for rate limiting based on context
-        $rateLimitIdentifier = $this->getRateLimitIdentifier($context, $identifier);
+    /**
+     * Progressive lockout durations in minutes.
+     * The level increases each time a user exhausts their attempts within a penalty window.
+     */
+    private const array PENALTIES = [
+        1 => 30,
+        2 => 60,
+        3 => 180,
+        4 => 360,
+    ];
 
-        if (! $rateLimitIdentifier) {
-            return redirect('login'); // No valid identifier found
+    /**
+     * Rate limit types and their max allowed attempts per context.
+     *
+     * "Verify" types explained:
+     *   mobile-otp / email-otp* — OTP send attempts (hit in controller on every send)
+     *   mobile-verify / email-verify* — OTP verification failures (hit in controller only on wrong OTP)
+     */
+    private const array CONFIGS = [
+        'login' => [
+            'limits' => ['login-attempt' => 5],
+        ],
+        'verify' => [
+            'limits' => [
+                'mobile-otp' => 3,
+                'email-otp' => 3,
+                'email-otp-new' => 3,
+                'email-otp-old' => 3,
+                'mobile-verify' => 3,
+                'email-verify' => 3,
+                'email-verify-new' => 3,
+                'email-verify-old' => 3,
+                'email-verify-mobile' => 3,
+            ],
+        ],
+        '2fa' => [
+            'limits' => ['2fa-code' => 3, 'recovery-code' => 3],
+        ],
+    ];
+
+    /**
+     * Main handler. Checks all configured limits (or only the specified types)
+     * and blocks the request if any limit has been exceeded.
+     *
+     * @param  string  $context  One of: logins, verify, 2fa
+     * @param  string  ...$onlyTypes  Optional — if provided, only these types are checked.
+     *                                Used by verify OTP routes to skip OTP send limits.
+     */
+    public function handle(Request $request, Closure $next, string $context = 'verify', string ...$onlyTypes): Response
+    {
+        $identifier = $this->getIdentifier($context);
+
+        if (! $identifier) {
+            return redirect('login');
         }
 
-        // 2. Get configuration for the context
-        $config = $this->getRateLimitConfig($context);
+        $limits = self::CONFIGS[$context]['limits'];
 
-        // 3. Check rate limiting for all configured types in this context
-        foreach ($config['limits'] as $type => $maxAttempts) {
-            $rateLimitResult = $this->checkProgressiveRateLimit(
-                $type,
-                $rateLimitIdentifier,
-                $maxAttempts,
-                $config['penalties'],
-                $request
-            );
+        if (! empty($onlyTypes)) {
+            $limits = array_intersect_key($limits, array_flip($onlyTypes));
+        }
 
-            if ($rateLimitResult !== null) {
-                return $rateLimitResult; // Return rate limit response
+        foreach ($limits as $type => $max) {
+            if ($response = $this->enforce($context, $type, $identifier, $max, $request)) {
+                return $response;
             }
         }
 
@@ -42,155 +115,94 @@ class BlockFailedVerifications
     }
 
     /**
-     * Get rate limit identifier based on context.
+     * Resolves who we're rate-limiting based on the context.
+     * Login uses IP + input hash, verify/2fa uses user ID from auth or session.
      */
-    private function getRateLimitIdentifier(string $context, ?string $customIdentifier): ?string
+    private function getIdentifier(string $context): ?string
     {
-        if ($customIdentifier) {
-            return $customIdentifier;
-        }
-
-        switch ($context) {
-            case 'login':
-                // For login, use IP + login input for security
-                $loginInput = request()->input('email_username');
-
-                return (new LoginController())->getLoginRateLimitKey($loginInput);
-
-            case 'verify':
-            case '2fa':
-                // For verification/2fa, use user ID from session
-                $userId = \Session::get('verification_user_id');
-
-                return $userId ? (string) $userId : null;
-
-            default:
-                // Fallback to IP-based limiting
-                return request()->ip();
-        }
+        return match ($context) {
+            'login' => (new LoginController)->getLoginRateLimitKey(request()->input('email_username')),
+            'verify', '2fa' => (string) (auth()->id() ?? Session::get('verification_user_id')) ?: null,
+            default => request()->ip(),
+        };
     }
 
     /**
-     * Get rate limiting configuration for different contexts.
+     * Checks if the given rate limit type has been exceeded.
+     * If yes, applies a progressive penalty (if not already applied) and returns a 429 response.
      */
-    private function getRateLimitConfig(string $context): array
+    private function enforce(string $context, string $type, string $identifier, int $maxAttempts, Request $request): ?Response
     {
-        $configs = [
-            'login' => [
-                'limits' => [
-                    'login-attempt' => 5,
-                ],
-                'penalties' => [
-                    1 => 30,   // 30 minutes
-                    2 => 60,   // 1 hour
-                    3 => 180,  // 3 hours
-                    4 => 360,  // 6 hours
-                ],
-            ],
-            'verify' => [
-                'limits' => [
-                    'mobile-otp' => 3,
-                    'email-otp' => 3,
-                    'mobile-verify' => 3,
-                    'email-verify' => 3,
-                ],
-                'penalties' => [
-                    1 => 30,   // 30 minutes
-                    2 => 60,   // 1 hour
-                    3 => 180,  // 3 hours
-                    4 => 360,  // 6 hours
-                ],
-            ],
-            '2fa' => [
-                'limits' => [
-                    '2fa-code' => 3,
-                    'recovery-code' => 3,
-                ],
-                'penalties' => [
-                    1 => 30,   // 30 minutes
-                    2 => 60,   // 1 hour
-                    3 => 180,  // 3 hours
-                    4 => 360,  // 6 hours
-                ],
-            ],
-        ];
-
-        return $configs[$context];
-    }
-
-    private function checkProgressiveRateLimit(
-        string $type,
-        string $identifier,
-        int $maxAttempts,
-        array $penaltyLevels,
-        Request $request
-    ): ?Response {
         $key = "{$type}:{$identifier}";
-        $penaltyKey = "penalty_level:{$type}:{$identifier}";
-        $penaltyAppliedKey = "penalty_applied:{$type}:{$identifier}";
 
-        if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
-            // Check if penalty already applied for this cycle
-            $penaltyAlreadyApplied = Cache::get($penaltyAppliedKey, false);
-
-            if (! $penaltyAlreadyApplied) {
-                // First time hitting this penalty level → increase penalty
-                $currentPenaltyLevel = Cache::get($penaltyKey, 0);
-                $newPenaltyLevel = min($currentPenaltyLevel + 1, count($penaltyLevels));
-
-                // Duration (in seconds) of lockout
-                $penaltyMinutes = $penaltyLevels[$newPenaltyLevel];
-                $penaltySeconds = $penaltyMinutes * 60;
-
-                // Save new penalty level (reset in 24 hours)
-                Cache::put($penaltyKey, $newPenaltyLevel, now()->addHours(24));
-
-                // Mark penalty applied for this cycle
-                Cache::put($penaltyAppliedKey, true, now()->addMinutes($penaltyMinutes));
-
-                // Reset RateLimiter and apply the lockout
-                RateLimiter::clear($key);
-                for ($i = 0; $i < $maxAttempts; $i++) {
-                    RateLimiter::hit($key, $penaltySeconds);
-                }
-            }
-
-            // Get remaining wait time
-            $seconds = RateLimiter::availableIn($key);
-            $waitTime = formatDuration($seconds);
-
-            // Return context-appropriate response
-            return $this->buildRateLimitResponse($request, $type, $waitTime);
+        if (! RateLimiter::tooManyAttempts($key, $maxAttempts)) {
+            return null;
         }
 
-        return null;
+        $this->applyProgressivePenalty($context, $type, $identifier, $key, $maxAttempts);
+
+        $waitTime = formatDuration(RateLimiter::availableIn($key));
+
+        return $this->respond($request, $type, $waitTime);
     }
 
     /**
-     * Build appropriate response based on context and request type.
+     * Escalates the lockout duration when the user hits a limit for the first time in a cycle.
+     *
+     * On first trigger: clears the rate limiter, then re-fills it with the penalty duration
+     * so that availableIn() returns the correct lockout time.
+     *
+     * Skips if a penalty was already applied for this type in the current cycle
+     * (prevents re-escalating on every subsequent blocked request).
+     *
+     * Penalty level is shared across types within the same context — so if a user
+     * hits email-otp limit (level 1 = 30min), then later hits email-verify limit,
+     * that starts at level 2 (60min).
      */
-    private function buildRateLimitResponse(Request $request, string $type, string $waitTime): Response
+    private function applyProgressivePenalty(string $context, string $type, string $identifier, string $key, int $maxAttempts): void
     {
-        // Get appropriate error message based on type
-        $messageKey = $this->getErrorMessageKey($type);
-        $errorMessage = __($messageKey, ['time' => $waitTime]);
+        $penaltyKey = "penalty_level:{$context}:{$identifier}";
+        $appliedKey = "penalty_applied:{$context}:{$type}:{$identifier}";
+
+        if (Cache::get($appliedKey, false)) {
+            return;
+        }
+
+        $level = min(Cache::get($penaltyKey, 0) + 1, count(self::PENALTIES));
+        $minutes = self::PENALTIES[$level];
+
+        Cache::put($penaltyKey, $level, now()->addHours(24));
+        Cache::put($appliedKey, true, now()->addMinutes($minutes));
+
+        RateLimiter::clear($key);
+        for ($i = 0; $i < $maxAttempts; $i++) {
+            RateLimiter::hit($key, $minutes * 60);
+        }
+    }
+
+    /**
+     * Returns a 429 JSON error for AJAX requests, or redirects to login with
+     * an error flash message for standard page requests.
+     */
+    private function respond(Request $request, string $type, string $waitTime): Response
+    {
+        $message = __($this->getMessageKey($type), ['time' => $waitTime]);
 
         if ($request->expectsJson()) {
-            return errorResponse($errorMessage, 429);
+            return errorResponse($message, 429);
         }
 
-        return redirect('login')->withErrors($errorMessage);
+        return redirect('login')->withErrors($message);
     }
 
     /**
-     * Get error message key based on rate limit type.
+     * Maps rate limit types to their translation keys.
+     * Extend this to show different messages for different types (e.g. "Too many OTP requests").
      */
-    private function getErrorMessageKey(string $type): string
+    private function getMessageKey(string $type): string
     {
-        $messageKeys = [
-            // Add custom message keys for each type
-        ];
-
-        return $messageKeys[$type] ?? 'message.verify_time_limit_exceed';
+        return match ($type) {
+            default => 'message.verify_time_limit_exceed',
+        };
     }
 }

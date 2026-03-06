@@ -2847,4 +2847,15 @@ return [
     'check_to_make_plan_active' => 'Bu planı aktif yapmak için işaretleyin. Ürün ve dönem başına yalnızca bir aktif plana izin verilir.',
     'active_plan_exists_simple' => 'Bu ürün ve dönem için aktif bir plan zaten var. Lütfen önce bunu devre dışı bırakın.',
     'unauthorized_action' => 'Bu işlemi gerçekleştirmek için gerekli izinlere sahip değilsiniz.',
+
+    'attempt' => 'Deneme',
+    'sent_at' => 'Gönderilme Zamanı',
+    'delivered_at' => 'Teslim Zamanı',
+
+    'sms_service_disabled' => 'SMS hizmeti şu anda devre dışı.',
+
+    'method_not_allowed' => 'yönteme izin verilmiyor',
+    'invalid-api-endpoint' => 'Geçersiz API uç noktası',
+    'request_entity_too_large_maxsize' => 'Yükleme Başarısız. Desteklenen maksimum dosya boyutu :maxsize MB\'dir ',
+    'internal-server-error' => 'Dahili sunucu hatası',
 ];

@@ -18,7 +18,6 @@ use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
 use App\WhatsappIntegrationUser;
 use Carbon\Carbon;
-use Carbon\CarbonImmutable;
 use GuzzleHttp\Client;
 
 class CronController extends BaseCronController
@@ -605,10 +604,8 @@ class CronController extends BaseCronController
 
         $days = ExpiryMailDay::value('msg91_days');
 
-        $from = CarbonImmutable::startOfTime();
-
         $to = Carbon::now()->subDays($days)->endOfDay();
 
-        MsgDeliveryReports::whereBetween('created_at', [$from, $to])->delete();
+        MsgDeliveryReports::where('created_at', '<=', $to)->delete();
     }
 }

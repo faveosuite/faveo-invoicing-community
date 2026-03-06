@@ -2757,4 +2757,11 @@
      'active_plan_exists' => 'Pjan attiv ":plan_name" diġà jeżisti għal dan il-prodott u l-perjodu. Jekk jogħġbok iddiżattivah l-ewwel qabel ma toħloq/taġġorna pjan attiv.',
      'check_to_make_plan_active' => 'Iċċekkja biex tagħmel dan il-pjan attiv. Pjan attiv wieħed biss huwa permess għal kull prodott u perjodu.',
      'active_plan_exists_simple' => 'Pjan attiv diġà jeżisti għal dan il-prodott u l-perjodu. Jekk jogħġbok iddiżattivah l-ewwel.',
+
+     'sms_service_disabled' => 'Is-servizz SMS huwa bħalissa diżattivat.',
+
+     'method_not_allowed' => 'metodu mhux permess',
+     'invalid-api-endpoint' => 'Punt finali tal-API invalidu',
+     'request_entity_too_large_maxsize' => 'It-tlugħ falla. Id-daqs massimu tal-fajl appoġġjat huwa :maxsize MB ',
+     'internal-server-error' => 'Żball intern tas-server',
  ];

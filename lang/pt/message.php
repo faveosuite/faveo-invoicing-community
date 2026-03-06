@@ -2811,4 +2811,15 @@ return [
     'check_to_make_plan_active' => 'Marque para tornar este plano ativo. Apenas um plano ativo é permitido por produto e período.',
     'active_plan_exists_simple' => 'Já existe um plano ativo para este produto e período. Por favor, desative-o primeiro.',
     'unauthorized_action' => 'Você não tem as permissões necessárias para realizar esta ação.',
+
+    'attempt' => 'Tentativa',
+    'sent_at' => 'Enviado em',
+    'delivered_at' => 'Entregue em',
+
+    'sms_service_disabled' => 'O serviço de SMS está atualmente desativado.',
+
+    'method_not_allowed' => 'método não permitido',
+    'invalid-api-endpoint' => 'Endpoint de API inválido',
+    'request_entity_too_large_maxsize' => 'Falha no upload. O tamanho máximo de arquivo suportado é :maxsize MB ',
+    'internal-server-error' => 'Erro interno do servidor',
 ];

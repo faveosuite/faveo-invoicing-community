@@ -225,7 +225,7 @@ class RegisterController extends Controller
         } catch (Exception $ex) {
             \Logger::exception($ex);
 
-            return errorResponse($ex->getMessage());
+            return errorResponse(__('message.something_wrong'));
         }
     }
 
@@ -346,7 +346,8 @@ class RegisterController extends Controller
 
         $userUrl = url("clients/{$user->id}");
 
-        $message = "User <a href='{$userUrl}'><strong>{$user->first_name} {$user->last_name}</strong></a> was created.";
+        $name = e($user->first_name.' '.$user->last_name);
+        $message = "User <a href='{$userUrl}'><strong>{$name}</strong></a> was created.";
 
         logActivity(
             $message,

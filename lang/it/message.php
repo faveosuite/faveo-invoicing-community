@@ -2828,4 +2828,15 @@ return [
     'check_to_make_plan_active' => 'Spunta per rendere attivo questo piano. È consentito un solo piano attivo per prodotto e periodo.',
     'active_plan_exists_simple' => 'Esiste già un piano attivo per questo prodotto e periodo. Disabilitalo prima.',
     'unauthorized_action' => 'Non disponi delle autorizzazioni necessarie per eseguire questa azione.',
+
+    'attempt' => 'Tentativo',
+    'sent_at' => 'Inviato il',
+    'delivered_at' => 'Consegnato il',
+
+    'sms_service_disabled' => 'Il servizio SMS è attualmente disabilitato.',
+
+    'method_not_allowed' => 'metodo non consentito',
+    'invalid-api-endpoint' => 'Endpoint API non valido',
+    'request_entity_too_large_maxsize' => 'Caricamento fallito. La dimensione massima del file supportata è :maxsize MB ',
+    'internal-server-error' => 'Errore interno del server',
 ];
