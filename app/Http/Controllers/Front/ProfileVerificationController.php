@@ -159,7 +159,7 @@ class ProfileVerificationController extends BaseAuthController
 
             $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
 
-            RateLimiter::hit("email-verify:".auth()->id());
+            RateLimiter::hit('email-verify:'.auth()->id());
 
             if (! $account || $account->token !== $otp) {
                 return errorResponse(__('message.email_verification.invalid_token'));
@@ -262,7 +262,7 @@ class ProfileVerificationController extends BaseAuthController
                 $responseNewMobileOtp = $this->sendOtpForNewMobileNo($dialCode, $mobileNo, $countryIso);
             }
 
-            RateLimiter::hit("mobile-otp:".auth()->id());
+            RateLimiter::hit('mobile-otp:'.auth()->id());
 
             if ($responseNewMobileOtp['type'] === 'error') {
                 return errorResponse($responseNewMobileOtp['message']);
@@ -361,7 +361,7 @@ class ProfileVerificationController extends BaseAuthController
             }
 
             $response = app(SmsOtpController::class)->sendVerifyOTP($otp, $mobile, auth()->id(), 'profile-update');
-            RateLimiter::hit("mobile-verify:".auth()->id());
+            RateLimiter::hit('mobile-verify:'.auth()->id());
 
             if (! isset($response['type']) || $response['type'] !== 'success') {
                 return errorResponse($response['message'] ?? __('message.otp_invalid'));
