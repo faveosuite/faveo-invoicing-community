@@ -2828,4 +2828,15 @@ return [
     'check_to_make_plan_active' => '选中以使此计划处于活动状态。每个产品和期间仅允许一个活动计划。',
     'active_plan_exists_simple' => '此产品和期间已存在活动计划。请先将其禁用。',
     'unauthorized_action' => '您没有执行此操作所需的权限。',
+
+    'attempt' => '尝试',
+    'sent_at' => '发送时间',
+    'delivered_at' => '送达时间',
+
+    'sms_service_disabled' => '短信服务目前已禁用。',
+
+    'method_not_allowed' => '方法不被允许',
+    'invalid-api-endpoint' => '无效的API端点',
+    'request_entity_too_large_maxsize' => '上传失败。支持的最大文件大小为 :maxsize MB ',
+    'internal-server-error' => '内部服务器错误',
 ];

@@ -2837,4 +2837,15 @@ return [
     'check_to_make_plan_active' => 'סמן כדי להפוך תוכנית זו לפעילה. מותרת רק תוכנית פעילה אחת לכל מוצר ותקופה.',
     'active_plan_exists_simple' => 'תוכנית פעילה כבר קיימת עבור מוצר ותקופה אלה. אנא בטל אותה תחילה.',
     'unauthorized_action' => 'אין לך את ההרשאות הנדרשות לביצוע פעולה זו.',
+
+    'attempt' => 'ניסיון',
+    'sent_at' => 'נשלח ב',
+    'delivered_at' => 'נמסר ב',
+
+    'sms_service_disabled' => 'שירות ה-SMS מושבת כרגע.',
+
+    'method_not_allowed' => 'השיטה אינה מותרת',
+    'invalid-api-endpoint' => 'נקודת קצה API לא חוקית',
+    'request_entity_too_large_maxsize' => 'ההעלאה נכשלה. גודל הקובץ המרבי הנתמך הוא :maxsize MB ',
+    'internal-server-error' => 'שגיאת שרת פנימית',
 ];

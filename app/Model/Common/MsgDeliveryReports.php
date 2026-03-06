@@ -20,6 +20,8 @@ class MsgDeliveryReports extends Model
         'user_id',
         'country_iso',
         'mobile_code',
+        'source',
+        'action',
     ];
     protected $appends = ['formatted_sender_id'];
 

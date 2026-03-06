@@ -96,7 +96,7 @@ class LoginController extends Controller
         $credentials = $this->buildCredentials($request);
 
         $rateLimitKey = $this->getLoginRateLimitKey($request->input('email_username'));
-        RateLimiter::hit("login-attempt:{$rateLimitKey}");
+        RateLimiter::hit("login-attempt:{$rateLimitKey}", 600);
 
         // 2. Attempt to authenticate the user
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
@@ -414,6 +414,7 @@ class LoginController extends Controller
                 break;
 
             case '2fa':
+                $identifier = $user->id;
                 $keys = [
                     "2fa-code:{$user->id}",
                     "recovery-code:{$user->id}",
@@ -426,9 +427,10 @@ class LoginController extends Controller
 
         foreach ($keys as $key) {
             RateLimiter::clear($key);
-            \Cache::forget("penalty_level:{$key}");
-            \Cache::forget("penalty_applied:{$key}");
         }
+
+        \Cache::forget("penalty_level:{$context}:{$identifier}");
+        \Cache::forget("penalty_applied:{$context}:{$identifier}");
     }
 
     public function logActivityLogin($user): void
@@ -439,7 +441,8 @@ class LoginController extends Controller
 
         $userUrl = url("clients/{$user->id}");
 
-        $message = "User <a href='{$userUrl}'><strong>{$user->first_name} {$user->last_name}</strong></a> logged in successfully.";
+        $name = e($user->first_name.' '.$user->last_name);
+        $message = "User <a href='{$userUrl}'><strong>{$name}</strong></a> logged in successfully.";
 
         logActivity(
             $message,

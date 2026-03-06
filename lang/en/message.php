@@ -1149,6 +1149,9 @@ return [
     'failure_reason' => 'Failure Reason',
     'date_from' => 'Date From',
     'date_to' => 'Date To',
+    'attempt' => 'Attempt',
+    'sent_at' => 'Sent At',
+    'delivered_at' => 'Delivered At',
 
     'select_status' => 'Select Status',
     'delivered' => 'Delivered',
@@ -2905,4 +2908,11 @@ return [
     'check_to_make_plan_active' => 'Check to make this plan active. Only one active plan is allowed per product and period.',
     'active_plan_exists_simple' => 'An active plan already exists for this product and period. Please disable it first.',
     'unauthorized_action' => 'You do not have the necessary permissions to perform this action.',
+
+    'sms_service_disabled' => 'SMS service is currently disabled.',
+
+    'method_not_allowed' => 'method not allowed',
+    'invalid-api-endpoint' => 'Invalid API end-point',
+    'request_entity_too_large_maxsize' => 'Upload Failed. Maximum file size supported is :maxsize MB ',
+    'internal-server-error' => 'Internal server error',
 ];

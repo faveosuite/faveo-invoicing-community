@@ -2670,4 +2670,15 @@ return [
     'check_to_make_plan_active' => 'تحقق لجعل هذه الخطة نشطة. يُسمح بخطة نشطة واحدة فقط لكل منتج وفترة.',
     'active_plan_exists_simple' => 'توجد خطة نشطة بالفعل لهذا المنتج والفترة. يرجى تعطيلها أولاً.',
     'unauthorized_action' => 'ليس لديك الصلاحيات اللازمة لتنفيذ هذا الإجراء.',
+
+    'attempt' => 'محاولة',
+    'sent_at' => 'تم الإرسال في',
+    'delivered_at' => 'تم التسليم في',
+
+    'sms_service_disabled' => 'خدمة الرسائل القصيرة معطلة حاليًا.',
+
+    'method_not_allowed' => 'الطريقة غير مسموح بها',
+    'invalid-api-endpoint' => 'نقطة نهاية API غير صالحة',
+    'request_entity_too_large_maxsize' => 'فشل التحميل. الحد الأقصى لحجم الملف المدعوم هو :maxsize ميغابايت',
+    'internal-server-error' => 'خطأ داخلي في الخادم',
 ];

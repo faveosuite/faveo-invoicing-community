@@ -63,6 +63,42 @@
                                 </select>
                             </div>
                             <div class="col-md-3 form-group">
+                                <label for="source">{{ __('message.source') }}</label>
+                                <select name="source" class="form-control">
+                                    <option value="">{{ __('message.select') }} {{ __('message.source') }}</option>
+                                    @foreach($sources as $source)
+                                        <option value="{{ $source }}"
+                                                {{ request('source') === (string) $source ? 'selected' : '' }}>
+                                            {{ ucwords(str_replace(['_', '-'], ' ', $source)) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3 form-group">
+                                <label for="action">{{ __('message.attempt') }}</label>
+                                <select name="action" class="form-control">
+                                    <option value="">{{ __('message.select') }} {{ __('message.attempt') }}</option>
+                                    @foreach($actions as $action)
+                                        @php
+                                            $ordinals = ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
+                                            if ($action === 'send') {
+                                                $actionLabel = 'First OTP sent';
+                                            } elseif (preg_match('/^retry_(\d+)$/', $action, $match)) {
+                                                $num = (int) $match[1];
+                                                $label = $ordinals[$num - 1] ?? "#{$num}";
+                                                $actionLabel = "{$label} retry";
+                                            } else {
+                                                $actionLabel = ucwords(str_replace(['_', '-'], ' ', $action));
+                                            }
+                                        @endphp
+                                        <option value="{{ $action }}"
+                                                {{ request('action') === (string) $action ? 'selected' : '' }}>
+                                            {{ $actionLabel }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3 form-group">
                                 <label for="failure_reason">{{ __('message.failure_reason') }}</label>
                                 <input type="text" name="failure_reason" class="form-control" value="{{ old('failure_reason', request('failure_reason')) }}">
                             </div>
@@ -105,10 +141,12 @@
                     <th>{{ __('message.user') }}</th>
                     <th>{{ __('message.email') }}</th>
                     <th>{{ __('message.mobile_number') }}</th>
+                    <th>{{ __('message.source') }}</th>
+                    <th>{{ __('message.attempt') }}</th>
                     <th>{{ __('message.status') }}</th>
                     <th>{{ __('message.failure_reason') }}</th>
-                    <th>{{ __('message.date') }}</th>
-                    <th>{{ __('message.created_at') }}</th>
+                    <th>{{ __('message.sent_at') }}</th>
+                    <th>{{ __('message.delivered_at') }}</th>
                 </tr>
                 </thead>
             </table>
@@ -136,6 +174,8 @@
                         d.mobile_number = $('input[name="mobile_number"]').val().replace(/\D/g, '');
                         d.country_iso = input.getAttribute('data-country-iso')?.toUpperCase();
                         d.status = $('select[name="status"]').val();
+                        d.source = $('select[name="source"]').val();
+                        d.action = $('select[name="action"]').val();
                         d.failure_reason = $('input[name="failure_reason"]').val();
                         d.date_from = $('input[name="date_from"]').val();
                         d.date_to = $('input[name="date_to"]').val();
@@ -199,6 +239,40 @@
                         }
                     },
                     {
+                        data: 'source',
+                        name: 'source',
+                        render: function(data) {
+                            if (!data || data === '---') {
+                                return '---';
+                            }
+
+                            return data.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                        }
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        render: function(data) {
+                            if (!data || data === '---') {
+                                return '---';
+                            }
+
+                            const ordinals = ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
+                            if (data === 'send') {
+                                return 'First OTP sent';
+                            }
+
+                            const match = data.match(/^retry_(\d+)$/);
+                            if (match) {
+                                const num = parseInt(match[1]);
+                                const label = ordinals[num - 1] || `#${num}`;
+                                return `${label} retry`;
+                            }
+
+                            return data.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                        }
+                    },
+                    {
                         data: 'readable_status',
                         name: 'status',
                         render: function(data, type, row) {
@@ -217,13 +291,13 @@
                             return data ? `<span>${data}</span>` : '---';
                         }
                     },
-                    {data: 'date', name: 'date'},
                     {
                         data: 'created_at',
                         name: 'created_at',
-                    }
+                    },
+                    {data: 'date', name: 'date'}
                 ],
-                order: [[7, 'desc']],
+                order: [[8, 'desc']],
                 drawCallback: function(settings) {
                     $('[data-toggle="tooltip"]').tooltip({
                         container: 'body'
@@ -235,6 +309,10 @@
                     const hasSearchParams = urlParams.has('request_id') ||
                         urlParams.has('mobile_number') ||
                         urlParams.has('status') ||
+                        urlParams.has('source') ||
+                        urlParams.has('action') ||
+                        urlParams.has('date_from') ||
+                        urlParams.has('date_to') ||
                         urlParams.has('date') ||
                         urlParams.has('failure_reason');
 

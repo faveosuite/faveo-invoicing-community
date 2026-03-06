@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\ApiKey;
 use App\Http\Controllers\Common\PipedriveController;
+use App\Http\Controllers\Common\Sms\SmsOtpController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\License\LicenseController;
 use App\Jobs\AddUserToExternalService;
@@ -17,8 +18,6 @@ use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use RateLimiter;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Validator;
 
 class AuthController extends BaseAuthController
 {
@@ -51,92 +50,11 @@ class AuthController extends BaseAuthController
     public function __construct()
     {
         $this->middleware('guest', ['except' => 'getLogout']);
+        $this->middleware('blockFailedVerifications:verify,mobile-verify,email-verify,email-verify-new,email-verify-old,email-verify-mobile')->only(['verifyOtp', 'verifyEmail']);
         $this->middleware('recaptcha:mobile_verify')->only('verifyOtp');
         $this->middleware('recaptcha:email_verify')->only('verifyEmail');
         $license = new LicenseController();
         $this->licensing = $license;
-    }
-
-    public function activate($token, AccountActivate $activate, Request $request, User $user)
-    {
-        try {
-            $activate = $activate->where('token', $token)->first();
-            $url = 'login';
-            if ($activate) {
-                $email = $activate->email;
-            } else {
-                throw new NotFoundHttpException(__('message.token_mismatch_account_not_activated'));
-            }
-            $user = $user->where('email', $email)->first();
-            if ($user) {
-                if ($user->active == 0) {
-                    $user->active = 1;
-                    $this->emailverificationAttempt($user);
-                    $user->save();
-                    AddUserToExternalService::dispatch($user);
-                    if (\Session::has('session-url')) {
-                        $url = \Session::get('session-url');
-
-                        return redirect($url);
-                    }
-
-                    return redirect($url)->with('success', __('message.email_verification_success'));
-                } else {
-                    return redirect($url)->with('warning', __('message.email_already_verified'));
-                }
-            } else {
-                throw new NotFoundHttpException(__('message.user_email_not_found'));
-            }
-        } catch (\Exception $ex) {
-            if ($ex->getCode() == 400) {
-                return redirect($url)->with('success', __('message.email_verification_success'));
-            }
-
-            return redirect($url)->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-    public function validator(array $data)
-    {
-        return Validator::make($data, [
-            'name' => 'required|max:255',
-            'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|confirmed|min:6',
-        ],
-            [
-                'name.required' => __('validation.auth_controller.name_required'),
-                'name.max' => __('validation.auth_controller.name_max'),
-
-                'email.required' => __('validation.auth_controller.email_required'),
-                'email.email' => __('validation.auth_controller.email_email'),
-                'email.max' => __('validation.auth_controller.email_max'),
-                'email.unique' => __('validation.auth_controller.email_unique'),
-
-                'password.required' => __('validation.auth_controller.password_required'),
-                'password.confirmed' => __('validation.auth_controller.password_confirmed'),
-                'password.min' => __('validation.auth_controller.password_min'),
-            ]);
-    }
-
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return User
-     */
-    public function create(array $data)
-    {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-        ]);
     }
 
     public function requestOtp(Request $request)
@@ -160,15 +78,15 @@ class AuthController extends BaseAuthController
                 return errorResponse(__('message.mobile_already_verified'));
             }
 
-            $response = $this->sendOtp($user->mobile_code.$user->mobile, $user->id);
+            RateLimiter::hit("mobile-otp:{$user->id}", 600);
 
-            RateLimiter::hit("mobile-otp:{$user->id}");
-
-            $this->updateVerificationAttempts($user, 'mobile');
+            $response = app(SmsOtpController::class)->sendOtp($user->mobile_code.$user->mobile, $user->id, 'registration-verify');
 
             if ($response['type'] === 'error') {
                 return errorResponse($response['message']);
             }
+
+            $this->updateVerificationAttempts($user, 'mobile');
 
             return successResponse(__('message.otp_verification.send_success'));
         } catch (\Exception $e) {
@@ -204,15 +122,15 @@ class AuthController extends BaseAuthController
 
             $user = User::where('email', $email)->firstOrFail();
 
-            $response = $this->sendForReOtp($user->mobile_code.$user->mobile, $type);
+            RateLimiter::hit("mobile-otp:{$user->id}", 600);
 
-            RateLimiter::hit("mobile-otp:{$user->id}");
-
-            $this->updateVerificationAttempts($user, 'mobile');
+            $response = app(SmsOtpController::class)->sendForReOtp($user->mobile_code.$user->mobile, $type, $user->id, 'registration-verify');
 
             if ($response['type'] === 'error') {
                 return errorResponse($response['message']);
             }
+
+            $this->updateVerificationAttempts($user, 'mobile');
 
             if ($type === 'voice') {
                 return successResponse(__('message.otp_verification.resend_voice_send_success'));
@@ -237,13 +155,14 @@ class AuthController extends BaseAuthController
 
             $user = User::where('email', $email)->firstOrFail();
 
-            if (AccountActivate::where('email', $email)->first() && $method !== 'GET') {
+            $existingToken = AccountActivate::where('email', $email)->latest()->first();
+            if ($existingToken && $method !== 'GET' && ! $existingToken->updated_at->addMinutes(10)->isPast()) {
                 return successResponse(\Lang::get('message.email_verification.already_sent'));
             }
 
-            $this->sendActivation($email, $method);
+            RateLimiter::hit("email-otp:{$user->id}", 600);
 
-            RateLimiter::hit("email-otp:{$user->id}");
+            $this->sendActivation($email, $method);
 
             $this->updateVerificationAttempts($user, 'email');
 
@@ -259,10 +178,6 @@ class AuthController extends BaseAuthController
 
     public function verifyOtp(Request $request)
     {
-        if (rateLimitForKeyIp('verify_mobile_otp', 5, 1, $request->ip())['status']) {
-            return errorResponse(__('message.too_many_attempts'));
-        }
-
         $request->validate([
             'eid' => 'required|string',
             'otp' => 'required|string|size:6',
@@ -281,15 +196,17 @@ class AuthController extends BaseAuthController
             // Find the user by email
             $user = User::where('email', $email)->firstOrFail();
 
-            RateLimiter::hit("mobile-verify:{$user->id}");
-
             // Validate OTP
             if (! is_numeric($request->otp)) {
+                RateLimiter::hit("mobile-verify:{$user->id}", 600);
+
                 return errorResponse(__('message.otp_invalid_format'));
             }
 
-            $response = $this->sendVerifyOTP($otp, $user->mobile_code.$user->mobile);
+            $response = app(SmsOtpController::class)->sendVerifyOTP($otp, $user->mobile_code.$user->mobile, $user->id, 'registration-verify');
             if ($response['type'] === 'error') {
+                RateLimiter::hit("mobile-verify:{$user->id}", 600);
+
                 return errorResponse($response['message']);
             }
 
@@ -330,15 +247,17 @@ class AuthController extends BaseAuthController
 
             $user = User::where('email', $email)->firstOrFail();
 
-            RateLimiter::hit("email-verify:{$user->id}");
-
             $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
 
-            if ($account->token !== $otp) {
+            if (! hash_equals((string) $account->token, (string) $otp)) {
+                RateLimiter::hit("email-verify:{$user->id}", 600);
+
                 return errorResponse(__('message.email_verification.invalid_token'));
             }
 
             if ($account->updated_at->addMinutes(10) < Carbon::now()) {
+                RateLimiter::hit("email-verify:{$user->id}", 600);
+
                 return errorResponse(__('message.email_verification.token_expired'));
             }
 

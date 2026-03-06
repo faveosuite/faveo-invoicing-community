@@ -2829,4 +2829,15 @@ return [
     'check_to_make_plan_active' => 'Centang untuk mengaktifkan paket ini. Hanya satu paket aktif yang diperbolehkan per produk dan periode.',
     'active_plan_exists_simple' => 'Paket aktif sudah ada untuk produk dan periode ini. Harap nonaktifkan terlebih dahulu.',
     'unauthorized_action' => 'Anda tidak memiliki izin yang diperlukan untuk melakukan tindakan ini.',
+
+    'attempt' => 'Percobaan',
+    'sent_at' => 'Terkirim Pada',
+    'delivered_at' => 'Tersampaikan Pada',
+
+    'sms_service_disabled' => 'Layanan SMS saat ini dinonaktifkan.',
+
+    'method_not_allowed' => 'metode tidak diizinkan',
+    'invalid-api-endpoint' => 'Titik akhir API tidak valid',
+    'request_entity_too_large_maxsize' => 'Unggahan Gagal. Ukuran file maksimum yang didukung adalah :maxsize MB ',
+    'internal-server-error' => 'Kesalahan server internal',
 ];

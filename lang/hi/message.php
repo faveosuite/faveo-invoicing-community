@@ -2845,4 +2845,15 @@ return [
     'check_to_make_plan_active' => 'इस योजना को सक्रिय बनाने के लिए चेक करें। प्रति उत्पाद और अवधि केवल एक सक्रिय योजना की अनुमति है।',
     'active_plan_exists_simple' => 'इस उत्पाद और अवधि के लिए एक सक्रिय योजना पहले से मौजूद है। कृपया पहले इसे निष्क्रिय करें।',
     'unauthorized_action' => 'इस कार्य को करने के लिए आपके पास आवश्यक अनुमतियाँ नहीं हैं।',
+
+    'attempt' => 'प्रयास',
+    'sent_at' => 'भेजा गया',
+    'delivered_at' => 'वितरित किया गया',
+
+    'sms_service_disabled' => 'SMS सेवा वर्तमान में अक्षम है।',
+
+    'method_not_allowed' => 'विधि की अनुमति नहीं है',
+    'invalid-api-endpoint' => 'अमान्य API एंड-पॉइंट',
+    'request_entity_too_large_maxsize' => 'अपलोड विफल। अधिकतम समर्थित फ़ाइल आकार :maxsize MB है ',
+    'internal-server-error' => 'आंतरिक सर्वर त्रुटि',
 ];

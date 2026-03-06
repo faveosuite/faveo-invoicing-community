@@ -2765,4 +2765,15 @@ return [
     'check_to_make_plan_active' => 'Označite da biste aktivirali ovaj plan. Dozvoljen je samo jedan aktivni plan po proizvodu i periodu.',
     'active_plan_exists_simple' => 'Aktivni plan već postoji za ovaj proizvod i period. Molimo vas da ga prvo onemogućite.',
     'unauthorized_action' => 'Anda tidak memiliki izin yang diperlukan untuk melakukan tindakan ini.',
+
+    'attempt' => 'Attempt',
+    'sent_at' => 'Sent At',
+    'delivered_at' => 'Delivered At',
+
+    'sms_service_disabled' => 'SMS usluga je trenutno onemogućena.',
+
+    'method_not_allowed' => 'metoda nije dozvoljena',
+    'invalid-api-endpoint' => 'Nevažeća API krajnja tačka',
+    'request_entity_too_large_maxsize' => 'Učitavanje nije uspjelo. Maksimalna podržana veličina datoteke je :maxsize MB ',
+    'internal-server-error' => 'Interna greška servera',
 ];

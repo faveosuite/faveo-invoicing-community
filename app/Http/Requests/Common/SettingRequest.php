@@ -31,7 +31,7 @@ class SettingRequest extends Request
             'logo' => 'mimes:png',
             'driver' => 'required',
             'port' => 'integer',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email|unique:users,user_name',
             'password' => 'required',
             'error_email' => 'email',
 
@@ -51,6 +51,7 @@ class SettingRequest extends Request
             'port.integer' => __('validation.settings_form.port.integer'),
             'email.required' => __('validation.settings_form.email.required'),
             'email.email' => __('validation.settings_form.email.email'),
+            'email.unique' => __('validation.profile_form.email.unique'),
             'password.required' => __('validation.settings_form.password.required'),
             'error_email.email' => __('validation.settings_form.error_email.email'),
         ];
