@@ -286,7 +286,6 @@ class ProfileVerificationController extends BaseAuthController
         }
     }
 
-
     /**
      * check mobile number already exist in the system.
      */
