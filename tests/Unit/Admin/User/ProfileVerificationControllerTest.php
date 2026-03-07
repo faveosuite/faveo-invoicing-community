@@ -172,8 +172,6 @@ class ProfileVerificationControllerTest extends DBTestCase
     public function testChangeMobileNoAfterVerifaction()
     {
         Mail::fake();
-        config(['logging.channels.stack.channels' => ['single']]);
-
 
         $user = $this->createUser([
             'mobile_verified' => true,
