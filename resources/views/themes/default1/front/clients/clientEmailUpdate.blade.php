@@ -342,7 +342,13 @@
                 let errorRes = xhr.responseJSON || {};
                 let message = errorRes.message || "{{ __('message.something_wrong') }}";
 
-                showValidationError(null, errorBox, message);
+                let alertBox = $("#emailAlertShow");
+                alertBox
+                    .removeClass()
+                    .addClass("alert alert-danger alert-dismissible fade show")
+                    .css("display", "block");
+                $("#emailAlertShowMsg").text(message);
+                autoHidePopup(alertBox, 5000);
             }
         });
     }
@@ -461,8 +467,18 @@
                         $('#otpAlertError').removeClass('d-none').text(res.message || "{{ __('message.failed_sent_otp') }}");
                     }
                 },
-                error: function () {
-                    $('#otpAlertError').removeClass('d-none').text("{{ __('message.something_wrong') }}");
+                error: function (xhr) {
+                    let errorRes = xhr.responseJSON || {};
+                    let message = errorRes.message || "{{ __('message.something_wrong') }}";
+
+                    $('#otpSuccess')
+                        .removeClass()
+                        .addClass('alert alert-danger alert-dismissible fade show')
+                        .show();
+                    $('#otpAlertShowMsg').text(message);
+                    autoHidePopup('#otpSuccess', 5000);
+
+                    $("#verifyOtpBtn").prop("disabled", false).text("{{ __('message.verify') }}");
                 }
             });
         }
@@ -658,6 +674,12 @@
 
                     msgSpan.text(resMsg);
                     autoHidePopup(alertOtpResent, 5000);
+
+                    let resendBtn = $("#" + btnId);
+                    resendBtn.html(resendBtn[0].dataset.originalHtml || resendBtn.data("original-html"));
+                    resendBtn.prop("disabled", false);
+                    resendBtn[0].style.color = "#099fdc";
+                    resendBtn[0].style.pointerEvents = "auto";
                 },
                 complete: function () {
                     verifyBtn.prop("disabled", false).text("{{ __('message.verify') }}");
@@ -665,7 +687,7 @@
             });
         }
 
-        const RESEND_DURATION = 60;
+        const RESEND_DURATION = 120;
 
         function updateTimer(display, countdown) {
             display.textContent = countdown.toString().padStart(2, '0') + " seconds";

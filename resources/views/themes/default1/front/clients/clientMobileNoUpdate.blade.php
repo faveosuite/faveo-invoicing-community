@@ -475,14 +475,15 @@
                 error: function (xhr) {
                     let authVl = xhr.responseJSON || {};
                     let authMsg= authVl.message || "{{ __('message.something_wrong') }}";
-                    alertMobOtpSuccess2
+
+                    $('#otpMobileAlert')
                         .removeClass()
                         .addClass("alert alert-danger alert-dismissible fade show")
                         .css("display", "block");
+                    $("#otpMobileAlertMsg").text(authMsg);
+                    autoHidePopup('#otpMobileAlert', 5000);
 
-                    $("#otpAlertShowMsgMobile").text(authMsg);
-                    $("#editMobileFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
-
+                    $("#verifyOtpMobileBtn").prop("disabled", false).text("{{ __('message.verify') }}");
                 },
             });
 
@@ -657,6 +658,12 @@
 
                     $("#otpMobileAlertMsg").text(mobMsg2);
                     autoHidePopup(alertBoxMob, 5000);
+
+                    let resendBtnOtpMob = $("#" + btnResendOtpMob);
+                    resendBtnOtpMob.html(resendBtnOtpMob[0].dataset.originalHtml);
+                    resendBtnOtpMob.prop("disabled", false);
+                    resendBtnOtpMob[0].style.color = "#099fdc";
+                    resendBtnOtpMob[0].style.pointerEvents = "auto";
                 },
             });
         }
@@ -746,6 +753,12 @@
 
                     $("#otpAlertShowMsgMobile").text(msg);
                     autoHidePopup(alertBox, 5000);
+
+                    let resendBtnOtp = $("#" + btnResendOtp);
+                    resendBtnOtp.html(resendBtnOtp[0].dataset.originalHtml);
+                    resendBtnOtp.prop("disabled", false);
+                    resendBtnOtp[0].style.color = "#099fdc";
+                    resendBtnOtp[0].style.pointerEvents = "auto";
                 },
                 complete: function() {
                     $("#verifyOtpMobileBtnEmail").prop("disabled", false).text("{{ __('message.verify') }}");
