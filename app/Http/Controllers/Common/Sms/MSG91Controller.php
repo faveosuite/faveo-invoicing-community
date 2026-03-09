@@ -6,6 +6,7 @@ use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Msg91Status;
 use App\Model\Common\MsgDeliveryReports;
+use App\Model\Common\StatusSetting;
 use App\ThirdPartyApp;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
@@ -16,7 +17,15 @@ class MSG91Controller extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'admin']);
+        $this->middleware(function ($request, $next) {
+            if (StatusSetting::value('msg91_status') != 1) {
+                return redirect()->to('settings')->with('fails', __('message.sms_service_disabled'));
+            }
+
+            return $next($request);
+        });
+
+        $this->middleware(['auth', 'admin'])->except('handleReports');
     }
 
     /**

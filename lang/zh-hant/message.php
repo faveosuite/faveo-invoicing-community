@@ -2792,4 +2792,6 @@ return [
     'attempt' => '嘗試',
     'sent_at' => '發送時間',
     'delivered_at' => '送達時間',
+
+    'sms_service_disabled' => '簡訊服務目前已停用。',
 ];

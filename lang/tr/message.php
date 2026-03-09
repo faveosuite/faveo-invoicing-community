@@ -2851,4 +2851,6 @@ return [
     'attempt' => 'Deneme',
     'sent_at' => 'Gönderilme Zamanı',
     'delivered_at' => 'Teslim Zamanı',
+
+    'sms_service_disabled' => 'SMS hizmeti şu anda devre dışı.',
 ];

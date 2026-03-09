@@ -2832,4 +2832,6 @@ return [
     'attempt' => '尝试',
     'sent_at' => '发送时间',
     'delivered_at' => '送达时间',
+
+    'sms_service_disabled' => '短信服务目前已禁用。',
 ];

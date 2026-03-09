@@ -2837,4 +2837,6 @@ return [
     'attempt' => 'Intento',
     'sent_at' => 'Enviado en',
     'delivered_at' => 'Entregado en',
+
+    'sms_service_disabled' => 'El servicio de SMS está actualmente deshabilitado.',
 ];

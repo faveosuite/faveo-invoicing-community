@@ -2836,4 +2836,6 @@ return [
     'attempt' => 'Attempt',
     'sent_at' => 'Sent At',
     'delivered_at' => 'Delivered At',
+
+    'sms_service_disabled' => 'SMS service is currently disabled.',
 ];

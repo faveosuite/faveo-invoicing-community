@@ -2769,4 +2769,6 @@ return [
     'attempt' => 'Attempt',
     'sent_at' => 'Sent At',
     'delivered_at' => 'Delivered At',
+
+    'sms_service_disabled' => 'SMS usluga je trenutno onemogućena.',
 ];

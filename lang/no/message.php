@@ -2843,4 +2843,6 @@ return [
     'attempt' => 'Forsøk',
     'sent_at' => 'Sendt',
     'delivered_at' => 'Levert',
+
+    'sms_service_disabled' => 'SMS-tjenesten er for øyeblikket deaktivert.',
 ];

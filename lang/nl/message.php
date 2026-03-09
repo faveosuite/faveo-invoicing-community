@@ -2802,4 +2802,6 @@ return [
     'attempt' => 'Poging',
     'sent_at' => 'Verzonden op',
     'delivered_at' => 'Afgeleverd op',
+
+    'sms_service_disabled' => 'De SMS-service is momenteel uitgeschakeld.',
 ];

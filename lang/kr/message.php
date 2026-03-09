@@ -2857,4 +2857,6 @@ return [
     'attempt' => '시도',
     'sent_at' => '발송 시간',
     'delivered_at' => '전달 시간',
+
+    'sms_service_disabled' => 'SMS 서비스가 현재 비활성화되어 있습니다.',
 ];

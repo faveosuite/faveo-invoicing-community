@@ -2840,4 +2840,6 @@ return [
     'attempt' => '試行',
     'sent_at' => '送信日時',
     'delivered_at' => '配信日時',
+
+    'sms_service_disabled' => 'SMSサービスは現在無効になっています。',
 ];

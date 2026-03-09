@@ -2838,4 +2838,6 @@ return [
     'attempt' => 'Lần thử',
     'sent_at' => 'Đã gửi lúc',
     'delivered_at' => 'Đã giao lúc',
+
+    'sms_service_disabled' => 'Dịch vụ SMS hiện đang bị tắt.',
 ];

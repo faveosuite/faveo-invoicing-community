@@ -2833,4 +2833,6 @@ return [
     'attempt' => 'Percobaan',
     'sent_at' => 'Terkirim Pada',
     'delivered_at' => 'Tersampaikan Pada',
+
+    'sms_service_disabled' => 'Layanan SMS saat ini dinonaktifkan.',
 ];

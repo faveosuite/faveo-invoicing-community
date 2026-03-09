@@ -2831,4 +2831,6 @@ return [
     'attempt' => 'முயற்சி',
     'sent_at' => 'அனுப்பிய நேரம்',
     'delivered_at' => 'வழங்கிய நேரம்',
+
+    'sms_service_disabled' => 'SMS சேவை தற்போது முடக்கப்பட்டுள்ளது.',
 ];

@@ -2832,4 +2832,6 @@ return [
     'attempt' => 'Tentativo',
     'sent_at' => 'Inviato il',
     'delivered_at' => 'Consegnato il',
+
+    'sms_service_disabled' => 'Il servizio SMS è attualmente disabilitato.',
 ];

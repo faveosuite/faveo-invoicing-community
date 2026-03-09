@@ -2908,4 +2908,6 @@ return [
     'check_to_make_plan_active' => 'Check to make this plan active. Only one active plan is allowed per product and period.',
     'active_plan_exists_simple' => 'An active plan already exists for this product and period. Please disable it first.',
     'unauthorized_action' => 'You do not have the necessary permissions to perform this action.',
+
+    'sms_service_disabled' => 'SMS service is currently disabled.',
 ];

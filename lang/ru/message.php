@@ -2840,4 +2840,6 @@ return [
     'attempt' => 'Попытка',
     'sent_at' => 'Отправлено в',
     'delivered_at' => 'Доставлено в',
+
+    'sms_service_disabled' => 'SMS-сервис в настоящее время отключён.',
 ];

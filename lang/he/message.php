@@ -2841,4 +2841,6 @@ return [
     'attempt' => 'ניסיון',
     'sent_at' => 'נשלח ב',
     'delivered_at' => 'נמסר ב',
+
+    'sms_service_disabled' => 'שירות ה-SMS מושבת כרגע.',
 ];

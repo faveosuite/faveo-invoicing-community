@@ -2849,4 +2849,6 @@ return [
     'attempt' => 'प्रयास',
     'sent_at' => 'भेजा गया',
     'delivered_at' => 'वितरित किया गया',
+
+    'sms_service_disabled' => 'SMS सेवा वर्तमान में अक्षम है।',
 ];
