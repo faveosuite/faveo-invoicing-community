@@ -79,9 +79,21 @@
                                 <select name="action" class="form-control">
                                     <option value="">{{ __('message.select') }} {{ __('message.attempt') }}</option>
                                     @foreach($actions as $action)
+                                        @php
+                                            $ordinals = ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
+                                            if ($action === 'send') {
+                                                $actionLabel = 'First OTP sent';
+                                            } elseif (preg_match('/^retry_(\d+)$/', $action, $match)) {
+                                                $num = (int) $match[1];
+                                                $label = $ordinals[$num - 1] ?? "#{$num}";
+                                                $actionLabel = "{$label} retry";
+                                            } else {
+                                                $actionLabel = ucwords(str_replace(['_', '-'], ' ', $action));
+                                            }
+                                        @endphp
                                         <option value="{{ $action }}"
                                                 {{ request('action') === (string) $action ? 'selected' : '' }}>
-                                            {{ ucwords(str_replace(['_', '-'], ' ', $action)) }}
+                                            {{ $actionLabel }}
                                         </option>
                                     @endforeach
                                 </select>

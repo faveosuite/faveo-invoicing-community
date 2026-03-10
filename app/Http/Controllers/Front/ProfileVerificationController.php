@@ -41,7 +41,7 @@ class ProfileVerificationController extends BaseAuthController
             if ($newEmailOrExisting === $user->email) {
                 $emailType = $isMobile ? 'mobile' : 'old_email';
                 $this->sendActivationForEdit($user, $user->email, $method, $emailType);
-                RateLimiter::hit("email-otp:{$user->id}", 600);
+                RateLimiter::hit("email-otp-old:{$user->id}", 600);
 
                 return successResponse(__('message.otp_code_sent_exist'));
             }
@@ -61,7 +61,7 @@ class ProfileVerificationController extends BaseAuthController
 
             // Send new activation email
             $this->sendActivationForEdit($user, $newEmailOrExisting, $method, 'new_email');
-            RateLimiter::hit("email-otp:{$user->id}", 600);
+            RateLimiter::hit("email-otp-new:{$user->id}", 600);
 
             return successResponse(
                 $method === 'GET'
@@ -159,7 +159,13 @@ class ProfileVerificationController extends BaseAuthController
 
             $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
 
-            RateLimiter::hit('email-verify:'.auth()->id(), 600);
+            $verifyType = $request->input('verify_type', 'new_email');
+            $rateLimitKey = match ($verifyType) {
+                'old_email' => 'email-verify-old',
+                'mobile_email' => 'email-verify-mobile',
+                default => 'email-verify-new',
+            };
+            RateLimiter::hit("{$rateLimitKey}:".auth()->id(), 600);
 
             if (! $account || $account->token !== $otp) {
                 return errorResponse(__('message.email_verification.invalid_token'));

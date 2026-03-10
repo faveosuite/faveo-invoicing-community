@@ -200,6 +200,15 @@
     $(document).ready(function () {
         var mobInput = document.querySelector("#newMobile");
         const csrfToken = $('input[name="_token"]').val();
+
+        function handleTooManyAttempts(error) {
+            if (error.status === 429) {
+                setTimeout(function () {
+                    location.reload();
+                }, 5000);
+            }
+        }
+
         window.AppGlobals = {
             newMobileFull: null,
             dialCode: null,
@@ -340,6 +349,7 @@
 
                     $("#mobileAlertShowMsg").text(mobMsg1);
                     autoHidePopup(alertBoxMob, 5000);
+                    handleTooManyAttempts(xhr);
 
                     $('#editMobileFormBtn').prop('disabled', false).text("{{ __('message.submit') }}");
                 }
@@ -380,6 +390,7 @@
                     $('#mobileAlertShow').removeClass().addClass('alert alert-danger alert-dismissible fade show').show();
                     $('#mobileAlertShowMsg').text(mobMsg2);
                     autoHidePopup('#mobileAlertShow', 5000);
+                    handleTooManyAttempts(xhr);
                     $("#editMobileFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
                 },
             });
@@ -447,6 +458,7 @@
                     } else {
                         showValidationError(mobField2, errorBoxMob2,mobMsg2);
                     }
+                    handleTooManyAttempts(xhr);
                 },
             });
         });
@@ -482,6 +494,7 @@
                         .css("display", "block");
                     $("#otpMobileAlertMsg").text(authMsg);
                     autoHidePopup('#otpMobileAlert', 5000);
+                    handleTooManyAttempts(xhr);
 
                     $("#verifyOtpMobileBtn").prop("disabled", false).text("{{ __('message.verify') }}");
                 },
@@ -543,6 +556,7 @@
                     } else {
                         showValidationError(mobField3, errorBoxMob3, mobMsg3);
                     }
+                    handleTooManyAttempts(xhr);
                     autoHidePopup('#otpSuccessMobile', 5000);
                     $("#verifyOtpMobileBtnEmail").prop("disabled", false).text("{{ __('message.verify') }}");
 
@@ -586,6 +600,7 @@
                         .css("display", "block");
 
                     $("#otpAlertShowMsgMobile").text(mobMsg4);
+                    handleTooManyAttempts(xhr);
                     $("#mobileVerifyBtnText").prop("disabled", false).text("{{ __('message.verify') }}");
 
                 },
@@ -658,6 +673,7 @@
 
                     $("#otpMobileAlertMsg").text(mobMsg2);
                     autoHidePopup(alertBoxMob, 5000);
+                    handleTooManyAttempts(xhr);
 
                     let resendBtnOtpMob = $("#" + btnResendOtpMob);
                     resendBtnOtpMob.html(resendBtnOtpMob[0].dataset.originalHtml);
@@ -753,6 +769,7 @@
 
                     $("#otpAlertShowMsgMobile").text(msg);
                     autoHidePopup(alertBox, 5000);
+                    handleTooManyAttempts(xhr);
 
                     let resendBtnOtp = $("#" + btnResendOtp);
                     resendBtnOtp.html(resendBtnOtp[0].dataset.originalHtml);

@@ -91,8 +91,13 @@ class BlockFailedVerifications
                 'limits' => [
                     'mobile-otp' => 3,
                     'email-otp' => 3,
+                    'email-otp-new' => 3,
+                    'email-otp-old' => 3,
                     'mobile-verify' => 3,
                     'email-verify' => 3,
+                    'email-verify-new' => 3,
+                    'email-verify-old' => 3,
+                    'email-verify-mobile' => 3,
                 ],
                 'penalties' => [
                     1 => 30,   // 30 minutes

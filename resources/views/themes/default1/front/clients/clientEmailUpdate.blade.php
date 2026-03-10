@@ -215,6 +215,14 @@
 
         const csrfToken = $('input[name="_token"]').val();
 
+        function handleTooManyAttempts(error) {
+            if (error.status === 429) {
+                setTimeout(function () {
+                    location.reload();
+                }, 5000);
+            }
+        }
+
         // Email edit modal logic
         $('#editEmailBtn').on('click', function() {
             $('#editEmailModal').modal('show');
@@ -260,7 +268,8 @@
                   if (res.data.email_verification_required === false) {
                       changeEmailFinal();
                   } else {
-                      sendOtpToNewEmail(emailVal, csrfToken, errorBox);
+                      $('#otpNewEmail').val(emailVal);
+                      sendOtpToOldEmail("{{ auth()->user()->email }}", csrfToken, errorBox);
                   }
 
                   let template = document.getElementById('otp-message').dataset.msg;
@@ -286,6 +295,7 @@
                   .css("display", "block");
               $("#emailAlertShowMsg").text(message);
               autoHidePopup(alertBox, 5000);
+              handleTooManyAttempts(xhr);
 
               $("#editEmailFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
 
@@ -310,11 +320,10 @@
             success: function (response, textStatus, jqXHR) {
                 const statusCodeForEmail = jqXHR.status;
 
-                $("#editEmailFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
                 $("#otpNewEmail").val(email);
 
-                // Close email modal
-                $("#editEmailModal").modal("hide");
+                // Close old email modal
+                $("#otpVerificationModalForOldEmail").modal("hide");
 
                 setTimeout(() => {
                     $("#otpVerificationModal").modal("show");
@@ -337,18 +346,19 @@
                 }, 400);
             },
             error: function (xhr) {
-                $("#editEmailFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
-
                 let errorRes = xhr.responseJSON || {};
                 let message = errorRes.message || "{{ __('message.something_wrong') }}";
 
-                let alertBox = $("#emailAlertShow");
+                let alertBox = $("#otpSuccessOld");
                 alertBox
                     .removeClass()
                     .addClass("alert alert-danger alert-dismissible fade show")
                     .css("display", "block");
-                $("#emailAlertShowMsg").text(message);
+                $("#otpAlertShowMsgOld").text(message);
                 autoHidePopup(alertBox, 5000);
+                handleTooManyAttempts(xhr);
+
+                $("#verifyOtpBtnOld").prop("disabled", false).text("{{ __('message.verify') }}");
             }
         });
     }
@@ -410,12 +420,7 @@
                 },
                 success: function (response) {
                     if(response.success){
-                    let oldEmail = "{{ auth()->user()->email }}";
-
-                        $('#otpSuccess').removeClass().addClass('alert alert-success alert-dismissible').show();
-                        $('#otpAlertShowMsg').text(response.message);
-                        autoHidePopup('#otpSuccess', 5000);
-                        sendOtpToOldEmail(oldEmail,csrfToken,errorBox2);
+                        changeEmailFinal();
                     }
                     else {
                         showValidationError(otpValueNew, errorBox2, response.message || "{{ __('message.invalid_otp_try_again') }}");
@@ -434,6 +439,7 @@
                     } else {
                         showValidationError(otpValueNew, errorBox2, message2);
                     }
+                    handleTooManyAttempts(xhr);
                     $("#verifyOtpBtn").prop("disabled", false).text("{{ __('message.verify') }}");
 
                 },
@@ -451,9 +457,8 @@
                 success: function (res) {
                     if (res.success) {
                         $('#otpOldEmail').val("{{ \Auth::user()->email }}");
-                        $('#otpVerificationModal').modal('hide');
-                        let alertOtpBox = $("#otpSuccessOld");
-
+                        $('#editEmailModal').modal('hide');
+                        $("#editEmailFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
 
                         setTimeout(() => {
                             $('#otpVerificationModalForOldEmail').modal('show');
@@ -465,20 +470,23 @@
 
                     } else {
                         $('#otpAlertError').removeClass('d-none').text(res.message || "{{ __('message.failed_sent_otp') }}");
+                        $("#editEmailFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
                     }
                 },
                 error: function (xhr) {
                     let errorRes = xhr.responseJSON || {};
                     let message = errorRes.message || "{{ __('message.something_wrong') }}";
 
-                    $('#otpSuccess')
+                    let alertBox = $("#emailAlertShow");
+                    alertBox
                         .removeClass()
                         .addClass('alert alert-danger alert-dismissible fade show')
-                        .show();
-                    $('#otpAlertShowMsg').text(message);
-                    autoHidePopup('#otpSuccess', 5000);
+                        .css("display", "block");
+                    $("#emailAlertShowMsg").text(message);
+                    autoHidePopup(alertBox, 5000);
+                    handleTooManyAttempts(xhr);
 
-                    $("#verifyOtpBtn").prop("disabled", false).text("{{ __('message.verify') }}");
+                    $("#editEmailFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
                 }
             });
         }
@@ -538,7 +546,8 @@
                 data: formData,
                 success: function (response) {
                     if (response.success) {
-                        changeEmailFinal();
+                        let newEmail = $('#otpNewEmail').val();
+                        sendOtpToNewEmail(newEmail, csrfToken, errorBox3);
                     } else {
                         $('#otpErrorOld').text(response.message || "{{ __('message.invalid_otp_try_again') }}");
                     }
@@ -555,6 +564,7 @@
                     } else {
                         showValidationError(otpValueOld, errorBox3, message3);
                     }
+                    handleTooManyAttempts(xhr);
                 }
             });
         });
@@ -571,7 +581,7 @@
                 success: function (res) {
                     if (res.success) {
                         $("#editEmailFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
-                        $('#otpVerificationModalForOldEmail').modal('hide');
+                        $('#otpVerificationModal').modal('hide');
                         $('#editEmailModal').modal('hide');
 
                         $("#finalNewEmailDisplay").text(res.data.email);
@@ -594,6 +604,7 @@
 
 
                     $("#otpAlertShowMsgOld").text(message);
+                    handleTooManyAttempts(xhr);
                 }
             });
         }
@@ -674,6 +685,7 @@
 
                     msgSpan.text(resMsg);
                     autoHidePopup(alertOtpResent, 5000);
+                    handleTooManyAttempts(xhr);
 
                     let resendBtn = $("#" + btnId);
                     resendBtn.html(resendBtn[0].dataset.originalHtml || resendBtn.data("original-html"));
