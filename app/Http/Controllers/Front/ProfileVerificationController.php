@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Auth\BaseAuthController;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Common\Sms\SmsOtpController;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
@@ -21,9 +22,10 @@ class ProfileVerificationController extends BaseAuthController
     }
 
     /**
-     * Send verification code to new email or existing email based on the method.
+     * Send verification code for email change.
+     * Handles: initial submission (with new_email), sending OTP to old/new email, and resend.
      */
-    public function sendNewEmailVerification(Request $request, $method = 'POST')
+    public function sendEmailOtp(Request $request, $method = 'POST')
     {
         $request->validate([
             'email_to_verify' => 'required|email',
@@ -33,119 +35,41 @@ class ProfileVerificationController extends BaseAuthController
         ]);
 
         try {
-            $newEmailOrExisting = $request->email_to_verify;
-            $isMobile = $request->is_mobile;
+            $email = $request->email_to_verify;
             $user = auth()->user();
 
-            // Handle existing user email
-            if ($newEmailOrExisting === $user->email) {
-                $emailType = $isMobile ? 'mobile' : 'old_email';
-                $this->sendActivationForEdit($user, $user->email, $method, $emailType);
+            // Initial email change submission — check existence, then update or send OTP
+            if ($request->has('new_email') && $method === 'POST') {
+                $request->validate(['new_email' => 'required|email']);
+
+                return $this->handleInitialEmailChange($user, $request->input('new_email'));
+            }
+
+            // Send OTP to current email (old email verification or mobile confirmation)
+            if ($email === $user->email) {
+                $mode = $request->is_mobile ? 'mobile' : 'old_email';
+                $this->sendActivationOtp($user, $email, $method, $mode);
                 RateLimiter::hit("email-otp-old:{$user->id}", 600);
 
                 return successResponse(__('message.otp_code_sent_exist'));
             }
 
-            // Check for existing activation record
-            $existing = AccountActivate::where('email', $newEmailOrExisting)->first();
-
-            if ($existing && $method !== 'GET') {
-                // Check if the OTP is still valid (within 10 minutes)
-                if (! $existing->updated_at->addMinutes(10)->isPast()) {
-                    return successResponse(__('message.email_verification.already_sent'), '', 208);
-                }
-
-                // Delete expired record
-                $existing->delete();
-            }
-
-            // Send new activation email
-            $this->sendActivationForEdit($user, $newEmailOrExisting, $method, 'new_email');
-            RateLimiter::hit("email-otp-new:{$user->id}", 600);
-
-            return successResponse(
-                $method === 'GET'
-                    ? __('message.verification_code_resent')
-                    : __('message.otp_code_send_success')
-            );
+            // Send OTP to new email (after old email verified)
+            return $this->dispatchNewEmailOtp($user, $email, $method);
         } catch (\Exception $exception) {
             return errorResponse(__('message.email_verification.send_failure'));
         }
     }
 
     /**
-     * Send activation code to the specified email with template.
+     * Verify email OTP and apply the profile update (email or mobile).
      */
-    public function sendActivationForEdit($user, $email, $method, $mode = null)
-    {
-        $contact = getContactData();
-
-        try {
-            $activate_model = new AccountActivate();
-
-            if ($method == 'GET') {
-                $response = $activate_model->where('email', $email)->first();
-
-                if ($response) {
-                    $token = mt_rand(100000, 999999);
-                    $response->update(['token' => $token]);
-                } else {
-                    $token = mt_rand(100000, 999999);
-                    $activate_model->create(['email' => $email, 'token' => $token]);
-                }
-            } else {
-                // For non-GET methods, always create new record
-                $token = mt_rand(100000, 999999);
-                $activate_model->create(['email' => $email, 'token' => $token]);
-            }
-
-            // Get settings
-            $settings = Setting::find(1);
-            $templateName = match ($mode) {
-                'new_email' => 'verify_new_email',
-                'old_email' => 'confirm_old_email',
-                'mobile' => 'confirm_mobile_number_change',
-                default => null,
-            };
-
-            // Get template
-            $template = Template::whereHas('type', function ($q) use ($templateName) {
-                $q->where('name', $templateName);
-            })->first();
-
-            if (! $template) {
-                throw new \Exception(__('message.something_wrong'));
-            }
-
-            $template_data = $template->data;
-            $template_name = $template->name;
-            $website_url = url('/contact-us');
-            $type = TemplateType::where('id', $template->type)->first()->name ?? '';
-
-            $replace = [
-                'name' => $email,
-                'otp' => $token,
-                'contact' => $contact['contact'],
-                'logo' => $contact['logo'],
-                'app_name' => $settings->title,
-                'contact_url' => $website_url,
-            ];
-
-            $mail = new \App\Http\Controllers\Common\PhpMailController();
-            $mail->SendEmail($settings->email, $email, $template_data, $template_name, $templateName, $replace, $type);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
-        }
-    }
-
-    /**
-     * Verify OTP for new and old email address.
-     */
-    public function verifyOtpForEditEmail(Request $request)
+    public function verifyEmailOtp(Request $request)
     {
         $request->validate([
             'email_to_verify' => 'required|email',
             'otp' => 'required|string|size:6',
+            'verify_type' => 'sometimes|string|in:new_email,mobile_email,old_email',
         ], [
             'email_to_verify.required' => __('message.login_validation.email_required'),
             'email_to_verify.email' => __('message.login_validation.email_regex'),
@@ -156,16 +80,11 @@ class ProfileVerificationController extends BaseAuthController
         try {
             $otp = $request->input('otp');
             $email = $request->input('email_to_verify');
+            $verifyType = $request->input('verify_type', 'new_email');
+
+            $this->hitVerifyRateLimit($verifyType);
 
             $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
-
-            $verifyType = $request->input('verify_type', 'new_email');
-            $rateLimitKey = match ($verifyType) {
-                'old_email' => 'email-verify-old',
-                'mobile_email' => 'email-verify-mobile',
-                default => 'email-verify-new',
-            };
-            RateLimiter::hit("{$rateLimitKey}:".auth()->id(), 600);
 
             if (! $account || $account->token !== $otp) {
                 return errorResponse(__('message.email_verification.invalid_token'));
@@ -177,6 +96,28 @@ class ProfileVerificationController extends BaseAuthController
 
             AccountActivate::where('email', $email)->delete();
 
+            if ($verifyType === 'new_email') {
+                return $this->updateUserEmail($email);
+            }
+
+            if ($verifyType === 'mobile_email') {
+                $verifiedMobile = session('verified_mobile');
+
+                if (! $verifiedMobile || now()->timestamp - $verifiedMobile['verified_at'] > 600) {
+                    session()->forget('verified_mobile');
+
+                    return errorResponse(__('message.mobile_verification_required'));
+                }
+
+                session()->forget('verified_mobile');
+
+                return $this->updateUserMobile(
+                    $verifiedMobile['mobile'],
+                    $verifiedMobile['dial_code'],
+                    $verifiedMobile['country_iso']
+                );
+            }
+
             return successResponse(__('message.email_verification.email_verified'));
         } catch (\Exception $e) {
             return errorResponse(__('message.email_verification.invalid_token'));
@@ -184,65 +125,9 @@ class ProfileVerificationController extends BaseAuthController
     }
 
     /**
-     * Update old email to new email after OTP verification success.
+     * Send or resend OTP to new mobile number.
      */
-    public function changeEmailOldToNew(Request $request)
-    {
-        $request->validate([
-            'newEmail' => 'required|email',
-        ], [
-            'newEmail.required' => __('message.login_validation.email_required'),
-            'newEmail.email' => __('message.login_validation.email_regex'),
-        ]);
-        try {
-            $user = auth()->user();
-
-            // Update logged-in user email directly
-            $user->email = $request->input('newEmail');
-            $user->save();
-
-            return successResponse(__('message.new_email_updated'), ['email' => $user->email]);
-        } catch (\Throwable $e) {
-            return errorResponse(__('message.something_went_wrong_while_updating_email'));
-        }
-    }
-
-    /**
-     * Check if the given email already exists in the system.
-     */
-    public function checkEmailExist(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-        ], [
-            'email.required' => __('validation.email_required'),
-            'email.email' => __('validation.email_invalid'),
-        ]);
-        try {
-            $email = $request->input('email');
-            $exists = User::where('email', $email)->exists();
-            $statusSetting = StatusSetting::query()->first();
-            $emailVerificationRequired = $statusSetting?->emailverification_status ?? false;
-
-            if ($exists) {
-                return errorResponse(__('message.email_already_used'));
-            }
-
-            return successResponse(
-                __('message.given_email_valid'),
-                [
-                    'email_verification_required' => (bool) $emailVerificationRequired,
-                ]
-            );
-        } catch (\Exception $e) {
-            return errorResponse(__('message.something_wrong_try_again_later'));
-        }
-    }
-
-    /**
-     * Generate otp code to new mobile number.
-     */
-    public function requestOtpForNewMobileNo(Request $request, $isResend = 'POST')
+    public function sendMobileOtp(Request $request, $method = 'POST')
     {
         $request->validate([
             'mobile_to_verify' => 'required|string',
@@ -258,32 +143,46 @@ class ProfileVerificationController extends BaseAuthController
         try {
             $dialCode = $request->dial_code;
             $mobileNo = $request->mobile_to_verify;
-            $countryIso = $request->country_iso;
+            $countryIso = strtoupper($request->country_iso);
+            $cleanMobile = preg_replace('/\D/', '', $mobileNo);
             $fullMobile = preg_replace('/\D/', '', $dialCode.$mobileNo);
+            $emailVerificationRequired = false;
 
-            $mobileInfo = [
-                'country_iso' => $countryIso,
-                'mobile' => $mobileNo,
-                'mobile_code' => $dialCode,
-            ];
+            // Initial submission — check existence and verification settings
+            if ($method === 'POST') {
+                if (User::where('mobile', $cleanMobile)->exists()) {
+                    return errorResponse(__('message.mobile_no_already_used'));
+                }
 
-            if ($isResend === 'GET') {
-                $type = $request->input('retry_type', 'text');
-                $responseNewMobileOtp = app(SmsOtpController::class)->sendForReOtp($fullMobile, $type, auth()->id(), 'profile-update', $mobileInfo);
-            } else {
-                $responseNewMobileOtp = app(SmsOtpController::class)->sendOtp($fullMobile, auth()->id(), 'profile-update', $mobileInfo);
+                $settings = $this->getVerificationSettings();
+                $emailVerificationRequired = $settings['email'];
+
+                if (! $settings['mobile']) {
+                    return $this->updateUserMobile($cleanMobile, $dialCode, $countryIso);
+                }
             }
+
+            // Send or resend OTP via MSG91
+            $mobileInfo = ['country_iso' => $countryIso, 'mobile' => $mobileNo, 'mobile_code' => $dialCode];
+            $sms = app(SmsOtpController::class);
+
+            $otpResponse = $method === 'GET'
+                ? $sms->sendForReOtp($fullMobile, $request->input('retry_type', 'text'), auth()->id(), 'profile-update', $mobileInfo)
+                : $sms->sendOtp($fullMobile, auth()->id(), 'profile-update', $mobileInfo);
 
             RateLimiter::hit('mobile-otp:'.auth()->id(), 600);
 
-            if ($responseNewMobileOtp['type'] === 'error') {
-                return errorResponse($responseNewMobileOtp['message']);
+            if ($otpResponse['type'] === 'error') {
+                return errorResponse($otpResponse['message']);
             }
 
-            return successResponse(
-                $isResend === 'GET'
-                    ? __('message.verification_code_resent_mobile')
-                    : __('message.verification_code_sent_mobile')
+            $message = $method === 'GET'
+                ? __('message.verification_code_resent_mobile')
+                : __('message.verification_code_sent_mobile');
+
+            return successResponse($message, $method === 'POST'
+                ? ['email_verification_required' => $emailVerificationRequired]
+                : []
             );
         } catch (\Exception $e) {
             \Log::error('OTP sending failed: '.$e->getMessage());
@@ -293,132 +192,217 @@ class ProfileVerificationController extends BaseAuthController
     }
 
     /**
-     * check mobile number already exist in the system.
+     * Verify mobile OTP and update mobile if no email verification required.
      */
-    public function checkMobileNoExist(Request $request)
-    {
-        try {
-            $request->validate([
-                'mobile_to_verify' => 'required|string',
-                'dial_code' => 'required|string',
-                'country_iso' => 'required|string',
-            ], [
-                'mobile_to_verify.required' => __('validation.profile_form.mobile.required'),
-                'mobile_to_verify.string' => __('validation.profile_form.mobile.regex'),
-                'dial_code.required' => __('message.dialcode_required'),
-                'country_iso.required' => __('message.isocode_required'),
-            ]);
-
-            $statusSetting = StatusSetting::query()->first();
-            $mobileVerificationRequired = $statusSetting?->msg91_status ?? false;
-            $emailVerificationRequired = $statusSetting?->emailverification_status ?? false;
-
-            // Clean mobile number (only digits)
-            $mobile = preg_replace('/\D/', '', $request->mobile_to_verify);
-
-            // Check in DB
-            $exists = User::where('mobile', $mobile)
-                ->where('mobile_code', $request->dial_code)
-                ->where('mobile_country_iso', strtoupper($request->country_iso))
-                ->exists();
-
-            if ($exists) {
-                return errorResponse(__('message.mobile_no_already_used'));
-            }
-
-            return successResponse(
-                __('message.given_mobile_no_valid'),
-                [
-                    'mobile_verification_required' => (bool) $mobileVerificationRequired,
-                    'email_verification_required' => (bool) $emailVerificationRequired,
-                ]
-            );
-        } catch (\Exception $e) {
-            return errorResponse(__('message.something_wrong_try_again_later'));
-        }
-    }
-
-    /**
-     * Verify OTP for new mobile number.
-     */
-    public function verifyOtpMobileNew(Request $request)
+    public function verifyMobileOtp(Request $request)
     {
         $request->validate([
             'mobile_to_verify' => 'required|string',
-            'otp' => 'required|string|size:6',
+            'otp' => 'required|numeric|digits:6',
+            'new_mobile' => 'required|string',
+            'dial_code' => 'required|string',
+            'country_iso' => 'required|string',
         ], [
             'mobile_to_verify.required' => __('validation.profile_form.mobile.required'),
             'mobile_to_verify.string' => __('validation.profile_form.mobile.regex'),
             'otp.required' => __('validation.verify_otp.otp_required'),
-            'otp.size' => __('validation.verify_otp.otp_size'),
+            'otp.digits' => __('validation.verify_otp.otp_size'),
+            'new_mobile.required' => __('validation.profile_form.mobile.required'),
+            'dial_code.required' => __('message.dialcode_required'),
+            'country_iso.required' => __('message.isocode_required'),
         ]);
 
         try {
-            $mobile = $request->mobile_to_verify;
-            $otp = $request->otp;
+            $response = app(SmsOtpController::class)->sendVerifyOTP(
+                $request->otp,
+                $request->mobile_to_verify,
+                auth()->id(),
+                'profile-update'
+            );
 
-            // Validate OTP
-            if (! is_numeric($request->otp)) {
-                return errorResponse(__('message.otp_invalid_format'));
-            }
-
-            $response = app(SmsOtpController::class)->sendVerifyOTP($otp, $mobile, auth()->id(), 'profile-update');
             RateLimiter::hit('mobile-verify:'.auth()->id(), 600);
 
-            if (! isset($response['type']) || $response['type'] !== 'success') {
+            if (($response['type'] ?? null) !== 'success') {
                 return errorResponse($response['message'] ?? __('message.otp_invalid'));
             }
 
-            return successResponse(__('message.otp_verified'));
+            $cleanMobile = preg_replace('/\D/', '', $request->input('new_mobile'));
+            $dialCode = $request->input('dial_code');
+            $countryIso = $request->input('country_iso');
+
+            $settings = $this->getVerificationSettings();
+
+            if (! $settings['email']) {
+                return $this->updateUserMobile($cleanMobile, $dialCode, $countryIso);
+            }
+
+            session(['verified_mobile' => [
+                'mobile' => $cleanMobile,
+                'dial_code' => $dialCode,
+                'country_iso' => $countryIso,
+                'verified_at' => now()->timestamp,
+            ]]);
+
+            return successResponse(__('message.otp_verified'), [
+                'email_verification_required' => true,
+            ]);
         } catch (\Exception $e) {
             return errorResponse(__('message.error_occurred_while_verify'));
         }
     }
 
     /**
-     * Update old mobile number to new mobile number after OTP verification success.
+     * Resend OTP for email or mobile verification.
      */
-    public function changeMobileOldToNew(Request $request)
+    public function resendOtp(Request $request)
     {
-        $request->validate([
-            'newMobile' => 'required|string',
-            'dial_code' => 'required|string',
-            'country_iso' => 'required|string',
-        ], [
-            'newMobile.required' => __('validation.profile_form.mobile.required'),
-            'newMobile.string' => __('validation.profile_form.mobile.regex'),
-            'dial_code.required' => __('message.dialcode_required'),
-            'country_iso.required' => __('message.isocode_required'),
-        ]);
-
-        try {
-            $user = auth()->user();
-
-            $user->mobile = $request->input('newMobile');
-            $user->mobile_code = $request->input('dial_code');
-            $user->mobile_country_iso = $request->input('country_iso');
-            $user->save();
-
-            return successResponse(__('message.new_mobile_no_updated'),
-                [
-                    'mobile' => $user->mobile,
-                    'mobile_code' => $user->mobile_code,
-                ]);
-        } catch (\Exception $e) {
-            return errorResponse(__('message.something_went_wrong_while_updating_mobile'));
-        }
+        return match ($request->input('type')) {
+            'email' => $this->sendEmailOtp($request, 'GET'),
+            'mobile' => $this->sendMobileOtp($request, 'GET'),
+            default => errorResponse(__('message.something_wrong')),
+        };
     }
 
-    /**
-     * Make HTTP request to the given URL with parameters.
-     */
-    public function resentOtpProfile(Request $request)
-    {
-        $default_type = $request->input('type');
+    // ─── Private Helpers ─────────────────────────────────────────────────
 
-        return match ($default_type) {
-            'email' => $this->sendNewEmailVerification($request, 'GET'),
-            'mobile' => $this->requestOtpForNewMobileNo($request, 'GET'),
+    private function handleInitialEmailChange($user, string $newEmail)
+    {
+        if (User::where('email', $newEmail)->exists()) {
+            return errorResponse(__('message.email_already_used'));
+        }
+
+        $settings = $this->getVerificationSettings();
+
+        if (! $settings['email']) {
+            return $this->updateUserEmail($newEmail);
+        }
+
+        $this->sendActivationOtp($user, $user->email, 'POST', 'old_email');
+        RateLimiter::hit("email-otp-old:{$user->id}", 600);
+
+        return successResponse(__('message.otp_code_sent_exist'), [
+            'email_verification_required' => true,
+        ]);
+    }
+
+    private function dispatchNewEmailOtp($user, string $email, string $method)
+    {
+        if ($method !== 'GET') {
+            $existing = AccountActivate::where('email', $email)->first();
+
+            if ($existing && ! $existing->updated_at->addMinutes(10)->isPast()) {
+                return successResponse(__('message.email_verification.already_sent'), '', 208);
+            }
+
+            $existing?->delete();
+        }
+
+        $this->sendActivationOtp($user, $email, $method, 'new_email');
+        RateLimiter::hit("email-otp-new:{$user->id}", 600);
+
+        return successResponse(
+            $method === 'GET'
+                ? __('message.verification_code_resent')
+                : __('message.otp_code_send_success')
+        );
+    }
+
+    private function sendActivationOtp($user, string $email, string $method, string $mode): void
+    {
+        $token = random_int(100000, 999999);
+
+        if ($method === 'GET') {
+            AccountActivate::updateOrCreate(['email' => $email], ['token' => $token]);
+        } else {
+            AccountActivate::create(['email' => $email, 'token' => $token]);
+        }
+
+        $templateName = match ($mode) {
+            'new_email' => 'verify_new_email',
+            'old_email' => 'confirm_old_email',
+            'mobile' => 'confirm_mobile_number_change',
+            default => null,
         };
+
+        $template = Template::whereHas('type', fn ($q) => $q->where('name', $templateName))->first();
+
+        if (! $template) {
+            throw new \Exception(__('message.something_wrong'));
+        }
+
+        $settings = Setting::find(1);
+        $contact = getContactData();
+
+        $replace = [
+            'name' => $email,
+            'otp' => $token,
+            'contact' => $contact['contact'],
+            'logo' => $contact['logo'],
+            'app_name' => $settings->title,
+            'contact_url' => url('/contact-us'),
+        ];
+
+        $type = TemplateType::where('id', $template->type)->first()->name ?? '';
+
+        new PhpMailController()->SendEmail(
+            $settings->email, $email, $template->data, $template->name, $templateName, $replace, $type
+        );
+    }
+
+    private function hitVerifyRateLimit(string $verifyType): void
+    {
+        $key = match ($verifyType) {
+            'old_email' => 'email-verify-old',
+            'mobile_email' => 'email-verify-mobile',
+            default => 'email-verify-new',
+        };
+
+        RateLimiter::hit("{$key}:".auth()->id(), 600);
+    }
+
+    private function updateUserEmail(string $email)
+    {
+        if (User::where('email', $email)->where('id', '!=', auth()->id())->exists()) {
+            return errorResponse(__('message.email_already_used'));
+        }
+
+        $user = auth()->user();
+        $user->email = $email;
+        $user->save();
+
+        return successResponse(__('message.new_email_updated'), [
+            'email_verification_required' => false,
+            'email_updated' => true,
+            'email' => $user->email,
+        ]);
+    }
+
+    private function updateUserMobile(string $mobile, string $dialCode, string $countryIso)
+    {
+        if (User::where('mobile', $mobile)->where('id', '!=', auth()->id())->exists()) {
+            return errorResponse(__('message.mobile_no_already_used'));
+        }
+
+        $user = auth()->user();
+        $user->mobile = $mobile;
+        $user->mobile_code = $dialCode;
+        $user->mobile_country_iso = $countryIso;
+        $user->save();
+
+        return successResponse(__('message.new_mobile_no_updated'), [
+            'mobile_updated' => true,
+            'mobile' => $user->mobile,
+            'mobile_code' => $user->mobile_code,
+        ]);
+    }
+
+    private function getVerificationSettings(): array
+    {
+        $status = StatusSetting::query()->first();
+
+        return [
+            'email' => (bool) ($status?->emailverification_status ?? false),
+            'mobile' => (bool) ($status?->msg91_status ?? false),
+        ];
     }
 }

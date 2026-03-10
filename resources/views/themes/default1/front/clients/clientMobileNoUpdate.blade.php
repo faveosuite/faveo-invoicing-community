@@ -151,21 +151,13 @@
         <div class="modal fade" id="mobileSuccessModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabelMobile" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="successModalLabelMobile">
-                            {{ __('message.mobile_no_changed_successfully') }}
-                        </h4>
-                        <button type="button" class="btn-close closeandrefresh white-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body text-center">
-                        <div class="mb-4">
+                    <div class="modal-body text-center py-4">
+                        <div class="mb-3">
                             <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
                         </div>
                         <h5 class="text-success mb-3">{{ __('message.mobile_no_updated_successfully') }}</h5>
-                        <div class="alert alert-success" id="mobileUpdatedAlert" style="display: none">
-                            <p class="mb-1 text-black">{{ __('message.your_mobile_no_changed_successfully') }}</p>
-                            <strong id="finalNewMobileDisplay"></strong>
-                        </div>
+                        <p class="mb-1 text-muted">{{ __('message.your_mobile_no_changed_successfully') }}</p>
+                        <strong id="finalNewMobileDisplay" class="d-block mt-2 text-dark"></strong>
                     </div>
                     <div class="modal-footer center-footer">
                         <button type="button" class="btn btn-dark" data-bs-dismiss="modal" onclick="location.reload()">
@@ -236,10 +228,6 @@
             $(this).hide();
         });
 
-        $(document).on("close.bs.alert", "#mobileUpdatedAlert", function (e) {
-            e.preventDefault();
-            $(this).hide();
-        });
 
         function showValidationError(field, errorBox, message) {
             field.addClass('is-invalid');       // red border
@@ -315,7 +303,7 @@
             $('#editMobileFormBtn').prop('disabled', true).text('{{ __('message.sending') }}');
 
             $.ajax({
-                url: "{{ url('mobileNoexist') }}",
+                url: "{{ url('profile/mobile/send-otp') }}",
                 type: "POST",
                 data: {
                     _token: csrfToken,
@@ -324,13 +312,25 @@
                     country_iso: isoCode
                 },
                 success: function (response) {
-                    window.AppGlobals.emailVerificationRequired = response.data.email_verification_required ?? false;
+                    if (response.data && response.data.mobile_updated) {
+                        // Mobile updated directly (no verification needed)
+                        $('#editMobileFormBtn').prop('disabled', false).text("{{ __('message.submit') }}");
+                        $('#editMobileModal').modal('hide');
+                        $("#finalNewMobileDisplay").text("+" + response.data.mobile_code + " " + response.data.mobile);
 
-                    if (response.data.mobile_verification_required === false) {
-                        changeMobileFinal();
-                    }
-                    else{
-                        sendOtpToNewMobile(cleanPhone, dialCode, isoCode);
+                        $('#mobileSuccessModal').modal('show');
+                    } else {
+                        // OTP sent - show verification modal
+                        window.AppGlobals.emailVerificationRequired = response.data.email_verification_required ?? false;
+                        $("#editMobileModal").modal("hide");
+                        $('#editMobileFormBtn').prop('disabled', false).text("{{ __('message.submit') }}");
+                        setTimeout(() => {
+                            $('#otpMobVerificationModalForNew').modal('show');
+                            startTimer(
+                                document.getElementById("otpMobileResendBtn"),
+                                document.getElementById("timerMobile"),
+                            );
+                        }, 400);
                     }
                     let template = document.getElementById('otp-message-mobile').dataset.msg;
                     let safeMobile = $('<div>').text(fullMobileInfo).html();
@@ -356,46 +356,6 @@
             });
         });
 
-        // Send OTP to new mobile number
-        function sendOtpToNewMobile(mobile, dialCode, countryIso) {
-            $.ajax({
-                url: "{{ url('newMobileNoVerify') }}",
-                type: "POST",
-                data: {
-                    _token: csrfToken,
-                    mobile_to_verify: mobile,
-                    dial_code: dialCode,
-                    country_iso: countryIso
-                },
-                success: function (response) {
-                    if (response.success) {
-                        $("#editMobileModal").modal("hide");
-                        $("#otpMobVerificationModalForNew").modal("show");
-                        let alertMobOtpSuccess = $("#otpMobileAlert");
-
-
-                        setTimeout(() => {
-                            $('#otpMobVerificationModalForNew').modal('show');
-                            startTimer(
-                                document.getElementById("otpMobileResendBtn"),
-                                document.getElementById("timerMobile"),
-                            );
-                        }, 400);
-
-                    }
-                },
-                error: function (xhr) {
-                    let mob2 = xhr.responseJSON || {};
-                    let mobMsg2 = mob2.message || "{{ __('message.something_wrong') }}";
-                    $('#mobileAlertShow').removeClass().addClass('alert alert-danger alert-dismissible fade show').show();
-                    $('#mobileAlertShowMsg').text(mobMsg2);
-                    autoHidePopup('#mobileAlertShow', 5000);
-                    handleTooManyAttempts(xhr);
-                    $("#editMobileFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
-                },
-            });
-        }
-
         // Verify  OTP for new mobile number
         $('#otpVerificationFormMobileNew').on('submit', function (e) {
             e.preventDefault();
@@ -419,13 +379,15 @@
             let fullMobile = window.AppGlobals.newMobileFull;
 
             $.ajax({
-                url: "{{ url('verify/newMobileNoOtp') }}",
+                url: "{{ url('profile/mobile/verify-otp') }}",
                 type: "POST",
                 data: {
                     _token: csrfToken,
                     mobile_to_verify: fullMobile,
                     otp: otp,
-                    verify_mobile: 'new_mobile_no_rate',
+                    new_mobile: window.AppGlobals.cleanPhone,
+                    dial_code: window.AppGlobals.dialCode,
+                    country_iso: window.AppGlobals.isoCode,
                 },
                 beforeSend: function () {
                     // Disable button and show loading message
@@ -433,19 +395,21 @@
                 },
                 success: function (response) {
                     if (response.success) {
-                        if (window.AppGlobals.emailVerificationRequired) {
+                        if (response.data && response.data.mobile_updated) {
+                            // Mobile updated (no email verification needed)
+                            $('#otpMobVerificationModalForNew').modal('hide');
+                            $('#editMobileModal').modal('hide');
+                            $("#finalNewMobileDisplay").text("+" + response.data.mobile_code + " " + response.data.mobile);
+    
+                            $('#mobileSuccessModal').modal('show');
+                        } else if (response.data && response.data.email_verification_required) {
+                            // Email verification still needed
                             let existEmailVal = $('#existEmail').val();
                             sentOtpCodeToAuthEmail(existEmailVal);
-                        } else {
-                            changeMobileFinal();
                         }
-                    }
-                    else {
-                        $("#verifyOtpMobileBtn").prop("disabled", false).text("{{ __('message.verify') }}");
                     }
                 },
                 error: function (xhr) {
-                    $("#verifyOtpMobileBtn").prop("disabled", false).text("{{ __('message.verify') }}");
                     let statusCodeMob = xhr.status;
                     let mob2 = xhr.responseJSON || {};
                     let mobMsg2 = mob2.message || "{{ __('message.something_wrong') }}";
@@ -454,11 +418,13 @@
                         $('#otpMobileAlert').removeClass().addClass('alert alert-danger alert-dismissible fade show').show();
                         $('#otpMobileAlertMsg').text(mobMsg2);
                         autoHidePopup('#otpMobileAlert', 5000);
-
                     } else {
                         showValidationError(mobField2, errorBoxMob2,mobMsg2);
                     }
                     handleTooManyAttempts(xhr);
+                },
+                complete: function () {
+                    $("#verifyOtpMobileBtn").prop("disabled", false).text("{{ __('message.verify') }}");
                 },
             });
         });
@@ -466,7 +432,7 @@
         function sentOtpCodeToAuthEmail(existEmailVal) {
             let alertMobOtpSuccess2 = $("#otpSuccessMobile");
             $.ajax({
-                url: "{{ url('emailUpdateEditProfile') }}",
+                url: "{{ url('profile/email/send-otp') }}",
                 type: "POST",
                 data: {
                     _token: csrfToken,
@@ -525,14 +491,13 @@
             let fullMobile = window.AppGlobals.newMobileFull;
 
             $.ajax({
-                url: "{{ url('otpVerifyForNewEmail') }}",
+                url: "{{ url('profile/email/verify-otp') }}",
                 type: "POST",
                 data: {
                     _token: csrfToken,
                     otp: mobileVal3,
                     email_to_verify: "{{ $user->email }}",
                     verify_type: 'mobile_email',
-
                 },
                 beforeSend: function () {
                     // Disable button and show loading message
@@ -540,9 +505,13 @@
                 },
                 success: function (response) {
                     if (response.success) {
-                        changeMobileFinal();
-                    } else {
-                        $("#verifyOtpMobileBtnEmail").prop("disabled", false).text("{{ __('message.verify') }}");
+                        if (response.data && response.data.mobile_updated) {
+                            $('#confirmationFromEmailModal').modal('hide');
+                            $('#editMobileModal').modal('hide');
+                            $("#finalNewMobileDisplay").text("+" + response.data.mobile_code + " " + response.data.mobile);
+    
+                            $('#mobileSuccessModal').modal('show');
+                        }
                     }
                 },
                 error: function (xhr) {
@@ -558,54 +527,12 @@
                     }
                     handleTooManyAttempts(xhr);
                     autoHidePopup('#otpSuccessMobile', 5000);
+                },
+                complete: function () {
                     $("#verifyOtpMobileBtnEmail").prop("disabled", false).text("{{ __('message.verify') }}");
-
                 },
             });
         });
-
-        //Update the new mobile number
-        function changeMobileFinal() {
-
-            let alertMobOtpSuccess3 = $("#otpSuccessMobile");
-            let alertMobSuccessBox = $("#mobileUpdatedAlert");
-            $.ajax({
-                url: "{{ url('user/change-mobile-no') }}",
-                type: "POST",
-                data: {
-                    _token: csrfToken,
-                    newMobile: window.AppGlobals.cleanPhone,
-                    dial_code: window.AppGlobals.dialCode,
-                    country_iso: window.AppGlobals.isoCode,
-                },
-                success: function (res) {
-                    if (res.success) {
-                        $('#confirmationFromEmailModal').modal('hide');
-                        $('#editMobileModal').modal('hide');
-                        $("#finalNewMobileDisplay").text("+" + res.data.mobile_code + " " + res.data.mobile);
-                        alertMobSuccessBox
-                            .removeClass()
-                            .addClass("alert alert-success alert-dismissible fade show")
-                            .css("display", "block");
-
-                        $('#mobileSuccessModal').modal('show');
-                    }
-                },
-                error: function (xhr) {
-                    let mob4 = xhr.responseJSON || {};
-                    let mobMsg4 = mob4.message || "{{ __('message.something_wrong') }}";
-                    alertMobOtpSuccess3
-                        .removeClass()
-                        .addClass("alert alert-danger alert-dismissible fade show")
-                        .css("display", "block");
-
-                    $("#otpAlertShowMsgMobile").text(mobMsg4);
-                    handleTooManyAttempts(xhr);
-                    $("#mobileVerifyBtnText").prop("disabled", false).text("{{ __('message.verify') }}");
-
-                },
-            });
-        }
 
         // Resend OTP for new mobile number
         function resentOtpForMobile(type,btnResendOtpMob) {
@@ -614,7 +541,7 @@
             let isoCode = window.AppGlobals.isoCode;
 
             $.ajax({
-                url: "{{ url('resendOtp/email-mobile') }}",
+                url: "{{ url('profile/resend-otp') }}",
                 type: "POST",
                 data: {
                     _token: csrfToken,
@@ -715,7 +642,7 @@
             let alertBox = $("#otpSuccessMobile");
 
             $.ajax({
-                url: "{{ url('resendOtp/email-mobile') }}",
+                url: "{{ url('profile/resend-otp') }}",
                 type: "POST",
                 data: {
                     _token: csrfToken,

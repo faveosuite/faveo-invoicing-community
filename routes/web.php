@@ -690,16 +690,12 @@ Route::middleware('installAgora')->group(function () {
     Route::post('pipedrive/get-dropdown', [PipedriveController::class, 'getDropdown']);
 
     Route::middleware(['blockFailedVerifications:verify'])->group(function () {
-        Route::post('emailUpdateEditProfile', [Front\ProfileVerificationController::class, 'sendNewEmailVerification']);
-        Route::post('otpVerifyForNewEmail', [Front\ProfileVerificationController::class, 'verifyOtpForEditEmail']);
-        Route::post('newMobileNoVerify', [Front\ProfileVerificationController::class, 'requestOtpForNewMobileNo']);
-        Route::post('verify/newMobileNoOtp', [Front\ProfileVerificationController::class, 'verifyOtpMobileNew']);
-        Route::post('resendOtp/email-mobile', [Front\ProfileVerificationController::class, 'resentOtpProfile']);
+        Route::post('profile/email/send-otp', [Front\ProfileVerificationController::class, 'sendEmailOtp']);
+        Route::post('profile/email/verify-otp', [Front\ProfileVerificationController::class, 'verifyEmailOtp']);
+        Route::post('profile/mobile/send-otp', [Front\ProfileVerificationController::class, 'sendMobileOtp']);
+        Route::post('profile/mobile/verify-otp', [Front\ProfileVerificationController::class, 'verifyMobileOtp']);
+        Route::post('profile/resend-otp', [Front\ProfileVerificationController::class, 'resendOtp']);
     });
-    Route::post('user/change-email', [Front\ProfileVerificationController::class, 'changeEmailOldToNew']);
-    Route::post('check-email/exist', [Front\ProfileVerificationController::class, 'checkEmailExist']);
-    Route::post('mobileNoexist', [Front\ProfileVerificationController::class, 'checkMobileNoExist']);
-    Route::post('user/change-mobile-no', [Front\ProfileVerificationController::class, 'changeMobileOldToNew']);
 });
 /*
 * Faveo APIs

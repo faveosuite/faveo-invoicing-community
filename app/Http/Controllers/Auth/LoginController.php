@@ -439,7 +439,8 @@ class LoginController extends Controller
 
         $userUrl = url("clients/{$user->id}");
 
-        $message = "User <a href='{$userUrl}'><strong>{$user->first_name} {$user->last_name}</strong></a> logged in successfully.";
+        $name = e($user->first_name.' '.$user->last_name);
+        $message = "User <a href='{$userUrl}'><strong>{$name}</strong></a> logged in successfully.";
 
         logActivity(
             $message,
