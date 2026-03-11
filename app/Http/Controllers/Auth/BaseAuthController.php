@@ -67,16 +67,16 @@ class BaseAuthController extends Controller
                 $response = $activate_model->where('email', $email)->first();
 
                 if ($response) {
-                    $token = mt_rand(100000, 999999);
+                    $token = random_int(100000, 999999);
                     $response->update(['token' => $token]);
                 } else {
                     // Create a new record if it doesn't exist
-                    $token = mt_rand(100000, 999999);
+                    $token = random_int(100000, 999999);
                     $activate_model->create(['email' => $email, 'token' => $token]);
                 }
             } else {
                 // For non-GET methods, always create a new record
-                $token = mt_rand(100000, 999999);
+                $token = random_int(100000, 999999);
                 $activate_model->create(['email' => $email, 'token' => $token]);
             }
 

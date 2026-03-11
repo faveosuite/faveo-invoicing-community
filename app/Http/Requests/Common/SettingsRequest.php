@@ -27,7 +27,7 @@ class SettingsRequest extends FormRequest
 
         return [
             'company' => 'required|max:50',
-            'company_email' => 'required|email',
+            'company_email' => 'required|email|unique:users,email|unique:users,user_name',
             'title' => 'max:50',
             'website' => 'required|url|regex:'.$regex,
             'phone' => 'required',
@@ -51,6 +51,7 @@ class SettingsRequest extends FormRequest
 
             'company_email.required' => __('validation.settings_forms.company_email.required'),
             'company_email.email' => __('validation.settings_forms.company_email.email'),
+            'company_email.unique' => __('validation.profile_form.email.unique'),
 
             'title.max' => __('validation.settings_forms.title.max'),
 

@@ -9,7 +9,6 @@ use App\Model\Common\MsgDeliveryReports;
 use App\Model\Common\StatusSetting;
 use App\ThirdPartyApp;
 use Carbon\Carbon;
-use Carbon\CarbonImmutable;
 use DataTables;
 use Illuminate\Http\Request;
 
@@ -305,11 +304,11 @@ class MSG91Controller extends Controller
         });
         $query->when($request->filled('date_from') && ! $request->filled('date_to'), function ($q) use ($request) {
             $from = Carbon::createFromFormat('m/d/Y', $request->input('date_from'))->startOfDay();
-            $q->whereBetween('date', [$from, Carbon::maxValue()->endOfDay()]);
+            $q->where('date', '>=', $from);
         });
         $query->when(! $request->filled('date_from') && $request->filled('date_to'), function ($q) use ($request) {
             $to = Carbon::createFromFormat('m/d/Y', $request->input('date_to'))->endOfDay();
-            $q->whereBetween('date', [CarbonImmutable::startOfTime(), $to]);
+            $q->where('date', '<=', $to);
         });
 
         $query->when($request->filled('email'), function ($q) use ($request) {

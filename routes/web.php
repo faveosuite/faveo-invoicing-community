@@ -194,7 +194,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('/auth/redirect/{provider}', [Auth\LoginController::class, 'redirectToGithub']);
     Route::get('/auth/callback/{provider}', [Auth\LoginController::class, 'handler']);
 
-    Route::get('activate/{token}', [Auth\AuthController::class, 'activate']);
+//    Route::get('activate/{token}', [Auth\AuthController::class, 'activate']);
 
     /*
      * Client
