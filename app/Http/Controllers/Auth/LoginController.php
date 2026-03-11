@@ -414,6 +414,7 @@ class LoginController extends Controller
                 break;
 
             case '2fa':
+                $identifier = $user->id;
                 $keys = [
                     "2fa-code:{$user->id}",
                     "recovery-code:{$user->id}",
@@ -426,9 +427,10 @@ class LoginController extends Controller
 
         foreach ($keys as $key) {
             RateLimiter::clear($key);
-            \Cache::forget("penalty_level:{$key}");
-            \Cache::forget("penalty_applied:{$key}");
         }
+
+        \Cache::forget("penalty_level:{$context}:{$identifier}");
+        \Cache::forget("penalty_applied:{$context}:{$identifier}");
     }
 
     public function logActivityLogin($user): void

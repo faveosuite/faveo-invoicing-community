@@ -26,6 +26,7 @@ class BlockFailedVerifications
         // 3. Check rate limiting for all configured types in this context
         foreach ($config['limits'] as $type => $maxAttempts) {
             $rateLimitResult = $this->checkProgressiveRateLimit(
+                $context,
                 $type,
                 $rateLimitIdentifier,
                 $maxAttempts,
@@ -124,6 +125,7 @@ class BlockFailedVerifications
     }
 
     private function checkProgressiveRateLimit(
+        string $context,
         string $type,
         string $identifier,
         int $maxAttempts,
@@ -131,8 +133,8 @@ class BlockFailedVerifications
         Request $request
     ): ?Response {
         $key = "{$type}:{$identifier}";
-        $penaltyKey = "penalty_level:{$type}:{$identifier}";
-        $penaltyAppliedKey = "penalty_applied:{$type}:{$identifier}";
+        $penaltyKey = "penalty_level:{$context}:{$identifier}";
+        $penaltyAppliedKey = "penalty_applied:{$context}:{$identifier}";
 
         if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
             // Check if penalty already applied for this cycle
