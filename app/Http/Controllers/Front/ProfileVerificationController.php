@@ -19,6 +19,7 @@ class ProfileVerificationController extends BaseAuthController
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('blockFailedVerifications:verify,mobile-verify,email-verify,email-verify-new,email-verify-old,email-verify-mobile')->only(['verifyEmailOtp', 'verifyMobileOtp']);
     }
 
     /**

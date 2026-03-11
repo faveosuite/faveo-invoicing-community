@@ -10,42 +10,88 @@ use RateLimiter;
 use Session;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Blocks requests when a user exceeds the allowed number of failed attempts
+ * for login, verification (email/mobile OTP), or two-factor authentication.
+ *
+ * How it works:
+ * - Each action type (e.g. email-verify, mobile-otp) has a max attempt limit.
+ * - Once any limit is reached, all routes using this middleware are blocked.
+ * - Lockout durations escalate progressively: 30min -> 1hr -> 3hr -> 6hr.
+ * - Penalty level is shared per user per context, so repeated violations
+ *   across different types escalate together.
+ * - Penalty tracking is per type, so hitting one type's limit doesn't
+ *   prevent another type from getting its own penalty applied.
+ *
+ * Usage in routes:
+ *   - Check all limits: middleware('blockFailedVerifications:verify')
+ *   - Check specific types: middleware('blockFailedVerifications:verify,email-verify,mobile-verify')
+ *     When specific types are passed, only those are checked instead of all.
+ *     This is used to verify OTP routes so that OTP send limits don't block verification.
+ *
+ * The actual RateLimiter::hit() calls happen in the controllers on failure/action,
+ * not in this middleware. This middleware only reads and enforces the limits.
+ *
+ * Contexts:
+ *   - login: tracks failed login attempts (identifier: IP + email/username hash)
+ *   - verify: tracks OTP sends and failed verifications (identifier: user ID)
+ *   - 2fa: tracks failed 2FA code attempts (identifier: user ID)
+ *
+ * Cache keys used:
+ *   - penalty_level:{context}:{identifier} — current escalation level (1-4), expires in 24h
+ *   - penalty_applied:{context}:{type}:{identifier} — whether penalty was already applied for this cycle
+ */
 class BlockFailedVerifications
 {
+    /**
+     * Progressive lockout durations in minutes.
+     * The level increases each time a user exhausts their attempts within a penalty window.
+     */
     private const array PENALTIES = [
-        1 => 30,    // 30 minutes
-        2 => 60,    // 1 hour
-        3 => 180,   // 3 hours
-        4 => 360,   // 6 hours
+        1 => 30,
+        2 => 60,
+        3 => 180,
+        4 => 360,
     ];
 
+    /**
+     * Rate limit types and their max allowed attempts per context.
+     *
+     * "Verify" types explained:
+     *   mobile-otp / email-otp* — OTP send attempts (hit in controller on every send)
+     *   mobile-verify / email-verify* — OTP verification failures (hit in controller only on wrong OTP)
+     */
     private const array CONFIGS = [
         'login' => [
-            'global_limits' => ['login-attempt' => 5],
-            'route_limits' => [],
+            'limits' => ['login-attempt' => 5],
         ],
         'verify' => [
-            'global_limits' => [
+            'limits' => [
+                'mobile-otp' => 3,
+                'email-otp' => 3,
+                'email-otp-new' => 3,
+                'email-otp-old' => 3,
                 'mobile-verify' => 3,
                 'email-verify' => 3,
                 'email-verify-new' => 3,
                 'email-verify-old' => 3,
                 'email-verify-mobile' => 3,
             ],
-            'route_limits' => [
-                'mobile-otp' => 3,
-                'email-otp' => 3,
-                'email-otp-new' => 3,
-                'email-otp-old' => 3,
-            ],
         ],
         '2fa' => [
-            'global_limits' => ['2fa-code' => 3, 'recovery-code' => 3],
-            'route_limits' => [],
+            'limits' => ['2fa-code' => 3, 'recovery-code' => 3],
         ],
     ];
 
-    public function handle(Request $request, Closure $next, string $context = 'verify', string ...$routeLimitTypes): Response
+    /**
+     * Main handler. Checks all configured limits (or only the specified types)
+     * and blocks the request if any limit has been exceeded.
+     *
+     * @param  string       $context    One of: logins, verify, 2fa
+     * @param  string       ...$onlyTypes  Optional — if provided, only these types are checked.
+     *                                     Used by verify OTP routes to skip OTP send limits.
+     */
+    public function handle(Request $request, Closure $next, string $context = 'verify', string ...$onlyTypes): Response
     {
         $identifier = $this->getIdentifier($context);
 
@@ -53,27 +99,25 @@ class BlockFailedVerifications
             return redirect('login');
         }
 
-        $config = self::CONFIGS[$context];
+        $limits = self::CONFIGS[$context]['limits'];
 
-        // 1. Global limits — if ANY is reached, block ALL routes
-        foreach ($config['global_limits'] as $type => $max) {
-            if ($response = $this->enforce($context, $type, $identifier, $max, $request)) {
-                return $response;
-            }
+        if (! empty($onlyTypes)) {
+            $limits = array_intersect_key($limits, array_flip($onlyTypes));
         }
 
-        // 2. Route-specific limits — only check types passed as middleware parameter
-        foreach ($routeLimitTypes as $type) {
-            if ($max = $config['route_limits'][$type] ?? null) {
-                if ($response = $this->enforce($context, $type, $identifier, $max, $request)) {
-                    return $response;
-                }
+        foreach ($limits as $type => $max) {
+            if ($response = $this->enforce($context, $type, $identifier, $max, $request)) {
+                return $response;
             }
         }
 
         return $next($request);
     }
 
+    /**
+     * Resolves who we're rate-limiting based on the context.
+     * Login uses IP + input hash, verify/2fa uses user ID from auth or session.
+     */
     private function getIdentifier(string $context): ?string
     {
         return match ($context) {
@@ -83,6 +127,10 @@ class BlockFailedVerifications
         };
     }
 
+    /**
+     * Checks if the given rate limit type has been exceeded.
+     * If yes, applies a progressive penalty (if not already applied) and returns a 429 response.
+     */
     private function enforce(string $context, string $type, string $identifier, int $maxAttempts, Request $request): ?Response
     {
         $key = "{$type}:{$identifier}";
@@ -91,17 +139,30 @@ class BlockFailedVerifications
             return null;
         }
 
-        $this->applyProgressivePenalty($context, $identifier, $key, $maxAttempts);
+        $this->applyProgressivePenalty($context, $type, $identifier, $key, $maxAttempts);
 
         $waitTime = formatDuration(RateLimiter::availableIn($key));
 
         return $this->respond($request, $type, $waitTime);
     }
 
-    private function applyProgressivePenalty(string $context, string $identifier, string $key, int $maxAttempts): void
+    /**
+     * Escalates the lockout duration when the user hits a limit for the first time in a cycle.
+     *
+     * On first trigger: clears the rate limiter, then re-fills it with the penalty duration
+     * so that availableIn() returns the correct lockout time.
+     *
+     * Skips if a penalty was already applied for this type in the current cycle
+     * (prevents re-escalating on every subsequent blocked request).
+     *
+     * Penalty level is shared across types within the same context — so if a user
+     * hits email-otp limit (level 1 = 30min), then later hits email-verify limit,
+     * that starts at level 2 (60min).
+     */
+    private function applyProgressivePenalty(string $context, string $type, string $identifier, string $key, int $maxAttempts): void
     {
         $penaltyKey = "penalty_level:{$context}:{$identifier}";
-        $appliedKey = "penalty_applied:{$context}:{$identifier}";
+        $appliedKey = "penalty_applied:{$context}:{$type}:{$identifier}";
 
         if (Cache::get($appliedKey, false)) {
             return;
@@ -119,6 +180,10 @@ class BlockFailedVerifications
         }
     }
 
+    /**
+     * Returns a 429 JSON error for AJAX requests, or redirects to login with
+     * an error flash message for standard page requests.
+     */
     private function respond(Request $request, string $type, string $waitTime): Response
     {
         $message = __($this->getMessageKey($type), ['time' => $waitTime]);
@@ -130,6 +195,10 @@ class BlockFailedVerifications
         return redirect('login')->withErrors($message);
     }
 
+    /**
+     * Maps rate limit types to their translation keys.
+     * Extend this to show different messages for different types (e.g. "Too many OTP requests").
+     */
     private function getMessageKey(string $type): string
     {
         return match ($type) {
