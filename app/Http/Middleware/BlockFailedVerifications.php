@@ -87,9 +87,9 @@ class BlockFailedVerifications
      * Main handler. Checks all configured limits (or only the specified types)
      * and blocks the request if any limit has been exceeded.
      *
-     * @param  string       $context    One of: logins, verify, 2fa
-     * @param  string       ...$onlyTypes  Optional — if provided, only these types are checked.
-     *                                     Used by verify OTP routes to skip OTP send limits.
+     * @param  string  $context  One of: logins, verify, 2fa
+     * @param  string  ...$onlyTypes  Optional — if provided, only these types are checked.
+     *                                Used by verify OTP routes to skip OTP send limits.
      */
     public function handle(Request $request, Closure $next, string $context = 'verify', string ...$onlyTypes): Response
     {
