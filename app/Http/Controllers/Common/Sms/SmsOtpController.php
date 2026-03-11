@@ -168,18 +168,40 @@ class SmsOtpController extends Controller
     public function responseHandler(array $response): array
     {
         $body = $response['body'] ?? [];
+        $type = $body['type'] ?? 'error';
+        $message = $body['message'] ?? '';
 
-        if (($body['type'] ?? null) === 'success') {
+        if ($type === 'success') {
             return [
                 'type' => 'success',
-                'message' => $body['message'] ?? 'Request successfully completed',
+                'message' => match (true) {
+                    str_contains($message, 'OTP verified success') => __('message.otp_verified'),
+                    str_contains($message, 'retry send successfully') => __('message.otp_verification.resend_send_success'),
+                    default => __('message.otp_verification.send_success'),
+                },
             ];
         }
 
         return [
             'type' => 'error',
-            'message' => $body['message'] ?? __('message.msg_service_down'),
+            'message' => $this->mapErrorMessage($message),
         ];
+    }
+
+    /**
+     * Map MSG91 error messages to user-friendly custom messages.
+     */
+    protected function mapErrorMessage(string $message): string
+    {
+        return match ($message) {
+            'Please enter atleast one number to send sms.', 'Mobile no. empty or not numeric', 'Mobile number empty or not numeric' => __('message.enter_your_mobile'),
+            'OTP expired', 'otp_expired' => __('message.email_verification.token_expired'),
+            'Mobile no. not found', 'OTP not match' => __('message.otp_invalid'),
+            'Max limit reached for this otp verification' => __('message.otp_verification.max_attempts_exceeded', ['time' => 'later']),
+            'No OTP request found to retryotp' => __('message.otp_verification.resend_failure'),
+            'OTP retry count maxed out' => __('message.otp_verification.resend_max_attempts_exceeded', ['time' => 'later']),
+            default => __('message.msg_service_down'),
+        };
     }
 
     /**

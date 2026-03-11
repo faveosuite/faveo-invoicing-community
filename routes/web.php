@@ -658,14 +658,14 @@ Route::middleware('installAgora')->group(function () {
     Route::post('login', [Auth\LoginController::class, 'login'])->name('login');
     // Route::post('login', [Auth\LoginController::class, 'login'])->name('login');
 
-    Route::middleware(['blockFailedVerifications:verify', 'session.timeout:10,verify'])->group(function () {
-        Route::get('verify/session-check', [Auth\AuthController::class, 'verifySession'])->name('verify.session.check');
-        Route::post('otp/send', [Auth\AuthController::class, 'requestOtp']);
-        Route::post('otp/verify', [Auth\AuthController::class, 'verifyOtp']);
-        Route::post('email/verify', [Auth\AuthController::class, 'verifyEmail']);
-        Route::post('resend_otp', [Auth\AuthController::class, 'retryOTP']);
-        Route::post('send-email', [Auth\AuthController::class, 'sendEmail']);
-        Route::get('verify', [Auth\AuthController::class, 'verify']);
+    Route::middleware(['session.timeout:10,verify'])->group(function () {
+        Route::get('verify/session-check', [Auth\AuthController::class, 'verifySession'])->name('verify.session.check')->middleware('blockFailedVerifications:verify');
+        Route::post('otp/send', [Auth\AuthController::class, 'requestOtp'])->middleware('blockFailedVerifications:verify,mobile-otp');
+        Route::post('otp/verify', [Auth\AuthController::class, 'verifyOtp'])->middleware('blockFailedVerifications:verify');
+        Route::post('email/verify', [Auth\AuthController::class, 'verifyEmail'])->middleware('blockFailedVerifications:verify');
+        Route::post('resend_otp', [Auth\AuthController::class, 'retryOTP'])->middleware('blockFailedVerifications:verify,mobile-otp,email-otp');
+        Route::post('send-email', [Auth\AuthController::class, 'sendEmail'])->middleware('blockFailedVerifications:verify,email-otp');
+        Route::get('verify', [Auth\AuthController::class, 'verify'])->middleware('blockFailedVerifications:verify,mobile-otp,email-otp');
     });
 
     Route::prefix('api')->withoutMiddleware(['web'])->middleware(['api'])->group(function () {
@@ -689,13 +689,11 @@ Route::middleware('installAgora')->group(function () {
     Route::get('syncing/pipedriveFields', [PipedriveController::class, 'syncFields']);
     Route::post('pipedrive/get-dropdown', [PipedriveController::class, 'getDropdown']);
 
-    Route::middleware(['blockFailedVerifications:verify'])->group(function () {
-        Route::post('profile/email/send-otp', [Front\ProfileVerificationController::class, 'sendEmailOtp']);
-        Route::post('profile/email/verify-otp', [Front\ProfileVerificationController::class, 'verifyEmailOtp']);
-        Route::post('profile/mobile/send-otp', [Front\ProfileVerificationController::class, 'sendMobileOtp']);
-        Route::post('profile/mobile/verify-otp', [Front\ProfileVerificationController::class, 'verifyMobileOtp']);
-        Route::post('profile/resend-otp', [Front\ProfileVerificationController::class, 'resendOtp']);
-    });
+    Route::post('profile/email/send-otp', [Front\ProfileVerificationController::class, 'sendEmailOtp'])->middleware('blockFailedVerifications:verify,email-otp-new,email-otp-old');
+    Route::post('profile/email/verify-otp', [Front\ProfileVerificationController::class, 'verifyEmailOtp'])->middleware('blockFailedVerifications:verify');
+    Route::post('profile/mobile/send-otp', [Front\ProfileVerificationController::class, 'sendMobileOtp'])->middleware('blockFailedVerifications:verify,mobile-otp');
+    Route::post('profile/mobile/verify-otp', [Front\ProfileVerificationController::class, 'verifyMobileOtp'])->middleware('blockFailedVerifications:verify');
+    Route::post('profile/resend-otp', [Front\ProfileVerificationController::class, 'resendOtp'])->middleware('blockFailedVerifications:verify,mobile-otp,email-otp,email-otp-new,email-otp-old');
 });
 /*
 * Faveo APIs
