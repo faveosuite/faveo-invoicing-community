@@ -2676,4 +2676,9 @@ return [
     'delivered_at' => 'تم التسليم في',
 
     'sms_service_disabled' => 'خدمة الرسائل القصيرة معطلة حاليًا.',
+
+    'method_not_allowed' => 'الطريقة غير مسموح بها',
+    'invalid-api-endpoint' => 'نقطة نهاية API غير صالحة',
+    'request_entity_too_large_maxsize' => 'فشل التحميل. الحد الأقصى لحجم الملف المدعوم هو :maxsize ميغابايت',
+    'internal-server-error' => 'خطأ داخلي في الخادم',
 ];

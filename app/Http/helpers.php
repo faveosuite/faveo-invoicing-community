@@ -69,7 +69,7 @@ function isInstall()
  *
  * @param  string|array  $message  Error message
  * @param  int  $statusCode
- * @return HTTP json response
+ * @return \Illuminate\Http\JsonResponse json response
  */
 function errorResponse($message, $statusCode = 400)
 {
@@ -124,12 +124,12 @@ function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = 'M j, Y
 
         try {
             $timezone = new DateTimeZone($tz);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $timezone = new DateTimeZone('UTC');
         }
 
         return $date->setTimezone($timezone)->format($format);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         return $dateTimeString;
     }
 }
@@ -176,7 +176,7 @@ function getExpiryLabel($expiryDate, $badge = 'badge')
 
     try {
         $expiry = Carbon::parse($expiryDate);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         return '--';
     }
 
@@ -246,8 +246,8 @@ function getCountryByCode($code)
         if ($country) {
             return $country->country_name;
         }
-    } catch (\Exception $ex) {
-        throw new \Exception($ex->getMessage());
+    } catch (Exception $ex) {
+        throw new Exception($ex->getMessage());
     }
 }
 
@@ -260,8 +260,8 @@ function findCountryByGeoip($iso)
         } else {
             return '';
         }
-    } catch (\Exception $ex) {
-        throw new \Exception($ex->getMessage());
+    } catch (Exception $ex) {
+        throw new Exception($ex->getMessage());
     }
 }
 
@@ -272,8 +272,8 @@ function findStateByRegionId($iso)
             ->pluck('state_subdivision_name', 'iso2')->toArray();
 
         return $states;
-    } catch (\Exception $ex) {
-        throw new \Exception($ex->getMessage());
+    } catch (Exception $ex) {
+        throw new Exception($ex->getMessage());
     }
 }
 
@@ -288,8 +288,8 @@ function getTimezoneByName($name)
         }
 
         return $timezone;
-    } catch (\Exception $ex) {
-        throw new \Exception($ex->getMessage());
+    } catch (Exception $ex) {
+        throw new Exception($ex->getMessage());
     }
 }
 
@@ -301,8 +301,8 @@ function checkPlanSession()
         }
 
         return false;
-    } catch (\Exception $ex) {
-        throw new \Exception($ex->getMessage());
+    } catch (Exception $ex) {
+        throw new Exception($ex->getMessage());
     }
 }
 
@@ -323,8 +323,8 @@ function getStateByCode($country, $state)
         }
 
         return $result;
-    } catch (\Exception $ex) {
-        throw new \Exception($ex->getMessage());
+    } catch (Exception $ex) {
+        throw new Exception($ex->getMessage());
     }
 }
 
@@ -334,7 +334,7 @@ function userCurrencyAndPrice($userid, $plan, $productid = '')
         $country = getCountry($userid);
 
         if (! $country) {
-            throw new \Exception(Lang::get('message.country_notfound'));
+            throw new Exception(Lang::get('message.country_notfound'));
         }
 
         $currencyAndSymbol = getCurrencySymbolAndPriceForPlans($country, $plan);
@@ -344,7 +344,7 @@ function userCurrencyAndPrice($userid, $plan, $productid = '')
             'symbol' => $currencyAndSymbol['currency_symbol'],
             'plan' => $currencyAndSymbol['userPlan'],
         ];
-    } catch (\Exception $ex) {
+    } catch (Exception $ex) {
         return redirect()->back()->with('fails', $ex->getMessage());
     }
 }
@@ -472,7 +472,7 @@ function rounding($price)
         } else {
             return round($price, 2);
         }
-    } catch (\Exception $ex) {
+    } catch (Exception $ex) {
     }
 }
 
@@ -743,7 +743,7 @@ function createDB(string $dbName)
         //disconnecting it will remove database config from the memory so that new database name can be
         // populated
         \DB::disconnect('mysql');
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         return redirect()->back()->with('fails', $e->getMessage());
     }
 }
@@ -1194,4 +1194,24 @@ function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds 
 function authorizeOwnership(int $userID): bool
 {
     return $userID === auth()->id();
+}
+
+
+/**
+ * Format exception response with exception details
+ *
+ * @param Exception $exception Exception instance
+ * @return \Illuminate\Http\JsonResponse json response
+ */
+function exceptionResponse(Throwable $exception): \Illuminate\Http\JsonResponse
+{
+    return response()->json(
+        [
+            'success' => false,
+            'message' => $exception->getMessage(),
+            'file' => $exception->getFile().' ('.$exception->getLine().')',
+            'trace' => $exception->getTraceAsString(),
+        ],
+        500
+    );
 }

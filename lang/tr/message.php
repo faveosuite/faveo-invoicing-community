@@ -2853,4 +2853,9 @@ return [
     'delivered_at' => 'Teslim Zamanı',
 
     'sms_service_disabled' => 'SMS hizmeti şu anda devre dışı.',
+
+    'method_not_allowed' => 'yönteme izin verilmiyor',
+    'invalid-api-endpoint' => 'Geçersiz API uç noktası',
+    'request_entity_too_large_maxsize' => 'Yükleme Başarısız. Desteklenen maksimum dosya boyutu :maxsize MB\'dir ',
+    'internal-server-error' => 'Dahili sunucu hatası',
 ];

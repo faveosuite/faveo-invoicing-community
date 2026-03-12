@@ -2839,4 +2839,9 @@ return [
     'delivered_at' => 'Entregado en',
 
     'sms_service_disabled' => 'El servicio de SMS está actualmente deshabilitado.',
+
+    'method_not_allowed' => 'método no permitido',
+    'invalid-api-endpoint' => 'Punto final de API no válido',
+    'request_entity_too_large_maxsize' => 'Carga fallida. El tamaño máximo de archivo admitido es :maxsize MB ',
+    'internal-server-error' => 'Error interno del servidor',
 ];

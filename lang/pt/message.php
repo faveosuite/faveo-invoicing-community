@@ -2817,4 +2817,9 @@ return [
     'delivered_at' => 'Entregue em',
 
     'sms_service_disabled' => 'O serviço de SMS está atualmente desativado.',
+
+    'method_not_allowed' => 'método não permitido',
+    'invalid-api-endpoint' => 'Endpoint de API inválido',
+    'request_entity_too_large_maxsize' => 'Falha no upload. O tamanho máximo de arquivo suportado é :maxsize MB ',
+    'internal-server-error' => 'Erro interno do servidor',
 ];

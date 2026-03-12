@@ -2833,4 +2833,9 @@ return [
     'delivered_at' => 'வழங்கிய நேரம்',
 
     'sms_service_disabled' => 'SMS சேவை தற்போது முடக்கப்பட்டுள்ளது.',
+
+    'method_not_allowed' => 'முறை அனுமதிக்கப்படவில்லை',
+    'invalid-api-endpoint' => 'தவறான API இறுதிப்புள்ளி',
+    'request_entity_too_large_maxsize' => 'பதிவேற்றம் தோல்வியடைந்தது. ஆதரிக்கப்படும் அதிகபட்ச கோப்பு அளவு :maxsize MB ',
+    'internal-server-error' => 'உள் சேவையக பிழை',
 ];

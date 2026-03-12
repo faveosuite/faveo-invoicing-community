@@ -2771,4 +2771,9 @@ return [
     'delivered_at' => 'Delivered At',
 
     'sms_service_disabled' => 'SMS usluga je trenutno onemogućena.',
+
+    'method_not_allowed' => 'metoda nije dozvoljena',
+    'invalid-api-endpoint' => 'Nevažeća API krajnja tačka',
+    'request_entity_too_large_maxsize' => 'Učitavanje nije uspjelo. Maksimalna podržana veličina datoteke je :maxsize MB ',
+    'internal-server-error' => 'Interna greška servera',
 ];

@@ -2794,4 +2794,9 @@ return [
     'delivered_at' => '送達時間',
 
     'sms_service_disabled' => '簡訊服務目前已停用。',
+
+    'method_not_allowed' => '方法不被允許',
+    'invalid-api-endpoint' => '無效的API端點',
+    'request_entity_too_large_maxsize' => '上傳失敗。支援的最大檔案大小為 :maxsize MB ',
+    'internal-server-error' => '內部伺服器錯誤',
 ];

@@ -2840,4 +2840,9 @@ return [
     'delivered_at' => 'Đã giao lúc',
 
     'sms_service_disabled' => 'Dịch vụ SMS hiện đang bị tắt.',
+
+    'method_not_allowed' => 'phương thức không được phép',
+    'invalid-api-endpoint' => 'Điểm cuối API không hợp lệ',
+    'request_entity_too_large_maxsize' => 'Tải lên thất bại. Kích thước tệp tối đa được hỗ trợ là :maxsize MB ',
+    'internal-server-error' => 'Lỗi máy chủ nội bộ',
 ];

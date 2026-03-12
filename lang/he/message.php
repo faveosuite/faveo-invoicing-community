@@ -2843,4 +2843,9 @@ return [
     'delivered_at' => 'נמסר ב',
 
     'sms_service_disabled' => 'שירות ה-SMS מושבת כרגע.',
+
+    'method_not_allowed' => 'השיטה אינה מותרת',
+    'invalid-api-endpoint' => 'נקודת קצה API לא חוקית',
+    'request_entity_too_large_maxsize' => 'ההעלאה נכשלה. גודל הקובץ המרבי הנתמך הוא :maxsize MB ',
+    'internal-server-error' => 'שגיאת שרת פנימית',
 ];

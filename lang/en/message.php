@@ -2910,4 +2910,9 @@ return [
     'unauthorized_action' => 'You do not have the necessary permissions to perform this action.',
 
     'sms_service_disabled' => 'SMS service is currently disabled.',
+
+    'method_not_allowed' => 'method not allowed',
+    'invalid-api-endpoint' => 'Invalid API end-point',
+    'request_entity_too_large_maxsize' => 'Upload Failed. Maximum file size supported is :maxsize MB ',
+    'internal-server-error' => 'Internal server error',
 ];

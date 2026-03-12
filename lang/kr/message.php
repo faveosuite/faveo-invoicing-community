@@ -2859,4 +2859,9 @@ return [
     'delivered_at' => '전달 시간',
 
     'sms_service_disabled' => 'SMS 서비스가 현재 비활성화되어 있습니다.',
+
+    'method_not_allowed' => '허용되지 않는 메서드',
+    'invalid-api-endpoint' => '잘못된 API 엔드포인트',
+    'request_entity_too_large_maxsize' => '업로드 실패. 지원되는 최대 파일 크기는 :maxsize MB입니다 ',
+    'internal-server-error' => '내부 서버 오류',
 ];

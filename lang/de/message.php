@@ -2835,4 +2835,9 @@ return [
     'delivered_at' => 'Zugestellt am',
 
     'sms_service_disabled' => 'Der SMS-Dienst ist derzeit deaktiviert.',
+
+    'method_not_allowed' => 'Methode nicht erlaubt',
+    'invalid-api-endpoint' => 'Ungültiger API-Endpunkt',
+    'request_entity_too_large_maxsize' => 'Upload fehlgeschlagen. Maximale Dateigröße beträgt :maxsize MB ',
+    'internal-server-error' => 'Interner Serverfehler',
 ];

@@ -2851,4 +2851,9 @@ return [
     'delivered_at' => 'वितरित किया गया',
 
     'sms_service_disabled' => 'SMS सेवा वर्तमान में अक्षम है।',
+
+    'method_not_allowed' => 'विधि की अनुमति नहीं है',
+    'invalid-api-endpoint' => 'अमान्य API एंड-पॉइंट',
+    'request_entity_too_large_maxsize' => 'अपलोड विफल। अधिकतम समर्थित फ़ाइल आकार :maxsize MB है ',
+    'internal-server-error' => 'आंतरिक सर्वर त्रुटि',
 ];

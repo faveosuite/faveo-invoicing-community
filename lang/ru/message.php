@@ -2842,4 +2842,9 @@ return [
     'delivered_at' => 'Доставлено в',
 
     'sms_service_disabled' => 'SMS-сервис в настоящее время отключён.',
+
+    'method_not_allowed' => 'метод не разрешён',
+    'invalid-api-endpoint' => 'Недопустимая конечная точка API',
+    'request_entity_too_large_maxsize' => 'Загрузка не удалась. Максимальный поддерживаемый размер файла — :maxsize МБ ',
+    'internal-server-error' => 'Внутренняя ошибка сервера',
 ];

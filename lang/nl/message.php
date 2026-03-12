@@ -2804,4 +2804,9 @@ return [
     'delivered_at' => 'Afgeleverd op',
 
     'sms_service_disabled' => 'De SMS-service is momenteel uitgeschakeld.',
+
+    'method_not_allowed' => 'methode niet toegestaan',
+    'invalid-api-endpoint' => 'Ongeldig API-eindpunt',
+    'request_entity_too_large_maxsize' => 'Upload mislukt. Maximale bestandsgrootte is :maxsize MB ',
+    'internal-server-error' => 'Interne serverfout',
 ];

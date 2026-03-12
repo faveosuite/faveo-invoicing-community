@@ -2835,4 +2835,9 @@ return [
     'delivered_at' => 'Tersampaikan Pada',
 
     'sms_service_disabled' => 'Layanan SMS saat ini dinonaktifkan.',
+
+    'method_not_allowed' => 'metode tidak diizinkan',
+    'invalid-api-endpoint' => 'Titik akhir API tidak valid',
+    'request_entity_too_large_maxsize' => 'Unggahan Gagal. Ukuran file maksimum yang didukung adalah :maxsize MB ',
+    'internal-server-error' => 'Kesalahan server internal',
 ];

@@ -2842,4 +2842,9 @@ return [
     'delivered_at' => '配信日時',
 
     'sms_service_disabled' => 'SMSサービスは現在無効になっています。',
+
+    'method_not_allowed' => 'メソッドは許可されていません',
+    'invalid-api-endpoint' => '無効なAPIエンドポイント',
+    'request_entity_too_large_maxsize' => 'アップロードに失敗しました。サポートされている最大ファイルサイズは :maxsize MB です ',
+    'internal-server-error' => '内部サーバーエラー',
 ];

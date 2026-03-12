@@ -2830,4 +2830,9 @@ return [
     'delivered_at' => 'Livré le',
 
     'sms_service_disabled' => 'Le service SMS est actuellement désactivé.',
+
+    'method_not_allowed' => 'méthode non autorisée',
+    'invalid-api-endpoint' => 'Point de terminaison API invalide',
+    'request_entity_too_large_maxsize' => 'Échec du téléchargement. La taille maximale de fichier prise en charge est de :maxsize Mo ',
+    'internal-server-error' => 'Erreur interne du serveur',
 ];

@@ -2845,4 +2845,9 @@ return [
     'delivered_at' => 'Levert',
 
     'sms_service_disabled' => 'SMS-tjenesten er for øyeblikket deaktivert.',
+
+    'method_not_allowed' => 'metode ikke tillatt',
+    'invalid-api-endpoint' => 'Ugyldig API-endepunkt',
+    'request_entity_too_large_maxsize' => 'Opplasting mislyktes. Maksimal filstørrelse som støttes er :maxsize MB ',
+    'internal-server-error' => 'Intern serverfeil',
 ];
