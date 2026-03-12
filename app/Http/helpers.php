@@ -874,27 +874,18 @@ function handleArrayStoreRateLimit($IpKey, $maxAttempts, $decaySeconds)
  * If the time exceeds 60 minutes, return both hours and minutes.
  * Otherwise, return minutes only if the duration is below 60 minutes.
  *
- * @param  int  $seconds  The time in seconds.
+ * @param int $seconds The time in seconds.
  * @return string A human-readable time string (hours and minutes or just minutes).
+ * @throws Exception
  */
-function formatDuration($seconds)
+function formatDuration(int $seconds): string
 {
-    // Calculate hours, minutes, and remaining seconds
-    $hours = floor($seconds / 3600);
-    $minutes = floor(($seconds % 3600) / 60);
-
-    // If the time exceeds or equals 60 minutes, return both hours and minutes
-    if ($seconds >= 3600) {
-        return "{$hours} hour".($hours > 1 ? 's' : '')." {$minutes} minute".($minutes > 1 ? 's' : '');
-    }
-
-    // If the time is less than 60 minutes, just return minutes
-    if ($seconds >= 60) {
-        return "{$minutes} minute".($minutes > 1 ? 's' : '');
-    }
-
-    // Otherwise, return seconds
-    return "{$seconds} second".($seconds > 1 ? 's' : '');
+    return \Carbon\CarbonInterval::seconds($seconds)
+        ->cascade()
+        ->forHumans([
+            'short' => false,
+            'minimumUnit' => 'second',
+        ]);
 }
 
 function isJson($string)
