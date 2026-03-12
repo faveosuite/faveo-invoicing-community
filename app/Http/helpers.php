@@ -874,8 +874,9 @@ function handleArrayStoreRateLimit($IpKey, $maxAttempts, $decaySeconds)
  * If the time exceeds 60 minutes, return both hours and minutes.
  * Otherwise, return minutes only if the duration is below 60 minutes.
  *
- * @param int $seconds The time in seconds.
+ * @param  int  $seconds  The time in seconds.
  * @return string A human-readable time string (hours and minutes or just minutes).
+ *
  * @throws Exception
  */
 function formatDuration(int $seconds): string
