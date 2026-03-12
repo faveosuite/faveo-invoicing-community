@@ -1196,11 +1196,10 @@ function authorizeOwnership(int $userID): bool
     return $userID === auth()->id();
 }
 
-
 /**
- * Format exception response with exception details
+ * Format exception response with exception details.
  *
- * @param Exception $exception Exception instance
+ * @param  Exception  $exception  Exception instance
  * @return \Illuminate\Http\JsonResponse json response
  */
 function exceptionResponse(Throwable $exception): \Illuminate\Http\JsonResponse
