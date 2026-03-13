@@ -168,7 +168,7 @@ class Product extends BaseModel
 
     public function group()
     {
-        return $this->belongsTo(\App\Model\Product\ProductGroup::class);
+        return $this->belongsTo(\App\Model\Product\ProductGroup::class, 'group');
     }
 
     public function plan()

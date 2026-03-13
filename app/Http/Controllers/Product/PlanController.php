@@ -309,7 +309,7 @@ class PlanController extends ExtendedPlanController
     public function destroy(Request $request)
     {
         try {
-            $ids = $request->input('select');
+            $ids = array_unique($request->input('select', []));
             if (! empty($ids)) {
                 foreach ($ids as $id) {
                     $plan = $this->plan->where('id', $id)->first();

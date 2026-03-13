@@ -225,8 +225,6 @@
                       ->attribute('onChange', 'getProductVersion(this.value)') !!}
               </div>
 
-
-
               <div class="col-md-3 form-group">
                 <!-- first name -->
                   {!! html()->label( __('message.from'))->for('from') !!}
@@ -357,6 +355,10 @@
                                 <label class="form-check-label" for="productCheckbox">{{ __('message.product') }}</label>
                             </div>
                             <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="group_name" id="groupCheckbox">
+                                <label class="form-check-label" for="groupCheckbox">{{ __('message.group') }}</label>
+                            </div>
+                            <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="plan_name" id="planCheckbox">
                                 <label class="form-check-label" for="planCheckbox">{{ __('message.plan') }}</label>
                             </div>
@@ -402,6 +404,7 @@
                             <th>{{ __('message.order_no') }}</th>
                             <th>{{ __('message.order-status') }}</th>
                             <th>{{ __('message.product') }}</th>
+                            <th>{{ __('message.group') }}</th>
                             <th>{{ __('message.plan') }}</th>
                             <th>{{ __('message.version') }}</th>
                             <th>{{ __('message.agents') }}</th>
@@ -451,7 +454,7 @@
             processing: true,
             serverSide: true,
             stateSave: false, 
-            order: [[15, "desc"]],
+            order: [[16, "desc"]],
             "scrollX": true,
             "scrollCollapse": true,
 
@@ -512,6 +515,7 @@
                 {data: 'number', name: 'number'},
                 {data: 'status', name: 'status'},
                 {data: 'product_name', name: 'product_name'},
+                {data: 'group_name', name: 'group_name'},
                 {data: 'plan_name', name: 'plan_name'},
                 {data: 'version', name: 'version'},
                 {data: 'agents', name: 'agents'},

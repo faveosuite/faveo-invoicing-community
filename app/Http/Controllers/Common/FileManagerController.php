@@ -12,7 +12,7 @@ class FileManagerController extends Controller
     {
         $path = $request->input('path');
 
-        if (Attach::exists($path)) {
+        if (! $path || ! Attach::exists($path)) {
             abort(404, __('message.file_not_exist'));
         }
 
