@@ -706,14 +706,15 @@ class HomeController extends BaseHomeController
         if (! $email) {
             return response()->json([]);
         }
-
+        $url=url('my-order/'.$order->id);
         return response()->json([
             'billing_client_email' => $email,
-            'subscription_status' => $subscription_status,
-            'start_date' => $start_date,
-            'plan_name' => $plan_name,
-            'next_billing_date' => $next_billing_date,
-            'company' => $company,
+            'subscription_status'=>$subscription_status,
+            'start_date'=>$start_date,
+            'plan_name'=>$plan_name,
+            'next_billing_date'=>$next_billing_date,
+            'company'=>$company,
+            'order_url'=>$url,
         ]);
     }
 
