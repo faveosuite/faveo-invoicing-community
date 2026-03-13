@@ -88,6 +88,16 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception): Redirector|RedirectResponse|Response
     {
+        if ($exception instanceof AuthenticationException) {
+//            This we can enable in vue convert
+//            if ($request->ajax() || $request->wantsJson()) {
+//                return middlewareResponse(trans('lang.unauthorized_please_click_here_to_login_again', ['link' => faveoUrl('auth/login')]), 401);
+//            } else {
+//                return redirect('login');
+//            }
+            return parent::render($request, $exception);
+        }
+
         if (stripos($request->url(), 'api') || $request->ajax() || $request->wantsJson()) {
             return $this->responseForApi($request, $exception);
         }
