@@ -24,11 +24,11 @@ class GithubRepoController extends Controller
     {
         return new Client([
             'base_uri' => 'https://api.github.com',
-            'headers'  => [
-                'Accept'               => 'application/vnd.github+json',
-                'Authorization'        => 'Bearer ' . $this->github->password,
+            'headers' => [
+                'Accept' => 'application/vnd.github+json',
+                'Authorization' => 'Bearer '.$this->github->password,
                 'X-GitHub-Api-Version' => '2022-11-28',
-                'User-Agent'           => $this->github->username,
+                'User-Agent' => $this->github->username,
             ],
         ]);
     }
@@ -46,9 +46,9 @@ class GithubRepoController extends Controller
     {
         try {
             $request->validate([
-                'display_name'  => 'required|string|max:100',
-                'owner'         => 'required|string|max:100',
-                'repo'          => 'required|string|max:100',
+                'display_name' => 'required|string|max:100',
+                'owner' => 'required|string|max:100',
+                'repo' => 'required|string|max:100',
                 'workflow_file' => 'nullable|string|max:100',
             ]);
 
@@ -64,9 +64,9 @@ class GithubRepoController extends Controller
             }
 
             GithubRepo::create([
-                'display_name'  => $request->display_name,
-                'owner'         => $request->owner,
-                'repo'          => $request->repo,
+                'display_name' => $request->display_name,
+                'owner' => $request->owner,
+                'repo' => $request->repo,
                 'workflow_file' => $request->workflow_file ?: 'release.yml',
             ]);
 
@@ -80,17 +80,17 @@ class GithubRepoController extends Controller
     {
         try {
             $request->validate([
-                'display_name'  => 'required|string|max:100',
-                'owner'         => 'required|string|max:100',
-                'repo'          => 'required|string|max:100',
+                'display_name' => 'required|string|max:100',
+                'owner' => 'required|string|max:100',
+                'repo' => 'required|string|max:100',
                 'workflow_file' => 'nullable|string|max:100',
             ]);
 
             $githubRepo = GithubRepo::findOrFail($id);
             $githubRepo->update([
-                'display_name'  => $request->display_name,
-                'owner'         => $request->owner,
-                'repo'          => $request->repo,
+                'display_name' => $request->display_name,
+                'owner' => $request->owner,
+                'repo' => $request->repo,
                 'workflow_file' => $request->workflow_file ?: 'release.yml',
             ]);
 
@@ -115,9 +115,9 @@ class GithubRepoController extends Controller
 
     public function releases(Request $request)
     {
-        $repos      = GithubRepo::orderBy('display_name')->get();
+        $repos = GithubRepo::orderBy('display_name')->get();
         $selectedId = $request->input('repo_id');
-        $selected   = $selectedId ? GithubRepo::find($selectedId) : $repos->first();
+        $selected = $selectedId ? GithubRepo::find($selectedId) : $repos->first();
 
         return view('themes.default1.github.repos.releases', compact('repos', 'selected'));
     }
@@ -126,18 +126,18 @@ class GithubRepoController extends Controller
     {
         try {
             $githubRepo = GithubRepo::findOrFail($id);
-            $client     = $this->githubClient();
-            $resp       = $client->get("/repos/{$githubRepo->owner}/{$githubRepo->repo}/releases?per_page=30");
-            $releases   = json_decode($resp->getBody(), true);
+            $client = $this->githubClient();
+            $resp = $client->get("/repos/{$githubRepo->owner}/{$githubRepo->repo}/releases?per_page=30");
+            $releases = json_decode($resp->getBody(), true);
 
             $formatted = collect($releases)->map(fn ($r) => [
-                'id'         => $r['id'],
-                'tag_name'   => $r['tag_name'],
-                'name'       => $r['name'],
-                'body'       => $r['body'],
+                'id' => $r['id'],
+                'tag_name' => $r['tag_name'],
+                'name' => $r['name'],
+                'body' => $r['body'],
                 'prerelease' => $r['prerelease'],
-                'draft'      => $r['draft'],
-                'html_url'   => $r['html_url'],
+                'draft' => $r['draft'],
+                'html_url' => $r['html_url'],
                 'created_at' => $r['created_at'],
             ]);
 
@@ -151,17 +151,17 @@ class GithubRepoController extends Controller
     {
         try {
             $request->validate([
-                'repo_id'    => 'required|integer',
+                'repo_id' => 'required|integer',
                 'release_id' => 'required|integer',
             ]);
 
             $githubRepo = GithubRepo::findOrFail($request->repo_id);
-            $client     = $this->githubClient();
+            $client = $this->githubClient();
             $client->delete("/repos/{$githubRepo->owner}/{$githubRepo->repo}/releases/{$request->release_id}");
 
             return successResponse(__('message.release_deleted'));
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
-            $body    = json_decode($ex->getResponse()->getBody(), true);
+            $body = json_decode($ex->getResponse()->getBody(), true);
             $message = $body['message'] ?? $ex->getMessage();
 
             return errorResponse($message);

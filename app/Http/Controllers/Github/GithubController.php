@@ -343,11 +343,11 @@ class GithubController extends Controller
     {
         return new Client([
             'base_uri' => 'https://api.github.com',
-            'headers'  => [
-                'Accept'               => 'application/vnd.github+json',
-                'Authorization'        => 'Bearer ' . $this->github->password,
+            'headers' => [
+                'Accept' => 'application/vnd.github+json',
+                'Authorization' => 'Bearer '.$this->github->password,
                 'X-GitHub-Api-Version' => '2022-11-28',
-                'User-Agent'           => $this->github->username,
+                'User-Agent' => $this->github->username,
             ],
         ]);
     }
@@ -387,8 +387,8 @@ class GithubController extends Controller
     {
         try {
             [$owner, $repo] = $this->resolveRepo($request->input('repo_id'));
-            $tags           = $this->github_api->getCurl("https://api.github.com/repos/{$owner}/{$repo}/tags");
-            $latestTag      = (is_array($tags) && count($tags) > 0) ? $tags[0]['name'] : null;
+            $tags = $this->github_api->getCurl("https://api.github.com/repos/{$owner}/{$repo}/tags");
+            $latestTag = (is_array($tags) && count($tags) > 0) ? $tags[0]['name'] : null;
 
             return response()->json(['latest_tag' => $latestTag]);
         } catch (Exception $ex) {
@@ -402,9 +402,9 @@ class GithubController extends Controller
     public function checkTag(Request $request)
     {
         try {
-            $tag            = trim($request->input('tag'));
+            $tag = trim($request->input('tag'));
             [$owner, $repo] = $this->resolveRepo($request->input('repo_id'));
-            $client         = $this->githubClient();
+            $client = $this->githubClient();
 
             try {
                 $client->get("/repos/{$owner}/{$repo}/git/ref/tags/{$tag}");
@@ -416,19 +416,19 @@ class GithubController extends Controller
             }
 
             try {
-                $resp    = $client->get("/repos/{$owner}/{$repo}/releases/tags/{$tag}");
+                $resp = $client->get("/repos/{$owner}/{$repo}/releases/tags/{$tag}");
                 $release = json_decode($resp->getBody(), true);
 
                 return response()->json([
-                    'tag_exists'     => true,
+                    'tag_exists' => true,
                     'release_exists' => true,
-                    'release'        => [
-                        'id'         => $release['id'],
-                        'name'       => $release['name'],
-                        'body'       => $release['body'],
+                    'release' => [
+                        'id' => $release['id'],
+                        'name' => $release['name'],
+                        'body' => $release['body'],
                         'prerelease' => $release['prerelease'],
-                        'draft'      => $release['draft'],
-                        'html_url'   => $release['html_url'],
+                        'draft' => $release['draft'],
+                        'html_url' => $release['html_url'],
                     ],
                 ]);
             } catch (\GuzzleHttp\Exception\ClientException $e) {
@@ -449,35 +449,35 @@ class GithubController extends Controller
     {
         try {
             $request->validate([
-                'repo_id'       => 'required|integer',
-                'tag_name'      => 'required|string|max:100',
+                'repo_id' => 'required|integer',
+                'tag_name' => 'required|string|max:100',
                 'release_title' => 'required|string|max:255',
                 'release_notes' => 'required|string',
             ]);
 
             [$owner, $repo, $workflow, $branch] = $this->resolveRepo($request->input('repo_id'));
-            $client                             = $this->githubClient();
+            $client = $this->githubClient();
 
             $client->post("/repos/{$owner}/{$repo}/actions/workflows/{$workflow}/dispatches", [
                 'json' => [
-                    'ref'    => $branch,
+                    'ref' => $branch,
                     'inputs' => [
-                        'tag_name'      => $request->input('tag_name'),
+                        'tag_name' => $request->input('tag_name'),
                         'release_title' => $request->input('release_title'),
                         'release_notes' => $request->input('release_notes'),
-                        'prerelease'    => $request->input('prerelease', '0') == '1' ? 'true' : 'false',
-                        'draft'         => $request->input('draft', '0') == '1' ? 'true' : 'false',
+                        'prerelease' => $request->input('prerelease', '0') == '1' ? 'true' : 'false',
+                        'draft' => $request->input('draft', '0') == '1' ? 'true' : 'false',
                     ],
                 ],
             ]);
 
             return successResponse(__('message.workflow_triggered'));
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
-            $body    = json_decode($ex->getResponse()->getBody(), true);
-            $status  = $ex->getResponse()->getStatusCode();
-            $detail  = isset($body['errors']) ? json_encode($body['errors']) : '';
+            $body = json_decode($ex->getResponse()->getBody(), true);
+            $status = $ex->getResponse()->getStatusCode();
+            $detail = isset($body['errors']) ? json_encode($body['errors']) : '';
 
-            return errorResponse("GitHub {$status}: " . ($body['message'] ?? $ex->getMessage()) . ($detail ? " | {$detail}" : ''));
+            return errorResponse("GitHub {$status}: ".($body['message'] ?? $ex->getMessage()).($detail ? " | {$detail}" : ''));
         } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -490,21 +490,21 @@ class GithubController extends Controller
     {
         try {
             $request->validate([
-                'repo_id'       => 'required|integer',
-                'tag_name'      => 'required|string|max:100',
+                'repo_id' => 'required|integer',
+                'tag_name' => 'required|string|max:100',
                 'release_title' => 'required|string|max:255',
                 'release_notes' => 'required|string',
             ]);
 
             [$owner, $repo] = $this->resolveRepo($request->input('repo_id'));
-            $client         = $this->githubClient();
+            $client = $this->githubClient();
 
-            $resp    = $client->post("/repos/{$owner}/{$repo}/releases", [
+            $resp = $client->post("/repos/{$owner}/{$repo}/releases", [
                 'json' => [
-                    'tag_name'   => $request->input('tag_name'),
-                    'name'       => $request->input('release_title'),
-                    'body'       => $request->input('release_notes'),
-                    'draft'      => $request->input('draft', '0') == '1',
+                    'tag_name' => $request->input('tag_name'),
+                    'name' => $request->input('release_title'),
+                    'body' => $request->input('release_notes'),
+                    'draft' => $request->input('draft', '0') == '1',
                     'prerelease' => $request->input('prerelease', '0') == '1',
                 ],
             ]);
@@ -512,7 +512,7 @@ class GithubController extends Controller
 
             return successResponse(__('message.release_created'), ['html_url' => $release['html_url']]);
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
-            $body    = json_decode($ex->getResponse()->getBody(), true);
+            $body = json_decode($ex->getResponse()->getBody(), true);
 
             return errorResponse($body['message'] ?? $ex->getMessage());
         } catch (Exception $ex) {
@@ -527,20 +527,20 @@ class GithubController extends Controller
     {
         try {
             $request->validate([
-                'repo_id'       => 'required|integer',
-                'release_id'    => 'required|integer',
+                'repo_id' => 'required|integer',
+                'release_id' => 'required|integer',
                 'release_title' => 'required|string|max:255',
                 'release_notes' => 'required|string',
             ]);
 
             [$owner, $repo] = $this->resolveRepo($request->input('repo_id'));
-            $client         = $this->githubClient();
+            $client = $this->githubClient();
 
-            $resp    = $client->patch("/repos/{$owner}/{$repo}/releases/{$request->input('release_id')}", [
+            $resp = $client->patch("/repos/{$owner}/{$repo}/releases/{$request->input('release_id')}", [
                 'json' => [
-                    'name'       => $request->input('release_title'),
-                    'body'       => $request->input('release_notes'),
-                    'draft'      => $request->input('draft', '0') == '1',
+                    'name' => $request->input('release_title'),
+                    'body' => $request->input('release_notes'),
+                    'draft' => $request->input('draft', '0') == '1',
                     'prerelease' => $request->input('prerelease', '0') == '1',
                 ],
             ]);
@@ -548,7 +548,7 @@ class GithubController extends Controller
 
             return successResponse(__('message.release_updated'), ['html_url' => $release['html_url']]);
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
-            $body    = json_decode($ex->getResponse()->getBody(), true);
+            $body = json_decode($ex->getResponse()->getBody(), true);
 
             return errorResponse($body['message'] ?? $ex->getMessage());
         } catch (Exception $ex) {
@@ -565,16 +565,16 @@ class GithubController extends Controller
             $request->validate(['repo_id' => 'required|integer', 'release_id' => 'required|integer']);
 
             [$owner, $repo] = $this->resolveRepo($request->input('repo_id'));
-            $client         = $this->githubClient();
+            $client = $this->githubClient();
 
-            $resp    = $client->patch("/repos/{$owner}/{$repo}/releases/{$request->input('release_id')}", [
+            $resp = $client->patch("/repos/{$owner}/{$repo}/releases/{$request->input('release_id')}", [
                 'json' => ['prerelease' => false, 'draft' => false],
             ]);
             $release = json_decode($resp->getBody(), true);
 
             return successResponse(__('message.release_promoted'), ['html_url' => $release['html_url']]);
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
-            $body    = json_decode($ex->getResponse()->getBody(), true);
+            $body = json_decode($ex->getResponse()->getBody(), true);
             $message = $body['message'] ?? $ex->getMessage();
 
             return errorResponse($message);
