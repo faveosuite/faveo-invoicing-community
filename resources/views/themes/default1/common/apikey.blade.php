@@ -514,6 +514,60 @@
 
 
 
+    <div class="modal fade" id="installScriptUrl" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ __('message.install_script_url') }}</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="alertMessageInstallScript"></div>
+                    <div class="form-group">
+                        {!! html()->label(__('message.install_script_url_label'), 'install_script_url')->class('required') !!}
+                        {!! html()->text('install_script_url')->class('form-control')->id('install_script_url')->placeholder('https://') !!}
+                        <small class="text-muted">{{ __('message.install_script_url_hint') }}</small>
+                        <h6 id="install_script_check"></h6>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default pull-left closebutton" data-dismiss="modal">
+                        <i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitInstallScript">
+                        <i class="fa fa-save">&nbsp;</i>{{ __('message.save') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="manualInstallGuide" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ __('message.manual_install_guide') }}</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="alertMessageManualGuide"></div>
+                    <div class="form-group">
+                        {!! html()->label(__('message.manual_install_guide_url'), 'manual_install_guide_url')->class('required') !!}
+                        {!! html()->text('manual_install_guide_url')->class('form-control')->id('manual_install_guide_url')->placeholder('https://') !!}
+                        <small class="text-muted">{{ __('message.manual_install_guide_url_hint') }}</small>
+                        <h6 id="manual_guide_check"></h6>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default pull-left closebutton" data-dismiss="modal">
+                        <i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitManualGuide">
+                        <i class="fa fa-save">&nbsp;</i>{{ __('message.save') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="twitters" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -1246,6 +1300,28 @@
                     $('#terms_url').val(response['data']['termsUrl']);
 
                     $('#showTerms').modal('show');
+                },
+            });
+        });
+
+        $(document).on('click', '#install-script-edit-button', function() {
+            $.ajax({
+                url : '{{url("getInstallScriptUrl")}}',
+                type : 'get',
+                success: function (response) {
+                    $('#install_script_url').val(response['data']['install_script_url'] || '');
+                    $('#installScriptUrl').modal('show');
+                },
+            });
+        });
+
+        $(document).on('click', '#manual-guide-edit-button', function() {
+            $.ajax({
+                url : '{{url("getManualInstallGuide")}}',
+                type : 'get',
+                success: function (response) {
+                    $('#manual_install_guide_url').val(response['data']['manual_install_guide_url'] || '');
+                    $('#manualInstallGuide').modal('show');
                 },
             });
         });
@@ -2894,6 +2970,65 @@
                 return false;
             }
         }
+
+        // Fresh Install Script URL save
+        $('#submitInstallScript').on('click', function() {
+            var url = $('#install_script_url').val().trim();
+            if (url && !isValidURL(url)) {
+                $('#install_script_check').text('{{ __('message.valid_url') }}').css('color', 'red');
+                return;
+            }
+            $('#install_script_check').text('');
+            $('#submitInstallScript').html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
+            $.ajax({
+                url: '{{ url("saveInstallScriptUrl") }}',
+                type: 'post',
+                data: { install_script_url: url },
+                success: function(data) {
+                    setTimeout(function() { location.reload(); }, 2000);
+                    $('#alertMessageInstallScript').show();
+                    var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>' + data.message + '</div>';
+                    $('#alertMessageInstallScript').html(result);
+                    $('#submitInstallScript').html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
+                },
+                error: function(data) {
+                    $('#alertMessageInstallScript').show();
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> {{ __('message.error') }} </strong>' + data.responseJSON.message + '</div>';
+                    $('#alertMessageInstallScript').html(result);
+                    $('#submitInstallScript').html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
+                },
+            });
+        });
+
+        // Manual Install Guide save
+        $('#submitManualGuide').on('click', function() {
+            var url = $('#manual_install_guide_url').val().trim();
+            if (url && !isValidURL(url)) {
+                $('#manual_guide_check').text('{{ __('message.valid_url') }}').css('color', 'red');
+                return;
+            }
+            $('#manual_guide_check').text('');
+            $('#submitManualGuide').html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
+            $.ajax({
+                url: '{{ url("saveManualInstallGuide") }}',
+                type: 'post',
+                data: { manual_install_guide_url: url },
+                success: function(data) {
+                    setTimeout(function() { location.reload(); }, 2000);
+                    $('#alertMessageManualGuide').show();
+                    var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>' + data.message + '</div>';
+                    $('#alertMessageManualGuide').html(result);
+                    $('#submitManualGuide').html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
+                },
+                error: function(data) {
+                    $('#alertMessageManualGuide').show();
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> {{ __('message.error') }} </strong>' + data.responseJSON.message + '</div>';
+                    $('#alertMessageManualGuide').html(result);
+                    $('#submitManualGuide').html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
+                },
+            });
+        });
+
         <!---------------------------------------------------------------------------------------------------------------->
         /*
        *Piprdrive

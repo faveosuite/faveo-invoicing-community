@@ -275,6 +275,46 @@ trait ApiKeySettings
         }
     }
 
+    public function getInstallScriptUrl()
+    {
+        $url = \App\Model\Common\Setting::value('help_support_url');
+
+        return successResponse('', ['install_script_url' => $url]);
+    }
+
+    public function saveInstallScriptUrl(Request $request)
+    {
+        $url = $request->input('install_script_url');
+
+        try {
+            \Illuminate\Support\Facades\DB::table('settings')->where('id', 1)->update(['help_support_url' => $url]);
+
+            return successResponse(\Lang::get('message.install_script_url_saved'));
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    public function getManualInstallGuide()
+    {
+        $url = \App\Model\Common\Setting::value('help_docs_url');
+
+        return successResponse('', ['manual_install_guide_url' => $url]);
+    }
+
+    public function saveManualInstallGuide(Request $request)
+    {
+        $url = $request->input('manual_install_guide_url');
+
+        try {
+            \Illuminate\Support\Facades\DB::table('settings')->where('id', 1)->update(['help_docs_url' => $url]);
+
+            return successResponse(\Lang::get('message.manual_install_guide_saved'));
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
     /**
      * Get Date.
      */

@@ -291,6 +291,8 @@ class SettingsController extends BaseSettingsController
         $emailStatus = $this->statusSetting->value('email_validation_status');
         $mobileValStatus = $this->statusSetting->value('mobile_validation_status');
         $whatsappStatus = $this->statusSetting->value('whatsapp_status');
+        $manualGuideUrl    = \App\Model\Common\Setting::value('help_docs_url');
+        $installScriptUrl  = \App\Model\Common\Setting::value('help_support_url');
         $toggleSwitch = '
         <label class="switch toggle_event_editing gcaptcha">
             <input type="checkbox" value="'.$checkboxValue.'"  
@@ -304,11 +306,21 @@ class SettingsController extends BaseSettingsController
         $mailchimpAction = $mailchimpSetting ? '<button id="mailchimp-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $termsAction = $termsStatus ? '<button id="termsUrl-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $pipedriveAction = $pipedriveStatus ? '<button id="pipedrive-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
-        $githubAction = $githubStatus ? '<button id="github-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
+        $githubAction = $githubStatus
+            ? '<button id="github-edit-button" class="btn btn-sm btn-secondary btn-xs mr-1"><span class="nav-icon fa fa-fw fa-edit"></span></button>'
+            : '';
         $recaptchaAction = $captchaStatus ? '<button id="captcha-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $emailValidationAction = $emailStatus ? '<button id="emailValidation-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $mobileValidationAction = $mobileValStatus ? '<button id="mobileValidation-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $whatsappAction = $whatsappStatus ? '<button id="whatsapp-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
+        $manualGuideAction = '<button id="manual-guide-edit-button" class="btn btn-sm btn-secondary btn-xs" title="'.\Lang::get('message.edit').'"><span class="nav-icon fa fa-fw fa-edit"></span></button>';
+        $manualGuideStatus = $manualGuideUrl
+            ? '<span class="badge badge-success">'.\Lang::get('message.manual_install_guide_configured').'</span>'
+            : '<span class="badge badge-secondary">'.\Lang::get('message.manual_install_guide_not_set').'</span>';
+        $installScriptAction = '<button id="install-script-edit-button" class="btn btn-sm btn-secondary btn-xs" title="'.\Lang::get('message.edit').'"><span class="nav-icon fa fa-fw fa-edit"></span></button>';
+        $installScriptStatus = $installScriptUrl
+            ? '<span class="badge badge-success">'.\Lang::get('message.manual_install_guide_configured').'</span>'
+            : '<span class="badge badge-secondary">'.\Lang::get('message.manual_install_guide_not_set').'</span>';
 
         if ($request->ajax()) {
             $dataTable = collect([
@@ -370,6 +382,8 @@ class SettingsController extends BaseSettingsController
                                class="checkbox11 whatsapp_status" id="whatsapp_status"'.($whatsappStatus ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>', 'action' => $whatsappAction, ],
+                ['options' => \Lang::get('message.manual_install_guide'), 'description' => \Lang::get('message.manual_install_guide_description'), 'status' => $manualGuideStatus, 'action' => $manualGuideAction],
+                ['options' => \Lang::get('message.install_script_url'), 'description' => \Lang::get('message.install_script_url_description'), 'status' => $installScriptStatus, 'action' => $installScriptAction],
             ]);
 
             return DataTables::of($dataTable)
