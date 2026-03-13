@@ -329,6 +329,16 @@
             </div>
 
             <div class="col-lg-9 mt-2">
+                @if($order->order_status != 'Terminated' && $subscription->is_deleted == 0)
+                    <div class="text-end mb-2">
+                        <a href="#" class="btn btn-primary btn-sm"
+                           {!! $renewPlanPrice ? 'data-toggle="modal" data-target="#renew'.$subscription->id.'"' : 'onclick="return false"' !!}
+                           data-bs-toggle="tooltip" data-placement="top"
+                           title="{{ $renewPlanPrice ? __('message.click_renew') : __('message.order_no_active_plan') }}">
+                            <i class="fas fa-sync-alt"></i>&nbsp;{{ __('message.renew') }}
+                        </a>
+                    </div>
+                @endif
                 @if($order->order_status != 'Terminated')
                     @if(!empty($terminatedOrderId))
                         <p class="order-links">
@@ -809,7 +819,7 @@
         @if($actualWhatsappStatus)
         <div class="row mb-4">
             <div class="col">
-                <button id="get-url" style="background-color: #1877f2; border: 0; border-radius: 4px; color: #fff; cursor: pointer; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: bold; height: 40px; padding: 0 24px;">
+                <button id="get-url" class="btn btn-primary btn-sm">
                     {{ __('message.add_new_number')}}
                 </button>
             </div>
@@ -837,6 +847,10 @@
     </div>
     </div>
     </div>
+
+    @if($order->order_status != 'Terminated' && $subscription->is_deleted == 0)
+        @include('themes.default1.renew.popup', ['id' => $subscription->id, 'productid' => $product->id, 'agents' => $renewAgents, 'planName' => $planNameReal, 'planPrice' => $renewPlanPrice])
+    @endif
 
     <div class="modal fade" id="autorenewModal" tabindex="-1" role="dialog" aria-labelledby="autorenewModalLabel" aria-hidden="true">
 
