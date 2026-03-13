@@ -522,6 +522,7 @@
                         <div class="text-center text-sm fw_400">{{ __('message.third_party_integrations') }}</div>
                     </div>
                 </div>
+
             </div>
             <!-- /.row -->
         </div>

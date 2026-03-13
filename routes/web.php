@@ -9,7 +9,6 @@ use App\Http\Controllers\Common\PipedriveController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Front;
-use App\Http\Controllers\Github;
 use App\Http\Controllers\Google2FAController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Jobs;
@@ -148,6 +147,9 @@ Route::middleware('installAgora')->group(function () {
     Route::get('get-versions/{productid}/{clientid}/{invoiceid}/', [Front\ClientController::class, 'getVersionList'])->name('get-versions');
     Route::get('get-github-versions/{productid}/{clientid}/{invoiceid}/', [Front\ClientController::class, 'getGithubVersionList'])->name('get-github-versions');
 
+    Route::get('get-deploy-versions/{orderId}', [Front\DeployController::class, 'getVersions'])->name('get-deploy-versions');
+    Route::post('deploy-product-step', [Front\DeployController::class, 'deployStep'])->name('deploy-product-step');
+
     // Post Route For Make Razorpay Payment Request
     Route::post('payment/{invoice}', [RazorpayController::class, 'payment'])->name('payment');
 
@@ -258,6 +260,10 @@ Route::middleware('installAgora')->group(function () {
     Route::post('updatetwitterDetails', [Common\SettingsController::class, 'updateTwitterDetails'])->name('updatetwitterDetails');
     Route::post('updateMailchimpDetails', [Common\SettingsController::class, 'updateMailchimpDetails'])->name('updateMailchimpDetails');
     Route::post('updateTermsDetails', [Common\SettingsController::class, 'updateTermsDetails'])->name('updateTermsDetails');
+    Route::get('getManualInstallGuide', [Common\SettingsController::class, 'getManualInstallGuide'])->name('getManualInstallGuide');
+    Route::post('saveManualInstallGuide', [Common\SettingsController::class, 'saveManualInstallGuide'])->name('saveManualInstallGuide');
+    Route::get('getInstallScriptUrl', [Common\SettingsController::class, 'getInstallScriptUrl'])->name('getInstallScriptUrl');
+    Route::post('saveInstallScriptUrl', [Common\SettingsController::class, 'saveInstallScriptUrl'])->name('saveInstallScriptUrl');
     Route::post('updatezohoDetails', [Common\SettingsController::class, 'updateZohoDetails'])->name('updatezohoDetails');
     Route::post('updatepipedriveDetails', [Common\SettingsController::class, 'updatepipedriveDetails'])->name('updatepipedriveDetails');
     Route::post('mailchimp-prod-status', [Common\SettingsController::class, 'updateMailchimpProductStatus'])->name('mailchimp-prod-status');
@@ -502,14 +508,6 @@ Route::middleware('installAgora')->group(function () {
     // Route::get('get-widgets', [Front\WidgetController::class, 'GetPages']);
     Route::delete('widgets-delete', [Front\WidgetController::class, 'destroy']);
 
-    /*
-     * github
-     */
-    Route::get('github-auth-app', [Github\GithubController::class, 'authForSpecificApp']);
-    Route::get('github-releases', [Github\GithubController::class, 'listRepositories']);
-    Route::get('github-downloads', [Github\GithubController::class, 'getDownloadCount']);
-//    Route::get('github', [Github\GithubController::class, 'getSettings']);
-    Route::post('github-setting', [Github\GithubController::class, 'postSettings']);
 
     /*
      * download
