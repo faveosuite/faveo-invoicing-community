@@ -668,6 +668,7 @@
                                     <th class="no-sort"><input type="checkbox" name="select_all" onchange="checkingorder(this)"></th>
                                     <th>{{ __('message.order_date') }}</th>
                                     <th>{{ __('message.product') }}</th>
+                                    <th>{{ __('message.group') }}</th>
                                     <th>{{ __('message.order_no') }}</th>
                                     <th>{{ __('message.version') }}</th>
                                     <th>{{ __('message.expiry') }}</th>
@@ -734,6 +735,7 @@
                                             {data: 'checkbox', name: 'checkbox'},
                                             {data: 'date', name: 'date'},
                                             {data: 'product', name: 'product'},
+                                            {data: 'group_name', name: 'group_name'},
                                             {data: 'number', name: 'number'},
                                             {data: 'version', name: 'version'},
                                             {data: 'expiry', name: 'expiry'},

@@ -8,7 +8,6 @@ use Closure;
 use Illuminate\Http\Request;
 use RateLimiter;
 use Session;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Blocks requests when a user exceeds the allowed number of failed attempts
@@ -91,7 +90,7 @@ class BlockFailedVerifications
      * @param  string  ...$onlyTypes  Optional — if provided, only these types are checked.
      *                                Used by verify OTP routes to skip OTP send limits.
      */
-    public function handle(Request $request, Closure $next, string $context = 'verify', string ...$onlyTypes): Response
+    public function handle(Request $request, Closure $next, string $context = 'verify', string ...$onlyTypes)
     {
         $identifier = $this->getIdentifier($context);
 
@@ -131,7 +130,7 @@ class BlockFailedVerifications
      * Checks if the given rate limit type has been exceeded.
      * If yes, applies a progressive penalty (if not already applied) and returns a 429 response.
      */
-    private function enforce(string $context, string $type, string $identifier, int $maxAttempts, Request $request): ?Response
+    private function enforce(string $context, string $type, string $identifier, int $maxAttempts, Request $request)
     {
         $key = "{$type}:{$identifier}";
 
@@ -184,7 +183,7 @@ class BlockFailedVerifications
      * Returns a 429 JSON error for AJAX requests, or redirects to login with
      * an error flash message for standard page requests.
      */
-    private function respond(Request $request, string $type, string $waitTime): Response
+    private function respond(Request $request, string $type, string $waitTime)
     {
         $message = __($this->getMessageKey($type), ['time' => $waitTime]);
 

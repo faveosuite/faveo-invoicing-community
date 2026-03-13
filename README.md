@@ -16,8 +16,8 @@ Developed and launched by [Ladybird Web Solution Pvt Ltd](http://www.ladybirdweb
 
 To run Faveo Invoicing, your server should meet the following requirements:
 
-- **PHP Version**: 8.2+
-- **Laravel Framework**: 10+
+- **PHP Version**: 8.4+
+- **Laravel Framework**: 12+
 - **Database**: MySQL 8.0.x, PostgreSQL, SQLite, or SQL Server
 - **Web Server**: Apache, IIS, or Nginx
 - **PHP Extensions**: Mcrypt, OpenSSL, Mbstring, Tokenizer
@@ -54,8 +54,8 @@ The following versions are actively supported and receive security patches:
 
 | Version     | Supported          |
 |-------------|--------------------|
-| 4.0.2.3     | :white_check_mark: |
-| < 4.0.2.2.1 | :x:                |
+| 4.0.2.5     | :white_check_mark: |
+| < 4.0.2.4 | :x:                |
 
 ### Supported Updates
 

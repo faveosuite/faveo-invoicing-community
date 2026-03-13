@@ -325,7 +325,7 @@ class PageController extends Controller
                             $offerprice = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('offer_price');
                             $planDetails = userCurrencyAndPrice('', $plan);
 
-                            $prices[$plan->id][] = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
+                            $prices[$plan->id][] = ($product->status) ? ($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
                             $prices[$plan->id][] .= $planDetails['symbol'];
                             $prices[$plan->id][] .= $planDetails['currency'];
                             $prices[$plan->id][] .= $plan->id;
@@ -356,7 +356,7 @@ class PageController extends Controller
 
             return $cost;
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            throw $ex;
         }
     }
 
@@ -480,7 +480,7 @@ class PageController extends Controller
 
             return $cost;
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            throw $ex;
         }
     }
 
@@ -822,7 +822,7 @@ class PageController extends Controller
 
             return $cost;
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            throw $ex;
         }
     }
 
@@ -838,7 +838,7 @@ class PageController extends Controller
             foreach ($plans as $plan) {
                 if ($plan->days == 365 || $plan->days == 366) {
                     $planDetails = userCurrencyAndPrice('', $plan);
-                    $prices[$plan->id][] = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
+                    $prices[$plan->id][] = ($product->status) ? ($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
                     $prices[$plan->id][] .= $planDetails['symbol'];
                     $prices[$plan->id][] .= $planDetails['currency'];
                 } elseif (! $product->status && ! in_array($product->id, cloudPopupProducts())) {
@@ -860,7 +860,7 @@ class PageController extends Controller
 
             return $cost;
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            throw $ex;
         }
     }
 

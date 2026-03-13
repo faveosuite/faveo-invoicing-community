@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
+use App\Model\Product\Product;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 
@@ -169,6 +170,12 @@ class AdminOrderInvoiceController extends Controller
                         })
                         ->addColumn('product', function ($model) {
                             return $model->product_name;
+                        })
+                        ->addColumn('group_name', function ($model) {
+                            $product = Product::find($model->product);
+                            $group = $product ? $product->group()->first() : null;
+
+                            return $group ? $group->name : '--';
                         })
                         ->addColumn('number', function ($model) {
                             $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>';

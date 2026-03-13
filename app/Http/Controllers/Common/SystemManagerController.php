@@ -143,10 +143,12 @@ class SystemManagerController extends Controller
         $position = $role === 'account' ? 'account_manager' : 'manager';
         User::where('id', $newManagerId)->update([$positionColumn => $position]);
 
+        $affectedUserIds = User::where($managerColumn, $oldManagerId)->pluck('id');
+
         User::where($managerColumn, $oldManagerId)->update([$managerColumn => $newManagerId]);
 
-        if (emailSendingStatus()) {
-            User::where($managerColumn, $newManagerId)
+        if (emailSendingStatus() && $affectedUserIds->isNotEmpty()) {
+            User::whereIn('id', $affectedUserIds)
                 ->cursor()
                 ->each(function ($user) use ($mailCallback) {
                     $mailCallback($user);

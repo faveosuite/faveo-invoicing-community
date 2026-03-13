@@ -168,6 +168,12 @@ class OrderController extends BaseOrderController
                 ->addColumn('product_name', function ($model) {
                     return $model->product_name;
                 })
+                ->addColumn('group_name', function ($model) {
+                    $product = Product::find($model->product);
+                    $group = $product ? $product->group()->first() : null;
+
+                    return $group ? $group->name : '--';
+                })
                  ->addColumn('plan_name', function ($model) {
                      $planName = Plan::find($model->plan_id);
 
