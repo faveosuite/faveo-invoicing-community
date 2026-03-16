@@ -356,7 +356,7 @@ class PageController extends Controller
 
             return $cost;
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            throw $ex;
         }
     }
 
@@ -480,7 +480,7 @@ class PageController extends Controller
 
             return $cost;
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            throw $ex;
         }
     }
 
@@ -822,7 +822,7 @@ class PageController extends Controller
 
             return $cost;
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            throw $ex;
         }
     }
 
@@ -860,7 +860,7 @@ class PageController extends Controller
 
             return $cost;
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            throw $ex;
         }
     }
 
