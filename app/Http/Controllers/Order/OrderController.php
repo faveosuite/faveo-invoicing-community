@@ -16,7 +16,6 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\Promotion;
 use App\Model\Product\Price;
 use App\Model\Product\Product;
-use App\Model\Product\ProductGroup;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\Payment_log;
