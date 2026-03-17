@@ -9,6 +9,7 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
 use Logger;
 use PDOException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
@@ -106,7 +107,13 @@ class Handler extends ExceptionHandler
      */
     private function shouldBeLoggedInDB(Throwable $exception)
     {
-        $notAllowedExceptions = [PDOException::class, NotFoundHttpException::class, AuthenticationException::class, ValidationException::class];
+        $notAllowedExceptions = [
+            PDOException::class,
+            NotFoundHttpException::class,
+            AuthenticationException::class,
+            ValidationException::class,
+            MethodNotAllowedHttpException::class
+        ];
         foreach ($notAllowedExceptions as $notAllowedException) {
             if ($exception instanceof $notAllowedException) {
                 return false;
