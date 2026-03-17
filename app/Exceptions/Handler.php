@@ -112,7 +112,7 @@ class Handler extends ExceptionHandler
             NotFoundHttpException::class,
             AuthenticationException::class,
             ValidationException::class,
-            MethodNotAllowedHttpException::class
+            MethodNotAllowedHttpException::class,
         ];
         foreach ($notAllowedExceptions as $notAllowedException) {
             if ($exception instanceof $notAllowedException) {
