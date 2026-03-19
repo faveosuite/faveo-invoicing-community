@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\License;
 
-use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LocalizedLicenseRequest;
 use App\Model\Order\Order;
@@ -17,58 +16,13 @@ use Illuminate\Support\Facades\URL;
 
 class LocalizedLicenseController extends Controller
 {
-    private $api_key_secret;
-
-    private $url;
-
-    private $license;
-
-    private $token;
+    private LicenseService $licenseService;
 
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware('admin', ['except' => ['downloadFile', 'downloadPrivate', 'storeFile']]);
-        $model = new ApiKey();
-        $this->license = $model->first();
-
-        $this->api_key_secret = $this->license->license_api_secret;
-        $this->url = $this->license->license_api_url;
-        $this->client_id = $this->license->license_client_id;
-        $this->client_secret = $this->license->license_client_secret;
-        $this->grant_type = $this->license->license_grant_type;
-    }
-
-    /**
-     * Generate a time limited access token to access license manager.
-     * */
-    private function oauthAuthorization()
-    {
-        $cacheKey = 'license_response_'.md5($this->url.$this->client_id);
-
-        return \Cache::lock('oauth_lock_'.$cacheKey, 30)->block(15, function () use ($cacheKey) {
-            return \Cache::remember($cacheKey, now()->addMinutes(30), function () use ($cacheKey) {
-                $response = json_decode(
-                    $this->postCurl($this->url.'oauth/token', [
-                        'client_id' => $this->client_id,
-                        'client_secret' => $this->client_secret,
-                        'grant_type' => $this->grant_type,
-                    ])
-                );
-
-                if (! $response || ! isset($response->access_token)) {
-                    throw new \Exception('OAuth token not received');
-                }
-
-                $ttl = isset($response->expires_in)
-                    ? now()->addSeconds($response->expires_in - 60)
-                    : now()->addMinutes(30);
-
-                \Cache::put($cacheKey, $response, $ttl);
-
-                return $response;
-            });
-        });
+        $this->licenseService = new LicenseService();
     }
 
     private function postCurl($post_url, $post_info, $token = null)
@@ -249,13 +203,12 @@ class LocalizedLicenseController extends Controller
     private function localizedLicenseInstallLM($orderNo, $domain, $licenseCode)
     {
         $client_email = '';
-        $url = $this->url;
-        $api_key_secret = $this->api_key_secret;
+        $url = $this->licenseService->getUrl();
+        $api_key_secret = $this->licenseService->getApiKeySecret();
         $productId = Order::where('number', $orderNo)->value('product');
         $installation_date = date('Y-m-d');
         $installation_hash = hash('sha256', $domain.$client_email.$licenseCode);
-        $OauthDetails = $this->oauthAuthorization();
-        $token = $OauthDetails->access_token;
+        $token = $this->licenseService->getValidToken();
         $addLocalizedInstallation = $this->postCurl($url.'api/admin/addInstallation', "api_key_secret=$api_key_secret&product_id=$productId&license_code=$licenseCode&installation_domain=$domain&installation_date=$installation_date&installation_status=1&installation_hash=$installation_hash", $token);
     }
 

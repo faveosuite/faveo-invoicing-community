@@ -2,65 +2,17 @@
 
 namespace App\Http\Controllers\License;
 
-use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 
 class LicenseController extends Controller
 {
-    private $api_key_secret;
-
-    private $url;
-
-    private $license;
-
-    private $token;
+    private LicenseService $licenseService;
 
     public function __construct()
     {
-        $model = new ApiKey();
-        $this->license = $model->first();
-
-        $this->api_key_secret = $this->license->license_api_secret;
-        $this->url = $this->license->license_api_url;
-
-        //To authorize to access license manager
-        $this->client_id = $this->license->license_client_id;
-        $this->client_secret = $this->license->license_client_secret;
-        $this->grant_type = $this->license->license_grant_type;
-    }
-
-    /**
-     * Generate a time limited access token to access license manager.
-     * */
-    public function oauthAuthorization()
-    {
-        $cacheKey = 'license_response_'.md5($this->url.$this->client_id);
-
-        return \Cache::lock('oauth_lock_'.$cacheKey, 30)->block(15, function () use ($cacheKey) {
-            return \Cache::remember($cacheKey, now()->addMinutes(30), function () use ($cacheKey) {
-                $response = json_decode(
-                    $this->postCurl($this->url.'oauth/token', [
-                        'client_id' => $this->client_id,
-                        'client_secret' => $this->client_secret,
-                        'grant_type' => $this->grant_type,
-                    ])
-                );
-
-                if (! $response || ! isset($response->access_token)) {
-                    throw new \Exception('OAuth token not received');
-                }
-
-                $ttl = isset($response->expires_in)
-                    ? now()->addSeconds($response->expires_in - 60)
-                    : now()->addMinutes(30);
-
-                \Cache::put($cacheKey, $response, $ttl);
-
-                return $response;
-            });
-        });
+        $this->licenseService = new LicenseService();
     }
 
     private function postCurl($post_url, $post_info, $token = null)
@@ -125,11 +77,8 @@ class LicenseController extends Controller
      */
     public function getLicensekey()
     {
-        $url = $this->url;
-
-        $api_key_secret = $this->api_key_secret;
-        $OauthDetails = $this->oauthAuthorization();
-        $token = $OauthDetails->access_token;
+        $url = $this->licenseService->getUrl();
+        $token = $this->licenseService->getValidToken();
         $getkey = $this->getCurl($url.'api/admin/viewApiKeys', $token);
 
         return ['data' => $getkey, 'url' => $url];
@@ -141,11 +90,9 @@ class LicenseController extends Controller
     public function addNewProduct($product_name, $product_sku)
     {
         try {
-            $url = $this->url;
-            $api_key_secret = $this->api_key_secret;
-
-            $OauthDetails = $this->oauthAuthorization();
-            $token = $OauthDetails->access_token;
+            $url = $this->licenseService->getUrl();
+            $api_key_secret = $this->licenseService->getApiKeySecret();
+            $token = $this->licenseService->getValidToken();
 
             $addProduct = $this->postCurl($url.'api/admin/products/add', "api_key_secret=$api_key_secret&product_title=$product_name&product_sku=$product_sku&product_status=1", $token);
         } catch (\Exception $ex) {
@@ -159,10 +106,9 @@ class LicenseController extends Controller
     public function addNewUser($first_name, $last_name, $email)
     {
         try {
-            $url = $this->url;
-            $api_key_secret = $this->api_key_secret;
-            $OauthDetails = $this->oauthAuthorization();
-            $token = $OauthDetails->access_token;
+            $url = $this->licenseService->getUrl();
+            $api_key_secret = $this->licenseService->getApiKeySecret();
+            $token = $this->licenseService->getValidToken();
             $addProduct = $this->postCurl($url.'api/admin/clients/add', "api_key_secret=$api_key_secret&client_fname=$first_name&client_lname=$last_name&client_email=$email&client_role='client'&client_status=1", $token);
         } catch (\Exception $ex) {
             throw new \Exception(__('message.configure_valid_license'));
@@ -176,10 +122,9 @@ class LicenseController extends Controller
     {
         try {
             $productId = $this->searchProductId($product_sku);
-            $url = $this->url;
-            $api_key_secret = $this->api_key_secret;
-            $OauthDetails = $this->oauthAuthorization();
-            $token = $OauthDetails->access_token;
+            $url = $this->licenseService->getUrl();
+            $api_key_secret = $this->licenseService->getApiKeySecret();
+            $token = $this->licenseService->getValidToken();
             $addProduct = $this->postCurl($url.'api/admin/products/edit', "api_key_secret=$api_key_secret&product_id=$productId&product_title=$product_name&product_sku=$product_sku&product_status=1", $token);
         } catch (\Exception $ex) {
             throw new \Exception(__('message.configure_valid_license'));
@@ -193,10 +138,9 @@ class LicenseController extends Controller
     {
         try {
             $productId = '';
-            $url = $this->url;
-            $api_key_secret = $this->api_key_secret;
-            $OauthDetails = $this->oauthAuthorization();
-            $token = $OauthDetails->access_token;
+            $url = $this->licenseService->getUrl();
+            $api_key_secret = $this->licenseService->getApiKeySecret();
+            $token = $this->licenseService->getValidToken();
             $getProductId = $this->postCurl($url.'api/admin/search', "api_key_secret=$api_key_secret&search_type=product&search_keyword=$product_sku&isLicenseSearchApi=1", $token);
             $details = json_decode($getProductId);
 
@@ -213,11 +157,10 @@ class LicenseController extends Controller
     public function deleteProductFromAPL($product)
     {
         try {
-            $url = $this->url;
-            $api_key_secret = $this->api_key_secret;
+            $url = $this->licenseService->getUrl();
+            $api_key_secret = $this->licenseService->getApiKeySecret();
             $productId = $this->searchProductId($product->product_sku);
-            $OauthDetails = $this->oauthAuthorization();
-            $token = $OauthDetails->access_token;
+            $token = $this->licenseService->getValidToken();
             $productTitle = $product->name;
             $productSku = $product->sku;
             $delProduct = $this->postCurl($url.'api/admin/products/delete', "api_key_secret=$api_key_secret&product_id=$productId&product_title=$productTitle&product_sku=$productSku&product_status=1&delete_record=1", $token);
@@ -233,10 +176,9 @@ class LicenseController extends Controller
     {
         try {
             $userId = $this->searchForUserId($email);
-            $url = $this->url;
-            $api_key_secret = $this->api_key_secret;
-            $OauthDetails = $this->oauthAuthorization();
-            $token = $OauthDetails->access_token;
+            $url = $this->licenseService->getUrl();
+            $api_key_secret = $this->licenseService->getApiKeySecret();
+            $token = $this->licenseService->getValidToken();
             $addProduct = $this->postCurl($url.'api/admin/clients/edit', "api_key_secret=$api_key_secret&client_id=$userId&client_fname=$first_name&client_lname=$last_name&client_email=$email&client_role='client'&client_status=1", $token);
         } catch (\Exception $ex) {
             throw new \Exception(__('message.configure_valid_license'));
@@ -250,10 +192,9 @@ class LicenseController extends Controller
     {
         try {
             $userId = '';
-            $url = $this->url;
-            $api_key_secret = $this->api_key_secret;
-            $OauthDetails = $this->oauthAuthorization();
-            $token = $OauthDetails->access_token;
+            $url = $this->licenseService->getUrl();
+            $api_key_secret = $this->licenseService->getApiKeySecret();
+            $token = $this->licenseService->getValidToken();
             $getUserId = $this->postCurl($url.'api/admin/search', "api_key_secret=$api_key_secret&search_type=client&search_keyword=$email&isLicenseSearchApi=1", $token);
 
             $details = json_decode($getUserId);
@@ -273,8 +214,8 @@ class LicenseController extends Controller
     public function createNewLicene($orderid, $product, $user_id, $licenseExpiry, $updatesExpiry, $supportExpiry, $serial_key)
     {
         try {
-            $url = $this->url;
-            $api_key_secret = $this->api_key_secret;
+            $url = $this->licenseService->getUrl();
+            $api_key_secret = $this->licenseService->getApiKeySecret();
 
             $sku = Product::where('id', $product)->first()->product_sku;
 
@@ -290,8 +231,7 @@ class LicenseController extends Controller
             $domain = $ipAndDomain['domain'];
             $requireDomain = $ipAndDomain['requireDomain'];
             $productId = $this->searchProductId($sku);
-            $OauthDetails = $this->oauthAuthorization();
-            $token = $OauthDetails->access_token;
+            $token = $this->licenseService->getValidToken();
 
             $addLicense = $this->postCurl($url.'api/admin/license/add', "api_key_secret=$api_key_secret&product_id=$productId&license_code=$serial_key&license_require_domain=1&license_status=1&license_order_number=$orderNo&license_domain=$domain&license_ip=$ip&license_require_domain=$requireDomain&license_limit=6&license_expire_date=$licenseExpiry&license_updates_date=$updatesExpiry&license_support_date=$supportExpiry&license_disable_ip_verification=0&license_limit=1", $token);
         } catch (\Exception $ex) {
@@ -319,16 +259,14 @@ class LicenseController extends Controller
             if (strtotime($supportExpiry) > 1) {
                 $s_expiry = date('Y-m-d', strtotime($supportExpiry));
             }
-            $url = $this->url;
+            $url = $this->licenseService->getUrl();
             $ipAndDomain = $this->getIpAndDomain($domain);
-            $token = $this->token;
             $ip = $ipAndDomain['ip'];
             $domain = $ipAndDomain['domain'];
             $requireDomain = $ipAndDomain['requireDomain'];
-            $api_key_secret = $this->api_key_secret;
+            $api_key_secret = $this->licenseService->getApiKeySecret();
             $searchLicense = $this->searchLicenseId($licenseCode, $productId);
-            $OauthDetails = $this->oauthAuthorization();
-            $token = $OauthDetails->access_token;
+            $token = $this->licenseService->getValidToken();
             $licenseId = $searchLicense['licenseId'];
             $productId = $searchLicense['productId'];
             $licenseCode = $searchLicense['code'];
@@ -369,10 +307,9 @@ class LicenseController extends Controller
             $code = '';
             $limit = '';
             $ipOrDomain = '';
-            $url = $this->url;
-            $api_key_secret = $this->api_key_secret;
-            $OauthDetails = $this->oauthAuthorization();
-            $token = $OauthDetails->access_token;
+            $url = $this->licenseService->getUrl();
+            $api_key_secret = $this->licenseService->getApiKeySecret();
+            $token = $this->licenseService->getValidToken();
             $getLicenseId = $this->postCurl($url.'api/admin/search', "api_key_secret=$api_key_secret&search_type=license&search_keyword=$licenseCode&isLicenseSearchApi=1", $token);
             $details = json_decode($getLicenseId);
             if ($details->api_error_detected == 0 && is_array($details->page_message)) {
@@ -397,16 +334,15 @@ class LicenseController extends Controller
     public function updateInstalledDomain($licenseCode, $productId)
     {
         try {
-            $url = $this->url;
-            $api_key_secret = $this->api_key_secret;
+            $url = $this->licenseService->getUrl();
+            $api_key_secret = $this->licenseService->getApiKeySecret();
 
             //Search for the Installation Id
             $searchInstallationId = $this->searchInstallationId($licenseCode);
             $details = json_decode($searchInstallationId);
 
             if ($details->api_error_detected == 0 && is_array($details->page_message)) {
-                $OauthDetails = $this->oauthAuthorization();
-                $token = $OauthDetails->access_token;
+                $token = $this->licenseService->getValidToken();
                 foreach ($details->page_message as $detail) {
                     if ($detail->product_id == $productId) {
                         $installation_id = $detail->installation_id;
@@ -424,10 +360,9 @@ class LicenseController extends Controller
     public function searchInstallationId($licenseCode)
     {
         try {
-            $url = $this->url;
-            $api_key_secret = $this->api_key_secret;
-            $OauthDetails = $this->oauthAuthorization();
-            $token = $OauthDetails->access_token;
+            $url = $this->licenseService->getUrl();
+            $api_key_secret = $this->licenseService->getApiKeySecret();
+            $token = $this->licenseService->getValidToken();
             $getInstallId = $this->postCurl($url.'api/admin/search', "api_key_secret=$api_key_secret&search_type=installation&search_keyword=$licenseCode&isLicenseSearchApi=1", $token);
 
             return $getInstallId;
@@ -462,16 +397,15 @@ class LicenseController extends Controller
     public function updateExpirationDate($licenseCode, $expiryDate, $productId, $domain, $orderNo, $licenseExpiry, $supportExpiry, $license_limit = 2, $requiredomain = 1)
     {
         try {
-            $url = $this->url;
+            $url = $this->licenseService->getUrl();
             $ipAndDomain = $this->getIpAndDomain($domain);
             $ip = $ipAndDomain['ip'];
             $domain = $ipAndDomain['domain'];
             $requireDomain = $ipAndDomain['requireDomain'];
-            $api_key_secret = $this->api_key_secret;
+            $api_key_secret = $this->licenseService->getApiKeySecret();
 
             $searchLicense = $this->searchLicenseId($licenseCode, $productId);
-            $OauthDetails = $this->oauthAuthorization();
-            $token = $OauthDetails->access_token;
+            $token = $this->licenseService->getValidToken();
             $licenseId = $searchLicense['licenseId'];
             $productId = $searchLicense['productId'];
             $code = $searchLicense['code'];
@@ -483,7 +417,6 @@ class LicenseController extends Controller
 
     public function getNoOfAllowedInstallation($licenseCode, $productId)
     {
-        $api_key_secret = $this->api_key_secret;
         $searchLicense = $this->searchLicenseId($licenseCode, $productId);
 
         return $searchLicense['installationLimit'];
@@ -491,7 +424,6 @@ class LicenseController extends Controller
 
     public function getInstallPreference($licenseCode, $productId)
     {
-        $api_key_secret = $this->api_key_secret;
         $searchLicense = $this->searchLicenseId($licenseCode, $productId);
 
         return $searchLicense['allowedInstalltion'];
@@ -500,11 +432,9 @@ class LicenseController extends Controller
     public function deActivateTheLicense($licenseCode)
     {
         try {
-            $url = $this->url;
-            $api_key_secret = $this->api_key_secret;
-
-            $OauthDetails = $this->oauthAuthorization();
-            $token = $OauthDetails->access_token;
+            $url = $this->licenseService->getUrl();
+            $api_key_secret = $this->licenseService->getApiKeySecret();
+            $token = $this->licenseService->getValidToken();
 
             $this->postCurl($url.'api/admin/license/deactivate', "api_key_secret=$api_key_secret&license_code=$licenseCode", $token);
         } catch (\Exception $ex) {
@@ -516,22 +446,18 @@ class LicenseController extends Controller
 
     public function reissueDomain($installationPath)
     {
-        $url = $this->url;
-        $api_key_secret = $this->api_key_secret;
-
-        $OauthDetails = $this->oauthAuthorization();
-        $token = $OauthDetails->access_token;
+        $url = $this->licenseService->getUrl();
+        $api_key_secret = $this->licenseService->getApiKeySecret();
+        $token = $this->licenseService->getValidToken();
 
         $this->postCurl($url.'api/admin/installation/reissue', "api_key_secret=$api_key_secret&installation_path=$installationPath", $token);
     }
 
     public function updateLicense($license_code, $oldLicense)
     {
-        $url = $this->url;
-        $api_key_secret = $this->api_key_secret;
-
-        $OauthDetails = $this->oauthAuthorization();
-        $token = $OauthDetails->access_token;
+        $url = $this->licenseService->getUrl();
+        $api_key_secret = $this->licenseService->getApiKeySecret();
+        $token = $this->licenseService->getValidToken();
         $this->postCurl($url.'api/admin/license/updateLicenseCode', "api_key_secret=$api_key_secret&license_code=$license_code&old_license_code=$oldLicense", $token);
     }
 
@@ -542,11 +468,9 @@ class LicenseController extends Controller
 
     public function syncTheAddonForALicense($product_ids, $license_code, $options = [])
     {
-        $url = $this->url;
-        $api_key_secret = $this->api_key_secret;
-
-        $OauthDetails = $this->oauthAuthorization();
-        $token = $OauthDetails->access_token;
+        $url = $this->licenseService->getUrl();
+        $api_key_secret = $this->licenseService->getApiKeySecret();
+        $token = $this->licenseService->getValidToken();
         // Convert arrays to JSON for proper request formatting
         $options = json_encode($options);
 
@@ -562,10 +486,9 @@ class LicenseController extends Controller
 
     public function getInstallationLogsDetails($license_code)
     {
-        $url = $this->url;
-        $api_key_secret = $this->api_key_secret;
-        $OauthDetails = $this->oauthAuthorization();
-        $token = $OauthDetails->access_token;
+        $url = $this->licenseService->getUrl();
+        $api_key_secret = $this->licenseService->getApiKeySecret();
+        $token = $this->licenseService->getValidToken();
         $details = json_decode($this->postCurl($url.'api/admin/getInstallationLogs', "api_key_secret=$api_key_secret&license_code=$license_code", $token));
 
         if ($details && $details->api_error_detected == 0 && is_array($details->page_message)) {
@@ -588,10 +511,9 @@ class LicenseController extends Controller
     public function updateInstallationLogs($root_url, $version_number, $installation_ip, $licenseCode)
     {
         try {
-            $url = $this->url;
-            $api_key_secret = $this->api_key_secret;
-            $OauthDetails = $this->oauthAuthorization();
-            $token = $OauthDetails->access_token;
+            $url = $this->licenseService->getUrl();
+            $api_key_secret = $this->licenseService->getApiKeySecret();
+            $token = $this->licenseService->getValidToken();
             $details = json_decode($this->postCurl($url.'api/admin/updateInstallationLogs', "api_key_secret=$api_key_secret&root_url=$root_url&version_number=$version_number&installation_ip=$installation_ip&license_code=$licenseCode", $token));
         } catch (\Exception $ex) {
             throw new \Exception(__('message.configure_valid_license'));
@@ -601,10 +523,9 @@ class LicenseController extends Controller
     public function searchProductUsingLicense($licenseCode)
     {
         try {
-            $url = $this->url;
-            $api_key_secret = $this->api_key_secret;
-            $OauthDetails = $this->oauthAuthorization();
-            $token = $OauthDetails->access_token;
+            $url = $this->licenseService->getUrl();
+            $api_key_secret = $this->licenseService->getApiKeySecret();
+            $token = $this->licenseService->getValidToken();
             $getLicenseId = $this->postCurl($url.'api/admin/search', "api_key_secret=$api_key_secret&search_type=license&search_keyword=$licenseCode&isLicenseSearchApi=1", $token);
             $details = json_decode($getLicenseId, true);
             if (
@@ -624,10 +545,9 @@ class LicenseController extends Controller
     public function searchProductUsingProductKey($productKey)
     {
         try {
-            $url = $this->url;
-            $api_key_secret = $this->api_key_secret;
-            $OauthDetails = $this->oauthAuthorization();
-            $token = $OauthDetails->access_token;
+            $url = $this->licenseService->getUrl();
+            $api_key_secret = $this->licenseService->getApiKeySecret();
+            $token = $this->licenseService->getValidToken();
 
             return $this->getCurl($url.'api/admin/getProductIdbyKey?'."api_key_secret=$api_key_secret&product_key=$productKey", $token);
         } catch (\Exception $ex) {
