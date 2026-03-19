@@ -259,7 +259,7 @@ class BaseClientController extends Controller
                 ->where('client', $userid)
                 ->firstOrFail();
 
-            if (! authorizeOwnership($userid)) {
+            if (! authorizeOwnership($userid, true)) {
                 return redirect()->back()->with('fails', __('message.unauthorized_action'));
             }
 

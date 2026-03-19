@@ -24,6 +24,7 @@ use App\Model\Payment\TaxByState;
 use App\Model\Payment\TaxOption;
 use App\Model\Product\Price;
 use App\Model\Product\Product;
+use App\Model\Product\ProductGroup;
 use App\Traits\CoupCodeAndInvoiceSearch;
 use App\Traits\PaymentsAndInvoices;
 use App\Traits\TaxCalculation;
@@ -305,7 +306,18 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             } else {
                 $user = '';
             }
-            $products = $this->product->where('invoice_hidden', 0)->pluck('name', 'id')->toArray();
+            $products = ProductGroup::with(['product' => function ($query) {
+                $query->where('invoice_hidden', 0);
+            }])->get()
+                ->filter(fn ($group) => $group->product->isNotEmpty())
+                ->mapWithKeys(fn ($group) => [$group->name => $group->product->pluck('name', 'id')->toArray()])
+                ->toArray();
+
+            // Include ungrouped products
+            $ungrouped = $this->product->where('invoice_hidden', 0)->whereNull('group')->pluck('name', 'id')->toArray();
+            if (! empty($ungrouped)) {
+                $products = array_merge(['Other' => $ungrouped], $products);
+            }
             $currency = $this->currency->pluck('name', 'code')->toArray();
 
             return view('themes.default1.invoice.generate', compact('user', 'products', 'currency'));

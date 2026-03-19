@@ -29,7 +29,7 @@ class ThrottleApiRequestTest extends TestCase
     public function test_cacheKeyIsSetAfterFirstRequest()
     {
         $url = 'https://api.example.com/users';
-        $endpoint = parse_url($url, PHP_URL_HOST).parse_url($url, PHP_URL_PATH);
+        $endpoint = parse_url($url, PHP_URL_HOST);
         $key = 'api_rate_next_allowed_'.md5($endpoint);
 
         throttleApiRequest($url, 60, 60);
@@ -57,7 +57,7 @@ class ThrottleApiRequestTest extends TestCase
     public function test_defaultParametersAre60RequestsPer60Seconds()
     {
         $url = 'https://api.example.com/endpoint';
-        $endpoint = parse_url($url, PHP_URL_HOST).parse_url($url, PHP_URL_PATH);
+        $endpoint = parse_url($url, PHP_URL_HOST);
         $key = 'api_rate_next_allowed_'.md5($endpoint);
 
         throttleApiRequest($url);
@@ -70,15 +70,13 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertLessThan($now + 1.5, $nextAllowed);
     }
 
-    public function test_differentUrlsAreThrottledIndependently()
+    public function test_differentHostsAreThrottledIndependently()
     {
         $url1 = 'https://api.example.com/users';
-        $url2 = 'https://api.example.com/orders';
+        $url2 = 'https://api.other.com/users';
 
-        $endpoint1 = parse_url($url1, PHP_URL_HOST).parse_url($url1, PHP_URL_PATH);
-        $endpoint2 = parse_url($url2, PHP_URL_HOST).parse_url($url2, PHP_URL_PATH);
-        $key1 = 'api_rate_next_allowed_'.md5($endpoint1);
-        $key2 = 'api_rate_next_allowed_'.md5($endpoint2);
+        $key1 = 'api_rate_next_allowed_'.md5(parse_url($url1, PHP_URL_HOST));
+        $key2 = 'api_rate_next_allowed_'.md5(parse_url($url2, PHP_URL_HOST));
 
         // 1 request per second for tight throttling
         throttleApiRequest($url1, 1, 1);
@@ -97,14 +95,36 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertGreaterThan(0.8, $elapsed);
     }
 
-    public function test_sameHostDifferentPathsAreThrottledSeparately()
+    public function test_sameHostDifferentPathsShareThrottleByDefault()
+    {
+        $url1 = 'https://api.example.com/v1/users';
+        $url2 = 'https://api.example.com/v2/users';
+
+        $host = parse_url($url1, PHP_URL_HOST);
+
+        // perSite: true (default) — same host shares one key
+        $this->assertEquals(
+            'api_rate_next_allowed_'.md5($host),
+            'api_rate_next_allowed_'.md5(parse_url($url2, PHP_URL_HOST))
+        );
+    }
+
+    public function test_perApiFlagThrottlesByEndpoint()
     {
         $url1 = 'https://api.example.com/v1/users';
         $url2 = 'https://api.example.com/v2/users';
 
         $endpoint1 = parse_url($url1, PHP_URL_HOST).parse_url($url1, PHP_URL_PATH);
         $endpoint2 = parse_url($url2, PHP_URL_HOST).parse_url($url2, PHP_URL_PATH);
+        $key1 = 'api_rate_next_allowed_'.md5($endpoint1);
+        $key2 = 'api_rate_next_allowed_'.md5($endpoint2);
 
+        throttleApiRequest($url1, 60, 60, perSite: false);
+        throttleApiRequest($url2, 60, 60, perSite: false);
+
+        // Different paths should have separate cache keys
+        $this->assertNotNull(Cache::get($key1));
+        $this->assertNotNull(Cache::get($key2));
         $this->assertNotEquals(md5($endpoint1), md5($endpoint2));
     }
 
@@ -145,7 +165,7 @@ class ThrottleApiRequestTest extends TestCase
     public function test_intervalCalculation_higherRateMeansSmallInterval()
     {
         $url = 'https://api.example.com/fast';
-        $endpoint = parse_url($url, PHP_URL_HOST).parse_url($url, PHP_URL_PATH);
+        $endpoint = parse_url($url, PHP_URL_HOST);
         $key = 'api_rate_next_allowed_'.md5($endpoint);
 
         $beforeCall = microtime(true);
@@ -160,7 +180,7 @@ class ThrottleApiRequestTest extends TestCase
     public function test_consecutiveCallsStackWaitTimes()
     {
         $url = 'https://api.example.com/stack';
-        $endpoint = parse_url($url, PHP_URL_HOST).parse_url($url, PHP_URL_PATH);
+        $endpoint = parse_url($url, PHP_URL_HOST);
         $key = 'api_rate_next_allowed_'.md5($endpoint);
 
         // 10 requests per 10 seconds => interval = 1 second
@@ -183,7 +203,7 @@ class ThrottleApiRequestTest extends TestCase
     public function test_expiredSlotDoesNotCauseWait()
     {
         $url = 'https://api.example.com/expired';
-        $endpoint = parse_url($url, PHP_URL_HOST).parse_url($url, PHP_URL_PATH);
+        $endpoint = parse_url($url, PHP_URL_HOST);
         $key = 'api_rate_next_allowed_'.md5($endpoint);
 
         // Set nextAllowed to a time in the past
@@ -196,11 +216,10 @@ class ThrottleApiRequestTest extends TestCase
         $this->assertLessThan(0.1, $elapsed, 'Expired slot should not cause waiting');
     }
 
-    public function test_cacheKeyUsesHostAndPath()
+    public function test_cacheKeyUsesHostByDefault()
     {
         $url = 'https://payments.stripe.com/v1/charges';
-        $expectedEndpoint = 'payments.stripe.com/v1/charges';
-        $expectedKey = 'api_rate_next_allowed_'.md5($expectedEndpoint);
+        $expectedKey = 'api_rate_next_allowed_'.md5('payments.stripe.com');
 
         throttleApiRequest($url);
 

@@ -16,6 +16,7 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\Promotion;
 use App\Model\Product\Price;
 use App\Model\Product\Product;
+use App\Model\Product\ProductGroup;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\Payment_log;
@@ -102,7 +103,18 @@ class OrderController extends BaseOrderController
             return redirect('orders')->with('fails', __('message.start_date_before_end_date'));
         }
         try {
-            $products = $this->product->where('id', '!=', 1)->pluck('name', 'id')->toArray();
+            $products = ProductGroup::with('product')
+                ->get()
+                ->mapWithKeys(function ($group) {
+                    return [$group->name => $group->product->pluck('name', 'id')->toArray()];
+                })
+                ->toArray();
+
+            // Include ungrouped products
+            $ungrouped = $this->product->whereNull('group')->pluck('name', 'id')->toArray();
+            if (! empty($ungrouped)) {
+                $products = array_merge(['Other' => $ungrouped], $products);
+            }
 
             $paidUnpaidOptions = ['paid' => 'Paid Products', 'unpaid' => 'Unpaid Products'];
             $insNotIns = ['installed' => 'Yes (Installed atleast once)', 'not_installed' => 'No (Not Installed)'];
@@ -278,33 +290,32 @@ class OrderController extends BaseOrderController
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Response
-     */
-    public function create()
-    {
-        try {
-            $clients = $this->user->pluck('first_name', 'id')->toArray();
-            $product = $this->product->pluck('name', 'id')->toArray();
-            $subscription = $this->subscription->pluck('name', 'id')->toArray();
-            $promotion = $this->promotion->pluck('code', 'id')->toArray();
-
-            return view('themes.default1.order.create', compact('clients', 'product', 'subscription', 'promotion'));
-        } catch (\Exception $e) {
-            Bugsnag::notifyExeption($e);
-
-            return redirect()->back()->with('fails', $e->getMessage());
-        }
-    }
+    // order create we're not using
+//    /**
+//     * Show the form for creating a new resource.
+//     *
+//     * @return \Response
+//     */
+//    public function create()
+//    {
+//        try {
+//            $clients = $this->user->pluck('first_name', 'id')->toArray();
+//            $product = $this->product->pluck('name', 'id')->toArray();
+//            $subscription = $this->subscription->pluck('name', 'id')->toArray();
+//            $promotion = $this->promotion->pluck('code', 'id')->toArray();
+//
+//            return view('themes.default1.order.create', compact('clients', 'product', 'subscription', 'promotion'));
+//        } catch (\Exception $e) {
+//            return redirect()->back()->with('fails', $e->getMessage());
+//        }
+//    }
 
     public function getInstallationDetails($orderId)
     {
         try {
             $order = $this->order->findOrFail($orderId);
 
-            if (! authorizeOwnership($order->client)) {
+            if (! authorizeOwnership($order->client, true)) {
                 return redirect()->back()->with('fails', __('messages.unauthorized_action'));
             }
 
