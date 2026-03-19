@@ -84,7 +84,7 @@ class LicenseService
 
         if ($result === false) {
             throw new \Exception(
-                'Could not acquire token-refresh lock within ' . self::LOCK_WAIT . 's'
+                'Could not acquire token-refresh lock within '.self::LOCK_WAIT.'s'
             );
         }
 
@@ -96,9 +96,9 @@ class LicenseService
         $response = \Http::asForm()
             ->timeout(8)
             ->retry(2, 500, throw: false)
-            ->post($this->url . 'oauth/token', [
-                'grant_type'    => $this->grantType,
-                'client_id'     => $this->clientId,
+            ->post($this->url.'oauth/token', [
+                'grant_type' => $this->grantType,
+                'client_id' => $this->clientId,
                 'client_secret' => $this->clientSecret,
             ]);
 
@@ -112,9 +112,9 @@ class LicenseService
 
         $tokenData = [
             'access_token' => $data['access_token'],
-            'expires_in'   => $data['expires_in'] ?? 3600,
-            'stored_at'    => now()->timestamp,
-            'token_type'   => $data['token_type'] ?? 'Bearer',
+            'expires_in' => $data['expires_in'] ?? 3600,
+            'stored_at' => now()->timestamp,
+            'token_type' => $data['token_type'] ?? 'Bearer',
         ];
 
         $ttl = now()->addSeconds($tokenData['expires_in']);
@@ -137,11 +137,11 @@ class LicenseService
 
     private function tokenCacheKey(): string
     {
-        return 'license_response_' . md5($this->url . $this->clientId);
+        return 'license_response_'.md5($this->url.$this->clientId);
     }
 
     private function lockKey(): string
     {
-        return 'oauth_lock_license_response_' . md5($this->url . $this->clientId);
+        return 'oauth_lock_license_response_'.md5($this->url.$this->clientId);
     }
 }
