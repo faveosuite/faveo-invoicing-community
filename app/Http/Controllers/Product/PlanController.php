@@ -11,6 +11,7 @@ use App\Model\Payment\Period;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
+use App\Model\Product\ProductGroup;
 use App\Model\Product\Subscription;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -53,7 +54,16 @@ class PlanController extends ExtendedPlanController
         $countries = Country::get(['country_id', 'country_name'])->toArray();
         $currency = $this->currency->where('status', '1')->pluck('name', 'code')->toArray();
         $periods = $this->period->pluck('name', 'days')->toArray();
-        $products = $this->product->pluck('name', 'id')->toArray();
+        $products = ProductGroup::with('product')
+            ->get()
+            ->filter(fn ($group) => $group->product->isNotEmpty())
+            ->mapWithKeys(fn ($group) => [$group->name => $group->product->pluck('name', 'id')->toArray()])
+            ->toArray();
+
+        $ungrouped = $this->product->whereNull('group')->pluck('name', 'id')->toArray();
+        if (! empty($ungrouped)) {
+            $products = array_merge(['Other' => $ungrouped], $products);
+        }
 
         return view(
             'themes.default1.product.plan.index',
@@ -163,7 +173,16 @@ class PlanController extends ExtendedPlanController
     {
         $currency = $this->currency->where('status', 1)->pluck('name', 'code')->toArray();
         $periods = $this->period->pluck('name', 'days')->toArray();
-        $products = $this->product->pluck('name', 'id')->toArray();
+        $products = ProductGroup::with('product')
+            ->get()
+            ->filter(fn ($group) => $group->product->isNotEmpty())
+            ->mapWithKeys(fn ($group) => [$group->name => $group->product->pluck('name', 'id')->toArray()])
+            ->toArray();
+
+        $ungrouped = $this->product->whereNull('group')->pluck('name', 'id')->toArray();
+        if (! empty($ungrouped)) {
+            $products = array_merge(['Other' => $ungrouped], $products);
+        }
 
         return view('themes.default1.product.plan.create', compact('currency', 'periods', 'products'));
     }
@@ -234,14 +253,22 @@ class PlanController extends ExtendedPlanController
             }
         }
         $periods = $this->period->pluck('name', 'days')->toArray();
-        $products = $this->product->pluck('name', 'id')->toArray();
+        $products = ProductGroup::with('product')
+            ->get()
+            ->filter(fn ($group) => $group->product->isNotEmpty())
+            ->mapWithKeys(fn ($group) => [$group->name => $group->product->pluck('name', 'id')->toArray()])
+            ->toArray();
+
+        $ungrouped = $this->product->whereNull('group')->pluck('name', 'id')->toArray();
+        if (! empty($ungrouped)) {
+            $products = array_merge(['Other' => $ungrouped], $products);
+        }
+
         $priceDescription = $planPrices[0]['price_description'];
         $productQuantity = $planPrices[0]['product_quantity'];
         $agentQuantity = $planPrices[0]['no_of_agents'];
-        foreach ($products as $key => $product) {
-            $selectedProduct = $this->product->where('id', $plan->product)
-          ->pluck('name', 'id', 'subscription')->toArray();
-        }
+        $selectedProduct = $this->product->where('id', $plan->product)
+            ->pluck('name', 'id')->toArray();
         $selectedPeriods = $this->period->where('days', $plan->days)
        ->pluck('name', 'days')->toArray();
 

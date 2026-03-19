@@ -1189,10 +1189,15 @@ function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds 
  * Check if the authenticated user owns the resource.
  *
  * @param  int  $userID
+ * @param  bool  $allowAdmin  If true, admin users can access the resource.
  * @return bool
  */
-function authorizeOwnership(int $userID): bool
+function authorizeOwnership(int $userID, bool $allowAdmin = false): bool
 {
+    if ($allowAdmin && auth()->user()?->role === 'admin') {
+        return true;
+    }
+
     return $userID === auth()->id();
 }
 

@@ -496,11 +496,11 @@ class PageController extends Controller
      * @param  int  $templateid  Id of the Template
      * @return
      */
-    public function pageTemplates(?int $templateid = null, int $groupid)
+    public function pageTemplates(?int $templateid = null, ProductGroup $group)
     {
         try {
-            $headline = ProductGroup::findorFail($groupid)->headline;
-            $tagline = ProductGroup::findorFail($groupid)->tagline;
+            $headline = $group->headline;
+            $tagline = $group->tagline;
             $currencyAndSymbol = '';
             if (! \Auth::user()) {
                 $location = getLocation();
@@ -519,7 +519,7 @@ class PageController extends Controller
                     }]);
                 },
             ])
-                ->where('group', $groupid)
+                ->where('group', $group->id)
                 ->where('hidden', '!=', 1)
                 ->whereHas('planRelation', function ($query) use ($currencyAndSymbol) {
                     $query->where('days', '!=', 14)

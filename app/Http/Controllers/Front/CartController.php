@@ -116,7 +116,7 @@ class CartController extends BaseCartController
      * @param  int  $id  Product Id
      * @return array $items  Array of items and Tax conditions to the cart
      */
-    public function addProduct(int $id, $domain = null)
+    public function addProduct(?int $id, $domain = null)
     {
         try {
             $qty = 1;
