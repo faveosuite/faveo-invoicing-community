@@ -152,6 +152,7 @@ return array(
     'App\\Http\\Controllers\\License\\EncryptDecryptController' => $baseDir . '/app/Http/Controllers/License/EncryptDecryptController.php',
     'App\\Http\\Controllers\\License\\LicenseController' => $baseDir . '/app/Http/Controllers/License/LicenseController.php',
     'App\\Http\\Controllers\\License\\LicensePermissionsController' => $baseDir . '/app/Http/Controllers/License/LicensePermissionsController.php',
+    'App\\Http\\Controllers\\License\\LicenseService' => $baseDir . '/app/Http/Controllers/License/LicenseService.php',
     'App\\Http\\Controllers\\License\\LicenseSettingsController' => $baseDir . '/app/Http/Controllers/License/LicenseSettingsController.php',
     'App\\Http\\Controllers\\License\\LocalizedLicenseController' => $baseDir . '/app/Http/Controllers/License/LocalizedLicenseController.php',
     'App\\Http\\Controllers\\Order\\BaseInvoiceController' => $baseDir . '/app/Http/Controllers/Order/BaseInvoiceController.php',

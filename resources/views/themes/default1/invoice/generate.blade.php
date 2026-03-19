@@ -87,10 +87,14 @@
 
                 <div class="col-md-4 lg-4 form-group">
                     {!! html()->label(Lang::get('message.product'))->for('product')->class('required') !!}
-                     <select name="product" value= "Choose" id="product" class="form-control {{$errors->has('product') ? ' is-invalid' : ''}}">
+                     <select name="product" value="Choose" id="product" class="form-control select2 {{$errors->has('product') ? ' is-invalid' : ''}}">
                              <option value="">{{ __('message.choose') }}</option>
-                           @foreach($products as $key=>$product)
-                              <option value={{$key}}>{{$product}}</option>
+                           @foreach($products as $groupName => $groupProducts)
+                              <optgroup label="{{ $groupName }}">
+                                  @foreach($groupProducts as $id => $productName)
+                                      <option value="{{ $id }}">{{ $productName }}</option>
+                                  @endforeach
+                              </optgroup>
                           @endforeach
                           </select>
 

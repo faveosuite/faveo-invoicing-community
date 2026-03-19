@@ -94,7 +94,7 @@ class BaseRenewController extends Controller
 
             if (! $planId || $planId === 'Choose') {
                 return response()->json([
-                    'formatted_price' => currencyFormat(0, getCurrencyForClient(User::find($userId)->country)),
+                    'formatted_price' => currencyFormat(0, getCurrencyForClient(User::find($userId)?->country)),
                 ]);
             }
 

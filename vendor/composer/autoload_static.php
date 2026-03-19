@@ -1322,6 +1322,7 @@ class ComposerStaticInit2955b800a3d45855083212747d565e16
         'App\\Http\\Controllers\\License\\EncryptDecryptController' => __DIR__ . '/../..' . '/app/Http/Controllers/License/EncryptDecryptController.php',
         'App\\Http\\Controllers\\License\\LicenseController' => __DIR__ . '/../..' . '/app/Http/Controllers/License/LicenseController.php',
         'App\\Http\\Controllers\\License\\LicensePermissionsController' => __DIR__ . '/../..' . '/app/Http/Controllers/License/LicensePermissionsController.php',
+        'App\\Http\\Controllers\\License\\LicenseService' => __DIR__ . '/../..' . '/app/Http/Controllers/License/LicenseService.php',
         'App\\Http\\Controllers\\License\\LicenseSettingsController' => __DIR__ . '/../..' . '/app/Http/Controllers/License/LicenseSettingsController.php',
         'App\\Http\\Controllers\\License\\LocalizedLicenseController' => __DIR__ . '/../..' . '/app/Http/Controllers/License/LocalizedLicenseController.php',
         'App\\Http\\Controllers\\Order\\BaseInvoiceController' => __DIR__ . '/../..' . '/app/Http/Controllers/Order/BaseInvoiceController.php',

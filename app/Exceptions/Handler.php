@@ -114,6 +114,8 @@ class Handler extends ExceptionHandler
             ValidationException::class,
             MethodNotAllowedHttpException::class,
         ];
+        $notAllowedExceptions = array_merge($this->dontReport, $notAllowedExceptions);
+
         foreach ($notAllowedExceptions as $notAllowedException) {
             if ($exception instanceof $notAllowedException) {
                 return false;

@@ -47,14 +47,14 @@
                   class="col-md-4 form-group {{ $errors->has('product') ? 'has-error' : '' }}">
                   <!-- value -->
                     {!! html()->label(__('message.product'), 'product')->class('required') !!}
-                  <select name="product" value="Choose" class="form-control {{$errors->has('product') ? ' is-invalid' : ''}}" id="planproduct" onchange="myProduct()">
+                  <select name="product" value="Choose" class="form-control select2 {{$errors->has('product') ? ' is-invalid' : ''}}" id="planproduct" onchange="myProduct()">
                     <option value="">{{ __('message.choose') }}</option>
-                    @foreach($products as $key=>$product)
-                     @if (Request::old('product') == $key)
-                     <option value={{$key}} selected>{{$product}}</option>
-                     @else
-                     <option value={{$key}}>{{$product}}</option>
-                     @endif
+                    @foreach($products as $groupName => $groupProducts)
+                      <optgroup label="{{ $groupName }}">
+                        @foreach($groupProducts as $id => $productName)
+                          <option value="{{ $id }}" {{ Request::old('product') == $id ? 'selected' : '' }}>{{ $productName }}</option>
+                        @endforeach
+                      </optgroup>
                     @endforeach
                   </select>
                     @error('product')

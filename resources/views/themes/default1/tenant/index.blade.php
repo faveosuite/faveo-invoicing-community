@@ -290,7 +290,16 @@
         </div>
     </div>
     <?php
-        $products = \DB::table('products')->get()
+        $products = \App\Model\Product\ProductGroup::with('product')
+            ->get()
+            ->filter(fn ($group) => $group->product->isNotEmpty())
+            ->mapWithKeys(fn ($group) => [$group->name => $group->product->pluck('name', 'id')->toArray()])
+            ->toArray();
+
+        $ungrouped = \App\Model\Product\Product::whereNull('group')->pluck('name', 'id')->toArray();
+        if (! empty($ungrouped)) {
+            $products = array_merge(['Other' => $ungrouped], $products);
+        }
     ?>
     <div class="card card-secondary card-outline">
         <div class="card-header">
@@ -305,11 +314,13 @@
                         <!-- Select Field 1 -->
                         <select name="cloud_product" class="form-control select2" id="saas-product">
                             <option value="">{{ __('message.choose') }}</option>
-
-                        @foreach($products as $product)
-                            <option value="{!! $product->id !!}">{{$product->name}}</option>
+                            @foreach($products as $groupName => $groupProducts)
+                                <optgroup label="{{ $groupName }}">
+                                    @foreach($groupProducts as $id => $productName)
+                                        <option value="{{ $id }}">{{ $productName }}</option>
+                                    @endforeach
+                                </optgroup>
                             @endforeach
-                            <!-- Add more options as needed -->
                         </select>
                         <div class="input-group-append"></div>
                     </div>
