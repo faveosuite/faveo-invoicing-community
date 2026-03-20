@@ -38,6 +38,7 @@ class Kernel extends ConsoleKernel
         DeleteLogs::class,
         \App\Console\Commands\ReoonLogsDeletion::class,
         \App\Console\Commands\FailedMessageDelivery::class,
+        \App\Streams\Console\ConsumeStreamCommand::class,
     ];
 
     /**
