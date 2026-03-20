@@ -182,7 +182,7 @@ class FreeTrailController extends Controller
                     'product_name' => $product->name,
                     'product_id' => $product->id,
                     'regular_price' => planPrice::where('plan_id', $plan_id)
-                        ->where('currency', getCurrencyForClient(\Auth::user()->country))->pluck('add_price'),
+                        ->where('currency', getCurrencyForClient(\Auth::user()->country))->value('add_price'),
                     'quantity' => 1,
                     'tax_name' => 'null',
                     'tax_percentage' => $product->planRelation()->where('days', '<', 30)->value('allow_tax'),

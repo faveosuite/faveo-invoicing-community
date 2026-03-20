@@ -1146,11 +1146,13 @@ function getSupportedCountriesForIntlInput()
     })->toArray();
 }
 
-function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds = 60): void
+function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds = 60, bool $perSite = true): void
 {
-    $endpoint = parse_url($url, PHP_URL_HOST).parse_url($url, PHP_URL_PATH);
+    $identifier = $perSite
+        ? parse_url($url, PHP_URL_HOST)
+        : parse_url($url, PHP_URL_HOST).parse_url($url, PHP_URL_PATH);
 
-    $key = 'api_rate_next_allowed_'.md5($endpoint);
+    $key = 'api_rate_next_allowed_'.md5($identifier);
 
     $interval = $perSeconds / $maxRequests; // spacing between requests
 
