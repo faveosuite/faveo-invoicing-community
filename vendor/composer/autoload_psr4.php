@@ -92,7 +92,6 @@ return array(
     'Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
     'Psr\\Clock\\' => array($vendorDir . '/psr/clock/src'),
     'Psr\\Cache\\' => array($vendorDir . '/psr/cache/src'),
-    'Predis\\' => array($vendorDir . '/predis/predis/src'),
     'PragmaRX\\Google2FA\\' => array($vendorDir . '/pragmarx/google2fa/src'),
     'PragmaRX\\Google2FAQRCode\\Tests\\' => array($vendorDir . '/pragmarx/google2fa-qrcode/tests'),
     'PragmaRX\\Google2FAQRCode\\' => array($vendorDir . '/pragmarx/google2fa-qrcode/src'),
