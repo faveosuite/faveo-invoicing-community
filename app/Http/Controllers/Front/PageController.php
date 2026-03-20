@@ -496,8 +496,9 @@ class PageController extends Controller
      * @param  int  $templateid  Id of the Template
      * @return
      */
-    public function pageTemplates(?int $templateid = null, ProductGroup $group)
+    public function pageTemplates(?int $templateid = null, int $group)
     {
+        $group = ProductGroup::findOrFail($group);
         try {
             $headline = $group->headline;
             $tagline = $group->tagline;

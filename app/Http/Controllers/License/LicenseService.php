@@ -29,11 +29,11 @@ class LicenseService
     {
         $license = ApiKey::first();
 
-        $this->url = $license->license_api_url;
-        $this->clientId = $license->license_client_id;
-        $this->clientSecret = $license->license_client_secret;
-        $this->grantType = $license->license_grant_type;
-        $this->apiKeySecret = $license->license_api_secret;
+        $this->url = $license->license_api_url ?? '';
+        $this->clientId = $license->license_client_id ?? '';
+        $this->clientSecret = $license->license_client_secret ?? '';
+        $this->grantType = $license->license_grant_type ?? '';
+        $this->apiKeySecret = $license->license_api_secret ?? '';
     }
 
     /**
