@@ -33,7 +33,6 @@ class LicenseStreamHandler
         return $this->waitForResponse($correlationId);
     }
 
-
     public function reissueDomain(string $installationPath)
     {
         $correlationId = (string) Str::uuid();
@@ -71,7 +70,7 @@ class LicenseStreamHandler
             // Increment lastId to avoid re-reading the same messages
             if ($lastId !== '0-0') {
                 $parts = explode('-', $lastId);
-                $lastId = $parts[0] . '-' . ((int) $parts[1] + 1);
+                $lastId = $parts[0].'-'.((int) $parts[1] + 1);
             }
 
             usleep(100_000); // 100ms between polls

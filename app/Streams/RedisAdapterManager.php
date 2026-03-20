@@ -10,9 +10,10 @@ use Illuminate\Support\Facades\Redis;
 class RedisAdapterManager
 {
     /**
-     * Create a Redis adapter based on the driver in use
+     * Create a Redis adapter based on the driver in use.
      *
      * @return RedisAdapterInterface
+     *
      * @throws ConnectionException
      */
     public static function create(): RedisAdapterInterface
