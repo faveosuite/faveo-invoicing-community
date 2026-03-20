@@ -51,21 +51,24 @@ class ConsumeStreamCommand extends Command
         // Validate that we have the required parameters
         if (empty($stream) || empty($group) || empty($consumer)) {
             $this->error('Stream, group, and consumer parameters are required!');
+
             return 1;
         }
 
         // Validate and instantiate the handler if provided
         $handler = null;
         if ($handlerClass) {
-            if (!class_exists($handlerClass)) {
+            if (! class_exists($handlerClass)) {
                 $this->error("Handler class {$handlerClass} not found!");
+
                 return 1;
             }
 
             $handler = app($handlerClass);
-            
-            if (!method_exists($handler, 'handle')) {
+
+            if (! method_exists($handler, 'handle')) {
                 $this->error("Handler class {$handlerClass} must have a handle method!");
+
                 return 1;
             }
         }
@@ -81,60 +84,63 @@ class ConsumeStreamCommand extends Command
         );
 
         $this->info("Starting Redis Stream consumer for stream '{$stream}'");
-        $this->info("Press Ctrl+C to stop");
+        $this->info('Press Ctrl+C to stop');
 
         try {
             // Start consuming messages
             $consumer->consume(function ($data, $messageId) use ($handler) {
                 $this->processMessage($data, $messageId, $handler);
             }, true);
-            
+
             return 0;
         } catch (ConnectionException $e) {
-            $this->error("Redis connection error: " . $e->getMessage());
-            Log::error("Redis connection error in command: " . $e->getMessage());
+            $this->error('Redis connection error: '.$e->getMessage());
+            Log::error('Redis connection error in command: '.$e->getMessage());
+
             return 2;
         } catch (ConsumeException $e) {
-            $this->error("Error consuming messages: " . $e->getMessage());
-            Log::error("Redis Stream consumer error: " . $e->getMessage());
+            $this->error('Error consuming messages: '.$e->getMessage());
+            Log::error('Redis Stream consumer error: '.$e->getMessage());
+
             return 1;
         } catch (Exception $e) {
-            $this->error("Unexpected error: " . $e->getMessage());
-            Log::error("Unexpected error in stream consumer command: " . $e->getMessage());
+            $this->error('Unexpected error: '.$e->getMessage());
+            Log::error('Unexpected error in stream consumer command: '.$e->getMessage());
+
             return 3;
         }
     }
 
     /**
-     * Process a message from the stream
+     * Process a message from the stream.
      *
-     * @param array $data The message data
-     * @param string $messageId The message ID
-     * @param object|null $handler The optional event handler
+     * @param  array  $data  The message data
+     * @param  string  $messageId  The message ID
+     * @param  object|null  $handler  The optional event handler
      * @return void
      */
     protected function processMessage(array $data, string $messageId, $handler = null): void
     {
         $event = $data['event'] ?? 'unknown';
-        
+
         $this->line("<info>[{$event}]</info> Processing message {$messageId}");
-        
+
         if ($handler) {
             try {
                 $handler->handle($data, $messageId);
             } catch (Exception $e) {
-                $this->error("Handler error: " . $e->getMessage());
-                Log::error("Redis Stream handler error: " . $e->getMessage(), [
+                $this->error('Handler error: '.$e->getMessage());
+                Log::error('Redis Stream handler error: '.$e->getMessage(), [
                     'event' => $event,
-                    'message_id' => $messageId
+                    'message_id' => $messageId,
                 ]);
-                
+
                 // Wrap in MessageProcessingException for better error tracking
                 throw new MessageProcessingException(
                     $data['stream'] ?? 'unknown',
                     $messageId,
                     1,
-                    "Handler error: " . $e->getMessage(),
+                    'Handler error: '.$e->getMessage(),
                     0,
                     $e
                 );
