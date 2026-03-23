@@ -448,6 +448,12 @@ Route::middleware('installAgora')->group(function () {
     // Route::get('queue-monitoring', [Jobs\QueueController::class, 'monitorQueues']]);
 
     /*
+     * Monitoring (Pulse / Horizon) — path check API
+     */
+    Route::get('monitoring/check', [Common\Monitoring\MonitoringController::class, 'checkPulseHorizon'])
+        ->name('monitoring.check');
+
+    /*
      * Chat Script
      */
     Route::resource('chat', Common\ChatScriptController::class);
