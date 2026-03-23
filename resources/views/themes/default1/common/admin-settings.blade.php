@@ -215,7 +215,7 @@
                     <div class="col-md-2 col-sm-6">
                         <div class="settingiconblue">
                             <div class="settingdivblue">
-                                <a class="icons-color" href="{{url('clockwork/app')}}">
+                                <a class="icons-color" href="javascript:;" onclick="checkMonitoring('clockwork')">
                                 <span class="fa-stack fa-2x">
                                    <i class="fa fa-clock fa-stack-1x"></i>
                                 </span>
@@ -227,7 +227,7 @@
                     <div class="col-md-2 col-sm-6">
                         <div class="settingiconblue">
                             <div class="settingdivblue">
-                                <a class="icons-color" href="{{url('pulse')}}">
+                                <a class="icons-color" href="javascript:;" onclick="checkMonitoring('pulse')">
                                 <span class="fa-stack fa-2x">
                                     <i class="fas fa-heartbeat fa-stack-1x"></i>
                                 </span>
@@ -429,7 +429,7 @@
                     <div class="col-md-2 col-sm-6">
                         <div class="settingiconblue">
                             <div class="settingdivblue">
-                                <a class="icons-color" href="{{url('horizon')}}" target="_blank">
+                                <a class="icons-color" href="javascript:;" onclick="checkMonitoring('horizon')">
                                 <span class="fa-stack fa-2x">
                                     <i class="fa fa-desktop fa-stack-1x"></i>
                                 </span>
@@ -647,6 +647,76 @@
         <!-- ./box-body -->
     </div>
 
+    {{-- Monitoring Unavailable Modal --}}
+    <div class="modal fade" id="monitoringUnavailableModal" tabindex="-1" role="dialog" aria-modal="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded p-2 mr-2" style="background-color: #fff3cd; color: #856d00;" aria-hidden="true">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        {{ __('message.monitoring_unavailable') }}
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex align-items-center justify-content-center p-0">
+                        <div class="w-100">
+                            <div class="d-flex align-items-start">
+                                <div class="flex-grow-1">
+                                    <h3 class="mb-3 font-weight-bold text-dark" id="monitoringModalTitle"></h3>
+
+                                    <p class="mb-2 font-weight-semibold text-dark">
+                                        {{ __('message.pulse_horizon_invalid_installation_path_detected') }}
+                                    </p>
+
+                                    <p class="text-muted mb-3">
+                                        {{ __('message.pulse_horizon_folder_based_installations_are_not_supported') }}
+                                    </p>
+
+                                    <div class="mb-3">
+                                        <div class="small font-weight-semibold text-muted mb-2">{{ __('message.pulse_horizon_example') }}</div>
+
+                                        <div class="d-flex align-items-center mb-2" style="gap: 8px;">
+                                            <i class="fas fa-times-circle text-danger fa-xs"></i>
+                                            <div class="small font-weight-semibold mb-0">
+                                                {{ __('message.pulse_horizon_not_supported') }} &middot;
+                                                <span class="text-monospace text-muted small">{{ __('message.pulse_horizon_not_supported_url') }}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex align-items-center" style="gap: 8px;">
+                                            <i class="fas fa-check-circle text-success fa-xs"></i>
+                                            <div class="small font-weight-semibold mb-0">
+                                                {{ __('message.pulse_horizon_supported') }} &middot;
+                                                <span class="text-monospace text-muted small">{{ __('message.pulse_horizon_supported_root_url') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <p class="text-muted mb-3">
+                                        {{ __('message.pulse_horizon_install_the_application_on_root_domain_or_subdomain') }}
+                                    </p>
+
+                                    <ul class="text-muted small mb-3 pl-3">
+                                        <li>{{ __('message.pulse_horizon_next_step_move_application_to_web_root') }}</li>
+                                        <li>{{ __('message.pulse_horizon_next_step_configure_subdomain') }}</li>
+                                        <li>{{ __('message.pulse_horizon_next_step_clear_cache_and_try_again') }}</li>
+                                    </ul>
+
+                                    <p class="text-muted small mb-3" id="monitoringRedirectReason"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         $('ul.nav-sidebar a').filter(function () {
             return this.id == 'setting';
@@ -656,5 +726,41 @@
         $('ul.nav-treeview a').filter(function () {
             return this.id == 'setting';
         }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
+
+        function checkMonitoring(type) {
+            var toolUrls = {
+                pulse: '{{ url("pulse") }}',
+                horizon: '{{ url("horizon") }}',
+                clockwork: '{{ url("clockwork/app") }}'
+            };
+            var toolLabels = { pulse: 'Pulse', horizon: 'Horizon', clockwork: 'Clockwork' };
+            var toolTitles = {
+                pulse: '{!! __("message.pulse_could_not_load") !!}',
+                horizon: '{!! __("message.horizon_could_not_load") !!}',
+                clockwork: '{!! __("message.clockwork_could_not_load") !!}'
+            };
+
+            $.ajax({
+                url: '{{ url("monitoring/check") }}',
+                type: 'GET',
+                data: { type: type },
+                dataType: 'json',
+                success: function(response) {
+                    var data = response.data || response;
+                    if (data.allowed) {
+                        window.open(toolUrls[type], '_blank');
+                    } else {
+                        $('#monitoringModalTitle').text(toolTitles[type]);
+                        $('#monitoringRedirectReason').text(
+                            '{!! __("message.monitoring_redirect_reason", ["tool" => ":tool"]) !!}'.replace(':tool', toolLabels[type])
+                        );
+                        $('#monitoringUnavailableModal').modal('show');
+                    }
+                },
+                error: function() {
+                    window.open(toolUrls[type], '_blank');
+                }
+            });
+        }
     </script>
 @stop
