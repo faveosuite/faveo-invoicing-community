@@ -8,6 +8,8 @@ use App\Model\Common\FaveoCloud;
 use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
+use App\Model\Product\CloudProducts;
+use App\Model\Product\Product;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -27,11 +29,17 @@ class ExtendedOrderController extends Controller
             $execute = $this->executeOrder($invoiceid, 'executed', true);
 
             //only for cloud
-            $cloud_domain = Invoice::where('id', $invoiceid)->value('cloud_domain');
+            $invoice = Invoice::find($invoiceid);
+            $cloud_domain = $invoice->cloud_domain;
             if (! empty($cloud_domain)) {
-                $orderNumber = Order::where('invoice_id', $invoiceid)->value('number');
-                $user_id = Invoice::find($invoiceid)->user_id;
-                (new TenantController(new Client, new FaveoCloud()))->createTenant(new Request(['orderNo' => $orderNumber, 'domain' => $cloud_domain, 'userInfo' => $user_id]));
+                $user_id = $invoice->user_id;
+                $cloudProductIds = CloudProducts::pluck('cloud_product');
+                $orderNumber = Order::where('invoice_id', $invoiceid)
+                    ->whereIn('product', $cloudProductIds)
+                    ->value('number');
+                if ($orderNumber) {
+                    new TenantController(new Client, new FaveoCloud())->createTenant(new Request(['orderNo' => $orderNumber, 'domain' => $cloud_domain, 'userInfo' => $user_id]));
+                }
             }
 
             if ($execute == 'success') {

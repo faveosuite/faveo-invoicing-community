@@ -547,9 +547,8 @@ class CheckoutController extends InfoController
     public function product($invoiceid)
     {
         try {
-            $invoice = $this->invoiceItem->where('invoice_id', $invoiceid)->first();
-            $name = $invoice->product_name;
-            $product = $this->product->where('name', $name)->first();
+            $invoiceItem = $this->invoiceItem->where('invoice_id', $invoiceid)->first();
+            $product = $this->product->find($invoiceItem->product_id);
 
             return $product;
         } catch (\Exception $ex) {

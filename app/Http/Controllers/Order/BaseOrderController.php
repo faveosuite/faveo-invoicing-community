@@ -95,8 +95,9 @@ class BaseOrderController extends ExtendedOrderController
     public function getIfItemPresent($item, $invoiceid, $user_id, $order_status, $admin = false)
     {
         try {
-            $product = $this->product->where('name', $item->product_name)->first()->id;
-            $version = $this->product->where('name', $item->product_name)->first()->version;
+            $productModel = $this->product->find($item->product_id);
+            $product = $productModel->id;
+            $version = $productModel->version;
             if ($version == null) {
                 //Get Version from Product Upload Table
                 $version = $this->product_upload->where('product_id', $product)->pluck('version')->first();
