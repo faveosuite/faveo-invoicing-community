@@ -191,9 +191,9 @@ class ClientOrderControllerTest extends DBTestCase
         $date = '2025-03-02 18:15:02';
         $product = Product::create(['name' => 'Helpdesk Advance']);
         $invoice = Invoice::factory()->create(['user_id' => $user1->id]);
-        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
+        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name, 'product_id' => $product->id]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
-            'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
+            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
@@ -212,10 +212,10 @@ class ClientOrderControllerTest extends DBTestCase
         $date = '2025-03-02 18:15:02';
         $product = Product::create(['name' => 'Helpdesk Advance']);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name, 'quantity' => 1, 'regular_price' => 1000,
+        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name, 'product_id' => $product->id, 'quantity' => 1, 'regular_price' => 1000,
             'tax_name' => 'GST', 'tax_percentage' => '10', 'subtotal' => 300, ]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
-            'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
+            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
