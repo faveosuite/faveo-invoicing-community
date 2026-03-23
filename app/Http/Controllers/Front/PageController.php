@@ -618,13 +618,13 @@ class PageController extends Controller
             }
 
             $temp_controller = new TemplateController();
-            $highlightedProducts = Product::whereIn('name', $helpdesk_products->pluck('name'))
-                ->pluck('highlight', 'name')
+            $highlightedProducts = Product::whereIn('id', $helpdesk_products->pluck('id'))
+                ->pluck('highlight', 'id')
                 ->toArray();
             foreach ($helpdesk_products as $product) {
                 $productId = $product->id;
                 $productName = $product->name;
-                $highlight = $highlightedProducts[$productName] ?? false;
+                $highlight = $highlightedProducts[$productId] ?? false;
                 $orderButton = $highlight ? 'btn-primary' : 'btn-dark';
 
                 $trasform[$productId] = [
