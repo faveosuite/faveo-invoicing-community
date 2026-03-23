@@ -224,7 +224,7 @@ class CartController extends BaseCartController
                 ->where('is_renewed', 0)
                 ->where('status', 'pending')
                 ->whereHas('invoiceItem', function ($query) use ($item) {
-                    $query->where('product_name', $item->name)->where('quantity', $item->quantity);
+                    $query->where('product_id', $item->id)->where('quantity', $item->quantity);
                 })
                 ->first();
 
