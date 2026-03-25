@@ -273,7 +273,7 @@ class LicenseStreamHandler
     {
         $data = self::search('product', $productSku)['result']['data']['data'] ?? [];
 
-        return !empty($data) ? ($data[0]['product_id'] ?? '') : '';
+        return ! empty($data) ? ($data[0]['product_id'] ?? '') : '';
     }
 
     /**
@@ -283,7 +283,7 @@ class LicenseStreamHandler
     {
         $data = self::search('client', $email)['result']['data']['data'] ?? [];
 
-        return !empty($data) ? ($data[0]['client_id'] ?? '') : '';
+        return ! empty($data) ? ($data[0]['client_id'] ?? '') : '';
     }
 
     /**
