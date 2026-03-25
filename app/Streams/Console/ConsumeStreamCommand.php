@@ -5,6 +5,7 @@ namespace App\Streams\Console;
 use App\Streams\Exceptions\ConnectionException;
 use App\Streams\Exceptions\ConsumeException;
 use App\Streams\Exceptions\MessageProcessingException;
+use App\Streams\License\LicenseStreamHandler;
 use App\Streams\RedisStreamConsumer;
 use Exception;
 use Illuminate\Console\Command;
@@ -13,14 +14,21 @@ use Illuminate\Support\Facades\Log;
 class ConsumeStreamCommand extends Command
 {
     /**
+     * Map of stream names to their default handler classes.
+     */
+    protected array $streamHandlers = [
+        'license_request' => LicenseStreamHandler::class,
+    ];
+
+    /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'redis-stream:consume 
-                           {--stream= : The stream to consume}
-                           {--group= : The consumer group name}
-                           {--consumer= : The consumer name}
+    protected $signature = 'redis-stream:consume
+                           {--stream=license_request : The stream to consume}
+                           {--group=streaming_group : The consumer group name}
+                           {--consumer=consumer_1 : The consumer name}
                            {--handler= : The event handler class}
                            {--interval=1 : Polling interval in seconds}
                            {--batch=10 : Batch size to read at once}
@@ -40,37 +48,32 @@ class ConsumeStreamCommand extends Command
      */
     public function handle(): int
     {
-        $stream = $this->option('stream') ?? config('redis_stream.stream');
-        $group = $this->option('group') ?? config('redis_stream.consumer_group');
-        $consumer = $this->option('consumer') ?? config('redis_stream.consumer_name');
+        $stream = $this->option('stream');
+        $group = $this->option('group');
+        $consumer = $this->option('consumer');
         $interval = (int) $this->option('interval');
         $batchSize = (int) $this->option('batch');
         $retryLimit = (int) $this->option('retries');
-        $handlerClass = $this->option('handler');
+        $handlerClass = $this->option('handler') ?? $this->streamHandlers[$stream] ?? null;
 
-        // Validate that we have the required parameters
-        if (empty($stream) || empty($group) || empty($consumer)) {
-            $this->error('Stream, group, and consumer parameters are required!');
+        if (! $handlerClass) {
+            $this->error("No handler found for stream '{$stream}'. Pass --handler or register it in \$streamHandlers.");
 
             return 1;
         }
 
-        // Validate and instantiate the handler if provided
-        $handler = null;
-        if ($handlerClass) {
-            if (! class_exists($handlerClass)) {
-                $this->error("Handler class {$handlerClass} not found!");
+        if (! class_exists($handlerClass)) {
+            $this->error("Handler class {$handlerClass} not found!");
 
-                return 1;
-            }
+            return 1;
+        }
 
-            $handler = app($handlerClass);
+        $handler = app($handlerClass);
 
-            if (! method_exists($handler, 'handle')) {
-                $this->error("Handler class {$handlerClass} must have a handle method!");
+        if (! method_exists($handler, 'handle')) {
+            $this->error("Handler class {$handlerClass} must have a handle method!");
 
-                return 1;
-            }
+            return 1;
         }
 
         // Create a configured consumer instance

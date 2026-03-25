@@ -576,23 +576,37 @@
                     </div>
                 </div>
 
-            <div class="col-md-2 col-sm-6">
-                <div class="settingiconblue">
-                    <div class="settingdivblue">
-                        <a class="icons-color" href="{{url('queue')}}">
-                                <span class="fa-stack fa-2x">
-                                    <i class="fa fa-upload fa-stack-1x"></i>
-                                </span>
-                        </a>
-                    </div>
-                    <div class="text-center text-sm fw_400">{{ __('message.queues') }}</div>
-                </div>
-            </div>
             </div>
             <!-- /.row -->
         </div>
         <!-- ./box-body -->
     </div>
+
+    <div class="card card-secondary card-outline">
+        <div class="card-header">
+            <h3 class="card-title">{{ __('message.drivers') }}</h3>
+        </div>
+        <!-- /.box-header -->
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2 col-sm-6">
+                    <div class="settingiconblue">
+                        <div class="settingdivblue">
+                            <a class="icons-color" href="{{url('queue')}}">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-upload fa-stack-1x"></i>
+                                </span>
+                            </a>
+                        </div>
+                        <div class="text-center text-sm fw_400">{{ __('message.queues') }}</div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- ./box-body -->
+    </div>
+
     <div class="card card-secondary card-outline">
         <div class="card-header">
             <h3 class="card-title">{{ __('message.widgets') }}</h3>
