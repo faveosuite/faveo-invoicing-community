@@ -71,21 +71,6 @@ class LicenseController extends Controller
 
         return $request->get($url, $query)->json() ?? [];
     }
-
-    /**
-     * Execute API call with streams or fallback to direct API.
-     */
-    private function executeWithStreams(string $streamMethod, array $streamParams, callable $legacyCallback): mixed
-    {
-        if ($this->isStreams()) {
-            return $streamParams ?
-                LicenseStreamHandler::$streamMethod(...$streamParams) :
-                LicenseStreamHandler::$streamMethod();
-        }
-
-        return $legacyCallback();
-    }
-
     /**
      * Return API key and API url.
      */
@@ -187,18 +172,13 @@ class LicenseController extends Controller
     public function deleteProductFromAPL($product): void
     {
         if ($this->isStreams()) {
-            LicenseStreamHandler::deleteProduct($product->product_sku, $product->name, $product->sku);
-
+            LicenseStreamHandler::deleteProduct($product->product_sku);
             return;
         }
 
         $productId = $this->searchProductId($product->product_sku);
         $this->postRequest('api/admin/products/delete', [
             'product_id' => $productId,
-            'product_title' => $product->name,
-            'product_sku' => $product->sku,
-            'product_status' => 1,
-            'delete_record' => 1,
         ]);
     }
 
@@ -581,6 +561,8 @@ class LicenseController extends Controller
 
     public function syncTheAddonForALicense($product_ids, $license_code, $options = []): void
     {
+        $options = collect($options)->toArray();
+
         if ($this->isStreams()) {
             LicenseStreamHandler::syncTheAddonForALicense($product_ids, $license_code, $options);
 
@@ -658,10 +640,12 @@ class LicenseController extends Controller
             return ! empty($data) ? ($data[0]['product_id'] ?? '') : '';
         }
 
-        return $this->getRequest('api/admin/getProductIdbyKey', [
+        $result = $this->getRequest('api/admin/getProductIdbyKey', [
             'api_key_secret' => $this->licenseService->getApiKeySecret(),
             'product_key' => $productKey,
         ]);
+
+        return $result['product_id'] ?? '';
     }
 
     public function getPluginInfo($licensesCodes): array

@@ -103,6 +103,15 @@ interface RedisAdapterInterface
     public function xclaim(string $stream, string $group, string $consumer, int $minIdleTime, array $ids, array $options = []): array;
 
     /**
+     * Delete messages from a stream by ID.
+     *
+     * @param  string  $stream  The stream key
+     * @param  array  $ids  The message IDs to delete
+     * @return int Number of messages deleted
+     */
+    public function xdel(string $stream, array $ids): int;
+
+    /**
      * Trim a stream to a maximum length.
      *
      * @param  string  $stream  The stream key

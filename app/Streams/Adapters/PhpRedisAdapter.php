@@ -152,6 +152,18 @@ class PhpRedisAdapter implements RedisAdapterInterface
     }
 
     /**
+     * Delete messages from a stream by ID.
+     *
+     * @param  string  $stream  The stream key
+     * @param  array  $ids  The message IDs to delete
+     * @return int Number of messages deleted
+     */
+    public function xdel(string $stream, array $ids): int
+    {
+        return $this->connection('streams')->xDel($stream, $ids);
+    }
+
+    /**
      * Trim a stream to a maximum length.
      *
      * @param  string  $stream  The stream key

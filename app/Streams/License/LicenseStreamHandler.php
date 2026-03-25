@@ -31,12 +31,12 @@ class LicenseStreamHandler
         $instance = new self();
         $correlationId = (string) Str::uuid();
 
-        $instance->producer->publish($eventType, array_merge($payload, [
+        $requestId = $instance->producer->publish($eventType, array_merge($payload, [
             'reply_to' => self::RESPONSE_STREAM,
             'correlation_id' => $correlationId,
         ]));
 
-        return $instance->waitForResponse($correlationId);
+        return $instance->waitForResponse($correlationId, $requestId);
     }
 
     public static function getLicenseKey(): array
@@ -85,16 +85,12 @@ class LicenseStreamHandler
         ]);
     }
 
-    public static function deleteProduct(string $productSku, string $productName, string $sku): array
+    public static function deleteProduct(string $productSku): array
     {
         $productId = self::searchProductId($productSku);
 
         return self::handle('license_delete_product', [
             'product_id' => $productId,
-            'product_title' => $productName,
-            'product_sku' => $sku,
-            'product_status' => 1,
-            'delete_record' => 1,
         ]);
     }
 
@@ -311,7 +307,7 @@ class LicenseStreamHandler
     /**
      * Poll the response stream for a message matching the correlation ID.
      */
-    protected function waitForResponse(string $correlationId): array
+    protected function waitForResponse(string $correlationId, string $requestId): array
     {
         $redis = RedisAdapterManager::create();
         $start = time();
@@ -324,7 +320,13 @@ class LicenseStreamHandler
                 $data = json_decode($message['message'] ?? '{}', true);
 
                 if (($data['payload']['correlation_id'] ?? null) === $correlationId) {
-                    return $data['payload'] ?? [];
+                    $result = $data['payload'] ?? [];
+
+                    // Clean up: delete request and response messages
+                    $redis->xdel(self::REQUEST_STREAM, [$requestId]);
+                    $redis->xdel(self::RESPONSE_STREAM, [$id]);
+
+                    return $result;
                 }
 
                 $lastId = $id;
