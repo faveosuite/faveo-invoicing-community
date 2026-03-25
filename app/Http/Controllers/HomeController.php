@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\ApiKey;
 use App\Http\Controllers\Common\CronController;
 use App\Http\Controllers\Front\PageController;
+use App\Http\Controllers\License\LicenseController;
 use App\Http\Controllers\Order\RenewController;
 use App\Http\Requests\ProductRenewalRequest;
 use App\Model\Configure\PluginCompatibleWithProducts;
@@ -734,15 +735,7 @@ class HomeController extends BaseHomeController
 
         $licenses = array_merge([$license], $licenses);
 
-        $client = new Client();
-
-        $licenseUrl = ApiKey::value('license_api_url');
-
-        throttleApiRequest($licenseUrl.'api/pluginLicense');
-
-        $response = $client->get($licenseUrl.'api/pluginLicense', [
-            'query' => ['license_code' => json_encode($licenses)],
-        ]);
+        $response = app(LicenseController::class)->getPluginInfo($licenses);
 
         $updatedProducts = [];
         $products = json_decode($response->getBody()->getContents(), true);
