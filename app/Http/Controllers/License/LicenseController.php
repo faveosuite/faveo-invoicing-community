@@ -71,6 +71,7 @@ class LicenseController extends Controller
 
         return $request->get($url, $query)->json() ?? [];
     }
+
     /**
      * Return API key and API url.
      */
@@ -173,6 +174,7 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             LicenseStreamHandler::deleteProduct($product->product_sku);
+
             return;
         }
 
