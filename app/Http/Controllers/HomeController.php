@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\ApiKey;
 use App\Http\Controllers\Common\CronController;
 use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\License\LicenseController;
@@ -21,7 +20,6 @@ use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\User;
 use Exception;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
 class HomeController extends BaseHomeController

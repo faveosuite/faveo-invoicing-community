@@ -97,7 +97,7 @@ class LicenseController extends Controller
 
         $url = $this->licenseService->getUrl();
         $token = $this->licenseService->getValidToken();
-        $getkey = $this->getRequest('api/admin/viewApiKeys', useToken: !empty($token));
+        $getkey = $this->getRequest('api/admin/viewApiKeys', useToken: ! empty($token));
 
         return ['data' => $getkey, 'url' => $url];
     }
@@ -109,6 +109,7 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             LicenseStreamHandler::addNewProduct($product_name, $product_sku);
+
             return;
         }
 
@@ -126,6 +127,7 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             LicenseStreamHandler::addNewUser($first_name, $last_name, $email);
+
             return;
         }
 
@@ -145,6 +147,7 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             LicenseStreamHandler::editProduct($product_name, $product_sku);
+
             return;
         }
 
@@ -164,7 +167,8 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             $data = $this->getStreamSearchResults('product', $product_sku);
-            return !empty($data) ? ($data[0]['product_id'] ?? '') : '';
+
+            return ! empty($data) ? ($data[0]['product_id'] ?? '') : '';
         }
 
         $result = $this->postRequest('api/admin/search', [
@@ -184,6 +188,7 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             LicenseStreamHandler::deleteProduct($product->product_sku, $product->name, $product->sku);
+
             return;
         }
 
@@ -204,6 +209,7 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             LicenseStreamHandler::editUser($first_name, $last_name, $email);
+
             return;
         }
 
@@ -225,7 +231,8 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             $data = $this->getStreamSearchResults('client', $email);
-            return !empty($data) ? ($data[0]['client_id'] ?? '') : '';
+
+            return ! empty($data) ? ($data[0]['client_id'] ?? '') : '';
         }
 
         $result = $this->postRequest('api/admin/search', [
@@ -248,6 +255,7 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             LicenseStreamHandler::createNewLicense($orderid, $product, $user_id, $licenseExpiry, $updatesExpiry, $supportExpiry, $serial_key);
+
             return;
         }
 
@@ -278,6 +286,7 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             LicenseStreamHandler::updateLicensedDomain($licenseCode, $domain, $productId, $licenseExpiry, $updatesExpiry, $supportExpiry, $orderNo, $license_limit, $requiredomain);
+
             return;
         }
 
@@ -346,7 +355,7 @@ class LicenseController extends Controller
     {
         $default = ['productId' => '', 'code' => '', 'licenseId' => '', 'allowedInstalltion' => '', 'installationLimit' => ''];
 
-        if (($result['api_error_detected'] ?? 1) != 0 || !is_array($result['page_message'] ?? [])) {
+        if (($result['api_error_detected'] ?? 1) != 0 || ! is_array($result['page_message'] ?? [])) {
             return $default;
         }
 
@@ -392,12 +401,13 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             LicenseStreamHandler::updateInstalledDomain($licenseCode, $productId);
+
             return;
         }
 
         $result = $this->searchInstallationId($licenseCode);
 
-        if (($result['api_error_detected'] ?? 1) != 0 || !is_array($result['page_message'] ?? [])) {
+        if (($result['api_error_detected'] ?? 1) != 0 || ! is_array($result['page_message'] ?? [])) {
             return;
         }
 
@@ -452,7 +462,7 @@ class LicenseController extends Controller
     {
         $result = $this->searchInstallationId($licenseCode);
 
-        if (($result['api_error_detected'] ?? 1) != 0 || !is_array($result['page_message'] ?? [])) {
+        if (($result['api_error_detected'] ?? 1) != 0 || ! is_array($result['page_message'] ?? [])) {
             return ['installed_path' => [], 'installed_ip' => [], 'installation_date' => [], 'installation_status' => []];
         }
 
@@ -491,6 +501,7 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             LicenseStreamHandler::updateExpirationDate($licenseCode, $expiryDate, $productId, $domain, $orderNo, $licenseExpiry, $supportExpiry, $license_limit, $requiredomain);
+
             return;
         }
 
@@ -527,6 +538,7 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             LicenseStreamHandler::deActivateTheLicense($licenseCode);
+
             return;
         }
 
@@ -541,6 +553,7 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             LicenseStreamHandler::reissueDomain($installationPath);
+
             return;
         }
 
@@ -551,6 +564,7 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             LicenseStreamHandler::updateLicense($license_code, $oldLicense);
+
             return;
         }
 
@@ -569,6 +583,7 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             LicenseStreamHandler::syncTheAddonForALicense($product_ids, $license_code, $options);
+
             return;
         }
 
@@ -587,7 +602,7 @@ class LicenseController extends Controller
 
         $result = $this->postRequest('api/admin/getInstallationLogs', ['license_code' => $license_code]);
 
-        if (($result['api_error_detected'] ?? 1) != 0 || !is_array($result['page_message'] ?? [])) {
+        if (($result['api_error_detected'] ?? 1) != 0 || ! is_array($result['page_message'] ?? [])) {
             return [];
         }
 
@@ -604,6 +619,7 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             LicenseStreamHandler::updateInstallationLogs($root_url, $version_number, $installation_ip, $licenseCode);
+
             return;
         }
 
@@ -638,7 +654,8 @@ class LicenseController extends Controller
     {
         if ($this->isStreams()) {
             $data = $this->getStreamSearchResults('product', $productKey);
-            return !empty($data) ? ($data[0]['product_id'] ?? '') : '';
+
+            return ! empty($data) ? ($data[0]['product_id'] ?? '') : '';
         }
 
         return $this->getRequest('api/admin/getProductIdbyKey', [
