@@ -108,6 +108,7 @@ return array(
     'App\\Http\\Controllers\\Common\\EmailSettingsController' => $baseDir . '/app/Http/Controllers/Common/EmailSettingsController.php',
     'App\\Http\\Controllers\\Common\\FileManagerController' => $baseDir . '/app/Http/Controllers/Common/FileManagerController.php',
     'App\\Http\\Controllers\\Common\\MailChimpController' => $baseDir . '/app/Http/Controllers/Common/MailChimpController.php',
+    'App\\Http\\Controllers\\Common\\Monitoring\\MonitoringController' => $baseDir . '/app/Http/Controllers/Common/Monitoring/MonitoringController.php',
     'App\\Http\\Controllers\\Common\\PHPController' => $baseDir . '/app/Http/Controllers/Common/PHPController.php',
     'App\\Http\\Controllers\\Common\\PaymentSettingsController' => $baseDir . '/app/Http/Controllers/Common/PaymentSettingsController.php',
     'App\\Http\\Controllers\\Common\\PhpMailController' => $baseDir . '/app/Http/Controllers/Common/PhpMailController.php',
