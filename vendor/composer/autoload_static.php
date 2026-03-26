@@ -1278,6 +1278,7 @@ class ComposerStaticInit2955b800a3d45855083212747d565e16
         'App\\Http\\Controllers\\Common\\EmailSettingsController' => __DIR__ . '/../..' . '/app/Http/Controllers/Common/EmailSettingsController.php',
         'App\\Http\\Controllers\\Common\\FileManagerController' => __DIR__ . '/../..' . '/app/Http/Controllers/Common/FileManagerController.php',
         'App\\Http\\Controllers\\Common\\MailChimpController' => __DIR__ . '/../..' . '/app/Http/Controllers/Common/MailChimpController.php',
+        'App\\Http\\Controllers\\Common\\Monitoring\\MonitoringController' => __DIR__ . '/../..' . '/app/Http/Controllers/Common/Monitoring/MonitoringController.php',
         'App\\Http\\Controllers\\Common\\PHPController' => __DIR__ . '/../..' . '/app/Http/Controllers/Common/PHPController.php',
         'App\\Http\\Controllers\\Common\\PaymentSettingsController' => __DIR__ . '/../..' . '/app/Http/Controllers/Common/PaymentSettingsController.php',
         'App\\Http\\Controllers\\Common\\PhpMailController' => __DIR__ . '/../..' . '/app/Http/Controllers/Common/PhpMailController.php',
