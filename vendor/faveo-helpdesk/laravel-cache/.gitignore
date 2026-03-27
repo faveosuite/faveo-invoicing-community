@@ -1,0 +1,5 @@
+vendor/*
+phpunit.xml
+.phpunit.result.cache
+.phpunit.cache/*
+.idea

@@ -2585,6 +2585,61 @@
             "install-path": "../fakerphp/faker"
         },
         {
+            "name": "faveo-helpdesk/laravel-cache",
+            "version": "v0.1.0",
+            "version_normalized": "0.1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ladybirdweb/advance-cache.git",
+                "reference": "92964d8259407d12cff19b63e281851920405cfd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ladybirdweb/advance-cache/zipball/92964d8259407d12cff19b63e281851920405cfd",
+                "reference": "92964d8259407d12cff19b63e281851920405cfd",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "laravel/laravel": "9.*",
+                "phpunit/phpunit": "^10.3"
+            },
+            "time": "2023-08-23T06:42:52+00:00",
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "CacheDriver\\Providers\\CacheServiceProvider"
+                    ]
+                }
+            },
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Tests\\": "tests/",
+                    "CacheDriver\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "RafficMohammed",
+                    "email": "mohammed.raffic@ladybirdweb.com"
+                }
+            ],
+            "description": "Configure multiple Laravel cache drivers without accessing the server. It will update the config accordingly",
+            "support": {
+                "issues": "https://github.com/ladybirdweb/advance-cache/issues",
+                "source": "https://github.com/ladybirdweb/advance-cache/tree/v0.1.0"
+            },
+            "install-path": "../faveo-helpdesk/laravel-cache"
+        },
+        {
             "name": "filp/whoops",
             "version": "2.18.4",
             "version_normalized": "2.18.4.0",
@@ -4434,17 +4489,17 @@
         },
         {
             "name": "league/commonmark",
-            "version": "2.8.1",
-            "version_normalized": "2.8.1.0",
+            "version": "2.8.2",
+            "version_normalized": "2.8.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "84b1ca48347efdbe775426f108622a42735a6579"
+                "reference": "59fb075d2101740c337c7216e3f32b36c204218b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/84b1ca48347efdbe775426f108622a42735a6579",
-                "reference": "84b1ca48347efdbe775426f108622a42735a6579",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/59fb075d2101740c337c7216e3f32b36c204218b",
+                "reference": "59fb075d2101740c337c7216e3f32b36c204218b",
                 "shasum": ""
             },
             "require": {
@@ -4478,7 +4533,7 @@
             "suggest": {
                 "symfony/yaml": "v2.3+ required if using the Front Matter extension"
             },
-            "time": "2026-03-05T21:37:03+00:00",
+            "time": "2026-03-19T13:16:38+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -7380,17 +7435,17 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "3.0.49",
-            "version_normalized": "3.0.49.0",
+            "version": "3.0.50",
+            "version_normalized": "3.0.50.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "6233a1e12584754e6b5daa69fe1289b47775c1b9"
+                "reference": "aa6ad8321ed103dc3624fb600a25b66ebf78ec7b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/6233a1e12584754e6b5daa69fe1289b47775c1b9",
-                "reference": "6233a1e12584754e6b5daa69fe1289b47775c1b9",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/aa6ad8321ed103dc3624fb600a25b66ebf78ec7b",
+                "reference": "aa6ad8321ed103dc3624fb600a25b66ebf78ec7b",
                 "shasum": ""
             },
             "require": {
@@ -7408,7 +7463,7 @@
                 "ext-mcrypt": "Install the Mcrypt extension in order to speed up a few other cryptographic operations.",
                 "ext-openssl": "Install the OpenSSL extension in order to speed up a wide variety of cryptographic operations."
             },
-            "time": "2026-01-27T09:17:28+00:00",
+            "time": "2026-03-19T02:57:58+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -7473,7 +7528,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.49"
+                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.50"
             },
             "funding": [
                 {

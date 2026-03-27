@@ -391,6 +391,13 @@
                         <h6 id="license_grantTypeCheck"></h6>
                     </div>
 
+                    <div class="form-group">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="use_streams" {{ \App\Model\Common\StatusSetting::first()?->use_streams ? 'checked' : '' }}>
+                            <label class="custom-control-label" for="use_streams">{{ __('message.use_redis_streams') }}</label>
+                        </div>
+                    </div>
+
 
                 </div>
 
@@ -2069,6 +2076,7 @@
                     "license_client_id": $('#license_client_id').val(),
                     "license_client_secret" :$('#license_client_secret').val(),
                     "license_grant_type": $('#license_grant_type').val(),
+                    "use_streams": $('#use_streams').prop('checked') ? 1 : 0,
 
                 },
                 success: function (response) {

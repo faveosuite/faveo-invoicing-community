@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "537d2646dacc8030c3f8dbeca0dbbaf2",
+    "content-hash": "90fc998ccaaf714cc913628178af03dd",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -2055,6 +2055,58 @@
                 "source": "https://github.com/ezyang/htmlpurifier/tree/v4.19.0"
             },
             "time": "2025-10-17T16:34:55+00:00"
+        },
+        {
+            "name": "faveo-helpdesk/laravel-cache",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ladybirdweb/advance-cache.git",
+                "reference": "92964d8259407d12cff19b63e281851920405cfd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ladybirdweb/advance-cache/zipball/92964d8259407d12cff19b63e281851920405cfd",
+                "reference": "92964d8259407d12cff19b63e281851920405cfd",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "laravel/laravel": "9.*",
+                "phpunit/phpunit": "^10.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "CacheDriver\\Providers\\CacheServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Tests\\": "tests/",
+                    "CacheDriver\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "RafficMohammed",
+                    "email": "mohammed.raffic@ladybirdweb.com"
+                }
+            ],
+            "description": "Configure multiple Laravel cache drivers without accessing the server. It will update the config accordingly",
+            "support": {
+                "issues": "https://github.com/ladybirdweb/advance-cache/issues",
+                "source": "https://github.com/ladybirdweb/advance-cache/tree/v0.1.0"
+            },
+            "time": "2023-08-23T06:42:52+00:00"
         },
         {
             "name": "firebase/php-jwt",

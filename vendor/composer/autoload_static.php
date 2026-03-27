@@ -384,6 +384,7 @@ class ComposerStaticInit2955b800a3d45855083212747d565e16
             'Cartalyst\\Stripe\\' => 17,
             'Carbon\\Doctrine\\' => 16,
             'Carbon\\' => 7,
+            'CacheDriver\\' => 12,
         ),
         'B' =>
         array (
@@ -466,6 +467,7 @@ class ComposerStaticInit2955b800a3d45855083212747d565e16
         'Tests\\' =>
         array (
             0 => __DIR__ . '/../..' . '/tests',
+            1 => __DIR__ . '/..' . '/faveo-helpdesk/laravel-cache/tests',
         ),
         'Termwind\\' =>
         array (
@@ -1107,6 +1109,10 @@ class ComposerStaticInit2955b800a3d45855083212747d565e16
         array (
             0 => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon',
         ),
+        'CacheDriver\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/faveo-helpdesk/laravel-cache/src',
+        ),
         'Bugsnag\\PsrLogger\\' =>
         array (
             0 => __DIR__ . '/..' . '/bugsnag/bugsnag-psr-logger/src',
@@ -1536,12 +1542,15 @@ class ComposerStaticInit2955b800a3d45855083212747d565e16
         'App\\Rules\\StrongPassword' => __DIR__ . '/../..' . '/app/Rules/StrongPassword.php',
         'App\\SocialLogin' => __DIR__ . '/../..' . '/app/SocialLogin.php',
         'App\\Streams\\Adapters\\PhpRedisAdapter' => __DIR__ . '/../..' . '/app/Streams/Adapters/PhpRedisAdapter.php',
+        'App\\Streams\\Adapters\\PredisAdapter' => __DIR__ . '/../..' . '/app/Streams/Adapters/PredisAdapter.php',
         'App\\Streams\\Adapters\\RedisAdapterInterface' => __DIR__ . '/../..' . '/app/Streams/Adapters/RedisAdapterInterface.php',
+        'App\\Streams\\Console\\ConsumeStreamCommand' => __DIR__ . '/../..' . '/app/Streams/Console/ConsumeStreamCommand.php',
         'App\\Streams\\Exceptions\\ConnectionException' => __DIR__ . '/../..' . '/app/Streams/Exceptions/ConnectionException.php',
         'App\\Streams\\Exceptions\\ConsumeException' => __DIR__ . '/../..' . '/app/Streams/Exceptions/ConsumeException.php',
         'App\\Streams\\Exceptions\\MessageProcessingException' => __DIR__ . '/../..' . '/app/Streams/Exceptions/MessageProcessingException.php',
         'App\\Streams\\Exceptions\\PublishException' => __DIR__ . '/../..' . '/app/Streams/Exceptions/PublishException.php',
         'App\\Streams\\Exceptions\\RedisStreamException' => __DIR__ . '/../..' . '/app/Streams/Exceptions/RedisStreamException.php',
+        'App\\Streams\\License\\LicenseStreamHandler' => __DIR__ . '/../..' . '/app/Streams/License/LicenseStreamHandler.php',
         'App\\Streams\\RedisAdapterManager' => __DIR__ . '/../..' . '/app/Streams/RedisAdapterManager.php',
         'App\\Streams\\RedisStreamConsumer' => __DIR__ . '/../..' . '/app/Streams/RedisStreamConsumer.php',
         'App\\Streams\\RedisStreamProducer' => __DIR__ . '/../..' . '/app/Streams/RedisStreamProducer.php',
@@ -2986,6 +2995,8 @@ class ComposerStaticInit2955b800a3d45855083212747d565e16
         'Bugsnag\\Shutdown\\ShutdownStrategyInterface' => __DIR__ . '/..' . '/bugsnag/bugsnag/src/Shutdown/ShutdownStrategyInterface.php',
         'Bugsnag\\Stacktrace' => __DIR__ . '/..' . '/bugsnag/bugsnag/src/Stacktrace.php',
         'Bugsnag\\Utils' => __DIR__ . '/..' . '/bugsnag/bugsnag/src/Utils.php',
+        'CacheDriver\\HandleCacheController' => __DIR__ . '/..' . '/faveo-helpdesk/laravel-cache/src/HandleCacheController.php',
+        'CacheDriver\\Providers\\CacheServiceProvider' => __DIR__ . '/..' . '/faveo-helpdesk/laravel-cache/src/Providers/CacheServiceProvider.php',
         'Carbon\\AbstractTranslator' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/AbstractTranslator.php',
         'Carbon\\Callback' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/Callback.php',
         'Carbon\\Carbon' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/Carbon.php',
@@ -14570,6 +14581,7 @@ class ComposerStaticInit2955b800a3d45855083212747d565e16
         'Tests\\Browser\\Pages\\Page' => __DIR__ . '/../..' . '/tests/Browser/Pages/Page.php',
         'Tests\\DBTestCase' => __DIR__ . '/../..' . '/tests/DBTestCase.php',
         'Tests\\DuskTestCase' => __DIR__ . '/../..' . '/tests/DuskTestCase.php',
+        'Tests\\HandleCacheControllerTest' => __DIR__ . '/..' . '/faveo-helpdesk/laravel-cache/tests/HandleCacheControllerTest.php',
         'Tests\\TestCase' => __DIR__ . '/../..' . '/tests/TestCase.php',
         'Tests\\Unit\\Admin\\BillingInstaller\\BillingDependencyControllerTest' => __DIR__ . '/../..' . '/tests/Unit/Admin/BillingInstaller/BillingDependencyControllerTest.php',
         'Tests\\Unit\\Admin\\BillingInstaller\\InstallerControllerTest' => __DIR__ . '/../..' . '/tests/Unit/Admin/BillingInstaller/InstallerControllerTest.php',

@@ -43,7 +43,7 @@ trait ApiKeySettings
         } catch(\Exception $e) {
             return errorResponse(\Lang::get('message.license_invalid'));
         }
-        StatusSetting::where('id', 1)->update(['license_status' => $status]);
+        StatusSetting::where('id', 1)->update(['license_status' => $status, 'use_streams' => $request->input('use_streams', 0)]);
         ApiKey::where('id', 1)->update(['license_api_secret' => $licenseApiSecret, 'license_api_url' => $licenseApiUrl,
             'license_client_id' => $licenseApiClientId, 'license_client_secret' => $licenseApiClientSecret,
             'license_grant_type' => $licenseApiGrantType, ]);

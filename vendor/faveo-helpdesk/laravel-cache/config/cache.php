@@ -13,10 +13,10 @@ return [
     | This option controls the default cache connection that gets used while
     | using this caching library. This connection is used when another is
     | not explicitly specified when executing a given caching function.
-    |
+    | By default driver should be database to handle cache in multitenancy too
     */
 
-    'default' => advance::value('DEFAULT', 'file'),
+    'default' => advance::value('DEFAULT', 'database'),
 
     /*
     |--------------------------------------------------------------------------
@@ -52,7 +52,7 @@ return [
 
         'file' => [
             'driver' => 'file',
-            'path' => storage_path('framework/cache/data'),
+            'path' => storage_path().'/framework/cache',
         ],
 
         'memcached' => [

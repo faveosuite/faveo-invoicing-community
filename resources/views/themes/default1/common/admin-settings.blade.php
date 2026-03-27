@@ -601,6 +601,32 @@
                         <div class="text-center text-sm fw_400">{{ __('message.queues') }}</div>
                     </div>
                 </div>
+                <div class="col-md-2 col-sm-6">
+                    <div class="settingiconblue">
+                        <div class="settingdivblue">
+                            <a class="icons-color" href="{{route('cache.index')}}">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-database fa-stack-1x"></i>
+                                </span>
+                            </a>
+                        </div>
+                        <div class="text-center text-sm fw_400">{{ __('message.cache_drivers') }}</div>
+                    </div>
+                </div>
+                @if(\App\Model\Common\StatusSetting::first()?->use_streams)
+                <div class="col-md-2 col-sm-6">
+                    <div class="settingiconblue">
+                        <div class="settingdivblue">
+                            <a class="icons-color" href="{{route('redis-stream.index')}}">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fas fa-stream fa-stack-1x"></i>
+                                </span>
+                            </a>
+                        </div>
+                        <div class="text-center text-sm fw_400">{{ __('message.redis_streams') }}</div>
+                    </div>
+                </div>
+                @endif
             </div>
             <!-- /.row -->
         </div>

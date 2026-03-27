@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api;
 use App\Http\Controllers\Auth;
 use App\Http\Controllers\Common;
+use App\Http\Controllers\Common\CacheController;
 use App\Http\Controllers\Common\FileManagerController;
 use App\Http\Controllers\Common\PipedriveController;
 use App\Http\Controllers\Common\Sms\MSG91Controller;
@@ -446,6 +447,22 @@ Route::middleware('installAgora')->group(function () {
     Route::post('queue/{queue}/activate', [Jobs\QueueController::class, 'activate']);
     Route::get('form/queue', [Jobs\QueueController::class, 'getForm'])->name('queue.form');
     // Route::get('queue-monitoring', [Jobs\QueueController::class, 'monitorQueues']]);
+
+    /**
+     * Cache.
+     */
+    Route::get('cache-drivers', [CacheController::class, 'index'])->name('cache.index');
+    Route::get('get-cache-drivers', [CacheController::class, 'getCacheDrivers'])->name('get-cache-drivers');
+    Route::get('cache-drivers/{driver}/edit', [CacheController::class, 'edit'])->name('cache.edit');
+    Route::post('cache-drivers/{driver}/update', [CacheController::class, 'update'])->name('cache.update');
+    Route::post('cache-drivers/{driver}/activate', [CacheController::class, 'activate'])->name('cache.activate');
+
+    /**
+     * Redis Streams.
+     */
+    Route::get('redis-streams', [Common\RedisStreamController::class, 'index'])->name('redis-stream.index');
+    Route::post('redis-streams/update', [Common\RedisStreamController::class, 'update'])->name('redis-stream.update');
+    Route::post('redis-streams/test', [Common\RedisStreamController::class, 'testStreamEvent'])->name('redis-stream.test');
 
     /*
      * Chat Script

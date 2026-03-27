@@ -1,0 +1,32 @@
+{
+    "name": "faveo-helpdesk/laravel-cache",
+    "description": "Configure multiple Laravel cache drivers without accessing the server. It will update the config accordingly",
+    "require": {
+        "php" : "^8.1"
+    },
+    "require-dev": {
+        "laravel/laravel": "9.*",
+        "phpunit/phpunit": "^10.3"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "CacheDriver\\": "src/",
+            "Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel" : {
+            "providers": [
+                "CacheDriver\\Providers\\CacheServiceProvider"
+            ]
+        }
+    },
+    "authors": [
+        {
+            "name": "RafficMohammed",
+            "email": "mohammed.raffic@ladybirdweb.com"
+        }
+    ],
+    "minimum-stability": "stable"
+}

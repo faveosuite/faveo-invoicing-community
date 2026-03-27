@@ -39,6 +39,11 @@ class LicenseStreamHandler
         return $instance->waitForResponse($correlationId, $requestId);
     }
 
+    public static function ping(): array
+    {
+        return self::handle('stream_ping', ['test' => true]);
+    }
+
     public static function getLicenseKey(): array
     {
         return self::handle('license_get_key');
