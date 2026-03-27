@@ -61,6 +61,7 @@ class RedisStreamController extends Controller
             return successResponse(__('message.redis_stream_ping_success'));
         } catch (\Exception $exception) {
             \Logger::exception($exception);
+
             return errorResponse(__('message.stream_test_timeout'));
         }
     }
