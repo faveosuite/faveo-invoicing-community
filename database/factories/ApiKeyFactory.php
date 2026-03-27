@@ -20,7 +20,6 @@ class ApiKeyFactory extends Factory
             'rzp_key' => $this->faker->sha1,
             'rzp_secret' => $this->faker->sha1,
             'apilayer_key' => $this->faker->sha1,
-            'bugsnag_api_key' => $this->faker->sha1,
             'zoho_api_key' => $this->faker->sha1,
             'msg91_auth_key' => $this->faker->sha1,
             'msg91_sender' => 'MSGOTP',

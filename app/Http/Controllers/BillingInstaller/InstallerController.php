@@ -136,7 +136,6 @@ class InstallerController extends Controller
         $ENV = [
             'APP_NAME' => 'Agora:'.md5(uniqid()),
             'APP_DEBUG' => 'false',
-            'APP_BUGSNAG' => 'true',
             'APP_URL' => $appUrl ?? url('/'),
             'APP_KEY' => 'base64:6bir20aYSpt+tJUiTu3D/QRwddjvwAupLPAfu14uUmk=',
             'QUERY_DETECTOR_ENABLED' => 'false',

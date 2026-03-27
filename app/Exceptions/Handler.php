@@ -2,7 +2,6 @@
 
 namespace App\Exceptions;
 
-use Bugsnag;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -32,41 +31,19 @@ class Handler extends ExceptionHandler
     /**
      * Report or log an exception.
      *
-     * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
-     *
      * @param  \Exception  $exception
      * @return void
      */
     public function report(Throwable $exception)
     {
-        // Check if the exception is an UnauthenticatedException
         if (! $exception instanceof AuthenticationException) {
-            // Send unhandled exceptions to Bugsnag
-            $this->reportToBugsnag($exception);
-
-            // Log the exception
             \Log::channel('daily')->error($exception);
         }
 
         parent::report($exception);
         // Log exception in database if not PDO exception
         if ($this->shouldBeLoggedInDB($exception) && isInstall()) {
-            // Log exception to database
             Logger::exception($exception);
-        }
-    }
-
-    /**
-     * Report to Bugsnag.
-     *
-     * @param  Exception  $exception  Exception instance
-     * @return void
-     */
-    protected function reportToBugsnag(Throwable $exception)
-    {
-        // Check bugsnag reporting is active
-        if (config('app.bugsnag_reporting')) {
-            Bugsnag::notifyException($exception);
         }
     }
 

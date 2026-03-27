@@ -119,17 +119,6 @@ return [
     'cipher' => 'AES-128-CBC',
 
     /*
-      |---------------------------------------------------------------------------------
-      | Bugsnag error reporting
-      |-----------------------------------------------------------------------------------
-      |Accepts true or false as a value. It decides whether to send the error
-      |to AGORA developers  when any exception/error occurs or not. True value of this variable will
-      |allow application to send error reports to AGORA team's bugsnag log.
-     */
-    'bugsnag_reporting' => env('APP_BUGSNAG', true),
-    /*
-
-    /*
     |--------------------------------------------------------------------------
     | Logging Configuration
     |--------------------------------------------------------------------------
@@ -188,7 +177,6 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-        Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
         Torann\GeoIP\GeoIPServiceProvider::class,
         /*
          * Package Service Providers...
@@ -243,7 +231,6 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         'Activity' => Spatie\Activitylog\ActivitylogFacade::class,
-        'Bugsnag' => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
         'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
         'Currency' => \Torann\Currency\Facades\Currency::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
