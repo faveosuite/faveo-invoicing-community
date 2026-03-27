@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Str;
 use CacheDriver\HandleCacheController as advance;
+use Illuminate\Support\Str;
 
 return [
 
