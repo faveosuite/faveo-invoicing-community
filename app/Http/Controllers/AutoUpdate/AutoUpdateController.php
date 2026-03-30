@@ -65,7 +65,6 @@ class AutoUpdateController extends Controller
         }
     }
 
-
     public function editProductToAUS($product_name, $product_sku)
     {
         try {
@@ -86,7 +85,6 @@ class AutoUpdateController extends Controller
             throw new \Exception(__('message.configure_valid_license'));
         }
     }
-
 
     public function deleteProductFromAUS($product): void
     {
@@ -155,7 +153,6 @@ class AutoUpdateController extends Controller
     {
         return LicenseStreamHandler::search($searchType, $searchKeyword, 0)['result']['data']['data'] ?? [];
     }
-
 
     /*
  *  Search for product id while updating client
