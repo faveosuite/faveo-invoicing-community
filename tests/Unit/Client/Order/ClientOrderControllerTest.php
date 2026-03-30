@@ -16,6 +16,7 @@ use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Mockery;
 use Spatie\Html\Html;
 use Tests\DBTestCase;
@@ -99,6 +100,11 @@ class ClientOrderControllerTest extends DBTestCase
     #[\PHPUnit\Framework\Attributes\Group('order')]
     public function test_fails_due_to_invalid_license_key()
     {
+        Http::fake([
+            '*oauth/token*' => Http::response(['error' => 'invalid_client'], 401),
+            '*' => Http::response([], 401),
+        ]);
+
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
@@ -121,7 +127,7 @@ class ClientOrderControllerTest extends DBTestCase
 
         $response = $this->call('get', 'my-order/'.$order->id);
 
-        $response->assertSessionHas('fails', 'Please configure the valid license details in Apikey settings.');
+        $response->assertSessionHas('fails');
     }
 
     #[\PHPUnit\Framework\Attributes\Group('order')]

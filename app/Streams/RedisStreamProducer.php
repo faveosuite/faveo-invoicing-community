@@ -96,7 +96,12 @@ class RedisStreamProducer
         }
 
         try {
-            $pipeline = $this->redis->pipeline();
+            $ids = [];
+            $streamOptions = [];
+            if ($this->maxLen !== null && $this->maxLen > 0) {
+                $approximate = $this->useExactMaxLen ? '' : '~';
+                $streamOptions['MAXLEN'] = [$approximate, $this->maxLen];
+            }
 
             foreach ($messages as $message) {
                 if (! isset($message['event']) || ! isset($message['payload'])) {
@@ -109,25 +114,16 @@ class RedisStreamProducer
                     'timestamp' => $message['timestamp'] ?? now()->toDateTimeString(),
                 ];
 
-                // Add any additional metadata
                 if (isset($message['options']) && is_array($message['options'])) {
                     $data = array_merge($data, $message['options']);
                 }
 
-                // Create Redis command options
                 $params = ['message' => json_encode($data, JSON_THROW_ON_ERROR)];
 
-                // Handle MAXLEN option for stream trimming
-                $streamOptions = [];
-                if ($this->maxLen !== null && $this->maxLen > 0) {
-                    $approximate = $this->useExactMaxLen ? '' : '~';
-                    $streamOptions['MAXLEN'] = [$approximate, $this->maxLen];
-                }
-
-                $pipeline->xadd($this->stream, '*', $params, $streamOptions);
+                $ids[] = $this->redis->xadd($this->stream, '*', $params, $streamOptions);
             }
 
-            return $pipeline->execute();
+            return $ids;
         } catch (JsonException $e) {
             throw new JsonException('Failed to encode messages for Redis Stream batch: '.$e->getMessage(), $e->getCode(), $e);
         } catch (Exception $e) {
