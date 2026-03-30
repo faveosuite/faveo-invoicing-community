@@ -309,7 +309,6 @@ class LicenseStreamHandler
         return ['productId' => '', 'code' => '', 'licenseId' => '', 'allowedInstalltion' => '', 'installationLimit' => ''];
     }
 
-
     public static function addNewProductToAUS(string $productId, string $productName, string $productSku, string $productKey): array
     {
         return self::handle('update_add_product', [
@@ -320,7 +319,6 @@ class LicenseStreamHandler
             'product_status' => 1,
         ]);
     }
-
 
     public static function editProductToAUS(string $productName, string $productSku): array
     {
