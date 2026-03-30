@@ -104,7 +104,6 @@ class RedisStreamConsumer
         } catch (ConnectionException $e) {
             throw $e;
         } catch (Exception $e) {
-
             $pendingInfo = $this->getMessagePendingInfo($id);
 
             throw new MessageProcessingException(
