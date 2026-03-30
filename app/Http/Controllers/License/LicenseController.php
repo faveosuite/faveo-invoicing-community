@@ -754,7 +754,6 @@ class LicenseController extends Controller
             'license_codes' => json_encode($licensesCodes),
         ]);
 
-
         $data = $result['data'] ?? [];
         if (is_string($data)) {
             $data = json_decode($data, true) ?: [];
