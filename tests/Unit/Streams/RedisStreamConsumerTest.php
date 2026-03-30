@@ -165,7 +165,8 @@ class RedisStreamConsumerTest extends TestCase
                 return [];
             });
 
-        $consumer->consume(function () {}, false);
+        $consumer->consume(function () {
+        }, false);
 
         // If we got here without an exception, the NOGROUP error was handled
         $this->assertTrue(true);
@@ -191,7 +192,8 @@ class RedisStreamConsumerTest extends TestCase
                 return [];
             });
 
-        $consumer->consume(function () {}, false);
+        $consumer->consume(function () {
+        }, false);
 
         $this->assertTrue(true);
     }
@@ -210,7 +212,8 @@ class RedisStreamConsumerTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Something unexpected');
 
-        $consumer->consume(function () {}, false);
+        $consumer->consume(function () {
+        }, false);
     }
 
     public function test_consume_swallows_message_processing_errors(): void
@@ -313,7 +316,8 @@ class RedisStreamConsumerTest extends TestCase
             ->with($this->stream, $this->group, ['msg-1'])
             ->andReturn(1);
 
-        $method->invoke($consumer, function () {});
+        $method->invoke($consumer, function () {
+        });
 
         // Mockery expectations verify xack was called (message was acknowledged and dropped)
         $this->assertTrue(true);
@@ -373,7 +377,8 @@ class RedisStreamConsumerTest extends TestCase
 
         $this->expectException(ConnectionException::class);
 
-        $method->invoke($consumer, function () {});
+        $method->invoke($consumer, function () {
+        });
     }
 
     public function test_pending_check_swallows_general_exceptions(): void
@@ -390,7 +395,8 @@ class RedisStreamConsumerTest extends TestCase
             ->andThrow(new Exception('Some error'));
 
         // Should not throw
-        $method->invoke($consumer, function () {});
+        $method->invoke($consumer, function () {
+        });
         $this->assertTrue(true);
     }
 

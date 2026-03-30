@@ -126,7 +126,9 @@ class ConsumeStreamCommandTest extends TestCase
 
         $handler = new class
         {
-            public function handle(array $data, string $messageId): void {}
+            public function handle(array $data, string $messageId): void
+            {
+            }
         };
 
         $method->invoke($command, ['event' => 'order.placed'], 'msg-5', $handler);
@@ -148,7 +150,9 @@ class ConsumeStreamCommandTest extends TestCase
 
         $handler = new class
         {
-            public function handle(array $data, string $messageId): void {}
+            public function handle(array $data, string $messageId): void
+            {
+            }
         };
 
         $method->invoke($command, ['payload' => 'data'], 'msg-1', $handler);

@@ -28,15 +28,16 @@ class RedisAdapterManagerTest extends TestCase
             // PhpRedis extension returns a \Redis instance
             $client = Mockery::mock();
             // Override get_class behavior by using a named mock
-            $connectionMock->shouldReceive('client')->andReturn(new class
-            {
+            $connectionMock->shouldReceive('client')->andReturn(new class {
                 // get_class on this returns an anonymous class name, not 'Redis'
             });
         } else {
             $connectionMock->shouldReceive('client')->andReturnUsing(function () use ($className) {
                 return new class($className)
                 {
-                    public function __construct(public string $name) {}
+                    public function __construct(public string $name)
+                    {
+                    }
                 };
             });
         }
