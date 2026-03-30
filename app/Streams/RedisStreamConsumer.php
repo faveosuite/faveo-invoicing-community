@@ -145,8 +145,9 @@ class RedisStreamConsumer
             $callback($data, $id);
             $this->redis->xack($this->stream, $this->group, [$id]);
         } catch (JsonException $e) {
+            // Don't ACK malformed messages - let them be retried via pending check,
+            // then dropped after retry limit is exceeded
             Log::error("Failed to decode message {$id}: ".$e->getMessage());
-            $this->redis->xack($this->stream, $this->group, [$id]);
         } catch (ConnectionException $e) {
             // Don't acknowledge on connection error - retry later
             Log::error("Redis connection error while processing message {$id}: ".$e->getMessage());

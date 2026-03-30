@@ -4,21 +4,26 @@ namespace App\Http\Controllers\AutoUpdate;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\License\LicenseService;
+use App\Model\Common\StatusSetting;
 use App\Streams\License\LicenseStreamHandler;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class AutoUpdateController extends Controller
 {
     private LicenseService $licenseService;
 
+    private bool $useStreams;
+
     public function __construct()
     {
         $this->licenseService = new LicenseService();
+        $this->useStreams = (bool) StatusSetting::value('use_streams');
     }
 
     private function isStreams(): bool
     {
-        return true;
+        return $this->useStreams;
     }
 
     /**
@@ -61,6 +66,7 @@ class AutoUpdateController extends Controller
                 'product_status' => 1,
             ]);
         } catch (\Exception $ex) {
+            \Logger::exception($ex);
             throw new \Exception(__('message.configure_valid_license'));
         }
     }
@@ -82,22 +88,28 @@ class AutoUpdateController extends Controller
                 'product_status' => 1,
             ]);
         } catch (\Exception $ex) {
+            \Logger::exception($ex);
             throw new \Exception(__('message.configure_valid_license'));
         }
     }
 
     public function deleteProductFromAUS($product): void
     {
-        if ($this->isStreams()) {
-            LicenseStreamHandler::deleteProductAUS($product->product_sku);
+        try {
+            if ($this->isStreams()) {
+                LicenseStreamHandler::deleteProductAUS($product->product_sku);
 
-            return;
+                return;
+            }
+
+            $productId = $this->searchProductId($product->product_sku);
+            $this->postRequest('api/admin/products/UpdateDelete', [
+                'product_id' => $productId,
+            ]);
+        } catch (\Exception $ex) {
+            \Logger::exception($ex);
+            Log::error('Failed to delete product from AUS: '.$ex->getMessage());
         }
-
-        $productId = $this->searchProductId($product->product_sku);
-        $this->postRequest('api/admin/products/UpdateDelete', [
-            'product_id' => $productId,
-        ]);
     }
 
     /*
@@ -120,6 +132,7 @@ class AutoUpdateController extends Controller
                 'product_status' => 1,
             ]);
         } catch (\Exception $ex) {
+            \Logger::exception($ex);
             throw new \Exception(__('message.configure_valid_license'));
         }
     }
@@ -145,6 +158,7 @@ class AutoUpdateController extends Controller
                 'version_status' => 1,
             ]);
         } catch (\Exception $ex) {
+            \Logger::exception($ex);
             throw new \Exception(__('message.configure_valid_license'));
         }
     }
@@ -209,6 +223,7 @@ class AutoUpdateController extends Controller
 
             return ['version_id' => $versionId, 'product_id' => $productId];
         } catch (\Exception $ex) {
+            \Logger::exception($ex);
             throw new \Exception(__('message.configure_valid_license'));
         }
     }

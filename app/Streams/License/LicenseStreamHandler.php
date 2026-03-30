@@ -13,14 +13,15 @@ class LicenseStreamHandler
 {
     private const string REQUEST_STREAM = 'license_request';
     private const string RESPONSE_STREAM = 'license_responses';
-    private const int TIMEOUT = 10;
+    private const int TIMEOUT = 30;
     private const int POLL_INTERVAL_US = 100_000;
+    private const int MAX_STREAM_LEN = 10000;
 
     protected RedisStreamProducer $producer;
 
     public function __construct()
     {
-        $this->producer = new RedisStreamProducer(self::REQUEST_STREAM);
+        $this->producer = new RedisStreamProducer(self::REQUEST_STREAM, self::MAX_STREAM_LEN);
     }
 
     /**
@@ -379,7 +380,10 @@ class LicenseStreamHandler
     {
         $redis = RedisAdapterManager::create();
         $start = time();
-        $lastId = '0-0';
+
+        // Start scanning from ~5 seconds before now to avoid scanning the entire stream
+        $startTimestamp = (int) (microtime(true) * 1000) - 5000;
+        $lastId = $startTimestamp.'-0';
 
         while ((time() - $start) < self::TIMEOUT) {
             $messages = $redis->xrange(self::RESPONSE_STREAM, $lastId, '+', 100);
@@ -391,8 +395,12 @@ class LicenseStreamHandler
                     $result = $data['payload'] ?? [];
 
                     // Clean up: delete request and response messages
-                    $redis->xdel(self::REQUEST_STREAM, [$requestId]);
-                    $redis->xdel(self::RESPONSE_STREAM, [$id]);
+                    try {
+                        $redis->xdel(self::REQUEST_STREAM, [$requestId]);
+                        $redis->xdel(self::RESPONSE_STREAM, [$id]);
+                    } catch (\Throwable $e) {
+                        // Cleanup failure is non-fatal
+                    }
 
                     return $result;
                 }
@@ -400,7 +408,8 @@ class LicenseStreamHandler
                 $lastId = $id;
             }
 
-            if ($lastId !== '0-0') {
+            // Advance past last seen ID to avoid re-scanning
+            if ($messages) {
                 $parts = explode('-', $lastId);
                 $lastId = $parts[0].'-'.((int) $parts[1] + 1);
             }

@@ -81,17 +81,21 @@ class LicenseController extends Controller
     */
     public function addNewProduct($product_name, $product_sku): void
     {
-        if ($this->isStreams()) {
-            LicenseStreamHandler::addNewProduct($product_name, $product_sku);
+        try {
+            if ($this->isStreams()) {
+                LicenseStreamHandler::addNewProduct($product_name, $product_sku);
 
-            return;
+                return;
+            }
+
+            $this->postRequest('api/admin/products/add', [
+                'product_title' => $product_name,
+                'product_sku' => $product_sku,
+                'product_status' => 1,
+            ]);
+        } catch (\Throwable $e) {
+            \Logger::exception($e);
         }
-
-        $this->postRequest('api/admin/products/add', [
-            'product_title' => $product_name,
-            'product_sku' => $product_sku,
-            'product_status' => 1,
-        ]);
     }
 
     /*
@@ -99,19 +103,23 @@ class LicenseController extends Controller
    */
     public function addNewUser($first_name, $last_name, $email): void
     {
-        if ($this->isStreams()) {
-            LicenseStreamHandler::addNewUser($first_name, $last_name, $email);
+        try {
+            if ($this->isStreams()) {
+                LicenseStreamHandler::addNewUser($first_name, $last_name, $email);
 
-            return;
+                return;
+            }
+
+            $this->postRequest('api/admin/clients/add', [
+                'client_fname' => $first_name,
+                'client_lname' => $last_name,
+                'client_email' => $email,
+                'client_role' => 'client',
+                'client_status' => 1,
+            ]);
+        } catch (\Throwable $e) {
+            \Logger::exception($e);
         }
-
-        $this->postRequest('api/admin/clients/add', [
-            'client_fname' => $first_name,
-            'client_lname' => $last_name,
-            'client_email' => $email,
-            'client_role' => 'client',
-            'client_status' => 1,
-        ]);
     }
 
     /*
@@ -119,19 +127,23 @@ class LicenseController extends Controller
    */
     public function editProduct($product_name, $product_sku): void
     {
-        if ($this->isStreams()) {
-            LicenseStreamHandler::editProduct($product_name, $product_sku);
+        try {
+            if ($this->isStreams()) {
+                LicenseStreamHandler::editProduct($product_name, $product_sku);
 
-            return;
+                return;
+            }
+
+            $productId = $this->searchProductId($product_sku);
+            $this->postRequest('api/admin/products/edit', [
+                'product_id' => $productId,
+                'product_title' => $product_name,
+                'product_sku' => $product_sku,
+                'product_status' => 1,
+            ]);
+        } catch (\Throwable $e) {
+            \Logger::exception($e);
         }
-
-        $productId = $this->searchProductId($product_sku);
-        $this->postRequest('api/admin/products/edit', [
-            'product_id' => $productId,
-            'product_title' => $product_name,
-            'product_sku' => $product_sku,
-            'product_status' => 1,
-        ]);
     }
 
     /*
@@ -140,9 +152,15 @@ class LicenseController extends Controller
     public function searchProductId($product_sku): string
     {
         if ($this->isStreams()) {
-            $data = $this->getStreamSearchResults('product', $product_sku);
+            try {
+                $data = $this->getStreamSearchResults('product', $product_sku);
 
-            return ! empty($data) ? ($data[0]['product_id'] ?? '') : '';
+                return ! empty($data) ? ($data[0]['product_id'] ?? '') : '';
+            } catch (\Throwable $e) {
+                \Logger::exception($e);
+
+                return '';
+            }
         }
 
         $result = $this->postRequest('api/admin/search', [
@@ -160,16 +178,20 @@ class LicenseController extends Controller
 
     public function deleteProductFromAPL($product): void
     {
-        if ($this->isStreams()) {
-            LicenseStreamHandler::deleteProduct($product->product_sku);
+        try {
+            if ($this->isStreams()) {
+                LicenseStreamHandler::deleteProduct($product->product_sku);
 
-            return;
+                return;
+            }
+
+            $productId = $this->searchProductId($product->product_sku);
+            $this->postRequest('api/admin/products/delete', [
+                'product_id' => $productId,
+            ]);
+        } catch (\Throwable $e) {
+            \Logger::exception($e);
         }
-
-        $productId = $this->searchProductId($product->product_sku);
-        $this->postRequest('api/admin/products/delete', [
-            'product_id' => $productId,
-        ]);
     }
 
     /*
@@ -177,21 +199,25 @@ class LicenseController extends Controller
    */
     public function editUserInLicensing($first_name, $last_name, $email): void
     {
-        if ($this->isStreams()) {
-            LicenseStreamHandler::editUser($first_name, $last_name, $email);
+        try {
+            if ($this->isStreams()) {
+                LicenseStreamHandler::editUser($first_name, $last_name, $email);
 
-            return;
+                return;
+            }
+
+            $userId = $this->searchForUserId($email);
+            $this->postRequest('api/admin/clients/edit', [
+                'client_id' => $userId,
+                'client_fname' => $first_name,
+                'client_lname' => $last_name,
+                'client_email' => $email,
+                'client_role' => 'client',
+                'client_status' => 1,
+            ]);
+        } catch (\Throwable $e) {
+            \Logger::exception($e);
         }
-
-        $userId = $this->searchForUserId($email);
-        $this->postRequest('api/admin/clients/edit', [
-            'client_id' => $userId,
-            'client_fname' => $first_name,
-            'client_lname' => $last_name,
-            'client_email' => $email,
-            'client_role' => 'client',
-            'client_status' => 1,
-        ]);
     }
 
     /*
@@ -200,9 +226,15 @@ class LicenseController extends Controller
     public function searchForUserId($email): string
     {
         if ($this->isStreams()) {
-            $data = $this->getStreamSearchResults('client', $email);
+            try {
+                $data = $this->getStreamSearchResults('client', $email);
 
-            return ! empty($data) ? ($data[0]['client_id'] ?? '') : '';
+                return ! empty($data) ? ($data[0]['client_id'] ?? '') : '';
+            } catch (\Throwable $e) {
+                \Logger::exception($e);
+
+                return '';
+            }
         }
 
         $result = $this->postRequest('api/admin/search', [
@@ -223,30 +255,34 @@ class LicenseController extends Controller
     */
     public function createNewLicene($orderid, $product, $user_id, $licenseExpiry, $updatesExpiry, $supportExpiry, $serial_key): void
     {
-        if ($this->isStreams()) {
-            LicenseStreamHandler::createNewLicense($orderid, $product, $user_id, $licenseExpiry, $updatesExpiry, $supportExpiry, $serial_key);
+        try {
+            if ($this->isStreams()) {
+                LicenseStreamHandler::createNewLicense($orderid, $product, $user_id, $licenseExpiry, $updatesExpiry, $supportExpiry, $serial_key);
 
-            return;
+                return;
+            }
+
+            $sku = Product::where('id', $product)->value('product_sku');
+            $order = Order::where('id', $orderid)->first();
+            $ipAndDomain = $this->getIpAndDomain($order?->domain ?? '');
+
+            $this->postRequest('api/admin/license/add', [
+                'product_id' => $this->searchProductId($sku),
+                'license_code' => $serial_key,
+                'license_require_domain' => 1,
+                'license_status' => 1,
+                'license_order_number' => $order?->number ?? '',
+                'license_domain' => $ipAndDomain['domain'],
+                'license_ip' => $ipAndDomain['ip'],
+                'license_limit' => 1,
+                'license_expire_date' => $licenseExpiry?->toDateString() ?? '',
+                'license_updates_date' => $updatesExpiry?->toDateString() ?? '',
+                'license_support_date' => $supportExpiry?->toDateString() ?? '',
+                'license_disable_ip_verification' => 0,
+            ]);
+        } catch (\Throwable $e) {
+            \Logger::exception($e);
         }
-
-        $sku = Product::where('id', $product)->value('product_sku');
-        $order = Order::where('id', $orderid)->first();
-        $ipAndDomain = $this->getIpAndDomain($order?->domain ?? '');
-
-        $this->postRequest('api/admin/license/add', [
-            'product_id' => $this->searchProductId($sku),
-            'license_code' => $serial_key,
-            'license_require_domain' => 1,
-            'license_status' => 1,
-            'license_order_number' => $order?->number ?? '',
-            'license_domain' => $ipAndDomain['domain'],
-            'license_ip' => $ipAndDomain['ip'],
-            'license_limit' => 1,
-            'license_expire_date' => $licenseExpiry?->toDateString() ?? '',
-            'license_updates_date' => $updatesExpiry?->toDateString() ?? '',
-            'license_support_date' => $supportExpiry?->toDateString() ?? '',
-            'license_disable_ip_verification' => 0,
-        ]);
     }
 
     /*
@@ -254,29 +290,33 @@ class LicenseController extends Controller
     */
     public function updateLicensedDomain($licenseCode, $domain, $productId, $licenseExpiry, $updatesExpiry, $supportExpiry, $orderNo, $license_limit = 2, $requiredomain = 1): void
     {
-        if ($this->isStreams()) {
-            LicenseStreamHandler::updateLicensedDomain($licenseCode, $domain, $productId, $licenseExpiry, $updatesExpiry, $supportExpiry, $orderNo, $license_limit, $requiredomain);
+        try {
+            if ($this->isStreams()) {
+                LicenseStreamHandler::updateLicensedDomain($licenseCode, $domain, $productId, $licenseExpiry, $updatesExpiry, $supportExpiry, $orderNo, $license_limit, $requiredomain);
 
-            return;
+                return;
+            }
+
+            $ipAndDomain = $this->getIpAndDomain($domain);
+            $searchLicense = $this->searchLicenseId($licenseCode, $productId);
+
+            $this->postRequest('api/admin/license/edit', [
+                'product_id' => $searchLicense['productId'],
+                'license_code' => $searchLicense['code'],
+                'license_id' => $searchLicense['licenseId'],
+                'license_order_number' => $orderNo,
+                'license_require_domain' => $searchLicense['allowedInstalltion'],
+                'license_status' => 1,
+                'license_expire_date' => $this->formatDate($licenseExpiry),
+                'license_updates_date' => $this->formatDate($updatesExpiry),
+                'license_support_date' => $this->formatDate($supportExpiry),
+                'license_domain' => $ipAndDomain['domain'],
+                'license_ip' => $ipAndDomain['ip'],
+                'license_limit' => $license_limit,
+            ]);
+        } catch (\Throwable $e) {
+            \Logger::exception($e);
         }
-
-        $ipAndDomain = $this->getIpAndDomain($domain);
-        $searchLicense = $this->searchLicenseId($licenseCode, $productId);
-
-        $this->postRequest('api/admin/license/edit', [
-            'product_id' => $searchLicense['productId'],
-            'license_code' => $searchLicense['code'],
-            'license_id' => $searchLicense['licenseId'],
-            'license_order_number' => $orderNo,
-            'license_require_domain' => $searchLicense['allowedInstalltion'],
-            'license_status' => 1,
-            'license_expire_date' => $this->formatDate($licenseExpiry),
-            'license_updates_date' => $this->formatDate($updatesExpiry),
-            'license_support_date' => $this->formatDate($supportExpiry),
-            'license_domain' => $ipAndDomain['domain'],
-            'license_ip' => $ipAndDomain['ip'],
-            'license_limit' => $license_limit,
-        ]);
     }
 
     /**
@@ -306,7 +346,13 @@ class LicenseController extends Controller
     public function searchLicenseId($licenseCode, $productId): array
     {
         if ($this->isStreams()) {
-            return $this->searchLicenseIdFromStreams($licenseCode, $productId);
+            try {
+                return $this->searchLicenseIdFromStreams($licenseCode, $productId);
+            } catch (\Throwable $e) {
+                \Logger::exception($e);
+
+                return ['productId' => '', 'code' => '', 'licenseId' => '', 'allowedInstalltion' => '', 'installationLimit' => ''];
+            }
         }
 
         $result = $this->postRequest('api/admin/search', [
@@ -369,34 +415,44 @@ class LicenseController extends Controller
     //Update the Installation status as Inactive after Licensed Domain Is Chnaged
     public function updateInstalledDomain($licenseCode, $productId): void
     {
-        if ($this->isStreams()) {
-            LicenseStreamHandler::updateInstalledDomain($licenseCode, $productId);
+        try {
+            if ($this->isStreams()) {
+                LicenseStreamHandler::updateInstalledDomain($licenseCode, $productId);
 
-            return;
-        }
-
-        $result = $this->searchInstallationId($licenseCode);
-
-        if (($result['api_error_detected'] ?? 1) != 0 || ! is_array($result['page_message'] ?? [])) {
-            return;
-        }
-
-        foreach ($result['page_message'] as $detail) {
-            if ($detail->product_id == $productId) {
-                $this->postRequest('api/admin/installations/edit', [
-                    'installation_id' => $detail->installation_id,
-                    'installation_ip' => $detail->installation_ip,
-                    'installation_status' => 0,
-                    'delete_record' => 1,
-                ]);
+                return;
             }
+
+            $result = $this->searchInstallationId($licenseCode);
+
+            if (($result['api_error_detected'] ?? 1) != 0 || ! is_array($result['page_message'] ?? [])) {
+                return;
+            }
+
+            foreach ($result['page_message'] as $detail) {
+                if ($detail->product_id == $productId) {
+                    $this->postRequest('api/admin/installations/edit', [
+                        'installation_id' => $detail->installation_id,
+                        'installation_ip' => $detail->installation_ip,
+                        'installation_status' => 0,
+                        'delete_record' => 1,
+                    ]);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Logger::exception($e);
         }
     }
 
     public function searchInstallationId($licenseCode): array
     {
         if ($this->isStreams()) {
-            return $this->getStreamSearchResults('installation', $licenseCode);
+            try {
+                return $this->getStreamSearchResults('installation', $licenseCode);
+            } catch (\Throwable $e) {
+                \Logger::exception($e);
+
+                return [];
+            }
         }
 
         return $this->postRequest('api/admin/search', [
@@ -409,7 +465,13 @@ class LicenseController extends Controller
     public function searchInstallationPath($licenseCode, $productId): array
     {
         if ($this->isStreams()) {
-            return $this->searchInstallationPathFromStreams($licenseCode, $productId);
+            try {
+                return $this->searchInstallationPathFromStreams($licenseCode, $productId);
+            } catch (\Throwable $e) {
+                \Logger::exception($e);
+
+                return ['installed_path' => [], 'installed_ip' => [], 'installation_date' => [], 'installation_status' => []];
+            }
         }
 
         return $this->searchInstallationPathLegacy($licenseCode, $productId);
@@ -469,29 +531,33 @@ class LicenseController extends Controller
     //Update  Expiration Date After Renewal
     public function updateExpirationDate($licenseCode, $expiryDate, $productId, $domain, $orderNo, $licenseExpiry, $supportExpiry, $license_limit = 2, $requiredomain = 1): void
     {
-        if ($this->isStreams()) {
-            LicenseStreamHandler::updateExpirationDate($licenseCode, $expiryDate, $productId, $domain, $orderNo, $licenseExpiry, $supportExpiry, $license_limit, $requiredomain);
+        try {
+            if ($this->isStreams()) {
+                LicenseStreamHandler::updateExpirationDate($licenseCode, $expiryDate, $productId, $domain, $orderNo, $licenseExpiry, $supportExpiry, $license_limit, $requiredomain);
 
-            return;
+                return;
+            }
+
+            $ipAndDomain = $this->getIpAndDomain($domain);
+            $searchLicense = $this->searchLicenseId($licenseCode, $productId);
+
+            $this->postRequest('api/admin/license/edit', [
+                'product_id' => $searchLicense['productId'],
+                'license_code' => $searchLicense['code'],
+                'license_id' => $searchLicense['licenseId'],
+                'license_order_number' => $orderNo,
+                'license_domain' => $ipAndDomain['domain'],
+                'license_ip' => $ipAndDomain['ip'],
+                'license_require_domain' => $searchLicense['allowedInstalltion'],
+                'license_status' => 1,
+                'license_expire_date' => $licenseExpiry,
+                'license_updates_date' => $expiryDate,
+                'license_support_date' => $supportExpiry,
+                'license_limit' => $license_limit,
+            ]);
+        } catch (\Throwable $e) {
+            \Logger::exception($e);
         }
-
-        $ipAndDomain = $this->getIpAndDomain($domain);
-        $searchLicense = $this->searchLicenseId($licenseCode, $productId);
-
-        $this->postRequest('api/admin/license/edit', [
-            'product_id' => $searchLicense['productId'],
-            'license_code' => $searchLicense['code'],
-            'license_id' => $searchLicense['licenseId'],
-            'license_order_number' => $orderNo,
-            'license_domain' => $ipAndDomain['domain'],
-            'license_ip' => $ipAndDomain['ip'],
-            'license_require_domain' => $searchLicense['allowedInstalltion'],
-            'license_status' => 1,
-            'license_expire_date' => $licenseExpiry,
-            'license_updates_date' => $expiryDate,
-            'license_support_date' => $supportExpiry,
-            'license_limit' => $license_limit,
-        ]);
     }
 
     public function getNoOfAllowedInstallation($licenseCode, $productId)
@@ -506,42 +572,50 @@ class LicenseController extends Controller
 
     public function deActivateTheLicense($licenseCode): void
     {
-        if ($this->isStreams()) {
-            LicenseStreamHandler::deActivateTheLicense($licenseCode);
-
-            return;
-        }
-
         try {
+            if ($this->isStreams()) {
+                LicenseStreamHandler::deActivateTheLicense($licenseCode);
+
+                return;
+            }
+
             $this->postRequest('api/admin/license/deactivate', ['license_code' => $licenseCode]);
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
+        } catch (\Throwable $e) {
+            \Logger::exception($e);
         }
     }
 
     public function reissueDomain($installationPath): void
     {
-        if ($this->isStreams()) {
-            LicenseStreamHandler::reissueDomain($installationPath);
+        try {
+            if ($this->isStreams()) {
+                LicenseStreamHandler::reissueDomain($installationPath);
 
-            return;
+                return;
+            }
+
+            $this->postRequest('api/admin/installation/reissue', ['installation_path' => $installationPath]);
+        } catch (\Throwable $e) {
+            \Logger::exception($e);
         }
-
-        $this->postRequest('api/admin/installation/reissue', ['installation_path' => $installationPath]);
     }
 
     public function updateLicense($license_code, $oldLicense): void
     {
-        if ($this->isStreams()) {
-            LicenseStreamHandler::updateLicense($license_code, $oldLicense);
+        try {
+            if ($this->isStreams()) {
+                LicenseStreamHandler::updateLicense($license_code, $oldLicense);
 
-            return;
+                return;
+            }
+
+            $this->postRequest('api/admin/license/updateLicenseCode', [
+                'license_code' => $license_code,
+                'old_license_code' => $oldLicense,
+            ]);
+        } catch (\Throwable $e) {
+            \Logger::exception($e);
         }
-
-        $this->postRequest('api/admin/license/updateLicenseCode', [
-            'license_code' => $license_code,
-            'old_license_code' => $oldLicense,
-        ]);
     }
 
     public function licenseRedirect($orderNumber)
@@ -553,23 +627,33 @@ class LicenseController extends Controller
     {
         $options = collect($options)->toArray();
 
-        if ($this->isStreams()) {
-            LicenseStreamHandler::syncTheAddonForALicense($product_ids, $license_code, $options);
+        try {
+            if ($this->isStreams()) {
+                LicenseStreamHandler::syncTheAddonForALicense($product_ids, $license_code, $options);
 
-            return;
+                return;
+            }
+
+            $this->postRequest('api/admin/license/syncAddonLicense', [
+                'license_code' => $license_code,
+                'product_ids' => $product_ids,
+                'options' => json_encode($options),
+            ]);
+        } catch (\Throwable $e) {
+            \Logger::exception($e);
         }
-
-        $this->postRequest('api/admin/license/syncAddonLicense', [
-            'license_code' => $license_code,
-            'product_ids' => $product_ids,
-            'options' => json_encode($options),
-        ]);
     }
 
     public function getInstallationLogsDetails($license_code): array
     {
         if ($this->isStreams()) {
-            return $this->getStreamResultData(LicenseStreamHandler::getInstallationLogsDetails($license_code));
+            try {
+                return $this->getStreamResultData(LicenseStreamHandler::getInstallationLogsDetails($license_code));
+            } catch (\Throwable $e) {
+                \Logger::exception($e);
+
+                return [];
+            }
         }
 
         $result = $this->postRequest('api/admin/getInstallationLogs', ['license_code' => $license_code]);
@@ -589,24 +673,34 @@ class LicenseController extends Controller
 
     public function updateInstallationLogs($root_url, $version_number, $installation_ip, $licenseCode): void
     {
-        if ($this->isStreams()) {
-            LicenseStreamHandler::updateInstallationLogs($root_url, $version_number, $installation_ip, $licenseCode);
+        try {
+            if ($this->isStreams()) {
+                LicenseStreamHandler::updateInstallationLogs($root_url, $version_number, $installation_ip, $licenseCode);
 
-            return;
+                return;
+            }
+
+            $this->postRequest('api/admin/updateInstallationLogs', [
+                'root_url' => $root_url,
+                'version_number' => $version_number,
+                'installation_ip' => $installation_ip,
+                'license_code' => $licenseCode,
+            ]);
+        } catch (\Throwable $e) {
+            \Logger::exception($e);
         }
-
-        $this->postRequest('api/admin/updateInstallationLogs', [
-            'root_url' => $root_url,
-            'version_number' => $version_number,
-            'installation_ip' => $installation_ip,
-            'license_code' => $licenseCode,
-        ]);
     }
 
     public function searchProductUsingLicense($licenseCode): array
     {
         if ($this->isStreams()) {
-            return $this->getStreamSearchResults('license', $licenseCode);
+            try {
+                return $this->getStreamSearchResults('license', $licenseCode);
+            } catch (\Throwable $e) {
+                \Logger::exception($e);
+
+                return [];
+            }
         }
 
         $result = $this->postRequest('api/admin/search', [
@@ -625,9 +719,15 @@ class LicenseController extends Controller
     public function searchProductUsingProductKey($productKey): string
     {
         if ($this->isStreams()) {
-            $data = $this->getStreamSearchResults('product', $productKey);
+            try {
+                $data = $this->getStreamSearchResults('product', $productKey);
 
-            return ! empty($data) ? ($data[0]['product_id'] ?? '') : '';
+                return ! empty($data) ? ($data[0]['product_id'] ?? '') : '';
+            } catch (\Throwable $e) {
+                \Logger::exception($e);
+
+                return '';
+            }
         }
 
         $result = $this->getRequest('api/admin/getProductIdbyKey', [
@@ -641,11 +741,25 @@ class LicenseController extends Controller
     public function getPluginInfo($licensesCodes): array
     {
         if ($this->isStreams()) {
-            return $this->getStreamResultData(LicenseStreamHandler::getPluginInfo($licensesCodes));
+            try {
+                return $this->getStreamResultData(LicenseStreamHandler::getPluginInfo($licensesCodes));
+            } catch (\Throwable $e) {
+                \Logger::exception($e);
+
+                return [];
+            }
         }
 
-        return $this->postRequest('api/admin/getPluginInfo', [
+        $result = $this->postRequest('api/admin/getPluginInfo', [
             'license_codes' => json_encode($licensesCodes),
         ]);
+
+
+        $data = $result['data'] ?? [];
+        if (is_string($data)) {
+            $data = json_decode($data, true) ?: [];
+        }
+
+        return $data;
     }
 }
