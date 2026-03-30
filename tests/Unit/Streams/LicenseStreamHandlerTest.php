@@ -189,7 +189,9 @@ class LicenseStreamHandlerTest extends TestCase
     {
         $handler = new class extends LicenseStreamHandler
         {
-            public function __construct() {}
+            public function __construct()
+            {
+            }
 
             public function testWaitForResponse(string $correlationId, RedisAdapterInterface $redis): array
             {
