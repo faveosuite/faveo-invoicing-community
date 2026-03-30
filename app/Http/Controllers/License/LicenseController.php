@@ -75,6 +75,7 @@ class LicenseController extends Controller
 
         return $request->get($url, $query)->json() ?? [];
     }
+
     /*
     *  Add New Product
     */
