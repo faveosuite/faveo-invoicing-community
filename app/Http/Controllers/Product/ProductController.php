@@ -485,7 +485,10 @@ class ProductController extends BaseProductController
         try {
             $licenseStatus = StatusSetting::pluck('license_status')->first();
             if ($licenseStatus) {
-                $addProductInLicensing = $this->licensing->editProduct($input['name'], $input['product_sku']);
+                $this->licensing->editProduct($input['name'], $input['product_sku']);
+
+                $updateCont = new \App\Http\Controllers\AutoUpdate\AutoUpdateController();
+                $updateCont->editProductToAUS($input['name'], $input['product_sku']);
             }
 
             if ($request->hasFile('image')) {
@@ -555,6 +558,9 @@ class ProductController extends BaseProductController
                         $licenseStatus = StatusSetting::pluck('license_status')->first();
                         if ($licenseStatus == 1) {
                             $this->licensing->deleteProductFromAPL($product);
+
+                            $updateCont = new \App\Http\Controllers\AutoUpdate\AutoUpdateController();
+                            $updateCont->deleteProductFromAUS($product);
                         }
                         $product->delete();
                     } else {

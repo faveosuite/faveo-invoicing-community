@@ -81,12 +81,12 @@ class LicenseStreamHandler
         ]);
     }
 
-    public static function search(string $searchType, string $searchKeyword): array
+    public static function search(string $searchType, string $searchKeyword, int $isLicenseSearchApi = 1): array
     {
         return self::handle('license_search', [
             'search_type' => $searchType,
             'search_keyword' => $searchKeyword,
-            'isLicenseSearchApi' => 1,
+            'isLicenseSearchApi' => $isLicenseSearchApi,
         ]);
     }
 
@@ -307,6 +307,76 @@ class LicenseStreamHandler
         }
 
         return ['productId' => '', 'code' => '', 'licenseId' => '', 'allowedInstalltion' => '', 'installationLimit' => ''];
+    }
+
+
+    public static function addNewProductToAUS(string $productId, string $productName, string $productSku, string $productKey): array
+    {
+        return self::handle('update_add_product', [
+            'product_id' => $productId,
+            'product_title' => $productName,
+            'product_sku' => $productSku,
+            'product_key' => $productKey,
+            'product_status' => 1,
+        ]);
+    }
+
+
+    public static function editProductToAUS(string $productName, string $productSku): array
+    {
+        $productId = self::searchProductId($productSku);
+
+        return self::handle('update_edit_product', [
+            'product_id' => $productId,
+            'product_title' => $productName,
+            'product_sku' => $productSku,
+            'product_status' => 1,
+        ]);
+    }
+
+    public static function deleteProductAUS(string $productSku): array
+    {
+        $productId = self::searchProductId($productSku);
+
+        return self::handle('update_delete_product', [
+            'product_id' => $productId,
+        ]);
+    }
+
+    public static function addNewVersion(string $productId, string $versionNumber, string $upgradeZipFile, $versionStatus): array
+    {
+        return self::handle('update_add_version', [
+            'product_id' => $productId,
+            'version_number' => $versionNumber,
+            'version_upgrade_file' => $upgradeZipFile,
+            'version_status' => $versionStatus,
+            'product_status' => 1,
+        ]);
+    }
+
+    public static function editVersion(string $versionNumber, string $productSku): array
+    {
+        $search = self::searchVersion($versionNumber, $productSku);
+
+        return self::handle('update_edit_version', [
+            'product_id' => $search['product_id'],
+            'version_id' => $search['version_id'],
+            'version_number' => $versionNumber,
+            'version_status' => 1,
+        ]);
+    }
+
+    public static function searchVersion(string $versionNumber, string $productSku): array
+    {
+        $data = self::search('version', $productSku, 0)['result']['data']['data'] ?? [];
+
+        foreach ($data as $detail) {
+            if (($detail['version_number'] ?? null) == $versionNumber) {
+                return ['version_id' => $detail['version_id'] ?? '', 'product_id' => $detail['product_id'] ?? ''];
+            }
+        }
+
+        return ['version_id' => '', 'product_id' => ''];
     }
 
     /**
