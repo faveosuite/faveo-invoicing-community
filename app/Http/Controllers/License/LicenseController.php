@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\License;
 
 use App\Http\Controllers\Controller;
+use App\Model\Common\StatusSetting;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Streams\License\LicenseStreamHandler;
@@ -12,14 +13,17 @@ class LicenseController extends Controller
 {
     private LicenseService $licenseService;
 
+    private bool $useStreams;
+
     public function __construct()
     {
         $this->licenseService = new LicenseService();
+        $this->useStreams = (bool) StatusSetting::value('use_streams');
     }
 
     private function isStreams(): bool
     {
-        return true;
+        return $this->useStreams;
     }
 
     private function getStreamSearchResults(string $searchType, string $searchKeyword): array
@@ -71,23 +75,6 @@ class LicenseController extends Controller
 
         return $request->get($url, $query)->json() ?? [];
     }
-
-    /**
-     * Return API key and API url.
-     */
-    public function getLicensekey(): array
-    {
-        if ($this->isStreams()) {
-            return ['data' => $this->getStreamResultData(LicenseStreamHandler::getLicenseKey()), 'url' => ''];
-        }
-
-        $url = $this->licenseService->getUrl();
-        $token = $this->licenseService->getValidToken();
-        $getkey = $this->getRequest('api/admin/viewApiKeys', useToken: ! empty($token));
-
-        return ['data' => $getkey, 'url' => $url];
-    }
-
     /*
     *  Add New Product
     */

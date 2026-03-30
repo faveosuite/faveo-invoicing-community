@@ -44,11 +44,6 @@ class LicenseStreamHandler
         return self::handle('stream_ping', ['test' => true]);
     }
 
-    public static function getLicenseKey(): array
-    {
-        return self::handle('license_get_key');
-    }
-
     public static function addNewProduct(string $productName, string $productSku): array
     {
         return self::handle('license_add_product', [
@@ -141,7 +136,7 @@ class LicenseStreamHandler
         $ipAndDomain = self::getIpAndDomain($domain);
         $searchLicense = self::searchLicenseId($licenseCode, $productId);
 
-        return self::handle('license_update_domain', [
+        return self::handle('license_update', [
             'product_id' => $searchLicense['productId'],
             'license_code' => $searchLicense['code'],
             'license_id' => $searchLicense['licenseId'],
@@ -159,7 +154,7 @@ class LicenseStreamHandler
 
     public static function updateInstalledDomain(string $licenseCode, $productId): array
     {
-        return self::handle('license_update_installed_domain', [
+        return self::handle('license_installation', [
             'license_code' => $licenseCode,
             'product_id' => $productId,
         ]);
@@ -170,7 +165,7 @@ class LicenseStreamHandler
         $ipAndDomain = self::getIpAndDomain($domain);
         $searchLicense = self::searchLicenseId($licenseCode, $productId);
 
-        return self::handle('license_update_expiration', [
+        return self::handle('license_update', [
             'product_id' => $searchLicense['productId'],
             'license_code' => $searchLicense['code'],
             'license_id' => $searchLicense['licenseId'],
