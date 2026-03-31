@@ -736,7 +736,7 @@ class HomeController extends BaseHomeController
         $response = app(LicenseController::class)->getPluginInfo($licenses);
 
         $updatedProducts = [];
-        $realProducts = $response['data'] ?? [];
+        $realProducts = $response;
         foreach ($realProducts as $realprod) {
             foreach ($realprod as $real) {
                 $dependency = \DB::table('product_uploads')

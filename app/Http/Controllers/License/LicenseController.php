@@ -66,8 +66,8 @@ class LicenseController extends Controller
         $url = $this->licenseService->getUrl().$endpoint;
         throttleApiRequest($url);
 
-        $request = Http::withOptions(['verify' => false])
-            ->timeout(90);
+        $request = Http::withOptions(['verify' => false, 'allow_redirects' => true])
+            ->connectTimeout(90);
 
         if ($useToken) {
             $request->withToken($this->licenseService->getValidToken());
@@ -756,8 +756,8 @@ class LicenseController extends Controller
             }
         }
 
-        $result = $this->postRequest('api/admin/getPluginInfo', [
-            'license_codes' => json_encode($licensesCodes),
+        $result = $this->getRequest('api/pluginLicense', [
+            'license_code' => json_encode($licensesCodes),
         ]);
 
         $data = $result['data'] ?? [];
