@@ -170,7 +170,7 @@ class LicenseController extends Controller
         ]);
 
         if (($result['api_error_detected'] ?? 1) == 0 && is_array($result['page_message'] ?? [])) {
-            return $result['page_message'][0]->product_id ?? '';
+            return $result['page_message'][0]['product_id'] ?? '';
         }
 
         return '';
@@ -244,7 +244,7 @@ class LicenseController extends Controller
         ]);
 
         if (($result['api_error_detected'] ?? 1) == 0 && is_array($result['page_message'] ?? [])) {
-            return $result['page_message'][0]->client_id ?? '';
+            return $result['page_message'][0]['client_id'] ?? '';
         }
 
         return '';
@@ -275,9 +275,9 @@ class LicenseController extends Controller
                 'license_domain' => $ipAndDomain['domain'],
                 'license_ip' => $ipAndDomain['ip'],
                 'license_limit' => 1,
-                'license_expire_date' => $licenseExpiry?->toDateString() ?? '',
-                'license_updates_date' => $updatesExpiry?->toDateString() ?? '',
-                'license_support_date' => $supportExpiry?->toDateString() ?? '',
+                'license_expire_date' => $this->formatDate($licenseExpiry),
+                'license_updates_date' => $this->formatDate($updatesExpiry),
+                'license_support_date' => $this->formatDate($supportExpiry),
                 'license_disable_ip_verification' => 0,
             ]);
         } catch (\Throwable $e) {
@@ -382,13 +382,13 @@ class LicenseController extends Controller
         }
 
         foreach ($result['page_message'] as $detail) {
-            if ($detail->product_id == $productId) {
+            if (($detail['product_id'] ?? null) == $productId) {
                 return [
-                    'productId' => $detail->product_id,
-                    'code' => $detail->license_code,
-                    'licenseId' => $detail->license_id,
-                    'allowedInstalltion' => $detail->license_require_domain,
-                    'installationLimit' => $detail->license_limit,
+                    'productId' => $detail['product_id'] ?? '',
+                    'code' => $detail['license_code'] ?? '',
+                    'licenseId' => $detail['license_id'] ?? '',
+                    'allowedInstalltion' => $detail['license_require_domain'] ?? '',
+                    'installationLimit' => $detail['license_limit'] ?? '',
                 ];
             }
         }
@@ -435,10 +435,10 @@ class LicenseController extends Controller
             }
 
             foreach ($result['page_message'] as $detail) {
-                if ($detail->product_id == $productId) {
+                if (($detail['product_id'] ?? null) == $productId) {
                     $this->postRequest('api/admin/installations/edit', [
-                        'installation_id' => $detail->installation_id,
-                        'installation_ip' => $detail->installation_ip,
+                        'installation_id' => $detail['installation_id'] ?? '',
+                        'installation_ip' => $detail['installation_ip'] ?? '',
                         'installation_status' => 0,
                         'delete_record' => 1,
                     ]);
@@ -669,11 +669,11 @@ class LicenseController extends Controller
         }
 
         return collect($result['page_message'])->map(fn ($item) => [
-            'installation_domain' => $item->installation_domain,
-            'installation_ip' => $item->installation_ip,
-            'installation_last_active_date' => $item->installation_last_active_date,
-            'installation_status' => $item->installation_status,
-            'version_number' => $item->version_number,
+            'installation_domain' => $item['installation_domain'] ?? '',
+            'installation_ip' => $item['installation_ip'] ?? '',
+            'installation_last_active_date' => $item['installation_last_active_date'] ?? '',
+            'installation_status' => $item['installation_status'] ?? '',
+            'version_number' => $item['version_number'] ?? '',
         ])->toArray();
     }
 

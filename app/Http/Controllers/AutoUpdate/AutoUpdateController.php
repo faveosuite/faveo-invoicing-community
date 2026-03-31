@@ -186,7 +186,7 @@ class AutoUpdateController extends Controller
         ]);
 
         if (($result['api_error_detected'] ?? 1) == 0 && is_array($result['page_message'] ?? [])) {
-            return $result['page_message'][0]->product_id ?? '';
+            return $result['page_message'][0]['product_id'] ?? '';
         }
 
         return '';
@@ -213,10 +213,9 @@ class AutoUpdateController extends Controller
 
             if (($result['api_error_detected'] ?? 1) == 0 && is_array($result['page_message'] ?? [])) {
                 foreach ($result['page_message'] as $detail) {
-                    $detail = (object) $detail;
-                    if ($detail->version_number == $version_number) {
-                        $versionId = $detail->version_id;
-                        $productId = $detail->product_id;
+                    if (($detail['version_number'] ?? null) == $version_number) {
+                        $versionId = $detail['version_id'] ?? '';
+                        $productId = $detail['product_id'] ?? '';
                     }
                 }
             }
