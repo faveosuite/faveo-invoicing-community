@@ -137,4 +137,14 @@ interface RedisAdapterInterface
      * @return mixed
      */
     public function pipeline();
+
+    /**
+     * Read messages from one or more streams, optionally blocking.
+     *
+     * @param  array  $streams  Associative array of stream => lastId (e.g. ['mystream' => '$'])
+     * @param  int  $count  Maximum number of messages per stream
+     * @param  int|null  $block  Milliseconds to block (null = non-blocking)
+     * @return array The messages keyed by stream name
+     */
+    public function xread(array $streams, int $count, ?int $block = null): array;
 }

@@ -123,27 +123,6 @@ class LicenseStreamHandlerTest extends TestCase
 
     public function test_wait_for_response_throws_on_timeout(): void
     {
-        // Create a handler with mocked internals
-        $reflection = new ReflectionClass(LicenseStreamHandler::class);
-        $handler = $reflection->newInstanceWithoutConstructor();
-
-        // Mock RedisAdapterManager to return our mock
-        $adapterMock = Mockery::mock(RedisAdapterInterface::class);
-        $adapterMock->shouldReceive('xrange')->andReturn([]);
-
-        // We need to mock the static create method
-        // Use a partial mock approach via overriding
-        $this->app->bind(RedisAdapterManager::class, function () use ($adapterMock) {
-            return $adapterMock;
-        });
-
-        $method = $reflection->getMethod('waitForResponse');
-        $method->setAccessible(true);
-
-        // Override TIMEOUT constant isn't possible, so we test with the actual method
-        // but this will take 30 seconds. Instead, let's test via a mock approach.
-
-        // Create a mock of the handler that overrides waitForResponse timeout
         $handler = new class extends LicenseStreamHandler
         {
             public function __construct()

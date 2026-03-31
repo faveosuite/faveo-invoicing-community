@@ -340,7 +340,13 @@ class LicenseController extends Controller
      */
     private function formatDate($date): string
     {
-        return strtotime($date) > 1 ? date('Y-m-d', strtotime($date)) : '';
+        if (empty($date)) {
+            return '';
+        }
+
+        $parsed = \Carbon\Carbon::parse($date);
+
+        return $parsed->year > 0 ? $parsed->toDateString() : '';
     }
 
     public function searchLicenseId($licenseCode, $productId): array

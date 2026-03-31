@@ -13,9 +13,10 @@ class LicenseStreamHandler
 {
     private const string REQUEST_STREAM = 'license_request';
     private const string RESPONSE_STREAM = 'license_responses';
-    private const int TIMEOUT = 30;
-    private const int POLL_INTERVAL_US = 100_000;
+    private const int TIMEOUT = 60;
     private const int MAX_STREAM_LEN = 10000;
+
+    private static ?self $instance = null;
 
     protected RedisStreamProducer $producer;
 
@@ -24,12 +25,21 @@ class LicenseStreamHandler
         $this->producer = new RedisStreamProducer(self::REQUEST_STREAM, self::MAX_STREAM_LEN);
     }
 
+    private static function getInstance(): self
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
+
     /**
      * Handle a license event by publishing to Redis stream and waiting for response.
      */
     protected static function handle(string $eventType, array $payload = []): array
     {
-        $instance = new self();
+        $instance = self::getInstance();
         $correlationId = (string) Str::uuid();
 
         $requestId = $instance->producer->publish($eventType, array_merge($payload, [
@@ -242,11 +252,13 @@ class LicenseStreamHandler
      */
     private static function formatExpiry($expiry): string
     {
-        if ($expiry === '') {
+        if (empty($expiry)) {
             return '';
         }
 
-        return is_string($expiry) ? $expiry : $expiry->toDateString();
+        $date = \Carbon\Carbon::parse($expiry);
+
+        return $date->year > 0 ? $date->toDateString() : '';
     }
 
     /**
@@ -374,49 +386,50 @@ class LicenseStreamHandler
     }
 
     /**
-     * Poll the response stream for a message matching the correlation ID.
+     * Wait for a response using XREAD BLOCK instead of polling.
+     * Redis notifies us when new data arrives — no wasted polls.
      */
     protected function waitForResponse(string $correlationId, string $requestId): array
     {
         $redis = RedisAdapterManager::create();
         $start = time();
-
-        // Start scanning from ~5 seconds before now to avoid scanning the entire stream
-        $startTimestamp = (int) (microtime(true) * 1000) - 5000;
-        $lastId = $startTimestamp.'-0';
-
+        $lastId = '0-0';
         while ((time() - $start) < self::TIMEOUT) {
-            $messages = $redis->xrange(self::RESPONSE_STREAM, $lastId, '+', 100);
+            $remaining = self::TIMEOUT - (time() - $start);
 
-            foreach ($messages as $id => $message) {
+            if ($remaining <= 0) {
+                break;
+            }
+
+            $blockMs = $remaining * 1000;
+            $streams = $redis->xread([self::RESPONSE_STREAM => $lastId], 100, $blockMs);
+
+            foreach ($streams[self::RESPONSE_STREAM] ?? [] as $id => $message) {
                 $data = json_decode($message['message'] ?? '{}', true);
 
                 if (($data['payload']['correlation_id'] ?? null) === $correlationId) {
-                    $result = $data['payload'] ?? [];
+                    $this->cleanup($redis, $requestId, $id);
 
-                    // Clean up: delete request and response messages
-                    try {
-                        $redis->xdel(self::REQUEST_STREAM, [$requestId]);
-                        $redis->xdel(self::RESPONSE_STREAM, [$id]);
-                    } catch (\Throwable $e) {
-                        // Cleanup failure is non-fatal
-                    }
-
-                    return $result;
+                    return $data['payload'] ?? [];
                 }
 
                 $lastId = $id;
             }
-
-            // Advance past last seen ID to avoid re-scanning
-            if ($messages) {
-                $parts = explode('-', $lastId);
-                $lastId = $parts[0].'-'.((int) $parts[1] + 1);
-            }
-
-            usleep(self::POLL_INTERVAL_US);
         }
 
         throw new RuntimeException("Timeout waiting for response (correlation_id: {$correlationId})");
+    }
+
+    /**
+     * Clean up request and response messages after a successful match.
+     */
+    private function cleanup($redis, string $requestId, string $responseId): void
+    {
+        try {
+            $redis->xdel(self::REQUEST_STREAM, [$requestId]);
+            $redis->xdel(self::RESPONSE_STREAM, [$responseId]);
+        } catch (\Throwable $e) {
+            // Cleanup failure is non-fatal
+        }
     }
 }

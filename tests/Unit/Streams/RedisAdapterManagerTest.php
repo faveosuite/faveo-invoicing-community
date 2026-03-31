@@ -12,6 +12,11 @@ use Tests\TestCase;
 
 class RedisAdapterManagerTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        RedisAdapterManager::reset();
+    }
     protected function tearDown(): void
     {
         Mockery::close();

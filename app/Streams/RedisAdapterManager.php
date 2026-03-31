@@ -10,8 +10,10 @@ use Illuminate\Support\Facades\Redis;
 
 class RedisAdapterManager
 {
+    private static ?RedisAdapterInterface $instance = null;
+
     /**
-     * Create a Redis adapter based on the driver in use.
+     * Create or return the cached Redis adapter based on the driver in use.
      *
      * @return RedisAdapterInterface
      *
@@ -19,19 +21,35 @@ class RedisAdapterManager
      */
     public static function create(): RedisAdapterInterface
     {
+        if (self::$instance !== null) {
+            return self::$instance;
+        }
+
         $driver = Redis::connection('streams')->client();
         $driverName = get_class($driver);
 
         // PhpRedis adapter
         if ($driverName === 'Redis' || str_contains($driverName, 'PhpRedis')) {
-            return new PhpRedisAdapter();
+            self::$instance = new PhpRedisAdapter();
+
+            return self::$instance;
         }
 
         // Predis adapter
         if (str_contains($driverName, 'Predis')) {
-            return new PredisAdapter();
+            self::$instance = new PredisAdapter();
+
+            return self::$instance;
         }
 
         throw new ConnectionException("Unsupported Redis driver: {$driverName}. Supported drivers are PhpRedis and Predis.");
+    }
+
+    /**
+     * Reset the cached instance (useful for testing).
+     */
+    public static function reset(): void
+    {
+        self::$instance = null;
     }
 }

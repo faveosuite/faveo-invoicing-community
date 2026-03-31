@@ -200,4 +200,18 @@ class PhpRedisAdapter implements RedisAdapterInterface
     {
         return $this->connection('streams')->pipeline();
     }
+
+    /**
+     * Read messages from streams, optionally blocking until data is available.
+     */
+    public function xread(array $streams, int $count, ?int $block = null): array
+    {
+        if ($block !== null) {
+            $result = $this->connection('streams')->xRead($streams, $count, $block);
+        } else {
+            $result = $this->connection('streams')->xRead($streams, $count);
+        }
+
+        return $result ?: [];
+    }
 }

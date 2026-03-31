@@ -293,6 +293,44 @@ class PredisAdapter implements RedisAdapterInterface
     }
 
     /**
+     * Read messages from streams, optionally blocking until data is available.
+     */
+    public function xread(array $streams, int $count, ?int $block = null): array
+    {
+        $args = ['XREAD'];
+
+        if ($block !== null) {
+            $args[] = 'BLOCK';
+            $args[] = (string) $block;
+        }
+
+        $args[] = 'COUNT';
+        $args[] = (string) $count;
+        $args[] = 'STREAMS';
+
+        foreach (array_keys($streams) as $name) {
+            $args[] = $name;
+        }
+        foreach (array_values($streams) as $lastId) {
+            $args[] = $lastId;
+        }
+
+        $result = $this->executeRaw($args);
+
+        if (! $result) {
+            return [];
+        }
+
+        $parsed = [];
+        foreach ($result as $streamData) {
+            $streamName = $streamData[0];
+            $parsed[$streamName] = $this->parseStreamEntries($streamData[1]);
+        }
+
+        return $parsed;
+    }
+
+    /**
      * Parse raw Redis stream entries into associative arrays.
      *
      * Converts [['id', ['f1', 'v1', 'f2', 'v2']], ...] to ['id' => ['f1' => 'v1', 'f2' => 'v2'], ...]
