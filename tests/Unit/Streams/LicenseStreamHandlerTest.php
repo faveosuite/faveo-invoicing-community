@@ -4,7 +4,6 @@ namespace Tests\Unit\Streams;
 
 use App\Streams\Adapters\RedisAdapterInterface;
 use App\Streams\License\LicenseStreamHandler;
-use App\Streams\RedisAdapterManager;
 use Mockery;
 use ReflectionClass;
 use RuntimeException;
