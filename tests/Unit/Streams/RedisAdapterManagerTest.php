@@ -17,6 +17,7 @@ class RedisAdapterManagerTest extends TestCase
         parent::setUp();
         RedisAdapterManager::reset();
     }
+
     protected function tearDown(): void
     {
         Mockery::close();
