@@ -54,8 +54,8 @@ The following versions are actively supported and receive security patches:
 
 | Version     | Supported          |
 |-------------|--------------------|
-| 4.0.2.5     | :white_check_mark: |
-| < 4.0.2.4 | :x:                |
+| 4.0.2.6     | :white_check_mark: |
+| < 4.0.2.5 | :x:                |
 
 ### Supported Updates
 
