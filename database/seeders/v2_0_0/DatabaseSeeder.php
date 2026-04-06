@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
 {
@@ -173,7 +174,27 @@ class ApiKeyTableSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('api_keys')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-        ApiKey::create(['id' => 1, 'rzp_key' => '', 'rzp_secret' => '', 'apilayer_key' => '', 'bugsnag_api_key' => '', 'zoho_api_key' => '', 'msg91_auth_key' => '', 'twitter_consumer_key' => '', 'twitter_consumer_secret' => '', 'twitter_access_token' => '', 'access_tooken_secret' => '', 'license_api_secret' => '', 'license_api_url' => '', 'update_api_url' => '', 'update_api_secret' => '', 'terms_url' => '', 'pipedrive_api_key' => '']);
+
+        $columns = Schema::getColumnListing('api_keys');
+        $values = [
+            'id' => 1,
+            'rzp_key' => '',
+            'rzp_secret' => '',
+            'apilayer_key' => '',
+            'bugsnag_api_key' => '',
+            'zoho_api_key' => '',
+            'msg91_auth_key' => '',
+            'twitter_consumer_key' => '',
+            'twitter_consumer_secret' => '',
+            'twitter_access_token' => '',
+            'access_tooken_secret' => '',
+            'update_api_url' => '',
+            'update_api_secret' => '',
+            'terms_url' => '',
+            'pipedrive_api_key' => '',
+        ];
+
+        ApiKey::create(array_intersect_key($values, array_flip($columns)));
     }
 }
 
@@ -838,7 +859,28 @@ class StatusSettingSeeder extends Seeder
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('status_settings')->truncate();
-        StatusSetting::create(['id' => 1, 'expiry_mail' => 0, 'activity_log_delete' => 0, 'license_status' => 0, 'github_status' => 0, 'mailchimp_status' => 0, 'twitter_status' => 0, 'msg91_status' => 0, 'emailverification_status' => 0, 'recaptcha_status' => 0, 'update_settings' => 0, 'zoho_status' => 0, 'rzp_status' => 0, 'mailchimp_product_status' => 0, 'mailchimp_ispaid_status' => 0, 'terms' => 0, 'pipedrive_status' => 0]);
+        $columns = Schema::getColumnListing('status_settings');
+        $values = [
+            'id' => 1,
+            'expiry_mail' => 0,
+            'activity_log_delete' => 0,
+            'github_status' => 0,
+            'mailchimp_status' => 0,
+            'twitter_status' => 0,
+            'msg91_status' => 0,
+            'emailverification_status' => 0,
+            'recaptcha_status' => 0,
+            'update_settings' => 0,
+            'update_status' => 0,
+            'zoho_status' => 0,
+            'rzp_status' => 0,
+            'mailchimp_product_status' => 0,
+            'mailchimp_ispaid_status' => 0,
+            'terms' => 0,
+            'pipedrive_status' => 0,
+        ];
+
+        StatusSetting::create(array_intersect_key($values, array_flip($columns)));
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }

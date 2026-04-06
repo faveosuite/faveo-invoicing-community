@@ -144,7 +144,8 @@
         "sort-packages": true,
         "optimize-autoloader": true,
         "allow-plugins": {
-            "endroid/installer": true
+            "endroid/installer": true,
+            "php-http/discovery": true
         }
     }
 }

@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
+use App\License\Models\Installation;
 use App\Model\Common\FaveoCloud;
-use App\Model\Common\StatusSetting;
-use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -86,8 +85,7 @@ class RenewController extends BaseRenewController
             if (Order::where('id', $sub->order_id)->value('license_mode') == 'File') {
                 Order::where('id', $sub->order_id)->update(['is_downloadable' => 0]);
             } else {
-                $licenseStatus = StatusSetting::pluck('license_status')->first();
-                if ($licenseStatus == 1 && $isAgentIncrease) {
+                if ($isAgentIncrease) {
                     $this->editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry);
                 }
             }
@@ -135,10 +133,7 @@ class RenewController extends BaseRenewController
             if (Order::where('id', $sub->order_id)->value('license_mode') == 'File') {
                 Order::where('id', $sub->order_id)->update(['is_downloadable' => 0]);
             } else {
-                $licenseStatus = StatusSetting::pluck('license_status')->first();
-                if ($licenseStatus == 1) {
-                    $this->editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry);
-                }
+                $this->editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry);
             }
             $this->removeSession();
         } catch (Exception $ex) {
@@ -155,12 +150,23 @@ class RenewController extends BaseRenewController
         $expiryDate = $updatesExpiry ? Carbon::parse($updatesExpiry)->format('Y-m-d') : '';
         $licenseExpiry = $licenseExpiry ? Carbon::parse($licenseExpiry)->format('Y-m-d') : '';
         $supportExpiry = $supportExpiry ? Carbon::parse($supportExpiry)->format('Y-m-d') : '';
-        $noOfAllowedInstallation = '';
-        $getInstallPreference = '';
-        $cont = new \App\Http\Controllers\License\LicenseController();
-        $noOfAllowedInstallation = $cont->getNoOfAllowedInstallation($licenseCode, $productId);
-        $getInstallPreference = $cont->getInstallPreference($licenseCode, $productId);
-        $updateLicensedDomain = $cont->updateExpirationDate($licenseCode, $expiryDate, $productId, $domain, $orderNo, $licenseExpiry, $supportExpiry, $noOfAllowedInstallation, $getInstallPreference);
+        $installService = app(\App\License\Services\InstallationService::class);
+        $licenseService = app(\App\License\Services\LicenseService::class);
+        $noOfAllowedInstallation = $installService->countActiveInstallations($licenseCode);
+        $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($domain);
+        $existingLicense = $licenseService->findByCode($licenseCode);
+        if ($existingLicense) {
+            $licenseService->update($existingLicense->id, [
+                'license_order_number' => $orderNo,
+                'license_domain' => $ipAndDomain['domain'],
+                'license_ip' => $ipAndDomain['ip'],
+                'license_require_domain' => $ipAndDomain['requireDomain'],
+                'license_expire_date' => $licenseExpiry,
+                'license_updates_date' => $expiryDate,
+                'license_support_date' => $supportExpiry,
+                'license_limit' => $noOfAllowedInstallation ?: 2,
+            ]);
+        }
     }
 
     //Tuesday, June 13, 2017 08:06 AM
@@ -269,7 +275,7 @@ class RenewController extends BaseRenewController
             $order_id = $sub->order_id;
             if ($request->has('agents')) {
                 $agents = $request->input('agents');
-                $installation_path = InstallationDetail::where('order_id', $order_id)->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
+                $installation_path = Installation::where('license_code', Order::find($order_id)->serial_key)->where('installation_path', '!=', cloudCentralDomain())->latest('updated_at')->value('installation_path');
                 if (empty($installation_path)) {
                     return response(['status' => false, 'message' => trans('message.no_installation_found')]);
                 }
@@ -362,9 +368,9 @@ class RenewController extends BaseRenewController
                 $agents = (int) $agentsInput;
 
                 // Check agent modification restrictions
-                $installationPath = InstallationDetail::where('order_id', $orderId)
+                $installationPath = Installation::where('license_code', Order::find($orderId)->serial_key)
                     ->where('installation_path', '!=', cloudCentralDomain())
-                    ->latest()
+                    ->latest('last_active')
                     ->value('installation_path');
 
                 if ($oldAgents != $agents) {

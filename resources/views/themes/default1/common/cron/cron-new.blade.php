@@ -465,6 +465,150 @@
             </div>
         </div>
 
+        <div class="col-md-6">
+            <div class="info-box">
+                <span class="info-box-icon bg-info" style="height: 70px;"><i class="fas fa-list-alt"></i></span>
+                <div class="info-box-content" style="display: block;">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-group">
+                                {!! html()->label('Installation Logs Cleanup <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Marks old installation logs as inactive."></i>')->for('installationlogs_fetching') !!}
+                                <br>
+                                {!! html()->checkbox('installationlogs_cron', $condition->checkActiveJob()['installationLogs'], 1)->id('installationlogs_fetching') !!}
+                                &nbsp; Enable Installation Logs Cron
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" id="installationlogs">
+                        {!! html()->select('installationlogs-commands', $commands, $condition->getConditionValue('installationLogs')['condition'])->class('form-control')->id('installationlogs-command') !!}
+                        <div id="installationlogs-daily-at">
+                            {!! html()->text('installationlogs-dailyAt', $condition->getConditionValue('installationLogs')['at'])->class('form-control time-picker')->placeholder('HH:MM') !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="info-box">
+                <span class="info-box-icon bg-info" style="height: 70px;"><i class="fas fa-file-alt"></i></span>
+                <div class="info-box-content" style="display: block;">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-group">
+                                {!! html()->label('License Reports Cleanup <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Deletes old license reports."></i>')->for('licensereports_fetching') !!}
+                                <br>
+                                {!! html()->checkbox('licensereports_cron', $condition->checkActiveJob()['licenseReportsCleanup'], 1)->id('licensereports_fetching') !!}
+                                &nbsp; Enable License Reports Cron
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" id="licensereports">
+                        {!! html()->select('licensereports-commands', $commands, $condition->getConditionValue('licenseReportsCleanup')['condition'])->class('form-control')->id('licensereports-command') !!}
+                        <div id="licensereports-daily-at">
+                            {!! html()->text('licensereports-dailyAt', $condition->getConditionValue('licenseReportsCleanup')['at'])->class('form-control time-picker')->placeholder('HH:MM') !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="info-box">
+                <span class="info-box-icon bg-info" style="height: 70px;"><i class="fas fa-phone"></i></span>
+                <div class="info-box-content" style="display: block;">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-group">
+                                {!! html()->label('License Callbacks Cleanup <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Deletes old license callback records."></i>')->for('licensecallbacks_fetching') !!}
+                                <br>
+                                {!! html()->checkbox('licensecallbacks_cron', $condition->checkActiveJob()['licenseCallbacksCleanup'], 1)->id('licensecallbacks_fetching') !!}
+                                &nbsp; Enable License Callbacks Cron
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" id="licensecallbacks">
+                        {!! html()->select('licensecallbacks-commands', $commands, $condition->getConditionValue('licenseCallbacksCleanup')['condition'])->class('form-control')->id('licensecallbacks-command') !!}
+                        <div id="licensecallbacks-daily-at">
+                            {!! html()->text('licensecallbacks-dailyAt', $condition->getConditionValue('licenseCallbacksCleanup')['at'])->class('form-control time-picker')->placeholder('HH:MM') !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="info-box">
+                <span class="info-box-icon bg-info" style="height: 70px;"><i class="fas fa-bug"></i></span>
+                <div class="info-box-content" style="display: block;">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-group">
+                                {!! html()->label('License Crack Reports Cleanup <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Deletes old license crack reports."></i>')->for('licensecrack_fetching') !!}
+                                <br>
+                                {!! html()->checkbox('licensecrack_cron', $condition->checkActiveJob()['licenseCrackReportsCleanup'], 1)->id('licensecrack_fetching') !!}
+                                &nbsp; Enable License Crack Reports Cron
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" id="licensecrack">
+                        {!! html()->select('licensecrack-commands', $commands, $condition->getConditionValue('licenseCrackReportsCleanup')['condition'])->class('form-control')->id('licensecrack-command') !!}
+                        <div id="licensecrack-daily-at">
+                            {!! html()->text('licensecrack-dailyAt', $condition->getConditionValue('licenseCrackReportsCleanup')['at'])->class('form-control time-picker')->placeholder('HH:MM') !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="info-box">
+                <span class="info-box-icon bg-info" style="height: 70px;"><i class="fas fa-desktop"></i></span>
+                <div class="info-box-content" style="display: block;">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-group">
+                                {!! html()->label('License System Reports Cleanup <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Deletes old license system reports."></i>')->for('licensesystem_fetching') !!}
+                                <br>
+                                {!! html()->checkbox('licensesystem_cron', $condition->checkActiveJob()['licenseSystemReportsCleanup'], 1)->id('licensesystem_fetching') !!}
+                                &nbsp; Enable License System Reports Cron
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" id="licensesystem">
+                        {!! html()->select('licensesystem-commands', $commands, $condition->getConditionValue('licenseSystemReportsCleanup')['condition'])->class('form-control')->id('licensesystem-command') !!}
+                        <div id="licensesystem-daily-at">
+                            {!! html()->text('licensesystem-dailyAt', $condition->getConditionValue('licenseSystemReportsCleanup')['at'])->class('form-control time-picker')->placeholder('HH:MM') !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="info-box">
+                <span class="info-box-icon bg-info" style="height: 70px;"><i class="fas fa-upload"></i></span>
+                <div class="info-box-content" style="display: block;">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-group">
+                                {!! html()->label('License Versions Cleanup <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Deletes old unpublished product version uploads."></i>')->for('licenseversions_fetching') !!}
+                                <br>
+                                {!! html()->checkbox('licenseversions_cron', $condition->checkActiveJob()['licenseVersionsCleanup'], 1)->id('licenseversions_fetching') !!}
+                                &nbsp; Enable License Versions Cron
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" id="licenseversions">
+                        {!! html()->select('licenseversions-commands', $commands, $condition->getConditionValue('licenseVersionsCleanup')['condition'])->class('form-control')->id('licenseversions-command') !!}
+                        <div id="licenseversions-daily-at">
+                            {!! html()->text('licenseversions-dailyAt', $condition->getConditionValue('licenseVersionsCleanup')['at'])->class('form-control time-picker')->placeholder('HH:MM') !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 <div class="card-footer">
@@ -517,6 +661,12 @@
             { checkbox: 'msg91_fetching', section: 'msg91', select: 'msg91-command', daily: 'msg91-daily-at' },
             { checkbox: 'reoon_fetching', section: 'reoon', select: 'reoon-command', daily: 'reoon-daily-at' },
             { checkbox: 'systemlogs_fetching', section: 'systemlogs', select: 'systemlogs-command', daily: 'systemlogs-daily-at' },
+            { checkbox: 'installationlogs_fetching', section: 'installationlogs', select: 'installationlogs-command', daily: 'installationlogs-daily-at' },
+            { checkbox: 'licensereports_fetching', section: 'licensereports', select: 'licensereports-command', daily: 'licensereports-daily-at' },
+            { checkbox: 'licensecallbacks_fetching', section: 'licensecallbacks', select: 'licensecallbacks-command', daily: 'licensecallbacks-daily-at' },
+            { checkbox: 'licensecrack_fetching', section: 'licensecrack', select: 'licensecrack-command', daily: 'licensecrack-daily-at' },
+            { checkbox: 'licensesystem_fetching', section: 'licensesystem', select: 'licensesystem-command', daily: 'licensesystem-daily-at' },
+            { checkbox: 'licenseversions_fetching', section: 'licenseversions', select: 'licenseversions-command', daily: 'licenseversions-daily-at' },
         ];
 
         config.forEach(({ checkbox, section, select, daily }) => {

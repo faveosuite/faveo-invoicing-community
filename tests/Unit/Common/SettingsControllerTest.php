@@ -50,15 +50,6 @@ class SettingsControllerTest extends DBTestCase
         $response->assertStatus(302);
     }
 
-    public function test_license_keys_endpoint_returns_expected_keys()
-    {
-        $user = User::factory()->create(['role' => 'admin']);
-        $this->actingAs($user);
-        $apiKey = ApiKey::factory()->create();
-        $methodResponse = $this->getPrivateMethod($this->classObject, 'licensekeys', [$apiKey]);
-        $this->assertNotEmpty($methodResponse->content());
-    }
-
     public function test_returns_mobile_verification_details()
     {
         $user = User::factory()->create(['role' => 'admin']);

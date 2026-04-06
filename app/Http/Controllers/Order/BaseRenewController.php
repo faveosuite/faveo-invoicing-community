@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\Controller;
-use App\Model\Order\InstallationDetail;
+use App\License\Models\Installation;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -153,7 +153,7 @@ class BaseRenewController extends Controller
             $items = $controller->createInvoiceItemsByAdmin($invoice->id, $product->id, $renewalPrice, $currency, $qty = 1, $agents, $planid, $user->id, $tax_name, $tax_rate, $renewalPrice);
             if (in_array($product->id, cloudPopupProducts())) {
                 $license_code = Order::where('id', $orderid)->value('serial_key');
-                $installation_path = InstallationDetail::where('order_id', $orderid)->latest()->value('installation_path');
+                $installation_path = Installation::where('license_code', Order::find($orderid)->serial_key)->latest('updated_at')->value('installation_path');
                 \Session::put('AgentAlterationRenew', $user->id);
                 \Session::put('newAgentsRenew', $agents);
                 \Session::put('orderIdRenew', $orderid);

@@ -975,11 +975,10 @@ class ClientController extends BaseClientController
             $product = $order->product()->first();
             $price = $product->price()->first();
 
-            [$allowDomainStatus,$licenseStatus] = array_values(StatusSetting::select('domain_check', 'license_status')->first()->toArray());
+            $allowDomainStatus = StatusSetting::pluck('domain_check')->first();
             $installationDetails = [];
 
-            $cont = app(\App\Http\Controllers\License\LicenseController::class);
-            $installationDetails = $cont->searchInstallationPath($order->serial_key, $order->product);
+            $installationDetails = app(\App\License\Services\InstallationService::class)->getInstallationsByProduct($order->serial_key, $order->product);
 
             $statusAutorenewal = Subscription::where('order_id', $id)->value('is_subscribed');
 
@@ -1038,8 +1037,8 @@ class ClientController extends BaseClientController
             $planid = \App\Model\Payment\Plan::where('product', $product->id)->value('id');
             $price = $order->price_override;
 
-            $installation_path = \App\Model\Order\InstallationDetail::where('order_id', $id)
-                ->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
+            $installation_path = \App\License\Models\Installation::where('license_code', $order->serial_key)
+                ->where('installation_path', '!=', cloudCentralDomain())->latest('updated_at')->value('installation_path');
             $latestAgents = ltrim(substr($order->serial_key, 12), '0');
             $terminatedOrderId = \DB::table('terminated_order_upgrade')->where('upgraded_order_id', $order->id)->value('terminated_order_id');
             $terminatedOrderNumber = \App\Model\Order\Order::where('id', $terminatedOrderId)->value('number');
@@ -1063,7 +1062,7 @@ class ClientController extends BaseClientController
 
             return view(
                 'themes.default1.front.clients.show-order',
-                compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date',
+                compact('invoice', 'order', 'user', 'product', 'subscription', 'installationDetails', 'allowDomainStatus', 'date',
                     'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment', 'stripe_key', 'json', 'gateways',
                     'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal', 'whatsappStatus', 'app_id', 'config_id', 'autorenewal_status', 'actualWhatsappStatus',
                 )

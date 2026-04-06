@@ -70,6 +70,12 @@
                    $msg91Status = \App\Model\Common\StatusSetting::pluck('msg91_report_delete_status')->first();
          $reoonStatus=\App\Model\Common\StatusSetting::pluck('reoon_deletion_status')->first();
          $systemLogStatus = \App\Model\Common\StatusSetting::pluck('system_log_status')->first();
+         $installationLogsStatus = \App\Model\Common\StatusSetting::pluck('installation_logs_status')->first();
+         $licenseReportsStatus = \App\Model\Common\StatusSetting::pluck('license_reports_cleanup_status')->first();
+         $licenseCallbacksStatus = \App\Model\Common\StatusSetting::pluck('license_callbacks_cleanup_status')->first();
+         $licenseCrackStatus = \App\Model\Common\StatusSetting::pluck('license_crack_reports_cleanup_status')->first();
+         $licenseSystemStatus = \App\Model\Common\StatusSetting::pluck('license_system_reports_cleanup_status')->first();
+         $licenseVersionsStatus = \App\Model\Common\StatusSetting::pluck('license_versions_cleanup_status')->first();
 
 
          ?>
@@ -284,6 +290,109 @@
                             @endif
                         </div>
                     </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Installation Logs Older Than..</label>
+                                @if ($installationLogsStatus == 0)
+                                    <select name="installation_logs_days" class="form-control selectpicker" style="width: 100%; color:black;" disabled>
+                                        <option value="">Please Enable Installation Logs Cleanup Cron</option>
+                                    </select>
+                                @else
+                                    <select name="installation_logs_days" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" style="width: 100%;">
+                                        @foreach ($licenseCleanupDays as $key=>$value)
+                                            <option value="{{$key}}" <?php echo (in_array($key, $installationLogsDays)) ? 'selected' : ''; ?>>{{$value}}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>License Reports Older Than..</label>
+                                @if ($licenseReportsStatus == 0)
+                                    <select name="license_reports_days" class="form-control selectpicker" style="width: 100%; color:black;" disabled>
+                                        <option value="">Please Enable License Reports Cleanup Cron</option>
+                                    </select>
+                                @else
+                                    <select name="license_reports_days" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" style="width: 100%;">
+                                        @foreach ($licenseCleanupDays as $key=>$value)
+                                            <option value="{{$key}}" <?php echo (in_array($key, $licenseReportsCleanupDays)) ? 'selected' : ''; ?>>{{$value}}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>License Callbacks Older Than..</label>
+                                @if ($licenseCallbacksStatus == 0)
+                                    <select name="license_callbacks_days" class="form-control selectpicker" style="width: 100%; color:black;" disabled>
+                                        <option value="">Please Enable License Callbacks Cleanup Cron</option>
+                                    </select>
+                                @else
+                                    <select name="license_callbacks_days" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" style="width: 100%;">
+                                        @foreach ($licenseCleanupDays as $key=>$value)
+                                            <option value="{{$key}}" <?php echo (in_array($key, $licenseCallbacksCleanupDays)) ? 'selected' : ''; ?>>{{$value}}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>License Crack Reports Older Than..</label>
+                                @if ($licenseCrackStatus == 0)
+                                    <select name="license_crack_days" class="form-control selectpicker" style="width: 100%; color:black;" disabled>
+                                        <option value="">Please Enable License Crack Reports Cleanup Cron</option>
+                                    </select>
+                                @else
+                                    <select name="license_crack_days" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" style="width: 100%;">
+                                        @foreach ($licenseCleanupDays as $key=>$value)
+                                            <option value="{{$key}}" <?php echo (in_array($key, $licenseCrackReportsCleanupDays)) ? 'selected' : ''; ?>>{{$value}}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>License System Reports Older Than..</label>
+                                @if ($licenseSystemStatus == 0)
+                                    <select name="license_system_days" class="form-control selectpicker" style="width: 100%; color:black;" disabled>
+                                        <option value="">Please Enable License System Reports Cleanup Cron</option>
+                                    </select>
+                                @else
+                                    <select name="license_system_days" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" style="width: 100%;">
+                                        @foreach ($licenseCleanupDays as $key=>$value)
+                                            <option value="{{$key}}" <?php echo (in_array($key, $licenseSystemReportsCleanupDays)) ? 'selected' : ''; ?>>{{$value}}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>License Versions Older Than..</label>
+                                @if ($licenseVersionsStatus == 0)
+                                    <select name="license_versions_days" class="form-control selectpicker" style="width: 100%; color:black;" disabled>
+                                        <option value="">Please Enable License Versions Cleanup Cron</option>
+                                    </select>
+                                @else
+                                    <select name="license_versions_days" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" style="width: 100%;">
+                                        @foreach ($licenseCleanupDays as $key=>$value)
+                                            <option value="{{$key}}" <?php echo (in_array($key, $licenseVersionsCleanupDays)) ? 'selected' : ''; ?>>{{$value}}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
+                            </div>
+                        </div>
+
           </div>
           <!-- /.row -->
      </div>

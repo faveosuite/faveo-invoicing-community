@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\ApiKey;
 use App\Http\Controllers\Common\CronController;
 use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Order\RenewController;
 use App\Http\Requests\ProductRenewalRequest;
+use App\License\Models\Installation;
+use App\License\Models\License;
 use App\Model\Configure\PluginCompatibleWithProducts;
 use App\Model\Configure\ProductPluginGroup;
 use App\Model\License\LicenseType;
-use App\Model\Order\InstallationDetail;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
@@ -20,7 +20,6 @@ use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\User;
 use Exception;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
 class HomeController extends BaseHomeController
@@ -538,7 +537,9 @@ class HomeController extends BaseHomeController
     public function renewurl(ProductRenewalRequest $request)
     {
         try {
-            $orderId = InstallationDetail::Where('installation_path', 'like', '%'.$request->input('domain').'%')->value('order_id');
+            $licenseCode = Installation::where('installation_path', 'like', '%'.$request->input('domain').'%')->value('license_code');
+            $orderNumber = License::where('license_code', $licenseCode)->value('license_order_number');
+            $orderId = Order::where('number', $orderNumber)->value('id');
             $subscription = Subscription::where('order_id', $orderId)->first();
 
             $basecron = new CronController();
@@ -734,31 +735,20 @@ class HomeController extends BaseHomeController
 
         $licenses = array_merge([$license], $licenses);
 
-        $client = new Client();
-
-        $licenseUrl = ApiKey::value('license_api_url');
-
-        throttleApiRequest($licenseUrl.'api/pluginLicense');
-
-        $response = $client->get($licenseUrl.'api/pluginLicense', [
-            'query' => ['license_code' => json_encode($licenses)],
-        ]);
+        $pluginLicenses = app(\App\License\Services\LicenseService::class)->getPluginLicenses($licenses);
 
         $updatedProducts = [];
-        $products = json_decode($response->getBody()->getContents(), true);
-        $realProducts = json_decode($products['data'], true);
-        foreach ($realProducts as $realprod) {
-            foreach ($realprod as $real) {
-                $dependency = \DB::table('product_uploads')
-                    ->where('product_id', $real['product_id'])
-                    ->where('version', $real['version'])
-                    ->latest()
-                    ->value('dependencies');
+        foreach ($pluginLicenses as $real) {
+            $dependency = \DB::table('product_uploads')
+                ->where('product_id', $real['product_id'])
+                ->where('version', $real['latest_version'])
+                ->latest()
+                ->value('dependencies');
 
-                $real['dependency'] = $dependency ?? null;
+            $real['version'] = $real['latest_version'];
+            $real['dependency'] = $dependency ?? null;
 
-                $updatedProducts[] = $real;
-            }
+            $updatedProducts[] = $real;
         }
 
         return json_encode($updatedProducts);

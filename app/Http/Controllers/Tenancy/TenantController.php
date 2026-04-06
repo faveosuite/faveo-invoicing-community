@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Tenancy;
 
 use App\CloudPopUp;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\License\LicenseController;
 use App\Jobs\ReportExport;
 use App\Model\CloudDataCenters;
 use App\Model\Common\Country;
@@ -531,7 +530,7 @@ class TenantController extends Controller
                     $this->statusChange($request->orderId);
                 }
 //                (empty($request->orderId)) ?: Order::where('number', $request->get('orderId'))->delete();
-                (new LicenseController())->reissueDomain($request->input('id'));
+                app(\App\License\Services\InstallationService::class)->reissue($request->input('id'));
 
                 $loggingUser = \Auth::check()
                     ? "<a href='".url('clients/'.\Auth::id())."'>".\Auth::user()->first_name.' '.\Auth::user()->last_name.'</a>'
@@ -687,16 +686,28 @@ class TenantController extends Controller
         $order->domain = '';
         $licenseCode = $order->serial_key;
         $order->save();
-        $licenseStatus = \DB::table('status_settings')->pluck('license_status')->first();
-        if ($licenseStatus == 1) {
-            $licenseExpiry = $order->subscription->ends_at;
-            $updatesExpiry = $order->subscription->update_ends_at;
-            $supportExpiry = $order->subscription->support_ends_at;
-            $cont = new \App\Http\Controllers\License\LicenseController();
-            $updateLicensedDomain = $cont->updateLicensedDomain($licenseCode, $order->domain, $order->product, $licenseExpiry, $updatesExpiry, $supportExpiry, $order->number);
-            //Now make Installation status as inactive
-            $updateInstallStatus = $cont->updateInstalledDomain($licenseCode, $order->product);
+        $licenseExpiry = $order->subscription->ends_at;
+        $updatesExpiry = $order->subscription->update_ends_at;
+        $supportExpiry = $order->subscription->support_ends_at;
+        $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($order->domain);
+        $l_expiry = strtotime($licenseExpiry) > 1 ? date('Y-m-d', strtotime($licenseExpiry)) : '';
+        $u_expiry = strtotime($updatesExpiry) > 1 ? date('Y-m-d', strtotime($updatesExpiry)) : '';
+        $s_expiry = strtotime($supportExpiry) > 1 ? date('Y-m-d', strtotime($supportExpiry)) : '';
+        $licenseService = app(\App\License\Services\LicenseService::class);
+        $existingLicense = $licenseService->findByCode($licenseCode);
+        if ($existingLicense) {
+            $licenseService->update($existingLicense->id, [
+                'license_order_number' => $order->number,
+                'license_require_domain' => $ipAndDomain['requireDomain'],
+                'license_expire_date' => $l_expiry ?: $existingLicense->license_expire_date,
+                'license_updates_date' => $u_expiry ?: $existingLicense->license_updates_date,
+                'license_support_date' => $s_expiry ?: $existingLicense->license_support_date,
+                'license_domain' => $ipAndDomain['domain'],
+                'license_ip' => $ipAndDomain['ip'],
+            ]);
         }
+        //Now make Installation status as inactive
+        app(\App\License\Services\InstallationService::class)->updateByLicenseCode($licenseCode, ['installation_status' => 0]);
 
         return ['message' => 'success', 'update' => __('message.license_installations_removed')];
     }

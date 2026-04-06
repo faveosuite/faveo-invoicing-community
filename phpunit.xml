@@ -11,6 +11,7 @@
         </testsuite>
         <testsuite name="modules">
             <directory>./app/BillingLog</directory>
+            <directory>./app/License</directory>
         </testsuite>
     </testsuites>
     <coverage>

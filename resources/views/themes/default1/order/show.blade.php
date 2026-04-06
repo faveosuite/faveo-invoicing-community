@@ -285,10 +285,10 @@ input:checked + .slider:before {
                                                    <tr>
                                                        <td><b>{{ __('message.installation_limit') }}:</b></td>
                                                        <td>
-                                                           {{$noOfAllowedInstallation}}
+                                                           {{$licenseLimit}}
                                                        </td>
                                                        <td>
-                                                           <button class="btn btn-sm btn-secondary btn-xs"  id="installlimit" limit-id="{{$order->id}}" install-limit="{{$noOfAllowedInstallation}}"><i class="fa fa-edit" style='color:white;' {!! tooltip( __('message.edit')) !!}</i></button>
+                                                           <button class="btn btn-sm btn-secondary btn-xs"  id="installlimit" limit-id="{{$order->id}}" install-limit="{{$licenseLimit}}"><i class="fa fa-edit" style='color:white;' {!! tooltip( __('message.edit')) !!}</i></button>
 
                                                        </td>
 

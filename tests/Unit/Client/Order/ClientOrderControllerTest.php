@@ -97,34 +97,6 @@ class ClientOrderControllerTest extends DBTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Group('order')]
-    public function test_fails_due_to_invalid_license_key()
-    {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-        $this->withoutMiddleware();
-        $product = Product::factory()->create();
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $invoiceItem = InvoiceItem::create([
-            'invoice_id' => $invoice->id,
-            'product_name' => 'Helpdesk Advance',
-            'regular_price' => 10000,
-            'quantity' => 1,
-            'tax_name' => 'CGST+SGST',
-            'tax_percentage' => 18,
-            'subtotal' => 11800,
-            'domain' => 'faveo.com',
-            'plan_id' => 1,
-        ]);
-        $order = Order::factory()->create(['invoice_id' => $invoice->id,
-            'invoice_item_id' => $invoiceItem->id, 'client' => $user->id, 'product' => $product->id]);
-        $subscription = Subscription::create(['user_id' => $user->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
-
-        $response = $this->call('get', 'my-order/'.$order->id);
-
-        $response->assertSessionHas('fails', 'Please configure the valid license details in Apikey settings.');
-    }
-
-    #[\PHPUnit\Framework\Attributes\Group('order')]
     public function test_successful_when_license_mocked()
     {
         $user = User::factory()->create();
@@ -146,15 +118,17 @@ class ClientOrderControllerTest extends DBTestCase
         $order = Order::factory()->create(['invoice_id' => $invoice->id,
             'invoice_item_id' => $invoiceItem->id, 'client' => $user->id, 'product' => $product->id]);
         $subscription = Subscription::create(['user_id' => $user->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
+        \App\ApiKey::create(['rzp_key' => 'test_key', 'rzp_secret' => 'test_secret', 'stripe_key' => 'test_stripe']);
+        \App\Model\Common\Setting::create(['id' => 1, 'autorenewal_status' => 1]);
         $serialKey = 'eertrertyuhgbvfdrgtyujhnbvfdrethgbf';
         $productId = 1;
-        $mock = Mockery::mock(\App\Http\Controllers\License\LicenseController::class);
-        $mock->shouldReceive('searchInstallationPath')
+        $mock = Mockery::mock(\App\License\Services\InstallationService::class);
+        $mock->shouldReceive('getInstallationsByProduct')
             ->withAnyArgs()
             ->once()
-            ->andReturn(['path' => '/mocked']);
+            ->andReturn(['installed_path' => ['/mocked'], 'installed_ip' => [], 'installation_date' => [], 'installation_status' => []]);
 
-        $this->app->instance(\App\Http\Controllers\License\LicenseController::class, $mock);
+        $this->app->instance(\App\License\Services\InstallationService::class, $mock);
         $response = $this->call('get', 'my-order/'.$order->id);
         $response->assertStatus(200);
         $response->assertViewIs('themes.default1.front.clients.show-order');

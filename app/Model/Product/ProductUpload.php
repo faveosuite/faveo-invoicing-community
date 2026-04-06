@@ -11,7 +11,7 @@ class ProductUpload extends Model
 
     protected $table = 'product_uploads';
 
-    protected $fillable = ['product_id', 'title', 'description', 'version', 'file', 'is_private', 'is_restricted', 'release_type', 'dependencies'];
+    protected $fillable = ['product_id', 'title', 'description', 'version', 'file', 'is_private', 'is_restricted', 'release_type', 'dependencies', 'version_expire_date', 'version_install_count', 'status'];
 
     protected $logName = 'product';
 
@@ -46,6 +46,23 @@ class ProductUpload extends Model
     public function order()
     {
         return $this->belongsTo(\App\Model\Order\Order::class);
+    }
+
+    public function callbacks()
+    {
+        return $this->hasMany(\App\License\Models\VersionCallback::class, 'version_id');
+    }
+
+    public function installations()
+    {
+        return $this->hasMany(\App\License\Models\VersionInstallation::class, 'version_id');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('status', 1);
+        });
     }
 
     public function getDependenciesAttribute($value)

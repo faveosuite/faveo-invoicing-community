@@ -29,8 +29,6 @@ class ApiKeyFactory extends Factory
             'twitter_consumer_secret' => $this->faker->sha1,
             'twitter_access_token' => $this->faker->sha1,
             'access_tooken_secret' => $this->faker->sha1,
-            'license_api_secret' => $this->faker->md5,
-            'license_api_url' => $this->faker->url,
             'nocaptcha_sitekey' => $this->faker->sha1,
             'captcha_secretCheck' => $this->faker->sha1,
             'update_api_url' => $this->faker->url,
@@ -39,9 +37,6 @@ class ApiKeyFactory extends Factory
             'pipedrive_api_key' => $this->faker->sha1,
             'stripe_key' => $this->faker->sha1,
             'stripe_secret' => $this->faker->sha1,
-            'license_client_id' => $this->faker->sha1,
-            'license_client_secret' => $this->faker->sha1,
-            'license_grant_type' => 'client_credentials',
         ];
     }
 }

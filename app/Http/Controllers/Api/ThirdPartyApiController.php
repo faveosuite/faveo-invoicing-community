@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Model\Common\StatusSetting;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Traits\Upload\ChunkUpload;
@@ -72,11 +71,8 @@ class ThirdPartyApiController extends Controller
                 $this->product_upload->dependencies = json_encode($request->input('dependencies'));
                 $this->product_upload->save();
                 $this->product->where('id', $product_id->id)->update(['version' => $request->input('version')]);
-                $autoUpdateStatus = StatusSetting::pluck('license_status')->first();
-                if ($autoUpdateStatus == 1) { //If License Setting Status is on,Add Product to the License Manager
-                    $updateClassObj = new \App\Http\Controllers\AutoUpdate\AutoUpdateController();
-                    $addProductToAutoUpdate = $updateClassObj->addNewVersion($product_id->id, $request->input('version'), $request->input('filename'), '1');
-                }
+                $updateClassObj = new \App\Http\Controllers\AutoUpdate\AutoUpdateController();
+                $addProductToAutoUpdate = $updateClassObj->addNewVersion($product_id->id, $request->input('version'), $request->input('filename'), '1');
                 $response = ['success' => 'true', 'message' => __('message.product_uploaded_successfully')];
             } else {
                 $response = ['success' => 'fails', 'message' => __('message.product_not_found')];

@@ -4,13 +4,12 @@ namespace App\Http\Controllers\Tenancy;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\CartController;
-use App\Http\Controllers\License\LicenseController;
 use App\Http\Controllers\Order\RenewController;
+use App\License\Models\Installation;
 use App\Model\CloudDataCenters;
 use App\Model\Common\Country;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\State;
-use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
@@ -94,7 +93,7 @@ class CloudExtraActivities extends Controller
     public function orderDomainCloudAutofill(Request $request)
     {
         // Output the modified domain value
-        $installtion_path = InstallationDetail::where('order_id', $request->orderId)->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
+        $installtion_path = Installation::where('license_code', Order::find($request->orderId)->serial_key)->where('installation_path', '!=', cloudCentralDomain())->latest('updated_at')->value('installation_path');
         if (! empty($installtion_path)) {
             return response()->json(['data' => $installtion_path]);
         }
@@ -241,7 +240,7 @@ class CloudExtraActivities extends Controller
             if ($order->client != \Auth::user()->id) {
                 return errorResponse(trans('message.invalid_user'));
             }
-            $installation_path = InstallationDetail::where('order_id', $orderId)->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
+            $installation_path = Installation::where('license_code', $order->serial_key)->where('installation_path', '!=', cloudCentralDomain())->latest('updated_at')->value('installation_path');
             if (empty($installation_path)) {
                 return errorResponse(trans('message.installation_path_not_found'));
             }
@@ -293,7 +292,7 @@ class CloudExtraActivities extends Controller
                 return errorResponse(trans('message.invalid_user'));
             }
             $oldLicense = $order->serial_key;
-            $installation_path = InstallationDetail::where('order_id', $orderId)->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
+            $installation_path = Installation::where('license_code', $oldLicense)->where('installation_path', '!=', cloudCentralDomain())->latest('updated_at')->value('installation_path');
 //            if (empty($installation_path)) {
 //                return errorResponse(trans('message.installation_path_not_found'));
 //            }
@@ -846,7 +845,7 @@ class CloudExtraActivities extends Controller
             }
 
             $license_code = substr($oldLicense, 0, -4).$lastFour;
-            (new LicenseController())->updateLicense($license_code, $oldLicense);
+            app(\App\License\Services\LicenseService::class)->updateLicenseCode($oldLicense, $license_code);
             Order::where('id', $orderId)->update(['serial_key' => \Crypt::encrypt(substr($license_code, 0, 12).$lastFour)]);
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
             $token = str_random(32);

@@ -295,6 +295,17 @@ class BaseSettingsController extends PaymentSettingsController
         $ReeonLogDeletionDays[] = ExpiryMailDay::first()->reoon_logs_days;
         $systemLogsDeletionDays[] = ExpiryMailDay::first()->system_logs_days;
 
+        $licenseCleanupDays = [
+            '720' => '720 Days', '365' => '365 Days', '180' => '180 Days',
+            '90' => '90 Days', '30' => '30 Days', '15' => '15 Days', '7' => '7 Days', '1' => '1 Day',
+        ];
+        $installationLogsDays[] = ExpiryMailDay::first()->installation_logs_expire_days;
+        $licenseReportsCleanupDays[] = ExpiryMailDay::first()->license_reports_cleanup_days;
+        $licenseCallbacksCleanupDays[] = ExpiryMailDay::first()->license_callbacks_cleanup_days;
+        $licenseCrackReportsCleanupDays[] = ExpiryMailDay::first()->license_crack_reports_cleanup_days;
+        $licenseSystemReportsCleanupDays[] = ExpiryMailDay::first()->license_system_reports_cleanup_days;
+        $licenseVersionsCleanupDays[] = ExpiryMailDay::first()->license_versions_cleanup_days;
+
         return view('themes.default1.common.cron.cron', compact(
             'cronPath',
             'warn',
@@ -320,7 +331,14 @@ class BaseSettingsController extends PaymentSettingsController
             'ReeonLogDeletionDays',
             'reoonDays',
             'systemLogsDays',
-            'systemLogsDeletionDays'
+            'systemLogsDeletionDays',
+            'licenseCleanupDays',
+            'installationLogsDays',
+            'licenseReportsCleanupDays',
+            'licenseCallbacksCleanupDays',
+            'licenseCrackReportsCleanupDays',
+            'licenseSystemReportsCleanupDays',
+            'licenseVersionsCleanupDays'
         ));
     }
 
@@ -352,6 +370,12 @@ class BaseSettingsController extends PaymentSettingsController
         $allStatus->msg91_report_delete_status = $request->msg91_cron ? $request->msg91_cron : 0;
         $allStatus->reoon_deletion_status = $request->reoon_cron ? $request->reoon_cron : 0;
         $allStatus->system_log_status = $request->systemlogs_cron ? $request->systemlogs_cron : 0;
+        $allStatus->installation_logs_status = $request->installationlogs_cron ? $request->installationlogs_cron : 0;
+        $allStatus->license_reports_cleanup_status = $request->licensereports_cron ? $request->licensereports_cron : 0;
+        $allStatus->license_callbacks_cleanup_status = $request->licensecallbacks_cron ? $request->licensecallbacks_cron : 0;
+        $allStatus->license_crack_reports_cleanup_status = $request->licensecrack_cron ? $request->licensecrack_cron : 0;
+        $allStatus->license_system_reports_cleanup_status = $request->licensesystem_cron ? $request->licensesystem_cron : 0;
+        $allStatus->license_versions_cleanup_status = $request->licenseversions_cron ? $request->licenseversions_cron : 0;
         $allStatus->save();
         $this->saveConditions();
 
@@ -372,8 +396,19 @@ class BaseSettingsController extends PaymentSettingsController
 
         // $cloudDays = is_array($request->input('cloud_days')) ? $request->input('cloud_days') : [$request->input('cloud_days')];
 
-        \DB::table('expiry_mail_days')->update(['cloud_days' => $request->input('cloud_days'), 'invoice_days' => $request->input('invoice_days'),
-            'msg91_days' => $request->input('msg91_days'), 'reoon_logs_days' => $request->input('reoon_days'), 'system_logs_days' => $request->input('system_logs_days')]);
+        \DB::table('expiry_mail_days')->update([
+            'cloud_days' => $request->input('cloud_days'),
+            'invoice_days' => $request->input('invoice_days'),
+            'msg91_days' => $request->input('msg91_days'),
+            'reoon_logs_days' => $request->input('reoon_days'),
+            'system_logs_days' => $request->input('system_logs_days'),
+            'installation_logs_expire_days' => $request->input('installation_logs_days'),
+            'license_reports_cleanup_days' => $request->input('license_reports_days'),
+            'license_callbacks_cleanup_days' => $request->input('license_callbacks_days'),
+            'license_crack_reports_cleanup_days' => $request->input('license_crack_days'),
+            'license_system_reports_cleanup_days' => $request->input('license_system_days'),
+            'license_versions_cleanup_days' => $request->input('license_versions_days'),
+        ]);
         ActivityLogDay::findOrFail(1)->update(['days' => $request->logdelday]);
 
         return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));

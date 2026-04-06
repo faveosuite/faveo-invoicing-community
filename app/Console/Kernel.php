@@ -77,6 +77,13 @@ class Kernel extends ConsoleKernel
             }
         })->everyFiveMinutes()->name('sendCloudEmail');
 
+        $this->execute($schedule, 'installationLogs');
+        $this->execute($schedule, 'licenseReportsCleanup');
+        $this->execute($schedule, 'licenseCallbacksCleanup');
+        $this->execute($schedule, 'licenseCrackReportsCleanup');
+        $this->execute($schedule, 'licenseSystemReportsCleanup');
+        $this->execute($schedule, 'licenseVersionsCleanup');
+
         if (config('database.DB_INSTALL')) {
             $condition = new \App\Model\Mailjob\Condition();
             $command = $condition->getConditionValue($task = 'cloud');
@@ -102,6 +109,24 @@ class Kernel extends ConsoleKernel
             }
             if (\Schema::hasColumn('status_settings', 'system_log_status')) {
                 $systemLogsStatus = StatusSetting::pluck('system_log_status')->first();
+            }
+            if (\Schema::hasColumn('status_settings', 'installation_logs_status')) {
+                $installationLogsStatus = StatusSetting::value('installation_logs_status');
+            }
+            if (\Schema::hasColumn('status_settings', 'license_reports_cleanup_status')) {
+                $licenseReportsStatus = StatusSetting::value('license_reports_cleanup_status');
+            }
+            if (\Schema::hasColumn('status_settings', 'license_callbacks_cleanup_status')) {
+                $licenseCallbacksStatus = StatusSetting::value('license_callbacks_cleanup_status');
+            }
+            if (\Schema::hasColumn('status_settings', 'license_crack_reports_cleanup_status')) {
+                $licenseCrackStatus = StatusSetting::value('license_crack_reports_cleanup_status');
+            }
+            if (\Schema::hasColumn('status_settings', 'license_system_reports_cleanup_status')) {
+                $licenseSystemStatus = StatusSetting::value('license_system_reports_cleanup_status');
+            }
+            if (\Schema::hasColumn('status_settings', 'license_versions_cleanup_status')) {
+                $licenseVersionsStatus = StatusSetting::value('license_versions_cleanup_status');
             }
             if ($delLogDays == null) {
                 $delLogDays = 99999999;
@@ -143,6 +168,30 @@ class Kernel extends ConsoleKernel
                 case 'systemLogs':
                     if (isset($systemLogsStatus) && $systemLogsStatus) {
                         return $this->getCondition($schedule->command('logs:delete'), $command);
+                    }
+                case 'installationLogs':
+                    if (isset($installationLogsStatus) && $installationLogsStatus) {
+                        return $this->getCondition($schedule->command('installation:logs'), $command);
+                    }
+                case 'licenseReportsCleanup':
+                    if (isset($licenseReportsStatus) && $licenseReportsStatus) {
+                        return $this->getCondition($schedule->command('app:license-reports-cleanup'), $command);
+                    }
+                case 'licenseCallbacksCleanup':
+                    if (isset($licenseCallbacksStatus) && $licenseCallbacksStatus) {
+                        return $this->getCondition($schedule->command('app:crack-callback-cleanup'), $command);
+                    }
+                case 'licenseCrackReportsCleanup':
+                    if (isset($licenseCrackStatus) && $licenseCrackStatus) {
+                        return $this->getCondition($schedule->command('app:crack-reports-cleanup'), $command);
+                    }
+                case 'licenseSystemReportsCleanup':
+                    if (isset($licenseSystemStatus) && $licenseSystemStatus) {
+                        return $this->getCondition($schedule->command('app:system-reports-cleanup'), $command);
+                    }
+                case 'licenseVersionsCleanup':
+                    if (isset($licenseVersionsStatus) && $licenseVersionsStatus) {
+                        return $this->getCondition($schedule->command('app:versions-cleanup'), $command);
                     }
             }
         }

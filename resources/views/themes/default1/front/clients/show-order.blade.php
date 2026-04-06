@@ -365,22 +365,20 @@
 
                                         <span id="copiedMessage" class="hidden">{{ __('message.copied')}}</span>
 
-                                        @if ($licenseStatus == 1)
-                                            @if(!in_array($product->id,cloudPopupProducts()) && $price != '0')
+                                        @if(!in_array($product->id,cloudPopupProducts()) && $price != '0')
 
-                                                <a class="btn btn-light-scale-2 btn-sm text-black btn-sm" data-bs-toggle="tooltip" title="{{ __('message.reissue_license') }}" id="reissueLic" data-id="{{$order->id}}" data-name="{{$order->domain}}" {{!Storage::disk('public')->exists('faveo-license-{'.$order->number.'}.txt') || $order->license_mode!='File' ? "enabled" : "disabled"}}>
-                                                  <i class="fas fa-id-card-alt"></i>
-                                                    @elseif(!in_array($product->id,cloudPopupProducts()) && $price == '0')
-                                                        <a class="btn btn-light-scale-2 btn-sm text-black btn-sm" data-bs-toggle="tooltip" title="{{ __('message.reissue_license') }}" id="reissueLic" data-id="{{$order->id}}" data-name="{{$order->domain}}" {{!Storage::disk('public')->exists('faveo-license-{'.$order->number.'}.txt') || $order->license_mode!='File' ? "enabled" : "disabled"}}>
-                                                          <i class="fas fa-id-card-alt"></i>
-                                                            @elseif($product->type == '4' && $price != '0')
-                                                                <a class="btn btn-light-scale-2 btn-sm text-black btn-sm" data-bs-toggle="tooltip" title="{{ __('message.reissue_license') }}" id="reissueLic" data-id="{{$order->id}}" data-name="{{$order->domain}}" {{!Storage::disk('public')->exists('faveo-license-{'.$order->number.'}.txt') || $order->license_mode!='File' ? "enabled" : "disabled"}}>
-                                                                 <i class="fas fa-id-card-alt"></i>
-                                                                    @endif
+                                            <a class="btn btn-light-scale-2 btn-sm text-black btn-sm" data-bs-toggle="tooltip" title="{{ __('message.reissue_license') }}" id="reissueLic" data-id="{{$order->id}}" data-name="{{$order->domain}}" {{!Storage::disk('public')->exists('faveo-license-{'.$order->number.'}.txt') || $order->license_mode!='File' ? "enabled" : "disabled"}}>
+                                              <i class="fas fa-id-card-alt"></i>
+                                                @elseif(!in_array($product->id,cloudPopupProducts()) && $price == '0')
+                                                    <a class="btn btn-light-scale-2 btn-sm text-black btn-sm" data-bs-toggle="tooltip" title="{{ __('message.reissue_license') }}" id="reissueLic" data-id="{{$order->id}}" data-name="{{$order->domain}}" {{!Storage::disk('public')->exists('faveo-license-{'.$order->number.'}.txt') || $order->license_mode!='File' ? "enabled" : "disabled"}}>
+                                                      <i class="fas fa-id-card-alt"></i>
+                                                        @elseif($product->type == '4' && $price != '0')
+                                                            <a class="btn btn-light-scale-2 btn-sm text-black btn-sm" data-bs-toggle="tooltip" title="{{ __('message.reissue_license') }}" id="reissueLic" data-id="{{$order->id}}" data-name="{{$order->domain}}" {{!Storage::disk('public')->exists('faveo-license-{'.$order->number.'}.txt') || $order->license_mode!='File' ? "enabled" : "disabled"}}>
+                                                             <i class="fas fa-id-card-alt"></i>
+                                                                @endif
 
-                                                                   
-                                                                </a>
-                                            @endif
+                                                               
+                                                            </a>
                                     </div>
                                 </div>
 
@@ -2058,7 +2056,7 @@
                 $('.overlay').show(); // Show the overlay
                 $('.modal-body').css('pointer-events', 'none');
                 var newDomain = $('#clouduserdomain').val();
-                var currentDomain = "{!! \App\Model\Order\InstallationDetail::where('order_id', $id)->latest()->value('installation_path') !!}";
+                var currentDomain = "{!! \App\License\Models\Installation::where('license_code', $order->serial_key)->latest('updated_at')->value('installation_path') !!}";
                 var license_code = "{!!$order->serial_key!!}";
                 var productId = "{!! $order->product !!}";
                 var orderId = {!! $id !!};

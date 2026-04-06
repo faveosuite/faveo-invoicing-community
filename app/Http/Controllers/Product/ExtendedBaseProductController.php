@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Product;
 
 use App\Facades\Attach;
 use App\Http\Controllers\Controller;
-use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
 use App\Model\Payment\TaxProductRelation;
 use App\Model\Product\Product;
@@ -130,12 +129,9 @@ class ExtendedBaseProductController extends Controller
         try {
             $file_upload = ProductUpload::find($id);
             $file_upload->update(['title' => $request->input('title'), 'description' => $request->input('description'), 'version' => $request->input('version'), 'dependencies' => json_encode($request->input('dependencies')), 'is_private' => $request->input('is_private'), 'is_restricted' => $request->input('is_restricted'), 'release_type' => $request->input('release_type')]);
-            $autoUpdateStatus = StatusSetting::pluck('license_status')->first();
-            if ($autoUpdateStatus == 1) { //If License Setting Status is on,Add Product to the AutoUpdate Script
-                $productSku = $file_upload->product->product_sku;
-                $updateClassObj = new \App\Http\Controllers\AutoUpdate\AutoUpdateController();
-                $addProductToAutoUpdate = $updateClassObj->editVersion($request->input('version'), $productSku);
-            }
+            $productSku = $file_upload->product->product_sku;
+            $updateClassObj = new \App\Http\Controllers\AutoUpdate\AutoUpdateController();
+            $addProductToAutoUpdate = $updateClassObj->editVersion($request->input('version'), $productSku);
 
             return redirect()->back()->with('success', __('message.product_updated_successfully'));
         } catch (\Exception $e) {

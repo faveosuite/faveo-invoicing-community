@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Order;
 use App\Events\UserOrderDelete;
 use App\Http\Requests\Order\OrderRequest;
 use App\Jobs\ReportExport;
+use App\License\Models\Installation;
 use App\Model\Common\Country;
 use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\QueueService;
-use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -140,7 +140,6 @@ class OrderController extends BaseOrderController
             $query = $orderSearch->advanceOrderSearch($request);
 
             $count = count($query->cursor());
-            $cont = new \App\Http\Controllers\License\LicenseController();
 
             return \DataTables::of($query)
                 ->orderColumn('client', "concat(users.first_name, ' ', users.last_name) $1")
@@ -192,7 +191,7 @@ class OrderController extends BaseOrderController
                      return $planName->name ?? '';
                  })
                 ->addColumn('version', function ($model) {
-                    $installedVersions = InstallationDetail::where('order_id', $model->id)->pluck('version')->toArray();
+                    $installedVersions = Installation::where('license_code', $model->serial_key)->pluck('version')->toArray();
 
                     if (count($installedVersions)) {
                         $latest = max($installedVersions);
@@ -216,9 +215,9 @@ class OrderController extends BaseOrderController
                     $ExpireDate = Carbon::now()->subDays($days)->toDateString();
 
 //                    $installedPath = InstallationDetail::where('order_id', $model->id)->exists();
-                    $last_active = InstallationDetail::where('order_id', $model->id)
-                        ->latest()
-                        ->value('last_active');
+                    $last_active = \App\License\Models\InstallationLog::where('license_code', $model->serial_key)
+                        ->latest('installation_last_active_date')
+                        ->value('installation_last_active_date');
                     $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>';
                     if ($model->subscription_updated_at) {
                         $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>'.installationStatusLabel((! empty($last_active) && ($last_active > $ExpireDate)) ? 1 : 0);
@@ -235,7 +234,7 @@ class OrderController extends BaseOrderController
                     return $orderLink;
                 })
                  ->addColumn('status', function ($model) {
-                     return InstallationDetail::where('order_id', $model->id)->exists() ? 'Active' : 'Inactive';
+                     return Installation::where('license_code', $model->serial_key)->exists() ? 'Active' : 'Inactive';
                  })
                 ->addColumn('order_status', function ($model) {
                     return ucfirst($model->order_status);
@@ -319,48 +318,15 @@ class OrderController extends BaseOrderController
                 return redirect()->back()->with('fails', __('messages.unauthorized_action'));
             }
 
-            $licenseStatus = StatusSetting::pluck('license_status')->first();
             $installationDetails = [];
 
-            $cont = new \App\Http\Controllers\License\LicenseController();
-            $installationDetails = $cont->searchInstallationPath($order->serial_key, $order->product);
-            if ($installationDetails !== null && ! empty($installationDetails['installed_path'])) {
-                // Loop through each installed_path and corresponding installed_ip
-                for ($i = 0; $i < count($installationDetails['installed_path']); $i++) {
-                    $installedPath = $installationDetails['installed_path'][$i];
-                    $installedIp = $installationDetails['installed_ip'][$i] ?? null;
-                    $installationDate = $installationDetails['installation_date'][$i] ?? null;
-                    $installationStatus = $installationDetails['installation_status'][$i] ?? null;
+            $installationDetails = app(\App\License\Services\InstallationService::class)->getInstallationsByProduct($order->serial_key, $order->product);
 
-                    // Find or create InstallationDetail record based on path and IP
-                    $installationDetail = InstallationDetail::where('installation_path', $installedPath)
-                                                            ->where('installation_ip', $installedIp)
-                                                            ->first();
-
-                    if (! $installationDetail) {
-                        // Create a new InstallationDetail record if it doesn't exist
-                        InstallationDetail::create([
-                            'installation_path' => $installedPath,
-                            'installation_ip' => $installedIp,
-                            'last_active' => $installationDate,
-                            'order_id' => $orderId,
-                        ]);
-                    } else {
-                        // Update existing record if found
-                        $installationDetail->update([
-                            'last_active' => $installationDate,
-                            'order_id' => $orderId,
-                            // Add more fields to update as needed
-                        ]);
-                    }
-                }
-            }
-            $insDetail = InstallationDetail::where('order_id', $orderId)->get();
-
-            if (! $insDetail->isEmpty()) {
+            $insDetail = Installation::where('license_code', $order->serial_key)->get();
+            if ($insDetail->isNotEmpty()) {
                 $installationDetails['installed_path'] = $insDetail->pluck('installation_path')->toArray();
                 $installationDetails['installed_ip'] = $insDetail->pluck('installation_ip')->toArray();
-                $installationDetails['installation_date'] = $insDetail->pluck('last_active')->toArray();
+                $installationDetails['installation_date'] = $insDetail->pluck('installation_date')->toArray();
             }
             // }
 
@@ -379,8 +345,7 @@ class OrderController extends BaseOrderController
                 return array_merge($details, ['order_id' => $orderId]);
             }, $combinedDetails);
 
-            $cont = new \App\Http\Controllers\License\LicenseController();
-            $installationLogsDetails = $cont->getInstallationLogsDetails($order->serial_key);
+            $installationLogsDetails = app(\App\License\Services\InstallationService::class)->getLogs($order->serial_key)['page_message'] ?? [];
 
             return \DataTables::of($installationLogsDetails)
 
@@ -448,22 +413,18 @@ class OrderController extends BaseOrderController
                 return redirect()->back()->with('fails', __('message.no_orders'));
             }
             $user = $this->user->find($invoice->user_id);
-            $licenseStatus = StatusSetting::pluck('license_status')->first();
             $installationDetails = [];
-            $noOfAllowedInstallation = '';
-            $getInstallPreference = '';
-            if ($licenseStatus == 1) {
-                $cont = new \App\Http\Controllers\License\LicenseController();
-                $noOfAllowedInstallation = $cont->getNoOfAllowedInstallation($order->serial_key, $order->product);
-            }
+            $licenseService = app(\App\License\Services\LicenseService::class);
+            $licenseRecord = $licenseService->findByCode($order->serial_key);
+            $licenseLimit = $licenseRecord ? $licenseRecord->license_limit : 1;
+            $noOfAllowedInstallation = app(\App\License\Services\InstallationService::class)->countActiveInstallations($order->serial_key);
 
             $allowDomainStatus = StatusSetting::pluck('domain_check')->first();
 
-            $licenseStatus = StatusSetting::pluck('license_status')->first();
+            $licenseStatus = 1;
             $installationDetails = [];
 
-            $cont = new \App\Http\Controllers\License\LicenseController();
-            $installationDetails = $cont->searchInstallationPath($order->serial_key, $order->product);
+            $installationDetails = app(\App\License\Services\InstallationService::class)->getInstallationsByProduct($order->serial_key, $order->product);
             $currency = getCurrencyForClient($user->country);
             $amount = currencyFormat(1, $currency);
             $payment_log = Payment_log::where('order', $order->number)
@@ -475,7 +436,7 @@ class OrderController extends BaseOrderController
             $statusAutorenewal = Subscription::where('order_id', $id)->value('is_subscribed');
 
             return view('themes.default1.order.show',
-                compact('user', 'order', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'noOfAllowedInstallation', 'lastActivity', 'versionLabel', 'date', 'licdate', 'supdate', 'installationDetails', 'id', 'statusAutorenewal', 'payment_log'));
+                compact('user', 'order', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'licenseLimit', 'noOfAllowedInstallation', 'lastActivity', 'versionLabel', 'date', 'licdate', 'supdate', 'installationDetails', 'id', 'statusAutorenewal', 'payment_log'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

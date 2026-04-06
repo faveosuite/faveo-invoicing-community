@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Model\Order\InstallationDetail;
+use App\License\Models\Installation;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
@@ -219,28 +219,34 @@ class BaseHomeController extends Controller
                 }
             });
             if (count($orderForLicense) > 0) {
+                $order = $orderForLicense->first();
                 if ($url) {
-                    InstallationDetail::updateOrCreate(['installation_path' => $url, 'installation_ip' => $ip, 'order_id' => $orderForLicense->first()->id], ['last_active' => (string) \Carbon\Carbon::now(), 'installation_path' => $url, 'installation_ip' => $ip, 'version' => $request->input('version'), 'order_id' => $orderForLicense->first()->id]);
+                    Installation::where('license_code', $licenseCode)
+                        ->where('installation_ip', $ip)
+                        ->update([
+                            'installation_path' => $url,
+                            'version' => $request->input('version'),
+                        ]);
 
-                    $existingVersion = Subscription::where('order_id', $orderForLicense->first()->id)->value('version');
+                    $existingVersion = Subscription::where('order_id', $order->id)->value('version');
                     if ($existingVersion && $existingVersion < $request->input('version')) {
                         $existingVersion = $request->input('version');
                     }
-                    $cont = new \App\Http\Controllers\License\LicenseController();
-                    $cont->updateInstallationLogs($url, $request->input('version'), $ip, $licenseCode);
-                    Subscription::where('order_id', $orderForLicense->first()->id)->update(['version' => $existingVersion, 'version_updated_at' => (string) \Carbon\Carbon::now()]);
+                    app(\App\License\Services\InstallationService::class)->updateLogs([
+                        'license_code' => $licenseCode, 'root_url' => $url,
+                        'version_number' => $request->input('version'), 'installation_ip' => $ip,
+                    ]);
+                    Subscription::where('order_id', $order->id)->update(['version' => $existingVersion, 'version_updated_at' => (string) \Carbon\Carbon::now()]);
 
                     return ['status' => 'success', 'message' => 'version-updated-successfully'];
-                } else {//For older client where url is not sent as parameter
-                    $cont = new \App\Http\Controllers\License\LicenseController();
-                    $installationDetails = $cont->searchInstallationPath($orderForLicense->first()->serial_key, $orderForLicense->first()->product);
-                    foreach ($installationDetails['installed_path'] as $path) {
-                        $ipAndDomain = explode(',', $path);
-                        InstallationDetail::updateOrCreate(['installation_path' => $ipAndDomain[0], 'installation_ip' => $ipAndDomain[1], 'order_id' => $orderForLicense->first()->id], ['installation_path' => $ipAndDomain[0], 'installation_ip' => $ipAndDomain[1], 'version' => $request->input('version'), 'order_id' => $orderForLicense->first()->id]);
-                    }
-                    $existingVersion = Subscription::where('order_id', $orderForLicense->first()->id)->value('version');
+                } else {
+                    // Older clients that don't send URL: update version on all installations for this license
+                    Installation::where('license_code', $licenseCode)
+                        ->update(['version' => $request->input('version')]);
+
+                    $existingVersion = Subscription::where('order_id', $order->id)->value('version');
                     if ($existingVersion && $request->input('version') > $existingVersion) {
-                        Subscription::where('order_id', $orderForLicense->first()->id)->update(['version' => $request->input('version')]);
+                        Subscription::where('order_id', $order->id)->update(['version' => $request->input('version')]);
                     }
 
                     return ['status' => 'success', 'message' => 'version-updated-successfully'];
@@ -283,20 +289,29 @@ class BaseHomeController extends Controller
                 })->first();
 
             if ($existingLicense) {//If the license code that is sent in the request exists in billing
-                $cont = new \App\Http\Controllers\License\LicenseController();
-                $cont->updateInstalledDomain($licCode, $existingLicense->product); //Delete the installation first for the current license before updating license so that no Faveo installation exists on the user domain/IP path
+                app(\App\License\Services\InstallationService::class)->updateByLicenseCode($licCode, ['installation_status' => 0]); //Delete the installation first for the current license before updating license so that no Faveo installation exists on the user domain/IP path
 
                 $serial_key = substr($licCode, 0, 12).$lastFour; //The new License Code
                 //Create new license in license manager with the new license code which has no. of agents in the last 4 digits.
-                $cont->createNewLicene(
-                    $existingLicense->id,
-                    $existingLicense->product,
-                    $existingLicense->client,
-                    $this->getLicenseExpiryDate($existingLicense),
-                    $this->getUpdatesExpiryDate($existingLicense),
-                    $this->getSupportExpiryDate($existingLicense),
-                    $serial_key
-                );
+                $order = \App\Model\Order\Order::find($existingLicense->id);
+                $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($order->domain ?? '');
+                $licExpiry = $this->getLicenseExpiryDate($existingLicense);
+                $updExpiry = $this->getUpdatesExpiryDate($existingLicense);
+                $supExpiry = $this->getSupportExpiryDate($existingLicense);
+                app(\App\License\Services\LicenseService::class)->create([
+                    'product_id' => $existingLicense->product,
+                    'user_id' => $existingLicense->client,
+                    'license_code' => $serial_key,
+                    'license_order_number' => $order->number ?? null,
+                    'license_domain' => $ipAndDomain['domain'],
+                    'license_ip' => $ipAndDomain['ip'],
+                    'license_require_domain' => $ipAndDomain['requireDomain'],
+                    'license_limit' => 1,
+                    'license_expire_date' => ($licExpiry != '') ? $licExpiry->toDateString() : null,
+                    'license_updates_date' => ($updExpiry != '') ? $updExpiry->toDateString() : null,
+                    'license_support_date' => ($supExpiry != '') ? $supExpiry->toDateString() : null,
+                    'license_status' => 1,
+                ]);
                 //Update the old license code with new one in billing.
                 $existingLicense->serial_key = \Crypt::encrypt(substr($licCode, 0, 12).$lastFour);
                 $existingLicense->save();

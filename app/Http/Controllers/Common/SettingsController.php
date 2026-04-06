@@ -72,26 +72,6 @@ class SettingsController extends BaseSettingsController
         return view('themes.default1.common.plugins', compact('pay', 'status'));
     }
 
-    /**
-     * Get the Status and Api Keys for Settings Module.
-     *
-     * @param  ApiKey  $apikeys
-     */
-    public function licensekeys(ApiKey $apikeys)
-    {
-        [$licenseSecret, $licenseUrl,$licenseClientId,$licenseClientSecret,$licenseGrantType] = array_values($apikeys->select('license_api_secret',
-            'license_api_url', 'license_client_id', 'license_client_secret', 'license_grant_type')->first()->toArray());
-        $data = [
-            'licenseGrantType' => $licenseGrantType,
-            'licenseSecret' => $licenseSecret,
-            'licenseClientId' => $licenseClientId,
-            'licenseClientSecret' => $licenseClientSecret,
-            'licenseUrl' => $licenseUrl,
-        ];
-
-        return successResponse('', $data);
-    }
-
     public function mobileVerification(ApiKey $apikeys)
     {
         [$mobileauthkey,$msg91Sender,$msg91TemplateId,$msg91ThirdPartyId] = array_values($apikeys->select('msg91_auth_key', 'msg91_sender', 'msg91_template_id', 'msg91_third_party_id')->first()->toArray());
@@ -216,12 +196,6 @@ class SettingsController extends BaseSettingsController
     public function getKeys(ApiKey $apikeys)
     {
         try {
-            $licenseSecret = $apikeys->pluck('license_api_secret')->first();
-            $licenseUrl = $apikeys->pluck('license_api_url')->first();
-            $licenseClientId = $apikeys->pluck('license_client_id')->first();
-            $licenseClientSecret = $apikeys->pluck('license_client_secret')->first();
-            $licenseGrantType = $apikeys->pluck('license_grant_type')->first();
-            $status = StatusSetting::pluck('license_status')->first();
             $updateStatus = StatusSetting::pluck('update_settings')->first();
             $mobileStatus = StatusSetting::pluck('msg91_status')->first();
             $siteKey = $apikeys->pluck('nocaptcha_sitekey')->first();
@@ -267,8 +241,8 @@ class SettingsController extends BaseSettingsController
             $isPipedriveVerificationEnabled = ApiKey::value('require_pipedrive_user_verification');
             $selectedProvider = EmailMobileValidationProviders::where('type', 'mobile')->where('to_use', 1)->value('provider');
 
-            return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
-                'licenseClientId', 'licenseClientSecret', 'licenseGrantType', 'allists', 'selectedList', 'set', 'githubStatus', 'msg91ThirdPartyId', 'isPipedriveVerificationEnabled', 'selectedProvider'));
+            return view('themes.default1.common.apikey', compact('model', 'siteKey', 'secretKey', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
+                'allists', 'selectedList', 'set', 'githubStatus', 'msg91ThirdPartyId', 'isPipedriveVerificationEnabled', 'selectedProvider'));
         } catch (\Exception $ex) {
             return redirect('/')->with('fails', $ex->getMessage());
         }
@@ -276,7 +250,6 @@ class SettingsController extends BaseSettingsController
 
     public function getDataTableData(Request $request)
     {
-        $status = $this->statusSetting->value('license_status');
         $mobileStatus = $this->statusSetting->value('msg91_status');
         $captchaStatus = $this->statusSetting->value('recaptcha_status');
         $twitterStatus = $this->statusSetting->value('twitter_status');
@@ -300,7 +273,6 @@ class SettingsController extends BaseSettingsController
         </label>
     ';
         $mobileAction = $mobileStatus ? '<button id="msg91-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
-        $licenseAction = $status ? '<button id="license-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $mailchimpAction = $mailchimpSetting ? '<button id="mailchimp-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $termsAction = $termsStatus ? '<button id="termsUrl-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $pipedriveAction = $pipedriveStatus ? '<button id="pipedrive-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
@@ -312,15 +284,6 @@ class SettingsController extends BaseSettingsController
 
         if ($request->ajax()) {
             $dataTable = collect([
-                ['options' => \Lang::get('message.license_heading'), 'description' => \Lang::get('message.license_description'), 'status' => '
-        <label class="switch toggle_event_editing licenser">
-            <input type="checkbox" value="'.($status ? '1' : '0').'"  
-                   name="modules_settings"
-                   class="checkbox" id="License" '.($status ? 'checked' : '').'>
-            <span class="slider round"></span>
-        </label>
-    ', 'action' => $licenseAction,
-                ],
                 ['options' => \Lang::get('message.recaptcha_heading'), 'description' => \Lang::get('message.google_description'), 'status' => $toggleSwitch, 'action' => $recaptchaAction,
                 ],
                 ['options' => \Lang::get('message.msg91_heading'), 'description' => \Lang::get('message.msg91_description'), 'status' => '<label class="switch toggle_event_editing mstatus">

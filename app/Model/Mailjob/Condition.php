@@ -12,7 +12,7 @@ class Condition extends Model
 
     public function checkActiveJob()
     {
-        $result = ['expiryMail' => '', 'deleteLogs' => '', 'subsExpirymail' => '', 'postExpirymail' => '', 'cloud' => '', 'invoice' => '', 'msg91Reports' => '', 'reoonLogs' => '', 'systemLogs' => ''];
+        $result = ['expiryMail' => '', 'deleteLogs' => '', 'subsExpirymail' => '', 'postExpirymail' => '', 'cloud' => '', 'invoice' => '', 'msg91Reports' => '', 'reoonLogs' => '', 'systemLogs' => '', 'installationLogs' => '', 'licenseReportsCleanup' => '', 'licenseCallbacksCleanup' => '', 'licenseCrackReportsCleanup' => '', 'licenseSystemReportsCleanup' => '', 'licenseVersionsCleanup' => ''];
         $allStatus = new \App\Model\Common\StatusSetting();
         $status = $allStatus->find(1);
         if ($status) {
@@ -43,6 +43,24 @@ class Condition extends Model
             }
             if ($status->system_log_status == 1) {
                 $result['systemLogs'] = true;
+            }
+            if ($status->installation_logs_status == 1) {
+                $result['installationLogs'] = true;
+            }
+            if ($status->license_reports_cleanup_status == 1) {
+                $result['licenseReportsCleanup'] = true;
+            }
+            if ($status->license_callbacks_cleanup_status == 1) {
+                $result['licenseCallbacksCleanup'] = true;
+            }
+            if ($status->license_crack_reports_cleanup_status == 1) {
+                $result['licenseCrackReportsCleanup'] = true;
+            }
+            if ($status->license_system_reports_cleanup_status == 1) {
+                $result['licenseSystemReportsCleanup'] = true;
+            }
+            if ($status->license_versions_cleanup_status == 1) {
+                $result['licenseVersionsCleanup'] = true;
             }
         }
 

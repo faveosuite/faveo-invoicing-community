@@ -205,6 +205,7 @@ return [
         App\Providers\HorizonServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\CustomValidationProvider::class,
+        App\License\LicenseServiceProvider::class,
 
         Barryvdh\DomPDF\ServiceProvider::class,
         // Illuminate\Support\Facades\Input::class,

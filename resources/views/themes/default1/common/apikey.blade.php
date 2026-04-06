@@ -332,75 +332,6 @@
     </div>
 
 
-    <div class="modal fade" id="create-third-party-app" data-backdrop="static" data-keyboard="false">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">{{ __('message.license_heading') }}</h4>
-
-                </div>
-                <div class="modal-body">
-                    <div id="alertMessage"></div>
-
-                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! html()->label(Lang::get('message.lic_api_secret'))->class('required') !!}
-                        <div class="input-group">
-                            {!! html()->password('license_api_secret', $licenseSecret)->class('form-control')->id('license_api_secret') !!}
-
-                            <div class="input-group-append">
-                            <span role="button" class="input-group-text" onclick="togglePasswordVisibility(this)">
-                                <i class="fa fa-eye-slash"></i>
-                            </span>
-                            </div>
-                        </div>
-                        <h6 id="license_apiCheck"></h6>
-                    </div>
-
-                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! html()->label(Lang::get('message.lic_api_url'))->class('required') !!}
-                        {!! html()->text('license_api_url', $licenseUrl)->class('form-control')->id('license_api_url') !!}
-                        <h6 id="license_urlCheck"></h6>
-                    </div>
-
-                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! html()->label(Lang::get('message.lic_client_id'))->class('required') !!}
-                        {!! html()->text('license_client_id', $licenseClientId)->class('form-control')->id('license_client_id') !!}
-                        <h6 id="license_clientIdCheck"></h6>
-                    </div>
-
-                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! html()->label(Lang::get('message.lic_client_secret'))->class('required') !!}
-                        <div class="input-group">
-                            {!! html()->password('license_client_secret', $licenseClientSecret)->class('form-control')->id('license_client_secret') !!}
-
-                            <div class="input-group-append">
-                            <span role="button" class="input-group-text" onclick="togglePasswordVisibility(this)">
-                                <i class="fa fa-eye-slash"></i>
-                            </span>
-                            </div>
-                        </div>
-                        <h6 id="license_clientSecretCheck"></h6>
-                    </div>
-
-                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! html()->label(Lang::get('message.lic_grant_type'))->class('required') !!}
-                        {!! html()->select('license_grant_type',['' => __('message.Select'), 'client_credentials' => 'Client_credentials'])
-                                    ->class('form-control')->id('license_grant_type') !!}
-
-                        <h6 id="license_grantTypeCheck"></h6>
-                    </div>
-
-
-                </div>
-
-                <div class="modal-footer justify-content-between">
-                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
-                    <button type="submit" class="form-group btn btn-primary"  onclick="licenseDetails()" id="submit"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
 
 
@@ -1184,39 +1115,6 @@
     </script>
 
     <script>
-        $(document).on('click', '#license-edit-button', function() {
-            $.ajax({
-
-                url : '{{url("licensekeys")}}',
-                type : 'post',
-                success: function (response) {
-
-                    $('#license_api_secret').val(response['data']['licenseSecret']);
-                    let inputGroup =document.getElementById('license_api_secret');
-                    let passwordInput = inputGroup.type;
-                    let icon = inputGroup.closest('.input-group').querySelector('i');
-                    if(passwordInput==='text'){
-                        inputGroup.type='password';
-                        icon.classList.remove('fa-eye');
-                        icon.classList.add('fa-eye-slash');
-                    }
-                    $('#license_api_url').val(response['data']['licenseUrl']);
-                    $('#license_client_id').val(response['data']['licenseClientId']);
-                    $('#license_client_secret').val(response['data']['licenseClientSecret']);
-                    let inputGroup1 =document.getElementById('license_client_secret');
-                    let passwordInput1 = inputGroup1.type;
-                    let icon1 = inputGroup1.closest('.input-group').querySelector('i');
-                    if(passwordInput1==='text'){
-                        inputGroup1.type='password';
-                        icon1.classList.remove('fa-eye');
-                        icon1.classList.add('fa-eye-slash');
-                    }
-                    $('#license_grant_type').val(response['data']['licenseGrantType']);
-                    $('#create-third-party-app').modal('show');
-                },
-            });
-        });
-
         $(document).on('click', '#captcha-edit-button', function() {
             window.location.href = '{{ url("recaptcha") }}';
         });
@@ -1454,34 +1352,6 @@
         });
 
 
-        $(document).on('change', '.licenser input[type="checkbox"]', function() {
-            if ($('#License').prop("checked")) {
-            var checkboxvalue = 1;
-        }
-        else{
-            var checkboxvalue = 0;
-        }
-            $.ajax({
-                url : '{{url("licenseStatus")}}',
-                type : 'post',
-                data: {
-                    "status": checkboxvalue,
-                },
-                success: function (response) {
-                    setTimeout(function() {
-                        location.reload();
-                    }, 3000);
-                    $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
-                    $('#alertMessage12').html(result);
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
-                    setInterval(function(){
-                        $('#alertMessage12').slideUp(3000);
-                    }, 1000);
-                },
-            });
-
-        });
 
         $(document).on('change', '.mstatus input[type="checkbox"]', function() {
             if ($('#mobile').prop("checked")) {
@@ -1968,135 +1838,9 @@
             copyToClipboard('#webhook_url', this);
         });
 
-        //License Manager
-        $(document).ready(function(){
-            var status = $('.checkbox').val();
-            licensebox=document.getElementById('License').value;
-            if(licensebox ==1) {
-                $('#License').prop('checked', true);
 
 
-            } else if(licensebox ==0) {
-
-            }
-        });
-        $('#license_apiCheck').hide();
-        $('#License').on('change',function () {
-            if ($(this).prop("checked")) {
-
-
-            }
-            else{
-                $('.nocapsecretHide').val('');
-                $('.siteKeyHide').val('');
-
-
-        }
-    });
-
-        function licenseDetails(e){
-
-            if ($('#License').prop("checked")) {
-                var checkboxvalue = 1;
-            }
-            else{
-                var checkboxvalue = 0;
-            }
-
-            const userRequiredFields = {
-                name:@json(trans('message.license_api_secret')),
-                type:@json(trans('message.license_api_url')),
-                group:@json(trans('message.license_client_id')),
-                product_sku:@json(trans('message.license_client_secret')),
-                description:@json(trans('message.license_grant_type')),
-            };
-
-                const userFields = {
-                    name:$('#license_api_secret'),
-                    type:$('#license_api_url'),
-                    group:$('#license_client_id'),
-                    product_sku:$('#license_client_secret'),
-                    description:$('#license_grant_type'),
-                };
-
-
-                // Clear previous errors
-                Object.values(userFields).forEach(field => {
-                    field.removeClass('is-invalid');
-                    field.next().next('.error').remove();
-
-                });
-
-                let isValid = true;
-
-                const showError = (field, message) => {
-                    field.addClass('is-invalid');
-                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
-                };
-
-                // Validate required fields
-                Object.keys(userFields).forEach(field => {
-                    if (!userFields[field].val()) {
-                        showError(userFields[field], userRequiredFields[field]);
-                        isValid = false;
-                    }
-                });
-
-            if ($('#license_api_url').val() != '') {
-                if (isValid && !isValidURL(userFields.type.val())) {
-                    showError(userFields.type, @json(__('message.cloud_hub_valid_url')));
-                    isValid = false;
-                }
-            }
-                // If validation fails, prevent form submission
-                if (!isValid) {
-                    e.preventDefault();
-                }
-
-
-
-
-
-        $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
-            $.ajax({
-
-                url : '{{url("licenseDetails")}}',
-                type : 'post',
-                data: {
-                    "status": checkboxvalue,
-                    "license_api_secret": $('#license_api_secret').val(),
-                    "license_api_url" :$('#license_api_url').val(),
-                    "license_client_id": $('#license_client_id').val(),
-                    "license_client_secret" :$('#license_client_secret').val(),
-                    "license_grant_type": $('#license_grant_type').val(),
-
-                },
-                success: function (response) {
-                        setTimeout(function () {
-                            location.reload();
-                        }, 3000);
-                        $('#alertMessage').show();
-                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>' + response.message + '.</div>';
-                        $('#alertMessage').html(result);
-                        $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
-                        setInterval(function () {
-                            $('#alertMessage').slideUp(3000);
-                        }, 1000);
-                },
-                error:function(response){
-                    $('#alertMessage').show();
-                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> {{ __('message.error') }} </strong>' + response.responseJSON.message + '</div>';
-                    $('#alertMessage').html(result);
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
-                    setInterval(function () {
-                        $('#alertMessage').slideUp(3000);
-                    }, 1000);
-                },
-
-            });
-        };
-
-        // Function to remove error when input'id' => 'changePasswordForm'ng data
+        // Function to remove error when input data
         const removeErrorMessage = (field) => {
             field.classList.remove('is-invalid');
             const error = field.nextElementSibling;
@@ -2105,9 +1849,7 @@
             }
         };
 
-        ['license_api_secret','license_api_url','license_client_id',
-            'license_client_secret','license_grant_type',
-            'nocaptcha_secret','nocaptcha_sitekey','mobile_authkey'
+        ['nocaptcha_secret','nocaptcha_sitekey','mobile_authkey'
             ,'sender','template_id','consumer_key','consumer_secret',
             'access_token','token_secret','git_username',
             'git_password','git_client','git_secret',

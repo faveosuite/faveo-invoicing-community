@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Product;
 
 use App\Facades\Attach;
-use App\Http\Controllers\License\LicenseController;
 use App\Http\Controllers\License\LicensePermissionsController;
-use App\Model\Order\InstallationDetail;
+use App\License\Models\Installation;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
@@ -398,7 +397,7 @@ class BaseProductController extends ExtendedBaseProductController
             return errorResponse(\Lang::get('message.invalid_app_key'));
         }
         $domain = $request->input('domain');
-        InstallationDetail::where('installation_path', $domain)->update(['status' => 0]);
+        Installation::where('installation_path', $domain)->update(['installation_status' => 0]);
 
         return successResponse(\Lang::get('message.updated_successfully'));
     }
@@ -439,9 +438,9 @@ class BaseProductController extends ExtendedBaseProductController
     public function agentProductDownload(Request $request)
     {
         $product_key = $request->input('product_key');
-        $license = new LicenseController();
 
-        $product_id = $license->searchProductUsingProductKey($product_key);
+        $productResult = \App\Model\Product\Product::where('product_key', $product_key)->first();
+        $product_id = $productResult ? $productResult->id : null;
 
         $version_number = $request->input('version_number');
         $version = ! empty($version_number) ? $version_number : ProductUpload::where('product_id', $product_id)
@@ -470,9 +469,8 @@ class BaseProductController extends ExtendedBaseProductController
     {
         $license_code = $request->input('license_code');
 
-        $license = new LicenseController();
-
-        $product = $license->searchProductUsingLicense($license_code);
+        $licenseRecord = app(\App\License\Services\LicenseService::class)->findByCode($license_code);
+        $product = $licenseRecord ? [collect($licenseRecord)->toArray()] : [];
 
         if (! $product) {
             return errorResponse(\Lang::get('message.product_not_found'));

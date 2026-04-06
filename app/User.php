@@ -279,4 +279,24 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     {
         return $this->hasMany(WhatsappIntegrationUser::class, 'user_id', 'id');
     }
+
+    public function licenses()
+    {
+        return $this->hasMany(\App\License\Models\License::class, 'user_id');
+    }
+
+    public function installations()
+    {
+        return $this->hasMany(\App\License\Models\Installation::class, 'user_id');
+    }
+
+    public function licenseCallbacks()
+    {
+        return $this->hasMany(\App\License\Models\LicenseCallback::class, 'user_id');
+    }
+
+    public function licenseReports()
+    {
+        return $this->hasMany(\App\License\Models\LicenseReport::class, 'user_id');
+    }
 }

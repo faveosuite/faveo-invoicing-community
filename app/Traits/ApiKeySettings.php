@@ -20,41 +20,9 @@ use Illuminate\Support\Facades\Http;
 
 trait ApiKeySettings
 {
-    public function licenseDetails(Request $request)
-    {
-        $status = $request->input('status');
-        $licenseApiSecret = $request->input('license_api_secret');
-        $licenseApiUrl = $request->input('license_api_url');
-        $licenseApiClientId = $request->input('license_client_id');
-        $licenseApiClientSecret = $request->input('license_client_secret');
-        $licenseApiGrantType = $request->input('license_grant_type');
-
-        $data = [
-            'api_key_secret' => $licenseApiSecret,
-            'client_id' => $licenseApiClientId,
-            'client_secret' => $licenseApiClientSecret,
-            'grant_type' => $licenseApiGrantType,
-        ];
-
-        try {
-            $response = Http::withoutVerifying()->asForm()->post($licenseApiUrl.'oauth/token', $data);
-            $response = json_decode($response);
-            $token = $response->access_token;
-        } catch(\Exception $e) {
-            return errorResponse(\Lang::get('message.license_invalid'));
-        }
-        StatusSetting::where('id', 1)->update(['license_status' => $status]);
-        ApiKey::where('id', 1)->update(['license_api_secret' => $licenseApiSecret, 'license_api_url' => $licenseApiUrl,
-            'license_client_id' => $licenseApiClientId, 'license_client_secret' => $licenseApiClientSecret,
-            'license_grant_type' => $licenseApiGrantType, ]);
-
-        return successResponse(\Lang::get('message.license_setting'));
-    }
-
     public function licenseStatus(Request $request)
     {
         $statusData = collect([
-            'status' => ['key' => 'license_status',       'lang' => __('message.license_status')],
             'mstatus' => ['key' => 'msg91_status',         'lang' => __('message.mobile_status')],
             'mailchimpstatus' => ['key' => 'mailchimp_status',     'lang' => __('message.mailchimp_status')],
             'gcaptchastatus' => ['key' => 'recaptcha_status', 'lang' => __('message.google_status')],
@@ -321,6 +289,18 @@ trait ApiKeySettings
 
             $system_commands = \Request::get('systemlogs-commands');
             $system_dailyAt = \Request::get('systemlogs-dailyAt');
+            $installationlogs_commands = \Request::get('installationlogs-commands');
+            $installationlogs_dailyAt = \Request::get('installationlogs-dailyAt');
+            $licensereports_commands = \Request::get('licensereports-commands');
+            $licensereports_dailyAt = \Request::get('licensereports-dailyAt');
+            $licensecallbacks_commands = \Request::get('licensecallbacks-commands');
+            $licensecallbacks_dailyAt = \Request::get('licensecallbacks-dailyAt');
+            $licensecrack_commands = \Request::get('licensecrack-commands');
+            $licensecrack_dailyAt = \Request::get('licensecrack-dailyAt');
+            $licensesystem_commands = \Request::get('licensesystem-commands');
+            $licensesystem_dailyAt = \Request::get('licensesystem-dailyAt');
+            $licenseversions_commands = \Request::get('licenseversions-commands');
+            $licenseversions_dailyAt = \Request::get('licenseversions-dailyAt');
 
             $activity_command = $this->getCommand($activity_commands, $activity_dailyAt);
             $expiry_command = $this->getCommand($expiry_commands, $expiry_dailyAt);
@@ -332,9 +312,20 @@ trait ApiKeySettings
             $msg91_command = $this->getCommand($msg91_commands, $msg91_dailyAt);
             $reoon_command = $this->getCommand($reoon_commands, $reoon_dailyAt);
             $system_command = $this->getCommand($system_commands, $system_dailyAt);
+            $installationlogs_command = $this->getCommand($installationlogs_commands, $installationlogs_dailyAt);
+            $licensereports_command = $this->getCommand($licensereports_commands, $licensereports_dailyAt);
+            $licensecallbacks_command = $this->getCommand($licensecallbacks_commands, $licensecallbacks_dailyAt);
+            $licensecrack_command = $this->getCommand($licensecrack_commands, $licensecrack_dailyAt);
+            $licensesystem_command = $this->getCommand($licensesystem_commands, $licensesystem_dailyAt);
+            $licenseversions_command = $this->getCommand($licenseversions_commands, $licenseversions_dailyAt);
 
-            $jobs = ['expiryMail' => $expiry_command, 'deleteLogs' => $activity_command, 'subsExpirymail' => $subexpiry_command, 'postExpirymail' => $postexpiry_command,
-                'cloud' => $cloud_command, 'invoice' => $invoice_command, 'msg91Reports' => $msg91_command, 'reoon' => $reoon_command, 'systemLogs' => $system_command];
+            $jobs = [
+                'expiryMail' => $expiry_command, 'deleteLogs' => $activity_command, 'subsExpirymail' => $subexpiry_command, 'postExpirymail' => $postexpiry_command,
+                'cloud' => $cloud_command, 'invoice' => $invoice_command, 'msg91Reports' => $msg91_command, 'reoon' => $reoon_command, 'systemLogs' => $system_command,
+                'installationLogs' => $installationlogs_command, 'licenseReportsCleanup' => $licensereports_command,
+                'licenseCallbacksCleanup' => $licensecallbacks_command, 'licenseCrackReportsCleanup' => $licensecrack_command,
+                'licenseSystemReportsCleanup' => $licensesystem_command, 'licenseVersionsCleanup' => $licenseversions_command,
+            ];
 
             $this->storeCommand($jobs);
         }

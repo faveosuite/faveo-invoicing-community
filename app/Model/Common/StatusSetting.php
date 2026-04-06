@@ -15,7 +15,7 @@ class StatusSetting extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['expiry_mail', 'subs_expirymail', 'activity_log_delete', 'license_status', 'github_status', 'mailchimp_status', 'twitter_status', 'msg91_status', 'emailverification_status', 'recaptcha_status', 'update_status', 'zoho_status', 'rzp_status', 'mailchimp_product_status', 'mailchimp_ispaid_status', 'terms', 'pipedrive_status', 'domain_check', 'msg91_report_delete_status', 'email_validation_status', 'cloud_button', 'reoon_deletion_status', 'whatsapp_status'];
+    protected $fillable = ['expiry_mail', 'subs_expirymail', 'activity_log_delete', 'github_status', 'mailchimp_status', 'twitter_status', 'msg91_status', 'emailverification_status', 'recaptcha_status', 'update_status', 'zoho_status', 'rzp_status', 'mailchimp_product_status', 'mailchimp_ispaid_status', 'terms', 'pipedrive_status', 'domain_check', 'msg91_report_delete_status', 'email_validation_status', 'cloud_button', 'reoon_deletion_status', 'whatsapp_status', 'installation_logs_status', 'license_reports_cleanup_status', 'license_callbacks_cleanup_status', 'license_crack_reports_cleanup_status', 'license_system_reports_cleanup_status', 'license_versions_cleanup_status'];
 
     protected $logName = 'api_key';
 
@@ -25,7 +25,6 @@ class StatusSetting extends Model
         'expiry_mail',
         'subs_expirymail',
         'activity_log_delete',
-        'license_status',
         'github_status',
         'mailchimp_status',
         'twitter_status',
@@ -55,7 +54,6 @@ class StatusSetting extends Model
             'expiry_mail' => ['Expiry Mail', fn ($value) => (int) $value === 1 ? __('message.enable') : __('message.disable')],
             'subs_expirymail' => ['Subscription Expiry Mail', fn ($value) => (int) $value === 1 ? __('message.enable') : __('message.disable')],
             'activity_log_delete' => ['Activity Log Delete', fn ($value) => (int) $value],
-            'license_status' => ['License Status', fn ($value) => (int) $value === 1 ? __('message.enable') : __('message.disable')],
             'github_status' => ['Github Status', fn ($value) => (int) $value === 1 ? __('message.enable') : __('message.disable')],
             'mailchimp_status' => ['Mailchimp Status', fn ($value) => (int) $value === 1 ? __('message.enable') : __('message.disable')],
             'twitter_status' => ['Twitter Status', fn ($value) => (int) $value === 1 ? __('message.enable') : __('message.disable')],

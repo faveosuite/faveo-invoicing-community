@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\License\LicenseController;
 use App\Http\Controllers\Order\BaseOrderController;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
@@ -90,7 +89,7 @@ class FreeTrailController extends Controller
                     $serial_key = $this->executeFreetrailOrder();
                     $isSuccess = $this->tenantController->createTenant(new Request(['orderNo' => $this->orderNo, 'domain' => $request->domain]));
                     if ($isSuccess['status'] == 'false') {
-                        (new LicenseController())->deActivateTheLicense($serial_key);
+                        app(\App\License\Services\LicenseService::class)->deactivate($serial_key);
 
                         DB::rollback(); // Rollback the transaction
 
@@ -263,10 +262,8 @@ class FreeTrailController extends Controller
                 $baseorder->addSubscription($order->id, $plan_id, $version, $product->id, $serial_key);
 
                 $addOnIds = implode(',', $this->product->find($product->id)->productPluginGroupsAsProduct->pluck('plugin_id')->toArray());
-                $options = $baseorder->formatConfigurableOptions($product->id);
-                $cont = app(\App\Http\Controllers\License\LicenseController::class);
-
-                $cont->syncTheAddonForALicense($addOnIds, $serial_key, $options);
+                $options = $baseorder->formatConfigurableOptions($product->id)->toArray();
+                app(\App\License\Services\LicenseService::class)->syncAddons($serial_key, explode(',', $addOnIds), $options);
             }
             $mailchimpStatus = StatusSetting::pluck('mailchimp_status')->first();
 

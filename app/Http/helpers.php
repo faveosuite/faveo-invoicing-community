@@ -1,9 +1,9 @@
 <?php
 
 use App\FileSystemSettings;
+use App\License\Models\Installation;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
-use App\Model\Order\InstallationDetail;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\TaxByState;
@@ -203,7 +203,7 @@ function getVersionAndLabel($productVersion, $productId, $badge = 'label', $path
         return ProductUpload::where('product_id', $productId)->latest()->value('version');
     });
     if (! $productVersion && $path) {
-        $installationDetail = InstallationDetail::where('installation_path', 'like', '%'.$path.'%')->orderBy('id', 'desc')->first();
+        $installationDetail = Installation::where('installation_path', 'like', '%'.$path.'%')->latest('id')->first();
         $productVersion = $installationDetail ? $installationDetail->version : $latestVersion;
     }
     $status = $productVersion ? ($productVersion < $latestVersion ? 'warning' : 'success') : '';
@@ -213,7 +213,7 @@ function getVersionAndLabel($productVersion, $productId, $badge = 'label', $path
 
 function getInstallationDetail($ip)
 {
-    return InstallationDetail::where('installation_path', 'like', '%'.$ip.'%')->first();
+    return Installation::where('installation_path', 'like', '%'.$ip.'%')->first();
 }
 
 function tooltip($tootipText = '')
@@ -1220,4 +1220,40 @@ function exceptionResponse(Throwable $exception): \Illuminate\Http\JsonResponse
         ],
         500
     );
+}
+
+/**
+ * This function returns an asset link based on link.php settings.
+ *
+ * @param  string  $type
+ * @param  string  $key
+ * @return string
+ */
+function assetLink(string $type, string $key): string
+{
+    // if request is language, it should append & language to it
+    return asset(\Config::get('link.'.$type.'.'.$key));
+}
+
+/**
+ * Gives the bundle URL after appending the version number to it.
+ *
+ * @param  string  $url
+ * @return string
+ */
+function bundleLink(string $url): string
+{
+    $baseUrl = asset($url).'?version='.\Config::get('app.tags');
+
+    // if the call is for a language file, we should append language too in the url
+    // REASON: we are sending cache headers while sending language response, which will improve performance since the browser
+    // will cache it. But as soon as the language changes, language in cache will be the same and will cause conflicts
+    // adding language to argument will cause the browser to request a fresh response as soon as the language changes
+    // appending all activated plugin names too with the URL, so that if a plugin is activated, it requests a new
+    // language file
+    if (str_contains($url, 'js/lang')) {
+        $baseUrl = $baseUrl.'&lang='.App::getLocale();
+    }
+
+    return $baseUrl;
 }

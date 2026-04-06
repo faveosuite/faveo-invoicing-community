@@ -228,7 +228,6 @@ Route::middleware('installAgora')->group(function () {
 
     Route::get('settings', [Common\SettingsController::class, 'settings']);
     Route::get('/datatable/data', [Common\SettingsController::class, 'getDataTableData'])->name('datatable.data');
-    Route::post('licensekeys', [Common\SettingsController::class, 'licensekeys']);
     Route::post('mobileVerification', [Common\SettingsController::class, 'mobileVerification']);
     Route::post('termsUrl', [Common\SettingsController::class, 'termsUrl']);
     Route::post('zohokeys', [Common\SettingsController::class, 'zohokeys']);
@@ -250,7 +249,6 @@ Route::middleware('installAgora')->group(function () {
     Route::get('/email-log/body/{id}', [Common\SettingsController::class, 'getBody'])->name('email-log.body');
     Route::delete('activity-delete', [Common\SettingsController::class, 'destroy'])->name('activity-delete');
     Route::delete('email-delete', [Common\SettingsController::class, 'destroyEmail'])->name('email-delete');
-    Route::post('licenseDetails', [Common\SettingsController::class, 'licenseDetails'])->name('licenseDetails');
     Route::post('licenseStatus', [Common\SettingsController::class, 'licenseStatus'])->name('licenseStatus');
     Route::post('updateDetails', [Common\SettingsController::class, 'updateDetails'])->name('updateDetails');
     Route::post('updatemobileDetails', [Common\SettingsController::class, 'updateMobileDetails'])->name('updatemobileDetails');
@@ -391,7 +389,9 @@ Route::middleware('installAgora')->group(function () {
     Route::get('get-license-permission', [License\LicensePermissionsController::class, 'getPermissions'])->name('get-license-permission');
     Route::delete('add-permission', [License\LicensePermissionsController::class, 'addPermission'])->name('add-permission');
     Route::get('tick-permission', [License\LicensePermissionsController::class, 'tickPermission'])->name('tick-permission');
-    Route::get('orders/license/{order_number}', [License\LicenseController::class, 'licenseRedirect']);
+    Route::get('orders/license/{order_number}', function ($orderNumber) {
+        return redirect('/orders/'.\App\Model\Order\Order::where('number', $orderNumber)->value('id'));
+    });
     /*
      * Order
      */
