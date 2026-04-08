@@ -10,42 +10,43 @@ use Illuminate\Support\Collection;
 class VersionService
 {
     /**
-     * Create a new product version
+     * Create a new product version.
      */
     public function create(array $data): ProductVersion
     {
         return ProductVersion::create([
-            'product_id'              => $data['product_id'],
-            'version_number'          => $data['version_number'],
-            'version_install_file'    => $data['version_install_file'] ?? null,
-            'version_install_query'   => $data['version_install_query'] ?? null,
+            'product_id' => $data['product_id'],
+            'version_number' => $data['version_number'],
+            'version_install_file' => $data['version_install_file'] ?? null,
+            'version_install_query' => $data['version_install_query'] ?? null,
             'version_raw_install_query' => $data['version_raw_install_query'] ?? null,
-            'version_upgrade_file'    => $data['version_upgrade_file'] ?? null,
-            'version_upgrade_query'   => $data['version_upgrade_query'] ?? null,
+            'version_upgrade_file' => $data['version_upgrade_file'] ?? null,
+            'version_upgrade_query' => $data['version_upgrade_query'] ?? null,
             'version_raw_upgrade_query' => $data['version_raw_upgrade_query'] ?? null,
-            'version_install_limit'   => $data['version_install_limit'] ?? null,
-            'version_install_count'   => 0,
-            'version_upgrade_limit'   => $data['version_upgrade_limit'] ?? null,
-            'version_upgrade_count'   => 0,
-            'version_changelog'       => $data['version_changelog'] ?? null,
-            'version_date'            => $data['version_date'] ?? now()->format('Y-m-d'),
-            'version_expire_date'     => $data['version_expire_date'] ?? null,
-            'version_comments'        => $data['version_comments'] ?? null,
-            'version_status'          => $data['version_status'] ?? 1,
+            'version_install_limit' => $data['version_install_limit'] ?? null,
+            'version_install_count' => 0,
+            'version_upgrade_limit' => $data['version_upgrade_limit'] ?? null,
+            'version_upgrade_count' => 0,
+            'version_changelog' => $data['version_changelog'] ?? null,
+            'version_date' => $data['version_date'] ?? now()->format('Y-m-d'),
+            'version_expire_date' => $data['version_expire_date'] ?? null,
+            'version_comments' => $data['version_comments'] ?? null,
+            'version_status' => $data['version_status'] ?? 1,
         ]);
     }
 
     /**
-     * Update a version
+     * Update a version.
      */
     public function update(int $id, array $data): bool
     {
         $version = ProductVersion::findOrFail($id);
+
         return $version->update($data);
     }
 
     /**
-     * Get all versions for a product
+     * Get all versions for a product.
      */
     public function getByProductId(int $productId): Collection
     {
@@ -55,7 +56,7 @@ class VersionService
     }
 
     /**
-     * Get latest active version for a product
+     * Get latest active version for a product.
      */
     public function getLatestVersion(int $productId): ?ProductVersion
     {
@@ -66,7 +67,7 @@ class VersionService
     }
 
     /**
-     * Get version by number
+     * Get version by number.
      */
     public function getVersionByNumber(int $productId, string $versionNumber): ?ProductVersion
     {
@@ -76,34 +77,36 @@ class VersionService
     }
 
     /**
-     * Get download file for version
+     * Get download file for version.
      */
     public function getDownloadFile(int $versionId): ?string
     {
         $version = ProductVersion::find($versionId);
+
         return $version ? $version->version_install_file : null;
     }
 
     /**
-     * Get upgrade file for version
+     * Get upgrade file for version.
      */
     public function getUpgradeFile(int $versionId): ?string
     {
         $version = ProductVersion::find($versionId);
+
         return $version ? $version->version_upgrade_file : null;
     }
 
     /**
-     * Check if update is available
+     * Check if update is available.
      */
     public function isUpdateAvailable(int $productId, string $currentVersion): array
     {
         $latestVersion = $this->getLatestVersion($productId);
 
-        if (!$latestVersion) {
+        if (! $latestVersion) {
             return [
-                'available'       => false,
-                'message'         => 'No versions found',
+                'available' => false,
+                'message' => 'No versions found',
                 'current_version' => $currentVersion,
             ];
         }
@@ -111,43 +114,43 @@ class VersionService
         $isAvailable = version_compare($latestVersion->version_number, $currentVersion, '>');
 
         return [
-            'available'       => $isAvailable,
-            'latest_version'  => $latestVersion->version_number,
+            'available' => $isAvailable,
+            'latest_version' => $latestVersion->version_number,
             'current_version' => $currentVersion,
-            'changelog'       => $latestVersion->version_changelog,
-            'install_file'    => $isAvailable ? $latestVersion->version_install_file : null,
-            'upgrade_file'    => $isAvailable ? $latestVersion->version_upgrade_file : null,
+            'changelog' => $latestVersion->version_changelog,
+            'install_file' => $isAvailable ? $latestVersion->version_install_file : null,
+            'upgrade_file' => $isAvailable ? $latestVersion->version_upgrade_file : null,
         ];
     }
 
     /**
-     * Register version installation
+     * Register version installation.
      */
     public function registerInstallation(int $productId, int $versionId, string $ip, string $path = ''): VersionInstallation
     {
         return VersionInstallation::create([
-            'product_id'          => $productId,
-            'version_id'          => $versionId,
-            'installation_ip'     => $ip,
-            'installation_path'   => $path,
-            'installation_date'   => now()->format('Y-m-d'),
+            'product_id' => $productId,
+            'version_id' => $versionId,
+            'installation_ip' => $ip,
+            'installation_path' => $path,
+            'installation_date' => now()->format('Y-m-d'),
             'installation_status' => 1,
         ]);
     }
 
     /**
-     * Log version callback
+     * Log version callback.
      */
-    public function logCallback(int $productId, int $versionId, string $type, string $ip = null, string $path = ''): VersionCallback
+    public function logCallback(int $productId, int $versionId, string $type, ?string $ip = null, string $path = ''): VersionCallback
     {
         return VersionCallback::create([
-            'product_id'         => $productId,
-            'version_id'         => $versionId,
-            'callback_type'      => $type,
-            'callback_ip'        => $ip ?? request()->ip(),
-            'callback_path'      => $path,
+            'product_id' => $productId,
+            'version_id' => $versionId,
+            'callback_type' => $type,
+            'callback_ip' => $ip ?? request()->ip(),
+            'callback_path' => $path,
             'callback_date_time' => now(),
-            'callback_status'    => 1,
+            'callback_status' => 1,
         ]);
     }
 }

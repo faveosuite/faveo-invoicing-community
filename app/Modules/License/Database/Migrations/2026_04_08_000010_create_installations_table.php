@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Installations table (from afl_installations).
      * Where licenses are installed with foreign keys to products and users.
      */

@@ -2,12 +2,12 @@
 
 namespace App\Modules\License\Services;
 
-use App\Modules\License\Models\License;
-use App\Modules\License\Models\Installation;
-use App\Modules\License\Models\LicensePlugin;
-use App\Modules\License\Models\LicenseOption;
-use App\Modules\License\Models\ProductVersion;
 use App\Model\Product\Product;
+use App\Modules\License\Models\Installation;
+use App\Modules\License\Models\License;
+use App\Modules\License\Models\LicenseOption;
+use App\Modules\License\Models\LicensePlugin;
+use App\Modules\License\Models\ProductVersion;
 use App\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -16,38 +16,38 @@ class LicenseService
 {
     /**
      * Create a new license
-     * Mirrors: POST /api/admin/license/add
+     * Mirrors: POST /api/admin/license/add.
      */
     public function create(array $data): License
     {
         return DB::transaction(function () use ($data) {
             return License::create([
-                'product_id'               => $data['product_id'],
-                'user_id'                  => $data['user_id'] ?? $data['client_id'] ?? null,
-                'license_code'             => $data['license_code'] ?? $this->generateLicenseCode(),
-                'license_order_number'     => $data['license_order_number'] ?? null,
-                'license_domain'           => $data['license_domain'] ?? null,
-                'license_ip'               => $data['license_ip'] ?? null,
-                'license_require_domain'   => $data['license_require_domain'] ?? 0,
-                'license_expire_date'      => $data['license_expire_date'] ?? null,
+                'product_id' => $data['product_id'],
+                'user_id' => $data['user_id'] ?? $data['client_id'] ?? null,
+                'license_code' => $data['license_code'] ?? $this->generateLicenseCode(),
+                'license_order_number' => $data['license_order_number'] ?? null,
+                'license_domain' => $data['license_domain'] ?? null,
+                'license_ip' => $data['license_ip'] ?? null,
+                'license_require_domain' => $data['license_require_domain'] ?? 0,
+                'license_expire_date' => $data['license_expire_date'] ?? null,
                 'license_expire_email_date' => null,
-                'license_updates_date'     => $data['license_updates_date'] ?? null,
+                'license_updates_date' => $data['license_updates_date'] ?? null,
                 'license_updates_email_date' => null,
-                'license_support_date'     => $data['license_support_date'] ?? null,
+                'license_support_date' => $data['license_support_date'] ?? null,
                 'license_support_email_date' => null,
-                'license_limit'            => $data['license_limit'] ?? 1,
-                'license_status'           => $data['license_status'] ?? 1,
-                'license_date'             => $data['license_date'] ?? now()->format('Y-m-d'),
-                'license_cancel_date'      => null,
-                'license_comments'         => $data['license_comments'] ?? null,
-                'license_envato'           => $data['license_envato'] ?? 0,
+                'license_limit' => $data['license_limit'] ?? 1,
+                'license_status' => $data['license_status'] ?? 1,
+                'license_date' => $data['license_date'] ?? now()->format('Y-m-d'),
+                'license_cancel_date' => null,
+                'license_comments' => $data['license_comments'] ?? null,
+                'license_envato' => $data['license_envato'] ?? 0,
             ]);
         });
     }
 
     /**
      * Update an existing license
-     * Mirrors: POST /api/admin/license/edit
+     * Mirrors: POST /api/admin/license/edit.
      */
     public function update(int $id, array $data): bool
     {
@@ -73,12 +73,12 @@ class LicenseService
     }
 
     /**
-     * Update license by license code
+     * Update license by license code.
      */
     public function updateByCode(string $licenseCode, array $data): bool
     {
         $license = License::where('license_code', $licenseCode)->first();
-        if (!$license) {
+        if (! $license) {
             return false;
         }
 
@@ -87,7 +87,7 @@ class LicenseService
 
     /**
      * Deactivate a license
-     * Mirrors: POST /api/admin/license/deactivate
+     * Mirrors: POST /api/admin/license/deactivate.
      */
     public function deactivate(string $licenseCode): bool
     {
@@ -96,7 +96,7 @@ class LicenseService
     }
 
     /**
-     * Reactivate a license
+     * Reactivate a license.
      */
     public function reactivate(string $licenseCode): bool
     {
@@ -109,7 +109,7 @@ class LicenseService
 
     /**
      * Search licenses, products, clients, or installations
-     * Mirrors: POST /api/admin/search
+     * Mirrors: POST /api/admin/search.
      */
     public function search(string $type, string $keyword): array
     {
@@ -141,7 +141,7 @@ class LicenseService
 
     /**
      * Get plugin licenses for given license codes
-     * Mirrors: GET /api/pluginLicense
+     * Mirrors: GET /api/pluginLicense.
      */
     public function getPluginLicenses(array $licenseCodes): array
     {
@@ -160,9 +160,9 @@ class LicenseService
                         ->first();
 
                     $result[] = [
-                        'product_id'   => $product->id,
+                        'product_id' => $product->id,
                         'product_name' => $product->name ?? $product->product_title ?? '',
-                        'product_sku'  => $product->product_sku ?? '',
+                        'product_sku' => $product->product_sku ?? '',
                         'latest_version' => $latestVersion ? $latestVersion->version_number : null,
                         'latest_version_file' => $latestVersion ? $latestVersion->version_install_file : null,
                     ];
@@ -175,7 +175,7 @@ class LicenseService
 
     /**
      * Update license code
-     * Mirrors: POST /api/admin/license/updateLicenseCode
+     * Mirrors: POST /api/admin/license/updateLicenseCode.
      */
     public function updateLicenseCode(string $oldCode, string $newCode): int
     {
@@ -185,7 +185,7 @@ class LicenseService
 
     /**
      * Sync addon licenses for a parent license
-     * Mirrors: POST /api/admin/license/syncAddonLicense
+     * Mirrors: POST /api/admin/license/syncAddonLicense.
      */
     public function syncAddons(string $licenseCode, array $productIds, array $options = []): void
     {
@@ -204,16 +204,16 @@ class LicenseService
             }
 
             // Sync options if provided
-            if (!empty($options)) {
+            if (! empty($options)) {
                 LicenseOption::where('license_id', $license->id)->delete();
                 foreach ($options as $option) {
                     LicenseOption::create([
-                        'license_id'   => $license->id,
-                        'product_id'   => $option['product_id'] ?? $license->product_id,
+                        'license_id' => $license->id,
+                        'product_id' => $option['product_id'] ?? $license->product_id,
                         'option_group' => $option['option_group'] ?? '',
-                        'option_name'  => $option['option_name'] ?? '',
-                        'key'          => $option['key'] ?? '',
-                        'value'        => $option['value'] ?? '',
+                        'option_name' => $option['option_name'] ?? '',
+                        'key' => $option['key'] ?? '',
+                        'value' => $option['value'] ?? '',
                     ]);
                 }
             }
@@ -221,7 +221,7 @@ class LicenseService
     }
 
     /**
-     * Find license by code
+     * Find license by code.
      */
     public function findByCode(string $licenseCode): ?License
     {
@@ -231,7 +231,7 @@ class LicenseService
     }
 
     /**
-     * Get all licenses for a user
+     * Get all licenses for a user.
      */
     public function getByUserId(int $userId): Collection
     {
@@ -241,7 +241,7 @@ class LicenseService
     }
 
     /**
-     * Get all licenses for a product
+     * Get all licenses for a product.
      */
     public function getByProductId(int $productId): Collection
     {
@@ -252,7 +252,7 @@ class LicenseService
 
     /**
      * Get license info with addons
-     * Mirrors: GET /api/licenseInfo
+     * Mirrors: GET /api/licenseInfo.
      */
     public function getLicenseInfo(string $licenseCode): ?array
     {
@@ -260,7 +260,7 @@ class LicenseService
             ->with(['product', 'user', 'plugins.product'])
             ->first();
 
-        if (!$license) {
+        if (! $license) {
             return null;
         }
 
@@ -278,12 +278,12 @@ class LicenseService
                     ->get();
 
                 $addons[] = [
-                    'product_id'                 => $product->id,
-                    'product_name'               => $product->name ?? $product->product_title ?? '',
-                    'product_attributes'         => $options->where('option_group', 'attributes')->pluck('value', 'key')->toArray(),
+                    'product_id' => $product->id,
+                    'product_name' => $product->name ?? $product->product_title ?? '',
+                    'product_attributes' => $options->where('option_group', 'attributes')->pluck('value', 'key')->toArray(),
                     'product_attributes_license' => $options->where('option_group', 'license_attributes')->pluck('value', 'key')->toArray(),
-                    'latest_version'             => $latestVersion ? $latestVersion->version_number : null,
-                    'latest_version_file'        => $latestVersion ? $latestVersion->version_install_file : null,
+                    'latest_version' => $latestVersion ? $latestVersion->version_number : null,
+                    'latest_version_file' => $latestVersion ? $latestVersion->version_install_file : null,
                 ];
             }
         }
@@ -291,18 +291,18 @@ class LicenseService
         return [
             'license' => $license->toArray(),
             'product' => $license->product ? $license->product->toArray() : null,
-            'addons'  => $addons,
+            'addons' => $addons,
         ];
     }
 
     /**
      * Get individual license info (options)
-     * Mirrors: GET /api/IndividuallicenseInfo
+     * Mirrors: GET /api/IndividuallicenseInfo.
      */
     public function getIndividualLicenseInfo(string $licenseCode): array
     {
         $license = License::where('license_code', $licenseCode)->first();
-        if (!$license) {
+        if (! $license) {
             return [];
         }
 
@@ -311,11 +311,11 @@ class LicenseService
             ->map(function ($option) use ($license) {
                 return [
                     'license_code' => $license->license_code,
-                    'product_id'   => $option->product_id,
+                    'product_id' => $option->product_id,
                     'option_group' => $option->option_group,
-                    'option_name'  => $option->option_name,
-                    'key'          => $option->key,
-                    'value'        => $option->value,
+                    'option_name' => $option->option_name,
+                    'key' => $option->key,
+                    'value' => $option->value,
                 ];
             })
             ->toArray();
@@ -323,7 +323,7 @@ class LicenseService
 
     /**
      * Get order number from license code
-     * Mirrors: GET /api/getOrder
+     * Mirrors: GET /api/getOrder.
      */
     public function getOrderNumber(string $licenseCode): ?string
     {
@@ -332,7 +332,7 @@ class LicenseService
     }
 
     /**
-     * Delete license with all related data
+     * Delete license with all related data.
      */
     public function deleteLicense(int $licenseId): bool
     {
@@ -352,7 +352,7 @@ class LicenseService
 
     /**
      * Reissue license (delete installations for cloud re-issue)
-     * Mirrors: POST /api/LicenseReissue
+     * Mirrors: POST /api/LicenseReissue.
      */
     public function reissueLicenseCloud(string $licenseCode): int
     {
@@ -360,7 +360,7 @@ class LicenseService
     }
 
     /**
-     * Update expiration dates
+     * Update expiration dates.
      */
     public function updateExpirationDates(string $licenseCode, array $dates): bool
     {
@@ -387,7 +387,7 @@ class LicenseService
     }
 
     /**
-     * Generate a unique license code
+     * Generate a unique license code.
      */
     public function generateLicenseCode(): string
     {

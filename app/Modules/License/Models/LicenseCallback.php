@@ -21,8 +21,8 @@ class LicenseCallback extends Model
 
     protected $casts = [
         'callback_date_time' => 'datetime',
-        'callback_status'    => 'integer',
-        'product_id'         => 'integer',
+        'callback_status' => 'integer',
+        'product_id' => 'integer',
     ];
 
     public function product(): BelongsTo

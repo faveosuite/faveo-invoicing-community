@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Modules\License\Controllers\LicenseAdminController;
 use App\Modules\License\Controllers\LicenseCallbackController;
 use App\Modules\License\Controllers\VersionCallbackController;
-use App\Modules\License\Controllers\LicenseAdminController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,7 +59,6 @@ Route::post('/api/LicenseReissue', [LicenseAdminController::class, 'reissueLicen
 // Mirrors: /api/admin/* endpoints from original license app
 // ============================================================================
 Route::prefix('api/admin')->middleware(['auth'])->group(function () {
-
     // License CRUD
     Route::post('license/add', [LicenseAdminController::class, 'create']);
     Route::post('license/edit', [LicenseAdminController::class, 'edit']);

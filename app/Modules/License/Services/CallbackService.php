@@ -2,15 +2,12 @@
 
 namespace App\Modules\License\Services;
 
-use App\Modules\License\Models\License;
 use App\Modules\License\Models\Installation;
+use App\Modules\License\Models\License;
+use App\Modules\License\Models\LicenseBannedHost;
 use App\Modules\License\Models\LicenseCallback;
 use App\Modules\License\Models\LicenseNotification;
-use App\Modules\License\Models\LicenseBannedHost;
 use App\Modules\License\Models\LicenseWhitelistIp;
-use App\Modules\License\Models\LicenseReport;
-use App\Modules\License\Models\ProductVersion;
-use App\Modules\License\Models\VersionNotification;
 use Illuminate\Http\Request;
 
 /**
@@ -36,7 +33,7 @@ class CallbackService
     }
 
     /**
-     * Process license verification callback
+     * Process license verification callback.
      */
     public function processLicenseVerification(Request $request): array
     {
@@ -54,7 +51,7 @@ class CallbackService
 
         // Find license
         $license = License::where('license_code', $licenseCode)->first();
-        if (!$license) {
+        if (! $license) {
             return $this->getResponse('notification_license_not_found');
         }
 
@@ -73,7 +70,7 @@ class CallbackService
         }
 
         // Check domain mismatch
-        if ($license->license_require_domain && !empty($license->license_domain)) {
+        if ($license->license_require_domain && ! empty($license->license_domain)) {
             $domains = array_map('trim', explode(',', $license->license_domain));
             $domainValid = false;
             foreach ($domains as $d) {
@@ -82,30 +79,30 @@ class CallbackService
                     break;
                 }
             }
-            if (!$domainValid) {
+            if (! $domainValid) {
                 return $this->getResponse('notification_invalid_domain');
             }
         }
 
         // Check IP mismatch
-        if (!empty($license->license_ip)) {
+        if (! empty($license->license_ip)) {
             $ips = array_map('trim', explode(',', $license->license_ip));
-            if (!in_array($ip, $ips)) {
+            if (! in_array($ip, $ips)) {
                 return $this->getResponse('notification_invalid_ip');
             }
         }
 
         return $this->getResponse('notification_license_ok', [
-            'license_code'         => $license->license_code,
-            'product_id'           => $license->product_id,
-            'license_expire_date'  => $license->license_expire_date,
+            'license_code' => $license->license_code,
+            'product_id' => $license->product_id,
+            'license_expire_date' => $license->license_expire_date,
             'license_updates_date' => $license->license_updates_date,
             'license_support_date' => $license->license_support_date,
         ]);
     }
 
     /**
-     * Process license installation callback
+     * Process license installation callback.
      */
     public function processLicenseInstallation(Request $request): array
     {
@@ -120,7 +117,7 @@ class CallbackService
 
         // Verify license exists
         $license = License::where('license_code', $licenseCode)->first();
-        if (!$license) {
+        if (! $license) {
             return $this->getResponse('notification_license_not_found');
         }
 
@@ -132,10 +129,10 @@ class CallbackService
 
         // Register installation
         $this->installationService->register([
-            'product_id'          => $license->product_id,
-            'user_id'             => $license->user_id ?? 0,
-            'license_code'        => $licenseCode,
-            'installation_ip'     => $ip,
+            'product_id' => $license->product_id,
+            'user_id' => $license->user_id ?? 0,
+            'license_code' => $licenseCode,
+            'installation_ip' => $ip,
             'installation_domain' => $domain,
             'installation_status' => 1,
         ]);
@@ -144,7 +141,7 @@ class CallbackService
     }
 
     /**
-     * Check if IP is banned
+     * Check if IP is banned.
      */
     public function isHostBanned(string $ip): bool
     {
@@ -152,7 +149,7 @@ class CallbackService
     }
 
     /**
-     * Check if IP is whitelisted
+     * Check if IP is whitelisted.
      */
     public function isIpWhitelisted(string $ip): bool
     {
@@ -160,21 +157,21 @@ class CallbackService
     }
 
     /**
-     * Log callback
+     * Log callback.
      */
     protected function logCallback(string $licenseCode, string $ip, ?string $domain): void
     {
         LicenseCallback::create([
-            'license_code'       => $licenseCode,
-            'callback_ip'        => $ip,
-            'callback_domain'    => $domain,
+            'license_code' => $licenseCode,
+            'callback_ip' => $ip,
+            'callback_domain' => $domain,
             'callback_date_time' => now(),
-            'callback_status'    => 1,
+            'callback_status' => 1,
         ]);
     }
 
     /**
-     * Get license notification response
+     * Get license notification response.
      */
     protected function getResponse(string $notificationKey, array $data = []): array
     {
@@ -184,7 +181,7 @@ class CallbackService
         return array_merge([
             'notification_case' => $notificationKey,
             'notification_text' => $message,
-            'status'            => str_contains($notificationKey, '_ok') ? 'ok' : 'error',
+            'status' => str_contains($notificationKey, '_ok') ? 'ok' : 'error',
         ], $data);
     }
 }

@@ -34,11 +34,11 @@ class License extends Model
 
     protected $casts = [
         'license_require_domain' => 'integer',
-        'license_limit'          => 'integer',
-        'license_envato'         => 'integer',
-        'license_status'         => 'integer',
-        'product_id'             => 'integer',
-        'user_id'                => 'integer',
+        'license_limit' => 'integer',
+        'license_envato' => 'integer',
+        'license_status' => 'integer',
+        'product_id' => 'integer',
+        'user_id' => 'integer',
     ];
 
     public function product(): BelongsTo
@@ -72,7 +72,7 @@ class License extends Model
     }
 
     /**
-     * Check if license is active (status = 1)
+     * Check if license is active (status = 1).
      */
     public function isActive(): bool
     {
@@ -80,7 +80,7 @@ class License extends Model
     }
 
     /**
-     * Check if license is expired
+     * Check if license is expired.
      */
     public function isExpired(): bool
     {
@@ -88,7 +88,7 @@ class License extends Model
     }
 
     /**
-     * Scope: active licenses only (status = 1)
+     * Scope: active licenses only (status = 1).
      */
     public function scopeActive($query)
     {
@@ -96,7 +96,7 @@ class License extends Model
     }
 
     /**
-     * Scope: suspended licenses (status = 2)
+     * Scope: suspended licenses (status = 2).
      */
     public function scopeSuspended($query)
     {

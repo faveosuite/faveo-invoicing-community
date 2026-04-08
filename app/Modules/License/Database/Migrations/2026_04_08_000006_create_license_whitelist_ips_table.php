@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * License whitelist IPs table (from afl_whitelist_ips).
      * IP whitelist for license verification.
      */

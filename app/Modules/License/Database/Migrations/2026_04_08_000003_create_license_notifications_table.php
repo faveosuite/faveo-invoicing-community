@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * License notifications table (from afl_notifications).
      * Response templates for license check callbacks.
      */

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Product versions table (from afu_versions).
      * Product version releases for auto-update.
      */

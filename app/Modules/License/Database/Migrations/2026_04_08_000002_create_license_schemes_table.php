@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * License schemes table (from afl_license_schemes).
      * SQL schemas for client-side license storage.
      */

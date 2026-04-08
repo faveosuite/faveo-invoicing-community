@@ -25,6 +25,7 @@ class LicenseOption extends Model
         if ($group) {
             $query->where('option_group', $group);
         }
+
         return $query->value('option_value');
     }
 

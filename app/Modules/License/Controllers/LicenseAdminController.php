@@ -2,13 +2,12 @@
 
 namespace App\Modules\License\Controllers;
 
-use App\Modules\License\Services\LicenseService;
-use App\Modules\License\Services\InstallationService;
-use App\Modules\License\Services\VersionService;
-use App\Modules\License\Models\License;
-use App\Modules\License\Models\LicenseOption;
-use App\Modules\License\Models\LicenseApiKey;
 use App\Model\Product\Product;
+use App\Modules\License\Models\License;
+use App\Modules\License\Models\LicenseApiKey;
+use App\Modules\License\Services\InstallationService;
+use App\Modules\License\Services\LicenseService;
+use App\Modules\License\Services\VersionService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Lang;
@@ -43,7 +42,7 @@ class LicenseAdminController extends Controller
 
     /**
      * Add a new license
-     * Mirrors: POST /api/admin/license/add
+     * Mirrors: POST /api/admin/license/add.
      */
     public function create(Request $request)
     {
@@ -55,7 +54,7 @@ class LicenseAdminController extends Controller
         }
 
         // Check for duplicate license code
-        if (!empty($data['license_code'])) {
+        if (! empty($data['license_code'])) {
             $existing = License::where('license_code', $data['license_code'])->first();
             if ($existing) {
                 return $this->errorResponse('error_client_or_license_code', 400);
@@ -71,8 +70,8 @@ class LicenseAdminController extends Controller
             }
 
             return $this->successResponse(Lang::get('lang.adddd', [], 'en'), [
-                'license_code'  => $license->license_code,
-                'client_email'  => $clientEmail ?: 'Unknown Client',
+                'license_code' => $license->license_code,
+                'client_email' => $clientEmail ?: 'Unknown Client',
             ], 201);
         } catch (\Exception $e) {
             return $this->errorResponse('invalid', 400);
@@ -81,19 +80,19 @@ class LicenseAdminController extends Controller
 
     /**
      * Update a license
-     * Mirrors: POST /api/admin/license/edit
+     * Mirrors: POST /api/admin/license/edit.
      */
     public function edit(Request $request)
     {
         $licenseId = $request->input('license_id');
-        if (!$licenseId) {
+        if (! $licenseId) {
             // Try to find by license_code
             $licenseCode = $request->input('license_code');
             $license = $licenseCode ? License::where('license_code', $licenseCode)->first() : null;
             $licenseId = $license ? $license->id : null;
         }
 
-        if (!$licenseId) {
+        if (! $licenseId) {
             return $this->errorResponse('license_id', 400);
         }
 
@@ -121,7 +120,7 @@ class LicenseAdminController extends Controller
 
     /**
      * Deactivate a license
-     * Mirrors: POST /api/admin/license/deactivate
+     * Mirrors: POST /api/admin/license/deactivate.
      */
     public function deactivate(Request $request)
     {
@@ -132,7 +131,7 @@ class LicenseAdminController extends Controller
     }
 
     /**
-     * Reactivate a license
+     * Reactivate a license.
      */
     public function reactivate(Request $request)
     {
@@ -144,7 +143,7 @@ class LicenseAdminController extends Controller
 
     /**
      * Update license code
-     * Mirrors: POST /api/admin/license/updateLicenseCode
+     * Mirrors: POST /api/admin/license/updateLicenseCode.
      */
     public function updateLicenseCode(Request $request)
     {
@@ -158,13 +157,13 @@ class LicenseAdminController extends Controller
 
     /**
      * Sync addon licenses
-     * Mirrors: POST /api/admin/license/syncAddonLicense
+     * Mirrors: POST /api/admin/license/syncAddonLicense.
      */
     public function syncAddonLicense(Request $request)
     {
         $licenseCode = $request->input('license_code');
-        $productIds  = $request->input('product_ids', []);
-        $options     = $request->input('options', []);
+        $productIds = $request->input('product_ids', []);
+        $options = $request->input('options', []);
 
         if (is_string($options)) {
             $options = json_decode($options, true) ?? [];
@@ -177,16 +176,16 @@ class LicenseAdminController extends Controller
 
     /**
      * Search licenses, products, clients, installations
-     * Mirrors: POST /api/admin/search
+     * Mirrors: POST /api/admin/search.
      */
     public function search(Request $request)
     {
-        $type    = $request->input('search_type', $request->input('type'));
+        $type = $request->input('search_type', $request->input('type'));
         $keyword = $request->input('search_keyword', $request->input('keyword'));
 
         // Validate API key if provided
         $apiKeySecret = $request->input('api_key_secret');
-        if ($apiKeySecret && !$this->validateApiKey($apiKeySecret)) {
+        if ($apiKeySecret && ! $this->validateApiKey($apiKeySecret)) {
             return $this->errorResponse('invalid_api_key', 400);
         }
 
@@ -195,15 +194,15 @@ class LicenseAdminController extends Controller
         return response()->json(json_encode([
             'api_action_success' => 1,
             'api_error_detected' => 0,
-            'action_success'     => 1,
-            'error_detected'     => 0,
-            'page_message'       => $results,
+            'action_success' => 1,
+            'error_detected' => 0,
+            'page_message' => $results,
         ]));
     }
 
     /**
      * Get installation logs
-     * Mirrors: POST /api/admin/getInstallationLogs
+     * Mirrors: POST /api/admin/getInstallationLogs.
      */
     public function getInstallationLogs(Request $request)
     {
@@ -215,7 +214,7 @@ class LicenseAdminController extends Controller
 
     /**
      * Update installation logs
-     * Mirrors: POST /api/admin/updateInstallationLogs
+     * Mirrors: POST /api/admin/updateInstallationLogs.
      */
     public function updateInstallationLogs(Request $request)
     {
@@ -226,7 +225,7 @@ class LicenseAdminController extends Controller
 
     /**
      * Get plugin licenses
-     * Mirrors: GET /api/pluginLicense
+     * Mirrors: GET /api/pluginLicense.
      */
     public function pluginLicense(Request $request)
     {
@@ -243,14 +242,14 @@ class LicenseAdminController extends Controller
 
     /**
      * Get license info with addons
-     * Mirrors: GET /api/licenseInfo
+     * Mirrors: GET /api/licenseInfo.
      */
     public function licenseInfo(Request $request)
     {
         $licenseCode = $request->input('license_code');
         $info = $this->licenseService->getLicenseInfo($licenseCode);
 
-        if (!$info) {
+        if (! $info) {
             return $this->errorResponse('License not found', 404);
         }
 
@@ -259,7 +258,7 @@ class LicenseAdminController extends Controller
 
     /**
      * Get individual license info (options)
-     * Mirrors: GET /api/IndividuallicenseInfo
+     * Mirrors: GET /api/IndividuallicenseInfo.
      */
     public function individualLicenseInfo(Request $request)
     {
@@ -271,7 +270,7 @@ class LicenseAdminController extends Controller
 
     /**
      * Get order number from license
-     * Mirrors: GET /api/getOrder
+     * Mirrors: GET /api/getOrder.
      */
     public function getOrder(Request $request)
     {
@@ -283,7 +282,7 @@ class LicenseAdminController extends Controller
 
     /**
      * Reissue license for cloud
-     * Mirrors: POST /api/LicenseReissue
+     * Mirrors: POST /api/LicenseReissue.
      */
     public function reissueLicenseCloud(Request $request)
     {
@@ -295,7 +294,7 @@ class LicenseAdminController extends Controller
 
     /**
      * Get product ID by product key
-     * Mirrors: GET /api/admin/getProductIdbyKey
+     * Mirrors: GET /api/admin/getProductIdbyKey.
      */
     public function getProductIdByKey(Request $request)
     {
@@ -306,13 +305,13 @@ class LicenseAdminController extends Controller
     }
 
     /**
-     * Get license by code
+     * Get license by code.
      */
     public function getByCode(string $licenseCode)
     {
         $license = $this->licenseService->findByCode($licenseCode);
 
-        if (!$license) {
+        if (! $license) {
             return $this->errorResponse('License not found', 404);
         }
 
@@ -320,7 +319,7 @@ class LicenseAdminController extends Controller
     }
 
     /**
-     * Get installations for a license
+     * Get installations for a license.
      */
     public function getInstallations(string $licenseCode)
     {
@@ -331,7 +330,7 @@ class LicenseAdminController extends Controller
 
     /**
      * Update installation
-     * Mirrors: POST /api/admin/installations/edit
+     * Mirrors: POST /api/admin/installations/edit.
      */
     public function updateInstallation(Request $request)
     {
@@ -345,13 +344,13 @@ class LicenseAdminController extends Controller
 
     /**
      * Add installation for localized license
-     * Mirrors: POST /api/admin/addInstallation
+     * Mirrors: POST /api/admin/addInstallation.
      */
     public function addInstallation(Request $request)
     {
         // Validate API key
         $apiKeySecret = $request->input('api_key_secret');
-        if ($apiKeySecret && !$this->validateApiKey($apiKeySecret)) {
+        if ($apiKeySecret && ! $this->validateApiKey($apiKeySecret)) {
             return $this->errorResponse('invalid_api_key', 400);
         }
 
@@ -365,13 +364,13 @@ class LicenseAdminController extends Controller
     // =========================================================================
 
     /**
-     * Standard success response: { "success": true, "message": "...", "data": ... }
+     * Standard success response: { "success": true, "message": "...", "data": ... }.
      */
     protected function successResponse(string $message = '', $data = '', int $statusCode = 200)
     {
         $response = ['success' => true];
 
-        if (!empty($message)) {
+        if (! empty($message)) {
             $response['message'] = $message;
         }
 
@@ -381,7 +380,7 @@ class LicenseAdminController extends Controller
     }
 
     /**
-     * Standard error response: { "success": false, "message": "..." }
+     * Standard error response: { "success": false, "message": "..." }.
      */
     protected function errorResponse(string $message, int $statusCode = 500)
     {
@@ -392,7 +391,7 @@ class LicenseAdminController extends Controller
     }
 
     /**
-     * Validate API key
+     * Validate API key.
      */
     protected function validateApiKey(?string $secret): bool
     {

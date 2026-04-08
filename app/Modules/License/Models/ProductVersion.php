@@ -32,9 +32,9 @@ class ProductVersion extends Model
     ];
 
     protected $casts = [
-        'version_status'  => 'integer',
-        'product_id'      => 'integer',
-        'expired'         => 'integer',
+        'version_status' => 'integer',
+        'product_id' => 'integer',
+        'expired' => 'integer',
     ];
 
     public function product(): BelongsTo
@@ -53,7 +53,7 @@ class ProductVersion extends Model
     }
 
     /**
-     * Scope: active versions (status = 1)
+     * Scope: active versions (status = 1).
      */
     public function scopeActive($query)
     {
@@ -61,7 +61,7 @@ class ProductVersion extends Model
     }
 
     /**
-     * Scope: order by latest
+     * Scope: order by latest.
      */
     public function scopeLatest($query)
     {

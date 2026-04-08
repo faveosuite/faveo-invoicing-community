@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Version installations table (from afu_installations).
      * Update installation tracking with FKs to products, users, and product_versions.
      */
