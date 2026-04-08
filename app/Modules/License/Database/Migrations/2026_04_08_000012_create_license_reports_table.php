@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * License reports table (from afl_reports).
      * Audit/piracy reports from client installations.
      */

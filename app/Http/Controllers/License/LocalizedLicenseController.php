@@ -4,8 +4,8 @@ namespace App\Http\Controllers\License;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LocalizedLicenseRequest;
-use App\Modules\License\Services\InstallationService;
 use App\Model\Order\Order;
+use App\Modules\License\Services\InstallationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -207,7 +207,7 @@ class LocalizedLicenseController extends Controller
         $productId = Order::where('number', $orderNo)->value('product');
         $installation_date = date('Y-m-d');
         $installation_hash = hash('sha256', $domain.$client_email.$licenseCode);
-        
+
         // Registration is now handled internally - no API call needed
     }
 

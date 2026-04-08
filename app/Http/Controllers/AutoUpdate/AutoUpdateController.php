@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\AutoUpdate;
 
 use App\Http\Controllers\Controller;
-use App\Modules\License\Services\VersionService;
 use App\Model\Product\Product;
+use App\Modules\License\Services\VersionService;
 
 class AutoUpdateController extends Controller
 {
@@ -43,12 +43,12 @@ class AutoUpdateController extends Controller
     public function editVersion($version_number, $product_sku)
     {
         $product = Product::where('product_sku', $product_sku)->first();
-        if (!$product) {
+        if (! $product) {
             throw new \Exception(__('message.product_not_found'));
         }
 
         $version = $this->versionService->getVersionByNumber($product->id, $version_number);
-        if (!$version) {
+        if (! $version) {
             throw new \Exception(__('message.version_not_found'));
         }
 
@@ -62,12 +62,12 @@ class AutoUpdateController extends Controller
     public function searchVersion($version_number, $product_sku)
     {
         $product = Product::where('product_sku', $product_sku)->first();
-        if (!$product) {
+        if (! $product) {
             return ['version_id' => '', 'product_id' => ''];
         }
 
         $version = $this->versionService->getVersionByNumber($product->id, $version_number);
-        
+
         return [
             'version_id' => $version ? $version->id : '',
             'product_id' => $product->id,

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * License options table (from license_options).
      * Key-value options for licenses/products.
      */

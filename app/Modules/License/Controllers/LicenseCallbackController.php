@@ -2,18 +2,16 @@
 
 namespace App\Modules\License\Controllers;
 
+use App\Model\Product\Product;
 use App\Modules\License\Helpers\LicenseValidator;
-use App\Modules\License\Models\License;
 use App\Modules\License\Models\Installation;
+use App\Modules\License\Models\License;
 use App\Modules\License\Models\LicenseCallback;
 use App\Modules\License\Models\LicenseNotification;
 use App\Modules\License\Models\LicenseReport;
 use App\Modules\License\Models\LicenseScheme;
-use App\Modules\License\Models\LicenseBannedHost;
-use App\Modules\License\Services\LicenseService;
 use App\Modules\License\Services\InstallationService;
-use App\Model\Product\Product;
-use App\Model\User\User;
+use App\Modules\License\Services\LicenseService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -46,7 +44,7 @@ class LicenseCallbackController extends Controller
 
     /**
      * Test connection between Faveo and License Manager
-     * POST /apl_callbacks/connection_test.php  OR  POST /api/ConnectionTest
+     * POST /apl_callbacks/connection_test.php  OR  POST /api/ConnectionTest.
      */
     public function connection(Request $request)
     {
@@ -55,7 +53,7 @@ class LicenseCallbackController extends Controller
         $root_url = $request->input('root_url');
         $ip = $request->ip();
 
-        if (!$this->validator->isValidConnection($product_id, $connection_hash)) {
+        if (! $this->validator->isValidConnection($product_id, $connection_hash)) {
             return $this->notificationResponse('notification_unknown_error', []);
         }
 
@@ -66,31 +64,32 @@ class LicenseCallbackController extends Controller
 
     /**
      * Register license installation
-     * POST /apl_callbacks/license_install.php  OR  POST /api/licenseInstall
+     * POST /apl_callbacks/license_install.php  OR  POST /api/licenseInstall.
      */
     public function licenseInstall(Request $request)
     {
-        $product_id    = $request->input('product_id');
-        $root_url      = $request->input('root_url');
-        $client_email  = $request->input('client_email');
-        $license_code  = $request->input('license_code');
+        $product_id = $request->input('product_id');
+        $root_url = $request->input('root_url');
+        $client_email = $request->input('client_email');
+        $license_code = $request->input('license_code');
         $installation_hash = $request->input('installation_hash');
         $ip = $request->ip();
 
         // Validate basic request
-        if (!$this->validator->isValidLicenseRequest($ip, $product_id, $root_url)) {
+        if (! $this->validator->isValidLicenseRequest($ip, $product_id, $root_url)) {
             return $this->notificationResponse('notification_unknown_error', []);
         }
 
         // Check banned hosts
         if ($this->validator->isBanned($ip)) {
-            $this->createReport($product_id, null, $license_code, 'Host banned: ' . $ip, 1);
+            $this->createReport($product_id, null, $license_code, 'Host banned: '.$ip, 1);
+
             return $this->notificationResponse('notification_host_banned', []);
         }
 
         // Verify product
         $product = $this->validator->validateProduct($product_id);
-        if (!$product) {
+        if (! $product) {
             return $this->notificationResponse('notification_product_not_found', []);
         }
 
@@ -100,19 +99,21 @@ class LicenseCallbackController extends Controller
 
         // Find license
         $license = License::where('license_code', $license_code)->first();
-        if (!$license) {
+        if (! $license) {
             $license = $this->validator->findLicenseByEmail($client_email, $product_id);
         }
 
-        if (!$license) {
+        if (! $license) {
             $this->createReport($product_id, null, $license_code, 'License not found', 1);
+
             return $this->notificationResponse('notification_license_not_found', []);
         }
 
         // Validate license
         $validation = $this->validator->validateLicense($license, $product_id, $client_email, $ip, $root_url);
-        if (!$validation['valid']) {
+        if (! $validation['valid']) {
             $this->createReport($product_id, $license->user_id, $license_code, $validation['error'], 1);
+
             return $this->notificationResponse($this->mapErrorToNotification($validation['error']), []);
         }
 
@@ -122,15 +123,16 @@ class LicenseCallbackController extends Controller
         $activeCount = $this->installationService->countActiveInstallations($license_code);
         if ($license->license_limit > 0 && $activeCount >= $license->license_limit) {
             $this->createReport($product_id, $license->user_id, $license_code, 'Installation limit reached', 1);
+
             return $this->notificationResponse('notification_license_limit', []);
         }
 
         // Register/update installation
         $this->installationService->register([
-            'product_id'        => $product_id,
-            'user_id'           => $license->user_id ?? 0,
-            'license_code'      => $license_code,
-            'installation_ip'   => $ip,
+            'product_id' => $product_id,
+            'user_id' => $license->user_id ?? 0,
+            'license_code' => $license_code,
+            'installation_ip' => $ip,
             'installation_domain' => $this->getRawDomain($root_url),
             'installation_hash' => $installation_hash,
             'installation_status' => 1,
@@ -142,32 +144,32 @@ class LicenseCallbackController extends Controller
         $signature = $this->generateServerSignature($product_id, $root_url, $client_email, $license_code);
 
         return $this->notificationResponse('notification_license_ok', [
-            'license_code'  => $license->license_code,
-            'product_id'    => $license->product_id,
+            'license_code' => $license->license_code,
+            'product_id' => $license->product_id,
             'license_status' => $license->license_status,
         ], $product_id, $client_email, $license_code, $root_url);
     }
 
     /**
      * Get license scheme query
-     * POST /apl_callbacks/license_scheme.php  OR  POST /api/licenseScheme
+     * POST /apl_callbacks/license_scheme.php  OR  POST /api/licenseScheme.
      */
     public function licenseScheme(Request $request)
     {
-        $product_id   = $request->input('product_id');
-        $root_url     = $request->input('root_url');
+        $product_id = $request->input('product_id');
+        $root_url = $request->input('root_url');
         $client_email = $request->input('client_email');
         $license_code = $request->input('license_code');
         $ip = $request->ip();
 
         // Validate basic request
-        if (!$this->validator->isValidLicenseRequest($ip, $product_id, $root_url)) {
+        if (! $this->validator->isValidLicenseRequest($ip, $product_id, $root_url)) {
             return $this->notificationResponse('notification_unknown_error', []);
         }
 
         // Verify license
         $license = License::where('license_code', $license_code)->first();
-        if (!$license) {
+        if (! $license) {
             return $this->notificationResponse('notification_license_not_found', []);
         }
 
@@ -176,7 +178,7 @@ class LicenseCallbackController extends Controller
         $tableCreate = $request->input('tableCreate', false);
 
         $scheme = LicenseScheme::where('scheme_status', 1)->first();
-        if (!$scheme) {
+        if (! $scheme) {
             return $this->notificationResponse('notification_unknown_error', []);
         }
 
@@ -184,39 +186,40 @@ class LicenseCallbackController extends Controller
         $this->createCallback($product_id, $license->user_id, $license_code, $ip, $root_url, 1);
 
         return $this->notificationResponse('notification_license_ok', [
-            'scheme_id'   => $scheme->id,
+            'scheme_id' => $scheme->id,
             'scheme_name' => 'license_scheme',
-            'scheme_sql'  => $scheme->scheme_query,
+            'scheme_sql' => $scheme->scheme_query,
         ], $product_id, $client_email, $license_code, $root_url);
     }
 
     /**
      * Verify license for deployed product
-     * POST /apl_callbacks/license_verify.php  OR  POST /api/licenseVerify
+     * POST /apl_callbacks/license_verify.php  OR  POST /api/licenseVerify.
      */
     public function licenseVerify(Request $request)
     {
-        $product_id        = $request->input('product_id');
-        $root_url          = $request->input('root_url');
-        $client_email      = $request->input('client_email');
-        $license_code      = $request->input('license_code');
+        $product_id = $request->input('product_id');
+        $root_url = $request->input('root_url');
+        $client_email = $request->input('client_email');
+        $license_code = $request->input('license_code');
         $installation_hash = $request->input('installation_hash');
         $ip = $request->ip();
 
         // Validate basic request
-        if (!$this->validator->isValidLicenseRequest($ip, $product_id, $root_url)) {
+        if (! $this->validator->isValidLicenseRequest($ip, $product_id, $root_url)) {
             return $this->notificationResponse('notification_unknown_error', []);
         }
 
         // Check banned hosts
         if ($this->validator->isBanned($ip)) {
-            $this->createReport($product_id, null, $license_code, 'Host banned: ' . $ip, 1);
+            $this->createReport($product_id, null, $license_code, 'Host banned: '.$ip, 1);
+
             return $this->notificationResponse('notification_host_banned', []);
         }
 
         // Verify product
         $product = $this->validator->validateProduct($product_id);
-        if (!$product) {
+        if (! $product) {
             return $this->notificationResponse('notification_product_not_found', []);
         }
 
@@ -226,19 +229,21 @@ class LicenseCallbackController extends Controller
 
         // Find license
         $license = License::where('license_code', $license_code)->first();
-        if (!$license) {
+        if (! $license) {
             $license = $this->validator->findLicenseByEmail($client_email, $product_id);
         }
 
-        if (!$license) {
+        if (! $license) {
             $this->createReport($product_id, null, $license_code, 'License not found during verification', 1);
+
             return $this->notificationResponse('notification_license_not_found', []);
         }
 
         // Validate license (status, expiry, IP, domain)
         $validation = $this->validator->validateLicense($license, $product_id, $client_email, $ip, $root_url);
-        if (!$validation['valid']) {
+        if (! $validation['valid']) {
             $this->createReport($product_id, $license->user_id, $license_code, $validation['error'], 1);
+
             return $this->notificationResponse($this->mapErrorToNotification($validation['error']), $validation['data'] ?? []);
         }
 
@@ -249,7 +254,7 @@ class LicenseCallbackController extends Controller
             ->where('installation_status', 1)
             ->first();
 
-        if (!$installation) {
+        if (! $installation) {
             return $this->notificationResponse('notification_installation_not_found', []);
         }
 
@@ -258,22 +263,22 @@ class LicenseCallbackController extends Controller
 
         // Update installation log
         $this->installationService->updateLogs([
-            'license_code'    => $license_code,
-            'root_url'        => $root_url,
-            'version_number'  => $request->input('version_number'),
+            'license_code' => $license_code,
+            'root_url' => $root_url,
+            'version_number' => $request->input('version_number'),
             'installation_ip' => $ip,
         ]);
 
         // Build response data
         $notificationData = [
-            'license_code'        => $license->license_code,
-            'product_id'          => $license->product_id,
-            'license_status'      => $license->license_status,
+            'license_code' => $license->license_code,
+            'product_id' => $license->product_id,
+            'license_status' => $license->license_status,
             'license_expire_date' => $license->license_expire_date,
             'license_updates_date' => $license->license_updates_date,
             'license_support_date' => $license->license_support_date,
-            'license_domain'      => $license->license_domain,
-            'license_ip'          => $license->license_ip,
+            'license_domain' => $license->license_domain,
+            'license_ip' => $license->license_ip,
         ];
 
         return $this->notificationResponse('notification_license_ok', $notificationData, $product_id, $client_email, $license_code, $root_url);
@@ -308,7 +313,7 @@ class LicenseCallbackController extends Controller
 
     /**
      * Generate server signature for callback verification.
-     * Same algorithm as original: SHA256(server_ips + product_id + license_code + email + root_url + date)
+     * Same algorithm as original: SHA256(server_ips + product_id + license_code + email + root_url + date).
      */
     protected function generateServerSignature(?int $product_id, ?string $root_url, ?string $client_email, ?string $license_code): string
     {
@@ -321,16 +326,16 @@ class LicenseCallbackController extends Controller
 
         return hash('sha256',
             implode('', $rootIps)
-            . $product_id
-            . $license_code
-            . $client_email
-            . $root_url
-            . gmdate('Y-m-d')
+            .$product_id
+            .$license_code
+            .$client_email
+            .$root_url
+            .gmdate('Y-m-d')
         );
     }
 
     /**
-     * Extract raw domain from URL (same as aflGetRawDomain in original)
+     * Extract raw domain from URL (same as aflGetRawDomain in original).
      */
     protected function getRawDomain(?string $url): string
     {
@@ -340,40 +345,40 @@ class LicenseCallbackController extends Controller
 
         $scheme = parse_url($url, PHP_URL_SCHEME);
         if (empty($scheme)) {
-            $url = 'http://' . $url;
+            $url = 'http://'.$url;
         }
 
         return str_ireplace('www.', '', parse_url($url, PHP_URL_HOST) ?? '');
     }
 
     /**
-     * Map validation error to notification case key
+     * Map validation error to notification case key.
      */
     protected function mapErrorToNotification(string $error): string
     {
         return match ($error) {
-            'license_not_found'  => 'notification_license_not_found',
-            'license_suspended'  => 'notification_license_suspended',
-            'license_cancelled'  => 'notification_license_cancelled',
-            'license_expired'    => 'notification_license_expired',
-            'invalid_ip'         => 'notification_invalid_ip',
-            'invalid_domain'     => 'notification_invalid_domain',
-            'domain_required'    => 'notification_domain_required',
-            'domain_in_use'      => 'notification_domain_in_use',
-            default              => 'notification_unknown_error',
+            'license_not_found' => 'notification_license_not_found',
+            'license_suspended' => 'notification_license_suspended',
+            'license_cancelled' => 'notification_license_cancelled',
+            'license_expired' => 'notification_license_expired',
+            'invalid_ip' => 'notification_invalid_ip',
+            'invalid_domain' => 'notification_invalid_domain',
+            'domain_required' => 'notification_domain_required',
+            'domain_in_use' => 'notification_domain_in_use',
+            default => 'notification_unknown_error',
         };
     }
 
     /**
-     * Create license callback log
+     * Create license callback log.
      */
     protected function createCallback(int $productId, ?int $userId, string $licenseCode, string $ip, string $domain, int $status): void
     {
         LicenseCallback::create([
-            'product_id'      => $productId,
-            'client_id'       => $userId,
-            'license_code'    => $licenseCode,
-            'callback_ip'     => $ip,
+            'product_id' => $productId,
+            'client_id' => $userId,
+            'license_code' => $licenseCode,
+            'callback_ip' => $ip,
             'callback_domain' => $domain,
             'callback_date_time' => now(),
             'callback_status' => $status,
@@ -381,18 +386,18 @@ class LicenseCallbackController extends Controller
     }
 
     /**
-     * Create license report
+     * Create license report.
      */
     protected function createReport(int $productId, ?int $userId, ?string $licenseCode, string $text, int $system): void
     {
         LicenseReport::create([
-            'product_id'       => $productId,
-            'user_id'          => $userId ?? 0,
-            'license_code'     => $licenseCode,
+            'product_id' => $productId,
+            'user_id' => $userId ?? 0,
+            'license_code' => $licenseCode,
             'report_date_time' => now(),
-            'report_text'      => $text,
-            'report_system'    => $system,
-            'report_status'    => 1,
+            'report_text' => $text,
+            'report_system' => $system,
+            'report_status' => 1,
         ]);
     }
 }

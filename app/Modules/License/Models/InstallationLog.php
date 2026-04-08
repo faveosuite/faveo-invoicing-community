@@ -23,11 +23,11 @@ class InstallationLog extends Model
 
     protected $casts = [
         'installation_last_active_date' => 'datetime',
-        'installation_status'           => 'integer',
+        'installation_status' => 'integer',
     ];
 
     /**
-     * Scope: filter by license code
+     * Scope: filter by license code.
      */
     public function scopeForLicense($query, string $licenseCode)
     {
@@ -35,7 +35,7 @@ class InstallationLog extends Model
     }
 
     /**
-     * Scope: order by most recent activity
+     * Scope: order by most recent activity.
      */
     public function scopeRecent($query)
     {

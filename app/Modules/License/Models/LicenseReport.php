@@ -21,10 +21,10 @@ class LicenseReport extends Model
 
     protected $casts = [
         'report_date_time' => 'datetime',
-        'report_system'    => 'integer',
-        'report_status'    => 'integer',
-        'product_id'       => 'integer',
-        'user_id'          => 'integer',
+        'report_system' => 'integer',
+        'report_status' => 'integer',
+        'product_id' => 'integer',
+        'user_id' => 'integer',
     ];
 
     public function product(): BelongsTo

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * License banned hosts table (from afl_banned_hosts).
      * IP ban list for license verification.
      */

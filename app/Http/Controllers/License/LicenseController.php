@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\License;
 
 use App\Http\Controllers\Controller;
-use App\Modules\License\Services\LicenseService;
-use App\Modules\License\Services\InstallationService;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
+use App\Modules\License\Services\InstallationService;
+use App\Modules\License\Services\LicenseService;
 
 class LicenseController extends Controller
 {
@@ -127,18 +127,18 @@ class LicenseController extends Controller
             $requireDomain = $ipAndDomain['requireDomain'];
 
             $this->getLicenseService()->create([
-                'product_id'             => $product,
-                'user_id'                => $user_id,
-                'license_code'           => $serial_key,
-                'license_order_number'   => $orderNo,
-                'license_domain'         => $domain,
-                'license_ip'             => $ip,
+                'product_id' => $product,
+                'user_id' => $user_id,
+                'license_code' => $serial_key,
+                'license_order_number' => $orderNo,
+                'license_domain' => $domain,
+                'license_ip' => $ip,
                 'license_require_domain' => $requireDomain,
-                'license_limit'          => 1,
-                'license_expire_date'    => $licenseExpiry,
-                'license_updates_date'   => $updatesExpiry,
-                'license_support_date'   => $supportExpiry,
-                'license_status'         => 1,
+                'license_limit' => 1,
+                'license_expire_date' => $licenseExpiry,
+                'license_updates_date' => $updatesExpiry,
+                'license_support_date' => $supportExpiry,
+                'license_status' => 1,
             ]);
         } catch (\Exception $ex) {
             throw new \Exception(__('message.configure_valid_license'));
@@ -171,14 +171,14 @@ class LicenseController extends Controller
             $license = $this->getLicenseService()->findByCode($licenseCode);
             if ($license) {
                 $this->getLicenseService()->update($license->id, [
-                    'license_order_number'   => $orderNo,
+                    'license_order_number' => $orderNo,
                     'license_require_domain' => $requireDomain,
-                    'license_expire_date'    => $l_expiry ?: $license->license_expire_date,
-                    'license_updates_date'   => $u_expiry ?: $license->license_updates_date,
-                    'license_support_date'   => $s_expiry ?: $license->license_support_date,
-                    'license_domain'         => $domain,
-                    'license_ip'             => $ip,
-                    'license_limit'          => $license_limit,
+                    'license_expire_date' => $l_expiry ?: $license->license_expire_date,
+                    'license_updates_date' => $u_expiry ?: $license->license_updates_date,
+                    'license_support_date' => $s_expiry ?: $license->license_support_date,
+                    'license_domain' => $domain,
+                    'license_ip' => $ip,
+                    'license_limit' => $license_limit,
                 ]);
             }
         } catch (\Exception $ex) {
@@ -201,6 +201,7 @@ class LicenseController extends Controller
     public function searchInstallationsId($licenseCode)
     {
         $installations = $this->getInstallationService()->getByLicenseCode($licenseCode);
+
         return $installations->toJson();
     }
 
@@ -210,9 +211,9 @@ class LicenseController extends Controller
         $installation_ip = [];
         $installation_date = [];
         $installation_status = [];
-        
+
         $installations = $this->getInstallationService()->getByLicenseCode($licenseCode);
-        
+
         foreach ($installations as $detail) {
             if ($detail->product_id == $productId) {
                 $installation_domain[] = $detail->installation_domain;
@@ -242,14 +243,14 @@ class LicenseController extends Controller
             $license = $this->getLicenseService()->findByCode($licenseCode);
             if ($license) {
                 $this->getLicenseService()->update($license->id, [
-                    'license_order_number'   => $orderNo,
-                    'license_domain'         => $domain,
-                    'license_ip'             => $ip,
+                    'license_order_number' => $orderNo,
+                    'license_domain' => $domain,
+                    'license_ip' => $ip,
                     'license_require_domain' => $requireDomain,
-                    'license_expire_date'    => $licenseExpiry,
-                    'license_updates_date'   => $expiryDate,
-                    'license_support_date'   => $supportExpiry,
-                    'license_limit'          => $license_limit,
+                    'license_expire_date' => $licenseExpiry,
+                    'license_updates_date' => $expiryDate,
+                    'license_support_date' => $supportExpiry,
+                    'license_limit' => $license_limit,
                 ]);
             }
         } catch (\Exception $ex) {
@@ -265,6 +266,7 @@ class LicenseController extends Controller
     public function getInstallPreference($licenseCode, $productId)
     {
         $license = $this->getLicenseService()->findByCode($licenseCode);
+
         return $license ? $license->license_require_domain : 1;
     }
 
@@ -274,6 +276,7 @@ class LicenseController extends Controller
             $this->getLicenseService()->deactivate($licenseCode);
         } catch (\Exception $ex) {
             \Logger::exception($ex);
+
             return;
         }
     }
@@ -310,9 +313,9 @@ class LicenseController extends Controller
     {
         try {
             $this->getInstallationService()->updateLogs([
-                'license_code'    => $licenseCode,
-                'root_url'        => $root_url,
-                'version_number'  => $version_number,
+                'license_code' => $licenseCode,
+                'root_url' => $root_url,
+                'version_number' => $version_number,
                 'installation_ip' => $installation_ip,
             ]);
         } catch (\Exception $ex) {
@@ -324,7 +327,7 @@ class LicenseController extends Controller
     {
         try {
             $license = $this->getLicenseService()->findByCode($licenseCode);
-            
+
             if ($license) {
                 return collect([$license])->toArray();
             }
@@ -339,7 +342,7 @@ class LicenseController extends Controller
     {
         try {
             $product = Product::where('product_key', $productKey)->first();
-            
+
             if ($product) {
                 return ['status' => 'success', 'product_id' => $product->id];
             }

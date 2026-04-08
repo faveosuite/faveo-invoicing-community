@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Version notifications table (from afu_notifications).
      * Response templates for update checks.
      */

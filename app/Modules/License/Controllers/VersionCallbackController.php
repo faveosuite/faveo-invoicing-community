@@ -2,14 +2,12 @@
 
 namespace App\Modules\License\Controllers;
 
+use App\Model\Product\Product;
 use App\Modules\License\Helpers\LicenseValidator;
 use App\Modules\License\Models\ProductVersion;
 use App\Modules\License\Models\VersionCallback;
-use App\Modules\License\Models\VersionInstallation;
 use App\Modules\License\Models\VersionNotification;
-use App\Modules\License\Models\LicenseReport;
 use App\Modules\License\Services\VersionService;
-use App\Model\Product\Product;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -37,12 +35,12 @@ class VersionCallbackController extends Controller
 
     /**
      * Get latest version for product
-     * POST /aus_callbacks/download_file.php (type=getVersions) OR POST /api/getVersions
+     * POST /aus_callbacks/download_file.php (type=getVersions) OR POST /api/getVersions.
      */
     public function getVersions(Request $request)
     {
-        $product_id     = $request->input('product_id');
-        $product_key    = $request->input('product_key');
+        $product_id = $request->input('product_id');
+        $product_key = $request->input('product_key');
         $current_version = $request->input('version_number');
         $ip = $request->ip();
 
@@ -56,7 +54,7 @@ class VersionCallbackController extends Controller
             ->orWhere('product_key', $product_key)
             ->first();
 
-        if (!$product) {
+        if (! $product) {
             return $this->notificationResponse('notification_product_not_found', []);
         }
 
@@ -70,7 +68,7 @@ class VersionCallbackController extends Controller
             ->orderBy('version_date', 'desc')
             ->first();
 
-        if (!$latestVersion) {
+        if (! $latestVersion) {
             return $this->notificationResponse('notification_product_no_versions', []);
         }
 
@@ -81,15 +79,15 @@ class VersionCallbackController extends Controller
         $responseData = array_merge(
             $product->only(['id', 'name', 'product_sku', 'product_key', 'product_url_homepage', 'status']),
             [
-                'product_id'           => $product->id,
-                'product_title'        => $product->name,
-                'version_id'           => $latestVersion->id,
-                'version_number'       => $latestVersion->version_number,
-                'version_date'         => $latestVersion->version_date,
-                'version_changelog'    => $latestVersion->version_changelog,
+                'product_id' => $product->id,
+                'product_title' => $product->name,
+                'version_id' => $latestVersion->id,
+                'version_number' => $latestVersion->version_number,
+                'version_date' => $latestVersion->version_date,
+                'version_changelog' => $latestVersion->version_changelog,
                 'version_install_file' => $latestVersion->version_install_file,
                 'version_upgrade_file' => $latestVersion->version_upgrade_file,
-                'version_status'       => $latestVersion->version_status,
+                'version_status' => $latestVersion->version_status,
             ]
         );
 
@@ -98,11 +96,11 @@ class VersionCallbackController extends Controller
 
     /**
      * Get all versions for product
-     * POST /api/getAllVersions
+     * POST /api/getAllVersions.
      */
     public function getAllVersions(Request $request)
     {
-        $product_id  = $request->input('product_id');
+        $product_id = $request->input('product_id');
         $product_key = $request->input('product_key');
         $ip = $request->ip();
 
@@ -116,7 +114,7 @@ class VersionCallbackController extends Controller
             ->orWhere('product_key', $product_key)
             ->first();
 
-        if (!$product) {
+        if (! $product) {
             return $this->notificationResponse('notification_product_not_found', []);
         }
 
@@ -128,8 +126,8 @@ class VersionCallbackController extends Controller
         $responseData = array_merge(
             $product->only(['id', 'name', 'product_sku', 'product_key', 'status']),
             [
-                'product_id'       => $product->id,
-                'product_title'    => $product->name,
+                'product_id' => $product->id,
+                'product_title' => $product->name,
                 'product_versions' => $versions->toArray(),
             ]
         );
@@ -139,14 +137,14 @@ class VersionCallbackController extends Controller
 
     /**
      * Fetch version query/SQL
-     * POST /api/fetchQuery
+     * POST /api/fetchQuery.
      */
     public function fetchQuery(Request $request)
     {
-        $product_id     = $request->input('product_id');
-        $product_key    = $request->input('product_key');
+        $product_id = $request->input('product_id');
+        $product_key = $request->input('product_key');
         $version_number = $request->input('version_number');
-        $query_type     = $request->input('query_type', 'install'); // install or upgrade
+        $query_type = $request->input('query_type', 'install'); // install or upgrade
         $ip = $request->ip();
 
         // Check banned
@@ -159,7 +157,7 @@ class VersionCallbackController extends Controller
             ->orWhere('product_key', $product_key)
             ->first();
 
-        if (!$product) {
+        if (! $product) {
             return $this->notificationResponse('notification_product_not_found', []);
         }
 
@@ -168,7 +166,7 @@ class VersionCallbackController extends Controller
             ->where('version_number', $version_number)
             ->first();
 
-        if (!$version) {
+        if (! $version) {
             return $this->notificationResponse('notification_version_not_found', []);
         }
 
@@ -185,10 +183,10 @@ class VersionCallbackController extends Controller
         $this->logCallback($product->id, $version->id, 'fetch_query', $ip, $request->input('root_url', ''));
 
         $responseData = [
-            'product_id'     => $product->id,
-            'version_id'     => $version->id,
+            'product_id' => $product->id,
+            'version_id' => $version->id,
             'version_number' => $version->version_number,
-            'query_type'     => $query_type,
+            'query_type' => $query_type,
         ];
 
         // Return raw query in body, notification data in headers
@@ -202,14 +200,14 @@ class VersionCallbackController extends Controller
 
     /**
      * Download version file
-     * POST /aus_callbacks/download_file.php  OR  POST /api/downloadFile
+     * POST /aus_callbacks/download_file.php  OR  POST /api/downloadFile.
      */
     public function downloadFile(Request $request)
     {
-        $product_id     = $request->input('product_id');
-        $product_key    = $request->input('product_key');
+        $product_id = $request->input('product_id');
+        $product_key = $request->input('product_key');
         $version_number = $request->input('version_number');
-        $file_type      = $request->input('file_type', 'version_install_file');
+        $file_type = $request->input('file_type', 'version_install_file');
         $ip = $request->ip();
 
         // Check banned
@@ -222,7 +220,7 @@ class VersionCallbackController extends Controller
             ->orWhere('product_key', $product_key)
             ->first();
 
-        if (!$product) {
+        if (! $product) {
             return $this->notificationResponse('notification_product_not_found', []);
         }
 
@@ -232,7 +230,7 @@ class VersionCallbackController extends Controller
             ->where('version_status', 1)
             ->first();
 
-        if (!$version) {
+        if (! $version) {
             return $this->notificationResponse('notification_version_not_found', []);
         }
 
@@ -242,15 +240,16 @@ class VersionCallbackController extends Controller
             'version_upgrade_file', 'version_upgrade_query',
         ];
 
-        if (!in_array($file_type, $allowedTypes)) {
+        if (! in_array($file_type, $allowedTypes)) {
             return $this->notificationResponse('notification_invalid_parameter', []);
         }
 
         $filePath = $version->{$file_type};
-        if (!$filePath) {
+        if (! $filePath) {
             $notifKey = str_contains($file_type, 'install')
                 ? 'notification_install_archive_not_found'
                 : 'notification_upgrade_archive_not_found';
+
             return $this->notificationResponse($notifKey, []);
         }
 
@@ -271,14 +270,14 @@ class VersionCallbackController extends Controller
         $this->logCallback($product->id, $version->id, 'download', $ip, $request->input('root_url', ''));
 
         $responseData = [
-            'product_id'     => $product->id,
-            'version_id'     => $version->id,
+            'product_id' => $product->id,
+            'version_id' => $version->id,
             'version_number' => $version->version_number,
-            'file_type'      => $file_type,
+            'file_type' => $file_type,
         ];
 
         // If file exists on disk, download it
-        $fullPath = storage_path('app/' . $filePath);
+        $fullPath = storage_path('app/'.$filePath);
         if (file_exists($fullPath)) {
             return response()->download($fullPath)
                 ->header('notification_case', 'notification_operation_ok')
@@ -297,7 +296,7 @@ class VersionCallbackController extends Controller
     // =========================================================================
 
     /**
-     * Build notification response with headers (same format as license callbacks)
+     * Build notification response with headers (same format as license callbacks).
      */
     protected function notificationResponse(string $notificationCase, array $data = [])
     {
@@ -309,16 +308,17 @@ class VersionCallbackController extends Controller
     }
 
     /**
-     * Get notification text from version_notifications table
+     * Get notification text from version_notifications table.
      */
     protected function getNotificationText(string $case): string
     {
         $notification = VersionNotification::first();
+
         return $notification ? ($notification->{$case} ?? $case) : $case;
     }
 
     /**
-     * Generate signature for version callbacks
+     * Generate signature for version callbacks.
      */
     protected function generateSignature(?int $productId = null): string
     {
@@ -329,20 +329,20 @@ class VersionCallbackController extends Controller
             return '';
         }
 
-        return hash('sha256', implode('', $rootIps) . $productId . gmdate('Y-m-d'));
+        return hash('sha256', implode('', $rootIps).$productId.gmdate('Y-m-d'));
     }
 
     /**
-     * Log version callback
+     * Log version callback.
      */
     protected function logCallback(int $productId, int $versionId, string $type, string $ip, string $path): void
     {
         VersionCallback::create([
-            'product_id'      => $productId,
-            'version_id'      => $versionId,
-            'callback_type'   => $type,
-            'callback_ip'     => $ip,
-            'callback_path'   => $path,
+            'product_id' => $productId,
+            'version_id' => $versionId,
+            'callback_type' => $type,
+            'callback_ip' => $ip,
+            'callback_path' => $path,
             'callback_date_time' => now(),
             'callback_status' => 1,
         ]);

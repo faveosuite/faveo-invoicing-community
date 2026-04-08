@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * License plugins table (from license_plugins).
      * Plugin-license associations with FKs to licenses and products.
      */

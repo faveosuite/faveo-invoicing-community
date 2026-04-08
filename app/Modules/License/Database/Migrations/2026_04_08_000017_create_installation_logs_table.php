@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Installation logs table (from installation_logs).
      * Detailed installation activity logs indexed by license_code.
      */

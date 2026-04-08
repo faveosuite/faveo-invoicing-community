@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Version callbacks table (from afu_callbacks).
      * Update callback logs with foreign keys to products and product_versions.
      */

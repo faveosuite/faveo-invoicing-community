@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * License callbacks table (from afl_callbacks).
      * License verification event logs.
      */

@@ -22,10 +22,10 @@ class Installation extends Model
     ];
 
     protected $casts = [
-        'installation_status'              => 'integer',
+        'installation_status' => 'integer',
         'installation_disable_ip_verification' => 'integer',
-        'product_id'                       => 'integer',
-        'user_id'                          => 'integer',
+        'product_id' => 'integer',
+        'user_id' => 'integer',
     ];
 
     public function product(): BelongsTo

@@ -20,8 +20,8 @@ class VersionInstallation extends Model
 
     protected $casts = [
         'installation_status' => 'integer',
-        'product_id'          => 'integer',
-        'version_id'          => 'integer',
+        'product_id' => 'integer',
+        'version_id' => 'integer',
     ];
 
     public function product(): BelongsTo
