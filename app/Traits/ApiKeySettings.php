@@ -20,41 +20,9 @@ use Illuminate\Support\Facades\Http;
 
 trait ApiKeySettings
 {
-    public function licenseDetails(Request $request)
-    {
-        $status = $request->input('status');
-        $licenseApiSecret = $request->input('license_api_secret');
-        $licenseApiUrl = $request->input('license_api_url');
-        $licenseApiClientId = $request->input('license_client_id');
-        $licenseApiClientSecret = $request->input('license_client_secret');
-        $licenseApiGrantType = $request->input('license_grant_type');
-
-        $data = [
-            'api_key_secret' => $licenseApiSecret,
-            'client_id' => $licenseApiClientId,
-            'client_secret' => $licenseApiClientSecret,
-            'grant_type' => $licenseApiGrantType,
-        ];
-
-        try {
-            $response = Http::withoutVerifying()->asForm()->post($licenseApiUrl.'oauth/token', $data);
-            $response = json_decode($response);
-            $token = $response->access_token;
-        } catch(\Exception $e) {
-            return errorResponse(\Lang::get('message.license_invalid'));
-        }
-        StatusSetting::where('id', 1)->update(['license_status' => $status]);
-        ApiKey::where('id', 1)->update(['license_api_secret' => $licenseApiSecret, 'license_api_url' => $licenseApiUrl,
-            'license_client_id' => $licenseApiClientId, 'license_client_secret' => $licenseApiClientSecret,
-            'license_grant_type' => $licenseApiGrantType, ]);
-
-        return successResponse(\Lang::get('message.license_setting'));
-    }
-
     public function licenseStatus(Request $request)
     {
         $statusData = collect([
-            'status' => ['key' => 'license_status',       'lang' => __('message.license_status')],
             'mstatus' => ['key' => 'msg91_status',         'lang' => __('message.mobile_status')],
             'mailchimpstatus' => ['key' => 'mailchimp_status',     'lang' => __('message.mailchimp_status')],
             'gcaptchastatus' => ['key' => 'recaptcha_status', 'lang' => __('message.google_status')],

@@ -55,6 +55,22 @@ return [
             'engine' => env('DB_ENGINE', null),
         ],
 
+        // License app database connection (used for data migration only)
+        'license' => [
+            'driver' => 'mysql',
+            'host' => env('LICENSE_DB_HOST', env('DB_HOST', 'localhost')),
+            'port' => env('LICENSE_DB_PORT', env('DB_PORT', '')),
+            'database' => env('LICENSE_DB_DATABASE', ''),
+            'username' => env('LICENSE_DB_USERNAME', env('DB_USERNAME', 'root')),
+            'password' => env('LICENSE_DB_PASSWORD', env('DB_PASSWORD', '')),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => env('DB_ENGINE', null),
+        ],
+
         'testing' => [
             'driver' => 'mysql',
             'host' => env('DB_HOST', 'localhost'),
@@ -90,6 +106,21 @@ return [
             'password' => env('DB_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
+        ],
+
+        'license' => [
+            'driver' => 'mysql',
+            'host' => env('LICENSE_DB_HOST', env('DB_HOST', 'localhost')),
+            'port' => env('LICENSE_DB_PORT', env('DB_PORT', '')),
+            'database' => env('LICENSE_DB_DATABASE', ''),
+            'username' => env('LICENSE_DB_USERNAME', env('DB_USERNAME', 'root')),
+            'password' => env('LICENSE_DB_PASSWORD', env('DB_PASSWORD', '')),
+            'unix_socket' => env('LICENSE_DB_SOCKET', env('DB_SOCKET', '')),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => env('DB_ENGINE', null),
         ],
 
     ],

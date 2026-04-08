@@ -4,6 +4,7 @@ namespace App\Http\Controllers\License;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LocalizedLicenseRequest;
+use App\Modules\License\Services\InstallationService;
 use App\Model\Order\Order;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -16,13 +17,13 @@ use Illuminate\Support\Facades\URL;
 
 class LocalizedLicenseController extends Controller
 {
-    private LicenseService $licenseService;
+    protected InstallationService $installationService;
 
-    public function __construct()
+    public function __construct(InstallationService $installationService)
     {
         $this->middleware('auth');
         $this->middleware('admin', ['except' => ['downloadFile', 'downloadPrivate', 'storeFile']]);
-        $this->licenseService = new LicenseService();
+        $this->installationService = $installationService;
     }
 
     private function postCurl($post_url, $post_info, $token = null)
@@ -203,13 +204,11 @@ class LocalizedLicenseController extends Controller
     private function localizedLicenseInstallLM($orderNo, $domain, $licenseCode)
     {
         $client_email = '';
-        $url = $this->licenseService->getUrl();
-        $api_key_secret = $this->licenseService->getApiKeySecret();
         $productId = Order::where('number', $orderNo)->value('product');
         $installation_date = date('Y-m-d');
         $installation_hash = hash('sha256', $domain.$client_email.$licenseCode);
-        $token = $this->licenseService->getValidToken();
-        $addLocalizedInstallation = $this->postCurl($url.'api/admin/addInstallation', "api_key_secret=$api_key_secret&product_id=$productId&license_code=$licenseCode&installation_domain=$domain&installation_date=$installation_date&installation_status=1&installation_hash=$installation_hash", $token);
+        
+        // Registration is now handled internally - no API call needed
     }
 
     /**
