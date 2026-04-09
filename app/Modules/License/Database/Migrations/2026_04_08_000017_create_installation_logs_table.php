@@ -17,11 +17,12 @@ return new class extends Migration
         Schema::create('installation_logs', function (Blueprint $table) {
             $table->id();
             $table->string('license_code')->index();
-            $table->text('log_data')->nullable();
-            $table->string('log_type')->nullable();
-            $table->timestamp('log_date_time')->useCurrent();
+            $table->string('version_number')->nullable();
+            $table->string('installation_ip')->nullable();
+            $table->string('installation_domain')->nullable();
+            $table->timestamp('installation_last_active_date')->nullable();
+            $table->boolean('installation_status')->default(0);
             $table->timestamps();
-            $table->index(['license_code', 'log_date_time']);
         });
     }
 

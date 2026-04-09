@@ -127,7 +127,7 @@ class BaseOrderController extends ExtendedOrderController
 
                 $addOnIds = implode(',', $this->product->find($product)->productPluginGroupsAsProduct->pluck('plugin_id')->toArray());
 
-                $options = $this->formatConfigurableOptions($product);
+                $options = $this->formatConfigurableOptions($product)->toArray();
 
                 app(\App\Modules\License\Services\LicenseService::class)->syncAddons($serial_key, explode(',', $addOnIds), $options);
             }

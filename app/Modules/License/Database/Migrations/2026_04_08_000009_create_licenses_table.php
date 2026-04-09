@@ -27,8 +27,11 @@ return new class extends Migration
             $table->timestamp('license_date')->nullable();
             $table->timestamp('license_cancel_date')->nullable();
             $table->timestamp('license_expire_date')->nullable();
+            $table->timestamp('license_expire_email_date')->nullable();
             $table->timestamp('license_updates_date')->nullable();
+            $table->timestamp('license_updates_email_date')->nullable();
             $table->timestamp('license_support_date')->nullable();
+            $table->timestamp('license_support_email_date')->nullable();
             $table->text('license_comments')->nullable();
             $table->string('license_status')->default('active');
             $table->timestamps();

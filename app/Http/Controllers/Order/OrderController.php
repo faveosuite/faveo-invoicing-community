@@ -445,6 +445,9 @@ class OrderController extends BaseOrderController
             }
             $user = $this->user->find($invoice->user_id);
             $installationDetails = [];
+            $licenseService = app(\App\Modules\License\Services\LicenseService::class);
+            $licenseRecord = $licenseService->findByCode($order->serial_key);
+            $licenseLimit = $licenseRecord ? $licenseRecord->license_limit : 1;
             $noOfAllowedInstallation = app(\App\Modules\License\Services\InstallationService::class)->countActiveInstallations($order->serial_key);
 
             $allowDomainStatus = StatusSetting::pluck('domain_check')->first();
@@ -464,7 +467,7 @@ class OrderController extends BaseOrderController
             $statusAutorenewal = Subscription::where('order_id', $id)->value('is_subscribed');
 
             return view('themes.default1.order.show',
-                compact('user', 'order', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'noOfAllowedInstallation', 'lastActivity', 'versionLabel', 'date', 'licdate', 'supdate', 'installationDetails', 'id', 'statusAutorenewal', 'payment_log'));
+                compact('user', 'order', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'licenseLimit', 'noOfAllowedInstallation', 'lastActivity', 'versionLabel', 'date', 'licdate', 'supdate', 'installationDetails', 'id', 'statusAutorenewal', 'payment_log'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

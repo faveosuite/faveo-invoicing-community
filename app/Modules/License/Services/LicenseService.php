@@ -40,7 +40,6 @@ class LicenseService
                 'license_date' => $data['license_date'] ?? now()->format('Y-m-d'),
                 'license_cancel_date' => null,
                 'license_comments' => $data['license_comments'] ?? null,
-                'license_envato' => $data['license_envato'] ?? 0,
             ]);
         });
     }
@@ -190,32 +189,34 @@ class LicenseService
     public function syncAddons(string $licenseCode, array $productIds, array $options = []): void
     {
         $license = License::where('license_code', $licenseCode)->firstOrFail();
+        $licenseId = $license->id;
 
-        DB::transaction(function () use ($license, $productIds, $options) {
-            // Remove existing addons
-            LicensePlugin::where('license_id', $license->id)->delete();
+        // Filter out empty values and deduplicate
+        $productIds = array_unique(array_filter($productIds, fn ($id) => ! empty($id)));
 
-            // Add new addons
+        DB::transaction(function () use ($license, $licenseId, $productIds, $options) {
+            // Insert or update license plugins (upsert like original)
             foreach ($productIds as $productId) {
-                LicensePlugin::create([
-                    'license_id' => $license->id,
-                    'product_id' => $productId,
-                ]);
+                LicensePlugin::updateOrCreate(
+                    ['license_id' => $licenseId, 'product_id' => $productId],
+                    ['license_id' => $licenseId, 'product_id' => $productId]
+                );
             }
 
-            // Sync options if provided
-            if (! empty($options)) {
-                LicenseOption::where('license_id', $license->id)->delete();
-                foreach ($options as $option) {
-                    LicenseOption::create([
-                        'license_id' => $license->id,
+            // Insert or update license options (upsert like original)
+            foreach ($options as $option) {
+                LicenseOption::updateOrCreate(
+                    [
+                        'license_id' => $licenseId,
                         'product_id' => $option['product_id'] ?? $license->product_id,
                         'option_group' => $option['option_group'] ?? '',
                         'option_name' => $option['option_name'] ?? '',
                         'key' => $option['key'] ?? '',
+                    ],
+                    [
                         'value' => $option['value'] ?? '',
-                    ]);
-                }
+                    ]
+                );
             }
         });
     }

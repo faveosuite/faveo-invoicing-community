@@ -294,7 +294,6 @@ class LicenseDataMigration extends Command
                 'license_support_date' => $lic->license_support_date,
                 'license_support_email_date' => $lic->license_support_email_date ?? null,
                 'license_comments' => $lic->license_comments,
-                'license_envato' => $lic->license_envato ?? 0,
                 'license_status' => $lic->license_status ?? 1,
                 'created_at' => $lic->created_at ?? now(),
                 'updated_at' => $lic->updated_at ?? now(),

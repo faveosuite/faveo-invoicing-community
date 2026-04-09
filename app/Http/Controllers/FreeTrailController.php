@@ -262,7 +262,7 @@ class FreeTrailController extends Controller
                 $baseorder->addSubscription($order->id, $plan_id, $version, $product->id, $serial_key);
 
                 $addOnIds = implode(',', $this->product->find($product->id)->productPluginGroupsAsProduct->pluck('plugin_id')->toArray());
-                $options = $baseorder->formatConfigurableOptions($product->id);
+                $options = $baseorder->formatConfigurableOptions($product->id)->toArray();
                 app(\App\Modules\License\Services\LicenseService::class)->syncAddons($serial_key, explode(',', $addOnIds), $options);
             }
             $mailchimpStatus = StatusSetting::pluck('mailchimp_status')->first();

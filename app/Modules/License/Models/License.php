@@ -28,14 +28,12 @@ class License extends Model
         'license_support_date',
         'license_support_email_date',
         'license_comments',
-        'license_envato',
         'license_status',
     ];
 
     protected $casts = [
         'license_require_domain' => 'integer',
         'license_limit' => 'integer',
-        'license_envato' => 'integer',
         'license_status' => 'integer',
         'product_id' => 'integer',
         'user_id' => 'integer',
