@@ -2,10 +2,10 @@
 
 namespace App\Modules\License\Controllers\AfuCallbacks;
 
+use App\Model\Product\Product;
 use App\Modules\License\Controllers\Traits\AfuCallbackHelpers;
 use App\Modules\License\Helpers\LicenseValidator;
 use App\Modules\License\Models\ProductVersion;
-use App\Model\Product\Product;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -22,12 +22,12 @@ class GetVersionsController extends Controller
 
     /**
      * Get latest version for product
-     * POST /aus_callbacks/download_file.php (type=getVersions) OR POST /api/getVersions
+     * POST /aus_callbacks/download_file.php (type=getVersions) OR POST /api/getVersions.
      */
     public function getVersions(Request $request)
     {
-        $product_id     = $request->input('product_id');
-        $product_key    = $request->input('product_key');
+        $product_id = $request->input('product_id');
+        $product_key = $request->input('product_key');
         $current_version = $request->input('version_number');
         $ip = $request->ip();
 
@@ -41,7 +41,7 @@ class GetVersionsController extends Controller
             ->orWhere('product_key', $product_key)
             ->first();
 
-        if (!$product) {
+        if (! $product) {
             return $this->notificationResponse('notification_product_not_found', []);
         }
 
@@ -55,7 +55,7 @@ class GetVersionsController extends Controller
             ->orderBy('version_date', 'desc')
             ->first();
 
-        if (!$latestVersion) {
+        if (! $latestVersion) {
             return $this->notificationResponse('notification_product_no_versions', []);
         }
 
@@ -66,15 +66,15 @@ class GetVersionsController extends Controller
         $responseData = array_merge(
             $product->only(['id', 'name', 'product_sku', 'product_key', 'product_url_homepage', 'status']),
             [
-                'product_id'           => $product->id,
-                'product_title'        => $product->name,
-                'version_id'           => $latestVersion->id,
-                'version_number'       => $latestVersion->version_number,
-                'version_date'         => $latestVersion->version_date,
-                'version_changelog'    => $latestVersion->version_changelog,
+                'product_id' => $product->id,
+                'product_title' => $product->name,
+                'version_id' => $latestVersion->id,
+                'version_number' => $latestVersion->version_number,
+                'version_date' => $latestVersion->version_date,
+                'version_changelog' => $latestVersion->version_changelog,
                 'version_install_file' => $latestVersion->version_install_file,
                 'version_upgrade_file' => $latestVersion->version_upgrade_file,
-                'version_status'       => $latestVersion->version_status,
+                'version_status' => $latestVersion->version_status,
             ]
         );
 

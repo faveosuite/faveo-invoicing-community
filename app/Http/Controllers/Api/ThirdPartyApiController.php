@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Model\Common\StatusSetting;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Traits\Upload\ChunkUpload;

@@ -8,7 +8,7 @@ use App\Modules\License\Models\VersionNotification;
 trait AfuCallbackHelpers
 {
     /**
-     * Build notification response with headers (same format as license callbacks)
+     * Build notification response with headers (same format as license callbacks).
      */
     protected function notificationResponse(string $notificationCase, array $data = [])
     {
@@ -20,16 +20,17 @@ trait AfuCallbackHelpers
     }
 
     /**
-     * Get notification text from version_notifications table
+     * Get notification text from version_notifications table.
      */
     protected function getNotificationText(string $case): string
     {
         $notification = VersionNotification::first();
+
         return $notification ? ($notification->{$case} ?? $case) : $case;
     }
 
     /**
-     * Generate signature for version callbacks
+     * Generate signature for version callbacks.
      */
     protected function generateSignature(?int $productId = null): string
     {
@@ -40,20 +41,20 @@ trait AfuCallbackHelpers
             return '';
         }
 
-        return hash('sha256', implode('', $rootIps) . $productId . gmdate('Y-m-d'));
+        return hash('sha256', implode('', $rootIps).$productId.gmdate('Y-m-d'));
     }
 
     /**
-     * Log version callback
+     * Log version callback.
      */
     protected function logCallback(int $productId, int $versionId, string $type, string $ip, string $path): void
     {
         VersionCallback::create([
-            'product_id'      => $productId,
-            'version_id'      => $versionId,
-            'callback_type'   => $type,
-            'callback_ip'     => $ip,
-            'callback_path'   => $path,
+            'product_id' => $productId,
+            'version_id' => $versionId,
+            'callback_type' => $type,
+            'callback_ip' => $ip,
+            'callback_path' => $path,
             'callback_date_time' => now(),
             'callback_status' => 1,
         ]);

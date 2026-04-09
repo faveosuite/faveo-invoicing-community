@@ -67,14 +67,14 @@ trait UpdateDates
         $existingLicense = $licenseService->findByCode($order->serial_key);
         if ($existingLicense) {
             $licenseService->update($existingLicense->id, [
-                'license_order_number'   => $order->number,
-                'license_domain'         => $ipAndDomain['domain'],
-                'license_ip'             => $ipAndDomain['ip'],
+                'license_order_number' => $order->number,
+                'license_domain' => $ipAndDomain['domain'],
+                'license_ip' => $ipAndDomain['ip'],
                 'license_require_domain' => $ipAndDomain['requireDomain'],
-                'license_expire_date'    => $licenseExpiry,
-                'license_updates_date'   => $expiryDate,
-                'license_support_date'   => $supportExpiry,
-                'license_limit'          => $noOfAllowedInstallation ?: 2,
+                'license_expire_date' => $licenseExpiry,
+                'license_updates_date' => $expiryDate,
+                'license_support_date' => $supportExpiry,
+                'license_limit' => $noOfAllowedInstallation ?: 2,
             ]);
         }
     }
@@ -134,14 +134,14 @@ trait UpdateDates
         $existingLicense = $licenseService->findByCode($order->serial_key);
         if ($existingLicense) {
             $licenseService->update($existingLicense->id, [
-                'license_order_number'   => $order->number,
-                'license_domain'         => $ipAndDomain['domain'],
-                'license_ip'             => $ipAndDomain['ip'],
+                'license_order_number' => $order->number,
+                'license_domain' => $ipAndDomain['domain'],
+                'license_ip' => $ipAndDomain['ip'],
                 'license_require_domain' => $ipAndDomain['requireDomain'],
-                'license_expire_date'    => $licenseExpiry,
-                'license_updates_date'   => $expiryDate,
-                'license_support_date'   => $supportExpiry,
-                'license_limit'          => $noOfAllowedInstallation ?: 2,
+                'license_expire_date' => $licenseExpiry,
+                'license_updates_date' => $expiryDate,
+                'license_support_date' => $supportExpiry,
+                'license_limit' => $noOfAllowedInstallation ?: 2,
             ]);
         }
     }
@@ -201,14 +201,14 @@ trait UpdateDates
         $existingLicense = $licenseService->findByCode($order->serial_key);
         if ($existingLicense) {
             $licenseService->update($existingLicense->id, [
-                'license_order_number'   => $order->number,
-                'license_domain'         => $ipAndDomain['domain'],
-                'license_ip'             => $ipAndDomain['ip'],
+                'license_order_number' => $order->number,
+                'license_domain' => $ipAndDomain['domain'],
+                'license_ip' => $ipAndDomain['ip'],
                 'license_require_domain' => $ipAndDomain['requireDomain'],
-                'license_expire_date'    => $licenseExpiry,
-                'license_updates_date'   => $expiryDate,
-                'license_support_date'   => $supportExpiry,
-                'license_limit'          => $noOfAllowedInstallation ?: 2,
+                'license_expire_date' => $licenseExpiry,
+                'license_updates_date' => $expiryDate,
+                'license_support_date' => $supportExpiry,
+                'license_limit' => $noOfAllowedInstallation ?: 2,
             ]);
         }
     }
@@ -243,14 +243,14 @@ trait UpdateDates
         $existingLicense = $licenseService->findByCode($order->serial_key);
         if ($existingLicense) {
             $licenseService->update($existingLicense->id, [
-                'license_order_number'   => $order->number,
+                'license_order_number' => $order->number,
                 'license_require_domain' => $ipAndDomain['requireDomain'],
-                'license_expire_date'    => $l_expiry ?: $existingLicense->license_expire_date,
-                'license_updates_date'   => $u_expiry ?: $existingLicense->license_updates_date,
-                'license_support_date'   => $s_expiry ?: $existingLicense->license_support_date,
-                'license_domain'         => $ipAndDomain['domain'],
-                'license_ip'             => $ipAndDomain['ip'],
-                'license_limit'          => $request->input('limit'),
+                'license_expire_date' => $l_expiry ?: $existingLicense->license_expire_date,
+                'license_updates_date' => $u_expiry ?: $existingLicense->license_updates_date,
+                'license_support_date' => $s_expiry ?: $existingLicense->license_support_date,
+                'license_domain' => $ipAndDomain['domain'],
+                'license_ip' => $ipAndDomain['ip'],
+                'license_limit' => $request->input('limit'),
             ]);
         }
 

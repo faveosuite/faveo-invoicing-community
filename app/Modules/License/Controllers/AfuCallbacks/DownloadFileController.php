@@ -2,10 +2,10 @@
 
 namespace App\Modules\License\Controllers\AfuCallbacks;
 
+use App\Model\Product\Product;
 use App\Modules\License\Controllers\Traits\AfuCallbackHelpers;
 use App\Modules\License\Helpers\LicenseValidator;
 use App\Modules\License\Models\ProductVersion;
-use App\Model\Product\Product;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -22,14 +22,14 @@ class DownloadFileController extends Controller
 
     /**
      * Download version file
-     * POST /aus_callbacks/download_file.php  OR  POST /api/downloadFile
+     * POST /aus_callbacks/download_file.php  OR  POST /api/downloadFile.
      */
     public function downloadFile(Request $request)
     {
-        $product_id     = $request->input('product_id');
-        $product_key    = $request->input('product_key');
+        $product_id = $request->input('product_id');
+        $product_key = $request->input('product_key');
         $version_number = $request->input('version_number');
-        $file_type      = $request->input('file_type', 'version_install_file');
+        $file_type = $request->input('file_type', 'version_install_file');
         $ip = $request->ip();
 
         // Check banned
@@ -42,7 +42,7 @@ class DownloadFileController extends Controller
             ->orWhere('product_key', $product_key)
             ->first();
 
-        if (!$product) {
+        if (! $product) {
             return $this->notificationResponse('notification_product_not_found', []);
         }
 
@@ -52,7 +52,7 @@ class DownloadFileController extends Controller
             ->where('version_status', 1)
             ->first();
 
-        if (!$version) {
+        if (! $version) {
             return $this->notificationResponse('notification_version_not_found', []);
         }
 
@@ -62,15 +62,16 @@ class DownloadFileController extends Controller
             'version_upgrade_file', 'version_upgrade_query',
         ];
 
-        if (!in_array($file_type, $allowedTypes)) {
+        if (! in_array($file_type, $allowedTypes)) {
             return $this->notificationResponse('notification_invalid_parameter', []);
         }
 
         $filePath = $version->{$file_type};
-        if (!$filePath) {
+        if (! $filePath) {
             $notifKey = str_contains($file_type, 'install')
                 ? 'notification_install_archive_not_found'
                 : 'notification_upgrade_archive_not_found';
+
             return $this->notificationResponse($notifKey, []);
         }
 
@@ -91,14 +92,14 @@ class DownloadFileController extends Controller
         $this->logCallback($product->id, $version->id, 'download', $ip, $request->input('root_url', ''));
 
         $responseData = [
-            'product_id'     => $product->id,
-            'version_id'     => $version->id,
+            'product_id' => $product->id,
+            'version_id' => $version->id,
             'version_number' => $version->version_number,
-            'file_type'      => $file_type,
+            'file_type' => $file_type,
         ];
 
         // If file exists on disk, download it
-        $fullPath = storage_path('app/' . $filePath);
+        $fullPath = storage_path('app/'.$filePath);
         if (file_exists($fullPath)) {
             return response()->download($fullPath)
                 ->header('notification_case', 'notification_operation_ok')

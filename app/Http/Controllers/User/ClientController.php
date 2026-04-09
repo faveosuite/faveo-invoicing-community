@@ -4,7 +4,6 @@ namespace App\Http\Controllers\User;
 
 use App\Comment;
 use App\ExportDetail;
-
 use App\Http\Requests\User\ClientRequest;
 use App\Jobs\AddUserToExternalService;
 use App\Jobs\ReportExport;

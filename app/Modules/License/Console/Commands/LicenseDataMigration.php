@@ -37,8 +37,9 @@ class LicenseDataMigration extends Command
         $this->info('Running license system data migration...');
 
         // Verify license DB connection is configured
-        if (!config('database.connections.license.database')) {
+        if (! config('database.connections.license.database')) {
             $this->error('License database connection not configured. Provide --database option');
+
             return Command::FAILURE;
         }
 
@@ -46,12 +47,12 @@ class LicenseDataMigration extends Command
             // Step 1: Build user mapping (match by email)
             $this->info('Step 1: Building user mapping...');
             $this->buildUserMapping();
-            $this->info("  Mapped " . count($this->userMap) . " users");
+            $this->info('  Mapped '.count($this->userMap).' users');
 
             // Step 2: Build product mapping (match by SKU)
             $this->info('Step 2: Building product mapping...');
             $this->buildProductMapping();
-            $this->info("  Mapped " . count($this->productMap) . " products");
+            $this->info('  Mapped '.count($this->productMap).' products');
 
             // Step 3: Migrate licenses
             $this->info('Step 3: Migrating licenses...');
@@ -116,18 +117,19 @@ class LicenseDataMigration extends Command
 
             $this->info('');
             $this->info('Data migration completed successfully!');
-            $this->info("  Users mapped: " . count($this->userMap));
-            $this->info("  Products mapped: " . count($this->productMap));
-            $this->info("  Licenses migrated: " . count($this->licenseMap));
-            $this->info("  Versions migrated: " . count($this->versionMap));
+            $this->info('  Users mapped: '.count($this->userMap));
+            $this->info('  Products mapped: '.count($this->productMap));
+            $this->info('  Licenses migrated: '.count($this->licenseMap));
+            $this->info('  Versions migrated: '.count($this->versionMap));
 
             return Command::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('Migration failed: ' . $e->getMessage());
+            $this->error('Migration failed: '.$e->getMessage());
             Log::error('License data migration failed', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
             return Command::FAILURE;
         }
     }
@@ -161,6 +163,7 @@ class LicenseDataMigration extends Command
     {
         // Purge existing connection so it picks up the dynamic config
         DB::purge('license');
+
         return DB::connection('license');
     }
 
@@ -455,7 +458,6 @@ class LicenseDataMigration extends Command
 
         $this->info("  Migrated {$count} whitelist IPs");
     }
-
 
     private function migrateLicenseReports(): void
     {

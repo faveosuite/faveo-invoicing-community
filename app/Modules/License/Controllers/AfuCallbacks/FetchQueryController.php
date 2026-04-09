@@ -2,10 +2,10 @@
 
 namespace App\Modules\License\Controllers\AfuCallbacks;
 
+use App\Model\Product\Product;
 use App\Modules\License\Controllers\Traits\AfuCallbackHelpers;
 use App\Modules\License\Helpers\LicenseValidator;
 use App\Modules\License\Models\ProductVersion;
-use App\Model\Product\Product;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -22,14 +22,14 @@ class FetchQueryController extends Controller
 
     /**
      * Fetch version query/SQL
-     * POST /api/fetchQuery
+     * POST /api/fetchQuery.
      */
     public function fetchQuery(Request $request)
     {
-        $product_id     = $request->input('product_id');
-        $product_key    = $request->input('product_key');
+        $product_id = $request->input('product_id');
+        $product_key = $request->input('product_key');
         $version_number = $request->input('version_number');
-        $query_type     = $request->input('query_type', 'install'); // install or upgrade
+        $query_type = $request->input('query_type', 'install'); // install or upgrade
         $ip = $request->ip();
 
         // Check banned
@@ -42,7 +42,7 @@ class FetchQueryController extends Controller
             ->orWhere('product_key', $product_key)
             ->first();
 
-        if (!$product) {
+        if (! $product) {
             return $this->notificationResponse('notification_product_not_found', []);
         }
 
@@ -51,7 +51,7 @@ class FetchQueryController extends Controller
             ->where('version_number', $version_number)
             ->first();
 
-        if (!$version) {
+        if (! $version) {
             return $this->notificationResponse('notification_version_not_found', []);
         }
 
@@ -68,10 +68,10 @@ class FetchQueryController extends Controller
         $this->logCallback($product->id, $version->id, 'fetch_query', $ip, $request->input('root_url', ''));
 
         $responseData = [
-            'product_id'     => $product->id,
-            'version_id'     => $version->id,
+            'product_id' => $product->id,
+            'version_id' => $version->id,
             'version_number' => $version->version_number,
-            'query_type'     => $query_type,
+            'query_type' => $query_type,
         ];
 
         // Return raw query in body, notification data in headers

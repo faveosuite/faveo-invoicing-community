@@ -2,10 +2,10 @@
 
 namespace App\Modules\License\Controllers\AfuCallbacks;
 
+use App\Model\Product\Product;
 use App\Modules\License\Controllers\Traits\AfuCallbackHelpers;
 use App\Modules\License\Helpers\LicenseValidator;
 use App\Modules\License\Models\ProductVersion;
-use App\Model\Product\Product;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -22,11 +22,11 @@ class GetAllVersionsController extends Controller
 
     /**
      * Get all versions for product
-     * POST /api/getAllVersions
+     * POST /api/getAllVersions.
      */
     public function getAllVersions(Request $request)
     {
-        $product_id  = $request->input('product_id');
+        $product_id = $request->input('product_id');
         $product_key = $request->input('product_key');
         $ip = $request->ip();
 
@@ -40,7 +40,7 @@ class GetAllVersionsController extends Controller
             ->orWhere('product_key', $product_key)
             ->first();
 
-        if (!$product) {
+        if (! $product) {
             return $this->notificationResponse('notification_product_not_found', []);
         }
 
@@ -52,8 +52,8 @@ class GetAllVersionsController extends Controller
         $responseData = array_merge(
             $product->only(['id', 'name', 'product_sku', 'product_key', 'status']),
             [
-                'product_id'       => $product->id,
-                'product_title'    => $product->name,
+                'product_id' => $product->id,
+                'product_title' => $product->name,
                 'product_versions' => $versions->toArray(),
             ]
         );

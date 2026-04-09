@@ -403,7 +403,7 @@ class LicenseService
     }
 
     /**
-     * Generate a unique license code
+     * Generate a unique license code.
      */
     public function generateLicenseCode(): string
     {

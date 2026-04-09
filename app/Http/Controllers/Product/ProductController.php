@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Product;
 
 // use Illuminate\Http\Request;
 use App\Facades\Attach;
-
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
@@ -98,7 +97,6 @@ class ProductController extends BaseProductController
 
         $product_upload = new ProductUpload();
         $this->product_upload = $product_upload;
-
     }
 
     /**
