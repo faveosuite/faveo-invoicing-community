@@ -87,10 +87,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             if (Order::where('id', $sub->order_id)->value('license_mode') == 'File') {
                 Order::where('id', $sub->order_id)->update(['is_downloadable' => 0]);
             } else {
-                $licenseStatus = StatusSetting::pluck('license_status')->first();
-                if ($licenseStatus == 1) {
-                    $this->editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry);
-                }
+                $this->editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry);
             }
 
             return $id;
@@ -152,10 +149,24 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $supportExpiry = $supportExpiry ? Carbon::parse($supportExpiry)->format('Y-m-d') : '';
         $noOfAllowedInstallation = '';
         $getInstallPreference = '';
-        $cont = new \App\Http\Controllers\License\LicenseController();
-        $noOfAllowedInstallation = $cont->getNoOfAllowedInstallation($licenseCode, $productId);
-        $getInstallPreference = $cont->getInstallPreference($licenseCode, $productId);
-        $updateLicensedDomain = $cont->updateExpirationDate($licenseCode, $expiryDate, $productId, $domain, $orderNo, $licenseExpiry, $supportExpiry, $noOfAllowedInstallation, $getInstallPreference);
+        $installService = app(\App\Modules\License\Services\InstallationService::class);
+        $licenseService = app(\App\Modules\License\Services\LicenseService::class);
+        $noOfAllowedInstallation = $installService->countActiveInstallations($licenseCode);
+        $getInstallPreference = $licenseService->findByCode($licenseCode)->license_require_domain ?? 1;
+        $ipAndDomain = \App\Modules\License\Services\LicenseService::parseIpAndDomain($domain);
+        $existingLicense = $licenseService->findByCode($licenseCode);
+        if ($existingLicense) {
+            $licenseService->update($existingLicense->id, [
+                'license_order_number'   => $orderNo,
+                'license_domain'         => $ipAndDomain['domain'],
+                'license_ip'             => $ipAndDomain['ip'],
+                'license_require_domain' => $ipAndDomain['requireDomain'],
+                'license_expire_date'    => $licenseExpiry,
+                'license_updates_date'   => $expiryDate,
+                'license_support_date'   => $supportExpiry,
+                'license_limit'          => $noOfAllowedInstallation ?: 2,
+            ]);
+        }
     }
 
     public function postRazorpayPayment($invoice, $payment_method)

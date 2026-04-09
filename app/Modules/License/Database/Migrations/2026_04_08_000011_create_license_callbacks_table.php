@@ -16,8 +16,8 @@ return new class extends Migration
     {
         Schema::create('license_callbacks', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('product_id')->nullable();
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedInteger('product_id')->nullable();
+            $table->unsignedInteger('user_id')->nullable();
             $table->string('license_code')->index();
             $table->string('callback_ip')->nullable();
             $table->string('callback_domain')->nullable();

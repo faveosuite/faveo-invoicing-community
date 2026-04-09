@@ -975,11 +975,10 @@ class ClientController extends BaseClientController
             $product = $order->product()->first();
             $price = $product->price()->first();
 
-            [$allowDomainStatus,$licenseStatus] = array_values(StatusSetting::select('domain_check', 'license_status')->first()->toArray());
+            $allowDomainStatus = StatusSetting::pluck('domain_check')->first();
             $installationDetails = [];
 
-            $cont = app(\App\Http\Controllers\License\LicenseController::class);
-            $installationDetails = $cont->searchInstallationPath($order->serial_key, $order->product);
+            $installationDetails = app(\App\Modules\License\Services\InstallationService::class)->getInstallationsByProduct($order->serial_key, $order->product);
 
             $statusAutorenewal = Subscription::where('order_id', $id)->value('is_subscribed');
 

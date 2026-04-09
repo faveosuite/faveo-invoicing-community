@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\Http\Controllers\License\LicenseController;
+
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
@@ -130,7 +130,7 @@ class BaseOrderController extends ExtendedOrderController
 
                 $options = $this->formatConfigurableOptions($product);
 
-                (new LicenseController())->syncTheAddonForALicense($addOnIds, $serial_key, $options);
+                app(\App\Modules\License\Services\LicenseService::class)->syncAddons($serial_key, explode(',', $addOnIds), $options);
             }
 
             if (emailSendingStatus()) {
@@ -226,11 +226,22 @@ class BaseOrderController extends ExtendedOrderController
             $this->subscription->create(['user_id' => $user_id,
                 'plan_id' => $planid, 'order_id' => $orderid, 'update_ends_at' => $updatesExpiry, 'ends_at' => $licenseExpiry, 'support_ends_at' => $supportExpiry, 'version' => $version, 'product_id' => $product, 'is_subscribed' => '0']);
 
-            $licenseStatus = StatusSetting::pluck('license_status')->first();
-            if ($licenseStatus == 1) {
-                $cont = new \App\Http\Controllers\License\LicenseController();
-                $createNewLicense = $cont->createNewLicene($orderid, $product, $user_id, $licenseExpiry, $updatesExpiry, $supportExpiry, $serial_key);
-            }
+            $order = \App\Model\Order\Order::find($orderid);
+            $ipAndDomain = \App\Modules\License\Services\LicenseService::parseIpAndDomain($order->domain ?? '');
+            app(\App\Modules\License\Services\LicenseService::class)->create([
+                'product_id'             => $product,
+                'user_id'                => $user_id,
+                'license_code'           => $serial_key,
+                'license_order_number'   => $order->number,
+                'license_domain'         => $ipAndDomain['domain'],
+                'license_ip'             => $ipAndDomain['ip'],
+                'license_require_domain' => $ipAndDomain['requireDomain'],
+                'license_limit'          => 1,
+                'license_expire_date'    => ($licenseExpiry != '') ? $licenseExpiry->toDateString() : null,
+                'license_updates_date'   => ($updatesExpiry != '') ? $updatesExpiry->toDateString() : null,
+                'license_support_date'   => ($supportExpiry != '') ? $supportExpiry->toDateString() : null,
+                'license_status'         => 1,
+            ]);
             \Session::forget('increase-decrease-days');
             \Session::forget('increase-decrease-days-dont-cloud');
         } catch (\Exception $ex) {

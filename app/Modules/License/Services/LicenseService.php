@@ -387,7 +387,23 @@ class LicenseService
     }
 
     /**
-     * Generate a unique license code.
+     * Parse a domain string into IP/domain components for license assignment.
+     */
+    public static function parseIpAndDomain(string $domain): array
+    {
+        if ($domain != '') {
+            if (ip2long($domain)) {
+                return ['ip' => $domain, 'domain' => '', 'requireDomain' => 0];
+            }
+
+            return ['ip' => '', 'domain' => $domain, 'requireDomain' => 1];
+        }
+
+        return ['ip' => '', 'domain' => '', 'requireDomain' => 0];
+    }
+
+    /**
+     * Generate a unique license code
      */
     public function generateLicenseCode(): string
     {

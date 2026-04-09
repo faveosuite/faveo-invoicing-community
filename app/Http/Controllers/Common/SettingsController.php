@@ -221,7 +221,7 @@ class SettingsController extends BaseSettingsController
             $licenseClientId = $apikeys->pluck('license_client_id')->first();
             $licenseClientSecret = $apikeys->pluck('license_client_secret')->first();
             $licenseGrantType = $apikeys->pluck('license_grant_type')->first();
-            $status = StatusSetting::pluck('license_status')->first();
+            $status = 1; // License system is always active (merged into billing)
             $updateStatus = StatusSetting::pluck('update_settings')->first();
             $mobileStatus = StatusSetting::pluck('msg91_status')->first();
             $siteKey = $apikeys->pluck('nocaptcha_sitekey')->first();
@@ -276,7 +276,7 @@ class SettingsController extends BaseSettingsController
 
     public function getDataTableData(Request $request)
     {
-        $status = $this->statusSetting->value('license_status');
+        $status = 1; // License system is always active (merged into billing)
         $mobileStatus = $this->statusSetting->value('msg91_status');
         $captchaStatus = $this->statusSetting->value('recaptcha_status');
         $twitterStatus = $this->statusSetting->value('twitter_status');

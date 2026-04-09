@@ -16,8 +16,8 @@ return new class extends Migration
     {
         Schema::create('version_installations', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('product_id');
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedInteger('product_id');
+            $table->unsignedInteger('user_id');
             $table->unsignedBigInteger('version_id');
             $table->timestamp('installation_date')->nullable();
             $table->string('installation_status')->default('active');

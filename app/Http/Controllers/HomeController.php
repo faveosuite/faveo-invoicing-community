@@ -734,31 +734,20 @@ class HomeController extends BaseHomeController
 
         $licenses = array_merge([$license], $licenses);
 
-        $client = new Client();
-
-        $licenseUrl = ApiKey::value('license_api_url');
-
-        throttleApiRequest($licenseUrl.'api/pluginLicense');
-
-        $response = $client->get($licenseUrl.'api/pluginLicense', [
-            'query' => ['license_code' => json_encode($licenses)],
-        ]);
+        $pluginLicenses = app(\App\Modules\License\Services\LicenseService::class)->getPluginLicenses($licenses);
 
         $updatedProducts = [];
-        $products = json_decode($response->getBody()->getContents(), true);
-        $realProducts = json_decode($products['data'], true);
-        foreach ($realProducts as $realprod) {
-            foreach ($realprod as $real) {
-                $dependency = \DB::table('product_uploads')
-                    ->where('product_id', $real['product_id'])
-                    ->where('version', $real['version'])
-                    ->latest()
-                    ->value('dependencies');
+        foreach ($pluginLicenses as $real) {
+            $dependency = \DB::table('product_uploads')
+                ->where('product_id', $real['product_id'])
+                ->where('version', $real['latest_version'])
+                ->latest()
+                ->value('dependencies');
 
-                $real['dependency'] = $dependency ?? null;
+            $real['version'] = $real['latest_version'];
+            $real['dependency'] = $dependency ?? null;
 
-                $updatedProducts[] = $real;
-            }
+            $updatedProducts[] = $real;
         }
 
         return json_encode($updatedProducts);

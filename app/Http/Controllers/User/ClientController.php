@@ -4,7 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Comment;
 use App\ExportDetail;
-use App\Http\Controllers\License\LicenseController;
+
 use App\Http\Requests\User\ClientRequest;
 use App\Jobs\AddUserToExternalService;
 use App\Jobs\ReportExport;
@@ -43,8 +43,6 @@ class ClientController extends AdvanceSearchController
         $this->activate = $activate;
         $product = new \App\Model\Product\Product();
         $this->product = $product;
-        $license = new LicenseController();
-        $this->licensing = $license;
     }
 
     /**

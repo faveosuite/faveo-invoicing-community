@@ -16,8 +16,8 @@ return new class extends Migration
     {
         Schema::create('license_reports', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('product_id')->nullable();
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedInteger('product_id')->nullable();
+            $table->unsignedInteger('user_id')->nullable();
             $table->string('license_code')->index();
             $table->timestamp('report_date_time')->useCurrent();
             $table->text('report_text')->nullable();

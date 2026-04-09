@@ -9,20 +9,20 @@ use Illuminate\Support\Collection;
 class InstallationService
 {
     /**
-     * Register a new installation.
+     * Register a new installation
      */
     public function register(array $data): Installation
     {
         return Installation::updateOrCreate(
             ['license_code' => $data['license_code']],
             [
-                'product_id' => $data['product_id'],
-                'user_id' => $data['user_id'],
-                'installation_ip' => $data['installation_ip'] ?? request()->ip(),
-                'installation_domain' => $data['installation_domain'] ?? null,
-                'installation_date' => $data['installation_date'] ?? now()->format('Y-m-d'),
-                'installation_status' => $data['installation_status'] ?? 1,
-                'installation_hash' => $data['installation_hash'] ?? null,
+                'product_id'                       => $data['product_id'],
+                'user_id'                          => $data['user_id'],
+                'installation_ip'                  => $data['installation_ip'] ?? request()->ip(),
+                'installation_domain'              => $data['installation_domain'] ?? null,
+                'installation_date'                => $data['installation_date'] ?? now()->format('Y-m-d'),
+                'installation_status'              => $data['installation_status'] ?? 1,
+                'installation_hash'                => $data['installation_hash'] ?? null,
                 'installation_disable_ip_verification' => $data['installation_disable_ip_verification'] ?? 0,
             ]
         );
@@ -31,18 +31,18 @@ class InstallationService
     /**
      * Update an installation
      * Mirrors: POST /api/admin/installations/edit
-     * Returns the same format as original.
+     * Returns the same format as original
      */
     public function update(int $id, array $data): array
     {
         $installation = Installation::find($id);
-        if (! $installation) {
+        if (!$installation) {
             return [
                 'api_action_success' => 0,
                 'api_error_detected' => 1,
-                'action_success' => 0,
-                'error_detected' => 1,
-                'page_message' => 'Installation not found',
+                'action_success'     => 0,
+                'error_detected'     => 1,
+                'page_message'       => 'Installation not found',
             ];
         }
 
@@ -51,14 +51,14 @@ class InstallationService
         return [
             'api_action_success' => $updated ? 1 : 0,
             'api_error_detected' => $updated ? 0 : 1,
-            'action_success' => $updated ? 1 : 0,
-            'error_detected' => $updated ? 0 : 1,
-            'page_message' => $updated ? 'Installation updated successfully' : 'Failed to update installation',
+            'action_success'     => $updated ? 1 : 0,
+            'error_detected'     => $updated ? 0 : 1,
+            'page_message'       => $updated ? 'Installation updated successfully' : 'Failed to update installation',
         ];
     }
 
     /**
-     * Update installations by license code (set inactive).
+     * Update installations by license code (set inactive)
      */
     public function updateByLicenseCode(string $licenseCode, array $data): bool
     {
@@ -67,7 +67,7 @@ class InstallationService
 
     /**
      * Reissue: delete installations for a license code
-     * Mirrors: POST /api/admin/installation/reissue.
+     * Mirrors: POST /api/admin/installation/reissue
      */
     public function reissue(string $installationPath): bool
     {
@@ -77,7 +77,7 @@ class InstallationService
     /**
      * Get installation logs for a license
      * Mirrors: POST /api/admin/getInstallationLogs
-     * Returns same format as original.
+     * Returns same format as original
      */
     public function getLogs(string $licenseCode): array
     {
@@ -89,38 +89,38 @@ class InstallationService
         return [
             'api_action_success' => 1,
             'api_error_detected' => 0,
-            'action_success' => 1,
-            'error_detected' => 0,
-            'page_message' => $logs,
+            'action_success'     => 1,
+            'error_detected'     => 0,
+            'page_message'       => $logs,
         ];
     }
 
     /**
      * Update installation logs
      * Mirrors: POST /api/admin/updateInstallationLogs
-     * Returns same format as original.
+     * Returns same format as original
      */
     public function updateLogs(array $data): array
     {
         $domain = $data['root_url'] ?? $data['installation_domain'] ?? '';
         // Extract raw domain
-        if (! empty($domain)) {
+        if (!empty($domain)) {
             $scheme = parse_url($domain, PHP_URL_SCHEME);
             if (empty($scheme)) {
-                $domain = 'http://'.$domain;
+                $domain = 'http://' . $domain;
             }
             $domain = str_ireplace('www.', '', parse_url($domain, PHP_URL_HOST) ?? $domain);
         }
 
         $log = InstallationLog::updateOrCreate(
             [
-                'license_code' => $data['license_code'],
+                'license_code'        => $data['license_code'],
                 'installation_domain' => $domain,
             ],
             [
-                'version_number' => $data['version_number'] ?? null,
-                'installation_ip' => $data['installation_ip'] ?? request()->ip(),
-                'installation_status' => 1,
+                'version_number'              => $data['version_number'] ?? null,
+                'installation_ip'             => $data['installation_ip'] ?? request()->ip(),
+                'installation_status'         => 1,
                 'installation_last_active_date' => now(),
             ]
         );
@@ -128,14 +128,14 @@ class InstallationService
         return [
             'api_action_success' => 1,
             'api_error_detected' => 0,
-            'action_success' => 1,
-            'error_detected' => 0,
-            'page_message' => 'Installation Logs updated successfully',
+            'action_success'     => 1,
+            'error_detected'     => 0,
+            'page_message'       => 'Installation Logs updated successfully',
         ];
     }
 
     /**
-     * Get installations for a license.
+     * Get installations for a license
      */
     public function getByLicenseCode(string $licenseCode): Collection
     {
@@ -145,7 +145,36 @@ class InstallationService
     }
 
     /**
-     * Get installations for a user.
+     * Get installation details for a license filtered by product, formatted as arrays.
+     */
+    public function getInstallationsByProduct(string $licenseCode, int $productId): array
+    {
+        $installations = $this->getByLicenseCode($licenseCode);
+
+        $domains = [];
+        $ips = [];
+        $dates = [];
+        $statuses = [];
+
+        foreach ($installations as $detail) {
+            if ($detail->product_id == $productId) {
+                $domains[] = $detail->installation_domain;
+                $ips[] = $detail->installation_ip;
+                $dates[] = $detail->installation_date;
+                $statuses[] = $detail->installation_status;
+            }
+        }
+
+        return [
+            'installed_path' => $domains,
+            'installed_ip' => $ips,
+            'installation_date' => $dates,
+            'installation_status' => $statuses,
+        ];
+    }
+
+    /**
+     * Get installations for a user
      */
     public function getByUserId(int $userId): Collection
     {
@@ -155,7 +184,7 @@ class InstallationService
     }
 
     /**
-     * Deactivate an installation.
+     * Deactivate an installation
      */
     public function deactivate(int $installationId): bool
     {
@@ -164,7 +193,7 @@ class InstallationService
     }
 
     /**
-     * Count active installations for a license.
+     * Count active installations for a license
      */
     public function countActiveInstallations(string $licenseCode): int
     {
@@ -174,7 +203,7 @@ class InstallationService
     }
 
     /**
-     * Delete all installations for a license code.
+     * Delete all installations for a license code
      */
     public function deleteByLicenseCode(string $licenseCode): int
     {
@@ -182,7 +211,7 @@ class InstallationService
     }
 
     /**
-     * Remove unwanted installations (inactive/old).
+     * Remove unwanted installations (inactive/old)
      */
     public function removeUnwanted(string $licenseCode, int $keepActive = 0): int
     {

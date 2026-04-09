@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 
 /**
  * Callback service — processes external license/version callbacks.
- * Used by LicenseCallbackController and VersionCallbackController.
+ * Used by AflCallbacks and AfuCallbacks controllers.
  *
  * All responses use integer status values (0/1/2) matching the original app.
  */

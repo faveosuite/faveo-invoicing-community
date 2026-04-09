@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Product;
 
 // use Illuminate\Http\Request;
 use App\Facades\Attach;
-use App\Http\Controllers\License\LicenseController;
+
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
@@ -99,8 +99,6 @@ class ProductController extends BaseProductController
         $product_upload = new ProductUpload();
         $this->product_upload = $product_upload;
 
-        $license = new LicenseController();
-        $this->licensing = $license;
     }
 
     /**
@@ -241,11 +239,8 @@ class ProductController extends BaseProductController
             $this->product_upload->save();
 
             $this->product->where('id', $product_id->id)->update(['version' => $request->input('version')]);
-            $autoUpdateStatus = StatusSetting::pluck('license_status')->first();
-            if ($autoUpdateStatus == 1) { //If License Setting Status is on,Add Product to the License Manager
-                $updateClassObj = new \App\Http\Controllers\AutoUpdate\AutoUpdateController();
-                $addProductToAutoUpdate = $updateClassObj->addNewVersion($product_id->id, $request->input('version'), $request->input('filename'), '1');
-            }
+            $updateClassObj = new \App\Http\Controllers\AutoUpdate\AutoUpdateController();
+            $addProductToAutoUpdate = $updateClassObj->addNewVersion($product_id->id, $request->input('version'), $request->input('filename'), '1');
             $response = ['success' => 'true', 'message' => __('message.product_uploaded_successfully')];
 
             return $response;
@@ -340,13 +335,6 @@ class ProductController extends BaseProductController
         }
 
         try {
-            $licenseStatus = StatusSetting::pluck('license_status')->first();
-            if ($licenseStatus) { //If License Setting Status is on,Add Product to the License Manager
-                $addProductToLicensing = $this->licensing->addNewProduct($input['name'], $input['product_sku']);
-                $product_id = $this->licensing->searchProductId($input['product_sku']);
-                $updateCont = new \App\Http\Controllers\AutoUpdate\AutoUpdateController();
-                $addProductToLicensing = $updateCont->addNewProductToAUS($product_id, $input['name'], $input['product_sku']);
-            }
             if ($request->hasFile('image')) {
                 $image = Attach::put('common/images/', $request->file('image'), null, true);
                 $this->product->image = basename($image);
@@ -483,11 +471,6 @@ class ProductController extends BaseProductController
         $product = $this->product->where('id', $id)->first();
         $this->removeUploads($product->product_description, $request->input('product_description'));
         try {
-            $licenseStatus = StatusSetting::pluck('license_status')->first();
-            if ($licenseStatus) {
-                $addProductInLicensing = $this->licensing->editProduct($input['name'], $input['product_sku']);
-            }
-
             if ($request->hasFile('image')) {
                 $image = Attach::put('common/images/', $request->file('image'), null, true);
                 $product->image = basename($image);
@@ -552,10 +535,6 @@ class ProductController extends BaseProductController
                 foreach ($ids as $id) {
                     $product = $this->product->where('id', $id)->first();
                     if ($product) {
-                        $licenseStatus = StatusSetting::pluck('license_status')->first();
-                        if ($licenseStatus == 1) {
-                            $this->licensing->deleteProductFromAPL($product);
-                        }
                         $product->delete();
                     } else {
                         echo "<div class='alert alert-danger alert-dismissable'>

@@ -1,9 +1,15 @@
 <?php
 
-use App\Modules\License\Controllers\LicenseAdminController;
-use App\Modules\License\Controllers\LicenseCallbackController;
-use App\Modules\License\Controllers\VersionCallbackController;
 use Illuminate\Support\Facades\Route;
+use App\Modules\License\Controllers\AflCallbacks\ConnectionTestController;
+use App\Modules\License\Controllers\AflCallbacks\LicenseInstallController;
+use App\Modules\License\Controllers\AflCallbacks\LicenseSchemeController;
+use App\Modules\License\Controllers\AflCallbacks\LicenseVerifyController;
+use App\Modules\License\Controllers\AfuCallbacks\GetVersionsController;
+use App\Modules\License\Controllers\AfuCallbacks\GetAllVersionsController;
+use App\Modules\License\Controllers\AfuCallbacks\FetchQueryController;
+use App\Modules\License\Controllers\AfuCallbacks\DownloadFileController;
+use App\Modules\License\Controllers\LicenseApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -11,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 |
 | These routes handle license verification, installation tracking,
-| version management, and admin operations for the merged license system.
+| and version management for the merged license system.
 |
 | IMPORTANT: The callback routes MUST match the original license app URLs
 | exactly, because deployed client software has these URLs hardcoded.
@@ -24,63 +30,33 @@ use Illuminate\Support\Facades\Route;
 // ============================================================================
 
 // APL License Callbacks — original URL format: /apl_callbacks/*.php
-Route::post('/apl_callbacks/connection_test.php', [LicenseCallbackController::class, 'connection']);
-Route::post('/apl_callbacks/license_install.php', [LicenseCallbackController::class, 'licenseInstall']);
-Route::post('/apl_callbacks/license_scheme.php', [LicenseCallbackController::class, 'licenseScheme']);
-Route::post('/apl_callbacks/license_verify.php', [LicenseCallbackController::class, 'licenseVerify']);
+Route::post('/apl_callbacks/connection_test.php', [ConnectionTestController::class, 'connection']);
+Route::post('/apl_callbacks/license_install.php', [LicenseInstallController::class, 'licenseInstall']);
+Route::post('/apl_callbacks/license_scheme.php', [LicenseSchemeController::class, 'licenseScheme']);
+Route::post('/apl_callbacks/license_verify.php', [LicenseVerifyController::class, 'licenseVerify']);
 
 // AFU Version Callbacks — original URL format: /aus_callbacks/*.php
-Route::post('/aus_callbacks/download_file.php', [VersionCallbackController::class, 'downloadFile']);
+Route::post('/aus_callbacks/download_file.php', [DownloadFileController::class, 'downloadFile']);
 
 // API-style callback routes (also used by some clients)
-Route::post('/api/ConnectionTest', [LicenseCallbackController::class, 'connection']);
-Route::post('/api/licenseInstall', [LicenseCallbackController::class, 'licenseInstall']);
-Route::post('/api/licenseScheme', [LicenseCallbackController::class, 'licenseScheme']);
-Route::post('/api/licenseVerify', [LicenseCallbackController::class, 'licenseVerify']);
-Route::post('/api/getVersions', [VersionCallbackController::class, 'getVersions']);
-Route::post('/api/getAllVersions', [VersionCallbackController::class, 'getAllVersions']);
-Route::post('/api/fetchQuery', [VersionCallbackController::class, 'fetchQuery']);
-Route::post('/api/downloadFile', [VersionCallbackController::class, 'downloadFile']);
-Route::post('/api/pdf', [VersionCallbackController::class, 'downloadFile']);
+Route::post('/api/ConnectionTest', [ConnectionTestController::class, 'connection']);
+Route::post('/api/licenseInstall', [LicenseInstallController::class, 'licenseInstall']);
+Route::post('/api/licenseScheme', [LicenseSchemeController::class, 'licenseScheme']);
+Route::post('/api/licenseVerify', [LicenseVerifyController::class, 'licenseVerify']);
+Route::post('/api/getVersions', [GetVersionsController::class, 'getVersions']);
+Route::post('/api/getAllVersions', [GetAllVersionsController::class, 'getAllVersions']);
+Route::post('/api/fetchQuery', [FetchQueryController::class, 'fetchQuery']);
+Route::post('/api/downloadFile', [DownloadFileController::class, 'downloadFile']);
+Route::post('/api/pdf', [DownloadFileController::class, 'downloadFile']);
 
 // ============================================================================
-// PUBLIC LICENSE INFO ROUTES (Some use whitelist middleware in original)
+// PUBLIC LICENSE INFO ROUTES
+// Called by external Faveo instances for license/plugin info
 // ============================================================================
 
-Route::get('/api/licenseInfo', [LicenseAdminController::class, 'licenseInfo']);
-Route::get('/api/IndividuallicenseInfo', [LicenseAdminController::class, 'individualLicenseInfo']);
-Route::get('/api/getOrder', [LicenseAdminController::class, 'getOrder']);
-Route::get('/api/pluginLicense', [LicenseAdminController::class, 'pluginLicense']);
-Route::post('/api/pluginLicense', [LicenseAdminController::class, 'pluginLicense']);
-Route::post('/api/LicenseReissue', [LicenseAdminController::class, 'reissueLicenseCloud']);
-
-// ============================================================================
-// ADMIN LICENSE MANAGEMENT ROUTES (requires auth middleware)
-// Mirrors: /api/admin/* endpoints from original license app
-// ============================================================================
-Route::prefix('api/admin')->middleware(['auth'])->group(function () {
-    // License CRUD
-    Route::post('license/add', [LicenseAdminController::class, 'create']);
-    Route::post('license/edit', [LicenseAdminController::class, 'edit']);
-    Route::post('license/deactivate', [LicenseAdminController::class, 'deactivate']);
-    Route::post('license/reactivate', [LicenseAdminController::class, 'reactivate']);
-    Route::post('license/updateLicenseCode', [LicenseAdminController::class, 'updateLicenseCode']);
-    Route::post('license/syncAddonLicense', [LicenseAdminController::class, 'syncAddonLicense']);
-
-    // Product operations
-    Route::get('getProductIdbyKey', [LicenseAdminController::class, 'getProductIdByKey']);
-
-    // Search
-    Route::post('search', [LicenseAdminController::class, 'search']);
-
-    // Installation management
-    Route::post('getInstallationLogs', [LicenseAdminController::class, 'getInstallationLogs']);
-    Route::post('updateInstallationLogs', [LicenseAdminController::class, 'updateInstallationLogs']);
-    Route::post('installations/edit', [LicenseAdminController::class, 'updateInstallation']);
-    Route::post('installation/reissue', [LicenseAdminController::class, 'reissueLicenseCloud']);
-    Route::post('addInstallation', [LicenseAdminController::class, 'addInstallation']);
-
-    // License info
-    Route::get('license/{licenseCode}', [LicenseAdminController::class, 'getByCode']);
-    Route::get('license/{licenseCode}/installations', [LicenseAdminController::class, 'getInstallations']);
-});
+Route::get('/api/licenseInfo', [LicenseApiController::class, 'licenseInfo']);
+Route::get('/api/IndividuallicenseInfo', [LicenseApiController::class, 'individualLicenseInfo']);
+Route::get('/api/getOrder', [LicenseApiController::class, 'getOrder']);
+Route::get('/api/pluginLicense', [LicenseApiController::class, 'pluginLicense']);
+Route::post('/api/pluginLicense', [LicenseApiController::class, 'pluginLicense']);
+Route::post('/api/LicenseReissue', [LicenseApiController::class, 'reissueLicenseCloud']);

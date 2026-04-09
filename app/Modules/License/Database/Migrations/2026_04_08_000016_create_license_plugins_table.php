@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('license_plugins', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('license_id');
-            $table->unsignedBigInteger('product_id');
+            $table->unsignedInteger('product_id');
             $table->timestamps();
 
             $table->foreign('license_id')->references('id')->on('licenses')->onDelete('cascade');

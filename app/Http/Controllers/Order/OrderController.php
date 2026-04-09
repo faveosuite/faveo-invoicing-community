@@ -140,8 +140,6 @@ class OrderController extends BaseOrderController
             $query = $orderSearch->advanceOrderSearch($request);
 
             $count = count($query->cursor());
-            $cont = new \App\Http\Controllers\License\LicenseController();
-
             return \DataTables::of($query)
                 ->orderColumn('client', "concat(users.first_name, ' ', users.last_name) $1")
                 ->orderColumn('product_name', 'products.name $1')
@@ -319,11 +317,9 @@ class OrderController extends BaseOrderController
                 return redirect()->back()->with('fails', __('messages.unauthorized_action'));
             }
 
-            $licenseStatus = StatusSetting::pluck('license_status')->first();
             $installationDetails = [];
 
-            $cont = new \App\Http\Controllers\License\LicenseController();
-            $installationDetails = $cont->searchInstallationPath($order->serial_key, $order->product);
+            $installationDetails = app(\App\Modules\License\Services\InstallationService::class)->getInstallationsByProduct($order->serial_key, $order->product);
             if ($installationDetails !== null && ! empty($installationDetails['installed_path'])) {
                 // Loop through each installed_path and corresponding installed_ip
                 for ($i = 0; $i < count($installationDetails['installed_path']); $i++) {
@@ -379,8 +375,7 @@ class OrderController extends BaseOrderController
                 return array_merge($details, ['order_id' => $orderId]);
             }, $combinedDetails);
 
-            $cont = new \App\Http\Controllers\License\LicenseController();
-            $installationLogsDetails = $cont->getInstallationLogsDetails($order->serial_key);
+            $installationLogsDetails = app(\App\Modules\License\Services\InstallationService::class)->getLogs($order->serial_key)['page_message'] ?? [];
 
             return \DataTables::of($installationLogsDetails)
 
@@ -448,22 +443,15 @@ class OrderController extends BaseOrderController
                 return redirect()->back()->with('fails', __('message.no_orders'));
             }
             $user = $this->user->find($invoice->user_id);
-            $licenseStatus = StatusSetting::pluck('license_status')->first();
             $installationDetails = [];
-            $noOfAllowedInstallation = '';
-            $getInstallPreference = '';
-            if ($licenseStatus == 1) {
-                $cont = new \App\Http\Controllers\License\LicenseController();
-                $noOfAllowedInstallation = $cont->getNoOfAllowedInstallation($order->serial_key, $order->product);
-            }
+            $noOfAllowedInstallation = app(\App\Modules\License\Services\InstallationService::class)->countActiveInstallations($order->serial_key);
 
             $allowDomainStatus = StatusSetting::pluck('domain_check')->first();
 
-            $licenseStatus = StatusSetting::pluck('license_status')->first();
+            $licenseStatus = 1;
             $installationDetails = [];
 
-            $cont = new \App\Http\Controllers\License\LicenseController();
-            $installationDetails = $cont->searchInstallationPath($order->serial_key, $order->product);
+            $installationDetails = app(\App\Modules\License\Services\InstallationService::class)->getInstallationsByProduct($order->serial_key, $order->product);
             $currency = getCurrencyForClient($user->country);
             $amount = currencyFormat(1, $currency);
             $payment_log = Payment_log::where('order', $order->number)

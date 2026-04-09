@@ -6,7 +6,7 @@ use App\ApiKey;
 use App\Http\Controllers\Common\PipedriveController;
 use App\Http\Controllers\Common\Sms\SmsOtpController;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\License\LicenseController;
+
 use App\Jobs\AddUserToExternalService;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
@@ -53,8 +53,6 @@ class AuthController extends BaseAuthController
         $this->middleware('blockFailedVerifications:verify,mobile-verify,email-verify,email-verify-new,email-verify-old,email-verify-mobile')->only(['verifyOtp', 'verifyEmail']);
         $this->middleware('recaptcha:mobile_verify')->only('verifyOtp');
         $this->middleware('recaptcha:email_verify')->only('verifyEmail');
-        $license = new LicenseController();
-        $this->licensing = $license;
     }
 
     public function requestOtp(Request $request)

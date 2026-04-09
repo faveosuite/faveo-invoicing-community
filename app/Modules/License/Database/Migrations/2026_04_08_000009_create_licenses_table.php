@@ -16,8 +16,8 @@ return new class extends Migration
     {
         Schema::create('licenses', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('product_id');
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedInteger('product_id');
+            $table->unsignedInteger('user_id');
             $table->string('license_code')->index();
             $table->string('license_order_number')->nullable();
             $table->string('license_ip')->nullable();

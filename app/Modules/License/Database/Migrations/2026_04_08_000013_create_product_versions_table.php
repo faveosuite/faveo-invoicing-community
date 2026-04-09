@@ -16,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('product_versions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('product_id');
+            $table->unsignedInteger('product_id');
             $table->string('version_number');
             $table->string('version_install_file')->nullable();
             $table->string('version_upgrade_file')->nullable();

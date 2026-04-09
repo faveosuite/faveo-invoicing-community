@@ -376,13 +376,13 @@ class BaseCartControllerTest extends DBTestCase
         $subscription = Subscription::create(['user_id' => $user->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
         $serialKey = 'eertrertyuhgbvfdrgtyujhnbvfdrethgbf';
         $productId = 1;
-        $mock = Mockery::mock(\App\Http\Controllers\License\LicenseController::class);
-        $mock->shouldReceive('searchInstallationPath')
+        $mock = Mockery::mock(\App\Modules\License\Services\InstallationService::class);
+        $mock->shouldReceive('getInstallationsByProduct')
             ->withAnyArgs()
             ->once()
-            ->andReturn(['path' => '/mocked']);
+            ->andReturn(['installed_path' => ['/mocked'], 'installed_ip' => [], 'installation_date' => [], 'installation_status' => []]);
 
-        $this->app->instance(\App\Http\Controllers\License\LicenseController::class, $mock);
+        $this->app->instance(\App\Modules\License\Services\InstallationService::class, $mock);
 
         $response = $this->getPrivateMethod($this->classObject1, 'getOrder', [$order->id]);
         $this->assertEquals('themes.default1.front.clients.show-order', $response->getName());

@@ -558,13 +558,13 @@ class CloudActivitiesTest extends DBTestCase
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(1)]);
         $FreeTrial = new FreeTrailController();
         StatusSetting::create(['id' => 1, 'mailchimp_status' => 0]);
-        $mock = Mockery::mock(\App\Http\Controllers\License\LicenseController::class);
-        $mock->shouldReceive('syncTheAddonForALicense')
+        $mock = Mockery::mock(\App\Modules\License\Services\LicenseService::class);
+        $mock->shouldReceive('syncAddons')
             ->withAnyArgs()
             ->once()
-            ->andReturn(['path' => '/mocked']);
+            ->andReturn(null);
 
-        $this->app->instance(\App\Http\Controllers\License\LicenseController::class, $mock);
+        $this->app->instance(\App\Modules\License\Services\LicenseService::class, $mock);
         $baseMock = Mockery::mock(BaseOrderController::class);
         $baseMock->shouldReceive('addSubscription', 'formatConfigurableOptions')
             ->withAnyArgs()

@@ -3,7 +3,6 @@
 namespace App\Traits\Order;
 
 use App\Http\Controllers\License\LicensePermissionsController;
-use App\Model\Common\StatusSetting;
 use App\Model\Order\Order;
 use App\Model\Product\Subscription;
 use Illuminate\Http\Request;
@@ -39,10 +38,7 @@ trait UpdateDates
                     $subscription->update_ends_at = $date;
                     $subscription->save();
                 }
-                $checkUpdateStatus = StatusSetting::first()->pluck('license_status')->first();
-                if ($checkUpdateStatus == 1) {
-                    $this->editUpdateDateInAPL($request->input('orderid'), $date, $licenseSupportExpiry);
-                }
+                $this->editUpdateDateInAPL($request->input('orderid'), $date, $licenseSupportExpiry);
             }
 
             if (Order::where('id', $request->get('orderid'))->value('license_mode') == 'File') {
@@ -64,15 +60,23 @@ trait UpdateDates
         $licenseExpiry = strtotime($licenseSupportExpiry->ends_at) > 1 ? date('Y-m-d', strtotime($licenseSupportExpiry->ends_at)) : '';
         $supportExpiry = strtotime($licenseSupportExpiry->support_ends_at) > 1 ? date('Y-m-d', strtotime($licenseSupportExpiry->support_ends_at)) : '';
         $expiryDate = strtotime($expiryDate) > 1 ? date('Y-m-d', strtotime($expiryDate)) : '';
-        $noOfAllowedInstallation = '';
-        $getInstallPreference = '';
-        $licenseStatus = StatusSetting::pluck('license_status')->first();
-        if ($licenseStatus == 1) {
-            $cont = new \App\Http\Controllers\License\LicenseController();
-            $noOfAllowedInstallation = $cont->getNoOfAllowedInstallation($order->serial_key, $order->product);
-            $getInstallPreference = $cont->getInstallPreference($order->serial_key, $order->product);
+        $installService = app(\App\Modules\License\Services\InstallationService::class);
+        $licenseService = app(\App\Modules\License\Services\LicenseService::class);
+        $noOfAllowedInstallation = $installService->countActiveInstallations($order->serial_key);
+        $ipAndDomain = \App\Modules\License\Services\LicenseService::parseIpAndDomain($order->domain);
+        $existingLicense = $licenseService->findByCode($order->serial_key);
+        if ($existingLicense) {
+            $licenseService->update($existingLicense->id, [
+                'license_order_number'   => $order->number,
+                'license_domain'         => $ipAndDomain['domain'],
+                'license_ip'             => $ipAndDomain['ip'],
+                'license_require_domain' => $ipAndDomain['requireDomain'],
+                'license_expire_date'    => $licenseExpiry,
+                'license_updates_date'   => $expiryDate,
+                'license_support_date'   => $supportExpiry,
+                'license_limit'          => $noOfAllowedInstallation ?: 2,
+            ]);
         }
-        $updateLicensedDomain = $cont->updateExpirationDate($order->serial_key, $expiryDate, $order->product, $order->domain, $order->number, $licenseExpiry, $supportExpiry, $noOfAllowedInstallation, $getInstallPreference);
     }
 
     /*
@@ -101,10 +105,7 @@ trait UpdateDates
                     $subscription->save();
                 }
 
-                $checkUpdateStatus = StatusSetting::first()->pluck('license_status')->first();
-                if ($checkUpdateStatus == 1) {
-                    $this->editLicenseDateInAPL($request->input('orderid'), $date, $updatesSupportExpiry);
-                }
+                $this->editLicenseDateInAPL($request->input('orderid'), $date, $updatesSupportExpiry);
             }
 
             if (Order::where('id', $request->get('orderid'))->value('license_mode') == 'File') {
@@ -126,15 +127,23 @@ trait UpdateDates
         $expiryDate = strtotime($updatesSupportExpiry->update_ends_at) > 1 ? date('Y-m-d', strtotime($updatesSupportExpiry->update_ends_at)) : '';
         $supportExpiry = strtotime($updatesSupportExpiry->support_ends_at) > 1 ? date('Y-m-d', strtotime($updatesSupportExpiry->support_ends_at)) : '';
         $licenseExpiry = strtotime($date) > 1 ? date('Y-m-d', strtotime($date)) : '';
-        $noOfAllowedInstallation = '';
-        $getInstallPreference = '';
-        $licenseStatus = StatusSetting::pluck('license_status')->first();
-        if ($licenseStatus == 1) {
-            $cont = new \App\Http\Controllers\License\LicenseController();
-            $noOfAllowedInstallation = $cont->getNoOfAllowedInstallation($order->serial_key, $order->product);
-            $getInstallPreference = $cont->getInstallPreference($order->serial_key, $order->product);
+        $installService = app(\App\Modules\License\Services\InstallationService::class);
+        $licenseService = app(\App\Modules\License\Services\LicenseService::class);
+        $noOfAllowedInstallation = $installService->countActiveInstallations($order->serial_key);
+        $ipAndDomain = \App\Modules\License\Services\LicenseService::parseIpAndDomain($order->domain);
+        $existingLicense = $licenseService->findByCode($order->serial_key);
+        if ($existingLicense) {
+            $licenseService->update($existingLicense->id, [
+                'license_order_number'   => $order->number,
+                'license_domain'         => $ipAndDomain['domain'],
+                'license_ip'             => $ipAndDomain['ip'],
+                'license_require_domain' => $ipAndDomain['requireDomain'],
+                'license_expire_date'    => $licenseExpiry,
+                'license_updates_date'   => $expiryDate,
+                'license_support_date'   => $supportExpiry,
+                'license_limit'          => $noOfAllowedInstallation ?: 2,
+            ]);
         }
-        $updateLicensedDomain = $cont->updateExpirationDate($order->serial_key, $expiryDate, $order->product, $order->domain, $order->number, $licenseExpiry, $supportExpiry, $noOfAllowedInstallation, $getInstallPreference);
     }
 
     /*
@@ -163,10 +172,7 @@ trait UpdateDates
                     $subscription->save();
                 }
 
-                $checkUpdateStatus = StatusSetting::first()->pluck('license_status')->first();
-                if ($checkUpdateStatus == 1) {
-                    $this->editSupportDateInAPL($request->input('orderid'), $date, $updatesLicenseExpiry);
-                }
+                $this->editSupportDateInAPL($request->input('orderid'), $date, $updatesLicenseExpiry);
             }
 
             if (Order::where('id', $request->get('orderid'))->value('license_mode') == 'File') {
@@ -188,15 +194,23 @@ trait UpdateDates
         $expiryDate = strtotime($updatesLicenseExpiry->update_ends_at) > 1 ? date('Y-m-d', strtotime($updatesLicenseExpiry->update_ends_at)) : '';
         $licenseExpiry = strtotime($updatesLicenseExpiry->ends_at) > 1 ? date('Y-m-d', strtotime($updatesLicenseExpiry->ends_at)) : '';
         $supportExpiry = strtotime($date) > 1 ? date('Y-m-d', strtotime($date)) : '';
-        $noOfAllowedInstallation = '';
-        $getInstallPreference = '';
-        $licenseStatus = StatusSetting::pluck('license_status')->first();
-        if ($licenseStatus == 1) {
-            $cont = new \App\Http\Controllers\License\LicenseController();
-            $noOfAllowedInstallation = $cont->getNoOfAllowedInstallation($order->serial_key, $order->product);
-            $getInstallPreference = $cont->getInstallPreference($order->serial_key, $order->product);
+        $installService = app(\App\Modules\License\Services\InstallationService::class);
+        $licenseService = app(\App\Modules\License\Services\LicenseService::class);
+        $noOfAllowedInstallation = $installService->countActiveInstallations($order->serial_key);
+        $ipAndDomain = \App\Modules\License\Services\LicenseService::parseIpAndDomain($order->domain);
+        $existingLicense = $licenseService->findByCode($order->serial_key);
+        if ($existingLicense) {
+            $licenseService->update($existingLicense->id, [
+                'license_order_number'   => $order->number,
+                'license_domain'         => $ipAndDomain['domain'],
+                'license_ip'             => $ipAndDomain['ip'],
+                'license_require_domain' => $ipAndDomain['requireDomain'],
+                'license_expire_date'    => $licenseExpiry,
+                'license_updates_date'   => $expiryDate,
+                'license_support_date'   => $supportExpiry,
+                'license_limit'          => $noOfAllowedInstallation ?: 2,
+            ]);
         }
-        $updateLicensedDomain = $cont->updateExpirationDate($order->serial_key, $expiryDate, $order->product, $order->domain, $order->number, $licenseExpiry, $supportExpiry, $noOfAllowedInstallation, $getInstallPreference);
     }
 
     /**
@@ -221,9 +235,24 @@ trait UpdateDates
         $expiryDate = $updatesLicenseExpiry->update_ends_at;
         $licenseExpiry = $updatesLicenseExpiry->ends_at;
         $supportExpiry = $updatesLicenseExpiry->support_ends_at;
-        $cont = new \App\Http\Controllers\License\LicenseController();
-        $getInstallPreference = $cont->getInstallPreference($order->serial_key, $order->product);
-        $updateLicensedDomain = $cont->updateLicensedDomain($order->serial_key, $order->domain, $order->product, $licenseExpiry, $expiryDate, $supportExpiry, $order->number, $request->input('limit'), $getInstallPreference);
+        $licenseService = app(\App\Modules\License\Services\LicenseService::class);
+        $ipAndDomain = \App\Modules\License\Services\LicenseService::parseIpAndDomain($order->domain);
+        $l_expiry = strtotime($licenseExpiry) > 1 ? date('Y-m-d', strtotime($licenseExpiry)) : '';
+        $u_expiry = strtotime($expiryDate) > 1 ? date('Y-m-d', strtotime($expiryDate)) : '';
+        $s_expiry = strtotime($supportExpiry) > 1 ? date('Y-m-d', strtotime($supportExpiry)) : '';
+        $existingLicense = $licenseService->findByCode($order->serial_key);
+        if ($existingLicense) {
+            $licenseService->update($existingLicense->id, [
+                'license_order_number'   => $order->number,
+                'license_require_domain' => $ipAndDomain['requireDomain'],
+                'license_expire_date'    => $l_expiry ?: $existingLicense->license_expire_date,
+                'license_updates_date'   => $u_expiry ?: $existingLicense->license_updates_date,
+                'license_support_date'   => $s_expiry ?: $existingLicense->license_support_date,
+                'license_domain'         => $ipAndDomain['domain'],
+                'license_ip'             => $ipAndDomain['ip'],
+                'license_limit'          => $request->input('limit'),
+            ]);
+        }
 
         return ['message' => 'success', 'update' => 'Installation Limit Updated'];
     }

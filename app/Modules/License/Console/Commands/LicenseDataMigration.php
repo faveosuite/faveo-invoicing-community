@@ -1,14 +1,22 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Modules\License\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class LicenseDataMigration extends Command
 {
-    protected $signature = 'license:migrate-data {--fresh : Truncate all license tables before migration}';
+    protected $signature = 'license:migrate-data 
+        {--host= : License database host}
+        {--port= : License database port}
+        {--database= : License database name}
+        {--username= : License database username}
+        {--password= : License database password}
+        {--socket= : License database socket}
+        {--fresh : Truncate all license tables before migration}';
     protected $description = 'Migrate data from the external license database into the billing database';
 
     private array $userMap = [];
@@ -18,6 +26,9 @@ class LicenseDataMigration extends Command
 
     public function handle(): int
     {
+        // Dynamically configure the license database connection
+        $this->configureLicenseConnection();
+
         if ($this->option('fresh')) {
             $this->warn('Truncating existing license tables...');
             $this->truncateLicenseTables();
@@ -26,9 +37,8 @@ class LicenseDataMigration extends Command
         $this->info('Running license system data migration...');
 
         // Verify license DB connection is configured
-        if (! config('database.connections.license.database')) {
-            $this->error('License database connection not configured. Set LICENSE_DB_DATABASE in .env');
-
+        if (!config('database.connections.license.database')) {
+            $this->error('License database connection not configured. Provide --database option');
             return Command::FAILURE;
         }
 
@@ -36,12 +46,12 @@ class LicenseDataMigration extends Command
             // Step 1: Build user mapping (match by email)
             $this->info('Step 1: Building user mapping...');
             $this->buildUserMapping();
-            $this->info('  Mapped '.count($this->userMap).' users');
+            $this->info("  Mapped " . count($this->userMap) . " users");
 
             // Step 2: Build product mapping (match by SKU)
             $this->info('Step 2: Building product mapping...');
             $this->buildProductMapping();
-            $this->info('  Mapped '.count($this->productMap).' products');
+            $this->info("  Mapped " . count($this->productMap) . " products");
 
             // Step 3: Migrate licenses
             $this->info('Step 3: Migrating licenses...');
@@ -68,11 +78,8 @@ class LicenseDataMigration extends Command
             $this->info('Step 9: Migrating whitelist IPs...');
             $this->migrateWhitelistIps();
 
-            $this->info('Step 10: Migrating license API keys...');
-            $this->migrateLicenseApiKeys();
-
-            // Step 11: Migrate reports
-            $this->info('Step 11: Migrating license reports...');
+            // Step 10: Migrate reports
+            $this->info('Step 10: Migrating license reports...');
             $this->migrateLicenseReports();
 
             // Step 12: Migrate product versions (build version map)
@@ -109,25 +116,51 @@ class LicenseDataMigration extends Command
 
             $this->info('');
             $this->info('Data migration completed successfully!');
-            $this->info('  Users mapped: '.count($this->userMap));
-            $this->info('  Products mapped: '.count($this->productMap));
-            $this->info('  Licenses migrated: '.count($this->licenseMap));
-            $this->info('  Versions migrated: '.count($this->versionMap));
+            $this->info("  Users mapped: " . count($this->userMap));
+            $this->info("  Products mapped: " . count($this->productMap));
+            $this->info("  Licenses migrated: " . count($this->licenseMap));
+            $this->info("  Versions migrated: " . count($this->versionMap));
 
             return Command::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('Migration failed: '.$e->getMessage());
+            $this->error('Migration failed: ' . $e->getMessage());
             Log::error('License data migration failed', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-
             return Command::FAILURE;
         }
     }
 
+    private function configureLicenseConnection(): void
+    {
+        $host = $this->option('host') ?: config('database.connections.mysql.host', 'localhost');
+        $port = $this->option('port') ?: config('database.connections.mysql.port', '');
+        $database = $this->option('database') ?: config('database.connections.mysql.database', '');
+        $username = $this->option('username') ?: config('database.connections.mysql.username', 'root');
+        $password = $this->option('password') ?: config('database.connections.mysql.password', '');
+        $socket = $this->option('socket') ?: config('database.connections.mysql.unix_socket', '');
+
+        Config::set('database.connections.license', [
+            'driver' => 'mysql',
+            'host' => $host,
+            'port' => $port,
+            'database' => $database,
+            'username' => $username,
+            'password' => $password,
+            'unix_socket' => $socket,
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => config('database.connections.mysql.engine', null),
+        ]);
+    }
+
     private function licenseDb(): \Illuminate\Database\ConnectionInterface
     {
+        // Purge existing connection so it picks up the dynamic config
+        DB::purge('license');
         return DB::connection('license');
     }
 
@@ -137,7 +170,7 @@ class LicenseDataMigration extends Command
             'installation_logs', 'license_options', 'license_plugins',
             'version_installations', 'version_callbacks',
             'product_versions', 'license_reports', 'license_whitelist_ips',
-            'license_banned_hosts', 'license_api_keys', 'license_notifications',
+            'license_banned_hosts', 'license_notifications',
             'version_notifications', 'license_schemes',
             'license_callbacks', 'installations', 'licenses',
         ];
@@ -423,35 +456,6 @@ class LicenseDataMigration extends Command
         $this->info("  Migrated {$count} whitelist IPs");
     }
 
-    private function migrateLicenseApiKeys(): void
-    {
-        $keys = $this->licenseDb()->table('afl_api_keys')->get();
-        $count = 0;
-
-        foreach ($keys as $key) {
-            DB::table('license_api_keys')->insert([
-                'api_key_secret' => $key->api_key_secret,
-                'api_key_ip' => $key->api_key_ip,
-                'api_key_clients_add' => $key->api_key_clients_add ?? 0,
-                'api_key_clients_edit' => $key->api_key_clients_edit ?? 0,
-                'api_key_licenses_add' => $key->api_key_licenses_add ?? 0,
-                'api_key_licenses_edit' => $key->api_key_licenses_edit ?? 0,
-                'api_key_products_add' => $key->api_key_products_add ?? 0,
-                'api_key_products_edit' => $key->api_key_products_edit ?? 0,
-                'api_key_installations_edit' => $key->api_key_installations_edit ?? 0,
-                'api_key_versions_add' => $key->api_key_versions_add ?? 1,
-                'api_key_versions_edit' => $key->api_key_versions_edit ?? 1,
-                'api_key_search' => $key->api_key_search ?? 0,
-                'api_key_status' => $key->api_key_status ?? 1,
-                'api_key_description' => $key->api_key_description ?? null,
-                'created_at' => $key->created_at ?? now(),
-                'updated_at' => $key->updated_at ?? now(),
-            ]);
-            $count++;
-        }
-
-        $this->info("  Migrated {$count} API keys");
-    }
 
     private function migrateLicenseReports(): void
     {
