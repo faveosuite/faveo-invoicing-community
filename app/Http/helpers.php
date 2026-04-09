@@ -1223,10 +1223,10 @@ function exceptionResponse(Throwable $exception): \Illuminate\Http\JsonResponse
 }
 
 /**
- * This function returns an asset link based on link.php settings
+ * This function returns an asset link based on link.php settings.
  *
- * @param string $type
- * @param string $key
+ * @param  string  $type
+ * @param  string  $key
  * @return string
  */
 function assetLink(string $type, string $key): string
@@ -1235,9 +1235,8 @@ function assetLink(string $type, string $key): string
     return asset(\Config::get('link.'.$type.'.'.$key));
 }
 
-
 /**
- * Gives the bundle URL after appending the version number to it
+ * Gives the bundle URL after appending the version number to it.
  *
  * @param  string  $url
  * @return string
