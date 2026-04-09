@@ -140,6 +140,7 @@ class OrderController extends BaseOrderController
             $query = $orderSearch->advanceOrderSearch($request);
 
             $count = count($query->cursor());
+
             return \DataTables::of($query)
                 ->orderColumn('client', "concat(users.first_name, ' ', users.last_name) $1")
                 ->orderColumn('product_name', 'products.name $1')

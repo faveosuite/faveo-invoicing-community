@@ -20,14 +20,14 @@ class LicenseApiController extends Controller
     }
 
     /**
-     * GET /api/licenseInfo
+     * GET /api/licenseInfo.
      */
     public function licenseInfo(Request $request)
     {
         $licenseCode = $request->input('license_code');
         $info = $this->licenseService->getLicenseInfo($licenseCode);
 
-        if (!$info) {
+        if (! $info) {
             return errorResponse('License not found', 404);
         }
 
@@ -35,7 +35,7 @@ class LicenseApiController extends Controller
     }
 
     /**
-     * GET /api/IndividuallicenseInfo
+     * GET /api/IndividuallicenseInfo.
      */
     public function individualLicenseInfo(Request $request)
     {
@@ -46,7 +46,7 @@ class LicenseApiController extends Controller
     }
 
     /**
-     * GET /api/getOrder
+     * GET /api/getOrder.
      */
     public function getOrder(Request $request)
     {
@@ -57,7 +57,7 @@ class LicenseApiController extends Controller
     }
 
     /**
-     * GET|POST /api/pluginLicense
+     * GET|POST /api/pluginLicense.
      */
     public function pluginLicense(Request $request)
     {
@@ -73,7 +73,7 @@ class LicenseApiController extends Controller
     }
 
     /**
-     * POST /api/LicenseReissue
+     * POST /api/LicenseReissue.
      */
     public function reissueLicenseCloud(Request $request)
     {

@@ -6,7 +6,6 @@ use App\ApiKey;
 use App\Http\Controllers\Common\PipedriveController;
 use App\Http\Controllers\Common\Sms\SmsOtpController;
 use App\Http\Controllers\Controller;
-
 use App\Jobs\AddUserToExternalService;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;

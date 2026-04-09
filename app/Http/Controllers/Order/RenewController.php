@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Order;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Model\Common\FaveoCloud;
-use App\Model\Common\StatusSetting;
 use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
@@ -158,14 +157,14 @@ class RenewController extends BaseRenewController
         $existingLicense = $licenseService->findByCode($licenseCode);
         if ($existingLicense) {
             $licenseService->update($existingLicense->id, [
-                'license_order_number'   => $orderNo,
-                'license_domain'         => $ipAndDomain['domain'],
-                'license_ip'             => $ipAndDomain['ip'],
+                'license_order_number' => $orderNo,
+                'license_domain' => $ipAndDomain['domain'],
+                'license_ip' => $ipAndDomain['ip'],
                 'license_require_domain' => $ipAndDomain['requireDomain'],
-                'license_expire_date'    => $licenseExpiry,
-                'license_updates_date'   => $expiryDate,
-                'license_support_date'   => $supportExpiry,
-                'license_limit'          => $noOfAllowedInstallation ?: 2,
+                'license_expire_date' => $licenseExpiry,
+                'license_updates_date' => $expiryDate,
+                'license_support_date' => $supportExpiry,
+                'license_limit' => $noOfAllowedInstallation ?: 2,
             ]);
         }
     }

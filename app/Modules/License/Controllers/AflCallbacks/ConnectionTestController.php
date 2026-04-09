@@ -20,7 +20,7 @@ class ConnectionTestController extends Controller
 
     /**
      * Test connection between Faveo and License Manager
-     * POST /apl_callbacks/connection_test.php  OR  POST /api/ConnectionTest
+     * POST /apl_callbacks/connection_test.php  OR  POST /api/ConnectionTest.
      */
     public function connection(Request $request)
     {
@@ -28,7 +28,7 @@ class ConnectionTestController extends Controller
         $connection_hash = $request->input('connection_hash');
         $root_url = $request->input('root_url');
 
-        if (!$this->validator->isValidConnection($product_id, $connection_hash)) {
+        if (! $this->validator->isValidConnection($product_id, $connection_hash)) {
             return $this->notificationResponse('notification_unknown_error', []);
         }
 

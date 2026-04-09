@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Tenancy;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\CartController;
-
 use App\Http\Controllers\Order\RenewController;
 use App\Model\CloudDataCenters;
 use App\Model\Common\Country;

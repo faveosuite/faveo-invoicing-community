@@ -294,18 +294,18 @@ class BaseHomeController extends Controller
                 $updExpiry = $this->getUpdatesExpiryDate($existingLicense);
                 $supExpiry = $this->getSupportExpiryDate($existingLicense);
                 app(\App\Modules\License\Services\LicenseService::class)->create([
-                    'product_id'             => $existingLicense->product,
-                    'user_id'                => $existingLicense->client,
-                    'license_code'           => $serial_key,
-                    'license_order_number'   => $order->number ?? null,
-                    'license_domain'         => $ipAndDomain['domain'],
-                    'license_ip'             => $ipAndDomain['ip'],
+                    'product_id' => $existingLicense->product,
+                    'user_id' => $existingLicense->client,
+                    'license_code' => $serial_key,
+                    'license_order_number' => $order->number ?? null,
+                    'license_domain' => $ipAndDomain['domain'],
+                    'license_ip' => $ipAndDomain['ip'],
                     'license_require_domain' => $ipAndDomain['requireDomain'],
-                    'license_limit'          => 1,
-                    'license_expire_date'    => ($licExpiry != '') ? $licExpiry->toDateString() : null,
-                    'license_updates_date'   => ($updExpiry != '') ? $updExpiry->toDateString() : null,
-                    'license_support_date'   => ($supExpiry != '') ? $supExpiry->toDateString() : null,
-                    'license_status'         => 1,
+                    'license_limit' => 1,
+                    'license_expire_date' => ($licExpiry != '') ? $licExpiry->toDateString() : null,
+                    'license_updates_date' => ($updExpiry != '') ? $updExpiry->toDateString() : null,
+                    'license_support_date' => ($supExpiry != '') ? $supExpiry->toDateString() : null,
+                    'license_status' => 1,
                 ]);
                 //Update the old license code with new one in billing.
                 $existingLicense->serial_key = \Crypt::encrypt(substr($licCode, 0, 12).$lastFour);

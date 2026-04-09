@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Http\Controllers\Order\BaseOrderController;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;

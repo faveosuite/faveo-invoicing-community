@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Order;
 
-
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
@@ -229,18 +228,18 @@ class BaseOrderController extends ExtendedOrderController
             $order = \App\Model\Order\Order::find($orderid);
             $ipAndDomain = \App\Modules\License\Services\LicenseService::parseIpAndDomain($order->domain ?? '');
             app(\App\Modules\License\Services\LicenseService::class)->create([
-                'product_id'             => $product,
-                'user_id'                => $user_id,
-                'license_code'           => $serial_key,
-                'license_order_number'   => $order->number,
-                'license_domain'         => $ipAndDomain['domain'],
-                'license_ip'             => $ipAndDomain['ip'],
+                'product_id' => $product,
+                'user_id' => $user_id,
+                'license_code' => $serial_key,
+                'license_order_number' => $order->number,
+                'license_domain' => $ipAndDomain['domain'],
+                'license_ip' => $ipAndDomain['ip'],
                 'license_require_domain' => $ipAndDomain['requireDomain'],
-                'license_limit'          => 1,
-                'license_expire_date'    => ($licenseExpiry != '') ? $licenseExpiry->toDateString() : null,
-                'license_updates_date'   => ($updatesExpiry != '') ? $updatesExpiry->toDateString() : null,
-                'license_support_date'   => ($supportExpiry != '') ? $supportExpiry->toDateString() : null,
-                'license_status'         => 1,
+                'license_limit' => 1,
+                'license_expire_date' => ($licenseExpiry != '') ? $licenseExpiry->toDateString() : null,
+                'license_updates_date' => ($updatesExpiry != '') ? $updatesExpiry->toDateString() : null,
+                'license_support_date' => ($supportExpiry != '') ? $supportExpiry->toDateString() : null,
+                'license_status' => 1,
             ]);
             \Session::forget('increase-decrease-days');
             \Session::forget('increase-decrease-days-dont-cloud');

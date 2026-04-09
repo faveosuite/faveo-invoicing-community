@@ -2,13 +2,13 @@
 
 namespace App\Modules\License;
 
-use Illuminate\Support\ServiceProvider;
 use App\Modules\License\Console\Commands\LicenseDataMigration;
 use App\Modules\License\Helpers\LicenseValidator;
-use App\Modules\License\Services\LicenseService;
-use App\Modules\License\Services\InstallationService;
-use App\Modules\License\Services\VersionService;
 use App\Modules\License\Services\CallbackService;
+use App\Modules\License\Services\InstallationService;
+use App\Modules\License\Services\LicenseService;
+use App\Modules\License\Services\VersionService;
+use Illuminate\Support\ServiceProvider;
 
 class LicenseServiceProvider extends ServiceProvider
 {
@@ -47,10 +47,10 @@ class LicenseServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__ . '/Routes/license.php');
+        $this->loadRoutesFrom(__DIR__.'/Routes/license.php');
 
         // Load migrations from module's Database/Migrations directory
-        $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
+        $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
 
         // Register console commands
         if ($this->app->runningInConsole()) {

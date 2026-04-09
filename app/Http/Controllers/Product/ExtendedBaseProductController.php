@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Product;
 
 use App\Facades\Attach;
 use App\Http\Controllers\Controller;
-use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
 use App\Model\Payment\TaxProductRelation;
 use App\Model\Product\Product;

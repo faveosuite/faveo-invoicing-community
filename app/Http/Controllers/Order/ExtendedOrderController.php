@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Order;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
-use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Product\CloudProducts;
@@ -126,13 +125,13 @@ class ExtendedOrderController extends Controller
         $existingLicense = $licenseService->findByCode($licenseCode);
         if ($existingLicense) {
             $licenseService->update($existingLicense->id, [
-                'license_order_number'   => $order->number,
+                'license_order_number' => $order->number,
                 'license_require_domain' => $ipAndDomain['requireDomain'],
-                'license_expire_date'    => $l_expiry ?: $existingLicense->license_expire_date,
-                'license_updates_date'   => $u_expiry ?: $existingLicense->license_updates_date,
-                'license_support_date'   => $s_expiry ?: $existingLicense->license_support_date,
-                'license_domain'         => $ipAndDomain['domain'],
-                'license_ip'             => $ipAndDomain['ip'],
+                'license_expire_date' => $l_expiry ?: $existingLicense->license_expire_date,
+                'license_updates_date' => $u_expiry ?: $existingLicense->license_updates_date,
+                'license_support_date' => $s_expiry ?: $existingLicense->license_support_date,
+                'license_domain' => $ipAndDomain['domain'],
+                'license_ip' => $ipAndDomain['ip'],
             ]);
         }
         //Now make Installation status as inactive
@@ -161,13 +160,13 @@ class ExtendedOrderController extends Controller
         $existingLicense = $licenseService->findByCode($licenseCode);
         if ($existingLicense) {
             $licenseService->update($existingLicense->id, [
-                'license_order_number'   => $order->number,
+                'license_order_number' => $order->number,
                 'license_require_domain' => $ipAndDomain['requireDomain'],
-                'license_expire_date'    => $l_expiry ?: $existingLicense->license_expire_date,
-                'license_updates_date'   => $u_expiry ?: $existingLicense->license_updates_date,
-                'license_support_date'   => $s_expiry ?: $existingLicense->license_support_date,
-                'license_domain'         => $ipAndDomain['domain'],
-                'license_ip'             => $ipAndDomain['ip'],
+                'license_expire_date' => $l_expiry ?: $existingLicense->license_expire_date,
+                'license_updates_date' => $u_expiry ?: $existingLicense->license_updates_date,
+                'license_support_date' => $s_expiry ?: $existingLicense->license_support_date,
+                'license_domain' => $ipAndDomain['domain'],
+                'license_ip' => $ipAndDomain['ip'],
             ]);
         }
         //Now make Installation status as inactive
