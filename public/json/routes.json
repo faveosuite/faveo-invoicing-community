@@ -1,0 +1,260 @@
+{
+    "navigations" : [
+        {
+            "name": "Dashboard",
+            "key": null,
+            "count": 0,
+            "hasCount": false,
+            "iconClass": "fas fa-tachometer-alt",
+            "order": 0,
+            "routeString": "/dashboard",
+            "hasChildren": false,
+            "children": []
+        },
+        {
+            "name": "Versions",
+            "key": null,
+            "count": 0,
+            "hasCount": false,
+            "iconClass": "fas fa-cart-arrow-down",
+            "order": 0,
+            "redirectUrl": null,
+            "routeString": "",
+            "hasChildren": true,
+            "children": [
+                {
+                    "name": "New Version",
+                    "key": null,
+                    "count": 0,
+                    "hasCount": false,
+                    "iconClass": "far fa-circle",
+                    "order": 0,
+                    "routeString": "/versions/create",
+                    "hasChildren": false,
+                    "children": []
+                },
+                {
+                    "name": "All Versions",
+                    "key": null,
+                    "count": 0,
+                    "hasCount": false,
+                    "iconClass": "far fa-circle",
+                    "order": 0,
+                    "routeString": "/versions/list",
+                    "hasChildren": false,
+                    "children": []
+                }
+            ]
+        },
+        {
+            "name": "Licenses",
+            "key": null,
+            "count": 0,
+            "hasCount": false,
+            "iconClass": "fas fa-id-card",
+            "order": 0,
+            "redirectUrl": null,
+            "routeString": "",
+            "hasChildren": true,
+            "children": [
+                {
+                    "name": "New License",
+                    "key": null,
+                    "count": 0,
+                    "hasCount": false,
+                    "iconClass": "far fa-circle",
+                    "order": 0,
+                    "routeString": "/licenses/create",
+                    "hasChildren": false,
+                    "children": []
+                },
+                {
+                    "name": "All Licenses",
+                    "key": null,
+                    "count": 0,
+                    "hasCount": false,
+                    "iconClass": "far fa-circle",
+                    "order": 0,
+                    "routeString": "/licenses/list",
+                    "hasChildren": false,
+                    "children": []
+                }
+            ]
+        },
+        {
+            "name": "Installations",
+            "key": null,
+            "count": 0,
+            "hasCount": false,
+            "iconClass": "fas fa-download",
+            "order": 0,
+            "redirectUrl": null,
+            "routeString": "",
+            "hasChildren": true,
+            "children": [
+                {
+                    "name": "All Installations",
+                    "key": null,
+                    "count": 0,
+                    "hasCount": false,
+                    "iconClass": "far fa-circle",
+                    "order": 0,
+                    "routeString": "/installations/list",
+                    "hasChildren": false,
+                    "children": []
+                }
+            ]
+        },
+        {
+            "name": "Callbacks",
+            "key": null,
+            "count": 0,
+            "hasCount": false,
+            "iconClass": "fas fa-phone",
+            "order": 0,
+            "redirectUrl": null,
+            "routeString": "",
+            "hasChildren": true,
+            "children": [
+                {
+                    "name": "All Callbacks",
+                    "key": null,
+                    "count": 0,
+                    "hasCount": false,
+                    "iconClass": "far fa-circle",
+                    "order": 0,
+                    "routeString": "/callbacks/list",
+                    "hasChildren": false,
+                    "children": []
+                }
+            ]
+        },
+        {
+            "name": "Reports",
+            "key": null,
+            "count": 0,
+            "hasCount": false,
+            "iconClass": "fas fa-chart-bar",
+            "order": 0,
+            "redirectUrl": null,
+            "routeString": "",
+            "hasChildren": true,
+            "children": [
+                {
+                    "name": "License Reports",
+                    "key": null,
+                    "count": 0,
+                    "hasCount": false,
+                    "iconClass": "far fa-circle",
+                    "order": 0,
+                    "routeString": "/reports/license",
+                    "hasChildren": false,
+                    "children": []
+                },
+                {
+                    "name": "System Reports",
+                    "key": null,
+                    "count": 0,
+                    "hasCount": false,
+                    "iconClass": "far fa-circle",
+                    "order": 0,
+                    "routeString": "/reports/system",
+                    "hasChildren": false,
+                    "children": []
+                },
+                {
+                    "name": "Update Reports",
+                    "key": null,
+                    "count": 0,
+                    "hasCount": false,
+                    "iconClass": "far fa-circle",
+                    "order": 0,
+                    "routeString": "/reports/update",
+                    "hasChildren": false,
+                    "children": []
+                },
+                {
+                    "name": "Cracking Reports",
+                    "key": null,
+                    "count": 0,
+                    "hasCount": false,
+                    "iconClass": "far fa-circle",
+                    "order": 0,
+                    "routeString": "/reports/crack",
+                    "hasChildren": false,
+                    "children": []
+                }
+            ]
+        },
+        {
+            "name": "Banned Hosts",
+            "key": null,
+            "count": 0,
+            "hasCount": false,
+            "iconClass": "fas fa-ban",
+            "order": 0,
+            "redirectUrl": null,
+            "routeString": "",
+            "hasChildren": true,
+            "children": [
+                {
+                    "name": "New Banned Host",
+                    "key": null,
+                    "count": 0,
+                    "hasCount": false,
+                    "iconClass": "far fa-circle",
+                    "order": 0,
+                    "routeString": "/banned-hosts/create",
+                    "hasChildren": false,
+                    "children": []
+                },
+                {
+                    "name": "All Banned Hosts",
+                    "key": null,
+                    "count": 0,
+                    "hasCount": false,
+                    "iconClass": "far fa-circle",
+                    "order": 0,
+                    "routeString": "/banned-hosts/list",
+                    "hasChildren": false,
+                    "children": []
+                }
+            ]
+        },
+        {
+            "name": "WhiteList IP",
+            "key": null,
+            "count": 0,
+            "hasCount": false,
+            "iconClass": "fas fa-wrench",
+            "order": 0,
+            "redirectUrl": null,
+            "routeString": "",
+            "hasChildren": true,
+            "children": [
+                {
+                    "name": "New WhiteList",
+                    "key": null,
+                    "count": 0,
+                    "hasCount": false,
+                    "iconClass": "far fa-circle",
+                    "order": 0,
+                    "routeString": "/Whitelist/create",
+                    "hasChildren": false,
+                    "children": []
+                },
+                {
+                    "name": "All WhiteList",
+                    "key": null,
+                    "count": 0,
+                    "hasCount": false,
+                    "iconClass": "far fa-circle",
+                    "order": 0,
+                    "routeString": "/Whitelist/list",
+                    "hasChildren": false,
+                    "children": []
+                }
+            ]
+        }
+    ]
+}

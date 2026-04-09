@@ -1,0 +1,78 @@
+/** ++++++++++++++++++++++++++++++++++++ Vue-Select CSS +++++++++++++++++++++++++++++++++++++++++++++ */
+
+.faveo-dynamic-select .vs__dropdown-toggle {
+  width: 100%;
+  line-height: 1.4;
+  display: flex;
+  padding: 0px;
+  border: 1px solid rgba(60, 60, 60, 0.26);
+  overflow-y: auto;
+  min-height: 35px;
+  max-height: 85px;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.faveo-dynamic-select .vs__dropdown-toggle::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.faveo-dynamic-select .vs__dropdown-toggle {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.faveo-dynamic-select.field-danger .vs__dropdown-toggle {
+  border: 1px solid #d73925 !important
+}
+
+.faveo-dynamic-select .vs__selected {
+  margin: 3px;
+}
+
+.faveo-dynamic-select .vs__selected .selected {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 400px;
+}
+
+.faveo-dynamic-select .vs__dropdown-menu {
+  max-height: 200px;
+}
+
+.faveo-dynamic-select .vs__dropdown-menu::-webkit-scrollbar-track
+  {
+    background-color: #f1f1f1;
+    border-radius:10px;
+  }
+
+  .faveo-dynamic-select .vs__dropdown-menu::-webkit-scrollbar
+  {
+    width: 6px;
+    background-color: #f1f1f1;
+  }
+
+  .faveo-dynamic-select .vs__dropdown-menu::-webkit-scrollbar-thumb
+  {
+    background-color: #c1c1c1;
+    border-radius: 10px;
+  }
+
+.faveo-dynamic-select .vs__selected-options {
+  padding: 0;
+}
+
+.faveo-dynamic-select .vs__actions {
+  padding: 0 5px 0 3px;
+}
+
+.faveo-dynamic-select .vs__clear {
+  position: relative;
+  /*top: -2px;*/
+}
+
+.faveo-dynamic-select .vs__search, .vs__search:focus {
+  margin: 5px;
+}
+

@@ -60,3 +60,12 @@ Route::get('/api/getOrder', [LicenseApiController::class, 'getOrder']);
 Route::get('/api/pluginLicense', [LicenseApiController::class, 'pluginLicense']);
 Route::post('/api/pluginLicense', [LicenseApiController::class, 'pluginLicense']);
 Route::post('/api/LicenseReissue', [LicenseApiController::class, 'reissueLicenseCloud']);
+
+// ============================================================================
+// LICENSE MANAGER SPA ENTRY POINT
+// Catch-all route to serve the Vue SPA for the license manager UI
+// ============================================================================
+
+Route::get('/license-manager/{any?}', function () {
+    return view('license::welcome');
+})->where('any', '.*')->middleware('web');
