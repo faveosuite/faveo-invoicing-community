@@ -25,6 +25,7 @@ class AfuVersions extends Model
     {
         return $this->hasMany(AfuCallbacks::class, 'version_id', 'id');
     }
+
     public function updateInstallation()
     {
         return $this->hasMany(AfuInstallations::class);

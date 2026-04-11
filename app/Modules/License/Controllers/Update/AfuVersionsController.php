@@ -6,9 +6,9 @@ namespace App\Modules\License\Controllers\Update;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VersionRequest;
 use App\Model\Product\Product;
-use App\Modules\License\Models\VersionCallback;
 use App\Modules\License\Models\Installation;
 use App\Modules\License\Models\ProductVersion;
+use App\Modules\License\Models\VersionCallback;
 use FilesystemIterator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +20,7 @@ class AfuVersionsController extends Controller
 {
     public function __construct()
     {
-        if (null !== (request()->server('REMOTE_ADDR'))) {
+        if (null !== request()->server('REMOTE_ADDR')) {
             $this->ip_address = request()->server('REMOTE_ADDR');
         } else {
             $this->ip_address = request()->ip();
@@ -344,7 +344,7 @@ class AfuVersionsController extends Controller
                     $page_message = "Deleted $removed_records version(s).";
                     createReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
                     echo $page_message; //THIS LINE IS CUSTOM IN API. ADMINISTRATION DASHBOARD CODE CONTAINS redirectInvalidRecord($script_name);
-                    exit();
+                    exit;
                 } else {
                     $error_detected = 1;
                     $error_details .= 'Invalid record or database error.<br>';
@@ -483,7 +483,7 @@ class AfuVersionsController extends Controller
                             'version_status' => $version_status,
                         ]
                     );
-                    $updated_records = empty($updated_records) ? 0 : 1 ;
+                    $updated_records = empty($updated_records) ? 0 : 1;
                     if (! aflValidateIntegerValue($updated_records)) {
                         $error_detected = 1;
                         $error_details .= 'Invalid record details, duplicated data, or database error.<br>';
@@ -696,12 +696,12 @@ class AfuVersionsController extends Controller
     }
 
     /**
-     * set old versions as expired when new version is added
+     * set old versions as expired when new version is added.
      *
-     * @param $product_id
-     * @param $product_max_active_versions
-     * @param $version_number
-     * @param $version_comments
+     * @param  $product_id
+     * @param  $product_max_active_versions
+     * @param  $version_number
+     * @param  $version_comments
      */
     public function disableOldVersion($product_id, $product_max_active_versions, $version_number, $version_comments)
     {
@@ -730,9 +730,9 @@ class AfuVersionsController extends Controller
 
     /**
      * delete files and directories from specified directory
-     * ($files_array is an array of files and/or sub-directories to be deleted from $root_directory)
+     * ($files_array is an array of files and/or sub-directories to be deleted from $root_directory).
      *
-     * @param $root_directory
+     * @param  $root_directory
      * @param  array  $files_array
      */
     public function deleteFileDirectory($root_directory = __DIR__, $files_array = [])
@@ -771,18 +771,18 @@ class AfuVersionsController extends Controller
     }
 
     /**
-     * checks for the type of the file wheather it's Zip and size is 100 MB max
+     * checks for the type of the file wheather it's Zip and size is 100 MB max.
      *
-     * @param $version_install_file
-     * @param $version_upgrade_file
-     * @param $version_install_query
-     * @param $version_upgrade_query
-     * @param $version_install_limit
-     * @param $version_upgrade_limit
-     * @param $version_expire_date
-     * @param $error_detected
-     * @param $error_details
-     * returns an array of error details and error detected =1 when an error occurs
+     * @param  $version_install_file
+     * @param  $version_upgrade_file
+     * @param  $version_install_query
+     * @param  $version_upgrade_query
+     * @param  $version_install_limit
+     * @param  $version_upgrade_limit
+     * @param  $version_expire_date
+     * @param  $error_detected
+     * @param  $error_details
+     *                        returns an array of error details and error detected =1 when an error occurs
      */
     protected function versionFileCheck($version_install_file, $version_upgrade_file, $version_install_query, $version_upgrade_query, $version_install_limit, $version_upgrade_limit, $version_expire_date, $error_detected = 0, $error_details = '')
     {
@@ -829,15 +829,15 @@ class AfuVersionsController extends Controller
     }
 
     /**
-     * retrieves the original name and changes it to custom name
+     * retrieves the original name and changes it to custom name.
      *
-     * @param $version_install_file
-     * @param $version_upgrade_file
-     * @param $version_install_query
-     * @param $version_upgrade_query
-     * @param $product_title
-     * @param $version_number
-     * returns an array of changed file name depending on the action of license manager.
+     * @param  $version_install_file
+     * @param  $version_upgrade_file
+     * @param  $version_install_query
+     * @param  $version_upgrade_query
+     * @param  $product_title
+     * @param  $version_number
+     *                         returns an array of changed file name depending on the action of license manager.
      */
     protected function formatFile($version_install_file, $version_upgrade_file, $version_install_query, $version_upgrade_query, $product_title, $version_number)
     {
@@ -878,15 +878,15 @@ class AfuVersionsController extends Controller
 
     /**
      * This helps move the file to specific custom name and specified location in updatemanager
-     * And deletes the existing one if add = 0, that means during update
+     * And deletes the existing one if add = 0, that means during update.
      *
-     * @param $temp
-     * @param $version_install_file
-     * @param $version_upgrade_file
-     * @param $version_install_query
-     * @param $version_upgrade_query
-     * @param $add
-     * @param $rows_array
+     * @param  $temp
+     * @param  $version_install_file
+     * @param  $version_upgrade_file
+     * @param  $version_install_query
+     * @param  $version_upgrade_query
+     * @param  $add
+     * @param  $rows_array
      */
     protected function moveFile($temp, $version_install_file, $version_upgrade_file, $version_install_query, $version_upgrade_query, $add, $rows_array = null)
     {
@@ -936,13 +936,13 @@ class AfuVersionsController extends Controller
     }
 
     /**
-     *Helps generate and store temp name of files uploaded as zip
+     *Helps generate and store temp name of files uploaded as zip.
      *
-     * @param $version_install_file
-     * @param $version_upgrade_file
-     * @param $version_install_query
-     * @param $version_upgrade_query
-     * return array of temp names
+     * @param  $version_install_file
+     * @param  $version_upgrade_file
+     * @param  $version_install_query
+     * @param  $version_upgrade_query
+     *                                return array of temp names
      */
     protected function generateTempName($version_install_file, $version_upgrade_file, $version_install_query, $version_upgrade_query)
     {

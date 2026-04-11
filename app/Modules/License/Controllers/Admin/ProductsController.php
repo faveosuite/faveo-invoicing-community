@@ -3,15 +3,11 @@
 namespace App\Modules\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Modules\License\Models\License as ApiKeys;
-use App\Modules\License\Controllers\Update\AfuProductsController;
 use App\Http\Requests\ProductRequest;
-
-use App\Modules\License\Models\LicenseCallback;
-use App\Modules\License\Models\Installation;
-use App\Modules\License\Models\License;
 use App\Model\Product\Product;
+use App\Modules\License\Controllers\Update\AfuProductsController;
 use App\Modules\License\Models\InstallationLog;
+use App\Modules\License\Models\License as ApiKeys;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -19,23 +15,23 @@ use Illuminate\Support\Facades\Lang;
 
 /**
  * Consist of functionalities for the Product page in Auto Faveo licenser
- * Class ProductsController
+ * Class ProductsController.
  */
 class ProductsController extends Controller
 {
     /**
-     * stores the product details into the database
+     * stores the product details into the database.
      *
      * @param  ProductRequest  $request
-     * @param $api_key_secret
-     * @param $name
-     * @param $product_sku
-     * @param $status
-     * @param $product_description
-     * @param $product_url_homepage
-     * @param $product_url_download
-     * @param $product_version
-     * @param $product_envato_id
+     * @param  $api_key_secret
+     * @param  $name
+     * @param  $product_sku
+     * @param  $status
+     * @param  $product_description
+     * @param  $product_url_homepage
+     * @param  $product_url_download
+     * @param  $product_version
+     * @param  $product_envato_id
      * @return response that a product details is added with a success response
      */
     public function productAdd(ProductRequest $request)
@@ -54,7 +50,7 @@ class ProductsController extends Controller
         $product_version = $request->get('product_version');
         $product_envato_id = $request->get('product_envato_id');
 
-        if (null !== (request()->server('REMOTE_ADDR'))) {
+        if (null !== request()->server('REMOTE_ADDR')) {
             $ip_address = request()->server('REMOTE_ADDR');
         } else {
             $ip_address = $request->ip();
@@ -136,7 +132,7 @@ class ProductsController extends Controller
     }
 
     /**
-     * Shows the product details from the database
+     * Shows the product details from the database.
      *
      * @param
      * @return array of all the products that is present in the database
@@ -163,6 +159,7 @@ class ProductsController extends Controller
             $product->versions_count = DB::table('product_versions')
                 ->where('product_id', $product->id)
                 ->count();
+
             return $product;
         });
 
@@ -170,9 +167,9 @@ class ProductsController extends Controller
     }
 
     /**
-     * Deletes the product details from the database by using product id
+     * Deletes the product details from the database by using product id.
      *
-     * @param $id
+     * @param  $id
      * @return response that a product has been deleted  with it's cascaded values
      */
     //delete product
@@ -185,7 +182,7 @@ class ProductsController extends Controller
         $api_key_secret = $request->get('api_key_secret');
         $soft_delete = $request->get('soft_delete');
 
-        if (null !== (request()->server('REMOTE_ADDR'))) {
+        if (null !== request()->server('REMOTE_ADDR')) {
             $ip_address = request()->server('REMOTE_ADDR');
         } else {
             $ip_address = $request->ip();
@@ -212,7 +209,7 @@ class ProductsController extends Controller
                 }
             }
             if (aflValidateIntegerValue($id)) {
-                if($soft_delete === 0){
+                if ($soft_delete === 0) {
                     DB::beginTransaction(); //mysqli_begin_transaction($GLOBALS["mysqli"]);
                     $transaction_errors_array = [];
                     try {
@@ -235,10 +232,10 @@ class ProductsController extends Controller
                         $transaction_errors_array[] = $e->getMessage();
                         DB::rollBack();
                         $removed_records = 0;
+
                         return errorResponse(Lang::get('lang.invalid'), 400);
                     }
-                }
-                else{
+                } else {
                     Product::where('id', $id)->update(['status' => 0]);
                     $removed_records += Product::where('id', $id)->delete();
                 }
@@ -260,19 +257,19 @@ class ProductsController extends Controller
     }
 
     /**
-     * Updates the product details into the database
+     * Updates the product details into the database.
      *
      * @param  ProductRequest  $request
-     * @param $api_key_secret
-     * @param $id
-     * @param $name
-     * @param $product_sku
-     * @param $status
-     * @param $product_description
-     * @param $product_url_homepage
-     * @param $product_url_download
-     * @param $product_version
-     * @param $product_envato_id
+     * @param  $api_key_secret
+     * @param  $id
+     * @param  $name
+     * @param  $product_sku
+     * @param  $status
+     * @param  $product_description
+     * @param  $product_url_homepage
+     * @param  $product_url_download
+     * @param  $product_version
+     * @param  $product_envato_id
      * @return response that a product details of the records found is Updated with a success response
      */
     public function productUpdate(Request $request)
@@ -295,7 +292,7 @@ class ProductsController extends Controller
         $api_action_success = 0;
         $api_error_detected = 0;
         $updated_records = 0;
-        if (null !== (request()->server('REMOTE_ADDR'))) {
+        if (null !== request()->server('REMOTE_ADDR')) {
             $ip_address = request()->server('REMOTE_ADDR');
         } else {
             $ip_address = $request->ip();
@@ -365,70 +362,71 @@ class ProductsController extends Controller
             }
         }
     }
+
     public function addAflAndAfuProduct(ProductRequest $request)
     {
         try {
             $response = $this->productAdd($request);
             $response = json_decode($response->getContent());
-            if($response->success == true) {
+            if ($response->success == true) {
                 $productId = Product::where('product_sku', $request->get('product_sku'))->pluck('id')->first();
                 if ($productId) {
                     $afuResponse = $this->addNewProductToAUS($request, $productId);
-                    if($afuResponse->success == false){
+                    if ($afuResponse->success == false) {
                         return errorResponse(Lang::get('lang.invalid'), 400);
                     }
+
                     return successResponse(Lang::get('lang.Product_Add'));
                 } else {
                     return errorResponse(Lang::get('lang.invalid'), 400);
                 }
-            }
-            else{
+            } else {
                 return errorResponse($response->message, 400);
             }
-
         } catch (\Exception $e) {
             // Return an error response
             return errorResponse(Lang::get('lang.invalid'), 400);
         }
     }
 
-    private function addNewProductToAUS($request,$productId)
+    private function addNewProductToAUS($request, $productId)
     {
         try {
             $key = str_random(16); // Generate a random product key
 
-            $customRequest = new Request(array_merge($request->all(), ['product_key' => $key,'id' => $productId]));
+            $customRequest = new Request(array_merge($request->all(), ['product_key' => $key, 'id' => $productId]));
 
             // Use dependency injection instead of creating a new instance
             $afuProduct = app(AfuProductsController::class);
             $response = $afuProduct->productUpdateAdd($customRequest);
 
             return json_decode($response->getContent());
-
         } catch (\Exception $ex) {
             // Throw an exception with a specific error message
             return errorResponse(Lang::get('lang.invalid'), 400);
         }
     }
+
     public function updateAflAndAfuProduct(Request $request)
     {
         try {
             $responseFromProduct = $this->productUpdate($request);
             $response = json_decode($responseFromProduct->getContent());
             // Check if the response indicates success
-            if ($response->success == true ) {
+            if ($response->success == true) {
                 $this->updateProductToAUS($request);
+
                 return successResponse(Lang::get('lang.Product_Update'));
             } else {
                 // Return an error response if the API call was not successful
                 return errorResponse($response->message, 400);
             }
-
         } catch (\Exception $e) {
             // Return an error response
             return errorResponse(Lang::get('lang.invalid'), 400);
         }
     }
+
     private function updateProductToAUS($request)
     {
         try {
@@ -439,7 +437,7 @@ class ProductsController extends Controller
             $data = $request->all(); // Get all request data
 
             // Remove 'product_url_homepage' if it is empty
-            if(empty($request->get('product_url_homepage'))){
+            if (empty($request->get('product_url_homepage'))) {
                 unset($data['product_url_homepage']);
             }
 
@@ -459,26 +457,28 @@ class ProductsController extends Controller
             return errorResponse(Lang::get('lang.invalid'), 400);
         }
     }
+
     public function deleteAflAndAfuProduct(Request $request)
     {
         try {
             $responseFromProduct = $this->deleteProduct($request);
             $response = json_decode($responseFromProduct->getContent());
             // Check if the response indicates success
-            if ($response->success == true ) {
+            if ($response->success == true) {
                 $afuProduct = app(AfuProductsController::class);
                 $afuProduct->deleteUpdateProduct($request);
+
                 return successResponse(Lang::get('lang.product_suspended'));
             } else {
                 // Return an error response if the API call was not successful
                 return errorResponse($response->message, 400);
             }
-
         } catch (\Exception $e) {
             // Return an error response
             return errorResponse(Lang::get('lang.invalid'), 400);
         }
     }
+
     private function buildProductQuery($filter, $searchQuery)
     {
         $products = Product::select('id', 'name', 'product_sku', 'status')
@@ -503,9 +503,9 @@ class ProductsController extends Controller
         // Apply search query
         if ($searchQuery) {
             $products->where(function ($query) use ($searchQuery) {
-                $query->where('name', 'LIKE', '%' . $searchQuery . '%')
-                    ->orWhere('product_sku', 'LIKE', '%' . $searchQuery . '%')
-                    ->orWhere('status', 'LIKE', '%' . statusFormatter($searchQuery) . '%');
+                $query->where('name', 'LIKE', '%'.$searchQuery.'%')
+                    ->orWhere('product_sku', 'LIKE', '%'.$searchQuery.'%')
+                    ->orWhere('status', 'LIKE', '%'.statusFormatter($searchQuery).'%');
             });
         }
 
@@ -513,9 +513,9 @@ class ProductsController extends Controller
     }
 
     /**
-     * Restore a suspended product (It restores the product from both Product and Product)
+     * Restore a suspended product (It restores the product from both Product and Product).
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return Response
      */
     public function restoreSuspendedProduct(Request $request)
@@ -524,14 +524,14 @@ class ProductsController extends Controller
         $api_key_secret = $request->input('api_key_secret');
         $api_key = new ApiKeysController();
 
-        if (null !== (request()->server('REMOTE_ADDR'))) {
+        if (null !== request()->server('REMOTE_ADDR')) {
             $ip_address = request()->server('REMOTE_ADDR');
         } else {
             $ip_address = $request->ip();
         }
 
         // Validate id and API key
-        if (!aflValidateIntegerValue($id) || !$api_key->apiKeyCheck($api_key_secret, $ip_address)) {
+        if (! aflValidateIntegerValue($id) || ! $api_key->apiKeyCheck($api_key_secret, $ip_address)) {
             return errorResponse(Lang::get('lang.invalid'), 400);
         }
 
@@ -555,5 +555,4 @@ class ProductsController extends Controller
     {
         return Product::where('product_key', $request->product_key)->value('id');
     }
-
 }

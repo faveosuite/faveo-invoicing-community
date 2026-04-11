@@ -35,16 +35,20 @@ class AflProducts extends Model
     {
         return $this->hasMany(AflReports::class, 'product_id', 'product_id');
     }
+
     public function getProductLatestVersionAttribute()
     {
         $productId = AfuProducts::where('product_sku', $this->product_sku)->value('product_id');
         $version = AfuVersions::where('product_id', $productId)->latest('version_id')->first();
+
         return $version;
     }
+
     public function getProductVersionCountAttribute()
     {
         $productId = AfuProducts::where('product_sku', $this->product_sku)->value('product_id');
         $versionCount = AfuVersions::where('product_id', $productId)->count();
+
         return $versionCount;
     }
 
@@ -62,5 +66,4 @@ class AflProducts extends Model
     {
         return $this->hasMany(LicenseOption::class, 'product_id', 'product_id');
     }
-
 }
