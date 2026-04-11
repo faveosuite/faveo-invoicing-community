@@ -1327,22 +1327,24 @@ function formatClient($license_code, $client_email)
 
 function statusFormatter($status)
 {
-    if (strtolower($status) == 'active'){
+    if (strtolower($status) == 'active') {
         $status = 1;
     }
-    if (strtolower($status) == 'inactive' ){
+    if (strtolower($status) == 'inactive') {
         $status = 0;
     }
+
     return $status;
 }
 
 function successErrorFormatter($status)
 {
-    if (strtolower($status) == 'success'){
+    if (strtolower($status) == 'success') {
         $status = 1;
     }
-    if (strtolower($status) == 'error' ){
+    if (strtolower($status) == 'error') {
         $status = 0;
     }
+
     return $status;
 }

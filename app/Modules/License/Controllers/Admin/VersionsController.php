@@ -3,7 +3,6 @@
 namespace App\Modules\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Modules\License\Models\ProductVersion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,8 +13,8 @@ class VersionsController extends Controller
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
         $searchQuery = $request->input('search_query');
-        $sortOrder= $request->input('sort_order','desc');
-        $sortField = $request->input('sort_field','id');
+        $sortOrder = $request->input('sort_order', 'desc');
+        $sortField = $request->input('sort_field', 'id');
         $versions = DB::table('product_versions')
             ->selectRaw('product_versions.version_id, product_versions.id, product_versions.version_number, product_versions.version_date, product_versions.version_upgrade_count, product_versions.version_status, products.name as name')
             ->leftJoin('products', 'product_versions.id', '=', 'products.id')
@@ -26,14 +25,15 @@ class VersionsController extends Controller
             }, 'callback_count')
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($q) use ($searchQuery) {
-                    $q->where('product_versions.version_number', 'LIKE', '%' . $searchQuery . '%')
-                        ->orWhere('product_versions.version_date', 'LIKE', '%' . $searchQuery . '%')
-                        ->orWhere('product_versions.version_status', 'LIKE', '%' . statusFormatter($searchQuery) . '%')
-                        ->orWhere('products.name', 'LIKE', '%' . $searchQuery . '%');
+                    $q->where('product_versions.version_number', 'LIKE', '%'.$searchQuery.'%')
+                        ->orWhere('product_versions.version_date', 'LIKE', '%'.$searchQuery.'%')
+                        ->orWhere('product_versions.version_status', 'LIKE', '%'.statusFormatter($searchQuery).'%')
+                        ->orWhere('products.name', 'LIKE', '%'.$searchQuery.'%');
                 });
             })
             ->orderBy('product_versions.'.$sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
-        return successResponse('',$versions);
+
+        return successResponse('', $versions);
     }
 }

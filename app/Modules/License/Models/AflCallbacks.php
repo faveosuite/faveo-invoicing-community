@@ -30,13 +30,14 @@ class AflCallbacks extends Model
     {
         return $this->belongsTo(AflLicenses::class, 'license_code', 'license_code');
     }
+
     public function scopeWithClientEmailOrLicenseCode($query)
     {
-        $query->addSelect([DB::raw("
+        $query->addSelect([DB::raw('
                 CASE
                     WHEN client_id IS NOT NULL THEN (SELECT client_email FROM users WHERE client_id = afl_callbacks.client_id LIMIT 1)
                     ELSE license_code
                 END As client_email_or_license_code
-                ")]);
+                ')]);
     }
 }

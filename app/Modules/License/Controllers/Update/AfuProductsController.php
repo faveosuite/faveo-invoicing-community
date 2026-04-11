@@ -4,10 +4,10 @@ namespace App\Modules\License\Controllers\Update;
 
 // ApiKeysController removed
 use App\Http\Controllers\Controller;
-use App\Modules\License\Models\VersionCallback;
-use App\Modules\License\Models\Installation;
 use App\Model\Product\Product;
+use App\Modules\License\Models\Installation;
 use App\Modules\License\Models\ProductVersion;
+use App\Modules\License\Models\VersionCallback;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -21,18 +21,18 @@ class AfuProductsController extends Controller
     }
 
     /**
-     * stores the product details into the database
+     * stores the product details into the database.
      *
      * @param  Request  $request
-     * @param $api_key_secret
-     * @param $product_title
-     * @param $product_sku
-     * @param $product_status
-     * @param $product_description
-     * @param $product_url_homepage
-     * @param $product_url_download
-     * @param $product_version
-     * @param $product_envato_id
+     * @param  $api_key_secret
+     * @param  $product_title
+     * @param  $product_sku
+     * @param  $product_status
+     * @param  $product_description
+     * @param  $product_url_homepage
+     * @param  $product_url_download
+     * @param  $product_version
+     * @param  $product_envato_id
      * @return response that a product details is added with a success response
      */
     public function productUpdateAdd(Request $request)
@@ -113,7 +113,7 @@ class AfuProductsController extends Controller
         $api_key = new ApiKeysController();
         $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
         if (aflValidateIntegerValue($product_id) && $api_action_success == 1) {
-            if($soft_delete === 0) {
+            if ($soft_delete === 0) {
                 DB::beginTransaction(); //mysqli_begin_transaction($GLOBALS["mysqli"]);
                 $transaction_errors_array = [];
                 try {
@@ -129,7 +129,7 @@ class AfuProductsController extends Controller
 
                     return errorResponse(Lang::get('lang.invalid'), 400);
                 }
-            }else{
+            } else {
                 Product::where('product_id', $product_id)->update(['product_status' => 0]);
                 $removed_records += Product::where('product_id', $product_id)->delete(); //Delete the product
             }
@@ -194,16 +194,18 @@ class AfuProductsController extends Controller
             return errorResponse(Lang::get('lang.invalid'), 400);
         }
     }
+
     public function getProducts(Request $request)
     {
         $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
         $searchQuery = $request->input('search_query');
-        $sortOrder= $request->input('sort_order','desc');
-        $sortField = $request->input('sort_field','id');
+        $sortOrder = $request->input('sort_order', 'desc');
+        $sortField = $request->input('sort_field', 'id');
         $product = Product::orderBy($sortField, $sortOrder)
-            ->where('product_title','LIKE', '%' . $searchQuery . '%')
+            ->where('product_title', 'LIKE', '%'.$searchQuery.'%')
             ->paginate($perPage, ['*'], 'page', $page);
-        return successResponse('',$product);
+
+        return successResponse('', $product);
     }
 }

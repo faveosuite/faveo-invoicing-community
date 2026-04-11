@@ -3,20 +3,18 @@
 namespace App\Modules\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Modules\License\Models\License as ApiKeys;
 use App\Http\Requests\InstallationRequest;
-
 use App\Modules\License\Models\Installation;
 use App\Modules\License\Models\License;
+use App\Modules\License\Models\License as ApiKeys;
 use App\Modules\License\Models\LicensePlugin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
-use function Laravel\Prompts\select;
 
 /**
  * Consist of functionalities for the Installation page in Auto Faveo licenser
- * Class InstallationController
+ * Class InstallationController.
  */
 class InstallationController extends Controller
 {
@@ -26,14 +24,14 @@ class InstallationController extends Controller
     }
 
     /**
-     * To Update intallation details in license manager
+     * To Update intallation details in license manager.
      *
      * @param  InstallationRequest  $request
-     * @param $api_key_secret
-     * @param $id
-     * @param $installation_ip
-     * @param $installation_status
-     * @param $installation_disable_ip
+     * @param  $api_key_secret
+     * @param  $id
+     * @param  $installation_ip
+     * @param  $installation_status
+     * @param  $installation_disable_ip
      * @return success response if the record was found and updated
      */
     public function installationUpdate(Request $request)
@@ -120,9 +118,9 @@ class InstallationController extends Controller
     }
 
     /**
-     * To Delete intallation details in license manager
+     * To Delete intallation details in license manager.
      *
-     * @param $id
+     * @param  $id
      * @return success response if the record was found and deleted
      */
     private function deleteInstallation($id)
@@ -153,7 +151,7 @@ class InstallationController extends Controller
     }
 
     /**
-     * Returns the list of all the instalaltions using license manager
+     * Returns the list of all the instalaltions using license manager.
      */
     public function show(Request $request)
     {
@@ -173,12 +171,12 @@ class InstallationController extends Controller
             ->selectRaw('installations.id, installations.id, installations.user_id as client_id, installations.license_code, installations.installation_ip, installations.installation_domain, installations.installation_date, installations.installation_status, products.name as name, users.email as client_email, licenses.id as license_id, licenses.license_code as license_code_detail')
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
-                    $query->where('users.email', 'like', '%' . $searchQuery . '%')
-                        ->orWhere('products.name', 'like', '%' . $searchQuery . '%')
-                        ->orWhere('installations.license_code', 'like', '%' . str_replace("-", "", $searchQuery) . '%')
-                        ->orWhere('installations.installation_ip', 'like', '%' . $searchQuery . '%')
-                        ->orWhere('installations.installation_status', 'LIKE', '%' . statusFormatter($searchQuery) . '%')
-                        ->orWhere('installations.installation_domain', 'like', '%' . $searchQuery . '%');
+                    $query->where('users.email', 'like', '%'.$searchQuery.'%')
+                        ->orWhere('products.name', 'like', '%'.$searchQuery.'%')
+                        ->orWhere('installations.license_code', 'like', '%'.str_replace('-', '', $searchQuery).'%')
+                        ->orWhere('installations.installation_ip', 'like', '%'.$searchQuery.'%')
+                        ->orWhere('installations.installation_status', 'LIKE', '%'.statusFormatter($searchQuery).'%')
+                        ->orWhere('installations.installation_domain', 'like', '%'.$searchQuery.'%');
                 });
             })
             ->orderBy('installations.'.$sortField, $sortOrder)
@@ -200,7 +198,7 @@ class InstallationController extends Controller
         $api_action_success = 0;
         $api_error_detected = 0;
 
-        if (null !== (request()->server('REMOTE_ADDR'))) {
+        if (null !== request()->server('REMOTE_ADDR')) {
             $ip_address = request()->server('REMOTE_ADDR');
         } else {
             $ip_address = $request->ip();
@@ -253,12 +251,14 @@ class InstallationController extends Controller
         return errorResponse(Lang::get('lang.invalid'), 400);
     }
 
-    public function removeUnwantedInstallations(Request $request){
-        return Installation::where('installation_domain',$request->installation_path)->delete();
+    public function removeUnwantedInstallations(Request $request)
+    {
+        return Installation::where('installation_domain', $request->installation_path)->delete();
     }
 
-    public function updateTheLicenseCode(Request $request){
-        return Installation::where('license_code',$request->old_license_code)
+    public function updateTheLicenseCode(Request $request)
+    {
+        return Installation::where('license_code', $request->old_license_code)
             ->delete();
     }
 

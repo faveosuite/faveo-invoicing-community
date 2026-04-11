@@ -13,16 +13,22 @@ class AflReports extends Model
     protected $guarded = [];
 
     protected $primaryKey = 'report_id';
-    public function user() {
+
+    public function user()
+    {
         return $this->belongsTo(AflClients::class, 'account_id', 'client_id');
     }
-    public function product() {
+
+    public function product()
+    {
         return $this->belongsTo(AflProducts::class, 'product_id');
     }
+
     public function license()
     {
         return $this->belongsTo(AflLicenses::class, 'license_code', 'license_code');
     }
+
     public function scopeWithUserFormatted($query)
     {
         $query->addSelect([
@@ -35,7 +41,7 @@ class AflReports extends Model
                     END
                 ELSE 'System'
             END AS user_formatted
-        ")
+        "),
         ])
             ->leftJoin('users', 'afl_reports.account_id', '=', 'users.client_id')
             ->limit(1);

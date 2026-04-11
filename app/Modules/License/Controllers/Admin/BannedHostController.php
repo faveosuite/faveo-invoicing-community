@@ -6,14 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\BannedHostRequest;
 use App\Modules\License\Models\LicenseBannedHost;
 use App\Modules\License\Models\LicenseWhitelistIp;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 
 /**
  * Consist of functionalities for the Banned Host page in Auto Faveo licenser
- * Class BannedHostController
+ * Class BannedHostController.
  */
 class BannedHostController extends Controller
 {
@@ -23,19 +22,19 @@ class BannedHostController extends Controller
     }
 
     /**
-     *To Add Banned hosts of License manager
+     *To Add Banned hosts of License manager.
      *
-     *@param  BannedHostRequest  $request
-     *@param    $api_key_secret
-     *@param $banned_host_ip
-     *@param $comments
-     *@return array of details of banned host if added successfully
+     * @param  BannedHostRequest  $request
+     * @param  $api_key_secret
+     * @param  $banned_host_ip
+     * @param  $comments
+     * @return array of details of banned host if added successfully
      */
     public function bannedHostAdd(BannedHostRequest $request)
     {
         $api_key_secret = $request->input('api_key_secret');
         $banned_host_ip = $request->input('banned_host_ip');
-        $comments = $request->input('comments','');
+        $comments = $request->input('comments', '');
 
         $api_key = new ApiKeysController();
         $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
@@ -56,12 +55,12 @@ class BannedHostController extends Controller
     }
 
     /**
-     *To Edit Banned hosts of License manager
+     *To Edit Banned hosts of License manager.
      *
-     *@param  BannedHostRequest  $request
-     *@param    $api_key_secret
-     *@param $banned_host_ip
-     *@param $comments
+     * @param  BannedHostRequest  $request
+     * @param  $api_key_secret
+     * @param  $banned_host_ip
+     * @param  $comments
      * @return array of details of edited banned host if Updated successfully
      */
     public function bannedHostUpdate(Request $request)
@@ -93,9 +92,9 @@ class BannedHostController extends Controller
     }
 
     /**
-     *To Delete Banned hosts of License manager
+     *To Delete Banned hosts of License manager.
      *
-     *@param $id
+     * @param  $id
      * @return success response of how many records deleted if deleted successfully
      */
     public function deleteBannedHost(Request $request)
@@ -125,16 +124,16 @@ class BannedHostController extends Controller
      */
     public function show(Request $request)
     {
-        $perPage = $request->input('perPage',10); // Number of items per page
+        $perPage = $request->input('perPage', 10); // Number of items per page
         $page = $request->input('page', 1); // Get the current page from the request
         $searchQuery = $request->input('search_query');
-        $sortOrder= $request->input('sort_order','desc');
-        $sortField = $request->input('sort_field','id');
+        $sortOrder = $request->input('sort_order', 'desc');
+        $sortField = $request->input('sort_field', 'id');
 
-        $banned = LicenseBannedHost::where(function($query) use ($searchQuery) {
-        $query->where('banned_host_ip', 'LIKE', '%' . $searchQuery . '%')
-            ->orWhere('comments', 'LIKE', '%' . $searchQuery . '%');
-    })
+        $banned = LicenseBannedHost::where(function ($query) use ($searchQuery) {
+            $query->where('banned_host_ip', 'LIKE', '%'.$searchQuery.'%')
+                ->orWhere('comments', 'LIKE', '%'.$searchQuery.'%');
+        })
         ->orderBy($sortField, $sortOrder)
         ->paginate($perPage, ['*'], 'page', $page);
 

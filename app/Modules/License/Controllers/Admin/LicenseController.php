@@ -3,28 +3,25 @@
 namespace App\Modules\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Modules\License\Models\License as ApiKeys;
 use App\Http\Requests\LicenseRequest;
-use App\Modules\License\Models\LicenseCallback;
-use App\User;
-use App\Modules\License\Models\Installation;
-use App\Modules\License\Models\License;
-
-use App\Modules\License\Models\InstallationLog;
-
 use App\Model\Product\Product;
-use App\Modules\License\Models\ProductVersion;
-
+use App\Modules\License\Models\Installation;
+use App\Modules\License\Models\InstallationLog;
+use App\Modules\License\Models\License;
+use App\Modules\License\Models\LicenseCallback;
 use App\Modules\License\Models\LicensePlugin;
+use App\Modules\License\Models\ProductVersion;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
-use function Laravel\Prompts\select;
 use Illuminate\Support\Facades\Log;
+
+use function Laravel\Prompts\select;
 
 /**
  * Consist of functionalities for the License page in Auto Faveo licenser
- * Class LicenseController
+ * Class LicenseController.
  */
 class LicenseController extends Controller
 {
@@ -34,23 +31,23 @@ class LicenseController extends Controller
     }
 
     /**
-     * To Add license Details to the license manager via request or entering them, it can be added with client id or anonymously
+     * To Add license Details to the license manager via request or entering them, it can be added with client id or anonymously.
      *
      * @param  LicenseRequest  $request
-     * @param $api_key_secret
-     * @param $id
-     * @param $license_require_domain
-     * @param $license_status
-     * @param $client_id
-     * @param $license_code
-     * @param $license_order_number
-     * @param $license_ip
-     * @param $license_domain
-     * @param $license_limit
-     * @param $license_expire_date
-     * @param $license_updates_date
-     * @param $license_support_date
-     * @param $license_comments
+     * @param  $api_key_secret
+     * @param  $id
+     * @param  $license_require_domain
+     * @param  $license_status
+     * @param  $client_id
+     * @param  $license_code
+     * @param  $license_order_number
+     * @param  $license_ip
+     * @param  $license_domain
+     * @param  $license_limit
+     * @param  $license_expire_date
+     * @param  $license_updates_date
+     * @param  $license_support_date
+     * @param  $license_comments
      * @return the details that has been added with a response
      */
     public function licenseAdd(LicenseRequest $request)
@@ -163,24 +160,24 @@ class LicenseController extends Controller
     }
 
     /**
-     * To Update license Details to the license manager via request or entering them, it can be added with client id or anonymously
+     * To Update license Details to the license manager via request or entering them, it can be added with client id or anonymously.
      *
      * @param  LicenseRequest  $request
-     * @param $api_key_secret
-     * @param $id
-     * @param $license_id
-     * @param $license_require_domain
-     * @param $license_status
-     * @param $client_id
-     * @param $license_code
-     * @param $license_order_number
-     * @param $license_ip
-     * @param $license_domain
-     * @param $license_limit
-     * @param $license_expire_date
-     * @param $license_updates_date
-     * @param $license_support_date
-     * @param $license_comments
+     * @param  $api_key_secret
+     * @param  $id
+     * @param  $license_id
+     * @param  $license_require_domain
+     * @param  $license_status
+     * @param  $client_id
+     * @param  $license_code
+     * @param  $license_order_number
+     * @param  $license_ip
+     * @param  $license_domain
+     * @param  $license_limit
+     * @param  $license_expire_date
+     * @param  $license_updates_date
+     * @param  $license_support_date
+     * @param  $license_comments
      * @return the number of records that has been Updated with a response
      */
     public function licenseUpdate(Request $request)
@@ -299,9 +296,9 @@ class LicenseController extends Controller
     }
 
     /**
-     * To delete the license stored in the license manager
+     * To delete the license stored in the license manager.
      *
-     * @param $license_id
+     * @param  $license_id
      * @return the removed records with a success response
      */
     public function deleteLicense(Request $request)
@@ -310,13 +307,13 @@ class LicenseController extends Controller
         $api_key_secret = $request->get('api_key_secret');
         $api_key = new ApiKeysController();
 
-        if (!aflValidateIntegerValue($license_id) || !$api_key->apiKeyCheck($api_key_secret, $this->ip_address)) {
+        if (! aflValidateIntegerValue($license_id) || ! $api_key->apiKeyCheck($api_key_secret, $this->ip_address)) {
             return errorResponse(Lang::get('lang.invalid'), 400);
         }
 
         $license_code = License::where('id', $license_id)->value('license_code');
 
-        if (!$license_code) {
+        if (! $license_code) {
             return successResponse(Lang::get('lang.delete'), 0, 200);
         }
         // Begin transaction
@@ -326,6 +323,7 @@ class LicenseController extends Controller
             InstallationLog::where('license_code', $license_code)->delete();
             License::where('id', $license_id)->delete();
         });
+
         return successResponse(Lang::get('lang.delete'), 1, 200);
     }
 
@@ -346,25 +344,23 @@ class LicenseController extends Controller
             'license_domain',
             'license_date',
             'license_updates_date',
-            'license_status'
+            'license_status',
         ];
         $licenseQuery = DB::table('licenses')
             ->selectRaw('licenses.id as license_id, licenses.user_id as client_id, licenses.license_code, licenses.license_ip, licenses.license_limit, licenses.license_expire_date, licenses.license_support_date, licenses.license_order_number, licenses.license_domain, licenses.license_date, licenses.license_updates_date, licenses.license_status, products.name as name, users.email as client_email')
             ->leftJoin('products', 'licenses.id', '=', 'products.id')
             ->leftJoin('users', 'licenses.user_id', '=', 'users.id')
-            ->when($searchQuery, function ($query) use ($searchQuery, $request, $searchable) {
-                    $query->where('users.email', 'like', '%' . $searchQuery . '%')
-                        ->orWhere('products.name', 'like', '%' . $searchQuery . '%');
+            ->when($searchQuery, function ($query) use ($searchQuery, $searchable) {
+                $query->where('users.email', 'like', '%'.$searchQuery.'%')
+                    ->orWhere('products.name', 'like', '%'.$searchQuery.'%');
                 foreach ($searchable as $field) {
-                        if($field == 'license_status'){
-                            $query->orWhere('licenses.'.$field, 'like', '%' . statusFormatter($searchQuery) . '%');
-                        }
-                        else if($field == 'license_code'){
-                            $query->orWhere('licenses.'.$field, 'like', '%' . str_replace('-','',$searchQuery) . '%');
-                        }
-                        else{
-                            $query->orWhere('licenses.'.$field, 'like', '%' . $searchQuery . '%');
-                        }
+                    if ($field == 'license_status') {
+                        $query->orWhere('licenses.'.$field, 'like', '%'.statusFormatter($searchQuery).'%');
+                    } elseif ($field == 'license_code') {
+                        $query->orWhere('licenses.'.$field, 'like', '%'.str_replace('-', '', $searchQuery).'%');
+                    } else {
+                        $query->orWhere('licenses.'.$field, 'like', '%'.$searchQuery.'%');
+                    }
                 }
             })
             ->orderBy('licenses.'.$sortField, $sortOrder)
@@ -381,8 +377,10 @@ class LicenseController extends Controller
             $license->call_backs_count = DB::table('license_callbacks')
                 ->where('license_code', $license->license_code)
                 ->count();
+
             return $license;
         });
+
         return successResponse(Lang::get('lang.License_show'), $licenseQuery, 200);
     }
 
@@ -406,11 +404,11 @@ class LicenseController extends Controller
     }
 
     /**
-     * To Format the client
+     * To Format the client.
      *
-     * @param $license_code
-     * @param $client_email
-     * return a formatted array of license code and client email
+     * @param  $license_code
+     * @param  $client_email
+     *                       return a formatted array of license code and client email
      */
     public function formatClient($license_code, $client_email)
     {
@@ -492,35 +490,38 @@ class LicenseController extends Controller
         }
     }
 
-    public function reissueLicenseCloud(Request $request){
-        Installation::where('license_code',$request->get('license_code'))->delete();
+    public function reissueLicenseCloud(Request $request)
+    {
+        Installation::where('license_code', $request->get('license_code'))->delete();
     }
 
-    public function licenseDeactivate(Request $request){
-        License::where('license_code',$request->get('license_code'))->update(['license_status'=>0]);
+    public function licenseDeactivate(Request $request)
+    {
+        License::where('license_code', $request->get('license_code'))->update(['license_status' => 0]);
     }
 
-    public function updateTheLicenseCode(Request $request){
-        return License::where('license_code',$request->old_license_code)
-            ->update(['license_code'=> $request->license_code]);
+    public function updateTheLicenseCode(Request $request)
+    {
+        return License::where('license_code', $request->old_license_code)
+            ->update(['license_code' => $request->license_code]);
     }
 
-    public function syncTheCreationOfLicense(Request $request){
-
+    public function syncTheCreationOfLicense(Request $request)
+    {
         try {
             $license_code = $request->input('license_code');
             $license_id = License::where('license_code', $license_code)->value('id');
-            $ids = explode(",", $request->input('ids'));
+            $ids = explode(',', $request->input('ids'));
             $license = License::find($license_id);
 
-            if (!$license) {
+            if (! $license) {
                 return response()->json(['error' => 'License not found'], 404);
             }
 
             $input_options = json_decode($request->input('options', '[]'), true);
 
             // Insert into `license_plugins`
-            collect($ids)->each(function ($id) use ($license, $license_code) {
+            collect($ids)->each(function ($id) use ($license) {
                 // Insert into `license_plugins` table
                 LicensePlugin::updateOrCreate(
                     ['id' => $license->license_id, 'id' => $id],
@@ -536,16 +537,16 @@ class LicenseController extends Controller
                         'id' => $option['id'],
                         'option_group' => $option['option_group'],
                         'option_name' => $option['option_name'],
-                        'key' => $option['key']
+                        'key' => $option['key'],
                     ],
                     [
-                        'value' => $option['value']
+                        'value' => $option['value'],
                     ]
                 );
             }
+
             return response()->json(['message' => 'License synchronization and options insertion complete']);
-        }
-        Catch(\Exception $e){
+        } catch(\Exception $e) {
             Log::error($e->getMessage());
         }
     }
@@ -592,12 +593,12 @@ class LicenseController extends Controller
             ->first();
 
         // Check if license is found
-        if (!$license) {
+        if (! $license) {
             return successResponse('', []);
         }
 
         // Format the license options data to include license_code
-        $licenseOptions = $license->licenseOptions->map(function($option) use ($license) {
+        $licenseOptions = $license->licenseOptions->map(function ($option) use ($license) {
             return [
                 'license_code' => $license->license_code,
                 'id' => $option->id,
@@ -611,9 +612,11 @@ class LicenseController extends Controller
         return successResponse('', $licenseOptions);
     }
 
-    public function giveLicenseTakeOrder(Request $request){
+    public function giveLicenseTakeOrder(Request $request)
+    {
         return successResponse('', License::where('license_code', $request->input('license_code'))->value('license_order_number'));
     }
+
     public function getPluginInfo(Request $request)
     {
         $license_codes = collect(json_decode($request->input('license_code'), true));
@@ -624,12 +627,12 @@ class LicenseController extends Controller
         $result = $license_codes->map(function ($license_code) use ($licenses) {
             $license = $licenses->get($license_code);
 
-            if (!$license) {
+            if (! $license) {
                 return null; // Skip if the license is not found
             }
 
             $ids = LicensePlugin::where('id', $license->id)->pluck('id')->toArray();
-            $ids = !empty($ids) ? $ids : [$license->id];
+            $ids = ! empty($ids) ? $ids : [$license->id];
 
             return collect($ids)->unique()->map(function ($id) use ($license_code) {
                 return $this->generateLicenseData($id, $license_code);
@@ -652,7 +655,7 @@ class LicenseController extends Controller
             ->where('license_code', $license_code)
             ->exists();
 
-        return (!$product || !$cloud || !$version || $installed) ? null :
+        return (! $product || ! $cloud || ! $version || $installed) ? null :
         [
             'id' => $id,
             'product_name' => $product->name,
