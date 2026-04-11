@@ -46,7 +46,6 @@ export default {
     methods: {lang},
 
     props : {
-        generalSetting : {type : Object, default : () => {}},
     },
 
     data() {
@@ -69,9 +68,6 @@ export default {
 
      beforeMount() {
 
-         const date_format = this.generalSetting.date_format.js_format
-         const time_format = this.generalSetting.time_format.js_format
-         const timezone = this.generalSetting.timezone.name
 
         const self = this;
 
@@ -107,7 +103,7 @@ export default {
 
                 return {
 
-                    'sort_field' : data.orderBy ? data.orderBy : 'whitelist_host_id',
+                    'sort_field' : data.orderBy ? data.orderBy : 'id',
 
                     'sort_order' : data.ascending ? 'desc' : 'asc',
 
@@ -123,13 +119,13 @@ export default {
 
                     data: data.data.data.map(data => {
 
-                        data.edit_url = '/whitelist/' + data.whitelist_host_id  + '/edit';
+                        data.edit_url = '/whitelist/' + data.id  + '/edit';
 
                         data.delete_url = '/api/admin/delete-whitelist-ip';
 
-                        data.keyVal = 'whitelist_host_id';
+                        data.keyVal = 'id';
 
-                        data.idVal = data.whitelist_host_id;
+                        data.idVal = data.id;
 
                         return data;
                     }),
@@ -152,7 +148,7 @@ export default {
 
                 whitelist_host_date(h, row) {
 
-                    return formatDateTime(row.whitelist_host_date, timezone, date_format, time_format)
+                    return row.whitelist_host_date
                 },
             },
 

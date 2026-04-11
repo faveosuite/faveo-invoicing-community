@@ -58,7 +58,7 @@
 
                 data: '',
 
-				columns: ['product_title', 'product_sku', 'versions', 'versions_available', 'licenses_count', 'installations_count', 'product_status', 'actions'],
+				columns: ['name', 'product_sku', 'versions', 'versions_available', 'licenses_count', 'installations_count', 'status', 'actions'],
 
 				options: {},
 
@@ -85,15 +85,15 @@
 
 				texts: { filter: '', limit: '' },
 
-                sortable:  ['product_title', 'product_sku', 'product_status'],
+                sortable:  ['name', 'product_sku', 'status'],
 
-                filterable : [ 'product_title' ],
+                filterable : [ 'name' ],
 
                 requestAdapter(data) {
 
                     return {
 
-                        'sort_field' : data.orderBy ? data.orderBy : 'product_id',
+                        'sort_field' : data.orderBy ? data.orderBy : 'id',
 
                         'sort_order' : data.ascending ? 'desc' : 'asc',
 
@@ -109,7 +109,7 @@
 
                         data: data.data.data.map(data => {
 
-                            data.edit_url = '/products/' + data.product_id + '/edit';
+                            data.edit_url = '/products/' + data.id + '/edit';
 
                             data.delete_url = '/api/admin/allProductDelete';
 
@@ -121,11 +121,11 @@
 
                             data.btnTitle = 'suspend';
 
-                            data.view_url = '/products/' + data.product_id + '/view';
+                            data.view_url = '/products/' + data.id + '/view';
 
-                            data.keyVal = 'product_id';
+                            data.keyVal = 'id';
 
-                            data.idVal = data.product_id;
+                            data.idVal = data.id;
 
                             return data;
                         }),
@@ -136,11 +136,11 @@
 
 				columnsClasses: {
 
-					product_title: 'product_title',
+					name: 'name',
 
 					product_sku: 'product_sku',
 
-					product_status: 'product_status',
+					status: 'status',
 
                     versions: 'versions',
 
@@ -175,13 +175,13 @@
 
                     product_title: (f, row) => {
 
-                        if(row.product_title && row.product_id) {
+                        if(row.name && row.id) {
 
                             return h(RouterLink, {
 
-                                to: '/products/' + row.product_id + '/view'
+                                to: '/products/' + row.id + '/view'
 
-                            },[row.product_title])
+                            },[row.name])
 
                         } else {
                             return '----'
@@ -203,11 +203,11 @@
                         }
                     },
 
-                    product_status: (f, row) => {
+                    status: (f, row) => {
 
                         return h('span', {
-                                'class': row.product_status ? 'text-success' : 'text-danger'
-                            }, row.product_status ? this.lang('active'): this.lang('inactive'))
+                                'class': row.status ? 'text-success' : 'text-danger'
+                            }, row.status ? this.lang('active'): this.lang('inactive'))
                     },
 				},
 
@@ -225,7 +225,7 @@
 
                     installations_count: this.lang('no_of_installations'),
 
-					product_status: this.lang('status'),
+					status: this.lang('status'),
 
 					actions: this.lang('actions')
 				},
@@ -243,7 +243,7 @@
 	.product_title,
 	.product_sku,
 	.product_url,
-	.product_status,
+	.status,
 	.product_version,
 	.product_licenses .product_installations {
 		max-width: 200px;

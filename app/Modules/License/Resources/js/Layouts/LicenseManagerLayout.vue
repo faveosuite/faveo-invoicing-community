@@ -10,7 +10,7 @@
             <div class="app-content">
                 <div class="container-fluid">
                     <div class="row">
-                        <router-view v-slot="{ Component }" :generalSetting="generalSetting" :key="$route.fullPath">
+                        <router-view v-slot="{ Component }" :key="$route.fullPath">
                             <transition name="fade" mode="out-in">
                                 <component :is="Component" />
                             </transition>
@@ -42,7 +42,6 @@ export default {
 
     props:{
         versioning : { type : String , default : ''},
-        generalSetting : {type : Object, default : () => {}},
     },
 
     setup() {

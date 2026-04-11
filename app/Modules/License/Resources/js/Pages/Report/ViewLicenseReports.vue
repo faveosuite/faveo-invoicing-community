@@ -42,7 +42,6 @@ export default {
     },
 
     props : {
-        generalSetting : {type : Object, default : () => {}},
     },
 
     data() {
@@ -70,9 +69,6 @@ export default {
 
     beforeMount() {
 
-        const date_format = this.generalSetting.date_format.js_format
-        const time_format = this.generalSetting.time_format.js_format
-        const timezone = this.generalSetting.timezone.name
 
         this.options = {
 
@@ -111,9 +107,9 @@ export default {
 
                     data: data.data.data.map(data => {
 
-                        data.keyVal = 'report_id';
+                        data.keyVal = 'id';
 
-                        data.idVal = data.report_id;
+                        data.idVal = data.id;
 
                         return data;
                     }),
@@ -173,7 +169,7 @@ export default {
 
                 report_date_time(h, row) {
 
-                    return formatDateTime(row.report_date_time, timezone, date_format, time_format)
+                    return row.report_date_time
 
                 },
 

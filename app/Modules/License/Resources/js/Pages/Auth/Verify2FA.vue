@@ -83,7 +83,6 @@
 
 			remember : { type : Boolean, default : false},
 
-            generalSetting : {type : Object, default : () => {}},
 		},
 
 		data() {
@@ -265,9 +264,9 @@
 
            this.$store.dispatch('setLoggedInUserToken', authToken);
 
-           this.$store.dispatch('setAdminData', this.generalSetting.admin_logo);
+           
 
-           this.$store.dispatch('setClientTimezone', response.data.data.user.timezone);
+           
 
            this.$store.dispatch('setUserInfo', response.data.data.user);
 

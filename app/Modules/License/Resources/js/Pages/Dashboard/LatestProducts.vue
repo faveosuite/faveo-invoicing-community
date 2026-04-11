@@ -55,7 +55,6 @@
 
 import {formatDateTime, lang} from "../../helpers/extraLogics";
 import moment from "moment";
-import 'moment-timezone'
 import axios from "axios";
 
 export default {
@@ -79,9 +78,6 @@ export default {
 
         const self =this;
 
-        const date_format = this.generalSetting.date_format.js_format;
-        const time_format = this.generalSetting.time_format.js_format;
-        const timezone = this.generalSetting.timezone.name;
 
         this.options ={
 
@@ -100,7 +96,7 @@ export default {
 
                 product_date(h, row) {
 
-                    return formatDateTime(row.product_date, timezone, date_format, time_format)
+                    return row.product_date
                 }
             },
 
@@ -150,7 +146,6 @@ export default {
 
         data : {type: Array, default : ()=>{}},
 
-        generalSetting : {type : Object, default : () => {}},
     }
 };
 

@@ -51,7 +51,6 @@ export default {
     },
 
     props : {
-        generalSetting : {type : Object, default : () => {}},
     },
 
     data() {
@@ -76,9 +75,6 @@ export default {
 
         const self = this;
 
-        const date_format = this.generalSetting.date_format.js_format;
-        const time_format = this.generalSetting.time_format.js_format;
-        const timezone = this.generalSetting.timezone.name;
 
         this.options = {
 
@@ -101,7 +97,7 @@ export default {
 
                 return {
 
-                    'sort_field' : data.orderBy ? data.orderBy : 'version_id',
+                    'sort_field' : data.orderBy ? data.orderBy : 'id',
 
                     'sort_order' : data.ascending ? 'desc' : 'asc',
 
@@ -117,15 +113,15 @@ export default {
 
                     data: data.data.data.map(data => {
 
-                        data.edit_url = '/versions/' + data.version_id + '/edit';
+                        data.edit_url = '/versions/' + data.id + '/edit';
 
                         data.delete_url = '/api/admin/versions/delete';
 
-                        data.view_url = '/versions/' + data.version_id + '/view';
+                        data.view_url = '/versions/' + data.id + '/view';
 
-                        data.keyVal = 'version_id';
+                        data.keyVal = 'id';
 
-                        data.idVal = data.version_id;
+                        data.idVal = data.id;
 
                         return data;
                     }),
@@ -154,7 +150,7 @@ export default {
 
                 version_date(h, row) {
 
-                    return formatDateTime(row.version_date, timezone, date_format, time_format)
+                    return row.version_date
                 },
 
                 product_title: (f, row) => {
@@ -174,11 +170,11 @@ export default {
 
                 version_number: (f, row) => {
 
-                    if(row.version_number && row.version_id) {
+                    if(row.version_number && row.id) {
 
                         return h(RouterLink, {
 
-                            to: '/versions/' + row.version_id + '/view'
+                            to: '/versions/' + row.id + '/view'
 
                         },[row.version_number])
 

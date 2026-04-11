@@ -80,9 +80,6 @@ export default {
 
         const self =this;
 
-        const date_format = this.generalSetting.date_format.js_format
-        const time_format = this.generalSetting.time_format.js_format
-        const timezone = this.generalSetting.timezone.name
 
         this.options ={
 
@@ -104,7 +101,7 @@ export default {
 
                 client_active_date(h,row){
 
-                    return formatDateTime(row.client_active_date, timezone, date_format, time_format)
+                    return row.client_active_date
                 },
 
             },
@@ -154,7 +151,6 @@ export default {
 
         data : {type : Array, default : ()=>{}},
 
-        generalSetting : {type : Object, default : () => {}},
     }
 
 };

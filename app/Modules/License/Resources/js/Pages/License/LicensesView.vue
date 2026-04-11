@@ -270,7 +270,6 @@ export default {
     },
 
     props : {
-        generalSetting : {type : Object, default : () => {}},
     },
 
     methods: {
@@ -365,11 +364,11 @@ export default {
             }
             if(data.latest_call_backs) {
 
-                this.latest_call_backs = formatDateTime(data.latest_call_backs, this.generalSetting.timezone.name, this.generalSetting.date_format.js_format, this.generalSetting.time_format.js_format)
+                this.latest_call_backs = data.latest_call_backs
             }
             if(data.license_date) {
 
-                this.license_date = formatDateTime(data.license_date, this.generalSetting.timezone.name, this.generalSetting.date_format.js_format, this.generalSetting.time_format.js_format)
+                this.license_date = data.license_date
             }
             if(data.license_limit >= 0) {
 
@@ -377,24 +376,21 @@ export default {
             }
             if(data.license_expire_date) {
 
-                this.license_expire_date = formatDateTime(data.license_expire_date, this.generalSetting.timezone.name, this.generalSetting.date_format.js_format, this.generalSetting.time_format.js_format)
+                this.license_expire_date = data.license_expire_date
             }
             if(data.license_updates_date) {
 
-                this.license_updates_date = formatDateTime(data.license_updates_date, this.generalSetting.timezone.name, this.generalSetting.date_format.js_format, this.generalSetting.time_format.js_format)
+                this.license_updates_date = data.license_updates_date
             }
             if(data.license_support_date) {
 
-                this.license_support_date = formatDateTime(data.license_support_date, this.generalSetting.timezone.name, this.generalSetting.date_format.js_format, this.generalSetting.time_format.js_format)
+                this.license_support_date = data.license_support_date
             }
         },
         updateData(value, licenseId) {
 
-            const date_format = this.generalSetting.date_format.js_format
 
-            const time_format = this.generalSetting.time_format.js_format
 
-            const timezone = this.generalSetting.timezone.name
 
             this.id = licenseId ? licenseId : this.id
 
@@ -478,12 +474,12 @@ export default {
 
                         installation_date(h, row) {
 
-                            return formatDateTime(row.installation_date, timezone, date_format, time_format)
+                            return row.installation_date
                         },
 
                         license_date(h, row) {
 
-                            return formatDateTime(row.license_date, timezone, date_format, time_format)
+                            return row.license_date
                         },
 
                         installation_domain: (f, row) => {
@@ -604,7 +600,7 @@ export default {
 
                         callback_date_time(h, row) {
 
-                            return formatDateTime(row.callback_date_time, timezone, date_format, time_format)
+                            return row.callback_date_time
                         },
 
                         callback_domain: (f, row) => {
@@ -725,7 +721,7 @@ export default {
 
                         installation_last_active_date(h, row) {
 
-                            return formatDateTime(row.installation_last_active_date, timezone, date_format, time_format)
+                            return row.installation_last_active_date
                         },
                         installation_domain: (f, row) => {
 

@@ -83,46 +83,46 @@
 
                 <div class="row g-4 mb-4">
                     <div class="shadow-none col-md-6">
-                        <latest-product :data="latest_products" :generalSetting="generalSetting" @latestProducts="updateProp"></latest-product>
+                        <latest-product :data="latest_products" @latestProducts="updateProp"></latest-product>
                     </div>
                     <div class="shadow-none col-md-6">
-                        <latest-version :data="latest_versions" :generalSetting="generalSetting" @latestVersions="updateProp"></latest-version>
-                    </div>
-                </div>
-
-                <div class="row g-4 mb-4">
-                    <div class="shadow-none col-md-6">
-                        <latest-installations :data="latest_installations" :generalSetting="generalSetting" @latestInstallations="updateProp"></latest-installations>
-                    </div>
-                    <div class="shadow-none col-md-6">
-                        <latest-callbacks :data="latest_callbacks" :generalSetting="generalSetting" @latestCallbacks="updateProp"></latest-callbacks>
+                        <latest-version :data="latest_versions" @latestVersions="updateProp"></latest-version>
                     </div>
                 </div>
 
                 <div class="row g-4 mb-4">
                     <div class="shadow-none col-md-6">
-                        <latest-product-report :data="latest_reports" :generalSetting="generalSetting" @latestReports="updateProp"></latest-product-report>
+                        <latest-installations :data="latest_installations" @latestInstallations="updateProp"></latest-installations>
                     </div>
                     <div class="shadow-none col-md-6">
-                        <expiring-version :data="expired_versions" :generalSetting="generalSetting" @expiredVersions="updateProp"></expiring-version>
-                    </div>
-                </div>
-
-                <div class="row g-4 mb-4">
-                    <div class="shadow-none col-md-6">
-                        <latest-clients :data="latest_clients" :generalSetting="generalSetting" @latestClients="updateProp"></latest-clients>
-                    </div>
-                    <div class="shadow-none col-md-6">
-                        <latest-licenses :data="latest_licenses" :generalSetting="generalSetting" @latestLicenses="updateProp"></latest-licenses>
+                        <latest-callbacks :data="latest_callbacks" @latestCallbacks="updateProp"></latest-callbacks>
                     </div>
                 </div>
 
                 <div class="row g-4 mb-4">
                     <div class="shadow-none col-md-6">
-                        <expiring-support :data="expiring_support" :generalSetting="generalSetting" @expiringSupport="updateProp"></expiring-support>
+                        <latest-product-report :data="latest_reports" @latestReports="updateProp"></latest-product-report>
                     </div>
                     <div class="shadow-none col-md-6">
-                        <expiring-updates :data="expiring_update" :generalSetting="generalSetting" @expiringUpdates="updateProp"></expiring-updates>
+                        <expiring-version :data="expired_versions" @expiredVersions="updateProp"></expiring-version>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="shadow-none col-md-6">
+                        <latest-clients :data="latest_clients" @latestClients="updateProp"></latest-clients>
+                    </div>
+                    <div class="shadow-none col-md-6">
+                        <latest-licenses :data="latest_licenses" @latestLicenses="updateProp"></latest-licenses>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="shadow-none col-md-6">
+                        <expiring-support :data="expiring_support" @expiringSupport="updateProp"></expiring-support>
+                    </div>
+                    <div class="shadow-none col-md-6">
+                        <expiring-updates :data="expiring_update" @expiringUpdates="updateProp"></expiring-updates>
                     </div>
                 </div>
             </div>
@@ -182,7 +182,6 @@ export default {
     },
 
     props : {
-        generalSetting : {type : Object, default : () => {}},
     },
 
     data() {

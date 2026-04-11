@@ -165,7 +165,6 @@ export default {
     },
 
     props : {
-        generalSetting : {type : Object, default : () => {}},
     },
 
     methods: {
@@ -230,7 +229,7 @@ export default {
 
             if(data.installation_date) {
 
-                this.installation_date = formatDateTime(data.installation_date, this.generalSetting.timezone.name, this.generalSetting.date_format.js_format, this.generalSetting.time_format.js_format)
+                this.installation_date = data.installation_date
             }
 
             if(data.license && data.license.license_code) {
@@ -247,9 +246,6 @@ export default {
 
         updateData(value, productId) {
 
-            const date_format = this.generalSetting.date_format.js_format
-            const time_format = this.generalSetting.time_format.js_format
-            const timezone = this.generalSetting.timezone.name
 
             this.id = productId ? productId : this.id
 
@@ -328,7 +324,7 @@ export default {
 
                         callback_date_time(h, row) {
 
-                            return formatDateTime(row.callback_date_time, timezone, date_format, time_format)
+                            return row.callback_date_time
                         },
 
                         callback_status: (f, row) => {

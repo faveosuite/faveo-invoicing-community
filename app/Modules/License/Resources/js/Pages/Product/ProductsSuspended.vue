@@ -84,7 +84,7 @@ export default {
 
                 return {
 
-                    'sort_field' : data.orderBy ? data.orderBy : 'product_id',
+                    'sort_field' : data.orderBy ? data.orderBy : 'id',
 
                     'sort_order' : data.ascending ? 'desc' : 'asc',
 
@@ -118,9 +118,9 @@ export default {
 
                         data.restoreBtnTitle = 'restore';
 
-                        data.keyVal = 'product_id';
+                        data.keyVal = 'id';
 
-                        data.idVal = data.product_id;
+                        data.idVal = data.id;
 
                         return data;
                     }),
@@ -170,7 +170,7 @@ export default {
 
                 product_title: (f, row) => {
 
-                  return row.product_title ? row.product_title : '----'
+                  return row.name ? row.name : '----'
                 },
 
                 versions: (f, row) => {

@@ -153,7 +153,6 @@ export default {
     },
 
     props : {
-        generalSetting : {type : Object, default : () => {}},
     },
 
     methods: {
@@ -220,15 +219,12 @@ export default {
 
             if(data.version_date) {
 
-                this.version_date = formatDateTime(data.version_date, this.generalSetting.timezone.name, this.generalSetting.date_format.js_format, this.generalSetting.time_format.js_format)
+                this.version_date = data.version_date
             }
         },
 
         updateData(versionId) {
 
-            const date_format = this.generalSetting.date_format.js_format
-            const time_format = this.generalSetting.time_format.js_format
-            const timezone = this.generalSetting.timezone.name
 
             this.id = versionId ? versionId : this.id
 
@@ -301,7 +297,7 @@ export default {
 
                         callback_date_time(h, row) {
 
-                            return formatDateTime(row.callback_date_time, timezone, date_format, time_format)
+                            return row.callback_date_time
                         },
 
                         callback_status: (f, row) => {

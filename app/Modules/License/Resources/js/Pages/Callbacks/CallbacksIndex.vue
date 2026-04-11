@@ -92,7 +92,6 @@ import {RouterLink} from "vue-router";
 
         props : {
 
-            generalSetting : {type : Object, default : () => {}},
         },
 
         methods: {
@@ -101,9 +100,6 @@ import {RouterLink} from "vue-router";
             updateData(value) {
 
                 this.activeTab = value; // Set the active tab
-                const date_format = this.generalSetting.date_format.js_format
-                const time_format = this.generalSetting.time_format.js_format
-                const timezone = this.generalSetting.timezone.name
 
                 if(value === 'license') {
 
@@ -134,7 +130,7 @@ import {RouterLink} from "vue-router";
 
                             return {
 
-                                'sort_field' : data.orderBy ? data.orderBy : 'callback_id',
+                                'sort_field' : data.orderBy ? data.orderBy : 'id',
 
                                 'sort_order' : data.ascending ? 'desc' : 'asc',
 
@@ -150,9 +146,9 @@ import {RouterLink} from "vue-router";
 
                                 data: data.data.data.map(data => {
 
-                                    data.keyVal = 'callback_id';
+                                    data.keyVal = 'id';
 
-                                    data.idVal = data.callback_id;
+                                    data.idVal = data.id;
 
                                     return data;
                                 }),
@@ -180,7 +176,7 @@ import {RouterLink} from "vue-router";
 
                             callback_date_time(h, row) {
 
-                                return formatDateTime(row.callback_date_time, timezone, date_format, time_format)
+                                return row.callback_date_time
                             },
 
                             product_title: (f, row) => {
@@ -286,7 +282,7 @@ import {RouterLink} from "vue-router";
 
                             return {
 
-                                'sort_field' : data.orderBy ? data.orderBy : 'callback_id',
+                                'sort_field' : data.orderBy ? data.orderBy : 'id',
 
                                 'sort_order' : data.ascending ? 'desc' : 'asc',
 
@@ -302,9 +298,9 @@ import {RouterLink} from "vue-router";
 
                                 data: data.data.data.map(data => {
 
-                                    data.keyVal = 'callback_id';
+                                    data.keyVal = 'id';
 
-                                    data.idVal = data.callback_id;
+                                    data.idVal = data.id;
 
                                     return data;
                                 }),
@@ -332,7 +328,7 @@ import {RouterLink} from "vue-router";
 
                             callback_date_time(h, row) {
 
-                                return formatDateTime(row.callback_date_time, timezone, date_format, time_format)
+                                return row.callback_date_time
                             },
 
                             product_title: (f, row) => {

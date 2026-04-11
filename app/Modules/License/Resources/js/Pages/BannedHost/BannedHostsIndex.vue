@@ -57,7 +57,7 @@
 
                 data: '',
 
-                columns: ['banned_host_ip', 'banned_host_comments', 'banned_host_date','actions'],
+                columns: ['banned_host_ip', 'comments', 'banned_host_date','actions'],
 
                 options: {},
 
@@ -72,16 +72,12 @@
         },
 
         props : {
-            generalSetting : {type : Object, default : () => {}},
         },
 
          beforeMount() {
 
             const self = this;
 
-             const date_format = this.generalSetting.date_format.js_format
-             const time_format = this.generalSetting.time_format.js_format
-             const timezone = this.generalSetting.timezone.name
 
             this.options = {
 
@@ -96,7 +92,7 @@
 
                 texts: { filter: '', limit: '' },
 
-                sortable:  ['banned_host_ip', 'banned_host_comments', 'banned_host_date', 'banned_host_blocks', 'banned_host_last_block_date'],
+                sortable:  ['banned_host_ip', 'comments', 'banned_host_date', 'banned_host_blocks', 'banned_host_last_block_date'],
 
                 filterable : [ 'banned_host_ip' ],
 
@@ -104,7 +100,7 @@
 
                     return {
 
-                        'sort_field' : data.orderBy ? data.orderBy : 'banned_host_id',
+                        'sort_field' : data.orderBy ? data.orderBy : 'id',
 
                         'sort_order' : data.ascending ? 'desc' : 'asc',
 
@@ -120,13 +116,13 @@
 
                         data: data.data.data.map(data => {
 
-                            data.edit_url = '/banned-hosts/' + data.banned_host_id + '/edit';
+                            data.edit_url = '/banned-hosts/' + data.id + '/edit';
 
                             data.delete_url = '/api/admin/bannedHosts/delete';
 
-                            data.keyVal = 'banned_host_id';
+                            data.keyVal = 'id';
 
-                            data.idVal = data.banned_host_id;
+                            data.idVal = data.id;
 
                             return data;
                         }),
@@ -139,7 +135,7 @@
 
                     banned_host_ip: 'banned_host_ip',
 
-                    banned_host_comments: 'banned_host_comments',
+                    comments: 'comments',
 
                     banned_host_date: 'banned_host_date	',
                 },
@@ -151,14 +147,14 @@
                         return row.banned_host_ip ? row.banned_host_ip : '---';
                     },
 
-                    banned_host_comments(h, row) {
+                    comments(h, row) {
 
-                        return row.banned_host_comments ? row.banned_host_comments : '---'
+                        return row.comments ? row.comments : '---'
                     },
 
                     banned_host_date(h, row) {
 
-                        return formatDateTime(row.banned_host_date, timezone, date_format, time_format)
+                        return row.banned_host_date
                     },
                 },
 
@@ -168,7 +164,7 @@
 
                     banned_host_ip: this.lang('ip_address'),
 
-                    banned_host_comments: this.lang('comments'),
+                    comments: this.lang('comments'),
 
                     banned_host_date: this.lang('date'),
 

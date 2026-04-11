@@ -180,7 +180,6 @@ export default {
     },
 
     props : {
-        generalSetting : {type : Object, default : () => {}},
     },
 
     methods: {
@@ -247,9 +246,6 @@ export default {
 
         updateData(value, productId) {
 
-            const date_format = this.generalSetting.date_format.js_format
-            const time_format = this.generalSetting.time_format.js_format
-            const timezone = this.generalSetting.timezone.name
 
             this.id = productId ? productId : this.id
 
@@ -340,7 +336,7 @@ export default {
 
                             installation_date(h, row) {
 
-                                return formatDateTime(row.installation_date, timezone, date_format, time_format)
+                                return row.installation_date
                             },
 
                             client_email: (f, row) => {
@@ -486,27 +482,27 @@ export default {
 
                             license_date(h, row) {
 
-                                return formatDateTime(row.license_date, timezone, date_format, time_format)
+                                return row.license_date
                             },
 
                             license_expire_date(h, row) {
 
-                                return formatDateTime(row.license_expire_date, timezone, date_format, time_format)
+                                return row.license_expire_date
                             },
 
                             license_updates_date(h, row) {
 
-                                return formatDateTime(row.license_updates_date, timezone, date_format, time_format)
+                                return row.license_updates_date
                             },
 
                             license_support_date(h, row) {
 
-                                return formatDateTime(row.license_support_date, timezone, date_format, time_format)
+                                return row.license_support_date
                             },
 
                             latest_call_backs(h, row) {
 
-                                return formatDateTime(row.latest_call_backs, timezone, date_format, time_format)
+                                return row.latest_call_backs
                             },
 
                             license_code: (f, row) => {
@@ -654,7 +650,7 @@ export default {
 
                         version_date(h, row) {
 
-                            return formatDateTime(row.version_date, timezone, date_format, time_format)
+                            return row.version_date
                         },
 
                         version_status: (f, row) => {

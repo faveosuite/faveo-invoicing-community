@@ -54,7 +54,6 @@ import {RouterLink} from "vue-router";
         },
 
         props : {
-            generalSetting : {type : Object, default : () => {}},
         },
 
 		data() {
@@ -79,9 +78,6 @@ import {RouterLink} from "vue-router";
 
 			const self = this;
 
-            const date_format = this.generalSetting.date_format.js_format
-            const time_format = this.generalSetting.time_format.js_format
-            const timezone = this.generalSetting.timezone.name
 
 			this.options = {
 
@@ -104,7 +100,7 @@ import {RouterLink} from "vue-router";
 
                     return {
 
-                        'sort_field' : data.orderBy ? data.orderBy : 'installation_id',
+                        'sort_field' : data.orderBy ? data.orderBy : 'id',
 
                         'sort_order' : data.ascending ? 'desc' : 'asc',
 
@@ -120,15 +116,15 @@ import {RouterLink} from "vue-router";
 
                         data: data.data.data.map(data => {
 
-                            data.edit_url = '/installations/' + data.installation_id + '/edit';
+                            data.edit_url = '/installations/' + data.id + '/edit';
 
                             data.delete_url = '/api/admin/installations/delete';
 
-                            data.view_url = '/installations/' + data.installation_id + '/view';
+                            data.view_url = '/installations/' + data.id + '/view';
 
-                            data.keyVal = 'installation_id';
+                            data.keyVal = 'id';
 
-                            data.idVal = data.installation_id;
+                            data.idVal = data.id;
 
                             return data;
                         }),
@@ -157,7 +153,7 @@ import {RouterLink} from "vue-router";
 
                     installation_date(h, row){
 
-                        return formatDateTime(row.installation_date, timezone, date_format, time_format)
+                        return row.installation_date
                     },
 
                     product_title: (f, row) => {

@@ -1257,3 +1257,92 @@ function bundleLink(string $url): string
 
     return $baseUrl;
 }
+
+// ============================================================================
+// LICENSE MANAGER HELPER FUNCTIONS (from original license app)
+// ============================================================================
+
+function aflValidateIntegerValue($number, $min_value = 1, $max_value = 999999999)
+{
+    $result = false;
+
+    if (! is_float($number) && filter_var($number, FILTER_VALIDATE_INT, ['options' => ['min_range' => $min_value, 'max_range' => $max_value]]) !== false) {
+        $result = true;
+    }
+
+    return $result;
+}
+
+function aflVerifyDateTime($datetime, $format)
+{
+    $result = false;
+
+    if (! empty($datetime) && ! empty($format)) {
+        $datetime = DateTime::createFromFormat($format, $datetime);
+        $errors = DateTime::getLastErrors();
+
+        if ($datetime && empty($errors['warning_count'])) {
+            $result = true;
+        }
+    }
+
+    return $result;
+}
+
+function createReport($report_text, $account_id, $report_system, $report_status)
+{
+    if (! empty($report_text) && aflValidateIntegerValue($report_system, 0, 1)) {
+        $report_date_time = date('Y-m-d H:i:s');
+
+        try {
+            \Illuminate\Support\Facades\DB::table('afl_reports')->insertOrIgnore([
+                'account_id' => $account_id,
+                'report_date_time' => $report_date_time,
+                'report_text' => $report_text,
+                'report_system' => $report_system,
+                'report_status' => $report_status,
+            ]);
+
+            return 1;
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+}
+
+function formatClient($license_code, $client_email)
+{
+    if (! empty($license_code)) {
+        $client_formatted = $license_code;
+    } else {
+        if (filter_var($client_email, FILTER_VALIDATE_EMAIL)) {
+            $client_formatted = $client_email;
+        } else {
+            $client_formatted = 'Unknown Client';
+        }
+    }
+
+    return $client_formatted;
+}
+
+function statusFormatter($status)
+{
+    if (strtolower($status) == 'active'){
+        $status = 1;
+    }
+    if (strtolower($status) == 'inactive' ){
+        $status = 0;
+    }
+    return $status;
+}
+
+function successErrorFormatter($status)
+{
+    if (strtolower($status) == 'success'){
+        $status = 1;
+    }
+    if (strtolower($status) == 'error' ){
+        $status = 0;
+    }
+    return $status;
+}

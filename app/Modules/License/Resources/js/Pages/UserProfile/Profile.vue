@@ -200,7 +200,6 @@ export default {
     },
 
     props : {
-        generalSetting : {type : Object, default : () => {}},
     },
 
     data() {
@@ -215,11 +214,8 @@ export default {
 
           passDisabled : false,
 
-          date_format: this.generalSetting.date_format.js_format,
 
-          time_format: this.generalSetting.time_format.js_format,
 
-          settings_timezone: this.generalSetting.timezone.name,
 
           two_factor: false,
 
@@ -414,7 +410,7 @@ export default {
 
                 fd.append('client_timezone_id', this.client_timezone_id.id || this.client_timezone_id);
 
-                this.$store.dispatch('setClientTimezone', this.client_timezone_id);
+                
 
                 if(this.selectedImage){
                     fd.append('client_profile_pic', this.selectedImage.file,this.selectedImage.name);
@@ -531,7 +527,7 @@ export default {
 
         getDate() {
 
-            return formatDateTime(this.google2fa_activation_date, this.settings_timezone, this.date_format, this.time_format)
+            return this.google2fa_activation_date
         },
 
         isPhoneValid() {

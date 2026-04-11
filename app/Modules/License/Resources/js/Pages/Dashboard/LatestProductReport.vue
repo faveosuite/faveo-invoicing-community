@@ -63,9 +63,6 @@ export default {
     },
     beforeMount() {
 
-        const date_format = this.generalSetting.date_format.js_format;
-        const time_format = this.generalSetting.time_format.js_format;
-        const timezone = this.generalSetting.timezone.name;
 
         this.options = {
 
@@ -82,7 +79,7 @@ export default {
 
                 report_date_time(h, row) {
 
-                    return formatDateTime(row.report_date_time, timezone, date_format, time_format)
+                    return row.report_date_time
                 },
             },
 
@@ -125,7 +122,6 @@ export default {
 
         data : {type: Array, default : ()=>{}},
 
-        generalSetting : {type : Object, default : () => {}},
     }
 };
 </script>

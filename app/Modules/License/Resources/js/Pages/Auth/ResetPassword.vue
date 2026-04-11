@@ -86,7 +86,6 @@
         },
 
         props : {
-            generalSetting : {type : Object, default : () => {}},
         },
 
         data() {
@@ -103,7 +102,7 @@
 
                 recaptchaToken: "",
 
-                admin: this.generalSetting.client_logo,
+                admin: "",
 
                 labelStyle: { display: 'none' },
 

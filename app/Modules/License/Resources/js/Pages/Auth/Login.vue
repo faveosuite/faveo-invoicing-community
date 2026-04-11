@@ -121,13 +121,12 @@ export default {
         };
     },
     props : {
-        generalSetting : {type : Object, default : () => {}},
     },
     data() {
         return {
             user_name: '',
             password: '',
-            admin: this.generalSetting.client_logo,
+            admin: "",
             labelStyle: { display: 'none' },
             loading: false,
         }
@@ -194,9 +193,9 @@ export default {
                             const authToken = res.data.data.token;
                             axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
                             this.$store.dispatch('setLoggedInUserToken', authToken);
-                            this.$store.dispatch('setClientTimezone', res.data.data.user.timezone);
+                            
                             this.$store.dispatch('setUserInfo', res.data.data.user);
-                            this.$store.dispatch('setAdminData', this.generalSetting.admin_logo);
+                            
 
                             //to hide recaptcha badge
                             if(this.siteKey) {

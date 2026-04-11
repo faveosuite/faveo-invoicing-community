@@ -4,7 +4,7 @@
             <div class="progress-bar" role="progressbar" :style="{ width: progressBarWidth }"></div>
         </div>
 
-        <router-view :versioning="versioning" :generalSetting="generalSetting"></router-view>
+        <router-view :versioning="versioning"></router-view>
     </div>
 </template>
 
@@ -13,7 +13,6 @@
 export default {
     props:{
         versioning : { type : String , default : ''},
-        generalSetting : {type : Object, default : () => {}},
     },
     data() {
         return {

@@ -74,9 +74,6 @@ export default {
 
         const self =this;
 
-        const date_format = this.generalSetting.date_format.js_format
-        const time_format = this.generalSetting.time_format.js_format
-        const timezone = this.generalSetting.timezone.name
 
         this.options ={
 
@@ -96,7 +93,7 @@ export default {
 
                 callback_date_time(h,row){
 
-                    return formatDateTime(row.callback_date_time, timezone, date_format, time_format)
+                    return row.callback_date_time
                 },
 
                 callback_ip(h,row){
@@ -147,7 +144,6 @@ export default {
 
         data : {type : Array, default : ()=>{}},
 
-        generalSetting : {type : Object, default : () => {}},
     }
 
 };

@@ -69,3 +69,100 @@ Route::post('/api/LicenseReissue', [LicenseApiController::class, 'reissueLicense
 Route::get('/license-manager/{any?}', function () {
     return view('license::welcome');
 })->where('any', '.*')->middleware('web');
+
+// ============================================================================
+// ADMIN API ROUTES (Protected - Manager middleware required)
+// These routes are called by the License Manager Vue UI
+// ============================================================================
+
+Route::prefix('api/admin')->group(function () {
+
+    // ========================================================================
+    // DASHBOARD
+    // ========================================================================
+    Route::get('/dashboarddropdown', [\App\Modules\License\Controllers\Admin\DashboardController::class, 'dashboard']);
+
+    // ========================================================================
+    // PRODUCTS
+    // ========================================================================
+    Route::get('/viewproducts', [\App\Modules\License\Controllers\Admin\ProductsController::class, 'show']);
+    Route::get('/product/{product_id}', [\App\Modules\License\Controllers\Admin\ProductsController::class, 'edit']);
+    Route::get('/productView/{product_id}', [\App\Modules\License\Controllers\Admin\Views\ProductsViewController::class, 'getProductDetails']);
+    Route::get('/productInstallations/{product_id}', [\App\Modules\License\Controllers\Admin\Views\ProductsViewController::class, 'getProductInstallations']);
+    Route::get('/productLicenses/{product_id}', [\App\Modules\License\Controllers\Admin\Views\ProductsViewController::class, 'getProductLicenses']);
+    Route::get('/productVersions/{product_id}', [\App\Modules\License\Controllers\Admin\Views\ProductsViewController::class, 'getProductVersions']);
+    Route::post('/addProduct', [\App\Modules\License\Controllers\Admin\ProductsController::class, 'addAflAndAfuProduct']);
+    Route::post('/updateProduct', [\App\Modules\License\Controllers\Admin\ProductsController::class, 'updateAflAndAfuProduct']);
+    Route::delete('/allProductDelete', [\App\Modules\License\Controllers\Admin\ProductsController::class, 'deleteAflAndAfuProduct']);
+    Route::post('/restoreProduct', [\App\Modules\License\Controllers\Admin\ProductsController::class, 'restoreSuspendedProduct']);
+    Route::get('/afuProducts', [\App\Modules\License\Controllers\Update\AfuProductsController::class, 'getProducts']);
+
+    // ========================================================================
+    // VERSIONS
+    // ========================================================================
+    Route::get('/viewVersions', [\App\Modules\License\Controllers\Admin\VersionsController::class, 'show']);
+    Route::get('/versionView/{version_id}', [\App\Modules\License\Controllers\Admin\Views\VersionsViewController::class, 'getVersionInfo']);
+    Route::get('/versionCallbacks/{version_id}', [\App\Modules\License\Controllers\Admin\Views\VersionsViewController::class, 'getVersionCallbacks']);
+    Route::post('/versions/add', [\App\Modules\License\Controllers\Update\AfuVersionsController::class, 'versionAdd']);
+    Route::post('/versions/edit', [\App\Modules\License\Controllers\Update\AfuVersionsController::class, 'versionUpdate']);
+    Route::delete('/versions/delete', [\App\Modules\License\Controllers\Update\AfuVersionsController::class, 'deleteVersion']);
+
+    // ========================================================================
+    // LICENSES
+    // ========================================================================
+    Route::get('/viewLicenses', [\App\Modules\License\Controllers\Admin\LicenseController::class, 'show']);
+    Route::get('/licenseView/{license_id}', [\App\Modules\License\Controllers\Admin\Views\LicenseViewController::class, 'getLicenseDetails']);
+    Route::get('/license/{license_id}', [\App\Modules\License\Controllers\Admin\LicenseController::class, 'edit']);
+    Route::get('/licenseInstallation/{license_id}', [\App\Modules\License\Controllers\Admin\Views\LicenseViewController::class, 'getLicenseInstallations']);
+    Route::get('/licenseCallbacks/{license_id}', [\App\Modules\License\Controllers\Admin\Views\LicenseViewController::class, 'getLicenseCallBacks']);
+    Route::get('/installationLogs/{id}', [\App\Modules\License\Controllers\Admin\Views\LicenseViewController::class, 'getLicenseInstallationLogs']);
+    Route::post('/license/add', [\App\Modules\License\Controllers\Admin\LicenseController::class, 'licenseAdd']);
+    Route::post('/license/edit', [\App\Modules\License\Controllers\Admin\LicenseController::class, 'licenseUpdate']);
+    Route::delete('/license/delete', [\App\Modules\License\Controllers\Admin\LicenseController::class, 'deleteLicense']);
+
+    // ========================================================================
+    // INSTALLATIONS
+    // ========================================================================
+    Route::get('/viewInstallations', [\App\Modules\License\Controllers\Admin\InstallationController::class, 'show']);
+    Route::get('/installationView/{installation_id}', [\App\Modules\License\Controllers\Admin\Views\InstallationViewController::class, 'getInstallation']);
+    Route::get('/installation/{installation_id}', [\App\Modules\License\Controllers\Admin\InstallationController::class, 'edit']);
+    Route::get('/installationCallbacks/{installation_id}', [\App\Modules\License\Controllers\Admin\Views\InstallationViewController::class, 'getInstallationCallBacks']);
+    Route::post('/installations/edit', [\App\Modules\License\Controllers\Admin\InstallationController::class, 'installationUpdate']);
+    Route::delete('/installations/delete', [\App\Modules\License\Controllers\Admin\InstallationController::class, 'deleteInstallations']);
+
+    // ========================================================================
+    // CALLBACKS
+    // ========================================================================
+    Route::get('/showLicenseCallbacks', [\App\Modules\License\Controllers\Admin\CallBackController::class, 'licneseCallbacks']);
+    Route::get('/showUpdateCallbacks', [\App\Modules\License\Controllers\Admin\CallBackController::class, 'updateCallbacks']);
+
+    // ========================================================================
+    // REPORTS
+    // ========================================================================
+    Route::get('/reportLicense', [\App\Modules\License\Controllers\Admin\ReportsController::class, 'reportArrayLicense']);
+    Route::get('/reportCracking', [\App\Modules\License\Controllers\Admin\ReportsController::class, 'reportArrayCracking']);
+    Route::get('/reportSystem', [\App\Modules\License\Controllers\Admin\ReportsController::class, 'reportArraySystem']);
+    Route::get('/reportUpdate', [\App\Modules\License\Controllers\Admin\ReportsController::class, 'reportArrayUpdate']);
+
+    // ========================================================================
+    // BANNED HOSTS
+    // ========================================================================
+    Route::get('/viewBannedHost', [\App\Modules\License\Controllers\Admin\BannedHostController::class, 'show']);
+    Route::get('/viewBannedHost/{banned_host_id}', [\App\Modules\License\Controllers\Admin\BannedHostController::class, 'view']);
+    Route::post('/bannedHosts/add', [\App\Modules\License\Controllers\Admin\BannedHostController::class, 'bannedHostAdd']);
+    Route::post('/bannedHosts/edit', [\App\Modules\License\Controllers\Admin\BannedHostController::class, 'bannedHostUpdate']);
+    Route::delete('/bannedHosts/delete', [\App\Modules\License\Controllers\Admin\BannedHostController::class, 'deleteBannedHost']);
+
+    // ========================================================================
+    // WHITELIST IPS
+    // ========================================================================
+    Route::get('/view-Whitelist', [\App\Modules\License\Controllers\WhitelistIpsController::class, 'view']);
+    Route::get('/whitelist-edit/{id}', [\App\Modules\License\Controllers\WhitelistIpsController::class, 'edit']);
+    Route::post('/whitelist/updateOrCreate', [\App\Modules\License\Controllers\WhitelistIpsController::class, 'whitelistAdd']);
+    Route::delete('/delete-whitelist-ip', [\App\Modules\License\Controllers\WhitelistIpsController::class, 'deleteWhitelistIp']);
+
+    // ========================================================================
+    // CLIENTS
+    // ========================================================================
+    Route::get('/viewClients/{client_id?}', [\App\Modules\License\Controllers\Admin\ClientsController::class, 'show']);
+});

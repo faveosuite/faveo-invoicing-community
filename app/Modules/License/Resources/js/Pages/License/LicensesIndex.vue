@@ -26,7 +26,7 @@
 
             <div class="card-body" id="my_licenses">
 
-                <data-table v-if="!loading" :url="endPoint" :show_pagination="true" :showColumn="true" :dataColumns="selectedColumns" :allColumns="allColumns" @columns="updateColumn" :option="options" scroll_to="licenses-list">
+                <data-table v-if="!loading" :url="endPoint" :show_pagination="true" :dataColumns="dataColumns" :option="options" scroll_to="licenses-list">
 
                 </data-table>
 
@@ -50,7 +50,6 @@ export default {
     name: 'licenses-list',
 
     props : {
-        generalSetting : {type : Object, default : () => {}},
     },
 
     setup() {
@@ -81,18 +80,18 @@ export default {
             counter: 0,
 
             endPoint : '/api/admin/viewLicenses?page=1',
+
+            dataColumns: [
+                'license_code','client_email', 'name', 'license_order_number', 'license_domain', 'license_ip',
+                'license_date', 'installation_counts', 'call_backs_count', 'latest_call_backs', 
+                'license_limit', 'license_expire_date','license_updates_date' ,'license_support_date', 'license_status'
+            ],
         }
     },
 
     beforeMount() {
 
         const self = this;
-
-        const date_format = this.generalSetting.date_format.js_format
-        const time_format = this.generalSetting.time_format.js_format
-        const timezone = this.generalSetting.timezone.name
-
-        this.getColumns();
 
         this.options = {
 
@@ -115,7 +114,7 @@ export default {
 
                 return {
 
-                    'sort_field' : data.orderBy ? data.orderBy : 'license_id',
+                    'sort_field' : data.orderBy ? data.orderBy : 'id',
 
                     'sort_order' : data.ascending ? 'desc' : 'asc',
 
@@ -131,15 +130,15 @@ export default {
 
                     data: data.data.data.map(data => {
 
-                        data.edit_url = '/licenses/' + data.license_id + '/edit';
+                        data.edit_url = '/licenses/' + data.id + '/edit';
 
                         data.delete_url = '/api/admin/license/delete';
 
-                        data.view_url = '/licenses/' + data.license_id + '/view';
+                        data.view_url = '/licenses/' + data.id + '/view';
 
-                        data.keyVal = 'license_id';
+                        data.keyVal = 'id';
 
-                        data.idVal = data.license_id;
+                        data.idVal = data.id;
 
                         return data;
                     }),
@@ -189,36 +188,36 @@ export default {
 
                 license_updates_date(h, row) {
 
-                    return formatDateTime(row.license_updates_date, timezone, date_format, time_format)
+                    return row.license_updates_date
                 },
 
                 latest_call_backs(h, row) {
 
-                    return formatDateTime(row.latest_call_backs, timezone, date_format, time_format)
+                    return row.latest_call_backs
                 },
 
                 license_support_date(h, row) {
 
-                    return formatDateTime(row.license_support_date, timezone, date_format, time_format)
+                    return row.license_support_date
                 },
 
                 license_date(h, row) {
 
-                    return formatDateTime(row.license_date, timezone, date_format, time_format)
+                    return row.license_date
                 },
 
                 license_expire_date(h, row) {
 
-                    return formatDateTime(row.license_expire_date, timezone, date_format, time_format)
+                    return row.license_expire_date
                 },
 
                 license_code: (f, row) => {
 
-                    if(row.license_code && row.license_id) {
+                    if(row.license_code && row.id) {
 
                         return h(RouterLink, {
 
-                            to: '/licenses/' + row.license_id + '/view'
+                            to: '/licenses/' + row.id + '/view'
 
                         },[row.license_code.match(/.{1,4}/g).join('-')])
 
@@ -342,53 +341,6 @@ export default {
     methods : {
 
         lang,
-
-        getColumns() {
-
-            this.loading = true;
-
-            axios.get('/api/admin/getLicenseColumn').then(res => {
-
-                this.allColumns.map(col => {
-
-                    if (res.data.data.includes(col)) {
-
-                        this.selectedColumns.push(col)
-                    }
-                })
-
-                this.selectedColumns.push('actions')
-
-            }).catch(err => {
-
-                this.loading = false;
-            })
-
-            this.loading = false;
-        },
-
-        updateColumn(value) {
-
-            this.loading = true
-
-            const payload  = {
-                "selected_columns": value
-            }
-            axios.post('/api/admin/saveLicenseColumn', payload).then(res => {
-
-                this.selectedColumns = [];
-
-                successHandler(res, 'dataTableModal')
-
-                setTimeout(()=>{
-
-                    this.getColumns()
-
-                    this.loading = false;
-                },100)
-
-            }).catch(err => errorHandler(err, 'dataTableModal'))
-        },
 
         extractHref(orderUrl) {
 

@@ -126,7 +126,6 @@
       },
 
       props : {
-          generalSetting : {type : Object, default : () => {}},
       },
 
     data() {
@@ -135,7 +134,7 @@
 
         email: '',
 
-        admin : this.generalSetting.client_logo,
+        admin : "",
 
         labelStyle: { display: 'none' },
 
