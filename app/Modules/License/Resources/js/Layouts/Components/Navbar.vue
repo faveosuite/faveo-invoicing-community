@@ -82,15 +82,11 @@
 
 				this.loading = true;
 
-				axios.post('/api/admin/logout/'+this.user.client_id).then(res=>{
-
-					this.$store.dispatch('setLoggedInUserToken','');
-
-          			this.$store.dispatch('setUserInfo','');
+				axios.get('/auth/logout').then(res=>{
 
           			this.loading = false;
 
-          			this.$router.push('/login')
+          			window.location = window.axios.defaults.baseURL + '/login';
 
 				}).catch(err=>{
 

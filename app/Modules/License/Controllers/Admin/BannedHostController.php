@@ -137,6 +137,11 @@ class BannedHostController extends Controller
         ->orderBy($sortField, $sortOrder)
         ->paginate($perPage, ['*'], 'page', $page);
 
+        $banned->getCollection()->transform(function ($host) {
+            $host->banned_host_date = $host->created_at ? $host->created_at->format('Y-m-d') : '';
+            return $host;
+        });
+
         return successResponse(Lang::get('lang.Banned_Show'), $banned, 200);
     }
 

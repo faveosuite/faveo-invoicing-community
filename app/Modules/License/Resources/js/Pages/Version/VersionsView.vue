@@ -35,7 +35,7 @@
 
                     <div class="row pt-2 pb-2 border-bottom col-sm-6 ms-2 ps-0">
                         <label class="col-sm-6 fs-7 fw-bold">{{lang('product_name')}}:</label>
-                        <router-link :to="'/products/' + product_id + '/view'" v-if="product_title" class="col-sm-6 fs-7">{{product_title}}</router-link>
+                        <a :href="basePath() + '/products/' + product_id + '/edit'" v-if="product_title" class="col-sm-6 fs-7">{{product_title}}</a>
                         <span class="col-sm-6" v-else >----</span>
                     </div>
 

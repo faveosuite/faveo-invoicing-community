@@ -14,13 +14,10 @@ class InstallationViewController extends Controller
     public function getInstallation($id)
     {
         $installation = DB::table('installations')
-            ->selectRaw('installations.id, installations.id, installations.user_id as client_id, installations.license_code, installations.installation_ip, installations.installation_domain, installations.installation_date, installations.installation_status, products.name as name, users.email as client_email')
-            ->leftJoin('products', 'installations.id', '=', 'products.id')
+            ->selectRaw('installations.id, installations.product_id, installations.user_id as client_id, installations.license_code, installations.installation_ip, installations.installation_domain, installations.installation_date, installations.installation_status, products.name as product_title, products.id as product_id, users.email as client_email, licenses.id as license_id')
+            ->leftJoin('products', 'installations.product_id', '=', 'products.id')
             ->leftJoin('users', 'installations.user_id', '=', 'users.id')
-            ->leftJoin('licenses', function ($join) {
-                $join->on('installations.license_code', '=', 'licenses.license_code');
-            })
-            ->selectRaw('installations.id, installations.id, installations.user_id as client_id, installations.license_code, installations.installation_ip, installations.installation_domain, installations.installation_date, installations.installation_status, products.name as name, users.email as client_email, licenses.id as license_id, licenses.license_code as license_code_detail')
+            ->leftJoin('licenses', 'installations.license_code', '=', 'licenses.license_code')
             ->where('installations.id', $id)
             ->first();
 

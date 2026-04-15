@@ -507,6 +507,15 @@
                         </li>
 
                         <li class="nav-item has-treeview">
+                            <a href="{{url('license-manager')}}" class="nav-link" id="license">
+                                <i class="nav-icon fas fa-id-card"></i>
+                                <p>
+                                    License
+                                </p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item has-treeview">
                             <a href="{{url('settings')}}" class="nav-link" id="setting">
                                 <i class="nav-icon fa fa-fw fa-cogs"></i>
                                 <p>

@@ -77,8 +77,9 @@ class WhitelistIpsController extends Controller
 
         $records->getCollection()->transform(function ($record) {
             return [
+                'id' => $record->whitelist_host_id,
                 'whitelist_host_id' => $record->whitelist_host_id,
-                'whitelist_host_date' => $record->created_at->format('Y-m-d'), // Rename and format created_at
+                'whitelist_host_date' => $record->created_at ? $record->created_at->format('Y-m-d') : '',
                 'whitelist_host_ip' => $record->whitelist_host_ip,
                 'whitelist_host_comments' => $record->whitelist_host_comments,
             ];

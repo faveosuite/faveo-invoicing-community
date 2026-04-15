@@ -83,8 +83,6 @@
 // });
 //
 
-import store from "./store";
-
 import '../css/dynamicSelectCommon.css';
 
 import 'vue-select/dist/vue-select.css';
@@ -106,41 +104,25 @@ window._ = _;
 import axios from 'axios';
 window.axios = axios;
 
-axios.interceptors.request.use(
-    function (config) {
-        // Get the user token from the store
-        const userToken = store.getters.getUserToken;
-
-        // If the user token is available, set the Authorization header
-        if (userToken) {
-            config.headers.Authorization = `Bearer ${userToken}`;
-        }
-
-        return config;
-    },
-    function (error) {
-        return Promise.reject(error);
-    }
-);
-
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.axios.defaults.baseURL = document.head.querySelector('meta[name="api-base-url"]').content;
+
+// Include CSRF token in all requests for session-based auth
+let csrfToken = document.head.querySelector('meta[name="csrf-token"]');
+if (csrfToken) {
+    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken.content;
+}
+
 window.axios.interceptors.response.use((response) => {
 
     return response
 
 },function (error) {
 
-    if (error.response.status === 401) {
+    if (error.response && error.response.status === 401) {
 
-        store.dispatch('setAlert', { type: 'danger', message: 'Unauthorized!'});
-
-        store.dispatch('setLoggedInUserToken', '');
-
-        setTimeout(()=>{
-
-            window.location = window.axios.defaults.baseURL;
-        },2000);
+        // Redirect to billing app login when session expires
+        window.location = window.axios.defaults.baseURL + '/login';
 
         return Promise.reject(error);
     }

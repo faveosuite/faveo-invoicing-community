@@ -1,18 +1,8 @@
-import store from '../store/index'
-
 import LicenseLayout from '../Layouts/LicenseManagerLayout.vue';
 
 import Dashboard from '../Pages/Dashboard.vue';
 
 import NotFound from '../Pages/NotFound.vue';
-
-import Login from '../Pages/Auth/Login.vue';
-
-import Verify2FA from "../Pages/Auth/Verify2FA.vue";
-
-import ForgotPassword from '../Pages/Auth/ForgotPassword.vue';
-
-import ResetPassword from '../Pages/Auth/ResetPassword.vue'
 
 //===========================PRODUCTS MENU=========================
 
@@ -33,8 +23,6 @@ let versionsMenu = {
     name: 'Versions',
 
     redirect: '/versions/list',
-
-    beforeEnter: requireAuth,
 
     children: [
 
@@ -101,8 +89,6 @@ let profileMenu = {
 
     redirect: '/profile/edit',
 
-    beforeEnter: requireAuth,
-
     children: [
 
         {
@@ -136,8 +122,6 @@ let licensesMenu = {
 	name: 'Licenses',
 
 	redirect: '/licenses/list',
-
-	beforeEnter: requireAuth,
 
 	children: [
 
@@ -207,8 +191,6 @@ let installationsMenu = {
 
 	redirect: '/installations/list',
 
-	beforeEnter: requireAuth,
-
 	children: [
 
 		{
@@ -262,8 +244,6 @@ let callbacksMenu = {
 
 	redirect: '/callbacks/list',
 
-	beforeEnter: requireAuth,
-
 	children: [
 
 		{
@@ -300,8 +280,6 @@ let reportsMenu = {
 	name: 'Reports',
 
 	redirect: '/reports',
-
-	beforeEnter: requireAuth,
 
 	children: [
 
@@ -369,8 +347,6 @@ let bannedMenu = {
 
 	redirect: '/banned-hosts/list',
 
-	beforeEnter: requireAuth,
-
 	children: [
 
 		{
@@ -417,7 +393,6 @@ let whitelistMenu = {
     component: LicenseLayout,
     name: 'Whitelist',
     redirect: '/Whitelist/list',
-    beforeEnter: requireAuth,
     children: [
         {
             path: 'list',
@@ -455,8 +430,6 @@ const routes = [
 
 		name: 'Dashboard Layout',
 
-		beforeEnter: requireAuth,
-
 		children: [
 
 			{
@@ -489,48 +462,11 @@ const routes = [
     whitelistMenu,
 
     {
-        path: '/login',
-        name: 'login',
-        component: Login
-    },
-
-    {
-        path: '/verify-2fa/:pp',
-        name: 'Verify2FA',
-        props: true,
-        component: Verify2FA
-    },
-
-    {
-        path: '/forgot-password',
-        name: 'forgot-password',
-        component: ForgotPassword
-    },
-
-    {
-        path: '/reset/:id',
-        name: 'reset-password',
-        component: ResetPassword
-    },
-
-    {
         path: '/:pathMatch(.*)*',
         name:"404",
         component: NotFound,
         meta: { title : '', crumb : { link: { name : 'dashboard', to : '/' }, active : 'Not found' } }
     }
 ];
-
-function requireAuth (to, from, next) {
-
-    if (store.getters.getUserToken) {
-
-        next();
-
-    } else {
-
-        next('/login');
-    }
-}
 
 export default routes;

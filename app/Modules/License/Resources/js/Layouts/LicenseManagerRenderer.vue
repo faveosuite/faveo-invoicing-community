@@ -13,6 +13,7 @@
 export default {
     props:{
         versioning : { type : String , default : ''},
+        userData : { type : Object, default : () => ({}) },
     },
     data() {
         return {
@@ -27,6 +28,10 @@ export default {
     },
     beforeMount() {
         this.$store.dispatch('setApiKey');
+
+        if (this.userData && Object.keys(this.userData).length) {
+            this.$store.dispatch('setUserInfo', this.userData);
+        }
 
         // Immediately show the progress bar with a starting value of 0%
         this.shouldShowProgressBar = true;

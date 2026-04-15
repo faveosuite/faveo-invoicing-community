@@ -1,8 +1,6 @@
 
 const state = {
 
-    user_token : '',
-
     user_data : '',
 
     api_key : '',
@@ -15,8 +13,6 @@ const state = {
 
  const getters = {
 
-    getUserToken: state => state.user_token,
-
     getUserData: state => state.user_data,
 
     getAdminData: state => state.admin_data,
@@ -27,11 +23,6 @@ const state = {
  };
 
  const mutations = {
-
-    updateUserToken(state, payload) {
-
-        state.user_token = payload;
-    },
 
     updateUserInfo(state,payload) {
 
@@ -65,11 +56,6 @@ const state = {
  }
 
  const actions = {
-
-    setLoggedInUserToken({commit},payload) {
-
-        commit('updateUserToken',payload)
-    },
 
     setUserInfo({commit},payload) {
         commit('updateUserInfo',payload)

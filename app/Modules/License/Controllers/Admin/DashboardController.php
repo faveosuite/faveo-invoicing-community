@@ -3,16 +3,17 @@
 namespace App\Modules\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Model\Product\Product;
-use App\Modules\License\Models\Installation;
+use App\User;
 use App\Modules\License\Models\License;
-use App\Modules\License\Models\LicenseCallback;
-use App\Modules\License\Models\LicenseReport;
+use App\Model\Product\Product;
 use App\Modules\License\Models\ProductVersion;
+use App\Modules\License\Models\Installation;
+use App\Modules\License\Models\LicenseCallback;
 use App\Modules\License\Models\VersionCallback;
-use Carbon\Carbon;
+use App\Modules\License\Models\LicenseReport;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -32,19 +33,18 @@ class DashboardController extends Controller
 
         // Latest products
         $latestProducts = Product::where('status', '1')
-            ->orderBy('id', 'desc')
+            ->orderBy('id','desc')
             ->take(10)
             ->get()
             ->map(function ($product) {
                 $product->versions = DB::table('product_versions')
-                    ->where('id', $product->id)
+                    ->where('product_id', $product->id)
                     ->where('version_status', '1')
                     ->orderByDesc('version_date')
                     ->value('version_number');
                 $product->versions_count = DB::table('product_versions')
-                    ->where('id', $product->id)
+                    ->where('product_id', $product->id)
                     ->count();
-
                 return $product;
             });
 
@@ -58,7 +58,7 @@ class DashboardController extends Controller
         $latestCallbacks = LicenseCallback::where('callback_status', '1')->orWhere('callback_status', '1')->distinct('callback_ip')->orderByDesc('callback_date_time')->orderByDesc('id')->take(10)->get();
 
         // Latest product reports
-        $latestReports = LicenseReport::with('product:id,name', 'user:user_id,email')->where('report_status', '1')->orderByDesc('report_date_time')->take(10)->get();
+        $latestReports = LicenseReport::with('product:id,name','user:user_id,email')->where('report_status', '1')->orderByDesc('report_date_time')->take(10)->get();
 
         $currentDateTime = Carbon::now()->toDateTimeString();
 
@@ -67,7 +67,7 @@ class DashboardController extends Controller
 
         //Latest clients
         $latestClients = DB::table('users')
-            ->select('id as client_id', 'email as client_email', 'created_at as client_active_date', 'active as client_status')
+            ->select('id as client_id','email as client_email','created_at as client_active_date','active as client_status')
             ->selectSub(function ($query) {
                 $query->selectRaw('COUNT(*)')
                     ->from('licenses')
@@ -81,10 +81,9 @@ class DashboardController extends Controller
 
         //Latest licenses
         $latestLicenses = DB::table('licenses')
-            ->select('licenses.id as license_id', 'licenses.user_id as client_id', 'licenses.id', 'licenses.license_code', 'licenses.license_date', 'licenses.license_status')
-            ->leftJoin('products', 'licenses.id', '=', 'products.id')
+            ->selectRaw('licenses.id as license_id, licenses.user_id as client_id, licenses.license_code, licenses.license_date, licenses.license_status, products.name as product_title, products.id as product_id, users.email as client_email')
+            ->leftJoin('products', 'licenses.product_id', '=', 'products.id')
             ->leftJoin('users', 'licenses.user_id', '=', 'users.id')
-            ->selectRaw('licenses.id as license_id, licenses.user_id as client_id, licenses.id, licenses.license_code, licenses.license_date, licenses.license_status, products.name as name, users.email as client_email')
             ->where('licenses.license_status', '1')
             ->orderByDesc('licenses.license_date')
             ->orderByDesc('licenses.id')
@@ -93,8 +92,8 @@ class DashboardController extends Controller
 
         //Expiring support
         $expiringSupport = DB::table('licenses')
-            ->selectRaw('licenses.id as license_id, licenses.user_id as client_id, licenses.id, licenses.license_code, licenses.license_date, licenses.license_support_date, licenses.license_status, products.name as name, users.email as client_email')
-            ->leftJoin('products', 'licenses.id', '=', 'products.id')
+            ->selectRaw('licenses.id as license_id, licenses.user_id as client_id, licenses.license_code, licenses.license_date, licenses.license_support_date, licenses.license_status, products.name as product_title, products.id as product_id, users.email as client_email')
+            ->leftJoin('products', 'licenses.product_id', '=', 'products.id')
             ->leftJoin('users', 'licenses.user_id', '=', 'users.id')
             ->where('licenses.license_status', 1)
             ->where('licenses.license_support_date', '>', $currentDateTime)
@@ -105,8 +104,8 @@ class DashboardController extends Controller
 
         //Expiring updates
         $expiringUpdates = DB::table('licenses')
-            ->selectRaw('licenses.id as license_id, licenses.user_id as client_id, licenses.id, licenses.license_code, licenses.license_date, licenses.license_updates_date, licenses.license_status, products.name as name, users.email as client_email')
-            ->leftJoin('products', 'licenses.id', '=', 'products.id')
+            ->selectRaw('licenses.id as license_id, licenses.user_id as client_id, licenses.license_code, licenses.license_date, licenses.license_updates_date, licenses.license_status, products.name as product_title, products.id as product_id, users.email as client_email')
+            ->leftJoin('products', 'licenses.product_id', '=', 'products.id')
             ->leftJoin('users', 'licenses.user_id', '=', 'users.id')
             ->where('licenses.license_status', 1)
             ->where('licenses.license_updates_date', '>', $currentDateTime)
@@ -115,6 +114,7 @@ class DashboardController extends Controller
             ->take(10)
             ->get();
 
-        return successResponse(Lang::get('lang.dashboard_show'), compact('productsCount', 'versionsCount', 'licenseCount', 'callbacksCount', 'latestProducts', 'latestVersions', 'latestInstallations', 'latestCallbacks', 'latestReports', 'expiredVersions', 'latestClients', 'latestLicenses', 'expiringSupport', 'expiringUpdates'));
+        return successResponse(Lang::get('lang.dashboard_show'), compact('productsCount', 'versionsCount','licenseCount', 'callbacksCount', 'latestProducts', 'latestVersions', 'latestInstallations', 'latestCallbacks', 'latestReports', 'expiredVersions','latestClients','latestLicenses','expiringSupport','expiringUpdates'));
     }
 }
+

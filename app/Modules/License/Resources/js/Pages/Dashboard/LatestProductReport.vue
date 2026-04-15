@@ -37,7 +37,7 @@
 
                         <template v-slot:license="props">
 
-                            <router-link v-if="props.row.license && props.row.license.license_id" :to="'/licenses/' + props.row.license.license_id + '/view'">{{ props.row.license.license_code.match(/.{1,4}/g).join('-')}}</router-link>
+                            <router-link v-if="props.row.license_code && props.row.license_id" :to="'/licenses/' + props.row.license_id + '/view'">{{ props.row.license_code.match(/.{1,4}/g).join('-')}}</router-link>
 
                             <span v-else>----</span>
                         </template>

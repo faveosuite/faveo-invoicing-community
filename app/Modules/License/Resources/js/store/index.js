@@ -7,10 +7,8 @@ import alert from './modules/alert';
 import setting from './modules/setting';
 
 const vuexLocalStorage = new VuexPersist({
-    // storage: window.localStorage,
     reducer: state => ({
-        auth: state.auth,
-        progressBarValue: state.progressBarValue // Adding progressBarValue to the persisted state
+        progressBarValue: state.progressBarValue
     })
 })
 

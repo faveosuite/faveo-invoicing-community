@@ -68,14 +68,15 @@ Route::post('/api/LicenseReissue', [LicenseApiController::class, 'reissueLicense
 
 Route::get('/license-manager/{any?}', function () {
     return view('license::welcome');
-})->where('any', '.*')->middleware('web');
+})->where('any', '.*')->middleware(['web', 'auth', 'admin']);
 
 // ============================================================================
 // ADMIN API ROUTES (Protected - Manager middleware required)
 // These routes are called by the License Manager Vue UI
 // ============================================================================
 
-Route::prefix('api/admin')->group(function () {
+Route::prefix('api/admin')->middleware(['web', 'auth', 'admin'])->group(function () {
+
     // ========================================================================
     // DASHBOARD
     // ========================================================================

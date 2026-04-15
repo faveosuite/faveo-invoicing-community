@@ -7,6 +7,17 @@ use App\Model\Common\Setting;
 
 $versioning = config('app.version');
 $icon = Setting::value('admin_logo');
+$authUser = Auth::user();
+$userData = [
+    'client_id' => $authUser->id,
+    'client_fname' => $authUser->first_name,
+    'client_lname' => $authUser->last_name,
+    'client_email' => $authUser->email,
+    'client_profile_pic' => $authUser->profile_pic,
+    'client_mobile_code' => $authUser->mobile_code,
+    'client_iso2' => $authUser->mobile_country_iso,
+    'client_timezone_id' => $authUser->timezone_id,
+];
 ?>
 <head>
 
@@ -127,6 +138,7 @@ $icon = Setting::value('admin_logo');
 
     <license-manager-renderer
             :versioning="{{ json_encode($versioning) }}"
+            :user-data="{{ json_encode($userData) }}"
     >
     </license-manager-renderer>
 </div>

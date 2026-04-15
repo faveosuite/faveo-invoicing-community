@@ -82,9 +82,9 @@ export default {
             endPoint : '/api/admin/viewLicenses?page=1',
 
             dataColumns: [
-                'license_code','client_email', 'name', 'license_order_number', 'license_domain', 'license_ip',
-                'license_date', 'installation_counts', 'call_backs_count', 'latest_call_backs', 
-                'license_limit', 'license_expire_date','license_updates_date' ,'license_support_date', 'license_status'
+                'license_code','client_email', 'product_title', 'license_order_number', 'license_domain', 'license_ip',
+                'license_date', 'installation_counts', 'call_backs_count', 'latest_call_backs',
+                'license_limit', 'license_expire_date','license_updates_date' ,'license_support_date', 'license_status', 'actions'
             ],
         }
     },
@@ -188,27 +188,27 @@ export default {
 
                 license_updates_date(h, row) {
 
-                    return row.license_updates_date
+                    return row.license_updates_date ? row.license_updates_date : '----';
                 },
 
                 latest_call_backs(h, row) {
 
-                    return row.latest_call_backs
+                    return row.latest_call_backs ? row.latest_call_backs : '----';
                 },
 
                 license_support_date(h, row) {
 
-                    return row.license_support_date
+                    return row.license_support_date ? row.license_support_date : '----';
                 },
 
                 license_date(h, row) {
 
-                    return row.license_date
+                    return row.license_date ? row.license_date : '----';
                 },
 
                 license_expire_date(h, row) {
 
-                    return row.license_expire_date
+                    return row.license_expire_date ? row.license_expire_date : '----';
                 },
 
                 license_code: (f, row) => {
@@ -228,11 +228,11 @@ export default {
 
                 product_title: (f, row) => {
 
-                    if(row.product && row.product.product_title && row.product.product_id) {
+                    if(row.product_title && row.product_id) {
 
-                        return h(RouterLink, {
+                        return h('a', {
 
-                            to: '/products/' + row.product_id + '/view'
+                            href: self.basePath() + '/products/' + row.product_id + '/edit'
 
                         },[row.product_title])
 

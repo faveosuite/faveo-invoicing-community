@@ -157,11 +157,11 @@ export default {
 
                     if(row.product_title && row.product_id) {
 
-                        return h(RouterLink, {
+                        return h('a', {
 
-                            to: '/products/' + row.product_id + '/view'
+                            href: self.basePath() + '/products/' + row.product_id + '/edit'
 
-                        },[row.product_title])
+                        }, [row.product_title])
 
                     } else {
                         return '----'

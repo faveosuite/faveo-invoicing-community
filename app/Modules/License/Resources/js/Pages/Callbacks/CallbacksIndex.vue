@@ -181,13 +181,13 @@ import {RouterLink} from "vue-router";
 
                             product_title: (f, row) => {
 
-                                if(row.product && row.product.product_title && row.product.product_id) {
+                                if(row.product_title && row.product_id) {
 
-                                    return h(RouterLink, {
+                                    return h('a', {
 
-                                        to: '/products/' + row.product.product_id + '/view'
+                                        href: this.basePath() + '/products/' + row.product_id + '/edit'
 
-                                    },[row.product.product_title])
+                                    },[row.product_title])
 
                                 } else {
                                     return '----'
@@ -219,13 +219,13 @@ import {RouterLink} from "vue-router";
 
                             license: (f, row) => {
 
-                                if(row.license && row.license.license_code && row.license.license_id) {
+                                if(row.license_code && row.license_id) {
 
                                     return h(RouterLink, {
 
-                                        to: '/licenses/' + row.license.license_id + '/view'
+                                        to: '/licenses/' + row.license_id + '/view'
 
-                                    },[row.license.license_code.match(/.{1,4}/g).join('-')])
+                                    },[row.license_code.match(/.{1,4}/g).join('-')])
 
                                 } else {
                                     return '----'
@@ -333,13 +333,13 @@ import {RouterLink} from "vue-router";
 
                             product_title: (f, row) => {
 
-                                if(row.product && row.product.product_title && row.product.product_id) {
+                                if(row.product_title && row.product_id) {
 
-                                    return h(RouterLink, {
+                                    return h('a', {
 
-                                        to: '/products/' + row.product.product_id + '/view'
+                                        href: this.basePath() + '/products/' + row.product_id + '/edit'
 
-                                    },[row.product.product_title])
+                                    },[row.product_title])
 
                                 } else {
                                     return '----'
@@ -348,13 +348,13 @@ import {RouterLink} from "vue-router";
 
                             version: (f, row) => {
 
-                                if(row.version && row.version.version_number && row.version.version_id) {
+                                if(row.version_number && row.version_id) {
 
                                     return h(RouterLink, {
 
-                                        to: '/versions/' + row.version.version_id + '/view'
+                                        to: '/versions/' + row.version_id + '/view'
 
-                                    },[row.version.version_number])
+                                    },[row.version_number])
 
                                 } else {
                                     return '----'

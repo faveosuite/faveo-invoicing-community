@@ -14,13 +14,12 @@ class LicenseViewController extends Controller
     public function getLicenseDetails($license_id)
     {
         $license = DB::table('licenses')
-            ->selectRaw('licenses.id as license_id, licenses.id, licenses.user_id as client_id, licenses.license_ip, licenses.license_code, licenses.license_limit, licenses.license_expire_date, licenses.license_support_date, licenses.license_order_number, licenses.license_domain, licenses.license_date, licenses.license_updates_date, licenses.license_status')
-            ->leftJoin('products', 'licenses.id', '=', 'products.id')
+            ->selectRaw('licenses.id, licenses.product_id, licenses.user_id as client_id, licenses.license_ip, licenses.license_code, licenses.license_limit, licenses.license_expire_date, licenses.license_support_date, licenses.license_order_number, licenses.license_domain, licenses.license_date, licenses.license_updates_date, licenses.license_status, products.name as product_title, products.id as product_id, users.email as client_email')
+            ->leftJoin('products', 'licenses.product_id', '=', 'products.id')
             ->leftJoin('users', 'licenses.user_id', '=', 'users.id')
-            ->selectRaw('licenses.id as license_id, licenses.id, licenses.user_id as client_id, licenses.license_ip, licenses.license_code, licenses.license_limit, licenses.license_expire_date, licenses.license_support_date, licenses.license_order_number, licenses.license_domain, licenses.license_date, licenses.license_updates_date, licenses.license_status, products.name as name, users.email as client_email')
             ->where('licenses.id', $license_id)
             ->first();
-        $license->license_order_url = $license->order_url ?? '';
+        $license->license_order_url = $license->license_order_number ?? '';
         $license->installation_counts = DB::table('installations')
             ->where('license_code', $license->license_code)
             ->count();

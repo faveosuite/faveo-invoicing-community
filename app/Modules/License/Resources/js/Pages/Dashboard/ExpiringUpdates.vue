@@ -44,7 +44,7 @@
 
                         <template v-slot:product="props">
 
-                            <router-link v-if="props.row.product && props.row.product.product_title" :to="'/products/' + props.row.product_id + '/view'">{{props.row.product.product_title}}</router-link>
+                            <a v-if="props.row.product_title && props.row.product_id" :href="basePath() + '/products/' + props.row.product_id + '/edit'">{{props.row.product_title}}</a>
 
                             <span v-else>----</span>
                         </template>

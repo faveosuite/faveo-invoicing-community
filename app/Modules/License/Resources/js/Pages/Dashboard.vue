@@ -18,10 +18,10 @@
                             <div class="small-box-icon">
                                 <i class="fas fa-cart-arrow-down"></i>
                             </div>
-                            <router-link class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover"  to="/products/list">
+                            <a class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover" :href="basePath() + '/products'">
                                 {{lang('view_all')}}
                                 <i class="fas fa-arrow-alt-circle-right"></i>
-                            </router-link>
+                            </a>
                         </div>
                     </div>
 

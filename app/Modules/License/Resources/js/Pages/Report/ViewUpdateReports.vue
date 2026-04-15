@@ -140,13 +140,13 @@ export default {
 
                 product: (f, row) => {
 
-                    if(row.product && row.product.product_title && row.product.product_id) {
+                    if(row.product_title && row.product_id) {
 
-                        return h(RouterLink, {
+                        return h('a', {
 
-                            to: '/products/' + row.product.product_id + '/view'
+                            href: self.basePath() + '/products/' + row.product_id + '/edit'
 
-                        },[row.product.product_title])
+                        },[row.product_title])
 
                     } else {
                         return '----'

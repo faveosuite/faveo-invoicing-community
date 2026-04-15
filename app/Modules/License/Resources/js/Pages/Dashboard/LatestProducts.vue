@@ -37,7 +37,7 @@
 
                         <template v-slot:product_title="props">
 
-                            <router-link :to="'/products/'+props.row.product_id+'/view'">{{ props.row.product_title }}</router-link>
+                            <a :href="basePath() + '/products/' + props.row.id + '/edit'">{{ props.row.product_title }}</a>
                         </template>
 
                         <template v-slot:versions="props">

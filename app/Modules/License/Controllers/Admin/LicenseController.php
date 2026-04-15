@@ -347,8 +347,8 @@ class LicenseController extends Controller
             'license_status',
         ];
         $licenseQuery = DB::table('licenses')
-            ->selectRaw('licenses.id as license_id, licenses.user_id as client_id, licenses.license_code, licenses.license_ip, licenses.license_limit, licenses.license_expire_date, licenses.license_support_date, licenses.license_order_number, licenses.license_domain, licenses.license_date, licenses.license_updates_date, licenses.license_status, products.name as name, users.email as client_email')
-            ->leftJoin('products', 'licenses.id', '=', 'products.id')
+            ->selectRaw('licenses.id, licenses.product_id, licenses.user_id as client_id, licenses.license_code, licenses.license_ip, licenses.license_limit, licenses.license_expire_date, licenses.license_support_date, licenses.license_order_number, licenses.license_domain, licenses.license_date, licenses.license_updates_date, licenses.license_status, products.name as product_title, products.id as product_id, users.email as client_email')
+            ->leftJoin('products', 'licenses.product_id', '=', 'products.id')
             ->leftJoin('users', 'licenses.user_id', '=', 'users.id')
             ->when($searchQuery, function ($query) use ($searchQuery, $searchable) {
                 $query->where('users.email', 'like', '%'.$searchQuery.'%')
@@ -366,7 +366,7 @@ class LicenseController extends Controller
             ->orderBy('licenses.'.$sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
         $licenseQuery->getCollection()->transform(function ($license) {
-            $license->license_order_url = $license->order_url ?? '';
+            $license->license_order_url = $license->license_order_number ?? '';
             $license->installation_counts = DB::table('installations')
                 ->where('license_code', $license->license_code)
                 ->count();
@@ -388,7 +388,7 @@ class LicenseController extends Controller
     {
         $license = License::where('id', $license_id)->firstOrFail();
         $product_name = DB::table('licenses')
-            ->join('products', 'licenses.id', '=', 'products.id')
+            ->join('products', 'licenses.product_id', '=', 'products.id')
             ->where('licenses.id', $license_id)
             ->get(['products.name as name', 'licenses.id']);
 

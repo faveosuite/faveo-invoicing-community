@@ -153,7 +153,11 @@ export default {
 
                             to: '/licenses/' + row.license_id + '/view'
 
-                        },[row.license_code.match(/.{1,4}/g).join('-')])
+                        }, [row.license_code.match(/.{1,4}/g).join('-')])
+
+                    } else if(row.license_code) {
+
+                        return row.license_code.match(/.{1,4}/g).join('-')
 
                     } else {
                         return '----'

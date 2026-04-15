@@ -152,13 +152,13 @@ export default {
 
                 user(f, row) {
 
-                    if(row.user && row.user.client_email) {
+                    if(row.client_email) {
 
                         return h(RouterLink, {
 
-                            to: '/clients/' + row.user.client_id + '/view'
+                            to: '/clients/' + row.client_id + '/view'
 
-                        },[row.user.client_email])
+                        },[row.client_email])
 
                     } else {
 
@@ -175,13 +175,13 @@ export default {
 
                 license: (f, row) => {
 
-                    if(row.license && row.license.license_code && row.license.license_id) {
+                    if(row.license_code && row.license_id) {
 
                         return h(RouterLink, {
 
-                            to: '/licenses/' + row.license.license_id + '/view'
+                            to: '/licenses/' + row.license_id + '/view'
 
-                        },[row.license.license_code.match(/.{1,4}/g).join('-')])
+                        },[row.license_code.match(/.{1,4}/g).join('-')])
 
                     } else {
                         return '----'

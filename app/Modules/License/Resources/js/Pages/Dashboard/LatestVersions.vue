@@ -40,7 +40,7 @@
                             </template>
 
                             <template v-slot:product="props">
-                                <router-link v-if="props.row.product && Array.isArray(props.row.product) && props.row.product[0] && props.row.product[0].product_title" :to="'/products/'+props.row.product[0].product_id+'/view'">{{ props.row.product[0].product_title }}</router-link>
+                                <a v-if="props.row.product && Array.isArray(props.row.product) && props.row.product[0] && props.row.product[0].name" :href="basePath() + '/products/' + props.row.product[0].id + '/edit'">{{ props.row.product[0].name }}</a>
                                 <span v-else>----</span>
                             </template>
                         </v-client-table>
