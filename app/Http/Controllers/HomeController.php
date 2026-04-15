@@ -694,7 +694,6 @@ class HomeController extends BaseHomeController
         // Fetch the order details
         $order = Order::where('number', $order)->first();
         $subscription = $order->subscription()->first();
-        $subscription_status = $subscription->is_subscribed;
         $start_date = $order->created_at;
         $plan_name = Plan::where('id', $subscription->plan_id)->value('name');
 
@@ -710,7 +709,6 @@ class HomeController extends BaseHomeController
 
         return response()->json([
             'billing_client_email' => $email,
-            'subscription_status' => $subscription_status,
             'start_date' => $start_date,
             'plan_name' => $plan_name,
             'next_billing_date' => $next_billing_date,
