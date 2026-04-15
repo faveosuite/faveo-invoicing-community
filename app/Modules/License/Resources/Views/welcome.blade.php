@@ -131,6 +131,8 @@ $userData = [
     </style>
 
     @vite(['app/Modules/License/Resources/css/app.scss', 'app/Modules/License/Resources/js/app.js'])
+
+    <script src="{{ url('/license-manager-lang') }}" type="text/javascript"></script>
 </head>
 
 <body class="layout-fixed layout-navbar-fixed sidebar-expand-lg bg-body-tertiary app-loaded sidebar-collapse">

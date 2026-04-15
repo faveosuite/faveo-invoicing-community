@@ -9,6 +9,7 @@ use App\Modules\License\Controllers\AfuCallbacks\FetchQueryController;
 use App\Modules\License\Controllers\AfuCallbacks\GetAllVersionsController;
 use App\Modules\License\Controllers\AfuCallbacks\GetVersionsController;
 use App\Modules\License\Controllers\LicenseApiController;
+use App\Modules\License\Controllers\Admin\LanguageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -69,6 +70,9 @@ Route::post('/api/LicenseReissue', [LicenseApiController::class, 'reissueLicense
 Route::get('/license-manager/{any?}', function () {
     return view('license::welcome');
 })->where('any', '.*')->middleware(['web', 'auth', 'admin']);
+
+// Language translations for Vue
+Route::get('/license-manager-lang', [LanguageController::class, 'getLanguageFile']);
 
 // ============================================================================
 // ADMIN API ROUTES (Protected - Manager middleware required)
