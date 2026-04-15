@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\License\Controllers\Admin\LanguageController;
 use App\Modules\License\Controllers\AflCallbacks\ConnectionTestController;
 use App\Modules\License\Controllers\AflCallbacks\LicenseInstallController;
 use App\Modules\License\Controllers\AflCallbacks\LicenseSchemeController;
@@ -9,7 +10,6 @@ use App\Modules\License\Controllers\AfuCallbacks\FetchQueryController;
 use App\Modules\License\Controllers\AfuCallbacks\GetAllVersionsController;
 use App\Modules\License\Controllers\AfuCallbacks\GetVersionsController;
 use App\Modules\License\Controllers\LicenseApiController;
-use App\Modules\License\Controllers\Admin\LanguageController;
 use Illuminate\Support\Facades\Route;
 
 /*

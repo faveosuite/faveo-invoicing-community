@@ -10,7 +10,7 @@ class LanguageController extends Controller
     {
         $locale = app()->getLocale() ?: 'en';
         $fallback = 'en';
-        
+
         $languages = array_unique([$fallback, $locale]);
 
         $languageArray = [];
@@ -23,15 +23,15 @@ class LanguageController extends Controller
         header('Cache-Control: max-age=2592000');
 
         echo 'translator = '.json_encode($languageArray).';';
-        exit();
+        exit;
     }
 
     private function appendLicenseLanguage(string $languageName, array &$languageArray): void
     {
         $basePath = base_path('app/Modules/License/Lang');
-        $path = $basePath . '/' . $languageName;
+        $path = $basePath.'/'.$languageName;
 
-        if (!is_dir($path)) {
+        if (! is_dir($path)) {
             return;
         }
 
