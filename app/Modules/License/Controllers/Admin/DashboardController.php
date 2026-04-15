@@ -4,7 +4,6 @@ namespace App\Modules\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Model\Product\Product;
-use App\Modules\License\Models\Installation;
 use App\Modules\License\Models\License;
 use App\Modules\License\Models\LicenseCallback;
 use App\Modules\License\Models\LicenseReport;
