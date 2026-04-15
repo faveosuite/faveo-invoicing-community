@@ -4,8 +4,6 @@ namespace App\Modules\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Modules\License\Models\LicenseReport;
-use App\Model\Product\Product;
-use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
@@ -28,7 +26,7 @@ class ReportsController extends Controller
             }
             if (! aflValidateIntegerValue($this->removed_records)) {
                 $this->action_success = 0;
-                $this->error_details .=  Lang::get('lang.inavalid_records');
+                $this->error_details .= Lang::get('lang.inavalid_records');
             } else {
                 $this->action_success = 1;
             }
@@ -55,7 +53,7 @@ class ReportsController extends Controller
         return $page_message;
     }
 
-//delete report
+    //delete report
     private function deleteReport($report_id, $removed_records)
     {
         if (aflValidateIntegerValue($report_id)) {
@@ -65,14 +63,14 @@ class ReportsController extends Controller
         return $removed_records;
     }
 
-//system1
+    //system1
     public function reportArraySystem(Request $request)
     {
-        $perPage = $request->input('perPage',10);
+        $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
         $searchQuery = $request->input('search_query');
-        $sortOrder= $request->input('sort_order','desc');
-        $sortField = $request->input('sort_field','id');
+        $sortOrder = $request->input('sort_order', 'desc');
+        $sortField = $request->input('sort_field', 'id');
 
         $reportsQuery = DB::table('license_reports')
             ->selectRaw('license_reports.id, license_reports.user_id as account_id, license_reports.license_code, license_reports.report_text, license_reports.report_date_time, license_reports.report_status, COALESCE(users.email, "System") as user_formatted')
@@ -80,23 +78,23 @@ class ReportsController extends Controller
             ->where('license_reports.report_status', 1)
             ->when($searchQuery, function ($query, $searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
-                    $query->where('license_reports.report_text', 'LIKE', '%' . $searchQuery . '%')
-                        ->orWhere('license_reports.report_status', 'LIKE', '%' . $this->reportStatusFormatter($searchQuery) . '%');
+                    $query->where('license_reports.report_text', 'LIKE', '%'.$searchQuery.'%')
+                        ->orWhere('license_reports.report_status', 'LIKE', '%'.$this->reportStatusFormatter($searchQuery).'%');
                 });
             })
             ->orderBy('license_reports.'.$sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        return successResponse(Lang::get('lang.SystemReport_Show'), $reportsQuery,200);
+        return successResponse(Lang::get('lang.SystemReport_Show'), $reportsQuery, 200);
     }
 
     public function reportArrayCracking(Request $request)
     {
-        $perPage = $request->input('perPage',10);
+        $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
         $searchQuery = $request->input('search_query');
-        $sortOrder= $request->input('sort_order','desc');
-        $sortField = $request->input('sort_field','id');
+        $sortOrder = $request->input('sort_order', 'desc');
+        $sortField = $request->input('sort_field', 'id');
 
         $crakingReports = DB::table('license_reports')
             ->selectRaw('license_reports.id, license_reports.user_id, license_reports.license_code, license_reports.report_text, license_reports.report_date_time, license_reports.report_status, licenses.id as license_id')
@@ -105,24 +103,24 @@ class ReportsController extends Controller
             ->where('license_reports.report_status', 0)
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
-                    $query->where('license_reports.report_text', 'LIKE', '%' . $searchQuery . '%')
-                        ->orWhere('license_reports.report_status', 'LIKE', '%' . $this->reportStatusFormatter($searchQuery) . '%')
-                        ->orWhere('license_reports.license_code', 'LIKE', '%' . str_replace('-','',$searchQuery) . '%');
+                    $query->where('license_reports.report_text', 'LIKE', '%'.$searchQuery.'%')
+                        ->orWhere('license_reports.report_status', 'LIKE', '%'.$this->reportStatusFormatter($searchQuery).'%')
+                        ->orWhere('license_reports.license_code', 'LIKE', '%'.str_replace('-', '', $searchQuery).'%');
                 });
             })
             ->orderBy('license_reports.'.$sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        return successResponse(Lang::get('lang.CrackingReport_Show'), $crakingReports,200);
+        return successResponse(Lang::get('lang.CrackingReport_Show'), $crakingReports, 200);
     }
 
     public function reportArrayLicense(Request $request)
     {
-        $perPage = $request->input('perPage',10);
+        $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
         $searchQuery = $request->input('search_query');
-        $sortOrder= $request->input('sort_order','desc');
-        $sortField = $request->input('sort_field','id');
+        $sortOrder = $request->input('sort_order', 'desc');
+        $sortField = $request->input('sort_field', 'id');
 
         $LicenseReports = DB::table('license_reports')
             ->selectRaw('license_reports.id, license_reports.user_id as client_id, license_reports.report_text, license_reports.license_code, license_reports.report_date_time, license_reports.report_status, users.email as client_email, licenses.id as license_id')
@@ -131,57 +129,57 @@ class ReportsController extends Controller
             ->where('license_reports.license_code', '!=', null)
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
-                    $query->where('license_reports.report_text', 'like', '%' . $searchQuery . '%')
-                        ->orWhere('license_reports.report_status', 'LIKE', '%' . $this->reportStatusFormatter($searchQuery) . '%')
-                        ->orWhere('users.email', 'like', '%' . $searchQuery . '%')
-                        ->orWhere('license_reports.license_code', 'like', '%' . str_replace("-", "", $searchQuery) . '%')
-                        ->orWhere('license_reports.report_date_time', 'like', '%' . $searchQuery . '%');
+                    $query->where('license_reports.report_text', 'like', '%'.$searchQuery.'%')
+                        ->orWhere('license_reports.report_status', 'LIKE', '%'.$this->reportStatusFormatter($searchQuery).'%')
+                        ->orWhere('users.email', 'like', '%'.$searchQuery.'%')
+                        ->orWhere('license_reports.license_code', 'like', '%'.str_replace('-', '', $searchQuery).'%')
+                        ->orWhere('license_reports.report_date_time', 'like', '%'.$searchQuery.'%');
                 });
             })
             ->orderBy('license_reports.'.$sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        return successResponse(Lang::get('lang.LicenseReport_Show'), $LicenseReports,200);
+        return successResponse(Lang::get('lang.LicenseReport_Show'), $LicenseReports, 200);
     }
 
     public function reportArrayUpdate(Request $request)
     {
-        $perPage = $request->input('perPage',10);
+        $perPage = $request->input('perPage', 10);
         $page = $request->input('page', 1);
-        $searchQuery = str_replace("-","",$request->input('search_query'));
-        $sortOrder= $request->input('sort_order','desc');
-        $sortField = $request->input('sort_field','id');
+        $searchQuery = str_replace('-', '', $request->input('search_query'));
+        $sortOrder = $request->input('sort_order', 'desc');
+        $sortField = $request->input('sort_field', 'id');
 
         $updateReports = DB::table('license_reports')
             ->selectRaw('license_reports.id, license_reports.user_id, license_reports.report_text, license_reports.report_date_time, license_reports.report_status, products.name as product_title, products.id as product_id')
             ->leftJoin('products', 'license_reports.product_id', '=', 'products.id')
-            ->where('license_reports.report_text', 'like', '%' ."upgrade" .'%')
+            ->where('license_reports.report_text', 'like', '%'.'upgrade'.'%')
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
-                    $query->where('license_reports.report_text', 'like', '%' . $searchQuery . '%')
-                        ->orWhere('products.name', 'like', '%' . $searchQuery . '%')
-                        ->orWhere('license_reports.report_status', 'LIKE', '%' . $this->reportStatusFormatter($searchQuery) . '%')
-                        ->orWhere('license_reports.report_date_time', 'like', '%' . $searchQuery . '%');
+                    $query->where('license_reports.report_text', 'like', '%'.$searchQuery.'%')
+                        ->orWhere('products.name', 'like', '%'.$searchQuery.'%')
+                        ->orWhere('license_reports.report_status', 'LIKE', '%'.$this->reportStatusFormatter($searchQuery).'%')
+                        ->orWhere('license_reports.report_date_time', 'like', '%'.$searchQuery.'%');
                 });
             })
             ->orderBy('license_reports.'.$sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        return successResponse(Lang::get('lang.report_update'), $updateReports,200);
-
+        return successResponse(Lang::get('lang.report_update'), $updateReports, 200);
     }
+
     private function reportStatusFormatter($status)
     {
-        if (strtolower($status) == 'success'){
+        if (strtolower($status) == 'success') {
             $status = 'success';
         }
-        if (strtolower($status) == 'error' ){
+        if (strtolower($status) == 'error') {
             $status = 'error';
         }
-        if (strtolower($status) == 'pending' ){
+        if (strtolower($status) == 'pending') {
             $status = 'pending';
         }
+
         return $status;
     }
 }
-

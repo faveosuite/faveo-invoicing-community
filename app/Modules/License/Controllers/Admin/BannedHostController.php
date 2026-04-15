@@ -139,6 +139,7 @@ class BannedHostController extends Controller
 
         $banned->getCollection()->transform(function ($host) {
             $host->banned_host_date = $host->created_at ? $host->created_at->format('Y-m-d') : '';
+
             return $host;
         });
 
