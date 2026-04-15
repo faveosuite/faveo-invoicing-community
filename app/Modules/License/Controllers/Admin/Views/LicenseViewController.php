@@ -104,6 +104,6 @@ class LicenseViewController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        return successResponse('',$installationLogs);
+        return successResponse('', $installationLogs);
     }
 }
