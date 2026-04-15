@@ -31,17 +31,23 @@ class DashboardController extends Controller
         $callbacksCount = bcadd(LicenseCallback::count(), VersionCallback::count());
 
         // Latest products
-        $latestProducts = Product::where('status', '1')
+        $latestProducts = DB::table('products')
+            ->where('status', '1')
             ->orderBy('id', 'desc')
             ->take(10)
             ->get()
             ->map(function ($product) {
+                $product->product_title = $product->name;
+                $product->product_status = $product->status;
+
                 $product->versions = DB::table('product_versions')
                     ->where('product_id', $product->id)
-                    ->where('version_status', '1')
-                    ->orderByDesc('version_date')
-                    ->value('version_number');
-                $product->versions_count = DB::table('product_versions')
+                    ->count();
+
+                $product->installations_count = DB::table('installations')
+                    ->where('product_id', $product->id)
+                    ->count();
+                $product->licenses_count = DB::table('licenses')
                     ->where('product_id', $product->id)
                     ->count();
 
@@ -49,25 +55,46 @@ class DashboardController extends Controller
             });
 
         // Latest versions
-        $latestVersions = ProductVersion::where('version_status', '1')->with('product:id,name')->distinct('version_number')->orderByDesc('version_date')->orderByDesc('id')->take(10)->get();
+        $latestVersions = DB::table('product_versions')
+            ->selectRaw('product_versions.id, product_versions.product_id, product_versions.version_number, product_versions.version_date, product_versions.version_status, products.name as product_title')
+            ->leftJoin('products', 'product_versions.product_id', '=', 'products.id')
+            ->where('product_versions.version_status', '1')
+            ->orderByDesc('product_versions.id')
+            ->take(10)
+            ->get();
 
         // Latest installations (AFL and AFU combined)
-        $latestInstallations = Installation::where('installation_status', '1')->orWhere('installation_status', '1')->distinct('installation_ip')->orderByDesc('installation_date')->orderByDesc('id')->take(10)->get();
+        $latestInstallations = DB::table('installations')
+            ->selectRaw('installations.id, installations.license_code, installations.installation_ip, installations.installation_domain, installations.installation_date, installations.installation_status, licenses.id as license_id')
+            ->leftJoin('licenses', 'installations.license_code', '=', 'licenses.license_code')
+            ->where('installations.installation_status', '1')
+            ->orderByDesc('installations.installation_date')
+            ->orderByDesc('installations.id')
+            ->take(10)
+            ->get();
 
         // Latest callbacks (AFL and AFU combined)
-        $latestCallbacks = LicenseCallback::where('callback_status', '1')->orWhere('callback_status', '1')->distinct('callback_ip')->orderByDesc('callback_date_time')->orderByDesc('id')->take(10)->get();
+        $latestCallbacks = LicenseCallback::where('callback_status', '1')->distinct('callback_ip')->orderByDesc('callback_date_time')->orderByDesc('id')->take(10)->get();
 
         // Latest product reports
-        $latestReports = LicenseReport::with('product:id,name', 'user:user_id,email')->where('report_status', '1')->orderByDesc('report_date_time')->take(10)->get();
+        $latestReports = LicenseReport::with('product:id,name', 'user:id,email')->where('report_status', '1')->orderByDesc('report_date_time')->take(10)->get();
 
         $currentDateTime = Carbon::now()->toDateTimeString();
 
-        // Expired versions (versions with inactive status)
-        $expiredVersions = ProductVersion::where('version_status', '!=', 'active')->take(10)->get();
+        // Expired versions (versions with expire date set or inactive status)
+        $expiredVersions = DB::table('product_versions')
+            ->select('id', 'version_number', 'version_date', 'version_expire_date', 'version_status')
+            ->where(function ($query) {
+                $query->whereNotNull('version_expire_date')
+                    ->orWhereNotIn('version_status', ['1', 'active']);
+            })
+            ->orderByDesc('id')
+            ->take(10)
+            ->get();
 
         //Latest clients
         $latestClients = DB::table('users')
-            ->select('id as client_id', 'email as client_email', 'created_at as client_active_date', 'active as client_status')
+            ->selectRaw('id as client_id, CONCAT(first_name, " ", last_name) as full_name, email as client_email, created_at as client_active_date, active as client_status')
             ->selectSub(function ($query) {
                 $query->selectRaw('COUNT(*)')
                     ->from('licenses')

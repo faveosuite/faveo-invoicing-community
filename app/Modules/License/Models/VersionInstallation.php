@@ -11,9 +11,8 @@ class VersionInstallation extends Model
 
     protected $fillable = [
         'product_id',
+        'user_id',
         'version_id',
-        'installation_ip',
-        'installation_path',
         'installation_date',
         'installation_status',
     ];

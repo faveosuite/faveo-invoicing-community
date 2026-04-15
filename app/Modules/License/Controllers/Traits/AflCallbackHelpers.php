@@ -96,7 +96,7 @@ trait AflCallbackHelpers
     {
         LicenseCallback::create([
             'product_id' => $productId,
-            'client_id' => $userId,
+            'user_id' => $userId,
             'license_code' => $licenseCode,
             'callback_ip' => $ip,
             'callback_domain' => $domain,

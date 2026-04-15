@@ -23,10 +23,10 @@ class VersionsViewController extends Controller
         $page = $request->input('page', 1);
         $searchQuery = $request->input('search_query');
         $sortOrder = $request->input('sort_order', 'desc');
-        $sortField = $request->input('sort_field', 'callback_id');
+        $sortField = $request->input('sort_field', 'id');
         $versionInstallation = ProductVersion::find($version_id)
             ->callbacks()
-            ->select('callback_id', 'version_id', 'callback_ip', 'callback_date_time', 'callback_status', 'callback_type')
+            ->select('id', 'version_id', 'callback_ip', 'callback_date_time', 'callback_status', 'callback_type')
             ->withAggregate(['types as callback_type'], 'value')
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {

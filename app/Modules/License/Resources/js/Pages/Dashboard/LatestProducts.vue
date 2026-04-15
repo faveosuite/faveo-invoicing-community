@@ -41,8 +41,7 @@
                         </template>
 
                         <template v-slot:versions="props">
-                            <router-link v-if="props.row.versions && props.row.versions.version_number" :to="'/versions/'+props.row.versions.version_id+'/view'">{{ props.row.versions.version_number }}</router-link>
-                            <span v-else>----</span>
+                            <span>{{ props.row.versions }}</span>
                         </template>
 
                     </v-client-table>

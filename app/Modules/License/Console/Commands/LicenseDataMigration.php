@@ -19,10 +19,13 @@ class LicenseDataMigration extends Command
         {--fresh : Truncate all license tables before migration}';
     protected $description = 'Migrate data from the external license database into the billing database';
 
+    private const CHUNK_SIZE = 200;
+
     private array $userMap = [];
     private array $productMap = [];
     private array $licenseMap = [];
     private array $versionMap = [];
+    private int $skippedUsers = 0;
 
     public function handle(): int
     {
@@ -121,6 +124,9 @@ class LicenseDataMigration extends Command
             $this->info('  Products mapped: '.count($this->productMap));
             $this->info('  Licenses migrated: '.count($this->licenseMap));
             $this->info('  Versions migrated: '.count($this->versionMap));
+            if ($this->skippedUsers > 0) {
+                $this->warn("  Licenses with no user assigned: {$this->skippedUsers}");
+            }
 
             return Command::SUCCESS;
         } catch (\Exception $e) {
@@ -157,14 +163,45 @@ class LicenseDataMigration extends Command
             'strict' => false,
             'engine' => config('database.connections.mysql.engine', null),
         ]);
+
+        // Purge so the connection picks up the dynamic config
+        DB::purge('license');
     }
 
     private function licenseDb(): \Illuminate\Database\ConnectionInterface
     {
-        // Purge existing connection so it picks up the dynamic config
-        DB::purge('license');
-
         return DB::connection('license');
+    }
+
+    private function cleanDate(?string $date): ?string
+    {
+        if (! $date || $date === '0000-00-00' || $date === '0000-00-00 00:00:00') {
+            return null;
+        }
+
+        // Dates beyond MySQL timestamp range (year > 2037) can't be stored
+        $year = (int) substr($date, 0, 4);
+        if ($year > 2037 || $year < 1970) {
+            return null;
+        }
+
+        return $date;
+    }
+
+    private function bulkInsert(string $table, array $rows, bool $ignoreDuplicates = false): void
+    {
+        if (empty($rows)) {
+            return;
+        }
+
+        // Split into smaller batches to avoid max_allowed_packet limits
+        foreach (array_chunk($rows, 50) as $chunk) {
+            if ($ignoreDuplicates) {
+                DB::table($table)->insertOrIgnore($chunk);
+            } else {
+                DB::table($table)->insert($chunk);
+            }
+        }
     }
 
     private function truncateLicenseTables(): void
@@ -264,121 +301,149 @@ class LicenseDataMigration extends Command
 
     private function migrateLicenses(): void
     {
-        $licenses = $this->licenseDb()->table('afl_licenses')->get();
         $count = 0;
 
-        foreach ($licenses as $lic) {
-            $newUserId = $this->userMap[$lic->client_id] ?? null;
-            $newProductId = $this->productMap[$lic->product_id] ?? null;
+        $this->licenseDb()->table('afl_licenses')->orderBy('license_id')->chunk(self::CHUNK_SIZE, function ($licenses) use (&$count) {
+            foreach ($licenses as $lic) {
+                $newProductId = $this->productMap[$lic->product_id] ?? null;
 
-            if (! $newProductId) {
-                $this->warn("  Skipping license #{$lic->license_id} - orphaned product #{$lic->product_id}");
-                continue;
+                if (! $newProductId) {
+                    $this->warn("  Skipping license #{$lic->license_id} - orphaned product #{$lic->product_id}");
+                    continue;
+                }
+
+                if (empty($lic->license_code)) {
+                    continue;
+                }
+
+                $newUserId = $this->userMap[$lic->client_id] ?? null;
+
+                $newId = DB::table('licenses')->insertGetId([
+                    'product_id' => $newProductId,
+                    'user_id' => $newUserId,
+                    'license_code' => $lic->license_code,
+                    'license_order_number' => $lic->license_order_number,
+                    'license_ip' => $lic->license_ip,
+                    'license_domain' => $lic->license_domain,
+                    'license_require_domain' => $lic->license_require_domain ?? 0,
+                    'license_limit' => $lic->license_limit,
+                    'license_date' => $this->cleanDate($lic->license_date),
+                    'license_cancel_date' => $this->cleanDate($lic->license_cancel_date),
+                    'license_expire_date' => $this->cleanDate($lic->license_expire_date),
+                    'license_expire_email_date' => $this->cleanDate($lic->license_expire_email_date ?? null),
+                    'license_updates_date' => $this->cleanDate($lic->license_updates_date),
+                    'license_updates_email_date' => $this->cleanDate($lic->license_updates_email_date ?? null),
+                    'license_support_date' => $this->cleanDate($lic->license_support_date),
+                    'license_support_email_date' => $this->cleanDate($lic->license_support_email_date ?? null),
+                    'license_comments' => $lic->license_comments,
+                    'license_status' => $lic->license_status ?? 1,
+                    'created_at' => $lic->created_at ?? now(),
+                    'updated_at' => $lic->updated_at ?? now(),
+                ]);
+                $this->licenseMap[$lic->license_id] = $newId;
+                $count++;
+
+                if (! $newUserId) {
+                    $this->skippedUsers++;
+                }
             }
-
-            $newId = DB::table('licenses')->insertGetId([
-                'product_id' => $newProductId,
-                'user_id' => $newUserId,
-                'license_code' => $lic->license_code,
-                'license_order_number' => $lic->license_order_number,
-                'license_ip' => $lic->license_ip,
-                'license_domain' => $lic->license_domain,
-                'license_require_domain' => $lic->license_require_domain ?? 0,
-                'license_limit' => $lic->license_limit,
-                'license_date' => $lic->license_date,
-                'license_cancel_date' => $lic->license_cancel_date,
-                'license_expire_date' => $lic->license_expire_date,
-                'license_expire_email_date' => $lic->license_expire_email_date ?? null,
-                'license_updates_date' => $lic->license_updates_date,
-                'license_updates_email_date' => $lic->license_updates_email_date ?? null,
-                'license_support_date' => $lic->license_support_date,
-                'license_support_email_date' => $lic->license_support_email_date ?? null,
-                'license_comments' => $lic->license_comments,
-                'license_status' => $lic->license_status ?? 1,
-                'created_at' => $lic->created_at ?? now(),
-                'updated_at' => $lic->updated_at ?? now(),
-            ]);
-            $this->licenseMap[$lic->license_id] = $newId;
-            $count++;
-        }
+        });
 
         $this->info("  Migrated {$count} licenses");
     }
 
     private function migrateInstallations(): void
     {
-        $installations = $this->licenseDb()->table('afl_installations')->get();
         $count = 0;
 
-        foreach ($installations as $inst) {
-            $newUserId = $this->userMap[$inst->client_id] ?? null;
-            $newProductId = $this->productMap[$inst->product_id] ?? null;
+        $this->licenseDb()->table('afl_installations')->orderBy('installation_id')->chunk(self::CHUNK_SIZE, function ($installations) use (&$count) {
+            $batch = [];
 
-            if (! $newProductId) {
-                continue;
+            foreach ($installations as $inst) {
+                $newProductId = $this->productMap[$inst->product_id] ?? null;
+                if (! $newProductId) {
+                    continue;
+                }
+
+                $batch[] = [
+                    'product_id' => $newProductId,
+                    'user_id' => $this->userMap[$inst->client_id] ?? null,
+                    'license_code' => $inst->license_code,
+                    'installation_ip' => $inst->installation_ip,
+                    'installation_domain' => $inst->installation_domain,
+                    'installation_date' => $this->cleanDate($inst->installation_date),
+                    'installation_status' => $inst->installation_status ?? 1,
+                    'installation_hash' => $inst->installation_hash,
+                    'created_at' => $inst->created_at ?? now(),
+                    'updated_at' => $inst->updated_at ?? now(),
+                ];
             }
 
-            DB::table('installations')->insert([
-                'product_id' => $newProductId,
-                'user_id' => $newUserId ?? 0,
-                'license_code' => $inst->license_code,
-                'installation_ip' => $inst->installation_ip,
-                'installation_domain' => $inst->installation_domain,
-                'installation_disable_ip_verification' => $inst->installation_disable_ip_verification ?? 0,
-                'installation_date' => $inst->installation_date,
-                'installation_status' => $inst->installation_status ?? 1,
-                'installation_hash' => $inst->installation_hash,
-                'created_at' => $inst->created_at ?? now(),
-                'updated_at' => $inst->updated_at ?? now(),
-            ]);
-            $count++;
-        }
+            if (! empty($batch)) {
+                $this->bulkInsert('installations', $batch);
+                $count += count($batch);
+            }
+        });
 
         $this->info("  Migrated {$count} installations");
     }
 
     private function migrateLicenseCallbacks(): void
     {
-        $callbacks = $this->licenseDb()->table('afl_callbacks')->get();
         $count = 0;
 
-        foreach ($callbacks as $cb) {
-            $newProductId = $this->productMap[$cb->product_id] ?? null;
-            if (! $newProductId) {
-                continue;
+        $this->licenseDb()->table('afl_callbacks')->orderBy('callback_id')->chunk(self::CHUNK_SIZE, function ($callbacks) use (&$count) {
+            $batch = [];
+
+            foreach ($callbacks as $cb) {
+                $newProductId = $this->productMap[$cb->product_id] ?? null;
+                if (! $newProductId) {
+                    continue;
+                }
+
+                $batch[] = [
+                    'product_id' => $newProductId,
+                    'user_id' => $this->userMap[$cb->client_id] ?? null,
+                    'license_code' => $cb->license_code,
+                    'callback_ip' => $cb->callback_ip,
+                    'callback_domain' => $cb->callback_domain,
+                    'callback_date_time' => $this->cleanDate($cb->callback_date_time),
+                    'callback_status' => $cb->callback_status ?? 1,
+                    'created_at' => $cb->created_at ?? now(),
+                    'updated_at' => $cb->updated_at ?? now(),
+                ];
             }
 
-            DB::table('license_callbacks')->insert([
-                'product_id' => $newProductId,
-                'client_id' => $this->userMap[$cb->client_id] ?? $cb->client_id,
-                'license_code' => $cb->license_code,
-                'callback_ip' => $cb->callback_ip,
-                'callback_domain' => $cb->callback_domain,
-                'callback_date_time' => $cb->callback_date_time,
-                'callback_status' => $cb->callback_status ?? 1,
-                'created_at' => $cb->created_at ?? now(),
-                'updated_at' => $cb->updated_at ?? now(),
-            ]);
-            $count++;
-        }
+            if (! empty($batch)) {
+                $this->bulkInsert('license_callbacks', $batch);
+                $count += count($batch);
+            }
+        });
 
         $this->info("  Migrated {$count} callbacks");
     }
 
     private function migrateLicenseSchemes(): void
     {
-        $schemes = $this->licenseDb()->table('afl_license_schemes')->get();
         $count = 0;
 
-        foreach ($schemes as $scheme) {
-            DB::table('license_schemes')->insert([
-                'scheme_query' => $scheme->scheme_query,
-                'scheme_status' => $scheme->scheme_status ?? 1,
-                'created_at' => $scheme->created_at ?? now(),
-                'updated_at' => $scheme->updated_at ?? now(),
-            ]);
-            $count++;
-        }
+        $this->licenseDb()->table('afl_license_schemes')->orderBy('scheme_id')->chunk(self::CHUNK_SIZE, function ($schemes) use (&$count) {
+            $batch = [];
+
+            foreach ($schemes as $scheme) {
+                $batch[] = [
+                    'scheme_query' => $scheme->scheme_query,
+                    'scheme_status' => $scheme->scheme_status ?? 1,
+                    'created_at' => $scheme->created_at ?? now(),
+                    'updated_at' => $scheme->updated_at ?? now(),
+                ];
+            }
+
+            if (! empty($batch)) {
+                $this->bulkInsert('license_schemes', $batch);
+                $count += count($batch);
+            }
+        });
 
         $this->info("  Migrated {$count} schemes");
     }
@@ -392,26 +457,25 @@ class LicenseDataMigration extends Command
             return;
         }
 
-        // Map columns exactly as they exist in the original afl_notifications table
+        // Map source columns to the destination schema
         DB::table('license_notifications')->insert([
             'notification_product_not_found' => $n->notification_product_not_found ?? '',
-            'notification_product_inactive' => $n->notification_product_inactive ?? '',
             'notification_license_ok' => $n->notification_license_ok ?? '',
             'notification_license_not_found' => $n->notification_license_not_found ?? '',
-            'notification_invalid_ip' => $n->notification_invalid_ip ?? '',
-            'notification_invalid_domain' => $n->notification_invalid_domain ?? '',
-            'notification_domain_required' => $n->notification_domain_required ?? '',
-            'notification_domain_in_use' => $n->notification_domain_in_use ?? '',
-            'notification_license_suspended' => $n->notification_license_suspended ?? '',
             'notification_license_expired' => $n->notification_license_expired ?? '',
-            'notification_updates_expired' => $n->notification_updates_expired ?? '',
+            'notification_license_suspended' => $n->notification_license_suspended ?? '',
+            'notification_license_limit_exceeded' => $n->notification_license_limit ?? '',
+            'notification_installation_ok' => '',
+            'notification_installation_failed' => $n->notification_installation_not_found ?? '',
+            'notification_updates_ok' => '',
+            'notification_updates_not_found' => $n->notification_updates_expired ?? '',
             'notification_support_expired' => $n->notification_support_expired ?? '',
-            'notification_license_cancelled' => $n->notification_license_cancelled ?? '',
-            'notification_license_limit' => $n->notification_license_limit ?? '',
-            'notification_installation_not_found' => $n->notification_installation_not_found ?? '',
-            'notification_invalid_signature' => $n->notification_invalid_signature ?? '',
-            'notification_host_banned' => $n->notification_host_banned ?? '',
-            'notification_unknown_error' => $n->notification_unknown_error ?? '',
+            'notification_domain_mismatch' => $n->notification_invalid_domain ?? '',
+            'notification_ip_mismatch' => $n->notification_invalid_ip ?? '',
+            'notification_invalid_request' => $n->notification_unknown_error ?? '',
+            'notification_banned_host' => $n->notification_host_banned ?? '',
+            'notification_connection_ok' => '',
+            'notification_connection_failed' => '',
             'created_at' => $n->created_at ?? now(),
             'updated_at' => $n->updated_at ?? now(),
         ]);
@@ -421,172 +485,193 @@ class LicenseDataMigration extends Command
 
     private function migrateBannedHosts(): void
     {
-        $hosts = $this->licenseDb()->table('afl_banned_hosts')->get();
         $count = 0;
 
-        foreach ($hosts as $host) {
-            DB::table('license_banned_hosts')->insert([
-                'banned_host_ip' => $host->banned_host_ip,
-                'banned_host_comments' => $host->banned_host_comments ?? null,
-                'banned_host_date' => $host->banned_host_date ?? null,
-                'banned_host_blocks' => $host->banned_host_blocks ?? null,
-                'banned_host_last_block_date' => $host->banned_host_last_block_date ?? null,
-                'created_at' => $host->created_at ?? now(),
-                'updated_at' => $host->updated_at ?? now(),
-            ]);
-            $count++;
-        }
+        $this->licenseDb()->table('afl_banned_hosts')->orderBy('banned_host_id')->chunk(self::CHUNK_SIZE, function ($hosts) use (&$count) {
+            $batch = [];
+
+            foreach ($hosts as $host) {
+                $batch[] = [
+                    'banned_host_ip' => $host->banned_host_ip,
+                    'banned_host_comments' => $host->banned_host_comments ?? null,
+                    'banned_host_date' => $this->cleanDate($host->banned_host_date ?? null),
+                    'banned_host_blocks' => $host->banned_host_blocks ?? null,
+                    'banned_host_last_block_date' => $this->cleanDate($host->banned_host_last_block_date ?? null),
+                    'created_at' => $host->created_at ?? now(),
+                    'updated_at' => $host->updated_at ?? now(),
+                ];
+            }
+
+            if (! empty($batch)) {
+                $this->bulkInsert('license_banned_hosts', $batch);
+                $count += count($batch);
+            }
+        });
 
         $this->info("  Migrated {$count} banned hosts");
     }
 
     private function migrateWhitelistIps(): void
     {
-        $ips = $this->licenseDb()->table('afl_whitelist_ips')->get();
         $count = 0;
 
-        foreach ($ips as $ip) {
-            DB::table('license_whitelist_ips')->insert([
-                'whitelist_host_ip' => $ip->whitelist_host_ip,
-                'whitelist_host_comments' => $ip->whitelist_host_comments ?? null,
-                'created_at' => $ip->created_at ?? now(),
-                'updated_at' => $ip->updated_at ?? now(),
-            ]);
-            $count++;
-        }
+        $this->licenseDb()->table('afl_whitelist_ips')->orderBy('whitelist_host_id')->chunk(self::CHUNK_SIZE, function ($ips) use (&$count) {
+            $batch = [];
+
+            foreach ($ips as $ip) {
+                $batch[] = [
+                    'whitelist_host_ip' => $ip->whitelist_host_ip,
+                    'whitelist_host_comments' => $ip->whitelist_host_comments ?? null,
+                    'created_at' => $ip->created_at ?? now(),
+                    'updated_at' => $ip->updated_at ?? now(),
+                ];
+            }
+
+            if (! empty($batch)) {
+                $this->bulkInsert('license_whitelist_ips', $batch);
+                $count += count($batch);
+            }
+        });
 
         $this->info("  Migrated {$count} whitelist IPs");
     }
 
     private function migrateLicenseReports(): void
     {
-        $reports = $this->licenseDb()->table('afl_reports')->get();
         $count = 0;
 
-        foreach ($reports as $report) {
-            $newUserId = $this->userMap[$report->account_id] ?? 0;
-            $newProductId = $this->productMap[$report->product_id] ?? null;
+        $this->licenseDb()->table('afl_reports')->orderBy('report_id')->chunk(self::CHUNK_SIZE, function ($reports) use (&$count) {
+            $batch = [];
 
-            if (! $newProductId) {
-                continue;
+            foreach ($reports as $report) {
+                $newProductId = $this->productMap[$report->product_id] ?? null;
+                if (! $newProductId) {
+                    continue;
+                }
+
+                $batch[] = [
+                    'product_id' => $newProductId,
+                    'user_id' => $this->userMap[$report->account_id] ?? null,
+                    'license_code' => $report->license_code,
+                    'report_date_time' => $this->cleanDate($report->report_date_time),
+                    'report_text' => $report->report_text,
+                    'report_system' => $report->report_system ?? 0,
+                    'report_status' => $report->report_status ?? 1,
+                    'created_at' => $report->created_at ?? now(),
+                    'updated_at' => $report->updated_at ?? now(),
+                ];
             }
 
-            DB::table('license_reports')->insert([
-                'product_id' => $newProductId,
-                'user_id' => $newUserId,
-                'license_code' => $report->license_code,
-                'report_date_time' => $report->report_date_time,
-                'report_text' => $report->report_text,
-                'report_system' => $report->report_system ?? 0,
-                'report_status' => $report->report_status ?? 1,
-                'created_at' => $report->created_at ?? now(),
-                'updated_at' => $report->updated_at ?? now(),
-            ]);
-            $count++;
-        }
+            if (! empty($batch)) {
+                $this->bulkInsert('license_reports', $batch);
+                $count += count($batch);
+            }
+        });
 
         $this->info("  Migrated {$count} reports");
     }
 
     private function migrateProductVersions(): void
     {
-        $versions = $this->licenseDb()->table('afu_versions')->get();
         $count = 0;
 
-        foreach ($versions as $ver) {
-            $newProductId = $this->productMap[$ver->product_id] ?? null;
-            if (! $newProductId) {
-                continue;
-            }
+        $this->licenseDb()->table('afu_versions')->orderBy('version_id')->chunk(self::CHUNK_SIZE, function ($versions) use (&$count) {
+            foreach ($versions as $ver) {
+                $newProductId = $this->productMap[$ver->product_id] ?? null;
+                if (! $newProductId) {
+                    continue;
+                }
 
-            try {
-                $newId = DB::table('product_versions')->insertGetId([
-                    'product_id' => $newProductId,
-                    'version_number' => $ver->version_number,
-                    'version_install_file' => $ver->version_install_file,
-                    'version_install_query' => $ver->version_install_query,
-                    'version_raw_install_query' => $ver->version_raw_install_query,
-                    'version_upgrade_file' => $ver->version_upgrade_file,
-                    'version_upgrade_query' => $ver->version_upgrade_query,
-                    'version_raw_upgrade_query' => $ver->version_raw_upgrade_query,
-                    'version_install_limit' => $ver->version_install_limit,
-                    'version_install_count' => $ver->version_install_count ?? 0,
-                    'version_upgrade_limit' => $ver->version_upgrade_limit,
-                    'version_upgrade_count' => $ver->version_upgrade_count ?? 0,
-                    'version_changelog' => $ver->version_changelog,
-                    'version_date' => $ver->version_date,
-                    'version_expire_date' => $ver->version_expire_date,
-                    'version_comments' => $ver->version_comments,
-                    'version_status' => $ver->version_status ?? 1,
-                    'expired' => $ver->expired ?? null,
-                    'created_at' => $ver->created_at ?? now(),
-                    'updated_at' => $ver->updated_at ?? now(),
-                ]);
-                $this->versionMap[$ver->version_id] = $newId;
-                $count++;
-            } catch (\Exception $e) {
-                $this->warn("  Skipping version #{$ver->version_id}: ".$e->getMessage());
+                try {
+                    $newId = DB::table('product_versions')->insertGetId([
+                        'product_id' => $newProductId,
+                        'version_number' => $ver->version_number,
+                        'version_install_file' => $ver->version_install_file,
+                        'version_upgrade_file' => $ver->version_upgrade_file,
+                        'version_changelog' => $ver->version_changelog,
+                        'version_date' => $this->cleanDate($ver->version_date),
+                        'version_expire_date' => $this->cleanDate($ver->version_expire_date),
+                        'version_status' => $ver->version_status ?? 1,
+                        'created_at' => $ver->created_at ?? now(),
+                        'updated_at' => $ver->updated_at ?? now(),
+                    ]);
+                    $this->versionMap[$ver->version_id] = $newId;
+                    $count++;
+                } catch (\Exception $e) {
+                    $this->warn("  Skipping version #{$ver->version_id}: ".$e->getMessage());
+                }
             }
-        }
+        });
 
         $this->info("  Migrated {$count} versions");
     }
 
     private function migrateVersionCallbacks(): void
     {
-        $callbacks = $this->licenseDb()->table('afu_callbacks')->get();
         $count = 0;
 
-        foreach ($callbacks as $cb) {
-            $newProductId = $this->productMap[$cb->product_id] ?? null;
-            $newVersionId = $this->versionMap[$cb->version_id] ?? null;
+        $this->licenseDb()->table('afu_callbacks')->orderBy('callback_id')->chunk(self::CHUNK_SIZE, function ($callbacks) use (&$count) {
+            $batch = [];
 
-            if (! $newProductId) {
-                continue;
+            foreach ($callbacks as $cb) {
+                $newProductId = $this->productMap[$cb->product_id] ?? null;
+                if (! $newProductId) {
+                    continue;
+                }
+
+                $batch[] = [
+                    'product_id' => $newProductId,
+                    'version_id' => $this->versionMap[$cb->version_id] ?? null,
+                    'callback_type' => $cb->callback_type,
+                    'callback_ip' => $cb->callback_ip,
+                    'callback_path' => $cb->callback_path,
+                    'callback_date_time' => $this->cleanDate($cb->callback_date_time),
+                    'callback_status' => $cb->callback_status ?? 1,
+                    'created_at' => $cb->created_at ?? now(),
+                    'updated_at' => $cb->updated_at ?? now(),
+                ];
             }
 
-            DB::table('version_callbacks')->insert([
-                'product_id' => $newProductId,
-                'version_id' => $newVersionId,
-                'callback_type' => $cb->callback_type,
-                'callback_ip' => $cb->callback_ip,
-                'callback_path' => $cb->callback_path,
-                'callback_date_time' => $cb->callback_date_time,
-                'callback_status' => $cb->callback_status ?? 1,
-                'created_at' => $cb->created_at ?? now(),
-                'updated_at' => $cb->updated_at ?? now(),
-            ]);
-            $count++;
-        }
+            if (! empty($batch)) {
+                $this->bulkInsert('version_callbacks', $batch);
+                $count += count($batch);
+            }
+        });
 
         $this->info("  Migrated {$count} version callbacks");
     }
 
     private function migrateVersionInstallations(): void
     {
-        $installations = $this->licenseDb()->table('afu_installations')->get();
         $count = 0;
 
-        foreach ($installations as $inst) {
-            $newProductId = $this->productMap[$inst->product_id] ?? null;
-            $newVersionId = $this->versionMap[$inst->version_id] ?? null;
+        $this->licenseDb()->table('afu_installations')->orderBy('installation_id')->chunk(self::CHUNK_SIZE, function ($installations) use (&$count) {
+            $batch = [];
 
-            if (! $newProductId || ! $newVersionId) {
-                continue;
+            foreach ($installations as $inst) {
+                $newProductId = $this->productMap[$inst->product_id] ?? null;
+                $newVersionId = $this->versionMap[$inst->version_id] ?? null;
+
+                if (! $newProductId || ! $newVersionId) {
+                    continue;
+                }
+
+                $batch[] = [
+                    'product_id' => $newProductId,
+                    'user_id' => null,
+                    'version_id' => $newVersionId,
+                    'installation_date' => $this->cleanDate($inst->installation_date),
+                    'installation_status' => $inst->installation_status ?? 1,
+                    'created_at' => $inst->created_at ?? now(),
+                    'updated_at' => $inst->updated_at ?? now(),
+                ];
             }
 
-            DB::table('version_installations')->insert([
-                'product_id' => $newProductId,
-                'version_id' => $newVersionId,
-                'installation_ip' => $inst->installation_ip,
-                'installation_path' => $inst->installation_path ?? null,
-                'installation_date' => $inst->installation_date,
-                'installation_status' => $inst->installation_status ?? 1,
-                'created_at' => $inst->created_at ?? now(),
-                'updated_at' => $inst->updated_at ?? now(),
-            ]);
-            $count++;
-        }
+            if (! empty($batch)) {
+                $this->bulkInsert('version_installations', $batch);
+                $count += count($batch);
+            }
+        });
 
         $this->info("  Migrated {$count} version installations");
     }
@@ -600,28 +685,19 @@ class LicenseDataMigration extends Command
             return;
         }
 
-        // Map columns exactly as they exist in afu_notifications
+        // Map source columns to the destination schema
         DB::table('version_notifications')->insert([
-            'notification_operation_ok' => $n->notification_operation_ok ?? '',
-            'notification_product_not_found' => $n->notification_product_not_found ?? '',
-            'notification_product_inactive' => $n->notification_product_inactive ?? '',
-            'notification_product_no_versions' => $n->notification_product_no_versions ?? '',
+            'notification_version_ok' => $n->notification_operation_ok ?? '',
             'notification_version_not_found' => $n->notification_version_not_found ?? '',
-            'notification_version_inactive' => $n->notification_version_inactive ?? '',
-            'notification_version_expired' => $n->notification_version_expired ?? '',
-            'notification_install_limit_reached' => $n->notification_install_limit_reached ?? '',
-            'notification_upgrade_limit_reached' => $n->notification_upgrade_limit_reached ?? '',
-            'notification_install_archive_not_found' => $n->notification_install_archive_not_found ?? '',
-            'notification_install_query_not_found' => $n->notification_install_query_not_found ?? '',
-            'notification_upgrade_archive_not_found' => $n->notification_upgrade_archive_not_found ?? '',
-            'notification_upgrade_query_not_found' => $n->notification_upgrade_query_not_found ?? '',
-            'notification_raw_install_query_not_found' => $n->notification_raw_install_query_not_found ?? '',
-            'notification_raw_upgrade_query_not_found' => $n->notification_raw_upgrade_query_not_found ?? '',
-            'notification_installation_not_verified' => $n->notification_installation_not_verified ?? '',
-            'notification_invalid_parameter' => $n->notification_invalid_parameter ?? '',
-            'notification_invalid_signature' => $n->notification_invalid_signature ?? '',
-            'notification_host_banned' => $n->notification_host_banned ?? '',
-            'notification_unknown_error' => $n->notification_unknown_error ?? '',
+            'notification_update_available' => '',
+            'notification_no_update' => $n->notification_product_no_versions ?? '',
+            'notification_update_failed' => $n->notification_unknown_error ?? '',
+            'notification_invalid_request' => $n->notification_invalid_parameter ?? '',
+            'notification_banned_host' => $n->notification_host_banned ?? '',
+            'notification_connection_ok' => '',
+            'notification_connection_failed' => '',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         $this->info('  Migrated 1 version notification record');
@@ -629,116 +705,137 @@ class LicenseDataMigration extends Command
 
     private function migrateLicensePlugins(): void
     {
-        $plugins = $this->licenseDb()->table('license_plugins')->get();
         $count = 0;
 
-        foreach ($plugins as $plugin) {
-            $newLicenseId = $this->licenseMap[$plugin->license_id] ?? null;
-            $newProductId = $this->productMap[$plugin->product_id] ?? null;
+        $this->licenseDb()->table('license_plugins')->orderBy('id')->chunk(self::CHUNK_SIZE, function ($plugins) use (&$count) {
+            $batch = [];
 
-            if (! $newLicenseId || ! $newProductId) {
-                continue;
+            foreach ($plugins as $plugin) {
+                $newLicenseId = $this->licenseMap[$plugin->license_id] ?? null;
+                $newProductId = $this->productMap[$plugin->product_id] ?? null;
+
+                if (! $newLicenseId || ! $newProductId) {
+                    continue;
+                }
+
+                $batch[] = [
+                    'license_id' => $newLicenseId,
+                    'product_id' => $newProductId,
+                    'created_at' => $plugin->created_at ?? now(),
+                    'updated_at' => $plugin->updated_at ?? now(),
+                ];
             }
 
-            DB::table('license_plugins')->insert([
-                'license_id' => $newLicenseId,
-                'product_id' => $newProductId,
-                'created_at' => $plugin->created_at ?? now(),
-                'updated_at' => $plugin->updated_at ?? now(),
-            ]);
-            $count++;
-        }
+            if (! empty($batch)) {
+                $this->bulkInsert('license_plugins', $batch, true);
+                $count += count($batch);
+            }
+        });
 
         $this->info("  Migrated {$count} plugins");
     }
 
     private function migrateLicenseOptions(): void
     {
-        $options = $this->licenseDb()->table('license_options')->get();
         $count = 0;
 
-        foreach ($options as $opt) {
-            $newLicenseId = $this->licenseMap[$opt->license_id] ?? null;
-            $newProductId = $this->productMap[$opt->product_id] ?? null;
+        $this->licenseDb()->table('license_options')->orderBy('id')->chunk(self::CHUNK_SIZE, function ($options) use (&$count) {
+            $batch = [];
 
-            if (! $newLicenseId || ! $newProductId) {
-                continue;
+            foreach ($options as $opt) {
+                $newLicenseId = $this->licenseMap[$opt->license_id] ?? null;
+                $newProductId = $this->productMap[$opt->product_id] ?? null;
+
+                if (! $newLicenseId || ! $newProductId) {
+                    continue;
+                }
+
+                $batch[] = [
+                    'license_id' => $newLicenseId,
+                    'product_id' => $newProductId,
+                    'option_group' => $opt->option_group ?? '',
+                    'option_name' => $opt->option_name ?? '',
+                    'key' => $opt->key ?? '',
+                    'value' => $opt->value ?? '',
+                    'created_at' => $opt->created_at ?? now(),
+                    'updated_at' => $opt->updated_at ?? now(),
+                ];
             }
 
-            DB::table('license_options')->insert([
-                'license_id' => $newLicenseId,
-                'product_id' => $newProductId,
-                'option_group' => $opt->option_group ?? '',
-                'option_name' => $opt->option_name ?? '',
-                'key' => $opt->key ?? '',
-                'value' => $opt->value ?? '',
-                'created_at' => $opt->created_at ?? now(),
-                'updated_at' => $opt->updated_at ?? now(),
-            ]);
-            $count++;
-        }
+            if (! empty($batch)) {
+                $this->bulkInsert('license_options', $batch);
+                $count += count($batch);
+            }
+        });
 
         $this->info("  Migrated {$count} options");
     }
 
     private function migrateInstallationLogs(): void
     {
-        $logs = $this->licenseDb()->table('installation_logs')->get();
         $count = 0;
 
-        foreach ($logs as $log) {
-            DB::table('installation_logs')->insert([
-                'license_code' => $log->license_code,
-                'version_number' => $log->version_number ?? null,
-                'installation_ip' => $log->installation_ip,
-                'installation_domain' => $log->installation_domain ?? '',
-                'installation_last_active_date' => $log->installation_last_active_date,
-                'installation_status' => $log->installation_status ?? 1,
-                'created_at' => $log->created_at ?? now(),
-                'updated_at' => $log->updated_at ?? now(),
-            ]);
-            $count++;
-        }
+        $this->licenseDb()->table('installation_logs')->orderBy('id')->chunk(self::CHUNK_SIZE, function ($logs) use (&$count) {
+            $batch = [];
+
+            foreach ($logs as $log) {
+                $batch[] = [
+                    'license_code' => $log->license_code,
+                    'version_number' => $log->version_number ?? null,
+                    'installation_ip' => $log->installation_ip,
+                    'installation_domain' => $log->installation_domain ?? '',
+                    'installation_last_active_date' => $this->cleanDate($log->installation_last_active_date),
+                    'installation_status' => $log->installation_status ?? 1,
+                    'created_at' => $log->created_at ?? now(),
+                    'updated_at' => $log->updated_at ?? now(),
+                ];
+            }
+
+            if (! empty($batch)) {
+                $this->bulkInsert('installation_logs', $batch);
+                $count += count($batch);
+            }
+        });
 
         $this->info("  Migrated {$count} installation logs");
     }
 
     private function updateProductColumns(): void
     {
-        $licenseProducts = $this->licenseDb()->table('afl_products')->whereNull('deleted_at')->get();
+        // Pre-load afu_products keyed by SKU to avoid N+1 queries
+        $afuProducts = $this->licenseDb()->table('afu_products')->get()->keyBy('product_sku');
         $count = 0;
 
-        foreach ($licenseProducts as $lp) {
-            $billingProductId = $this->productMap[$lp->product_id] ?? null;
-            if (! $billingProductId) {
-                continue;
-            }
-
-            $updateData = array_filter([
-                'product_url_homepage' => $lp->product_url_homepage,
-                'product_url_download' => $lp->product_url_download,
-                'product_envato_id' => $lp->product_envato_id,
-            ], fn ($v) => $v !== null);
-
-            // Also check afu_products for product_key and max_active_versions
-            $afuProduct = $this->licenseDb()->table('afu_products')
-                ->where('product_sku', $lp->product_sku)
-                ->first();
-
-            if ($afuProduct) {
-                if ($afuProduct->product_key) {
-                    $updateData['product_key'] = $afuProduct->product_key;
+        $this->licenseDb()->table('afl_products')->whereNull('deleted_at')->orderBy('product_id')->chunk(self::CHUNK_SIZE, function ($licenseProducts) use ($afuProducts, &$count) {
+            foreach ($licenseProducts as $lp) {
+                $billingProductId = $this->productMap[$lp->product_id] ?? null;
+                if (! $billingProductId) {
+                    continue;
                 }
-                if ($afuProduct->product_max_active_versions) {
-                    $updateData['product_max_active_versions'] = $afuProduct->product_max_active_versions;
+
+                $updateData = array_filter([
+                    'product_url_homepage' => $lp->product_url_homepage,
+                    'product_url_download' => $lp->product_url_download,
+                    'product_envato_id' => $lp->product_envato_id,
+                ], fn ($v) => $v !== null);
+
+                $afuProduct = $afuProducts[$lp->product_sku] ?? null;
+
+                if ($afuProduct) {
+                    if ($afuProduct->product_key) {
+                        $updateData['product_key'] = $afuProduct->product_key;
+                    }
+                    if ($afuProduct->product_max_active_versions) {
+                        $updateData['product_max_active_versions'] = $afuProduct->product_max_active_versions;
+                    }
+                }
+
+                if (! empty($updateData)) {
+                    DB::table('products')->where('id', $billingProductId)->update($updateData);
+                    $count++;
                 }
             }
-
-            if (! empty($updateData)) {
-                DB::table('products')->where('id', $billingProductId)->update($updateData);
-                $count++;
-            }
-        }
+        });
 
         $this->info("  Updated {$count} products with license-specific columns");
     }

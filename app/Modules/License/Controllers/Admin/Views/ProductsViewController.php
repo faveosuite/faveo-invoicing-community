@@ -106,7 +106,7 @@ class ProductsViewController extends Controller
                     ->orWhere('version_status', 'LIKE', '%'.statusFormatter($searchQuery).'%')
                     ->orWhere('version_date', 'like', '%'.$searchQuery.'%');
             })
-            ->select('version_id', 'id', 'version_number', 'version_date', 'version_upgrade_count', 'version_status')
+            ->select('id', 'version_number', 'version_date', 'version_status')
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 

@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('version_callbacks', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('product_id');
-            $table->unsignedBigInteger('version_id');
+            $table->unsignedBigInteger('version_id')->nullable();
             $table->string('callback_type');
             $table->string('callback_ip')->nullable();
             $table->string('callback_path')->nullable();

@@ -16,12 +16,12 @@ class VersionsController extends Controller
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
         $versions = DB::table('product_versions')
-            ->selectRaw('product_versions.version_id, product_versions.id, product_versions.product_id, product_versions.version_number, product_versions.version_date, product_versions.version_upgrade_count, product_versions.version_status, products.name as product_title')
+            ->selectRaw('product_versions.id, product_versions.product_id, product_versions.version_number, product_versions.version_date, product_versions.version_status, products.name as product_title')
             ->leftJoin('products', 'product_versions.product_id', '=', 'products.id')
             ->selectSub(function ($query) {
                 $query->selectRaw('COUNT(*)')
                     ->from('version_callbacks')
-                    ->whereColumn('version_callbacks.version_id', 'product_versions.version_id');
+                    ->whereColumn('version_callbacks.version_id', 'product_versions.id');
             }, 'callback_count')
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($q) use ($searchQuery) {

@@ -14,27 +14,15 @@ class ProductVersion extends Model
         'product_id',
         'version_number',
         'version_install_file',
-        'version_install_query',
-        'version_raw_install_query',
         'version_upgrade_file',
-        'version_upgrade_query',
-        'version_raw_upgrade_query',
-        'version_install_limit',
-        'version_install_count',
-        'version_upgrade_limit',
-        'version_upgrade_count',
         'version_changelog',
         'version_date',
         'version_expire_date',
-        'version_comments',
         'version_status',
-        'expired',
     ];
 
     protected $casts = [
-        'version_status' => 'integer',
         'product_id' => 'integer',
-        'expired' => 'integer',
     ];
 
     public function product(): BelongsTo

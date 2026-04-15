@@ -49,7 +49,7 @@ class CallBackController extends Controller
         $sortField = $request->input('sort_field', 'id');
         $updateCallbacks = DB::table('version_callbacks')
             ->selectRaw('version_callbacks.id, version_callbacks.version_id, version_callbacks.callback_ip, version_callbacks.callback_type as callback_types, version_callbacks.callback_date_time, version_callbacks.callback_status, products.name as product_title, products.id as product_id, product_versions.version_number')
-            ->leftJoin('product_versions', 'version_callbacks.version_id', '=', 'product_versions.version_id')
+            ->leftJoin('product_versions', 'version_callbacks.version_id', '=', 'product_versions.id')
             ->leftJoin('products', 'product_versions.product_id', '=', 'products.id')
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {

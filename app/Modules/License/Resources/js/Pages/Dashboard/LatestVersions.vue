@@ -36,11 +36,11 @@
 
                             <template v-slot:version_number="props">
 
-                                <router-link :to="'/versions/'+props.row.version_id+'/view'">{{ props.row.version_number }}</router-link>
+                                <router-link :to="'/versions/'+props.row.id+'/view'">{{ props.row.version_number }}</router-link>
                             </template>
 
-                            <template v-slot:product="props">
-                                <a v-if="props.row.product && Array.isArray(props.row.product) && props.row.product[0] && props.row.product[0].name" :href="basePath() + '/products/' + props.row.product[0].id + '/edit'">{{ props.row.product[0].name }}</a>
+                            <template v-slot:product_title="props">
+                                <a v-if="props.row.product_title" :href="basePath() + '/products/' + props.row.product_id + '/edit'">{{ props.row.product_title }}</a>
                                 <span v-else>----</span>
                             </template>
                         </v-client-table>
@@ -62,7 +62,7 @@ export default {
 
         return {
 
-            columns:['product', 'version_number','version_date','version_upgrade_count','version_status'],
+            columns:['product_title', 'version_number','version_date','version_status'],
 
             options : {},
 
@@ -82,11 +82,9 @@ export default {
 
             columnsClasses:{
 
-                product: 'product_title',
+                product_title: 'product_title',
 
                 version_number: 'version_number',
-
-                version_upgrade_count: 'version_upgrade_count',
 
                 version_date: 'version_date',
 
@@ -109,11 +107,9 @@ export default {
 
             headings: {
 
-                product: 'Product',
+                product_title: 'Product',
 
                 version_date: 'Released Date',
-
-                version_upgrade_count: 'Upgrades',
 
                 version_number: "Version",
 

@@ -70,11 +70,10 @@ class LicenseViewController extends Controller
         $page = $request->input('page', 1);
         $searchQuery = $request->input('search_query');
         $sortOrder = $request->input('sort_order', 'desc');
-        $sortField = $request->input('sort_field', 'callback_id');
+        $sortField = $request->input('sort_field', 'id');
         $license = DB::table('licenses')->select('id', 'id', 'user_id as client_id', 'license_code')->where('id', $license_id)->first();
-        $licenseCallBacks = LicenseCallback::where('id', $license->id)
-        ->where('client_id', $license->client_id)
-        ->Where('license_code', $license->license_code)
+        $licenseCallBacks = LicenseCallback::where('user_id', $license->client_id)
+        ->where('license_code', $license->license_code)
             ->when($searchQuery, function ($query, $searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
                     $query->where('callback_domain', 'LIKE', '%'.$searchQuery.'%')

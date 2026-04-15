@@ -37,7 +37,7 @@
 
                         <template v-slot:version_number="props">
 
-                            <router-link v-if="props.row.version_number" :to="'/versions/'+props.row.version_id+'/view'">{{ props.row.version_number }}</router-link>
+                            <router-link v-if="props.row.version_number" :to="'/versions/'+props.row.id+'/view'">{{ props.row.version_number }}</router-link>
                             <span v-else>----</span>
                         </template>
                     </v-client-table>
@@ -98,7 +98,7 @@ export default {
 
                 version_expire_date(h,row){
 
-                    return row.version_expire_date
+                    return row.version_expire_date || '----'
                 },
             },
 

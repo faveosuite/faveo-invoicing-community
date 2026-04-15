@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('version_upgrade_file')->nullable();
             $table->text('version_changelog')->nullable();
             $table->timestamp('version_date')->nullable();
+            $table->timestamp('version_expire_date')->nullable();
             $table->string('version_status')->default('active');
             $table->timestamps();
 

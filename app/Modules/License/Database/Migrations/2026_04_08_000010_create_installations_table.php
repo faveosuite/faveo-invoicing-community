@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('installations', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('product_id');
-            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('user_id')->nullable();
             $table->string('license_code')->index();
             $table->string('installation_ip')->nullable();
             $table->string('installation_domain')->nullable();
@@ -27,7 +27,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
             $table->index(['license_code', 'installation_domain']);
         });
     }

@@ -11,7 +11,7 @@ class LicenseCallback extends Model
 
     protected $fillable = [
         'product_id',
-        'client_id',
+        'user_id',
         'license_code',
         'callback_ip',
         'callback_domain',
