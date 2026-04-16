@@ -30,80 +30,120 @@ class DownloadFileController extends Controller
         $product_key = $request->input('product_key');
         $version_number = $request->input('version_number');
         $file_type = $request->input('file_type', 'version_install_file');
+        $user_local_path = $request->input('user_local_path');
+        $script_signature = $request->input('script_signature');
         $ip = $request->ip();
+
+        // Validate basic request
+        if (! $this->validator->isValidAfuRequest($ip, $product_id, $product_key, $user_local_path, $script_signature)) {
+            return $this->notificationResponse('notification_unknown_error', []);
+        }
 
         // Check banned
         if ($this->validator->isBanned($ip)) {
             return $this->notificationResponse('notification_host_banned', []);
         }
 
-        // Find product
+        // Find product (original uses AND for both product_id and product_key)
         $product = Product::where('id', $product_id)
-            ->orWhere('product_key', $product_key)
+            ->where('product_key', $product_key)
             ->first();
 
         if (! $product) {
             return $this->notificationResponse('notification_product_not_found', []);
         }
 
-        // Find version
-        $version = ProductVersion::where('product_id', $product->id)
-            ->where('version_number', $version_number)
-            ->where('version_status', 1)
-            ->first();
-
-        if (! $version) {
-            return $this->notificationResponse('notification_version_not_found', []);
+        // Get specified version or latest active one
+        if (! empty($version_number)) {
+            $version = ProductVersion::where('product_id', $product->id)
+                ->where('version_number', $version_number)
+                ->first();
+        } else {
+            $version = ProductVersion::where('product_id', $product->id)
+                ->where('version_status', 1)
+                ->orderBy('id', 'desc')
+                ->first();
         }
 
-        // Get file path
+        if (! $version) {
+            $notifKey = ! empty($version_number)
+                ? 'notification_version_not_found'
+                : 'notification_product_no_versions';
+
+            return $this->notificationResponse($notifKey, []);
+        }
+
+        // Verify script signature
+        if (! $this->validator->verifyAfuScriptSignature($script_signature, $product_id, $product_key)) {
+            return $this->notificationResponse('notification_invalid_signature', []);
+        }
+
+        // Check version status
+        if ($version->version_status != 1) {
+            return $this->notificationResponse('notification_version_inactive', []);
+        }
+
+        // Check version expiration
+        if ($this->validator->verifyDateTime($version->version_expire_date, 'Y-m-d')
+            && $version->version_expire_date < date('Y-m-d')) {
+            return $this->notificationResponse('notification_version_expired', []);
+        }
+
+        // Validate file_type
         $allowedTypes = [
             'version_install_file', 'version_install_query',
             'version_upgrade_file', 'version_upgrade_query',
         ];
 
-        if (! in_array($file_type, $allowedTypes)) {
+        if (empty($file_type) || ! in_array($file_type, $allowedTypes)) {
             return $this->notificationResponse('notification_invalid_parameter', []);
         }
 
+        // Get file path and validate it exists
         $filePath = $version->{$file_type};
-        if (! $filePath) {
-            $notifKey = str_contains($file_type, 'install')
-                ? 'notification_install_archive_not_found'
-                : 'notification_upgrade_archive_not_found';
+        if (empty($filePath)) {
+            $notifKey = match (true) {
+                $file_type === 'version_install_file' => 'notification_install_archive_not_found',
+                $file_type === 'version_install_query' => 'notification_install_query_not_found',
+                $file_type === 'version_upgrade_file' => 'notification_upgrade_archive_not_found',
+                $file_type === 'version_upgrade_query' => 'notification_upgrade_query_not_found',
+                default => 'notification_unknown_error',
+            };
 
             return $this->notificationResponse($notifKey, []);
         }
 
-        // Check limits
-        if (str_contains($file_type, 'install')) {
-            if ($version->version_install_limit && $version->version_install_count >= $version->version_install_limit) {
+        // Check install/upgrade limits
+        if ($file_type === 'version_install_file') {
+            if ($version->version_install_limit > 0 && $version->version_install_count >= $version->version_install_limit) {
                 return $this->notificationResponse('notification_install_limit_reached', []);
             }
             $version->increment('version_install_count');
-        } else {
-            if ($version->version_upgrade_limit && $version->version_upgrade_count >= $version->version_upgrade_limit) {
+            $callback_type = 2; // installation
+        } elseif ($file_type === 'version_upgrade_file') {
+            if ($version->version_upgrade_limit > 0 && $version->version_upgrade_count >= $version->version_upgrade_limit) {
                 return $this->notificationResponse('notification_upgrade_limit_reached', []);
             }
             $version->increment('version_upgrade_count');
+            $callback_type = 3; // upgrade
+        } else {
+            // Query files: install_query = installation(2), upgrade_query = upgrade(3)
+            $callback_type = str_contains($file_type, 'install') ? 2 : 3;
         }
 
         // Log callback
-        $this->logCallback($product->id, $version->id, 'download', $ip, $request->input('root_url', ''));
+        $this->logCallback($product->id, $version->id, $callback_type, $ip, $user_local_path);
 
-        $responseData = [
-            'product_id' => $product->id,
-            'version_id' => $version->id,
-            'version_number' => $version->version_number,
-            'file_type' => $file_type,
-        ];
+        $responseData = $this->filterSensitiveData(
+            array_merge($product->toArray(), $version->toArray())
+        );
 
         // If file exists on disk, download it
         $fullPath = storage_path('app/'.$filePath);
         if (file_exists($fullPath)) {
             return response()->download($fullPath)
                 ->header('notification_case', 'notification_operation_ok')
-                ->header('notification_server_signature', $this->generateSignature($product->id))
+                ->header('notification_server_signature', $this->generateSignature($product->id, $product_key))
                 ->header('notification_data', json_encode($responseData));
         }
 

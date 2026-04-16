@@ -10,20 +10,24 @@ class InstallationService
 {
     /**
      * Register a new installation.
+     * Original matches on product_id + license_code/client_id + IP + domain + hash.
+     * Uses product_id + installation_ip + installation_domain as the unique key
+     * so the same license can have multiple installations on different domains.
      */
     public function register(array $data): Installation
     {
         return Installation::updateOrCreate(
-            ['license_code' => $data['license_code']],
             [
                 'product_id' => $data['product_id'],
-                'user_id' => $data['user_id'],
+                'license_code' => $data['license_code'],
                 'installation_ip' => $data['installation_ip'] ?? request()->ip(),
                 'installation_domain' => $data['installation_domain'] ?? null,
+            ],
+            [
+                'user_id' => $data['user_id'],
                 'installation_date' => $data['installation_date'] ?? now()->format('Y-m-d'),
                 'installation_status' => $data['installation_status'] ?? 1,
                 'installation_hash' => $data['installation_hash'] ?? null,
-                'installation_disable_ip_verification' => $data['installation_disable_ip_verification'] ?? 0,
             ]
         );
     }

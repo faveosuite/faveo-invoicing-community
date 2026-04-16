@@ -24,6 +24,7 @@ return new class extends Migration
             $table->timestamp('installation_date')->nullable();
             $table->string('installation_status')->default('active');
             $table->string('installation_hash')->nullable();
+            $table->boolean('installation_disable_ip_verification')->default(0);
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');

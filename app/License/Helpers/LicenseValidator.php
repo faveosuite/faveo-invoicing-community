@@ -4,6 +4,7 @@ namespace App\License\Helpers;
 
 use App\License\Models\License;
 use App\License\Models\LicenseBannedHost;
+use App\License\Models\LicensePlugin;
 use App\License\Models\LicenseWhitelistIp;
 use App\Model\Product\Product;
 use App\User;
@@ -11,8 +12,9 @@ use App\User;
 class LicenseValidator
 {
     /**
-     * Validate connection test request
-     * Same logic as original aflCheckSettings + connection validation.
+     * Validate connection test request.
+     * Original checks: valid IP, valid referrer URL, valid integer product_id,
+     * and connection_hash must equal hash('sha256', 'connection_test').
      */
     public function isValidConnection($product_id, ?string $connection_hash): bool
     {
@@ -20,34 +22,24 @@ class LicenseValidator
         $refer = request()->get('refer', request()->header('referer'));
 
         return filter_var($ip, FILTER_VALIDATE_IP) !== false
+            && filter_var($refer, FILTER_VALIDATE_URL) !== false
             && $this->validateIntegerValue($product_id)
-            && ! empty($connection_hash);
+            && ! empty($connection_hash)
+            && $connection_hash === hash('sha256', 'connection_test');
     }
 
     /**
-     * Validate basic license request parameters
-     * Same as original validation in AflCallbacks.
+     * Validate basic license request parameters.
+     * Original checks: valid IP, valid integer product_id, valid URL for root_url,
+     * referrer matches root_url, valid installation_hash, non-empty signature,
+     * and at least license_code or valid email is provided.
      */
-    public function isValidLicenseRequest(string $ip, $product_id, ?string $root_url): bool
+    public function isValidLicenseRequest(string $ip, $product_id, ?string $root_url, ?string $license_code = null, ?string $client_email = null): bool
     {
         return filter_var($ip, FILTER_VALIDATE_IP) !== false
             && $this->validateIntegerValue($product_id)
-            && ! empty($root_url);
-    }
-
-    /**
-     * Validate installation hash
-     * Original: hash('sha256', $refer . $email . $code).
-     */
-    public function isValidInstallationHash(?string $hash, ?string $email, ?string $code): bool
-    {
-        if (empty($hash)) {
-            return false;
-        }
-        $refer = request()->get('refer', request()->header('referer'));
-        $expected = hash('sha256', $refer.$email.$code);
-
-        return hash_equals($expected, $hash);
+            && filter_var($root_url, FILTER_VALIDATE_URL) !== false
+            && (! empty($license_code) || filter_var($client_email, FILTER_VALIDATE_EMAIL) !== false);
     }
 
     /**
@@ -67,17 +59,13 @@ class LicenseValidator
     }
 
     /**
-     * Validate product exists and is active (status = 1).
+     * Validate product exists.
+     * Returns product if found (regardless of status), null if not found.
+     * Controllers check status separately to distinguish not_found vs inactive.
      */
     public function validateProduct($product_id): ?Product
     {
-        $product = Product::find($product_id);
-
-        if (! $product || $product->status != 1) {
-            return null;
-        }
-
-        return $product;
+        return Product::find($product_id);
     }
 
     /**
@@ -227,5 +215,118 @@ class LicenseValidator
         $errors = \DateTime::getLastErrors();
 
         return $dt && empty($errors['warning_count']);
+    }
+
+    /**
+     * Verify script signature received from user's script.
+     * Original: hash('sha256', gmdate('Y-m-d') . $root_url . $client_email . $license_code . $product_id . implode('', $root_ips_array))
+     */
+    public function verifyScriptSignature(?string $license_signature, $product_id, ?string $root_url, ?string $client_email, ?string $license_code): bool
+    {
+        if (empty($license_signature)) {
+            return false;
+        }
+
+        $rootUrl = url('/');
+        $rootIps = @gethostbynamel($this->getRawDomain($rootUrl));
+
+        if (empty($rootIps)) {
+            return false;
+        }
+
+        $expected = hash('sha256', gmdate('Y-m-d').$root_url.$client_email.$license_code.$product_id.implode('', $rootIps));
+
+        return hash_equals($expected, $license_signature);
+    }
+
+    /**
+     * Find license by license_code, with LicensePlugin multi-product support.
+     * Original logic: first check license_code + product_id, then check if product_id
+     * is in the LicensePlugin table for that license.
+     */
+    public function findLicenseWithPlugins(?string $license_code, int $product_id): ?License
+    {
+        if (empty($license_code)) {
+            return null;
+        }
+
+        // Direct match: license_code + product_id
+        $license = License::where('license_code', $license_code)
+            ->where('product_id', $product_id)
+            ->first();
+
+        if ($license) {
+            return $license;
+        }
+
+        // Check LicensePlugin: license may cover this product via plugin
+        $baseLicense = License::where('license_code', $license_code)->first();
+        if (! $baseLicense) {
+            return null;
+        }
+
+        $pluginProductIds = LicensePlugin::where('license_id', $baseLicense->id)
+            ->pluck('product_id')
+            ->toArray();
+
+        if (in_array($product_id, $pluginProductIds)) {
+            // Return the base license but associate it with the requested product_id
+            $baseLicense->product_id = $product_id;
+
+            return $baseLicense;
+        }
+
+        return null;
+    }
+
+    /**
+     * Validate installation hash.
+     * Original: hash('sha256', $root_url . $client_email . $license_code)
+     */
+    public function validateInstallationHash(?string $hash, ?string $root_url, ?string $client_email, ?string $license_code): bool
+    {
+        if (empty($hash)) {
+            return false;
+        }
+
+        $expected = hash('sha256', $root_url.$client_email.$license_code);
+
+        return hash_equals($expected, $hash);
+    }
+
+    /**
+     * Verify AFU (Auto Faveo Updater) script signature.
+     * Original: hash('sha256', gmdate('Y-m-d') . $product_id . $product_key . implode('', $root_ips_array))
+     */
+    public function verifyAfuScriptSignature(?string $script_signature, $product_id, ?string $product_key): bool
+    {
+        if (empty($script_signature)) {
+            return false;
+        }
+
+        $rootUrl = url('/');
+        $rootIps = @gethostbynamel($this->getRawDomain($rootUrl));
+
+        if (empty($rootIps)) {
+            return false;
+        }
+
+        $expected = hash('sha256', gmdate('Y-m-d').$product_id.$product_key.implode('', $rootIps));
+
+        return hash_equals($expected, $script_signature);
+    }
+
+    /**
+     * Validate basic AFU (version/update) request parameters.
+     * Original checks: valid IP, valid integer product_id, non-empty product_key,
+     * non-empty user_local_path, non-empty script_signature.
+     */
+    public function isValidAfuRequest(string $ip, $product_id, ?string $product_key, ?string $user_local_path, ?string $script_signature): bool
+    {
+        return filter_var($ip, FILTER_VALIDATE_IP) !== false
+            && $this->validateIntegerValue($product_id)
+            && ! empty($product_key)
+            && ! empty($user_local_path)
+            && ! empty($script_signature);
     }
 }

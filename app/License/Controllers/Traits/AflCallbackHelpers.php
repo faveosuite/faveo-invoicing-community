@@ -11,6 +11,9 @@ trait AflCallbackHelpers
     /**
      * Build notification response with headers.
      * Original format: empty JSON body + notification_* headers.
+     * Matches returnServerNotification() from original:
+     * - Fetches notification text from DB and replaces placeholders
+     * - Only sends notification_data when notification_case is 'notification_license_ok'
      */
     protected function notificationResponse(
         string $notificationCase,
@@ -22,13 +25,23 @@ trait AflCallbackHelpers
     ) {
         $notification = LicenseNotification::first();
         $notificationText = $notification ? ($notification->{$notificationCase} ?? $notificationCase) : $notificationCase;
+
+        // Replace placeholders in notification text (matching original)
+        $ip = request()->ip();
+        $placeholders = ['%ROOT_URL%', '%IP_ADDRESS%', '%CLIENT_EMAIL%', '%LICENSE_CODE%', '%PRODUCT_ID%'];
+        $replacements = [$root_url ?? '', $ip, $client_email ?? '', $license_code ?? '', $product_id ?? ''];
+        $notificationText = str_ireplace($placeholders, $replacements, $notificationText);
+
         $signature = $this->generateServerSignature($product_id, $root_url, $client_email, $license_code);
+
+        // Original only returns notification_data when everything is OK
+        $responseData = ($notificationCase === 'notification_license_ok') ? $data : '';
 
         return response()->json([])
             ->header('notification_case', $notificationCase)
             ->header('notification_text', $notificationText)
             ->header('notification_server_signature', $signature)
-            ->header('notification_data', json_encode($data));
+            ->header('notification_data', json_encode($responseData));
     }
 
     /**

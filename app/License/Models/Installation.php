@@ -18,6 +18,7 @@ class Installation extends Model
         'installation_date',
         'installation_status',
         'installation_hash',
+        'installation_disable_ip_verification',
     ];
 
     protected $casts = [

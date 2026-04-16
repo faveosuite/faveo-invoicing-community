@@ -27,6 +27,7 @@ class InstallationRequest extends FormRequest
             'installation_ip' => 'string|unique:afl_installations,installation_ip',
             'installation_status' => 'boolean',
             'installation_disable_ip_verification' => 'boolean',
+            'installation_disable_ip' => 'boolean',
 
         ];
     }
