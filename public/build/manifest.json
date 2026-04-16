@@ -1,20 +1,36 @@
 {
-  "app/Modules/License/Resources/css/app.scss": {
+  "../../../../root/.yarn/berry/cache/intl-tel-input-npm-25.15.1-01afeed408-10c0.zip/node_modules/intl-tel-input/build/img/flags.webp": {
+    "file": "assets/flags-a2kmUSbF.webp",
+    "src": "../../../../root/.yarn/berry/cache/intl-tel-input-npm-25.15.1-01afeed408-10c0.zip/node_modules/intl-tel-input/build/img/flags.webp"
+  },
+  "../../../../root/.yarn/berry/cache/intl-tel-input-npm-25.15.1-01afeed408-10c0.zip/node_modules/intl-tel-input/build/img/flags@2x.webp": {
+    "file": "assets/flags@2x-gR6KPp3x.webp",
+    "src": "../../../../root/.yarn/berry/cache/intl-tel-input-npm-25.15.1-01afeed408-10c0.zip/node_modules/intl-tel-input/build/img/flags@2x.webp"
+  },
+  "../../../../root/.yarn/berry/cache/intl-tel-input-npm-25.15.1-01afeed408-10c0.zip/node_modules/intl-tel-input/build/img/globe.webp": {
+    "file": "assets/globe-CKC-qWvL.webp",
+    "src": "../../../../root/.yarn/berry/cache/intl-tel-input-npm-25.15.1-01afeed408-10c0.zip/node_modules/intl-tel-input/build/img/globe.webp"
+  },
+  "../../../../root/.yarn/berry/cache/intl-tel-input-npm-25.15.1-01afeed408-10c0.zip/node_modules/intl-tel-input/build/img/globe@2x.webp": {
+    "file": "assets/globe@2x-CEs4Xftd.webp",
+    "src": "../../../../root/.yarn/berry/cache/intl-tel-input-npm-25.15.1-01afeed408-10c0.zip/node_modules/intl-tel-input/build/img/globe@2x.webp"
+  },
+  "app/License/Resources/css/app.scss": {
     "file": "assets/app-BwJ3ScXn.css",
-    "src": "app/Modules/License/Resources/css/app.scss",
+    "src": "app/License/Resources/css/app.scss",
     "isEntry": true,
     "name": "app",
     "names": [
       "app.css"
     ]
   },
-  "app/Modules/License/Resources/js/app.js": {
-    "file": "assets/app-DUL3Aiwq.js",
+  "app/License/Resources/js/app.js": {
+    "file": "assets/app-De69oHBU.js",
     "name": "app",
-    "src": "app/Modules/License/Resources/js/app.js",
+    "src": "app/License/Resources/js/app.js",
     "isEntry": true,
     "css": [
-      "assets/app-BvnPQzAf.css"
+      "assets/app-DkltN-7V.css"
     ],
     "assets": [
       "assets/flags-a2kmUSbF.webp",
@@ -22,21 +38,5 @@
       "assets/globe-CKC-qWvL.webp",
       "assets/globe@2x-CEs4Xftd.webp"
     ]
-  },
-  "node_modules/intl-tel-input/build/img/flags.webp": {
-    "file": "assets/flags-a2kmUSbF.webp",
-    "src": "node_modules/intl-tel-input/build/img/flags.webp"
-  },
-  "node_modules/intl-tel-input/build/img/flags@2x.webp": {
-    "file": "assets/flags@2x-gR6KPp3x.webp",
-    "src": "node_modules/intl-tel-input/build/img/flags@2x.webp"
-  },
-  "node_modules/intl-tel-input/build/img/globe.webp": {
-    "file": "assets/globe-CKC-qWvL.webp",
-    "src": "node_modules/intl-tel-input/build/img/globe.webp"
-  },
-  "node_modules/intl-tel-input/build/img/globe@2x.webp": {
-    "file": "assets/globe@2x-CEs4Xftd.webp",
-    "src": "node_modules/intl-tel-input/build/img/globe@2x.webp"
   }
 }

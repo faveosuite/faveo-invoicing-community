@@ -60,10 +60,10 @@ trait UpdateDates
         $licenseExpiry = strtotime($licenseSupportExpiry->ends_at) > 1 ? date('Y-m-d', strtotime($licenseSupportExpiry->ends_at)) : '';
         $supportExpiry = strtotime($licenseSupportExpiry->support_ends_at) > 1 ? date('Y-m-d', strtotime($licenseSupportExpiry->support_ends_at)) : '';
         $expiryDate = strtotime($expiryDate) > 1 ? date('Y-m-d', strtotime($expiryDate)) : '';
-        $installService = app(\App\Modules\License\Services\InstallationService::class);
-        $licenseService = app(\App\Modules\License\Services\LicenseService::class);
+        $installService = app(\App\License\Services\InstallationService::class);
+        $licenseService = app(\App\License\Services\LicenseService::class);
         $noOfAllowedInstallation = $installService->countActiveInstallations($order->serial_key);
-        $ipAndDomain = \App\Modules\License\Services\LicenseService::parseIpAndDomain($order->domain);
+        $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($order->domain);
         $existingLicense = $licenseService->findByCode($order->serial_key);
         if ($existingLicense) {
             $licenseService->update($existingLicense->id, [
@@ -127,10 +127,10 @@ trait UpdateDates
         $expiryDate = strtotime($updatesSupportExpiry->update_ends_at) > 1 ? date('Y-m-d', strtotime($updatesSupportExpiry->update_ends_at)) : '';
         $supportExpiry = strtotime($updatesSupportExpiry->support_ends_at) > 1 ? date('Y-m-d', strtotime($updatesSupportExpiry->support_ends_at)) : '';
         $licenseExpiry = strtotime($date) > 1 ? date('Y-m-d', strtotime($date)) : '';
-        $installService = app(\App\Modules\License\Services\InstallationService::class);
-        $licenseService = app(\App\Modules\License\Services\LicenseService::class);
+        $installService = app(\App\License\Services\InstallationService::class);
+        $licenseService = app(\App\License\Services\LicenseService::class);
         $noOfAllowedInstallation = $installService->countActiveInstallations($order->serial_key);
-        $ipAndDomain = \App\Modules\License\Services\LicenseService::parseIpAndDomain($order->domain);
+        $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($order->domain);
         $existingLicense = $licenseService->findByCode($order->serial_key);
         if ($existingLicense) {
             $licenseService->update($existingLicense->id, [
@@ -194,10 +194,10 @@ trait UpdateDates
         $expiryDate = strtotime($updatesLicenseExpiry->update_ends_at) > 1 ? date('Y-m-d', strtotime($updatesLicenseExpiry->update_ends_at)) : '';
         $licenseExpiry = strtotime($updatesLicenseExpiry->ends_at) > 1 ? date('Y-m-d', strtotime($updatesLicenseExpiry->ends_at)) : '';
         $supportExpiry = strtotime($date) > 1 ? date('Y-m-d', strtotime($date)) : '';
-        $installService = app(\App\Modules\License\Services\InstallationService::class);
-        $licenseService = app(\App\Modules\License\Services\LicenseService::class);
+        $installService = app(\App\License\Services\InstallationService::class);
+        $licenseService = app(\App\License\Services\LicenseService::class);
         $noOfAllowedInstallation = $installService->countActiveInstallations($order->serial_key);
-        $ipAndDomain = \App\Modules\License\Services\LicenseService::parseIpAndDomain($order->domain);
+        $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($order->domain);
         $existingLicense = $licenseService->findByCode($order->serial_key);
         if ($existingLicense) {
             $licenseService->update($existingLicense->id, [
@@ -235,8 +235,8 @@ trait UpdateDates
         $expiryDate = $updatesLicenseExpiry->update_ends_at;
         $licenseExpiry = $updatesLicenseExpiry->ends_at;
         $supportExpiry = $updatesLicenseExpiry->support_ends_at;
-        $licenseService = app(\App\Modules\License\Services\LicenseService::class);
-        $ipAndDomain = \App\Modules\License\Services\LicenseService::parseIpAndDomain($order->domain);
+        $licenseService = app(\App\License\Services\LicenseService::class);
+        $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($order->domain);
         $l_expiry = strtotime($licenseExpiry) > 1 ? date('Y-m-d', strtotime($licenseExpiry)) : '';
         $u_expiry = strtotime($expiryDate) > 1 ? date('Y-m-d', strtotime($expiryDate)) : '';
         $s_expiry = strtotime($supportExpiry) > 1 ? date('Y-m-d', strtotime($supportExpiry)) : '';

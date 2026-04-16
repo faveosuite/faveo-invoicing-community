@@ -530,7 +530,7 @@ class TenantController extends Controller
                     $this->statusChange($request->orderId);
                 }
 //                (empty($request->orderId)) ?: Order::where('number', $request->get('orderId'))->delete();
-                app(\App\Modules\License\Services\InstallationService::class)->reissue($request->input('id'));
+                app(\App\License\Services\InstallationService::class)->reissue($request->input('id'));
 
                 $loggingUser = \Auth::check()
                     ? "<a href='".url('clients/'.\Auth::id())."'>".\Auth::user()->first_name.' '.\Auth::user()->last_name.'</a>'
@@ -689,11 +689,11 @@ class TenantController extends Controller
         $licenseExpiry = $order->subscription->ends_at;
         $updatesExpiry = $order->subscription->update_ends_at;
         $supportExpiry = $order->subscription->support_ends_at;
-        $ipAndDomain = \App\Modules\License\Services\LicenseService::parseIpAndDomain($order->domain);
+        $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($order->domain);
         $l_expiry = strtotime($licenseExpiry) > 1 ? date('Y-m-d', strtotime($licenseExpiry)) : '';
         $u_expiry = strtotime($updatesExpiry) > 1 ? date('Y-m-d', strtotime($updatesExpiry)) : '';
         $s_expiry = strtotime($supportExpiry) > 1 ? date('Y-m-d', strtotime($supportExpiry)) : '';
-        $licenseService = app(\App\Modules\License\Services\LicenseService::class);
+        $licenseService = app(\App\License\Services\LicenseService::class);
         $existingLicense = $licenseService->findByCode($licenseCode);
         if ($existingLicense) {
             $licenseService->update($existingLicense->id, [
@@ -707,7 +707,7 @@ class TenantController extends Controller
             ]);
         }
         //Now make Installation status as inactive
-        app(\App\Modules\License\Services\InstallationService::class)->updateByLicenseCode($licenseCode, ['installation_status' => 0]);
+        app(\App\License\Services\InstallationService::class)->updateByLicenseCode($licenseCode, ['installation_status' => 0]);
 
         return ['message' => 'success', 'update' => __('message.license_installations_removed')];
     }

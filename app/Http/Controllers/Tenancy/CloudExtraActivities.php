@@ -845,7 +845,7 @@ class CloudExtraActivities extends Controller
             }
 
             $license_code = substr($oldLicense, 0, -4).$lastFour;
-            app(\App\Modules\License\Services\LicenseService::class)->updateLicenseCode($oldLicense, $license_code);
+            app(\App\License\Services\LicenseService::class)->updateLicenseCode($oldLicense, $license_code);
             Order::where('id', $orderId)->update(['serial_key' => \Crypt::encrypt(substr($license_code, 0, 12).$lastFour)]);
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
             $token = str_random(32);

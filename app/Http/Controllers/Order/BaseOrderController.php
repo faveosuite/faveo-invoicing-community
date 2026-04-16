@@ -129,7 +129,7 @@ class BaseOrderController extends ExtendedOrderController
 
                 $options = $this->formatConfigurableOptions($product)->toArray();
 
-                app(\App\Modules\License\Services\LicenseService::class)->syncAddons($serial_key, explode(',', $addOnIds), $options);
+                app(\App\License\Services\LicenseService::class)->syncAddons($serial_key, explode(',', $addOnIds), $options);
             }
 
             if (emailSendingStatus()) {
@@ -226,8 +226,8 @@ class BaseOrderController extends ExtendedOrderController
                 'plan_id' => $planid, 'order_id' => $orderid, 'update_ends_at' => $updatesExpiry, 'ends_at' => $licenseExpiry, 'support_ends_at' => $supportExpiry, 'version' => $version, 'product_id' => $product, 'is_subscribed' => '0']);
 
             $order = \App\Model\Order\Order::find($orderid);
-            $ipAndDomain = \App\Modules\License\Services\LicenseService::parseIpAndDomain($order->domain ?? '');
-            app(\App\Modules\License\Services\LicenseService::class)->create([
+            $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($order->domain ?? '');
+            app(\App\License\Services\LicenseService::class)->create([
                 'product_id' => $product,
                 'user_id' => $user_id,
                 'license_code' => $serial_key,

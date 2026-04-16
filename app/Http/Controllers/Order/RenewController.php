@@ -150,10 +150,10 @@ class RenewController extends BaseRenewController
         $expiryDate = $updatesExpiry ? Carbon::parse($updatesExpiry)->format('Y-m-d') : '';
         $licenseExpiry = $licenseExpiry ? Carbon::parse($licenseExpiry)->format('Y-m-d') : '';
         $supportExpiry = $supportExpiry ? Carbon::parse($supportExpiry)->format('Y-m-d') : '';
-        $installService = app(\App\Modules\License\Services\InstallationService::class);
-        $licenseService = app(\App\Modules\License\Services\LicenseService::class);
+        $installService = app(\App\License\Services\InstallationService::class);
+        $licenseService = app(\App\License\Services\LicenseService::class);
         $noOfAllowedInstallation = $installService->countActiveInstallations($licenseCode);
-        $ipAndDomain = \App\Modules\License\Services\LicenseService::parseIpAndDomain($domain);
+        $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($domain);
         $existingLicense = $licenseService->findByCode($licenseCode);
         if ($existingLicense) {
             $licenseService->update($existingLicense->id, [

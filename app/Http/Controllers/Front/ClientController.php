@@ -978,7 +978,7 @@ class ClientController extends BaseClientController
             $allowDomainStatus = StatusSetting::pluck('domain_check')->first();
             $installationDetails = [];
 
-            $installationDetails = app(\App\Modules\License\Services\InstallationService::class)->getInstallationsByProduct($order->serial_key, $order->product);
+            $installationDetails = app(\App\License\Services\InstallationService::class)->getInstallationsByProduct($order->serial_key, $order->product);
 
             $statusAutorenewal = Subscription::where('order_id', $id)->value('is_subscribed');
 

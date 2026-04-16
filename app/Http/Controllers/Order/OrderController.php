@@ -320,7 +320,7 @@ class OrderController extends BaseOrderController
 
             $installationDetails = [];
 
-            $installationDetails = app(\App\Modules\License\Services\InstallationService::class)->getInstallationsByProduct($order->serial_key, $order->product);
+            $installationDetails = app(\App\License\Services\InstallationService::class)->getInstallationsByProduct($order->serial_key, $order->product);
             if ($installationDetails !== null && ! empty($installationDetails['installed_path'])) {
                 // Loop through each installed_path and corresponding installed_ip
                 for ($i = 0; $i < count($installationDetails['installed_path']); $i++) {
@@ -376,7 +376,7 @@ class OrderController extends BaseOrderController
                 return array_merge($details, ['order_id' => $orderId]);
             }, $combinedDetails);
 
-            $installationLogsDetails = app(\App\Modules\License\Services\InstallationService::class)->getLogs($order->serial_key)['page_message'] ?? [];
+            $installationLogsDetails = app(\App\License\Services\InstallationService::class)->getLogs($order->serial_key)['page_message'] ?? [];
 
             return \DataTables::of($installationLogsDetails)
 
@@ -445,17 +445,17 @@ class OrderController extends BaseOrderController
             }
             $user = $this->user->find($invoice->user_id);
             $installationDetails = [];
-            $licenseService = app(\App\Modules\License\Services\LicenseService::class);
+            $licenseService = app(\App\License\Services\LicenseService::class);
             $licenseRecord = $licenseService->findByCode($order->serial_key);
             $licenseLimit = $licenseRecord ? $licenseRecord->license_limit : 1;
-            $noOfAllowedInstallation = app(\App\Modules\License\Services\InstallationService::class)->countActiveInstallations($order->serial_key);
+            $noOfAllowedInstallation = app(\App\License\Services\InstallationService::class)->countActiveInstallations($order->serial_key);
 
             $allowDomainStatus = StatusSetting::pluck('domain_check')->first();
 
             $licenseStatus = 1;
             $installationDetails = [];
 
-            $installationDetails = app(\App\Modules\License\Services\InstallationService::class)->getInstallationsByProduct($order->serial_key, $order->product);
+            $installationDetails = app(\App\License\Services\InstallationService::class)->getInstallationsByProduct($order->serial_key, $order->product);
             $currency = getCurrencyForClient($user->country);
             $amount = currencyFormat(1, $currency);
             $payment_log = Payment_log::where('order', $order->number)

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\AutoUpdate;
 
 use App\Http\Controllers\Controller;
 use App\Model\Product\Product;
-use App\Modules\License\Services\VersionService;
+use App\License\Services\VersionService;
 
 class AutoUpdateController extends Controller
 {

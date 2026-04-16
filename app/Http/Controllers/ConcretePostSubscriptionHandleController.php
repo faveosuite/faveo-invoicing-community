@@ -149,11 +149,11 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $supportExpiry = $supportExpiry ? Carbon::parse($supportExpiry)->format('Y-m-d') : '';
         $noOfAllowedInstallation = '';
         $getInstallPreference = '';
-        $installService = app(\App\Modules\License\Services\InstallationService::class);
-        $licenseService = app(\App\Modules\License\Services\LicenseService::class);
+        $installService = app(\App\License\Services\InstallationService::class);
+        $licenseService = app(\App\License\Services\LicenseService::class);
         $noOfAllowedInstallation = $installService->countActiveInstallations($licenseCode);
         $getInstallPreference = $licenseService->findByCode($licenseCode)->license_require_domain ?? 1;
-        $ipAndDomain = \App\Modules\License\Services\LicenseService::parseIpAndDomain($domain);
+        $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($domain);
         $existingLicense = $licenseService->findByCode($licenseCode);
         if ($existingLicense) {
             $licenseService->update($existingLicense->id, [

@@ -732,7 +732,7 @@ class HomeController extends BaseHomeController
 
         $licenses = array_merge([$license], $licenses);
 
-        $pluginLicenses = app(\App\Modules\License\Services\LicenseService::class)->getPluginLicenses($licenses);
+        $pluginLicenses = app(\App\License\Services\LicenseService::class)->getPluginLicenses($licenses);
 
         $updatedProducts = [];
         foreach ($pluginLicenses as $real) {

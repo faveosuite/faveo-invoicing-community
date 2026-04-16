@@ -469,7 +469,7 @@ class BaseProductController extends ExtendedBaseProductController
     {
         $license_code = $request->input('license_code');
 
-        $licenseRecord = app(\App\Modules\License\Services\LicenseService::class)->findByCode($license_code);
+        $licenseRecord = app(\App\License\Services\LicenseService::class)->findByCode($license_code);
         $product = $licenseRecord ? [collect($licenseRecord)->toArray()] : [];
 
         if (! $product) {
