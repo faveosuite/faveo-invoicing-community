@@ -3,13 +3,12 @@
 namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Model\Product\Product;
-use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseReport;
 use App\License\Models\ProductVersion;
 use App\License\Models\VersionCallback;
+use App\Model\Product\Product;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;

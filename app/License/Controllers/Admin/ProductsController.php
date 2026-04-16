@@ -4,10 +4,10 @@ namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest;
-use App\Model\Product\Product;
 use App\License\Controllers\Update\AfuProductsController;
 use App\License\Models\InstallationLog;
 use App\License\Models\License as ApiKeys;
+use App\Model\Product\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;

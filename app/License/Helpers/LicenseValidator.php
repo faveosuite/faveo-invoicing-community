@@ -2,10 +2,10 @@
 
 namespace App\License\Helpers;
 
-use App\Model\Product\Product;
 use App\License\Models\License;
 use App\License\Models\LicenseBannedHost;
 use App\License\Models\LicenseWhitelistIp;
+use App\Model\Product\Product;
 use App\User;
 
 class LicenseValidator
