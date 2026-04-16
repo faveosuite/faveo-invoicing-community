@@ -4,10 +4,10 @@ namespace App\License\Controllers\Update;
 
 // ApiKeysController removed
 use App\Http\Controllers\Controller;
-use App\Model\Product\Product;
 use App\License\Models\Installation;
 use App\License\Models\ProductVersion;
 use App\License\Models\VersionCallback;
+use App\Model\Product\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;

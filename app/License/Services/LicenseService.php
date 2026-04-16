@@ -2,12 +2,12 @@
 
 namespace App\License\Services;
 
-use App\Model\Product\Product;
 use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Models\LicenseOption;
 use App\License\Models\LicensePlugin;
 use App\License\Models\ProductVersion;
+use App\Model\Product\Product;
 use App\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;

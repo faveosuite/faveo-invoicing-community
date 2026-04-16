@@ -2,10 +2,10 @@
 
 namespace App\License\Controllers\AfuCallbacks;
 
-use App\Model\Product\Product;
 use App\License\Controllers\Traits\AfuCallbackHelpers;
 use App\License\Helpers\LicenseValidator;
 use App\License\Models\ProductVersion;
+use App\Model\Product\Product;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 

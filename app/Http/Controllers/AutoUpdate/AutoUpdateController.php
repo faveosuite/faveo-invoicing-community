@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\AutoUpdate;
 
 use App\Http\Controllers\Controller;
-use App\Model\Product\Product;
 use App\License\Services\VersionService;
+use App\Model\Product\Product;
 
 class AutoUpdateController extends Controller
 {
