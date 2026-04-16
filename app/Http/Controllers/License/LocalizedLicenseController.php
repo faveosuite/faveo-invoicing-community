@@ -5,7 +5,7 @@ namespace App\Http\Controllers\License;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LocalizedLicenseRequest;
 use App\Model\Order\Order;
-use App\\License\Services\InstallationService;
+use App\License\Services\InstallationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
