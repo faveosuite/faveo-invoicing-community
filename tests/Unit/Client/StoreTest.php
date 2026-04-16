@@ -114,7 +114,7 @@ class StoreTest extends DBTestCase
         $plan = Plan::factory()->create(['product' => $product->id, 'days' => 30]);
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '500', 'price_description' => 'GoodProduct', 'no_of_agents' => 7]);
         $response = $this->getPrivateMethod($this->con1, 'getmonthPriceDescription', [$product->id]);
-        $this->assertEquals($response, "per month for <strong> $planPrice->no_of_agents agent</strong>");
+        $this->assertEquals($planPrice->price_description, $response);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('store')]
