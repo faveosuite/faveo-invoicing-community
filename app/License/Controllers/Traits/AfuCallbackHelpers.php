@@ -35,7 +35,7 @@ trait AfuCallbackHelpers
 
     /**
      * Generate signature for version callbacks.
-     * Original: hash('sha256', implode('', $root_ips_array) . $product_key . $product_id . gmdate('Y-m-d'))
+     * Original: hash('sha256', implode('', $root_ips_array) . $product_key . $product_id . gmdate('Y-m-d')).
      */
     protected function generateSignature(?int $productId = null, ?string $productKey = null): string
     {

@@ -219,7 +219,7 @@ class LicenseValidator
 
     /**
      * Verify script signature received from user's script.
-     * Original: hash('sha256', gmdate('Y-m-d') . $root_url . $client_email . $license_code . $product_id . implode('', $root_ips_array))
+     * Original: hash('sha256', gmdate('Y-m-d') . $root_url . $client_email . $license_code . $product_id . implode('', $root_ips_array)).
      */
     public function verifyScriptSignature(?string $license_signature, $product_id, ?string $root_url, ?string $client_email, ?string $license_code): bool
     {
@@ -281,7 +281,7 @@ class LicenseValidator
 
     /**
      * Validate installation hash.
-     * Original: hash('sha256', $root_url . $client_email . $license_code)
+     * Original: hash('sha256', $root_url . $client_email . $license_code).
      */
     public function validateInstallationHash(?string $hash, ?string $root_url, ?string $client_email, ?string $license_code): bool
     {
@@ -296,7 +296,7 @@ class LicenseValidator
 
     /**
      * Verify AFU (Auto Faveo Updater) script signature.
-     * Original: hash('sha256', gmdate('Y-m-d') . $product_id . $product_key . implode('', $root_ips_array))
+     * Original: hash('sha256', gmdate('Y-m-d') . $product_id . $product_key . implode('', $root_ips_array)).
      */
     public function verifyAfuScriptSignature(?string $script_signature, $product_id, ?string $product_key): bool
     {
