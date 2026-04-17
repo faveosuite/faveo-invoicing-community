@@ -3,9 +3,9 @@
 namespace App\License\Controllers\Admin\Views;
 
 use App\Http\Controllers\Controller;
+use App\License\Helpers\LicenseHelper;
 use App\License\Models\InstallationLog;
 use App\License\Models\LicenseCallback;
-use App\License\Helpers\LicenseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;

@@ -89,7 +89,7 @@ trait AflCallbackHelpers
     /**
      * Get installation domain from URL.
      * Matches original getRootUrl($url, 1, 1, 0, 1): strips scheme, www, trailing slash, keeps path.
-     * e.g. "https://www.example.com/helpdesk/" → "example.com/helpdesk"
+     * e.g. "https://www.example.com/helpdesk/" → "example.com/helpdesk".
      */
     protected function getInstallationDomain(?string $url): string
     {

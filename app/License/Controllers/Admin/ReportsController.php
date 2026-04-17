@@ -3,10 +3,10 @@
 namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\License\Helpers\LicenseHelper;
 use App\License\Models\LicenseReport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\License\Helpers\LicenseHelper;
 use Illuminate\Support\Facades\Lang;
 
 class ReportsController extends Controller

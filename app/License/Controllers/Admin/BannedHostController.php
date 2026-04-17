@@ -4,11 +4,11 @@ namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BannedHostRequest;
+use App\License\Helpers\LicenseHelper;
 use App\License\Models\LicenseBannedHost;
 use App\License\Models\LicenseWhitelistIp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\License\Helpers\LicenseHelper;
 use Illuminate\Support\Facades\Lang;
 
 /**
