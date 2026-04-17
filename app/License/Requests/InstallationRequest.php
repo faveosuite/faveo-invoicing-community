@@ -24,7 +24,7 @@ class InstallationRequest extends FormRequest
     public function rules()
     {
         return [
-            'installation_ip' => 'string|unique:afl_installations,installation_ip',
+            'installation_ip' => 'string|unique:installations,installation_ip',
             'installation_status' => 'boolean',
             'installation_disable_ip_verification' => 'boolean',
             'installation_disable_ip' => 'boolean',

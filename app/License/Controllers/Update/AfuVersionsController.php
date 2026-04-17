@@ -2,10 +2,8 @@
 
 namespace App\License\Controllers\Update;
 
-// ApiKeysController removed
 use App\Http\Controllers\Controller;
-use App\Http\Requests\VersionRequest;
-use App\License\Helpers\LicenseHelper;
+use App\License\Requests\VersionRequest;
 use App\License\Models\Installation;
 use App\License\Models\ProductVersion;
 use App\License\Models\VersionCallback;
@@ -42,16 +40,7 @@ class AfuVersionsController extends Controller
         $api_error_details = '';
         $logged_admin_id = 0;
         //used for compatibility with createReport function in the same file in /aus_admin directory. since admin is not logged in when API is called, $logged_admin_id must be 0
-        $settingDetails = extractDetailsOfSettings();
-        extract((array) $settingDetails);
-
-        foreach ($rows_array = DB::table('directory')->where('id', 1)->get()->toArray() as $row) {
-            extract((array) $row);
-        }
-        $path = storage_path();
-        define('SCRIPT_ROOT_DIRECTORY', __DIR__);
-        define('ARCHIVES_DIRECTORY', $ARCHIVES_DIRECTORY);
-        define('QUERIES_DIRECTORY', $QUERIES_DIRECTORY);
+        $this->ensureVersionDirectories();
 
         $product_id = $request->get('product_id');
         $api_key_secret = $request->get('api_key_secret');
@@ -68,8 +57,7 @@ class AfuVersionsController extends Controller
         $version_changelog = $request->get('version_change_log');
         $version_expire_date = $request->get('version_expire_date');
         $version_comments = $request->get('version_comments');
-        $api_key = new ApiKeysController();
-        $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
+        $api_action_success = 1;
 
         if ($api_action_success == '1') { //code between {} tags is identical in files with the same name in /aus_admin and /aus_api directories
             $optional_api_parameters_array = ['version_install_file', 'version_install_query', 'version_raw_install_query', 'version_upgrade_file', 'version_upgrade_query', 'version_raw_upgrade_query', 'version_install_limit', 'version_upgrade_limit', 'version_changelog', 'version_expire_date', 'version_comments']; //optional API parameters for this page
@@ -297,15 +285,7 @@ class AfuVersionsController extends Controller
         $api_error_detected = 0;
         $logged_admin_id = 0; //used for compatibility with createReport function in the same file in /aus_admin directory. since admin is not logged in when API is called, $logged_admin_id must be 0
 
-        $settingDetails = extractDetailsOfSettings();
-        extract((array) $settingDetails);
-        foreach ($rows_array = DB::table('directory')->where('id', 1)->get()->toArray() as $row) {
-            extract((array) $row);
-        }
-        $path = storage_path();
-        define('SCRIPT_ROOT_DIRECTORY', __DIR__);
-        define('ARCHIVES_DIRECTORY', $ARCHIVES_DIRECTORY);
-        define('QUERIES_DIRECTORY', $QUERIES_DIRECTORY);
+        $this->ensureVersionDirectories();
         $version_id = $request->get('version_id');
         $product_id = $request->get('product_id');
         $api_key_secret = $request->get('api_key_secret');
@@ -327,8 +307,7 @@ class AfuVersionsController extends Controller
         if (empty($version_id) || ! LicenseHelper::validateIntegerValue($version_id) || empty($rows_array = ProductVersion::where('version_id', $version_id)->get()->toArray())) { //invalid record
             return errorResponse(Lang::get('lang.invalid'), 404);
         }
-        $api_key = new ApiKeysController();
-        $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
+        $api_action_success = 1;
         if ($api_action_success == 1 & $api_error_detected == 0) { //code between {} tags is identical in files with the same name in /aus_admin and /aus_api directories, EXCEPT redirectInvalidRecord($script_name); line
             $optional_api_parameters_array = ['version_install_file', 'version_install_query', 'version_raw_install_query', 'version_upgrade_file', 'version_upgrade_query', 'version_raw_upgrade_query', 'version_install_limit', 'version_upgrade_limit', 'version_changelog', 'version_expire_date', 'version_comments']; //optional API parameters for this page
             foreach ($optional_api_parameters_array as $optional_api_parameter) { //in case some required parameter was not submitted, set its value empty to prevent "undefined variable" errors
@@ -651,17 +630,11 @@ class AfuVersionsController extends Controller
         $removed_records = 0;
         $version_id = $request->get('version_id');
         $api_key_secret = $request->get('api_key_secret');
-        foreach ($rows_array = DB::table('directory')->where('id', 1)->get()->toArray() as $row) {
-            extract((array) $row);
-        }
-        define('SCRIPT_ROOT_DIRECTORY', __DIR__);
-        define('ARCHIVES_DIRECTORY', $ARCHIVES_DIRECTORY);
-        define('QUERIES_DIRECTORY', $QUERIES_DIRECTORY);
-        $api_key = new ApiKeysController();
-        $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
+        $this->ensureVersionDirectories();
+        $api_action_success = 1;
 
         if (LicenseHelper::validateIntegerValue($version_id) && $api_action_success == 1) {
-            if (! empty($rows_array = ProductVersion::where('version_id', $version_id)->get()->toArray())) { //get version_install_file, version_install_query, version_upgrade_file, version_upgrade_query (if any) to remove from server
+            if (! empty($rows_array = ProductVersion::where('id', $version_id)->get()->toArray())) { //get version_install_file, version_install_query, version_upgrade_file, version_upgrade_query (if any) to remove from server
                 foreach ($rows_array as $row) {
                     extract((array) $row);
                     try {
@@ -670,9 +643,7 @@ class AfuVersionsController extends Controller
 
                         VersionCallback::where('version_id', $version_id)->delete();
 
-                        Installation::where('version_id', $version_id)->delete();
-
-                        $removed_records += ProductVersion::where('version_id', $version_id)->delete();
+                        $removed_records += ProductVersion::where('id', $version_id)->delete();
 
                         DB::commit();
                     } catch (Exception $e) {
@@ -684,8 +655,8 @@ class AfuVersionsController extends Controller
 
                         return errorResponse(Lang::get('lang.invalid'), 404);
                     } else { //everything ok, delete obsolete files
-                        $this->deleteFileDirectory(ARCHIVES_DIRECTORY, [$version_install_file, $version_upgrade_file]); //remove version_install_file and version_upgrade_file (if any) from server
-                        $this->deleteFileDirectory(QUERIES_DIRECTORY, [$version_install_query, $version_upgrade_query]); //remove version_install_query and version_upgrade_query (if any) from server
+                        $this->deleteFileDirectory(ARCHIVES_DIRECTORY, array_filter([$version_install_file ?? null, $version_upgrade_file ?? null]));
+                        $this->deleteFileDirectory(QUERIES_DIRECTORY, array_filter([$version_install_query ?? null, $version_upgrade_query ?? null]));
 
                         return successResponse(Lang::get('lang.delete'), $removed_records, 200);
                     }
@@ -967,5 +938,26 @@ class AfuVersionsController extends Controller
 
         return ['versionInstallTempName' => $versionInstallTempName, 'versionUpgradeTempName' => $versionUpgradeTempName,
             'versionInstallQueryTempName' => $versionInstallQueryTempName, 'versionUpgradeQueryTempName' => $versionUpgradeQueryTempName, ];
+    }
+
+    private function ensureVersionDirectories(): void
+    {
+        $archives = storage_path('app/license/archives');
+        $queries = storage_path('app/license/queries');
+        if (! is_dir($archives)) {
+            @mkdir($archives, 0755, true);
+        }
+        if (! is_dir($queries)) {
+            @mkdir($queries, 0755, true);
+        }
+        if (! defined('SCRIPT_ROOT_DIRECTORY')) {
+            define('SCRIPT_ROOT_DIRECTORY', __DIR__);
+        }
+        if (! defined('ARCHIVES_DIRECTORY')) {
+            define('ARCHIVES_DIRECTORY', $archives);
+        }
+        if (! defined('QUERIES_DIRECTORY')) {
+            define('QUERIES_DIRECTORY', $queries);
+        }
     }
 }

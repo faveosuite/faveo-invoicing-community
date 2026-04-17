@@ -20,7 +20,7 @@
 
                 <div class="row">
 
-                    <dynamic-select name="product" apiEndpoint="/api/admin/afuProducts" :multiple="false" :label="trans('product')" :onChange="onChange"
+                    <dynamic-select name="product" apiEndpoint="/api/admin/get-products" :multiple="false" :label="trans('product')" :onChange="onChange"
                                     classname="col-sm-6" :value="product_title" optionLabel="product_title" :required="true">
 
                     </dynamic-select>

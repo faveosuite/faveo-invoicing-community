@@ -98,7 +98,7 @@
 
         <transition name="modal">
 
-            <delete-modal v-if="showModal" :onClose="onClose" :showModal="showModal" alertComponentName="installations-view" deleteUrl="/api/admin/installations/delete" redirectUrl="/installations/list" keyVal="installation_id" :idVal="id">
+            <delete-modal v-if="showModal" :onClose="onClose" :showModal="showModal" alertComponentName="installations-view" deleteUrl="/api/admin/installations/delete" redirectUrl="/installations/list" keyVal="id" :idVal="id">
 
             </delete-modal>
         </transition>
@@ -276,7 +276,7 @@ export default {
 
                         return {
 
-                            'sort_field' : data.orderBy ? data.orderBy : 'callback_id',
+                            'sort_field' : data.orderBy ? data.orderBy : 'id',
 
                             'sort_order' : data.ascending ? 'desc' : 'asc',
 
@@ -292,9 +292,9 @@ export default {
 
                             data: data.data.data.map(data => {
 
-                                data.keyVal = 'installation_id';
+                                data.keyVal = 'id';
 
-                                data.idVal = data.installation_id;
+                                data.idVal = data.id;
 
                                 return data;
                             }),

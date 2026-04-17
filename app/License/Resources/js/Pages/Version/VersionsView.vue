@@ -213,9 +213,11 @@ export default {
                 }
             });
 
-            this.product_title = data.product[0]?.product_title
+            this.product_title = data.product?.name
 
-            this.product_heading = `${data.product[0]?.product_title} - ${data.version_number}`
+            this.product_id = data.product?.id
+
+            this.product_heading = `${data.product?.name ?? ''} - ${data.version_number}`
 
             if(data.version_date) {
 
@@ -255,7 +257,7 @@ export default {
 
                         return {
 
-                            'sort_field' : data.orderBy ? data.orderBy : 'callback_id',
+                            'sort_field' : data.orderBy ? data.orderBy : 'id',
 
                             'sort_order' : data.ascending ? 'desc' : 'asc',
 

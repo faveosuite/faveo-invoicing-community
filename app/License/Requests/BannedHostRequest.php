@@ -30,7 +30,7 @@ class BannedHostRequest extends FormRequest
             'banned_host_ip' => [
                 'required',
                 'string',
-                'unique:afl_banned_hosts,banned_host_ip',
+                'unique:license_banned_hosts,banned_host_ip',
                 'regex:/\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b|\b(?:\d{1,3}\.){3}\d{1,3}\b/',
             ],
             'banned_host_date' => 'date',

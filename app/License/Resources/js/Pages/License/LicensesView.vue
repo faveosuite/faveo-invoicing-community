@@ -183,7 +183,7 @@
 
         <transition name="modal">
 
-            <delete-modal v-if="showModal" :onClose="onClose" :showModal="showModal" alertComponentName="license-view" deleteUrl="/api/admin/license/delete" redirectUrl="/licenses/list" keyVal="license_id" :idVal="license_id">
+            <delete-modal v-if="showModal" :onClose="onClose" :showModal="showModal" alertComponentName="license-view" deleteUrl="/api/admin/license/delete" redirectUrl="/licenses/list" keyVal="id" :idVal="license_id">
 
             </delete-modal>
         </transition>
@@ -423,7 +423,7 @@ export default {
 
                         return {
 
-                            'sort_field' : data.orderBy ? data.orderBy : 'installation_id',
+                            'sort_field' : data.orderBy ? data.orderBy : 'id',
 
                             'sort_order' : data.ascending ? 'desc' : 'asc',
 
@@ -438,15 +438,15 @@ export default {
 
                             data: data.data.data.map(data => {
 
-                                data.edit_url = '/installations/' + data.installation_id + '/edit';
+                                data.edit_url = '/installations/' + data.id + '/edit';
 
                                 data.delete_url = '/api/admin/installations/delete';
 
-                                data.view_url = '/installations/' + data.installation_id + '/view';
+                                data.view_url = '/installations/' + data.id + '/view';
 
-                                data.keyVal = 'installation_id';
+                                data.keyVal = 'id';
 
-                                data.idVal = data.installation_id;
+                                data.idVal = data.id;
 
                                 return data;
                             }),
@@ -553,7 +553,7 @@ export default {
 
                         return {
 
-                            'sort_field' : data.orderBy ? data.orderBy : 'callback_id',
+                            'sort_field' : data.orderBy ? data.orderBy : 'id',
 
                             'sort_order' : data.ascending ? 'desc' : 'asc',
 
@@ -569,9 +569,9 @@ export default {
 
                             data: data.data.data.map(data => {
 
-                                data.keyVal = 'callback_id';
+                                data.keyVal = 'id';
 
-                                data.idVal = data.callback_id;
+                                data.idVal = data.id;
 
                                 return data;
                             }),
@@ -684,9 +684,9 @@ export default {
 
                             data: data.data.data.map(data => {
 
-                                data.keyVal = 'callback_id';
+                                data.keyVal = 'id';
 
-                                data.idVal = data.callback_id;
+                                data.idVal = data.id;
 
                                 return data;
                             }),

@@ -133,8 +133,6 @@ export default {
 
                 this.updateStatesWithData(res.data.data.host_data);
 
-                co
-
             }).catch(error => {
 
                 this.loading = false;

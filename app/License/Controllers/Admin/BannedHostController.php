@@ -3,12 +3,11 @@
 namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\BannedHostRequest;
-use App\License\Helpers\LicenseHelper;
+use App\License\Requests\BannedHostRequest;
 use App\License\Models\LicenseBannedHost;
 use App\License\Models\LicenseWhitelistIp;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\License\Helpers\LicenseHelper;
 use Illuminate\Support\Facades\Lang;
 
 /**
@@ -33,13 +32,10 @@ class BannedHostController extends Controller
      */
     public function bannedHostAdd(BannedHostRequest $request)
     {
-        $api_key_secret = $request->input('api_key_secret');
         $banned_host_ip = $request->input('banned_host_ip');
         $comments = $request->input('comments', '');
 
-        $api_key = new ApiKeysController();
-        $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
-        if (empty($banned_host_ip) || $api_action_success != 1) {
+        if (empty($banned_host_ip)) {
             return errorResponse(Lang::get('lang.banned_empty'), 400);
         }
         $whitelistIpExists = LicenseWhitelistIp::where('whitelist_host_ip', $banned_host_ip)->exists();
@@ -67,7 +63,6 @@ class BannedHostController extends Controller
     public function bannedHostUpdate(Request $request)
     {
         $id = $request->get('id');
-        $api_key_secret = $request->get('api_key_secret');
         $banned_host_ip = $request->get('banned_host_ip');
         $comments = $request->get('comments');
 
@@ -75,9 +70,7 @@ class BannedHostController extends Controller
         empty($rows_array = LicenseBannedHost::where('id', $id)->get()->toArray())) { //invalid record
             return errorResponse(Lang::get('lang.banned_host_not_found'), 404);
         }
-        $api_key = new ApiKeysController();
-        $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
-        if (empty($banned_host_ip) || $api_action_success != 1) {
+        if (empty($banned_host_ip)) {
             return errorResponse(Lang::get('lang.banned_empty'), 400);
         }
         $whitelistIpExists = LicenseWhitelistIp::where('whitelist_host_ip', $banned_host_ip)->exists();
@@ -100,21 +93,12 @@ class BannedHostController extends Controller
      */
     public function deleteBannedHost(Request $request)
     {
-        $api_key_secret = $request->get('api_key_secret');
         $removed_records = 0;
         $id = $request->get('id');
-        $api_key = new ApiKeysController();
-        $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
-        if ($api_action_success != 1 || ! LicenseHelper::validateIntegerValue($id)) {
+        if (! LicenseHelper::validateIntegerValue($id)) {
             return errorResponse(Lang::get('lang.banned_empty'), 400);
         }
-        $banned_ip = DB::table('license_banned_hosts')
-                      ->where('id', $id)
-                      ->value('banned_host_ip');
 
-        DB::table('license_failed_logins')
-                        ->where('failed_login_ip', $banned_ip)
-                        ->delete();
         $removed_records += LicenseBannedHost::where('id', $id)->delete();
 
         return successResponse(Lang::get('lang.delete'), $removed_records, 201);

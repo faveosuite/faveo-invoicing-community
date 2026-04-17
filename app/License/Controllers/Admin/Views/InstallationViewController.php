@@ -31,10 +31,10 @@ class InstallationViewController extends Controller
         $page = $request->input('page', 1);
         $searchQuery = $request->input('search_query');
         $sortOrder = $request->input('sort_order', 'desc');
-        $sortField = $request->input('sort_field', 'callback_id');
+        $sortField = $request->input('sort_field', 'id');
         $installationDomain = Installation::where('id', $id)->value('installation_domain');
         $callbacks = LicenseCallback::where('callback_domain', $installationDomain)
-            ->select('callback_id', 'callback_ip', 'callback_domain', 'callback_date_time', 'callback_status')
+            ->select('id', 'callback_ip', 'callback_domain', 'callback_date_time', 'callback_status')
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
                     $query->where('callback_ip', 'like', '%'.$searchQuery.'%')

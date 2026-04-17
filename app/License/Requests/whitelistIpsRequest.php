@@ -29,7 +29,7 @@ class whitelistIpsRequest extends FormRequest
             'whitelist_host_ip' => [
                 'required',
                 'string',
-                Rule::unique('afl_whitelist_ips', 'whitelist_host_ip')->ignore($this->id, 'whitelist_host_id'),
+                Rule::unique('license_whitelist_ips', 'whitelist_host_ip')->ignore($this->id, 'id'),
                 'regex:/\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b|\b(?:\d{1,3}\.){3}\d{1,3}\b/',
             ],
         ];

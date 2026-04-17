@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('license_schemes', function (Blueprint $table) {
             $table->id();
             $table->text('scheme_query');
-            $table->string('scheme_status')->default('active');
+            $table->tinyInteger('scheme_status')->default(1);
             $table->timestamps();
         });
     }

@@ -3,8 +3,7 @@
 namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\InstallationRequest;
-use App\License\Helpers\LicenseHelper;
+use App\License\Requests\InstallationRequest;
 use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Models\License as ApiKeys;
@@ -55,65 +54,59 @@ class InstallationController extends Controller
         if (empty($id) || ! LicenseHelper::validateIntegerValue($id) || empty($rows_array = Installation::where('id', $id)->get())) { //invalid record
             return errorResponse(Lang::get('lang.invalid'), 400);
         }
-        $api_key = new ApiKeysController();
-        $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
-        if ($api_action_success == 1) { //API check OK, continue with actual request
-            $optional_api_parameters_array = ['installation_disable_ip_verification']; //optional API parameters for this page
-            foreach ($optional_api_parameters_array as $optional_api_parameter) { //in case some required parameter was not submitted, set its value empty to prevent "undefined variable" errors
-                if (! isset($$optional_api_parameter)) {
-                    $$optional_api_parameter = '';
-                }
+        $optional_api_parameters_array = ['installation_disable_ip_verification']; //optional API parameters for this page
+        foreach ($optional_api_parameters_array as $optional_api_parameter) { //in case some required parameter was not submitted, set its value empty to prevent "undefined variable" errors
+            if (! isset($$optional_api_parameter)) {
+                $$optional_api_parameter = '';
             }
-            if (! empty($delete_record) && $delete_record == 1) {
-                $removed_records += $this->deleteInstallation($id);
-                if ($removed_records > 0) {
-                    $action_success = 1;
-                    $page_message = "Deleted $removed_records installation(s).";
-                    LicenseHelper::logAdminReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
+        }
+        if (! empty($delete_record) && $delete_record == 1) {
+            $removed_records += $this->deleteInstallation($id);
+            if ($removed_records > 0) {
+                $action_success = 1;
+                $page_message = "Deleted $removed_records installation(s).";
+                LicenseHelper::logAdminReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
 
-                    return $page_message; //THIS LINE IS CUSTOM IN API. ADMINISTRATION DASHBOARD CODE CONTAINS redirectInvalidRecord($script_name);
-                } else {
-                    $error_detected = 1;
-                    $error_details .= 'Invalid record or database error.';
-                }
-            }
-            if (filter_var($installation_ip, FILTER_VALIDATE_IP) && LicenseHelper::validateIntegerValue($installation_status, 0, 2)) {
-                if ($error_detected != 1) {
-                    $updated_records += Installation::where('id', $id)
-                                     ->update([
-                                         'installation_ip' => $installation_ip,
-                                         'installation_disable_ip_verification' => $installation_disable_ip,
-                                         'installation_status' => $installation_status,
-                                     ]);
-                    if (! LicenseHelper::validateIntegerValue($updated_records)) {
-                        $error_detected = 1;
-                        $error_details .= 'Invalid record details, duplicated data, or database error.';
-                    } else {
-                        $action_success = 1;
-                        $rows_array = Installation::leftJoin('afl_products', 'afl_installations.id', '=', 'afl_products.id')
-                                              ->where('afl_installations.id', $id)
-                                              ->get()->toArray();
-                        foreach ($rows_array as $row) { //fetch product details to use in reports
-                            extract($row);
-                        }
-                    }
-                }
+                return $page_message; //THIS LINE IS CUSTOM IN API. ADMINISTRATION DASHBOARD CODE CONTAINS redirectInvalidRecord($script_name);
             } else {
                 $error_detected = 1;
-                $error_details .= 'Invalid IP address or status.';
+                $error_details .= 'Invalid record or database error.';
             }
-
-            if ($action_success == 1) { //everything OK
-                $page_message = "$name installation on $installation_domain ($installation_ip) updated.";
-            } else { //display error message
-                $page_message = "Installation could not be updated because of this reason: $error_details";
-            }
-
-            LicenseHelper::logAdminReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
-        } else { //display error message
-            $page_message = "The action could not be completed because of this reason: $api_error_details";
         }
-        $api_response_array = ['api_action_success' => $api_action_success, 'api_error_detected' => $api_error_detected, 'action_success' => $action_success, 'error_detected' => $error_detected, 'page_message' => $page_message]; //make array with response data
+        if (filter_var($installation_ip, FILTER_VALIDATE_IP) && LicenseHelper::validateIntegerValue($installation_status, 0, 2)) {
+            if ($error_detected != 1) {
+                $updated_records += Installation::where('id', $id)
+                                 ->update([
+                                     'installation_ip' => $installation_ip,
+                                     'installation_disable_ip_verification' => $installation_disable_ip,
+                                     'installation_status' => $installation_status,
+                                 ]);
+                if (! LicenseHelper::validateIntegerValue($updated_records)) {
+                    $error_detected = 1;
+                    $error_details .= 'Invalid record details, duplicated data, or database error.';
+                } else {
+                    $action_success = 1;
+                    $rows_array = Installation::leftJoin('products', 'installations.product_id', '=', 'products.id')
+                                          ->where('installations.id', $id)
+                                          ->get()->toArray();
+                    foreach ($rows_array as $row) { //fetch product details to use in reports
+                        extract($row);
+                    }
+                }
+            }
+        } else {
+            $error_detected = 1;
+            $error_details .= 'Invalid IP address or status.';
+        }
+
+        if ($action_success == 1) { //everything OK
+            $page_message = "$name installation on $installation_domain ($installation_ip) updated.";
+        } else { //display error message
+            $page_message = "Installation could not be updated because of this reason: $error_details";
+        }
+
+        LicenseHelper::logAdminReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
+        $api_response_array = ['api_action_success' => 1, 'api_error_detected' => $api_error_detected, 'action_success' => $action_success, 'error_detected' => $error_detected, 'page_message' => $page_message]; //make array with response data
 
         return json_encode($api_response_array);
     }
@@ -223,7 +216,7 @@ class InstallationController extends Controller
                 }
             }
             if ($api_action_success == 1) {
-                $api = DB::table('afl_installations')->insertOrIgnore([
+                $api = DB::table('installations')->insertOrIgnore([
                     'license_code' => $license_code,
                     'id' => $id,
                     'installation_ip' => $ip_address,

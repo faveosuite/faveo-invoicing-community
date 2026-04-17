@@ -180,9 +180,7 @@
 
 					const data = {};
 
-					data['installation_id'] = this.installation_id;
-
-					data['api_key_secret'] = this.getApiKey;
+					data['id'] = this.installation_id;
 
 					data['installation_ip'] = this.installation_ip;
 

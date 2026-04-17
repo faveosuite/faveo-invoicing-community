@@ -4,8 +4,7 @@ namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientRequest;
-use App\License\Helpers\LicenseHelper;
+use App\License\Requests\ClientRequest;
 use App\User;
 use Doctrine\DBAL\Query;
 use Illuminate\Http\Request;
@@ -49,8 +48,6 @@ class ClientsController extends Controller
         $password = Str::random(8);
         $client_password = $role == 'admin' ? Hash::make($password) : null;
 
-        $api_key = new ApiKeysController();
-        $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
         $optional_api_parameters_array = ['client_username']; //optional API parameters for this page
         foreach ($optional_api_parameters_array as $optional_api_parameter) { //in case some required parameter was not submitted, set its value empty to prevent "undefined variable" errors
             if (! isset($$optional_api_parameter)) {
@@ -60,7 +57,7 @@ class ClientsController extends Controller
 
         if (
             ! empty($first_name) && ! empty($last_name) && filter_var($email, FILTER_VALIDATE_EMAIL)
-            && LicenseHelper::validateIntegerValue($active, 0, 2) && $api_action_success == 1
+            && LicenseHelper::validateIntegerValue($active, 0, 2)
         ) {
             $created_at = date('Y-m-d');
             if ($active != 1) {
@@ -164,12 +161,8 @@ class ClientsController extends Controller
     {
         $client_id = $request->get('id');
         $removed_records = 0;
-        $api_key_secret = $request->get('api_key_secret');
 
-        $api_key = new ApiKeysController();
-        $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
-
-        if (! LicenseHelper::validateIntegerValue($client_id) && $api_action_success != 1) {
+        if (! LicenseHelper::validateIntegerValue($client_id)) {
             return errorResponse(Lang::get('lang.Not_found_client'), 404);
         }
 
@@ -239,15 +232,13 @@ class ClientsController extends Controller
         ) { //invalid record
             return errorResponse(Lang::get('lang.not_found_client'), 404);
         }
-        $api_key = new ApiKeysController();
-        $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
         $optional_api_parameters_array = ['client_username']; //optional API parameters for this page
         foreach ($optional_api_parameters_array as $optional_api_parameter) { //in case some required parameter was not submitted, set its value empty to prevent "undefined variable" errors
             if (! isset($$optional_api_parameter)) {
                 $$optional_api_parameter = '';
             }
         }
-        if (! empty($first_name) && ! empty($last_name) && filter_var($email, FILTER_VALIDATE_EMAIL) && LicenseHelper::validateIntegerValue($active, 0, 2) && $api_action_success == 1) {
+        if (! empty($first_name) && ! empty($last_name) && filter_var($email, FILTER_VALIDATE_EMAIL) && LicenseHelper::validateIntegerValue($active, 0, 2)) {
             if ($active == 1) {
                 $updated_at = '0000-00-00';
             } else {

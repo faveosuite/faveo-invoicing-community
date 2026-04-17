@@ -3,8 +3,7 @@
 namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\LicenseRequest;
-use App\License\Helpers\LicenseHelper;
+use App\License\Requests\LicenseRequest;
 use App\License\Models\Installation;
 use App\License\Models\InstallationLog;
 use App\License\Models\License;
@@ -69,9 +68,6 @@ class LicenseController extends Controller
         $license_updates_date = $request->get('license_updates_date');
         $license_support_date = $request->get('license_support_date');
         $license_comments = $request->get('license_comments');
-
-        $api_key = new ApiKeysController();
-        $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
 
         if (LicenseHelper::validateIntegerValue($id) && LicenseHelper::validateIntegerValue($license_require_domain, 0, 1) && LicenseHelper::validateIntegerValue($license_status, 0, 2)) {
             if (empty($client_id) || ! LicenseHelper::validateIntegerValue($client_id)) { //in case no client_id was submitted, its value must be stored as NULL in database
@@ -138,10 +134,11 @@ class LicenseController extends Controller
                     $action_success = 1;
                     $license_id = DB::getpdo()->lastInsertId();
                     if (LicenseHelper::validateIntegerValue($license_id)) {
-                        foreach ($rows_array = License::leftJoin('afl_products', 'afl_licenses.id', '=', 'afl_products.id')
-                            ->leftJoin('users', 'afl_licenses.client_id', '=', 'users.client_id')
-                            ->where('afl_licenses.license_id', $license_id)
-                            ->get()->toArray() as $row) {
+                        foreach ($rows_array = License::leftJoin('products', 'licenses.product_id', '=', 'products.id')
+                            ->leftJoin('users', 'licenses.user_id', '=', 'users.id')
+                            ->where('licenses.id', $license_id)
+                            ->get(['licenses.*', 'products.name as product_title', 'users.email as client_email'])
+                            ->toArray() as $row) {
                             //fetchRow("SELECT * FROM apl_licenses LEFT JOIN apl_products ON apl_licenses.id=apl_products.id LEFT JOIN apl_clients ON apl_licenses.client_id=apl_clients.client_id WHERE apl_licenses.license_id=?", array($license_id), array("i")) as $row) //fetch product and client details to use in reports
                             extract((array) $row);
                         }
@@ -201,16 +198,13 @@ class LicenseController extends Controller
         if (empty($license_id) || ! LicenseHelper::validateIntegerValue($license_id) || empty($rows_array = License::where('id', $license_id)->get())) {//invalid record
             return errorResponse(Lang::get('lang.license_id'), 400);
         }
-        $api_key = new ApiKeysController();
-        $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
-
         $optional_api_parameters_array = ['license_order_number', 'license_ip', 'license_domain', 'license_limit', 'license_expire_date', 'license_updates_date', 'license_support_date', 'license_comments']; //optional API parameters for this page
         foreach ($optional_api_parameters_array as $optional_api_parameter) { //in case some required parameter was not submitted, set its value empty to prevent "undefined variable" errors
             if (! isset($$optional_api_parameter)) {
                 $$optional_api_parameter = '';
             }
         }
-        if (LicenseHelper::validateIntegerValue($id) && LicenseHelper::validateIntegerValue($license_require_domain, 0, 1) && LicenseHelper::validateIntegerValue($license_status, 0, 2) && $api_action_success == 1) {
+        if (LicenseHelper::validateIntegerValue($id) && LicenseHelper::validateIntegerValue($license_require_domain, 0, 1) && LicenseHelper::validateIntegerValue($license_status, 0, 2)) {
             if (empty($client_id) || ! LicenseHelper::validateIntegerValue($client_id)) { //in case no client_id was submitted, its value must be stored as NULL in database
                 $client_id = null;
             }
@@ -221,8 +215,7 @@ class LicenseController extends Controller
             if (! empty($licenseChecks)) {
                 return errorResponse($licenseChecks->getOriginalContent()['message'], 400);
             }
-            if ($api_action_success == 1) {
-                if (! empty($license_expire_date) && LicenseHelper::verifyDateTime($license_expire_date, 'Y-m-d') && $license_expire_date != $rows_array[0]['license_expire_date']) { //license_expire_date changed, reset license_expire_email_date, so client can receive new notification
+            if (! empty($license_expire_date) && LicenseHelper::verifyDateTime($license_expire_date, 'Y-m-d') && $license_expire_date != $rows_array[0]['license_expire_date']) { //license_expire_date changed, reset license_expire_email_date, so client can receive new notification
                     $license_expire_email_date = '0000-00-00';
                 } else {
                     $license_expire_email_date = $rows_array[0]['license_expire_email_date']; //use old license_expire_email_date
@@ -240,9 +233,6 @@ class LicenseController extends Controller
                     $license_support_email_date = $rows_array[0]['license_support_email_date']; //use old license_support_email_date
                 }
 
-                if (empty($license_envato) || ! LicenseHelper::validateIntegerValue($license_envato)) {
-                    $license_envato = 0;
-                }
                 if ($license_status == 1) {
                     $license_cancel_date = '0000-00-00';
                 } else {
@@ -266,7 +256,6 @@ class LicenseController extends Controller
                         'license_support_date' => $license_support_date,
                         'license_support_email_date' => $license_support_email_date,
                         'license_comments' => $license_comments,
-                        'license_envato' => $license_envato,
                         'license_status' => $license_status,
                     ]);
                 //doMysqlQuery("UPDATE apl_licenses SET license_order_number=?, license_ip=?, license_domain=?, license_require_domain=?, license_limit=?, license_cancel_date=?, license_expire_date=?, license_expire_email_date=?, license_updates_date=?, license_updates_email_date=?, license_support_date=?, license_support_email_date=?, license_comments=?, license_envato=?, license_status=? WHERE license_id=?", array($license_order_number, $license_ip, $license_domain, $license_require_domain, $license_limit, $license_cancel_date, $license_expire_date, $license_expire_email_date, $license_updates_date, $license_updates_email_date, $license_support_date, $license_support_email_date, $license_comments, $license_envato, $license_status, $license_id), array("s", "s", "s", "i", "i", "s", "s", "s", "s", "s", "s", "s", "s", "i", "i", "i"));
@@ -276,11 +265,11 @@ class LicenseController extends Controller
 
                     return errorResponse(Lang::get('lang.invalid_record_data'), 400);
                 } else {
-                    $api_action_success = 1;
-                    foreach ($rows_array = License::leftJoin('afl_products', 'afl_licenses.id', '=', 'afl_products.id')
-                        ->leftJoin('users', 'afl_licenses.client_id', '=', 'users.client_id')
-                        ->where('afl_licenses.license_id', $license_id)
-                        ->get()->toArray() as $row) { //fetch product and client details to use in reports
+                    foreach ($rows_array = License::leftJoin('products', 'licenses.product_id', '=', 'products.id')
+                        ->leftJoin('users', 'licenses.user_id', '=', 'users.id')
+                        ->where('licenses.id', $license_id)
+                        ->get(['licenses.*', 'products.name as product_title', 'users.email as client_email'])
+                        ->toArray() as $row) { //fetch product and client details to use in reports
                         extract((array) $row);
                     }
 
@@ -288,7 +277,6 @@ class LicenseController extends Controller
 
                     return successResponse(Lang::get('lang.license_Update'), $client_formatted, 200);
                 }
-            }
         } else {
             return errorResponse(Lang::get('lang.invalid'), 400);
         }
@@ -303,10 +291,8 @@ class LicenseController extends Controller
     public function deleteLicense(Request $request)
     {
         $license_id = $request->get('id');
-        $api_key_secret = $request->get('api_key_secret');
-        $api_key = new ApiKeysController();
 
-        if (! LicenseHelper::validateIntegerValue($license_id) || ! $api_key->apiKeyCheck($api_key_secret, $this->ip_address)) {
+        if (! LicenseHelper::validateIntegerValue($license_id)) {
             return errorResponse(Lang::get('lang.invalid'), 400);
         }
 

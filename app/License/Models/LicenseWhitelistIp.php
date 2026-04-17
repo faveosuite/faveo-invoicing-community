@@ -10,5 +10,6 @@ class LicenseWhitelistIp extends Model
 
     protected $fillable = [
         'whitelist_host_ip',
+        'whitelist_host_comments',
     ];
 }

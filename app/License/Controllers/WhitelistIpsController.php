@@ -22,7 +22,7 @@ class WhitelistIpsController extends Controller
                 return errorResponse($whitelist_host_ip.Lang::get('lang.already_exist_ip'), 500);
             }
             $whitelist = LicenseWhitelistIp::updateOrCreate(
-                ['whitelist_host_id' => $id],
+                ['id' => $id],
                 [
                     'whitelist_host_ip' => $whitelist_host_ip,
                     'whitelist_host_comments' => $whitelist_host_comments,
@@ -41,7 +41,7 @@ class WhitelistIpsController extends Controller
     public function deleteWhitelistIp(Request $request)
     {
         try {
-            $host_data = LicenseWhitelistIp::where('whitelist_host_id', $request->whitelist_host_id)->firstOrFail();
+            $host_data = LicenseWhitelistIp::where('id', $request->id)->firstOrFail();
             $host_data->delete();
 
             return successResponse(Lang::get('lang.delete'), 201);
@@ -50,9 +50,9 @@ class WhitelistIpsController extends Controller
         }
     }
 
-    public function edit($whitelist_host_id)
+    public function edit($id)
     {
-        $host_data = LicenseWhitelistIp::where('whitelist_host_id', $whitelist_host_id)->firstOrFail();
+        $host_data = LicenseWhitelistIp::where('id', $id)->firstOrFail();
 
         if (! empty($host_data)) {
             return successResponse('data', ['host_data' => $host_data], 200);
@@ -67,7 +67,7 @@ class WhitelistIpsController extends Controller
         $page = $request->input('page', 1);
         $searchQuery = $request->input('search_query');
         $sortOrder = $request->input('sort_order', 'desc');
-        $sortField = $request->input('sort_field', 'whitelist_host_id');
+        $sortField = $request->input('sort_field', 'id');
 
         $records = LicenseWhitelistIp::when($searchQuery, function ($query) use ($searchQuery) {
             return $query->where('whitelist_host_ip', 'like', '%'.$searchQuery.'%')
@@ -77,8 +77,7 @@ class WhitelistIpsController extends Controller
 
         $records->getCollection()->transform(function ($record) {
             return [
-                'id' => $record->whitelist_host_id,
-                'whitelist_host_id' => $record->whitelist_host_id,
+                'id' => $record->id,
                 'whitelist_host_date' => $record->created_at ? $record->created_at->format('Y-m-d') : '',
                 'whitelist_host_ip' => $record->whitelist_host_ip,
                 'whitelist_host_comments' => $record->whitelist_host_comments,

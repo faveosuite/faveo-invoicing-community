@@ -384,6 +384,51 @@ let bannedMenu = {
 	]
 }
 
+//===========================SERVER NOTIFICATIONS MENU=========================
+
+import CustomizeNotifications from "../Pages/ServerNotifications/CustomizeNotifications.vue";
+
+import CustomizeUpdateNotifications from "../Pages/ServerNotifications/CustomizeUpdateNotifications.vue";
+
+let serverMenu = {
+
+    path: '/server',
+
+    component: LicenseLayout,
+
+    name: 'Server Notifications',
+
+    redirect: '/server/notifications',
+
+    children: [
+
+        {
+
+            path: 'notifications',
+
+            name: 'License Custom Notification',
+
+            component: CustomizeNotifications,
+
+            meta: { title : 'server_notifications', crumb : { link: { name : 'dashboard', to : '/' }, active : 'customize_notifications' } }
+        },
+
+        {
+
+            path: 'update-notifications',
+
+            name: 'Update Custom Notification',
+
+            component: CustomizeUpdateNotifications,
+
+            meta: { title : 'server_notifications', crumb : { link: { name : 'dashboard', to : '/' }, active : 'customize_update_notifications' } }
+        },
+
+    ]
+}
+
+//=================================================================
+
 //===========================WHITELIST IP ======================
 import WhiteList from "../Pages/WhiteList/WhiteList.vue";
 import WhiteListCreate from "../Pages/WhiteList/WhiteListCreate.vue";
@@ -460,6 +505,8 @@ const routes = [
     bannedMenu,
 
     whitelistMenu,
+
+    serverMenu,
 
     {
         path: '/:pathMatch(.*)*',

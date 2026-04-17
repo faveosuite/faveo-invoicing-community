@@ -163,8 +163,8 @@
                 if (data.banned_host_ip) {
                     this.banned_host_ip = data.banned_host_ip
                 }
-                if (data.banned_host_comments) {
-                    this.banned_host_comments = data.banned_host_comments
+                if (data.comments) {
+                    this.banned_host_comments = data.comments
                 }
 
             },
@@ -183,13 +183,12 @@
 
                     const formData = {
                         banned_host_ip: this.banned_host_ip,
-                        banned_host_comments: this.banned_host_comments,
-                        api_key_secret: this.getApiKey
+                        comments: this.banned_host_comments,
                     }
 
                     if (this.hostId) {
 
-                        formData['banned_host_id'] = this.hostId;
+                        formData['id'] = this.hostId;
                     }
 
                     axios.post(this.apiEndpoint, formData).then(res => {

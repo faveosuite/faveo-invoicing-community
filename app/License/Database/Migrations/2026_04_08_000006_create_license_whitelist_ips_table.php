@@ -17,6 +17,7 @@ return new class extends Migration
         Schema::create('license_whitelist_ips', function (Blueprint $table) {
             $table->id();
             $table->string('whitelist_host_ip');
+            $table->string('whitelist_host_comments')->nullable();
             $table->timestamps();
             $table->unique('whitelist_host_ip');
         });

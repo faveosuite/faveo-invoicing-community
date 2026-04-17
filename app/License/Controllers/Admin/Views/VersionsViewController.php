@@ -28,7 +28,6 @@ class VersionsViewController extends Controller
         $versionInstallation = ProductVersion::find($version_id)
             ->callbacks()
             ->select('id', 'version_id', 'callback_ip', 'callback_date_time', 'callback_status', 'callback_type')
-            ->withAggregate(['types as callback_type'], 'value')
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
                     $query->where('callback_ip', 'like', '%'.$searchQuery.'%')

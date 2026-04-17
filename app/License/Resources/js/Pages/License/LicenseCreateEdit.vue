@@ -393,7 +393,7 @@ export default {
             this.product_id = data.product_name[0].product_id
             this.product_title = data.product_name[0].product_title
 
-            this.license_id = data.license.license_id;
+            this.license_id = data.license.id;
 
             this.api_key_secret = data.license.api_key_secret;
 
@@ -459,10 +459,8 @@ export default {
 
                 if (this.license_id) {
 
-                    data['license_id'] = this.license_id;
+                    data['id'] = this.license_id;
                 }
-
-                data['api_key_secret'] = this.getApiKey;
 
                 data['product_id'] = this.product_id ? this.product_id : '';
 
