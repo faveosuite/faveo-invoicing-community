@@ -3,10 +3,10 @@
 namespace App\License\Controllers\Update;
 
 use App\Http\Controllers\Controller;
-use App\License\Requests\VersionRequest;
 use App\License\Models\Installation;
 use App\License\Models\ProductVersion;
 use App\License\Models\VersionCallback;
+use App\License\Requests\VersionRequest;
 use App\Model\Product\Product;
 use FilesystemIterator;
 use Illuminate\Http\Request;
