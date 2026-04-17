@@ -5,12 +5,12 @@ namespace App\License\Controllers\Admin;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientRequest;
+use App\License\Helpers\LicenseHelper;
 use App\User;
 use Doctrine\DBAL\Query;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use App\License\Helpers\LicenseHelper;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 

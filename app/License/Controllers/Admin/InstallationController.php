@@ -4,13 +4,13 @@ namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\InstallationRequest;
+use App\License\Helpers\LicenseHelper;
 use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Models\License as ApiKeys;
 use App\License\Models\LicensePlugin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\License\Helpers\LicenseHelper;
 use Illuminate\Support\Facades\Lang;
 
 /**

@@ -4,6 +4,7 @@ namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LicenseRequest;
+use App\License\Helpers\LicenseHelper;
 use App\License\Models\Installation;
 use App\License\Models\InstallationLog;
 use App\License\Models\License;
@@ -15,7 +16,6 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
-use App\License\Helpers\LicenseHelper;
 use Illuminate\Support\Facades\Log;
 
 /**

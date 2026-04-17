@@ -1257,4 +1257,3 @@ function bundleLink(string $url): string
 
     return $baseUrl;
 }
-
