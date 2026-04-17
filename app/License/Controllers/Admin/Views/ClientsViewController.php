@@ -3,6 +3,7 @@
 namespace App\License\Controllers\Admin\Views;
 
 use App\Http\Controllers\Controller;
+use App\License\Helpers\LicenseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
@@ -35,7 +36,7 @@ class ClientsViewController extends Controller
                 $query->where(function ($query) use ($searchQuery) {
                     $query->where('installations.installation_domain', 'like', '%'.$searchQuery.'%')
                         ->orWhere('installations.installation_ip', 'like', '%'.$searchQuery.'%')
-                        ->orWhere('installations.installation_status', 'LIKE', '%'.statusFormatter($searchQuery).'%')
+                        ->orWhere('installations.installation_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
                         ->orWhere('installations.installation_date', 'like', '%'.$searchQuery.'%');
                 });
             })
@@ -62,7 +63,7 @@ class ClientsViewController extends Controller
                         ->orWhere('licenses.license_expire_date', 'like', '%'.$searchQuery.'%')
                         ->orWhere('licenses.license_updates_date', 'like', '%'.$searchQuery.'%')
                         ->orWhere('licenses.license_support_date', 'like', '%'.$searchQuery.'%')
-                        ->orWhere('licenses.license_status', 'LIKE', '%'.statusFormatter($searchQuery).'%');
+                        ->orWhere('licenses.license_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%');
                 });
             })
             ->orderBy($sortField, $sortOrder)

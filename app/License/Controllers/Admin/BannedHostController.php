@@ -8,6 +8,7 @@ use App\License\Models\LicenseBannedHost;
 use App\License\Models\LicenseWhitelistIp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\License\Helpers\LicenseHelper;
 use Illuminate\Support\Facades\Lang;
 
 /**
@@ -70,7 +71,7 @@ class BannedHostController extends Controller
         $banned_host_ip = $request->get('banned_host_ip');
         $comments = $request->get('comments');
 
-        if (empty($id) || ! aflValidateIntegerValue($id) ||
+        if (empty($id) || ! LicenseHelper::validateIntegerValue($id) ||
         empty($rows_array = LicenseBannedHost::where('id', $id)->get()->toArray())) { //invalid record
             return errorResponse(Lang::get('lang.banned_host_not_found'), 404);
         }
@@ -104,7 +105,7 @@ class BannedHostController extends Controller
         $id = $request->get('id');
         $api_key = new ApiKeysController();
         $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
-        if ($api_action_success != 1 || ! aflValidateIntegerValue($id)) {
+        if ($api_action_success != 1 || ! LicenseHelper::validateIntegerValue($id)) {
             return errorResponse(Lang::get('lang.banned_empty'), 400);
         }
         $banned_ip = DB::table('license_banned_hosts')

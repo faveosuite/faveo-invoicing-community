@@ -42,9 +42,11 @@ trait AfuCallbackHelpers
         $rootUrl = url('/');
         $rootIps = @gethostbynamel(str_ireplace('www.', '', parse_url($rootUrl, PHP_URL_HOST) ?? ''));
 
-        if (empty($rootIps)) {
-            return '';
+        if (! is_array($rootIps)) {
+            $rootIps = [];
         }
+
+        sort($rootIps);
 
         return hash('sha256', implode('', $rootIps).$productKey.$productId.gmdate('Y-m-d'));
     }
@@ -84,6 +86,22 @@ trait AfuCallbackHelpers
             'version_comments',
         ], $extraKeysToRemove);
 
-        return array_diff_key($data, array_flip($keysToRemove));
+        $flipped = array_flip($keysToRemove);
+        $filtered = array_diff_key($data, $flipped);
+
+        // Recursively filter nested arrays (e.g. product_versions)
+        foreach ($filtered as $key => $value) {
+            if (is_array($value)) {
+                if (array_is_list($value)) {
+                    $filtered[$key] = array_map(fn ($item) => is_array($item)
+                        ? array_diff_key($item, $flipped)
+                        : $item, $value);
+                } else {
+                    $filtered[$key] = array_diff_key($value, $flipped);
+                }
+            }
+        }
+
+        return $filtered;
     }
 }

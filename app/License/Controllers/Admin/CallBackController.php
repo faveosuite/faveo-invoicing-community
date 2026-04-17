@@ -8,6 +8,7 @@ use App\License\Models\VersionCallback;
 use App\Model\Product\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\License\Helpers\LicenseHelper;
 use Illuminate\Support\Facades\Lang;
 
 class CallBackController extends Controller
@@ -30,7 +31,7 @@ class CallBackController extends Controller
                         ->orWhere('users.email', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('license_callbacks.license_code', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('license_callbacks.callback_ip', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('license_callbacks.callback_status', 'LIKE', '%'.statusFormatter($searchQuery).'%')
+                        ->orWhere('license_callbacks.callback_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
                         ->orWhere('license_callbacks.callback_domain', 'LIKE', '%'.$searchQuery.'%');
                 });
             })
@@ -57,7 +58,7 @@ class CallBackController extends Controller
                         ->orWhere('product_versions.version_number', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('version_callbacks.callback_type', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('version_callbacks.callback_ip', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('version_callbacks.callback_status', 'LIKE', '%'.statusFormatter($searchQuery).'%')
+                        ->orWhere('version_callbacks.callback_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
                         ->orWhere('version_callbacks.callback_date_time', 'LIKE', '%'.$searchQuery.'%');
                 });
             })
@@ -96,7 +97,7 @@ class CallBackController extends Controller
             foreach ($callback_ids_array as $callback_id) {
                 $removed_records += $this->deleteCallback($callback_id, $isLicense);
             }
-            if (! aflValidateIntegerValue($removed_records)) {
+            if (! LicenseHelper::validateIntegerValue($removed_records)) {
                 $error_details .= 'Invalid record or database error.';
             } else {
                 $action_success = 1;
@@ -110,7 +111,7 @@ class CallBackController extends Controller
             $page_message = "Callback could not be deleted because of this reason: $error_details";
         }
 
-        createReport(strip_tags($page_message), 1, 1, $action_success);
+        LicenseHelper::logAdminReport(strip_tags($page_message), 1, 1, $action_success);
 
         return successResponse($page_message, $removed_records, 200);
     }
@@ -120,13 +121,13 @@ class CallBackController extends Controller
     {
         $removed_records = 0;
         if ($isLicense) {
-            if (aflValidateIntegerValue($callback_id)) {
+            if (LicenseHelper::validateIntegerValue($callback_id)) {
                 $removed_records += LicenseCallback::where('license_callbacks.product_id', $callback_id)->delete(); //doMysqlQuery("DELETE FROM apl_callbacks WHERE license_callbacks.product_id=?", array($callback_id), array("i"));
             }
 
             return $removed_records;
         }
-        if (aflValidateIntegerValue($callback_id)) {
+        if (LicenseHelper::validateIntegerValue($callback_id)) {
             $removed_records += VersionCallback::where('license_callbacks.product_id', $callback_id)->delete();
         }
 

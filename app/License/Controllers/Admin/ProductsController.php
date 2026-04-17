@@ -11,6 +11,7 @@ use App\Model\Product\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use App\License\Helpers\LicenseHelper;
 use Illuminate\Support\Facades\Lang;
 
 /**
@@ -77,21 +78,21 @@ class ProductsController extends Controller
                 }
             }
 
-            if (! empty($name) && ! empty($product_sku) && aflValidateIntegerValue($status, 0, 2) && $api_action_success == 1) {
+            if (! empty($name) && ! empty($product_sku) && LicenseHelper::validateIntegerValue($status, 0, 2) && $api_action_success == 1) {
                 if (! empty($product_url_homepage) && ! filter_var($product_url_homepage, FILTER_VALIDATE_URL)) {
                     $api_error_detected = 1;
 
                     return errorResponse(Lang::get('lang.error_producturl'), 400);
                 }
 
-                if (! empty($product_envato_id) && ! aflValidateIntegerValue($product_envato_id)) {
+                if (! empty($product_envato_id) && ! LicenseHelper::validateIntegerValue($product_envato_id)) {
                     $api_error_detected = 1;
 
                     return errorResponse(Lang::get('lang.error_product_envato'), 400);
                 }
 
                 if ($api_error_detected != 1) {
-                    if (! aflValidateIntegerValue($product_envato_id)) {
+                    if (! LicenseHelper::validateIntegerValue($product_envato_id)) {
                         $product_envato_id = null;
                     }
 
@@ -115,7 +116,7 @@ class ProductsController extends Controller
                     } catch (Exception $e) {
                         $added_records += 0;
                     }
-                    if (! aflValidateIntegerValue($added_records)) {
+                    if (! LicenseHelper::validateIntegerValue($added_records)) {
                         $api_error_detected = 1;
 
                         return errorResponse(Lang::get('lang.invalid'), 400);
@@ -208,7 +209,7 @@ class ProductsController extends Controller
                     $api_action_success = 1;
                 }
             }
-            if (aflValidateIntegerValue($id)) {
+            if (LicenseHelper::validateIntegerValue($id)) {
                 if ($soft_delete === 0) {
                     DB::beginTransaction(); //mysqli_begin_transaction($GLOBALS["mysqli"]);
                     $transaction_errors_array = [];
@@ -285,7 +286,7 @@ class ProductsController extends Controller
         $product_version = $request->get('product_version');
         $product_envato_id = $request->get('product_envato_id');
 
-        if (empty($id) || ! aflValidateIntegerValue($id) || empty($rows_array = Product::where('id', $id)->get()->toArray())) { //invalid record
+        if (empty($id) || ! LicenseHelper::validateIntegerValue($id) || empty($rows_array = Product::where('id', $id)->get()->toArray())) { //invalid record
             return errorResponse(Lang::get('lang.invalid'), 404);
         }
 
@@ -318,21 +319,21 @@ class ProductsController extends Controller
                     $api_action_success = 1;
                 }
             }
-            if (! empty($name) && ! empty($product_sku) && aflValidateIntegerValue($status, 0, 2) && $api_action_success == 1) {
+            if (! empty($name) && ! empty($product_sku) && LicenseHelper::validateIntegerValue($status, 0, 2) && $api_action_success == 1) {
                 if (! empty($product_url_homepage) && ! filter_var($product_url_homepage, FILTER_VALIDATE_URL)) {
                     $api_error_detected = 1;
 
                     return errorResponse(Lang::get('lang.url_error'), 400);
                 }
 
-                if (! empty($product_envato_id) && ! aflValidateIntegerValue($product_envato_id)) {
+                if (! empty($product_envato_id) && ! LicenseHelper::validateIntegerValue($product_envato_id)) {
                     $api_error_detected = 1;
 
                     return errorResponse(Lang::get('lang.envato_error'), 400);
                 }
 
                 if ($api_error_detected != 1) {
-                    if (! aflValidateIntegerValue($product_envato_id)) {
+                    if (! LicenseHelper::validateIntegerValue($product_envato_id)) {
                         $product_envato_id = null;
                     }
 
@@ -349,7 +350,7 @@ class ProductsController extends Controller
                             'status' => $status,
                         ]);
 
-                    if (! aflValidateIntegerValue($updated_records)) {
+                    if (! LicenseHelper::validateIntegerValue($updated_records)) {
                         $api_error_detected = 1;
 
                         return errorResponse(Lang::get('lang.nothing_updated'), 400);
@@ -505,7 +506,7 @@ class ProductsController extends Controller
             $products->where(function ($query) use ($searchQuery) {
                 $query->where('name', 'LIKE', '%'.$searchQuery.'%')
                     ->orWhere('product_sku', 'LIKE', '%'.$searchQuery.'%')
-                    ->orWhere('status', 'LIKE', '%'.statusFormatter($searchQuery).'%');
+                    ->orWhere('status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%');
             });
         }
 
@@ -531,7 +532,7 @@ class ProductsController extends Controller
         }
 
         // Validate id and API key
-        if (! aflValidateIntegerValue($id) || ! $api_key->apiKeyCheck($api_key_secret, $ip_address)) {
+        if (! LicenseHelper::validateIntegerValue($id) || ! $api_key->apiKeyCheck($api_key_secret, $ip_address)) {
             return errorResponse(Lang::get('lang.invalid'), 400);
         }
 

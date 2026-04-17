@@ -53,9 +53,11 @@ trait AflCallbackHelpers
         $rootUrl = url('/');
         $rootIps = @gethostbynamel($this->getRawDomain($rootUrl));
 
-        if (empty($rootIps)) {
-            return '';
+        if (! is_array($rootIps)) {
+            $rootIps = [];
         }
+
+        sort($rootIps);
 
         return hash('sha256',
             implode('', $rootIps)
@@ -85,6 +87,24 @@ trait AflCallbackHelpers
     }
 
     /**
+     * Get installation domain from URL.
+     * Matches original getRootUrl($url, 1, 1, 0, 1): strips scheme, www, trailing slash, keeps path.
+     * e.g. "https://www.example.com/helpdesk/" → "example.com/helpdesk"
+     */
+    protected function getInstallationDomain(?string $url): string
+    {
+        if (empty($url) || ! filter_var($url, FILTER_VALIDATE_URL)) {
+            return $this->getRawDomain($url);
+        }
+
+        $parsed = parse_url($url);
+        $host = str_ireplace('www.', '', $parsed['host'] ?? '');
+        $path = rtrim($parsed['path'] ?? '', '/');
+
+        return $host.$path;
+    }
+
+    /**
      * Map validation error to notification case key.
      */
     protected function mapErrorToNotification(string $error): string
@@ -103,10 +123,24 @@ trait AflCallbackHelpers
     }
 
     /**
-     * Create license callback log.
+     * Create license callback log (with duplicate prevention for same-day callbacks).
      */
     protected function createCallback(int $productId, ?int $userId, string $licenseCode, string $ip, string $domain, int $status): void
     {
+        $today = now()->format('Y-m-d');
+
+        // Prevent duplicate callbacks for the same license/IP/domain on the same day
+        $exists = LicenseCallback::where('product_id', $productId)
+            ->where('license_code', $licenseCode)
+            ->where('callback_ip', $ip)
+            ->where('callback_domain', $domain)
+            ->whereDate('callback_date_time', $today)
+            ->exists();
+
+        if ($exists) {
+            return;
+        }
+
         LicenseCallback::create([
             'product_id' => $productId,
             'user_id' => $userId,

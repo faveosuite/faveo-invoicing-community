@@ -32,9 +32,9 @@ class FetchQueryController extends Controller
         $query_type = $request->input('query_type');
         $user_local_path = $request->input('user_local_path');
         $script_signature = $request->input('script_signature');
-        $ip = $request->ip();
+        $ip = $this->validator->resolveIp($request);
 
-        // Supported query types
+        // Validate basic request
         $supportedQueryTypes = ['install', 'upgrade'];
 
         // Validate basic request

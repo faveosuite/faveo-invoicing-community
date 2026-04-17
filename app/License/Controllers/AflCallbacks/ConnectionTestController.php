@@ -26,14 +26,13 @@ class ConnectionTestController extends Controller
     {
         $product_id = $request->input('product_id');
         $connection_hash = $request->input('connection_hash');
-        $root_url = $request->input('root_url');
 
         if (! $this->validator->isValidConnection($product_id, $connection_hash)) {
-            return $this->notificationResponse('notification_unknown_error', []);
+            return response('<connection_test>Failed</connection_test>', 400)
+                ->header('Content-Type', 'text/plain');
         }
 
-        return $this->notificationResponse('notification_license_ok', [
-            'connection' => 'successful',
-        ], $product_id, '', '', $root_url);
+        return response('<connection_test>OK</connection_test>')
+            ->header('Content-Type', 'text/plain');
     }
 }

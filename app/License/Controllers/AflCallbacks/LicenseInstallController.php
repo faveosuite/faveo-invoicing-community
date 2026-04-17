@@ -35,14 +35,9 @@ class LicenseInstallController extends Controller
         $license_code = $request->input('license_code');
         $installation_hash = $request->input('installation_hash');
         $license_signature = $request->input('license_signature');
+        $version_number = $request->input('version_number');
         $client_id = $request->input('client_id');
-        $is_cloud = $request->input('is_cloud');
-        $ip = $request->ip();
-
-        // Cloud IP override (original: floating IP for load balancer)
-        if ($is_cloud) {
-            $ip = '138.197.237.160';
-        }
+        $ip = $this->validator->resolveIp($request);
 
         // Validate basic request (IP, product_id, root_url, license_code/email)
         if (! $this->validator->isValidLicenseRequest($ip, $product_id, $root_url, $license_code, $client_email)) {
@@ -63,7 +58,7 @@ class LicenseInstallController extends Controller
 
         // Check banned hosts
         if ($this->validator->isBanned($ip)) {
-            $this->createReport($product_id, null, $license_code, 'Host banned: '.$ip, 1);
+            $this->createReport($product_id ?? 0, null, $license_code, 'Host banned: '.$ip, 1);
 
             return $this->notificationResponse('notification_host_banned', []);
         }
@@ -77,13 +72,7 @@ class LicenseInstallController extends Controller
         }
 
         // Find license (with LicensePlugin multi-product support)
-        $license = null;
-        if (! empty($license_code)) {
-            $license = $this->validator->findLicenseWithPlugins($license_code, $product_id);
-        }
-        if (! $license) {
-            $license = $this->validator->findLicenseByEmail($client_email, $product_id);
-        }
+        $license = $this->validator->findLicense($license_code, $client_email, $product_id);
 
         if (! $license) {
             $this->createReport($product_id, null, $license_code, 'License not found', 1);
@@ -94,13 +83,13 @@ class LicenseInstallController extends Controller
         // Validate license (status, expiry, IP, domain restrictions)
         $validation = $this->validator->validateLicense($license, $product_id, $client_email, $ip, $root_url);
         if (! $validation['valid']) {
-            $this->createReport($product_id, $license->user_id, $license_code, $validation['error'], 1);
+            $this->createReport($product_id, $license->user_id, $license->license_code, $validation['error'], 1);
 
-            return $this->notificationResponse($this->mapErrorToNotification($validation['error']), []);
+            return $this->notificationResponse($this->mapErrorToNotification($validation['error']), $validation['data'] ?? []);
         }
 
         $license = $validation['license'];
-        $installation_domain = $this->getRawDomain($root_url);
+        $installation_domain = $this->getInstallationDomain($root_url);
 
         // Check if installation already exists on this domain by another user
         $existingInstallation = Installation::where('product_id', $product_id)
@@ -109,9 +98,9 @@ class LicenseInstallController extends Controller
             ->first();
 
         if ($existingInstallation) {
-            if ((! empty($license_code) && $license_code != $existingInstallation->license_code)
+            if ($license->license_code != $existingInstallation->license_code
                 || ($this->validator->validateIntegerValue($client_id) && $client_id != $existingInstallation->user_id)) {
-                $this->createReport($product_id, $license->user_id, $license_code, "Installation on $installation_domain ($ip) belongs to another user", 1);
+                $this->createReport($product_id, $license->user_id, $license->license_code, "Installation on $installation_domain ($ip) belongs to another user", 1);
 
                 return $this->notificationResponse('notification_domain_in_use', []);
             }
@@ -121,7 +110,7 @@ class LicenseInstallController extends Controller
         if ($license->license_limit > 0) {
             // Count other installations (different IP or domain)
             $otherInstallations = Installation::where('product_id', $product_id)
-                ->where('license_code', $license_code)
+                ->where('license_code', $license->license_code)
                 ->where(function ($query) use ($ip, $installation_domain) {
                     $query->where('installation_ip', '!=', $ip)
                         ->orWhere('installation_domain', '!=', $installation_domain);
@@ -129,7 +118,22 @@ class LicenseInstallController extends Controller
                 ->count();
 
             if ($otherInstallations >= $license->license_limit) {
-                $this->createReport($product_id, $license->user_id, $license_code, "Maximum installations limit ({$license->license_limit}) reached", 1);
+                $this->createReport($product_id, $license->user_id, $license->license_code, "Maximum installations limit ({$license->license_limit}) reached", 1);
+
+                return $this->notificationResponse('notification_license_limit', []);
+            }
+
+            // Total installations check (catches cases where limit was reduced after installations)
+            $allInstallations = Installation::where('product_id', $product_id)
+                ->where(function ($query) use ($client_id, $license) {
+                    $query->where('user_id', $client_id)
+                        ->whereNotNull('user_id')
+                        ->orWhere('license_code', $license->license_code);
+                })
+                ->count();
+
+            if ($allInstallations > $license->license_limit) {
+                $this->createReport($product_id, $license->user_id, $license->license_code, "Maximum installations limit ({$license->license_limit}) exceeded", 1);
 
                 return $this->notificationResponse('notification_license_limit', []);
             }
@@ -139,7 +143,7 @@ class LicenseInstallController extends Controller
         $this->installationService->register([
             'product_id' => $product_id,
             'user_id' => $license->user_id ?: null,
-            'license_code' => $license_code,
+            'license_code' => $license->license_code,
             'installation_ip' => $ip,
             'installation_domain' => $installation_domain,
             'installation_hash' => $installation_hash,
@@ -147,12 +151,25 @@ class LicenseInstallController extends Controller
         ]);
 
         // Log callback
-        $this->createCallback($product_id, $license->user_id, $license_code, $ip, $root_url, 1);
+        $this->createCallback($product_id, $license->user_id, $license->license_code, $ip, $root_url, 1);
+
+        // Update installation logs
+        $this->installationService->updateLogs([
+            'license_code' => $license->license_code,
+            'root_url' => $root_url,
+            'version_number' => $version_number,
+            'installation_ip' => $ip,
+        ]);
 
         return $this->notificationResponse('notification_license_ok', [
             'license_code' => $license->license_code,
             'product_id' => $license->product_id,
             'license_status' => $license->license_status,
-        ], $product_id, $client_email, $license_code, $root_url);
+            'license_expire_date' => $license->license_expire_date,
+            'license_updates_date' => $license->license_updates_date,
+            'license_support_date' => $license->license_support_date,
+            'license_domain' => $license->license_domain,
+            'license_ip' => $license->license_ip,
+        ], $product_id, $client_email, $license->license_code, $root_url);
     }
 }

@@ -30,7 +30,7 @@ class GetAllVersionsController extends Controller
         $product_key = $request->input('product_key');
         $user_local_path = $request->input('user_local_path');
         $script_signature = $request->input('script_signature');
-        $ip = $request->ip();
+        $ip = $this->validator->resolveIp($request);
 
         // Validate basic request (IP, product_id integer, product_key, user_local_path, script_signature non-empty)
         if (! $this->validator->isValidAfuRequest($ip, $product_id, $product_key, $user_local_path, $script_signature)) {

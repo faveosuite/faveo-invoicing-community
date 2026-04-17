@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\License\Models\LicenseReport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\License\Helpers\LicenseHelper;
 use Illuminate\Support\Facades\Lang;
 
 class ReportsController extends Controller
@@ -24,7 +25,7 @@ class ReportsController extends Controller
             foreach ($report_ids_array as $report_id) {
                 $this->removed_records += $this->deleteReport($report_id, $this->removed_records);
             }
-            if (! aflValidateIntegerValue($this->removed_records)) {
+            if (! LicenseHelper::validateIntegerValue($this->removed_records)) {
                 $this->action_success = 0;
                 $this->error_details .= Lang::get('lang.inavalid_records');
             } else {
@@ -35,7 +36,7 @@ class ReportsController extends Controller
             $this->error_details .= Lang::get('lang.no_record_selected');
         }
         $page_message = $this->whichReportDeleted($whichReport, $this->action_success, $this->removed_records, $this->error_details);
-        createReport(strip_tags($page_message), 1, 1, $this->action_success);
+        LicenseHelper::logAdminReport(strip_tags($page_message), 1, 1, $this->action_success);
 
         return response(['message' => $page_message]);
     }
@@ -56,7 +57,7 @@ class ReportsController extends Controller
     //delete report
     private function deleteReport($report_id, $removed_records)
     {
-        if (aflValidateIntegerValue($report_id)) {
+        if (LicenseHelper::validateIntegerValue($report_id)) {
             $removed_records += LicenseReport::where('license_reports.id', $report_id)->delete();
         }
 

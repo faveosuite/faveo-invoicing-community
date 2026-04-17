@@ -32,7 +32,7 @@ class DownloadFileController extends Controller
         $file_type = $request->input('file_type', 'version_install_file');
         $user_local_path = $request->input('user_local_path');
         $script_signature = $request->input('script_signature');
-        $ip = $request->ip();
+        $ip = $this->validator->resolveIp($request);
 
         // Validate basic request
         if (! $this->validator->isValidAfuRequest($ip, $product_id, $product_key, $user_local_path, $script_signature)) {

@@ -10,6 +10,7 @@ use Doctrine\DBAL\Query;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\License\Helpers\LicenseHelper;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 
@@ -59,13 +60,13 @@ class ClientsController extends Controller
 
         if (
             ! empty($first_name) && ! empty($last_name) && filter_var($email, FILTER_VALIDATE_EMAIL)
-            && aflValidateIntegerValue($active, 0, 2) && $api_action_success == 1
+            && LicenseHelper::validateIntegerValue($active, 0, 2) && $api_action_success == 1
         ) {
             $created_at = date('Y-m-d');
             if ($active != 1) {
                 $updated_at = '0000-00-00';
             } else {
-                if (empty($updated_at) || ! aflVerifyDateTime($updated_at, 'Y-m-d')) { //set cancel date to now only if client is inactive and no previous cancel date set
+                if (empty($updated_at) || ! LicenseHelper::verifyDateTime($updated_at, 'Y-m-d')) { //set cancel date to now only if client is inactive and no previous cancel date set
                     $updated_at = date('Y-m-d');
                 }
             }
@@ -109,7 +110,7 @@ class ClientsController extends Controller
                 $added_records += 0;
             }
 
-            if (! aflValidateIntegerValue($added_records)) {
+            if (! LicenseHelper::validateIntegerValue($added_records)) {
                 $api_error_detected = 1;
 
                 return errorResponse(Lang::get('lang.invalid'), 400);
@@ -141,7 +142,7 @@ class ClientsController extends Controller
                 return $query->where(function ($query) use ($searchQuery) {
                     $query->where(DB::raw('CONCAT(first_name, " ", last_name)'), 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('role', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('active', 'LIKE', '%'.statusFormatter($searchQuery).'%')
+                        ->orWhere('active', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
                         ->orWhere('email', 'LIKE', '%'.$searchQuery.'%');
                 });
             })
@@ -168,7 +169,7 @@ class ClientsController extends Controller
         $api_key = new ApiKeysController();
         $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
 
-        if (! aflValidateIntegerValue($client_id) && $api_action_success != 1) {
+        if (! LicenseHelper::validateIntegerValue($client_id) && $api_action_success != 1) {
             return errorResponse(Lang::get('lang.Not_found_client'), 404);
         }
 
@@ -233,7 +234,7 @@ class ClientsController extends Controller
         $client_password = $role == 'admin' ? Hash::make($password) : null;
 
         if (
-            empty($client_id) || ! aflValidateIntegerValue($client_id) ||
+            empty($client_id) || ! LicenseHelper::validateIntegerValue($client_id) ||
             empty($rows_array = User::where('id', $client_id)->get())
         ) { //invalid record
             return errorResponse(Lang::get('lang.not_found_client'), 404);
@@ -246,12 +247,12 @@ class ClientsController extends Controller
                 $$optional_api_parameter = '';
             }
         }
-        if (! empty($first_name) && ! empty($last_name) && filter_var($email, FILTER_VALIDATE_EMAIL) && aflValidateIntegerValue($active, 0, 2) && $api_action_success == 1) {
+        if (! empty($first_name) && ! empty($last_name) && filter_var($email, FILTER_VALIDATE_EMAIL) && LicenseHelper::validateIntegerValue($active, 0, 2) && $api_action_success == 1) {
             if ($active == 1) {
                 $updated_at = '0000-00-00';
             } else {
                 $updated_at = $rows_array[0]['updated_at']; //use old updated_at if client was deactivated previously and its status wasn't changed now
-                if (empty($updated_at) || ! aflVerifyDateTime($updated_at, 'Y-m-d')) { //set cancel date to now only if no previous cancel date set
+                if (empty($updated_at) || ! LicenseHelper::verifyDateTime($updated_at, 'Y-m-d')) { //set cancel date to now only if no previous cancel date set
                     $updated_at = date('Y-m-d');
                 }
             }
@@ -306,7 +307,7 @@ class ClientsController extends Controller
                     ->where('user_id', $client_id)->delete();
             }
 
-            if (! aflValidateIntegerValue($updated_records)) {
+            if (! LicenseHelper::validateIntegerValue($updated_records)) {
                 $error_detected = 1;
 
                 return errorResponse(Lang::get('lang.nothing_updated'), 400);

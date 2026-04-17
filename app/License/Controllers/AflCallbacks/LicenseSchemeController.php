@@ -34,15 +34,9 @@ class LicenseSchemeController extends Controller
         $installation_hash = $request->input('installation_hash');
         $license_signature = $request->input('license_signature');
         $client_id = $request->input('client_id');
-        $is_cloud = $request->input('is_cloud');
         $isPlugin = $request->input('isPlugin', null);
         $tableCreate = $request->input('tableCreate', true);
-        $ip = $request->ip();
-
-        // Cloud IP override
-        if ($is_cloud) {
-            $ip = '138.197.237.160';
-        }
+        $ip = $this->validator->resolveIp($request);
 
         // Validate basic request
         if (! $this->validator->isValidLicenseRequest($ip, $product_id, $root_url, $license_code, $client_email)) {
@@ -66,13 +60,7 @@ class LicenseSchemeController extends Controller
         }
 
         // Find license (with LicensePlugin support)
-        $license = null;
-        if (! empty($license_code)) {
-            $license = $this->validator->findLicenseWithPlugins($license_code, $product_id);
-        }
-        if (! $license) {
-            $license = $this->validator->findLicenseByEmail($client_email, $product_id);
-        }
+        $license = $this->validator->findLicense($license_code, $client_email, $product_id);
 
         if (! $license) {
             return $this->notificationResponse('notification_license_not_found', []);
@@ -85,7 +73,7 @@ class LicenseSchemeController extends Controller
         }
 
         $license = $validation['license'];
-        $installation_domain = $this->getRawDomain($root_url);
+        $installation_domain = $this->getInstallationDomain($root_url);
 
         // Verify active installation exists (original requires this before returning scheme)
         $installation = Installation::where('product_id', $product_id)
@@ -123,7 +111,7 @@ class LicenseSchemeController extends Controller
         return $this->notificationResponse('notification_license_ok', [
             'scheme_id' => $scheme->id,
             'scheme_name' => 'license_scheme',
-            'scheme_sql' => $scheme->scheme_query,
+            'scheme_query' => $scheme->scheme_query,
         ], $product_id, $client_email, $license_code, $root_url);
     }
 }

@@ -5,6 +5,7 @@ namespace App\License\Controllers\Admin\Views;
 use App\Http\Controllers\Controller;
 use App\License\Models\InstallationLog;
 use App\License\Models\LicenseCallback;
+use App\License\Helpers\LicenseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
@@ -54,7 +55,7 @@ class LicenseViewController extends Controller
             ->when($searchQuery, function ($query, $searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
                     $query->Where('installation_domain', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('installation_status', 'LIKE', '%'.statusFormatter($searchQuery).'%')
+                        ->orWhere('installation_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
                         ->orWhere('installation_date', 'LIKE', '%'.$searchQuery.'%');
                 });
             })
@@ -77,7 +78,7 @@ class LicenseViewController extends Controller
             ->when($searchQuery, function ($query, $searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
                     $query->where('callback_domain', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('callback_status', 'LIKE', '%'.successErrorFormatter($searchQuery).'%')
+                        ->orWhere('callback_status', 'LIKE', '%'.LicenseHelper::successErrorFormatter($searchQuery).'%')
                         ->orWhere('callback_date_time', 'LIKE', '%'.$searchQuery.'%');
                 });
             })

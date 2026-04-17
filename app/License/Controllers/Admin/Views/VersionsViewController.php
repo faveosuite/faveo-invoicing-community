@@ -4,6 +4,7 @@ namespace App\License\Controllers\Admin\Views;
 
 use App\Http\Controllers\Controller;
 use App\License\Models\ProductVersion;
+use App\License\Helpers\LicenseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 
@@ -31,7 +32,7 @@ class VersionsViewController extends Controller
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
                     $query->where('callback_ip', 'like', '%'.$searchQuery.'%')
-                        ->orWhere('callback_status', 'LIKE', '%'.statusFormatter($searchQuery).'%')
+                        ->orWhere('callback_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
                         ->orWhere('callback_date_time', 'like', '%'.$searchQuery.'%');
                 });
             })

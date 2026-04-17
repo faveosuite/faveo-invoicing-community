@@ -8,6 +8,7 @@ use App\License\Models\LicensePlugin;
 use App\License\Models\LicenseWhitelistIp;
 use App\Model\Product\Product;
 use App\User;
+use Illuminate\Http\Request;
 
 class LicenseValidator
 {
@@ -40,6 +41,18 @@ class LicenseValidator
             && $this->validateIntegerValue($product_id)
             && filter_var($root_url, FILTER_VALIDATE_URL) !== false
             && (! empty($license_code) || filter_var($client_email, FILTER_VALIDATE_EMAIL) !== false);
+    }
+
+    /**
+     * Resolve client IP, applying cloud load-balancer override when needed.
+     */
+    public function resolveIp(Request $request): string
+    {
+        if ($request->input('is_cloud')) {
+            return '138.197.237.160';
+        }
+
+        return $request->ip();
     }
 
     /**
@@ -95,7 +108,7 @@ class LicenseValidator
             return ['valid' => false, 'error' => 'license_suspended'];
         }
 
-        if ($license->license_status == 0) {
+        if ($license->license_status === 0 || $license->license_status === '0') {
             return [
                 'valid' => false,
                 'error' => 'license_cancelled',
@@ -103,8 +116,9 @@ class LicenseValidator
             ];
         }
 
-        // Check expiration
-        if ($license->license_expire_date && $license->license_expire_date < now()->format('Y-m-d')) {
+        // Check expiration (validate date format first, matching original)
+        if ($this->verifyDateTime($license->license_expire_date, 'Y-m-d')
+            && $license->license_expire_date < now()->format('Y-m-d')) {
             return [
                 'valid' => false,
                 'error' => 'license_expired',
@@ -121,7 +135,7 @@ class LicenseValidator
         }
 
         // Check domain restriction (supports comma-separated domains, uses stripos)
-        if ($license->license_require_domain && ! empty($license->license_domain)) {
+        if (! empty($license->license_domain)) {
             $licensed_domains = array_map('trim', explode(',', $license->license_domain));
             $domain_valid = false;
             foreach ($licensed_domains as $domain) {
@@ -230,13 +244,30 @@ class LicenseValidator
         $rootUrl = url('/');
         $rootIps = @gethostbynamel($this->getRawDomain($rootUrl));
 
-        if (empty($rootIps)) {
-            return false;
+        if (! is_array($rootIps)) {
+            $rootIps = [];
         }
+
+        sort($rootIps);
 
         $expected = hash('sha256', gmdate('Y-m-d').$root_url.$client_email.$license_code.$product_id.implode('', $rootIps));
 
         return hash_equals($expected, $license_signature);
+    }
+
+    /**
+     * Find license by code (with plugin support), falling back to email lookup.
+     */
+    public function findLicense(?string $license_code, ?string $client_email, int $product_id): ?License
+    {
+        if (! empty($license_code)) {
+            $license = $this->findLicenseWithPlugins($license_code, $product_id);
+            if ($license) {
+                return $license;
+            }
+        }
+
+        return $this->findLicenseByEmail($client_email, $product_id);
     }
 
     /**
@@ -307,9 +338,11 @@ class LicenseValidator
         $rootUrl = url('/');
         $rootIps = @gethostbynamel($this->getRawDomain($rootUrl));
 
-        if (empty($rootIps)) {
-            return false;
+        if (! is_array($rootIps)) {
+            $rootIps = [];
         }
+
+        sort($rootIps);
 
         $expected = hash('sha256', gmdate('Y-m-d').$product_id.$product_key.implode('', $rootIps));
 

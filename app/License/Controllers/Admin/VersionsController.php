@@ -3,6 +3,7 @@
 namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\License\Helpers\LicenseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -27,7 +28,7 @@ class VersionsController extends Controller
                 $query->where(function ($q) use ($searchQuery) {
                     $q->where('product_versions.version_number', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('product_versions.version_date', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('product_versions.version_status', 'LIKE', '%'.statusFormatter($searchQuery).'%')
+                        ->orWhere('product_versions.version_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
                         ->orWhere('products.name', 'LIKE', '%'.$searchQuery.'%');
                 });
             })

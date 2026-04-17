@@ -10,6 +10,7 @@ use App\License\Models\License as ApiKeys;
 use App\License\Models\LicensePlugin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\License\Helpers\LicenseHelper;
 use Illuminate\Support\Facades\Lang;
 
 /**
@@ -51,7 +52,7 @@ class InstallationController extends Controller
         $installation_disable_ip = $request->get('installation_disable_ip');
         $delete_record = $request->get('delete_record');
 
-        if (empty($id) || ! aflValidateIntegerValue($id) || empty($rows_array = Installation::where('id', $id)->get())) { //invalid record
+        if (empty($id) || ! LicenseHelper::validateIntegerValue($id) || empty($rows_array = Installation::where('id', $id)->get())) { //invalid record
             return errorResponse(Lang::get('lang.invalid'), 400);
         }
         $api_key = new ApiKeysController();
@@ -68,7 +69,7 @@ class InstallationController extends Controller
                 if ($removed_records > 0) {
                     $action_success = 1;
                     $page_message = "Deleted $removed_records installation(s).";
-                    createReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
+                    LicenseHelper::logAdminReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
 
                     return $page_message; //THIS LINE IS CUSTOM IN API. ADMINISTRATION DASHBOARD CODE CONTAINS redirectInvalidRecord($script_name);
                 } else {
@@ -76,7 +77,7 @@ class InstallationController extends Controller
                     $error_details .= 'Invalid record or database error.';
                 }
             }
-            if (filter_var($installation_ip, FILTER_VALIDATE_IP) && aflValidateIntegerValue($installation_status, 0, 2)) {
+            if (filter_var($installation_ip, FILTER_VALIDATE_IP) && LicenseHelper::validateIntegerValue($installation_status, 0, 2)) {
                 if ($error_detected != 1) {
                     $updated_records += Installation::where('id', $id)
                                      ->update([
@@ -84,7 +85,7 @@ class InstallationController extends Controller
                                          'installation_disable_ip_verification' => $installation_disable_ip,
                                          'installation_status' => $installation_status,
                                      ]);
-                    if (! aflValidateIntegerValue($updated_records)) {
+                    if (! LicenseHelper::validateIntegerValue($updated_records)) {
                         $error_detected = 1;
                         $error_details .= 'Invalid record details, duplicated data, or database error.';
                     } else {
@@ -108,7 +109,7 @@ class InstallationController extends Controller
                 $page_message = "Installation could not be updated because of this reason: $error_details";
             }
 
-            createReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
+            LicenseHelper::logAdminReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
         } else { //display error message
             $page_message = "The action could not be completed because of this reason: $api_error_details";
         }
@@ -172,7 +173,7 @@ class InstallationController extends Controller
                         ->orWhere('products.name', 'like', '%'.$searchQuery.'%')
                         ->orWhere('installations.license_code', 'like', '%'.str_replace('-', '', $searchQuery).'%')
                         ->orWhere('installations.installation_ip', 'like', '%'.$searchQuery.'%')
-                        ->orWhere('installations.installation_status', 'LIKE', '%'.statusFormatter($searchQuery).'%')
+                        ->orWhere('installations.installation_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
                         ->orWhere('installations.installation_domain', 'like', '%'.$searchQuery.'%');
                 });
             })
@@ -263,7 +264,7 @@ class InstallationController extends Controller
     {
         $removed_records = 0;
         $id = $request->input('id');
-        if (aflValidateIntegerValue($id)) {
+        if (LicenseHelper::validateIntegerValue($id)) {
             $removed_records += Installation::where('id', $id)->delete();
         }
 

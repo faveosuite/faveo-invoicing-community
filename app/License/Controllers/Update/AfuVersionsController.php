@@ -10,6 +10,7 @@ use App\License\Models\ProductVersion;
 use App\License\Models\VersionCallback;
 use App\Model\Product\Product;
 use FilesystemIterator;
+use App\License\Helpers\LicenseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
@@ -78,7 +79,7 @@ class AfuVersionsController extends Controller
                 }
             }
 
-            if (aflValidateIntegerValue($product_id) && ! empty($version_number) && aflValidateIntegerValue($version_status, 0, 2)) {
+            if (LicenseHelper::validateIntegerValue($product_id) && ! empty($version_number) && LicenseHelper::validateIntegerValue($version_status, 0, 2)) {
                 if (! empty($_FILES['version_install_file']['tmp_name']) && ! validateFile($_FILES['version_install_file']['tmp_name'], $_FILES['version_install_file']['name'], ['application/zip'], ['zip'], 104857600)) {
                     $error_detected = 1;
                     $error_details .= 'Invalid installation archive format or size (ZIP archive, 100 MB max).<br>';
@@ -99,17 +100,17 @@ class AfuVersionsController extends Controller
                     $error_details .= 'Invalid upgrade query format or size (ZIP archive, 1 MB max).<br>';
                 }
 
-                if (! empty($version_install_limit) && ! aflValidateIntegerValue($version_install_limit)) {
+                if (! empty($version_install_limit) && ! LicenseHelper::validateIntegerValue($version_install_limit)) {
                     $error_detected = 1;
                     $error_details .= 'Invalid version installations limit.<br>';
                 }
 
-                if (! empty($version_upgrade_limit) && ! aflValidateIntegerValue($version_upgrade_limit)) {
+                if (! empty($version_upgrade_limit) && ! LicenseHelper::validateIntegerValue($version_upgrade_limit)) {
                     $error_detected = 1;
                     $error_details .= 'Invalid version upgrades limit.<br>';
                 }
 
-                if (! empty($version_expire_date) && ! aflVerifyDateTime($version_expire_date, 'Y-m-d')) {
+                if (! empty($version_expire_date) && ! LicenseHelper::verifyDateTime($version_expire_date, 'Y-m-d')) {
                     $error_detected = 1;
                     $error_details .= 'Invalid version expiration date.<br>';
                 }
@@ -166,7 +167,7 @@ class AfuVersionsController extends Controller
                         ]
                     );
                     $added_records = empty($added_record) ? 0 : 1;
-                    if (! aflValidateIntegerValue($added_records)) {
+                    if (! LicenseHelper::validateIntegerValue($added_records)) {
                         $error_detected = 1;
                         $error_details .= 'Invalid record details, duplicated data, or database error.<br>';
                     } else {
@@ -202,7 +203,7 @@ class AfuVersionsController extends Controller
                 $page_message = "Version could not be added because of this reason: <br><br>$error_details";
             }
 
-            createReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
+            LicenseHelper::logAdminReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
 
             /*$optional_api_parameters_array = array("version_install_file", "version_install_query", "version_raw_install_query", "version_upgrade_file", "version_upgrade_query", "version_raw_upgrade_query", "version_install_limit", "version_upgrade_limit", "version_changelog", "version_expire_date", "version_comments"); //optional API parameters for this page
             foreach ($optional_api_parameters_array as $optional_api_parameter) //in case some required parameter was not submitted, set its value empty to prevent "undefined variable" errors
@@ -212,10 +213,10 @@ class AfuVersionsController extends Controller
                 }
             }
 
-            if (aflValidateIntegerValue($product_id) && !empty($version_number) && aflValidateIntegerValue($version_status, 0, 2)) {
+            if (LicenseHelper::validateIntegerValue($product_id) && !empty($version_number) && LicenseHelper::validateIntegerValue($version_status, 0, 2)) {
                 $version_file_check = $this->versionFileCheck($version_install_file, $version_upgrade_file, $version_install_query, $version_upgrade_query, $version_install_limit, $version_upgrade_limit, $version_expire_date, $error_detected = 0, $error_details = "");
                 extract($version_file_check);
-                if (!empty($version_expire_date) && !aflVerifyDateTime($version_expire_date, "Y-m-d")) {
+                if (!empty($version_expire_date) && !LicenseHelper::verifyDateTime($version_expire_date, "Y-m-d")) {
                     $error_detected = 1;
                     $error_details .= "Invalid version expiration date.";
                 }
@@ -247,7 +248,7 @@ class AfuVersionsController extends Controller
                         'version_status' => $version_status
                     ]);
 
-                    if (!aflValidateIntegerValue($added_records)) {
+                    if (!LicenseHelper::validateIntegerValue($added_records)) {
                         $error_detected = 1;
                         $error_details .= "Invalid record details, duplicated data, or database error.";
 
@@ -271,7 +272,7 @@ class AfuVersionsController extends Controller
                 $page_message = "Version could not be added because of this reason:$error_details";
             }
 
-            createReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);*/
+            LicenseHelper::logAdminReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);*/
         } else { //display error message
             $page_message = 'The action could not be completed because of this reason: Your api key has failed';
         }
@@ -323,7 +324,7 @@ class AfuVersionsController extends Controller
         $version_comments = $request->get('version_comments');
         $product_title = $request->get('product_title');
 
-        if (empty($version_id) || ! aflValidateIntegerValue($version_id) || empty($rows_array = ProductVersion::where('version_id', $version_id)->get()->toArray())) { //invalid record
+        if (empty($version_id) || ! LicenseHelper::validateIntegerValue($version_id) || empty($rows_array = ProductVersion::where('version_id', $version_id)->get()->toArray())) { //invalid record
             return errorResponse(Lang::get('lang.invalid'), 404);
         }
         $api_key = new ApiKeysController();
@@ -342,7 +343,7 @@ class AfuVersionsController extends Controller
                     $action_success = 1;
 
                     $page_message = "Deleted $removed_records version(s).";
-                    createReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
+                    LicenseHelper::logAdminReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
                     echo $page_message; //THIS LINE IS CUSTOM IN API. ADMINISTRATION DASHBOARD CODE CONTAINS redirectInvalidRecord($script_name);
                     exit;
                 } else {
@@ -351,7 +352,7 @@ class AfuVersionsController extends Controller
                 }
             }
 
-            if (aflValidateIntegerValue($product_id) && ! empty($version_number) && aflValidateIntegerValue($version_status, 0, 2)) {
+            if (LicenseHelper::validateIntegerValue($product_id) && ! empty($version_number) && LicenseHelper::validateIntegerValue($version_status, 0, 2)) {
                 if (! empty($_FILES['version_install_file']['tmp_name']) && ! validateFile($_FILES['version_install_file']['tmp_name'], $_FILES['version_install_file']['name'], ['application/zip'], ['zip'], 104857600)) {
                     $error_detected = 1;
                     $error_details .= 'Invalid installation archive format or size (ZIP archive, 100 MB max).<br>';
@@ -372,17 +373,17 @@ class AfuVersionsController extends Controller
                     $error_details .= 'Invalid upgrade query format or size (ZIP archive, 1 MB max).<br>';
                 }
 
-                if (! empty($version_install_limit) && ! aflValidateIntegerValue($version_install_limit)) {
+                if (! empty($version_install_limit) && ! LicenseHelper::validateIntegerValue($version_install_limit)) {
                     $error_detected = 1;
                     $error_details .= 'Invalid version installations limit.<br>';
                 }
 
-                if (! empty($version_upgrade_limit) && ! aflValidateIntegerValue($version_upgrade_limit)) {
+                if (! empty($version_upgrade_limit) && ! LicenseHelper::validateIntegerValue($version_upgrade_limit)) {
                     $error_detected = 1;
                     $error_details .= 'Invalid version upgrades limit.<br>';
                 }
 
-                if (! empty($version_expire_date) && ! aflVerifyDateTime($version_expire_date, 'Y-m-d')) {
+                if (! empty($version_expire_date) && ! LicenseHelper::verifyDateTime($version_expire_date, 'Y-m-d')) {
                     $error_detected = 1;
                     $error_details .= 'Invalid version expiration date.<br>';
                 }
@@ -484,7 +485,7 @@ class AfuVersionsController extends Controller
                         ]
                     );
                     $updated_records = empty($updated_records) ? 0 : 1;
-                    if (! aflValidateIntegerValue($updated_records)) {
+                    if (! LicenseHelper::validateIntegerValue($updated_records)) {
                         $error_detected = 1;
                         $error_details .= 'Invalid record details, duplicated data, or database error.<br>';
                     } else {
@@ -522,13 +523,13 @@ class AfuVersionsController extends Controller
                 $page_message = "Version could not be updated because of this reason: <br><br>$error_details";
             }
 
-            createReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
+            LicenseHelper::logAdminReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
             /*if (!empty($delete_record) && $delete_record == 1) {
                 $removed_records += $this->deleteVersion($version_id);
                 if ($removed_records > 0) {
                     $action_success = 1;
                     $page_message = "Deleted $removed_records version(s).";
-                    createReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
+                    LicenseHelper::logAdminReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);
                     echo $page_message; //THIS LINE IS CUSTOM IN API. ADMINISTRATION DASHBOARD CODE CONTAINS redirectInvalidRecord($script_name);
                     exit();
                 } else {
@@ -536,7 +537,7 @@ class AfuVersionsController extends Controller
                     $error_details .= "Invalid record or database error.<br>";
                 }
             }*/
-            /*if (aflValidateIntegerValue($product_id) && !empty($version_number) && aflValidateIntegerValue($version_status, 0, 2)) {
+            /*if (LicenseHelper::validateIntegerValue($product_id) && !empty($version_number) && LicenseHelper::validateIntegerValue($version_status, 0, 2)) {
                 $version_file_check=$this->versionFileCheck($version_install_file,$version_upgrade_file,$version_install_query,$version_upgrade_query,$version_install_limit,$version_upgrade_limit,$version_expire_date,$error_detected=0,$error_details="");
                 extract($version_file_check);
                 if ($error_detected != 1) {
@@ -609,7 +610,7 @@ class AfuVersionsController extends Controller
                             'version_comments' => $version_comments,
                             'version_status' => $version_status
                         ]);
-                    if (!aflValidateIntegerValue($updated_records)) {
+                    if (!LicenseHelper::validateIntegerValue($updated_records)) {
                         $error_detected = 1;
                         $error_details .= "Invalid record details, duplicated data, or database error.";
                     } else {
@@ -631,7 +632,7 @@ class AfuVersionsController extends Controller
                 $page_message_class = "alert alert-danger";
             }
 
-            createReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);*/
+            LicenseHelper::logAdminReport(strip_tags($page_message), $logged_admin_id, 1, $action_success);*/
         } else { //display error message
             $page_message = 'The action could not be completed because of this reason: Your api key has failed';
         }
@@ -659,7 +660,7 @@ class AfuVersionsController extends Controller
         $api_key = new ApiKeysController();
         $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
 
-        if (aflValidateIntegerValue($version_id) && $api_action_success == 1) {
+        if (LicenseHelper::validateIntegerValue($version_id) && $api_action_success == 1) {
             if (! empty($rows_array = ProductVersion::where('version_id', $version_id)->get()->toArray())) { //get version_install_file, version_install_query, version_upgrade_file, version_upgrade_query (if any) to remove from server
                 foreach ($rows_array as $row) {
                     extract((array) $row);
@@ -705,7 +706,7 @@ class AfuVersionsController extends Controller
      */
     public function disableOldVersion($product_id, $product_max_active_versions, $version_number, $version_comments)
     {
-        if (aflValidateIntegerValue($product_id) && aflValidateIntegerValue($product_max_active_versions) && ! empty($version_number)) {
+        if (LicenseHelper::validateIntegerValue($product_id) && LicenseHelper::validateIntegerValue($product_max_active_versions) && ! empty($version_number)) {
             $version_expire_date = date('Y-m-d');
             if (empty($version_comments)) {
                 $version_comments = "$product_max_active_versions active versions supported - expired on $version_expire_date after adding version $version_number";
@@ -810,17 +811,17 @@ class AfuVersionsController extends Controller
                 $error_details .= 'Invalid upgrade query format or size (ZIP archive, 1 MB max).';
             }
         }
-        if (! empty($version_install_limit) && ! aflValidateIntegerValue($version_install_limit)) {
+        if (! empty($version_install_limit) && ! LicenseHelper::validateIntegerValue($version_install_limit)) {
             $error_detected = 1;
             $error_details .= 'Invalid version installations limit.';
         }
 
-        if (! empty($version_upgrade_limit) && ! aflValidateIntegerValue($version_upgrade_limit)) {
+        if (! empty($version_upgrade_limit) && ! LicenseHelper::validateIntegerValue($version_upgrade_limit)) {
             $error_detected = 1;
             $error_details .= 'Invalid version upgrades limit.';
         }
 
-        if (! empty($version_expire_date) && ! aflVerifyDateTime($version_expire_date, 'Y-m-d')) {
+        if (! empty($version_expire_date) && ! LicenseHelper::verifyDateTime($version_expire_date, 'Y-m-d')) {
             $error_detected = 1;
             $error_details .= 'Invalid version expiration date.';
         }

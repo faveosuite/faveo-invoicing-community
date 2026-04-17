@@ -15,9 +15,8 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
+use App\License\Helpers\LicenseHelper;
 use Illuminate\Support\Facades\Log;
-
-use function Laravel\Prompts\select;
 
 /**
  * Consist of functionalities for the License page in Auto Faveo licenser
@@ -74,8 +73,8 @@ class LicenseController extends Controller
         $api_key = new ApiKeysController();
         $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
 
-        if (aflValidateIntegerValue($id) && aflValidateIntegerValue($license_require_domain, 0, 1) && aflValidateIntegerValue($license_status, 0, 2)) {
-            if (empty($client_id) || ! aflValidateIntegerValue($client_id)) { //in case no client_id was submitted, its value must be stored as NULL in database
+        if (LicenseHelper::validateIntegerValue($id) && LicenseHelper::validateIntegerValue($license_require_domain, 0, 1) && LicenseHelper::validateIntegerValue($license_status, 0, 2)) {
+            if (empty($client_id) || ! LicenseHelper::validateIntegerValue($client_id)) { //in case no client_id was submitted, its value must be stored as NULL in database
                 $client_id = null;
             }
 
@@ -88,14 +87,14 @@ class LicenseController extends Controller
             }
             if ($api_error_detected != 1) {
                 $license_date = date('Y-m-d');
-                if (empty($license_envato) || ! aflValidateIntegerValue($license_envato)) {
+                if (empty($license_envato) || ! LicenseHelper::validateIntegerValue($license_envato)) {
                     $license_envato = 0;
                 }
 
                 if ($license_status == 1) {
                     $license_cancel_date = '0000-00-00';
                 } else {
-                    if (empty($license_cancel_date) || ! aflVerifyDateTime($license_cancel_date, 'Y-m-d')) { //set cancel date to now only if license is inactive and no previous cancel date set
+                    if (empty($license_cancel_date) || ! LicenseHelper::verifyDateTime($license_cancel_date, 'Y-m-d')) { //set cancel date to now only if license is inactive and no previous cancel date set
                         $license_cancel_date = date('Y-m-d');
                     }
                 }
@@ -131,14 +130,14 @@ class LicenseController extends Controller
                     $added_records += 0;
                 }
 
-                if (! aflValidateIntegerValue($added_records)) {
+                if (! LicenseHelper::validateIntegerValue($added_records)) {
                     $api_error_detected = 1;
 
                     return errorResponse(Lang::get('lang.invalid_record_data'), 400);
                 } else {
                     $action_success = 1;
                     $license_id = DB::getpdo()->lastInsertId();
-                    if (aflValidateIntegerValue($license_id)) {
+                    if (LicenseHelper::validateIntegerValue($license_id)) {
                         foreach ($rows_array = License::leftJoin('afl_products', 'afl_licenses.id', '=', 'afl_products.id')
                             ->leftJoin('users', 'afl_licenses.client_id', '=', 'users.client_id')
                             ->where('afl_licenses.license_id', $license_id)
@@ -146,7 +145,7 @@ class LicenseController extends Controller
                             //fetchRow("SELECT * FROM apl_licenses LEFT JOIN apl_products ON apl_licenses.id=apl_products.id LEFT JOIN apl_clients ON apl_licenses.client_id=apl_clients.client_id WHERE apl_licenses.license_id=?", array($license_id), array("i")) as $row) //fetch product and client details to use in reports
                             extract((array) $row);
                         }
-                        $client_formatted = formatClient($license_code, $client_email);
+                        $client_formatted = LicenseHelper::formatClient($license_code, $client_email);
 
                         $api_response_array = ['api_action_success' => $api_action_success, 'api_error_detected' => $api_error_detected, 'action_success' => 1, 'error_detected' => 0, 'page_message' => $client_formatted]; //make array with response data
 
@@ -199,7 +198,7 @@ class LicenseController extends Controller
         $license_updates_date = $request->get('license_updates_date');
         $license_support_date = $request->get('license_support_date');
         $license_comments = $request->get('license_comments');
-        if (empty($license_id) || ! aflValidateIntegerValue($license_id) || empty($rows_array = License::where('id', $license_id)->get())) {//invalid record
+        if (empty($license_id) || ! LicenseHelper::validateIntegerValue($license_id) || empty($rows_array = License::where('id', $license_id)->get())) {//invalid record
             return errorResponse(Lang::get('lang.license_id'), 400);
         }
         $api_key = new ApiKeysController();
@@ -211,8 +210,8 @@ class LicenseController extends Controller
                 $$optional_api_parameter = '';
             }
         }
-        if (aflValidateIntegerValue($id) && aflValidateIntegerValue($license_require_domain, 0, 1) && aflValidateIntegerValue($license_status, 0, 2) && $api_action_success == 1) {
-            if (empty($client_id) || ! aflValidateIntegerValue($client_id)) { //in case no client_id was submitted, its value must be stored as NULL in database
+        if (LicenseHelper::validateIntegerValue($id) && LicenseHelper::validateIntegerValue($license_require_domain, 0, 1) && LicenseHelper::validateIntegerValue($license_status, 0, 2) && $api_action_success == 1) {
+            if (empty($client_id) || ! LicenseHelper::validateIntegerValue($client_id)) { //in case no client_id was submitted, its value must be stored as NULL in database
                 $client_id = null;
             }
             if (empty($license_code)) { //in case no license_code was submitted, its value must be stored as NULL in database
@@ -223,32 +222,32 @@ class LicenseController extends Controller
                 return errorResponse($licenseChecks->getOriginalContent()['message'], 400);
             }
             if ($api_action_success == 1) {
-                if (! empty($license_expire_date) && aflVerifyDateTime($license_expire_date, 'Y-m-d') && $license_expire_date != $rows_array[0]['license_expire_date']) { //license_expire_date changed, reset license_expire_email_date, so client can receive new notification
+                if (! empty($license_expire_date) && LicenseHelper::verifyDateTime($license_expire_date, 'Y-m-d') && $license_expire_date != $rows_array[0]['license_expire_date']) { //license_expire_date changed, reset license_expire_email_date, so client can receive new notification
                     $license_expire_email_date = '0000-00-00';
                 } else {
                     $license_expire_email_date = $rows_array[0]['license_expire_email_date']; //use old license_expire_email_date
                 }
 
-                if (! empty($license_updates_date) && aflVerifyDateTime($license_updates_date, 'Y-m-d') && $license_updates_date != $rows_array[0]['license_updates_date']) { //license_updates_date changed, reset license_updates_email_date, so client can receive new notification
+                if (! empty($license_updates_date) && LicenseHelper::verifyDateTime($license_updates_date, 'Y-m-d') && $license_updates_date != $rows_array[0]['license_updates_date']) { //license_updates_date changed, reset license_updates_email_date, so client can receive new notification
                     $license_updates_email_date = '0000-00-00';
                 } else {
                     $license_updates_email_date = $rows_array[0]['license_updates_email_date']; //use old license_updates_email_date
                 }
 
-                if (! empty($license_support_date) && aflVerifyDateTime($license_support_date, 'Y-m-d') && $license_support_date != $rows_array[0]['license_support_date']) { //license_support_date changed, reset license_support_email_date, so client can receive new notification
+                if (! empty($license_support_date) && LicenseHelper::verifyDateTime($license_support_date, 'Y-m-d') && $license_support_date != $rows_array[0]['license_support_date']) { //license_support_date changed, reset license_support_email_date, so client can receive new notification
                     $license_support_email_date = '0000-00-00';
                 } else {
                     $license_support_email_date = $rows_array[0]['license_support_email_date']; //use old license_support_email_date
                 }
 
-                if (empty($license_envato) || ! aflValidateIntegerValue($license_envato)) {
+                if (empty($license_envato) || ! LicenseHelper::validateIntegerValue($license_envato)) {
                     $license_envato = 0;
                 }
                 if ($license_status == 1) {
                     $license_cancel_date = '0000-00-00';
                 } else {
                     $license_cancel_date = $rows_array[0]['license_cancel_date']; //use old license_cancel_date if license was deactivated previously and its status wasn't changed now
-                    if (empty($license_cancel_date) || ! aflVerifyDateTime($license_cancel_date, 'Y-m-d')) { //set cancel date to now only if no previous cancel date set
+                    if (empty($license_cancel_date) || ! LicenseHelper::verifyDateTime($license_cancel_date, 'Y-m-d')) { //set cancel date to now only if no previous cancel date set
                         $license_cancel_date = date('Y-m-d');
                     }
                 }
@@ -272,7 +271,7 @@ class LicenseController extends Controller
                     ]);
                 //doMysqlQuery("UPDATE apl_licenses SET license_order_number=?, license_ip=?, license_domain=?, license_require_domain=?, license_limit=?, license_cancel_date=?, license_expire_date=?, license_expire_email_date=?, license_updates_date=?, license_updates_email_date=?, license_support_date=?, license_support_email_date=?, license_comments=?, license_envato=?, license_status=? WHERE license_id=?", array($license_order_number, $license_ip, $license_domain, $license_require_domain, $license_limit, $license_cancel_date, $license_expire_date, $license_expire_email_date, $license_updates_date, $license_updates_email_date, $license_support_date, $license_support_email_date, $license_comments, $license_envato, $license_status, $license_id), array("s", "s", "s", "i", "i", "s", "s", "s", "s", "s", "s", "s", "s", "i", "i", "i"));
 
-                if (! aflValidateIntegerValue($updated_records)) {
+                if (! LicenseHelper::validateIntegerValue($updated_records)) {
                     $api_error_detected = 1;
 
                     return errorResponse(Lang::get('lang.invalid_record_data'), 400);
@@ -285,7 +284,7 @@ class LicenseController extends Controller
                         extract((array) $row);
                     }
 
-                    $client_formatted = formatClient($license_code, $client_email);
+                    $client_formatted = LicenseHelper::formatClient($license_code, $client_email);
 
                     return successResponse(Lang::get('lang.license_Update'), $client_formatted, 200);
                 }
@@ -307,7 +306,7 @@ class LicenseController extends Controller
         $api_key_secret = $request->get('api_key_secret');
         $api_key = new ApiKeysController();
 
-        if (! aflValidateIntegerValue($license_id) || ! $api_key->apiKeyCheck($api_key_secret, $this->ip_address)) {
+        if (! LicenseHelper::validateIntegerValue($license_id) || ! $api_key->apiKeyCheck($api_key_secret, $this->ip_address)) {
             return errorResponse(Lang::get('lang.invalid'), 400);
         }
 
@@ -355,7 +354,7 @@ class LicenseController extends Controller
                     ->orWhere('products.name', 'like', '%'.$searchQuery.'%');
                 foreach ($searchable as $field) {
                     if ($field == 'license_status') {
-                        $query->orWhere('licenses.'.$field, 'like', '%'.statusFormatter($searchQuery).'%');
+                        $query->orWhere('licenses.'.$field, 'like', '%'.LicenseHelper::statusFormatter($searchQuery).'%');
                     } elseif ($field == 'license_code') {
                         $query->orWhere('licenses.'.$field, 'like', '%'.str_replace('-', '', $searchQuery).'%');
                     } else {
@@ -430,13 +429,13 @@ class LicenseController extends Controller
      */
     protected function licenseChecks($client_id, $license_code, $license_ip, $license_domain, $license_limit, $license_expire_date, $license_updates_date, $license_support_date)
     {
-        if (! aflValidateIntegerValue($client_id) && empty($license_code)) {
+        if (! LicenseHelper::validateIntegerValue($client_id) && empty($license_code)) {
             $api_error_detected = 1;
 
             return errorResponse(Lang::get('lang.error_client_or_license_code'), 400);
         }
 
-        if (aflValidateIntegerValue($client_id) && ! empty($license_code)) {
+        if (LicenseHelper::validateIntegerValue($client_id) && ! empty($license_code)) {
             $api_error_detected = 1;
 
             return errorResponse(Lang::get('lang.invalid_licnese'), 400);
@@ -465,25 +464,25 @@ class LicenseController extends Controller
             }
         }
 
-        if (! empty($license_limit) && ! aflValidateIntegerValue($license_limit)) {
+        if (! empty($license_limit) && ! LicenseHelper::validateIntegerValue($license_limit)) {
             $api_error_detected = 1;
 
             return errorResponse(Lang::get('lang.invalid_license_limit'), 400);
         }
 
-        if (! empty($license_expire_date) && ! aflVerifyDateTime($license_expire_date, 'Y-m-d')) {
+        if (! empty($license_expire_date) && ! LicenseHelper::verifyDateTime($license_expire_date, 'Y-m-d')) {
             $api_error_detected = 1;
 
             return errorResponse(Lang::get('lang.invalid_license_expiry'), 400);
         }
 
-        if (! empty($license_updates_date) && ! aflVerifyDateTime($license_updates_date, 'Y-m-d')) {
+        if (! empty($license_updates_date) && ! LicenseHelper::verifyDateTime($license_updates_date, 'Y-m-d')) {
             $api_error_detected = 1;
 
             return errorResponse(Lang::get('lang.invalid_license_update_date'), 400);
         }
 
-        if (! empty($license_support_date) && ! aflVerifyDateTime($license_support_date, 'Y-m-d')) {
+        if (! empty($license_support_date) && ! LicenseHelper::verifyDateTime($license_support_date, 'Y-m-d')) {
             $api_error_detected = 1;
 
             return errorResponse(Lang::get('lang.invalid_license_support_date'), 400);

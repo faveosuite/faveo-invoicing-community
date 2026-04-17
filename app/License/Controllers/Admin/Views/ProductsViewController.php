@@ -5,6 +5,7 @@ namespace App\License\Controllers\Admin\Views;
 use App\Http\Controllers\Controller;
 use App\License\Models\ProductVersion;
 use App\Model\Product\Product;
+use App\License\Helpers\LicenseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
@@ -43,7 +44,7 @@ class ProductsViewController extends Controller
                         ->orWhere('installations.license_code', 'like', '%'.str_replace('-', '', $searchQuery).'%')
                         ->orWhere('installations.installation_domain', 'like', '%'.$searchQuery.'%')
                         ->orWhere('installations.installation_ip', 'like', '%'.$searchQuery.'%')
-                        ->orWhere('installations.installation_status', 'LIKE', '%'.statusFormatter($searchQuery).'%')
+                        ->orWhere('installations.installation_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
                         ->orWhere('installations.installation_date', 'like', '%'.$searchQuery.'%');
                 });
             })
@@ -68,7 +69,7 @@ class ProductsViewController extends Controller
             ->when($searchQuery, function ($query, $searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
                     $query->where('users.email', 'like', '%'.$searchQuery.'%')
-                        ->orWhere('licenses.license_status', 'LIKE', '%'.statusFormatter($searchQuery).'%')
+                        ->orWhere('licenses.license_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
                         ->orWhere('licenses.license_code', 'like', '%'.str_replace('-', '', $searchQuery).'%');
                 });
             })
@@ -103,7 +104,7 @@ class ProductsViewController extends Controller
         $productVersions = ProductVersion::where('product_id', $product)
             ->where(function ($query) use ($searchQuery) {
                 $query->where('version_number', 'like', '%'.$searchQuery.'%')
-                    ->orWhere('version_status', 'LIKE', '%'.statusFormatter($searchQuery).'%')
+                    ->orWhere('version_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
                     ->orWhere('version_date', 'like', '%'.$searchQuery.'%');
             })
             ->select('id', 'version_number', 'version_date', 'version_status')

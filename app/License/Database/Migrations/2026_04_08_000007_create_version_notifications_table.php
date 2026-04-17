@@ -10,22 +10,32 @@ return new class extends Migration
      * Run the migrations.
      *
      * Version notifications table (from afu_notifications).
-     * Response templates for update checks.
+     * Response templates for update check callbacks.
      */
     public function up(): void
     {
         Schema::create('version_notifications', function (Blueprint $table) {
             $table->id();
-            $table->text('notification_version_ok')->nullable();
-            $table->text('notification_version_not_found')->nullable();
-            $table->text('notification_update_available')->nullable();
-            $table->text('notification_no_update')->nullable();
-            $table->text('notification_update_failed')->nullable();
-            $table->text('notification_invalid_request')->nullable();
-            $table->text('notification_banned_host')->nullable();
-            $table->text('notification_connection_ok')->nullable();
-            $table->text('notification_connection_failed')->nullable();
-            $table->timestamps();
+            $table->string('notification_operation_ok', 250)->nullable();
+            $table->string('notification_product_not_found', 250)->nullable();
+            $table->string('notification_product_inactive', 250)->nullable();
+            $table->string('notification_product_no_versions', 250)->nullable();
+            $table->string('notification_version_not_found', 250)->nullable();
+            $table->string('notification_version_inactive', 250)->nullable();
+            $table->string('notification_version_expired', 250)->nullable();
+            $table->string('notification_install_limit_reached', 250)->nullable();
+            $table->string('notification_upgrade_limit_reached', 250)->nullable();
+            $table->string('notification_install_archive_not_found', 250)->nullable();
+            $table->string('notification_install_query_not_found', 250)->nullable();
+            $table->string('notification_upgrade_archive_not_found', 250)->nullable();
+            $table->string('notification_upgrade_query_not_found', 250)->nullable();
+            $table->string('notification_raw_install_query_not_found', 250)->nullable();
+            $table->string('notification_raw_upgrade_query_not_found', 250)->nullable();
+            $table->string('notification_installation_not_verified', 250)->nullable();
+            $table->string('notification_invalid_parameter', 250)->nullable();
+            $table->string('notification_invalid_signature', 250)->nullable();
+            $table->string('notification_host_banned', 250)->nullable();
+            $table->string('notification_unknown_error', 250)->nullable();
         });
     }
 

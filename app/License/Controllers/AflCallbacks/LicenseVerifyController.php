@@ -36,13 +36,7 @@ class LicenseVerifyController extends Controller
         $installation_hash = $request->input('installation_hash');
         $license_signature = $request->input('license_signature');
         $client_id = $request->input('client_id');
-        $is_cloud = $request->input('is_cloud');
-        $ip = $request->ip();
-
-        // Cloud IP override
-        if ($is_cloud) {
-            $ip = '138.197.237.160';
-        }
+        $ip = $this->validator->resolveIp($request);
 
         // Validate basic request (IP, product_id, root_url, license_code/email)
         if (! $this->validator->isValidLicenseRequest($ip, $product_id, $root_url, $license_code, $client_email)) {
@@ -63,7 +57,7 @@ class LicenseVerifyController extends Controller
 
         // Check banned hosts
         if ($this->validator->isBanned($ip)) {
-            $this->createReport($product_id, null, $license_code, 'Host banned: '.$ip, 1);
+            $this->createReport($product_id ?? 0, null, $license_code, 'Host banned: '.$ip, 1);
 
             return $this->notificationResponse('notification_host_banned', []);
         }
@@ -77,13 +71,7 @@ class LicenseVerifyController extends Controller
         }
 
         // Find license (with LicensePlugin multi-product support)
-        $license = null;
-        if (! empty($license_code)) {
-            $license = $this->validator->findLicenseWithPlugins($license_code, $product_id);
-        }
-        if (! $license) {
-            $license = $this->validator->findLicenseByEmail($client_email, $product_id);
-        }
+        $license = $this->validator->findLicense($license_code, $client_email, $product_id);
 
         if (! $license) {
             $this->createReport($product_id, null, $license_code, 'License not found during verification', 1);
@@ -100,7 +88,7 @@ class LicenseVerifyController extends Controller
         }
 
         $license = $validation['license'];
-        $installation_domain = $this->getRawDomain($root_url);
+        $installation_domain = $this->getInstallationDomain($root_url);
 
         // Check installation ownership (same as original)
         $existingInstallation = Installation::where('product_id', $product_id)

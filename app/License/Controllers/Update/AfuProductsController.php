@@ -8,6 +8,7 @@ use App\License\Models\Installation;
 use App\License\Models\ProductVersion;
 use App\License\Models\VersionCallback;
 use App\Model\Product\Product;
+use App\License\Helpers\LicenseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -61,7 +62,7 @@ class AfuProductsController extends Controller
             }
         }
 
-        if (! empty($product_title) && ! empty($product_sku) && aflValidateIntegerValue($product_status, 0, 2) && ! empty($product_key) && $api_action_success == 1) {
+        if (! empty($product_title) && ! empty($product_sku) && LicenseHelper::validateIntegerValue($product_status, 0, 2) && ! empty($product_key) && $api_action_success == 1) {
             if (! empty($product_url_homepage) && ! filter_var($product_url_homepage, FILTER_VALIDATE_URL)) {
                 $api_error_detected = 1;
 
@@ -89,7 +90,7 @@ class AfuProductsController extends Controller
                 } catch (Exception $e) {
                     $added_records += 0;
                 }
-                if (! aflValidateIntegerValue($added_records)) {
+                if (! LicenseHelper::validateIntegerValue($added_records)) {
                     $api_error_detected = 1;
 
                     return errorResponse(Lang::get('lang.invalid'), 400);
@@ -112,7 +113,7 @@ class AfuProductsController extends Controller
         $soft_delete = $request->get('soft_delete');
         $api_key = new ApiKeysController();
         $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
-        if (aflValidateIntegerValue($product_id) && $api_action_success == 1) {
+        if (LicenseHelper::validateIntegerValue($product_id) && $api_action_success == 1) {
             if ($soft_delete === 0) {
                 DB::beginTransaction(); //mysqli_begin_transaction($GLOBALS["mysqli"]);
                 $transaction_errors_array = [];
@@ -156,12 +157,12 @@ class AfuProductsController extends Controller
         $product_price = $request->get('product_price');
         $product_max_active_versions = $request->get('product_max_active_versions');
 
-        if (empty($product_id) || ! aflValidateIntegerValue($product_id) || empty($rows_array = Product::where('product_id', $product_id)->get()->toArray())) { //invalid record
+        if (empty($product_id) || ! LicenseHelper::validateIntegerValue($product_id) || empty($rows_array = Product::where('product_id', $product_id)->get()->toArray())) { //invalid record
             return errorResponse(Lang::get('lang.invalid'), 404);
         }
         $api_key = new ApiKeysController();
         $api_action_success = $api_key->apiKeyCheck($api_key_secret, $this->ip_address);
-        if (! empty($product_title) && ! empty($product_sku) && ! empty($product_key) && aflValidateIntegerValue($product_status, 0, 2) && $api_action_success == 1) {
+        if (! empty($product_title) && ! empty($product_sku) && ! empty($product_key) && LicenseHelper::validateIntegerValue($product_status, 0, 2) && $api_action_success == 1) {
             if (! empty($product_url_homepage) && ! filter_var($product_url_homepage, FILTER_VALIDATE_URL)) {
                 $api_error_detected = 1;
 
@@ -184,7 +185,7 @@ class AfuProductsController extends Controller
                         'product_max_active_versions' => $product_max_active_versions,
 
                     ]);
-                if (! aflValidateIntegerValue($updated_records)) {
+                if (! LicenseHelper::validateIntegerValue($updated_records)) {
                     return errorResponse(Lang::get('lang.nothing_updated'), 400);
                 } else {
                     return successResponse(Lang::get('lang.Product_Update'), $updated_records, 200);

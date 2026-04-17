@@ -16,23 +16,24 @@ return new class extends Migration
     {
         Schema::create('license_notifications', function (Blueprint $table) {
             $table->id();
-            $table->text('notification_product_not_found')->nullable();
-            $table->text('notification_license_ok')->nullable();
-            $table->text('notification_license_not_found')->nullable();
-            $table->text('notification_license_expired')->nullable();
-            $table->text('notification_license_suspended')->nullable();
-            $table->text('notification_license_limit_exceeded')->nullable();
-            $table->text('notification_installation_ok')->nullable();
-            $table->text('notification_installation_failed')->nullable();
-            $table->text('notification_updates_ok')->nullable();
-            $table->text('notification_updates_not_found')->nullable();
-            $table->text('notification_support_expired')->nullable();
-            $table->text('notification_domain_mismatch')->nullable();
-            $table->text('notification_ip_mismatch')->nullable();
-            $table->text('notification_invalid_request')->nullable();
-            $table->text('notification_banned_host')->nullable();
-            $table->text('notification_connection_ok')->nullable();
-            $table->text('notification_connection_failed')->nullable();
+            $table->string('notification_product_not_found', 250)->nullable();
+            $table->string('notification_product_inactive', 250)->nullable();
+            $table->string('notification_license_ok', 250)->nullable();
+            $table->string('notification_license_not_found', 250)->nullable();
+            $table->string('notification_invalid_ip', 250)->nullable();
+            $table->string('notification_invalid_domain', 250)->nullable();
+            $table->string('notification_domain_required', 250)->nullable();
+            $table->string('notification_domain_in_use', 250)->nullable();
+            $table->string('notification_license_suspended', 250)->nullable();
+            $table->string('notification_license_expired', 250)->nullable();
+            $table->string('notification_updates_expired', 250)->nullable();
+            $table->string('notification_support_expired', 250)->nullable();
+            $table->string('notification_license_cancelled', 250)->nullable();
+            $table->string('notification_license_limit', 250)->nullable();
+            $table->string('notification_installation_not_found', 250)->nullable();
+            $table->string('notification_invalid_signature', 250)->nullable();
+            $table->string('notification_host_banned', 250)->nullable();
+            $table->string('notification_unknown_error', 250)->nullable();
             $table->timestamps();
         });
     }
