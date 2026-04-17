@@ -225,22 +225,10 @@ export default {
                 }
             });
 
-            this.product_title = data.product?.product_title
-
-            if(data.installation_date) {
-
-                this.installation_date = data.installation_date
-            }
-
-            if(data.license && data.license.license_code) {
-
-                this.license_code = data.license.license_code
-            }
-
-            if(data.license && data.license.license_id) {
-
-                this.license_id = data.license.license_id
-            }
+            this.product_title = data.product_title || ''
+            this.installation_date = data.installation_date || ''
+            this.license_code = data.license_code || ''
+            this.license_id = data.license_id || ''
 
         },
 

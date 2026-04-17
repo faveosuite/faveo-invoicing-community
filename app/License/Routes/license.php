@@ -86,14 +86,6 @@ Route::prefix('api/admin')->middleware(['web', 'auth', 'admin'])->group(function
     Route::get('/dashboarddropdown', [\App\License\Controllers\Admin\DashboardController::class, 'dashboard']);
 
     // ========================================================================
-    // PRODUCTS (admin CRUD handled by main billing app; read-only sub-views kept
-    // for license-manager pages that need product-scoped data)
-    // ========================================================================
-    Route::get('/productView/{product_id}', [\App\License\Controllers\Admin\Views\ProductsViewController::class, 'getProductDetails']);
-    Route::get('/productInstallations/{product_id}', [\App\License\Controllers\Admin\Views\ProductsViewController::class, 'getProductInstallations']);
-    Route::get('/productLicenses/{product_id}', [\App\License\Controllers\Admin\Views\ProductsViewController::class, 'getProductLicenses']);
-    Route::get('/productVersions/{product_id}', [\App\License\Controllers\Admin\Views\ProductsViewController::class, 'getProductVersions']);
-    // ========================================================================
     // VERSIONS
     // ========================================================================
     Route::get('/viewVersions', [\App\License\Controllers\Admin\VersionsController::class, 'show']);
@@ -156,11 +148,6 @@ Route::prefix('api/admin')->middleware(['web', 'auth', 'admin'])->group(function
     Route::get('/whitelist-edit/{id}', [\App\License\Controllers\WhitelistIpsController::class, 'edit']);
     Route::post('/whitelist/updateOrCreate', [\App\License\Controllers\WhitelistIpsController::class, 'whitelistAdd']);
     Route::post('/delete-whitelist-ip', [\App\License\Controllers\WhitelistIpsController::class, 'deleteWhitelistIp']);
-
-    // ========================================================================
-    // CLIENTS
-    // ========================================================================
-    Route::get('/viewClients/{client_id?}', [\App\License\Controllers\Admin\ClientsController::class, 'show']);
 
     // ========================================================================
     // SERVER NOTIFICATIONS

@@ -355,13 +355,9 @@ export default {
                 }
             });
 
-            this.product_title = data.product?.product_title
-
-            if(data.clients) {
-
-                this.client_email = data.clients.client_email
-                this.client_id = data.clients.client_id
-            }
+            this.product_title = data.product_title || ''
+            this.client_email = data.client_email || ''
+            this.client_id = data.client_id || ''
             if(data.latest_call_backs) {
 
                 this.latest_call_backs = data.latest_call_backs

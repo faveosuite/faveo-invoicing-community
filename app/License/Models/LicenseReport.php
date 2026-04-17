@@ -37,6 +37,11 @@ class LicenseReport extends Model
         return $this->belongsTo(\App\User::class, 'user_id');
     }
 
+    public function license(): BelongsTo
+    {
+        return $this->belongsTo(License::class, 'license_code', 'license_code');
+    }
+
     public function scopePending($query)
     {
         return $query->where('report_status', 0);

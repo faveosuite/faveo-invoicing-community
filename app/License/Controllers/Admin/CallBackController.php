@@ -5,10 +5,10 @@ namespace App\License\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\LicenseCallback;
+use App\License\Models\License;
+use App\License\Models\ProductVersion;
 use App\License\Models\VersionCallback;
-use App\Model\Product\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 
 class CallBackController extends Controller
@@ -20,23 +20,45 @@ class CallBackController extends Controller
         $searchQuery = str_replace('-', '', $request->input('search_query'));
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
-        $paginatedCallbacks = DB::table('license_callbacks')
-            ->selectRaw('license_callbacks.id, license_callbacks.product_id, license_callbacks.user_id, license_callbacks.license_code, license_callbacks.callback_domain, license_callbacks.callback_ip, license_callbacks.callback_date_time, license_callbacks.callback_status, products.name as product_title, products.id as product_id, users.email as client_email, licenses.id as license_id')
-            ->leftJoin('products', 'license_callbacks.product_id', '=', 'products.id')
-            ->leftJoin('users', 'license_callbacks.user_id', '=', 'users.id')
-            ->leftJoin('licenses', 'license_callbacks.license_code', '=', 'licenses.license_code')
+        $allowedSortFields = ['id', 'product_id', 'user_id', 'license_code', 'callback_domain', 'callback_ip', 'callback_date_time', 'callback_status'];
+        $sortField = in_array($sortField, $allowedSortFields, true) ? $sortField : 'id';
+        $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
+
+        $paginatedCallbacks = LicenseCallback::query()
+            ->with(['product:id,name', 'user:id,email'])
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
-                    $query->where('products.name', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('users.email', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('license_callbacks.license_code', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('license_callbacks.callback_ip', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('license_callbacks.callback_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
-                        ->orWhere('license_callbacks.callback_domain', 'LIKE', '%'.$searchQuery.'%');
+                    $query->whereHas('product', function ($productQuery) use ($searchQuery) {
+                        $productQuery->where('name', 'LIKE', '%'.$searchQuery.'%');
+                    })->orWhereHas('user', function ($userQuery) use ($searchQuery) {
+                        $userQuery->where('email', 'LIKE', '%'.$searchQuery.'%');
+                    })->orWhere('license_code', 'LIKE', '%'.$searchQuery.'%')
+                        ->orWhere('callback_ip', 'LIKE', '%'.$searchQuery.'%')
+                        ->orWhere('callback_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
+                        ->orWhere('callback_domain', 'LIKE', '%'.$searchQuery.'%');
                 });
             })
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
+
+        $licenseIdsByCode = License::whereIn('license_code', $paginatedCallbacks->pluck('license_code')->filter()->unique())
+            ->pluck('id', 'license_code');
+
+        $paginatedCallbacks->getCollection()->transform(function (LicenseCallback $callback) use ($licenseIdsByCode) {
+            return [
+                'id' => $callback->id,
+                'product_id' => $callback->product_id,
+                'user_id' => $callback->user_id,
+                'license_code' => $callback->license_code,
+                'callback_domain' => $callback->callback_domain,
+                'callback_ip' => $callback->callback_ip,
+                'callback_date_time' => $callback->callback_date_time,
+                'callback_status' => $callback->callback_status,
+                'product_title' => optional($callback->product)->name,
+                'client_email' => optional($callback->user)->email,
+                'license_id' => $licenseIdsByCode[$callback->license_code] ?? null,
+            ];
+        });
 
         return successResponse(Lang::get('lang.Callback_Show'), $paginatedCallbacks, 200);
     }
@@ -48,22 +70,43 @@ class CallBackController extends Controller
         $searchQuery = str_replace('-', '', $request->input('search_query'));
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
-        $updateCallbacks = DB::table('version_callbacks')
-            ->selectRaw('version_callbacks.id, version_callbacks.version_id, version_callbacks.callback_ip, version_callbacks.callback_type as callback_types, version_callbacks.callback_date_time, version_callbacks.callback_status, products.name as product_title, products.id as product_id, product_versions.version_number')
-            ->leftJoin('product_versions', 'version_callbacks.version_id', '=', 'product_versions.id')
-            ->leftJoin('products', 'product_versions.product_id', '=', 'products.id')
+        $allowedSortFields = ['id', 'version_id', 'callback_ip', 'callback_type', 'callback_date_time', 'callback_status'];
+        $sortField = in_array($sortField, $allowedSortFields, true) ? $sortField : 'id';
+        $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
+
+        $updateCallbacks = VersionCallback::query()
+            ->with(['version:id,product_id,version_number', 'version.product:id,name'])
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
-                    $query->where('products.name', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('product_versions.version_number', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('version_callbacks.callback_type', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('version_callbacks.callback_ip', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('version_callbacks.callback_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
-                        ->orWhere('version_callbacks.callback_date_time', 'LIKE', '%'.$searchQuery.'%');
+                    $query->whereHas('version.product', function ($productQuery) use ($searchQuery) {
+                        $productQuery->where('name', 'LIKE', '%'.$searchQuery.'%');
+                    })->orWhereHas('version', function ($versionQuery) use ($searchQuery) {
+                        $versionQuery->where('version_number', 'LIKE', '%'.$searchQuery.'%');
+                    })->orWhere('callback_type', 'LIKE', '%'.$searchQuery.'%')
+                        ->orWhere('callback_ip', 'LIKE', '%'.$searchQuery.'%')
+                        ->orWhere('callback_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
+                        ->orWhere('callback_date_time', 'LIKE', '%'.$searchQuery.'%');
                 });
             })
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
+
+        $updateCallbacks->getCollection()->transform(function (VersionCallback $callback) {
+            $version = $callback->version;
+            $product = optional($version)->product;
+
+            return [
+                'id' => $callback->id,
+                'version_id' => $callback->version_id,
+                'callback_ip' => $callback->callback_ip,
+                'callback_types' => $callback->callback_type,
+                'callback_date_time' => $callback->callback_date_time,
+                'callback_status' => $callback->callback_status,
+                'product_title' => optional($product)->name,
+                'product_id' => optional($product)->id,
+                'version_number' => optional($version)->version_number,
+            ];
+        });
 
         return successResponse('', $updateCallbacks);
     }
@@ -128,7 +171,7 @@ class CallBackController extends Controller
             return $removed_records;
         }
         if (LicenseHelper::validateIntegerValue($callback_id)) {
-            $removed_records += VersionCallback::where('license_callbacks.product_id', $callback_id)->delete();
+            $removed_records += VersionCallback::where('product_id', $callback_id)->delete();
         }
 
         return $removed_records;

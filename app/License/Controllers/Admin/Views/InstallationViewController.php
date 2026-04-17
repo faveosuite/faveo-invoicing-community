@@ -7,20 +7,30 @@ use App\License\Helpers\LicenseHelper;
 use App\License\Models\Installation;
 use App\License\Models\LicenseCallback;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 
 class InstallationViewController extends Controller
 {
     public function getInstallation($id)
     {
-        $installation = DB::table('installations')
-            ->selectRaw('installations.id, installations.product_id, installations.user_id as client_id, installations.license_code, installations.installation_ip, installations.installation_domain, installations.installation_date, installations.installation_status, products.name as product_title, products.id as product_id, users.email as client_email, licenses.id as license_id')
-            ->leftJoin('products', 'installations.product_id', '=', 'products.id')
-            ->leftJoin('users', 'installations.user_id', '=', 'users.id')
-            ->leftJoin('licenses', 'installations.license_code', '=', 'licenses.license_code')
-            ->where('installations.id', $id)
-            ->first();
+        $installation = Installation::with(['product:id,name', 'user:id,email', 'license:id,license_code'])
+            ->find($id);
+
+        if ($installation) {
+            $installation = [
+                'id' => $installation->id,
+                'product_id' => $installation->product_id,
+                'client_id' => $installation->user_id,
+                'license_code' => $installation->license_code,
+                'installation_ip' => $installation->installation_ip,
+                'installation_domain' => $installation->installation_domain,
+                'installation_date' => $installation->installation_date,
+                'installation_status' => $installation->installation_status,
+                'product_title' => optional($installation->product)->name,
+                'client_email' => optional($installation->user)->email,
+                'license_id' => optional($installation->license)->id,
+            ];
+        }
 
         return successResponse(Lang::get('lang.installation_details'), $installation);
     }

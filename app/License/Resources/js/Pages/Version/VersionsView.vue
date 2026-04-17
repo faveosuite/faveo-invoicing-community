@@ -213,11 +213,11 @@ export default {
                 }
             });
 
-            this.product_title = data.product?.name
+            this.product_title = data.product_title || data.product?.name || ''
 
-            this.product_id = data.product?.id
+            this.product_id = data.product_id || data.product?.id || null
 
-            this.product_heading = `${data.product?.name ?? ''} - ${data.version_number}`
+            this.product_heading = `${this.product_title} - ${data.version_number ?? ''}`
 
             if(data.version_date) {
 

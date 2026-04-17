@@ -4,8 +4,8 @@ namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
+use App\License\Models\ProductVersion;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class VersionsController extends Controller
 {
@@ -16,24 +16,37 @@ class VersionsController extends Controller
         $searchQuery = $request->input('search_query');
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
-        $versions = DB::table('product_versions')
-            ->selectRaw('product_versions.id, product_versions.product_id, product_versions.version_number, product_versions.version_date, product_versions.version_status, products.name as product_title')
-            ->leftJoin('products', 'product_versions.product_id', '=', 'products.id')
-            ->selectSub(function ($query) {
-                $query->selectRaw('COUNT(*)')
-                    ->from('version_callbacks')
-                    ->whereColumn('version_callbacks.version_id', 'product_versions.id');
-            }, 'callback_count')
+        $allowedSortFields = ['id', 'product_id', 'version_number', 'version_date', 'version_status'];
+        $sortField = in_array($sortField, $allowedSortFields, true) ? $sortField : 'id';
+        $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
+
+        $versions = ProductVersion::query()
+            ->with(['product:id,name'])
+            ->withCount('callbacks as callback_count')
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($q) use ($searchQuery) {
-                    $q->where('product_versions.version_number', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('product_versions.version_date', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('product_versions.version_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
-                        ->orWhere('products.name', 'LIKE', '%'.$searchQuery.'%');
+                    $q->where('version_number', 'LIKE', '%'.$searchQuery.'%')
+                        ->orWhere('version_date', 'LIKE', '%'.$searchQuery.'%')
+                        ->orWhere('version_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
+                        ->orWhereHas('product', function ($productQuery) use ($searchQuery) {
+                            $productQuery->where('name', 'LIKE', '%'.$searchQuery.'%');
+                        });
                 });
             })
-            ->orderBy('product_versions.'.$sortField, $sortOrder)
+            ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
+
+        $versions->getCollection()->transform(function (ProductVersion $version) {
+            return [
+                'id' => $version->id,
+                'product_id' => $version->product_id,
+                'version_number' => $version->version_number,
+                'version_date' => $version->version_date,
+                'version_status' => $version->version_status,
+                'product_title' => optional($version->product)->name,
+                'callback_count' => $version->callback_count,
+            ];
+        });
 
         return successResponse('', $versions);
     }

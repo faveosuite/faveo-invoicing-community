@@ -205,4 +205,34 @@ class Product extends BaseModel
     {
         return $this->hasMany(PluginCompatibleWithProducts::class, 'plugin_id');
     }
+
+    public function versions()
+    {
+        return $this->hasMany(\App\License\Models\ProductVersion::class, 'product_id');
+    }
+
+    public function latestVersion()
+    {
+        return $this->hasOne(\App\License\Models\ProductVersion::class, 'product_id')->latest('version_date');
+    }
+
+    public function licenses()
+    {
+        return $this->hasMany(\App\License\Models\License::class, 'product_id');
+    }
+
+    public function installations()
+    {
+        return $this->hasMany(\App\License\Models\Installation::class, 'product_id');
+    }
+
+    public function licenseReports()
+    {
+        return $this->hasMany(\App\License\Models\LicenseReport::class, 'product_id');
+    }
+
+    public function licenseCallbacks()
+    {
+        return $this->hasMany(\App\License\Models\LicenseCallback::class, 'product_id');
+    }
 }

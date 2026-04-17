@@ -29,4 +29,14 @@ class LicenseCallback extends Model
     {
         return $this->belongsTo(\App\Model\Product\Product::class, 'product_id');
     }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(\App\User::class, 'user_id');
+    }
+
+    public function license(): BelongsTo
+    {
+        return $this->belongsTo(License::class, 'license_code', 'license_code');
+    }
 }

@@ -4,35 +4,49 @@ namespace App\License\Controllers\Admin\Views;
 
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
+use App\License\Models\Installation;
 use App\License\Models\InstallationLog;
+use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 
 class LicenseViewController extends Controller
 {
     public function getLicenseDetails($license_id)
     {
-        $license = DB::table('licenses')
-            ->selectRaw('licenses.id, licenses.product_id, licenses.user_id as client_id, licenses.license_ip, licenses.license_code, licenses.license_limit, licenses.license_expire_date, licenses.license_support_date, licenses.license_order_number, licenses.license_domain, licenses.license_date, licenses.license_updates_date, licenses.license_status, products.name as product_title, products.id as product_id, users.email as client_email')
-            ->leftJoin('products', 'licenses.product_id', '=', 'products.id')
-            ->leftJoin('users', 'licenses.user_id', '=', 'users.id')
-            ->where('licenses.id', $license_id)
-            ->first();
-        $license->license_order_url = $license->license_order_number ?? '';
-        $license->installation_counts = DB::table('installations')
-            ->where('license_code', $license->license_code)
-            ->count();
-        $license->latest_call_backs = DB::table('license_callbacks')
-            ->where('license_code', $license->license_code)
-            ->orderByDesc('callback_date_time')
-            ->value('callback_date_time');
-        $license->call_backs_count = DB::table('license_callbacks')
-            ->where('license_code', $license->license_code)
-            ->count();
+        $license = License::with(['product:id,name', 'user:id,email'])
+            ->withCount(['installations as installation_counts', 'callbacks as call_backs_count'])
+            ->withMax('callbacks as latest_call_backs', 'callback_date_time')
+            ->find($license_id);
 
-        return successResponse(Lang::get('lang.license_details'), $license);
+        if (! $license) {
+            return successResponse(Lang::get('lang.license_details'), null);
+        }
+
+        $formatted = (object) [
+            'id' => $license->id,
+            'product_id' => $license->product_id,
+            'client_id' => $license->user_id,
+            'license_ip' => $license->license_ip,
+            'license_code' => $license->license_code,
+            'license_limit' => $license->license_limit,
+            'license_expire_date' => $license->license_expire_date,
+            'license_support_date' => $license->license_support_date,
+            'license_order_number' => $license->license_order_number,
+            'license_domain' => $license->license_domain,
+            'license_date' => $license->license_date,
+            'license_updates_date' => $license->license_updates_date,
+            'license_status' => $license->license_status,
+            'product_title' => optional($license->product)->name,
+            'client_email' => optional($license->user)->email,
+            'license_order_url' => $license->license_order_number ?? '',
+            'installation_counts' => $license->installation_counts,
+            'latest_call_backs' => $license->latest_call_backs,
+            'call_backs_count' => $license->call_backs_count,
+        ];
+
+        return successResponse(Lang::get('lang.license_details'), $formatted);
     }
 
     public function getLicenseInstallations(Request $request, $license_id)
@@ -43,18 +57,18 @@ class LicenseViewController extends Controller
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
 
-        $license = DB::table('licenses')->select('id', 'id', 'user_id as client_id', 'license_code')->where('id', $license_id)->first();
-        $licenseInstallations = DB::table('installations')
-            ->select('id', 'user_id as client_id', 'id', 'installation_domain', 'installation_ip', 'installation_date', 'installation_status')
-            ->when($license->license_code, function ($query) use ($license) {
-                $query->where('license_code', $license->license_code);
-            })
-            ->when($license->client_id, function ($query) use ($license) {
-                $query->where('user_id', $license->client_id);
-            })
-            ->when($searchQuery, function ($query, $searchQuery) {
-                $query->where(function ($query) use ($searchQuery) {
-                    $query->Where('installation_domain', 'LIKE', '%'.$searchQuery.'%')
+        $license = License::query()->select('id', 'user_id as client_id', 'license_code')->find($license_id);
+        if (! $license) {
+            return successResponse(Lang::get('lang.license_installations'), collect([]));
+        }
+
+        $licenseInstallations = Installation::query()
+            ->select('id', 'user_id as client_id', 'installation_domain', 'installation_ip', 'installation_date', 'installation_status')
+            ->where('license_code', $license->license_code)
+            ->when($license->client_id, fn ($query) => $query->where('user_id', $license->client_id))
+            ->when($searchQuery, function ($query) use ($searchQuery) {
+                $query->where(function ($q) use ($searchQuery) {
+                    $q->where('installation_domain', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('installation_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
                         ->orWhere('installation_date', 'LIKE', '%'.$searchQuery.'%');
                 });
@@ -72,18 +86,23 @@ class LicenseViewController extends Controller
         $searchQuery = $request->input('search_query');
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
-        $license = DB::table('licenses')->select('id', 'id', 'user_id as client_id', 'license_code')->where('id', $license_id)->first();
+
+        $license = License::query()->select('id', 'user_id as client_id', 'license_code')->find($license_id);
+        if (! $license) {
+            return successResponse(Lang::get('lang.license_callback'), collect([]));
+        }
+
         $licenseCallBacks = LicenseCallback::where('user_id', $license->client_id)
-        ->where('license_code', $license->license_code)
-            ->when($searchQuery, function ($query, $searchQuery) {
-                $query->where(function ($query) use ($searchQuery) {
-                    $query->where('callback_domain', 'LIKE', '%'.$searchQuery.'%')
+            ->where('license_code', $license->license_code)
+            ->when($searchQuery, function ($query) use ($searchQuery) {
+                $query->where(function ($q) use ($searchQuery) {
+                    $q->where('callback_domain', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('callback_status', 'LIKE', '%'.LicenseHelper::successErrorFormatter($searchQuery).'%')
                         ->orWhere('callback_date_time', 'LIKE', '%'.$searchQuery.'%');
                 });
             })
-        ->orderBy($sortField, $sortOrder)
-        ->paginate($perPage, ['*'], 'page', $page);
+            ->orderBy($sortField, $sortOrder)
+            ->paginate($perPage, ['*'], 'page', $page);
 
         return successResponse(Lang::get('lang.license_callback'), $licenseCallBacks);
     }
@@ -95,9 +114,14 @@ class LicenseViewController extends Controller
         $searchQuery = $request->input('search_query');
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'installation_last_active_date');
-        $license = DB::table('licenses')->select('id', 'license_code')->where('id', $license_id)->first();
+
+        $license = License::query()->select('id', 'license_code')->find($license_id);
+        if (! $license) {
+            return successResponse('', collect([]));
+        }
+
         $installationLogs = InstallationLog::where('license_code', $license->license_code)
-            ->when($searchQuery, function ($query, $searchQuery) {
+            ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where('installation_domain', 'LIKE', '%'.$searchQuery.'%')
                     ->orWhere('installation_ip', 'LIKE', '%'.$searchQuery.'%');
             })

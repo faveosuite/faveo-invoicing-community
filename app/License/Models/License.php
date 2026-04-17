@@ -4,6 +4,7 @@ namespace App\License\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class License extends Model
@@ -32,9 +33,8 @@ class License extends Model
     ];
 
     protected $casts = [
-        'license_require_domain' => 'integer',
+        'license_require_domain' => 'boolean',
         'license_limit' => 'integer',
-        'license_status' => 'integer',
         'product_id' => 'integer',
         'user_id' => 'integer',
     ];
@@ -64,40 +64,38 @@ class License extends Model
         return $this->hasMany(LicensePlugin::class, 'license_id', 'id');
     }
 
+    public function addonProducts(): BelongsToMany
+    {
+        return $this->belongsToMany(\App\Model\Product\Product::class, 'license_plugins', 'license_id', 'product_id')->withTimestamps();
+    }
+
     public function options(): HasMany
     {
-        return $this->hasMany(LicenseOption::class, 'license_id', 'id');
+        return $this->hasMany(LicenseOption::class, 'option_group', 'id');
     }
 
-    /**
-     * Check if license is active (status = 1).
-     */
+    public function licenseOptions(): HasMany
+    {
+        return $this->options();
+    }
+
     public function isActive(): bool
     {
-        return $this->license_status == 1;
+        return (string) $this->license_status === '1' || $this->license_status === 'active';
     }
 
-    /**
-     * Check if license is expired.
-     */
     public function isExpired(): bool
     {
-        return $this->license_expire_date && $this->license_expire_date < now()->format('Y-m-d');
+        return ! empty($this->license_expire_date) && $this->license_expire_date < now()->toDateTimeString();
     }
 
-    /**
-     * Scope: active licenses only (status = 1).
-     */
     public function scopeActive($query)
     {
-        return $query->where('license_status', 1);
+        return $query->whereIn('license_status', ['1', 1, 'active']);
     }
 
-    /**
-     * Scope: suspended licenses (status = 2).
-     */
     public function scopeSuspended($query)
     {
-        return $query->where('license_status', 2);
+        return $query->whereIn('license_status', ['2', 2, 'suspended']);
     }
 }

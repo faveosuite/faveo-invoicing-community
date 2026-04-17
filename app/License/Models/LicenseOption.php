@@ -22,7 +22,7 @@ class LicenseOption extends Model
     public static function getValue(string $key, ?string $group = null): ?string
     {
         $query = self::where('option_key', $key);
-        if ($group) {
+        if ($group !== null) {
             $query->where('option_group', $group);
         }
 

@@ -10,20 +10,17 @@ class LanguageController extends Controller
     {
         $locale = app()->getLocale() ?: 'en';
         $fallback = 'en';
-
         $languages = array_unique([$fallback, $locale]);
-
         $languageArray = [];
 
         foreach ($languages as $lang) {
             $this->appendLicenseLanguage($lang, $languageArray);
         }
 
-        header('Content-Type: text/javascript');
-        header('Cache-Control: max-age=2592000');
-
-        echo 'translator = '.json_encode($languageArray).';';
-        exit;
+        return response('translator = '.json_encode($languageArray).';', 200, [
+            'Content-Type' => 'text/javascript',
+            'Cache-Control' => 'max-age=2592000',
+        ]);
     }
 
     private function appendLicenseLanguage(string $languageName, array &$languageArray): void
@@ -39,11 +36,8 @@ class LanguageController extends Controller
 
         foreach ($files as $file) {
             $name = basename($file, '.php');
-            if (array_key_exists($name, $languageArray)) {
-                $languageArray[$name] = array_merge($languageArray[$name], require $file);
-            } else {
-                $languageArray[$name] = require $file;
-            }
+            $values = require $file;
+            $languageArray[$name] = array_merge($languageArray[$name] ?? [], $values);
         }
     }
 }
