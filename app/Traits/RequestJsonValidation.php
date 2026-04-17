@@ -36,7 +36,7 @@ trait RequestJsonValidation
 
     /**
      * This method gets executed whenever authorisation fails. It will throw an exception
-     * which will result in a faveo formatted response to the frontend
+     * which will result in a faveo formatted response to the frontend.
      *
      * @throw HttpResponseException
      */
@@ -46,16 +46,16 @@ trait RequestJsonValidation
     }
 
     /**
-     * Changes validation message
+     * Changes validation message.
      *
-     * @return  array
+     * @return array
      */
     public function messages()
     {
         return [
             '*.required' => 'This field is required',
-            '*.required_if'=>'This field is required',
-            '*.required_unless'=>'This field is required',
+            '*.required_if' => 'This field is required',
+            '*.required_unless' => 'This field is required',
         ];
     }
 }

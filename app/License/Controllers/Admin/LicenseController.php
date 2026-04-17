@@ -3,13 +3,13 @@
 namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\License\Requests\LicenseRequest;
 use App\License\Models\Installation;
 use App\License\Models\InstallationLog;
 use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use App\License\Models\LicensePlugin;
 use App\License\Models\ProductVersion;
+use App\License\Requests\LicenseRequest;
 use App\Model\Product\Product;
 use App\User;
 use Illuminate\Http\Request;
@@ -216,67 +216,67 @@ class LicenseController extends Controller
                 return errorResponse($licenseChecks->getOriginalContent()['message'], 400);
             }
             if (! empty($license_expire_date) && LicenseHelper::verifyDateTime($license_expire_date, 'Y-m-d') && $license_expire_date != $rows_array[0]['license_expire_date']) { //license_expire_date changed, reset license_expire_email_date, so client can receive new notification
-                    $license_expire_email_date = '0000-00-00';
-                } else {
-                    $license_expire_email_date = $rows_array[0]['license_expire_email_date']; //use old license_expire_email_date
+                $license_expire_email_date = '0000-00-00';
+            } else {
+                $license_expire_email_date = $rows_array[0]['license_expire_email_date']; //use old license_expire_email_date
+            }
+
+            if (! empty($license_updates_date) && LicenseHelper::verifyDateTime($license_updates_date, 'Y-m-d') && $license_updates_date != $rows_array[0]['license_updates_date']) { //license_updates_date changed, reset license_updates_email_date, so client can receive new notification
+                $license_updates_email_date = '0000-00-00';
+            } else {
+                $license_updates_email_date = $rows_array[0]['license_updates_email_date']; //use old license_updates_email_date
+            }
+
+            if (! empty($license_support_date) && LicenseHelper::verifyDateTime($license_support_date, 'Y-m-d') && $license_support_date != $rows_array[0]['license_support_date']) { //license_support_date changed, reset license_support_email_date, so client can receive new notification
+                $license_support_email_date = '0000-00-00';
+            } else {
+                $license_support_email_date = $rows_array[0]['license_support_email_date']; //use old license_support_email_date
+            }
+
+            if ($license_status == 1) {
+                $license_cancel_date = '0000-00-00';
+            } else {
+                $license_cancel_date = $rows_array[0]['license_cancel_date']; //use old license_cancel_date if license was deactivated previously and its status wasn't changed now
+                if (empty($license_cancel_date) || ! LicenseHelper::verifyDateTime($license_cancel_date, 'Y-m-d')) { //set cancel date to now only if no previous cancel date set
+                    $license_cancel_date = date('Y-m-d');
+                }
+            }
+            $updated_records += License::where('id', $license_id)
+                ->update([
+                    'license_order_number' => $license_order_number,
+                    'license_ip' => $license_ip,
+                    'license_domain' => $license_domain,
+                    'license_require_domain' => $license_require_domain,
+                    'license_limit' => $license_limit,
+                    'license_cancel_date' => $license_cancel_date,
+                    'license_expire_date' => $license_expire_date,
+                    'license_expire_email_date' => $license_expire_date,
+                    'license_updates_date' => $license_updates_date,
+                    'license_updates_email_date' => $license_updates_email_date,
+                    'license_support_date' => $license_support_date,
+                    'license_support_email_date' => $license_support_email_date,
+                    'license_comments' => $license_comments,
+                    'license_status' => $license_status,
+                ]);
+            //doMysqlQuery("UPDATE apl_licenses SET license_order_number=?, license_ip=?, license_domain=?, license_require_domain=?, license_limit=?, license_cancel_date=?, license_expire_date=?, license_expire_email_date=?, license_updates_date=?, license_updates_email_date=?, license_support_date=?, license_support_email_date=?, license_comments=?, license_envato=?, license_status=? WHERE license_id=?", array($license_order_number, $license_ip, $license_domain, $license_require_domain, $license_limit, $license_cancel_date, $license_expire_date, $license_expire_email_date, $license_updates_date, $license_updates_email_date, $license_support_date, $license_support_email_date, $license_comments, $license_envato, $license_status, $license_id), array("s", "s", "s", "i", "i", "s", "s", "s", "s", "s", "s", "s", "s", "i", "i", "i"));
+
+            if (! LicenseHelper::validateIntegerValue($updated_records)) {
+                $api_error_detected = 1;
+
+                return errorResponse(Lang::get('lang.invalid_record_data'), 400);
+            } else {
+                foreach ($rows_array = License::leftJoin('products', 'licenses.product_id', '=', 'products.id')
+                    ->leftJoin('users', 'licenses.user_id', '=', 'users.id')
+                    ->where('licenses.id', $license_id)
+                    ->get(['licenses.*', 'products.name as product_title', 'users.email as client_email'])
+                    ->toArray() as $row) { //fetch product and client details to use in reports
+                    extract((array) $row);
                 }
 
-                if (! empty($license_updates_date) && LicenseHelper::verifyDateTime($license_updates_date, 'Y-m-d') && $license_updates_date != $rows_array[0]['license_updates_date']) { //license_updates_date changed, reset license_updates_email_date, so client can receive new notification
-                    $license_updates_email_date = '0000-00-00';
-                } else {
-                    $license_updates_email_date = $rows_array[0]['license_updates_email_date']; //use old license_updates_email_date
-                }
+                $client_formatted = LicenseHelper::formatClient($license_code, $client_email);
 
-                if (! empty($license_support_date) && LicenseHelper::verifyDateTime($license_support_date, 'Y-m-d') && $license_support_date != $rows_array[0]['license_support_date']) { //license_support_date changed, reset license_support_email_date, so client can receive new notification
-                    $license_support_email_date = '0000-00-00';
-                } else {
-                    $license_support_email_date = $rows_array[0]['license_support_email_date']; //use old license_support_email_date
-                }
-
-                if ($license_status == 1) {
-                    $license_cancel_date = '0000-00-00';
-                } else {
-                    $license_cancel_date = $rows_array[0]['license_cancel_date']; //use old license_cancel_date if license was deactivated previously and its status wasn't changed now
-                    if (empty($license_cancel_date) || ! LicenseHelper::verifyDateTime($license_cancel_date, 'Y-m-d')) { //set cancel date to now only if no previous cancel date set
-                        $license_cancel_date = date('Y-m-d');
-                    }
-                }
-                $updated_records += License::where('id', $license_id)
-                    ->update([
-                        'license_order_number' => $license_order_number,
-                        'license_ip' => $license_ip,
-                        'license_domain' => $license_domain,
-                        'license_require_domain' => $license_require_domain,
-                        'license_limit' => $license_limit,
-                        'license_cancel_date' => $license_cancel_date,
-                        'license_expire_date' => $license_expire_date,
-                        'license_expire_email_date' => $license_expire_date,
-                        'license_updates_date' => $license_updates_date,
-                        'license_updates_email_date' => $license_updates_email_date,
-                        'license_support_date' => $license_support_date,
-                        'license_support_email_date' => $license_support_email_date,
-                        'license_comments' => $license_comments,
-                        'license_status' => $license_status,
-                    ]);
-                //doMysqlQuery("UPDATE apl_licenses SET license_order_number=?, license_ip=?, license_domain=?, license_require_domain=?, license_limit=?, license_cancel_date=?, license_expire_date=?, license_expire_email_date=?, license_updates_date=?, license_updates_email_date=?, license_support_date=?, license_support_email_date=?, license_comments=?, license_envato=?, license_status=? WHERE license_id=?", array($license_order_number, $license_ip, $license_domain, $license_require_domain, $license_limit, $license_cancel_date, $license_expire_date, $license_expire_email_date, $license_updates_date, $license_updates_email_date, $license_support_date, $license_support_email_date, $license_comments, $license_envato, $license_status, $license_id), array("s", "s", "s", "i", "i", "s", "s", "s", "s", "s", "s", "s", "s", "i", "i", "i"));
-
-                if (! LicenseHelper::validateIntegerValue($updated_records)) {
-                    $api_error_detected = 1;
-
-                    return errorResponse(Lang::get('lang.invalid_record_data'), 400);
-                } else {
-                    foreach ($rows_array = License::leftJoin('products', 'licenses.product_id', '=', 'products.id')
-                        ->leftJoin('users', 'licenses.user_id', '=', 'users.id')
-                        ->where('licenses.id', $license_id)
-                        ->get(['licenses.*', 'products.name as product_title', 'users.email as client_email'])
-                        ->toArray() as $row) { //fetch product and client details to use in reports
-                        extract((array) $row);
-                    }
-
-                    $client_formatted = LicenseHelper::formatClient($license_code, $client_email);
-
-                    return successResponse(Lang::get('lang.license_Update'), $client_formatted, 200);
-                }
+                return successResponse(Lang::get('lang.license_Update'), $client_formatted, 200);
+            }
         } else {
             return errorResponse(Lang::get('lang.invalid'), 400);
         }

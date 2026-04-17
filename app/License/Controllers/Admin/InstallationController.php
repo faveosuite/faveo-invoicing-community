@@ -3,11 +3,11 @@
 namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\License\Requests\InstallationRequest;
 use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Models\License as ApiKeys;
 use App\License\Models\LicensePlugin;
+use App\License\Requests\InstallationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
