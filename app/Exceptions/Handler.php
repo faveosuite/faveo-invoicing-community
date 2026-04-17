@@ -2,7 +2,6 @@
 
 namespace App\Exceptions;
 
-use Bugsnag;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -41,9 +40,6 @@ class Handler extends ExceptionHandler
     {
         // Check if the exception is an UnauthenticatedException
         if (! $exception instanceof AuthenticationException) {
-            // Send unhandled exceptions to Bugsnag
-            $this->reportToBugsnag($exception);
-
             // Log the exception
             \Log::channel('daily')->error($exception);
         }
@@ -53,20 +49,6 @@ class Handler extends ExceptionHandler
         if ($this->shouldBeLoggedInDB($exception) && isInstall()) {
             // Log exception to database
             Logger::exception($exception);
-        }
-    }
-
-    /**
-     * Report to Bugsnag.
-     *
-     * @param  Exception  $exception  Exception instance
-     * @return void
-     */
-    protected function reportToBugsnag(Throwable $exception)
-    {
-        // Check bugsnag reporting is active
-        if (config('app.bugsnag_reporting')) {
-            Bugsnag::notifyException($exception);
         }
     }
 

@@ -126,9 +126,6 @@ return [
       |to AGORA developers  when any exception/error occurs or not. True value of this variable will
       |allow application to send error reports to AGORA team's bugsnag log.
      */
-    'bugsnag_reporting' => env('APP_BUGSNAG', true),
-    /*
-
     /*
     |--------------------------------------------------------------------------
     | Logging Configuration
@@ -188,8 +185,7 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-        Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
-        Torann\GeoIP\GeoIPServiceProvider::class,
+Torann\GeoIP\GeoIPServiceProvider::class,
         /*
          * Package Service Providers...
          */
@@ -243,8 +239,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         'Activity' => Spatie\Activitylog\ActivitylogFacade::class,
-        'Bugsnag' => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
-        'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
+'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
         'Currency' => \Torann\Currency\Facades\Currency::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
         'GeoIP' => \Torann\GeoIP\Facades\GeoIP::class,
