@@ -187,7 +187,7 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-Torann\GeoIP\GeoIPServiceProvider::class,
+        Torann\GeoIP\GeoIPServiceProvider::class,
         /*
          * Package Service Providers...
          */
@@ -242,7 +242,7 @@ Torann\GeoIP\GeoIPServiceProvider::class,
 
     'aliases' => Facade::defaultAliases()->merge([
         'Activity' => Spatie\Activitylog\ActivitylogFacade::class,
-'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
+        'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
         'Currency' => \Torann\Currency\Facades\Currency::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
         'GeoIP' => \Torann\GeoIP\Facades\GeoIP::class,

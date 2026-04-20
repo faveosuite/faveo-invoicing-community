@@ -853,9 +853,9 @@ class SettingsController extends BaseSettingsController
 
         \Cache::forget('debugging_settings');
 
-        \Config::set('app.debug',            (bool) ($request->get('debug') === 'true'));
-        \Config::set('pulse.enabled',        (bool) ($request->get('pulse_enabled') === 'true'));
-        \Config::set('clockwork.enable',     (bool) ($request->get('clockwork_enable') === 'true'));
+        \Config::set('app.debug', (bool) ($request->get('debug') === 'true'));
+        \Config::set('pulse.enabled', (bool) ($request->get('pulse_enabled') === 'true'));
+        \Config::set('clockwork.enable', (bool) ($request->get('clockwork_enable') === 'true'));
         \Config::set('app.sentry_reporting', (bool) ($request->get('sentry_reporting') === 'true'));
 
         $tracesRate = $request->get('sentry_performance') === 'true' ? 0.1 : 0;
