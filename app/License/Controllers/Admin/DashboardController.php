@@ -7,9 +7,9 @@ use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseReport;
-use App\License\Models\ProductVersion;
 use App\License\Models\VersionCallback;
 use App\Model\Product\Product;
+use App\Model\Product\ProductUpload;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Lang;
 
@@ -18,12 +18,12 @@ class DashboardController extends Controller
     public function dashboard()
     {
         $productsCount = Product::count();
-        $versionsCount = ProductVersion::distinct('version_number')->count('version_number');
+        $versionsCount = ProductUpload::distinct('version')->count('version');
         $licenseCount = License::count();
         $callbacksCount = LicenseCallback::count() + VersionCallback::count();
 
         $latestProducts = Product::query()
-            ->select('id', 'name', 'status')
+            ->select('id', 'name', 'product_sku', 'status')
             ->where('status', '1')
             ->withCount(['versions', 'installations', 'licenses'])
             ->latest('id')
@@ -33,6 +33,7 @@ class DashboardController extends Controller
                 return (object) [
                     'id' => $product->id,
                     'product_title' => $product->name,
+                    'product_sku' => $product->product_sku,
                     'product_status' => $product->status,
                     'versions' => $product->versions_count,
                     'installations_count' => $product->installations_count,
@@ -40,19 +41,19 @@ class DashboardController extends Controller
                 ];
             });
 
-        $latestVersions = ProductVersion::query()
+        $latestVersions = ProductUpload::query()
             ->with('product:id,name')
-            ->where('version_status', '1')
+            ->active()
             ->latest('id')
             ->take(10)
             ->get()
-            ->map(function (ProductVersion $version) {
+            ->map(function (ProductUpload $version) {
                 return (object) [
                     'id' => $version->id,
                     'product_id' => $version->product_id,
-                    'version_number' => $version->version_number,
-                    'version_date' => $version->version_date,
-                    'version_status' => $version->version_status,
+                    'version_number' => $version->version,
+                    'version_date' => $version->created_at,
+                    'version_status' => $version->status,
                     'product_title' => optional($version->product)->name,
                 ];
             });
@@ -92,11 +93,11 @@ class DashboardController extends Controller
 
         $currentDateTime = Carbon::now()->toDateTimeString();
 
-        $expiredVersions = ProductVersion::query()
-            ->select('id', 'version_number', 'version_date', 'version_expire_date', 'version_status')
+        $expiredVersions = ProductUpload::query()
+            ->select('id', 'version', 'created_at', 'version_expire_date', 'status')
             ->where(function ($query) {
                 $query->whereNotNull('version_expire_date')
-                    ->orWhereNotIn('version_status', ['1', 'active']);
+                    ->orWhere('status', 0);
             })
             ->latest('id')
             ->take(10)

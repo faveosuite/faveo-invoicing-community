@@ -88,7 +88,7 @@ class Order extends BaseModel
 
     public function installationDetail()
     {
-        return $this->hasMany(\App\Model\Order\InstallationDetail::class);
+        return \App\License\Models\Installation::where('license_code', $this->serial_key);
     }
 
     public function delete()

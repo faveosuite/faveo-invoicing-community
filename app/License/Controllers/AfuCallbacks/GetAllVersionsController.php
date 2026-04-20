@@ -4,7 +4,7 @@ namespace App\License\Controllers\AfuCallbacks;
 
 use App\License\Controllers\Traits\AfuCallbackHelpers;
 use App\License\Helpers\LicenseValidator;
-use App\License\Models\ProductVersion;
+use App\Model\Product\ProductUpload;
 use App\Model\Product\Product;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -57,7 +57,7 @@ class GetAllVersionsController extends Controller
         }
 
         // Get all versions
-        $versions = ProductVersion::where('product_id', $product->id)
+        $versions = ProductUpload::where('product_id', $product->id)
             ->orderBy('id', 'desc')
             ->get();
 

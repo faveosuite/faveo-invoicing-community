@@ -21,9 +21,11 @@ return new class extends Migration
             $table->string('license_code')->index();
             $table->string('installation_ip')->nullable();
             $table->string('installation_domain')->nullable();
+            $table->string('installation_path')->nullable();
             $table->timestamp('installation_date')->nullable();
-            $table->string('installation_status')->default('active');
+            $table->boolean('installation_status')->default(1);
             $table->string('installation_hash')->nullable();
+            $table->string('version')->nullable();
             $table->boolean('installation_disable_ip_verification')->default(0);
             $table->timestamps();
 

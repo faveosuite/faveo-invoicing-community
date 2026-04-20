@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Model\Order\InstallationDetail;
+use App\License\Models\Installation;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
@@ -219,10 +219,16 @@ class BaseHomeController extends Controller
                 }
             });
             if (count($orderForLicense) > 0) {
+                $order = $orderForLicense->first();
                 if ($url) {
-                    InstallationDetail::updateOrCreate(['installation_path' => $url, 'installation_ip' => $ip, 'order_id' => $orderForLicense->first()->id], ['last_active' => (string) \Carbon\Carbon::now(), 'installation_path' => $url, 'installation_ip' => $ip, 'version' => $request->input('version'), 'order_id' => $orderForLicense->first()->id]);
+                    Installation::where('license_code', $licenseCode)
+                        ->where('installation_ip', $ip)
+                        ->update([
+                            'installation_path' => $url,
+                            'version'           => $request->input('version'),
+                        ]);
 
-                    $existingVersion = Subscription::where('order_id', $orderForLicense->first()->id)->value('version');
+                    $existingVersion = Subscription::where('order_id', $order->id)->value('version');
                     if ($existingVersion && $existingVersion < $request->input('version')) {
                         $existingVersion = $request->input('version');
                     }
@@ -230,18 +236,17 @@ class BaseHomeController extends Controller
                         'license_code' => $licenseCode, 'root_url' => $url,
                         'version_number' => $request->input('version'), 'installation_ip' => $ip,
                     ]);
-                    Subscription::where('order_id', $orderForLicense->first()->id)->update(['version' => $existingVersion, 'version_updated_at' => (string) \Carbon\Carbon::now()]);
+                    Subscription::where('order_id', $order->id)->update(['version' => $existingVersion, 'version_updated_at' => (string) \Carbon\Carbon::now()]);
 
                     return ['status' => 'success', 'message' => 'version-updated-successfully'];
-                } else {//For older client where url is not sent as parameter
-                    $installationDetails = app(\App\License\Services\InstallationService::class)->getInstallationsByProduct($orderForLicense->first()->serial_key, $orderForLicense->first()->product);
-                    foreach ($installationDetails['installed_path'] as $path) {
-                        $ipAndDomain = explode(',', $path);
-                        InstallationDetail::updateOrCreate(['installation_path' => $ipAndDomain[0], 'installation_ip' => $ipAndDomain[1], 'order_id' => $orderForLicense->first()->id], ['installation_path' => $ipAndDomain[0], 'installation_ip' => $ipAndDomain[1], 'version' => $request->input('version'), 'order_id' => $orderForLicense->first()->id]);
-                    }
-                    $existingVersion = Subscription::where('order_id', $orderForLicense->first()->id)->value('version');
+                } else {
+                    // Older clients that don't send URL: update version on all installations for this license
+                    Installation::where('license_code', $licenseCode)
+                        ->update(['version' => $request->input('version')]);
+
+                    $existingVersion = Subscription::where('order_id', $order->id)->value('version');
                     if ($existingVersion && $request->input('version') > $existingVersion) {
-                        Subscription::where('order_id', $orderForLicense->first()->id)->update(['version' => $request->input('version')]);
+                        Subscription::where('order_id', $order->id)->update(['version' => $request->input('version')]);
                     }
 
                     return ['status' => 'success', 'message' => 'version-updated-successfully'];

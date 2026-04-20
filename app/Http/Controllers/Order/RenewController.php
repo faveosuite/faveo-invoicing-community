@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Order;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Model\Common\FaveoCloud;
-use App\Model\Order\InstallationDetail;
+use App\License\Models\Installation;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -275,7 +275,7 @@ class RenewController extends BaseRenewController
             $order_id = $sub->order_id;
             if ($request->has('agents')) {
                 $agents = $request->input('agents');
-                $installation_path = InstallationDetail::where('order_id', $order_id)->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
+                $installation_path = Installation::where('license_code', Order::find($order_id)->serial_key)->where('installation_path', '!=', cloudCentralDomain())->latest('updated_at')->value('installation_path');
                 if (empty($installation_path)) {
                     return response(['status' => false, 'message' => trans('message.no_installation_found')]);
                 }
@@ -368,9 +368,9 @@ class RenewController extends BaseRenewController
                 $agents = (int) $agentsInput;
 
                 // Check agent modification restrictions
-                $installationPath = InstallationDetail::where('order_id', $orderId)
+                $installationPath = Installation::where('license_code', Order::find($orderId)->serial_key)
                     ->where('installation_path', '!=', cloudCentralDomain())
-                    ->latest()
+                    ->latest('last_active')
                     ->value('installation_path');
 
                 if ($oldAgents != $agents) {

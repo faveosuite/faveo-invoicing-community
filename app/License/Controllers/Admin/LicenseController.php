@@ -10,9 +10,9 @@ use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseOption;
 use App\License\Models\LicensePlugin;
-use App\License\Models\ProductVersion;
 use App\License\Requests\LicenseRequest;
 use App\Model\Product\Product;
+use App\Model\Product\ProductUpload;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -319,8 +319,8 @@ class LicenseController extends Controller
                 'product_name' => $product->name,
                 'product_attributes' => $product->product_attributes,
                 'product_attributes_license' => $product->pivot->product_attributes_license ?? null,
-                'latest_version' => optional($product->latestVersion)->version_number,
-                'latest_version_file' => optional($product->latestVersion)->version_upgrade_file,
+                'latest_version' => optional($product->latestVersion)->version,
+                'latest_version_file' => optional($product->latestVersion)->file,
             ];
         });
 
@@ -381,7 +381,7 @@ class LicenseController extends Controller
     private function generateLicenseData($productId, $licenseCode)
     {
         $product = Product::find($productId);
-        $version = ProductVersion::where('product_id', $productId)->latest('version_date')->first();
+        $version = ProductUpload::where('product_id', $productId)->latest()->first();
         $installed = Installation::where('product_id', $productId)->where('license_code', $licenseCode)->exists();
 
         if (! $product || ! $version || $installed) {
@@ -393,7 +393,7 @@ class LicenseController extends Controller
             'product_name' => $product->name,
             'product_key' => $product->product_key,
             'product_description' => $product->product_description,
-            'version' => $version->version_number,
+            'version' => $version->version,
             'license_code' => $licenseCode,
             'path' => $product->product_path,
         ];

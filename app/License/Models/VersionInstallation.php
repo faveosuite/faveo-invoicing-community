@@ -30,7 +30,7 @@ class VersionInstallation extends Model
 
     public function version(): BelongsTo
     {
-        return $this->belongsTo(ProductVersion::class, 'version_id');
+        return $this->belongsTo(\App\Model\Product\ProductUpload::class, 'version_id');
     }
 
     public function scopeActive($query)

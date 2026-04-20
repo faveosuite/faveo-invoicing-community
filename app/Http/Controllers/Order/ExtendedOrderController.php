@@ -171,8 +171,6 @@ class ExtendedOrderController extends Controller
         }
         //Now make Installation status as inactive
         app(\App\License\Services\InstallationService::class)->updateByLicenseCode($licenseCode, ['installation_status' => 0]);
-        //Delete instalation details
-        $installationDetails = \DB::table('installation_details')->Where('order_id', $request->input('id'))->update(['last_active' => Carbon::now()]);
 
         return ['message' => 'success', 'update' => __('message.license_reissued')];
     }

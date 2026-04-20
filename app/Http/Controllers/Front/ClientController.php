@@ -1037,8 +1037,8 @@ class ClientController extends BaseClientController
             $planid = \App\Model\Payment\Plan::where('product', $product->id)->value('id');
             $price = $order->price_override;
 
-            $installation_path = \App\Model\Order\InstallationDetail::where('order_id', $id)
-                ->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
+            $installation_path = \App\License\Models\Installation::where('license_code', $order->serial_key)
+                ->where('installation_path', '!=', cloudCentralDomain())->latest('updated_at')->value('installation_path');
             $latestAgents = ltrim(substr($order->serial_key, 12), '0');
             $terminatedOrderId = \DB::table('terminated_order_upgrade')->where('upgraded_order_id', $order->id)->value('terminated_order_id');
             $terminatedOrderNumber = \App\Model\Order\Order::where('id', $terminatedOrderId)->value('number');

@@ -15,10 +15,12 @@ class Installation extends Model
         'license_code',
         'installation_ip',
         'installation_domain',
+        'installation_path',
         'installation_date',
         'installation_status',
         'installation_hash',
         'installation_disable_ip_verification',
+        'version',
     ];
 
     protected $casts = [

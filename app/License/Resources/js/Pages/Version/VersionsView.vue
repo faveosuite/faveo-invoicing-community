@@ -17,18 +17,7 @@
 
                     <h3 class="card-title">{{product_heading}}</h3>
 
-                    <div class="card-tools">
-
-                        <router-link :to="'/versions/'+ id +'/edit'" v-tooltip="lang('edit')" class="btn btn-tool action-btn">
-
-                            <i class="fas fa-edit"></i>
-                        </router-link>
-
-                        <button class="btn btn-tool action-btn" v-tooltip="lang('delete_btn')" @click="showDeleteModal()">
-
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
+                    <div class="card-tools"></div>
                 </div>
 
                 <div class="row card-body col-md-12">
@@ -46,8 +35,8 @@
                     </div>
 
                     <div class="row pt-2 pb-2 col-sm-6 ms-2 ps-0">
-                        <label class="col-sm-6 fs-7 fw-bold">{{lang('version_upgrade_count')}}:</label>
-                        <div v-if="version_upgrade_count" class="col-sm-6 fs-7">{{version_upgrade_count}}</div>
+                        <label class="col-sm-6 fs-7 fw-bold">{{lang('installs_count')}}:</label>
+                        <div v-if="version_install_count" class="col-sm-6 fs-7">{{version_install_count}}</div>
                         <span class="col-sm-6" v-else >----</span>
                     </div>
 
@@ -86,13 +75,6 @@
 
         </div>
 
-        <transition name="modal">
-
-            <delete-modal v-if="showModal" :onClose="onClose" :showModal="showModal" alertComponentName="version-view" deleteUrl="/api/admin/versions/delete" redirectUrl="/versions/list" keyVal="version_id" :idVal="id">
-
-            </delete-modal>
-        </transition>
-
     </div>
 
 </template>
@@ -101,7 +83,6 @@
 import {boolean, formatDateTime, getIdFromUrl, lang} from "../../helpers/extraLogics";
 import DynamicDataTable from "../../components/Reusable/DynamicDataTable.vue";
 import axios from "axios";
-import DeleteModal from "../../components/Reusable/DeleteModal.vue";
 import {h} from "vue";
 
 export default {
@@ -113,8 +94,6 @@ export default {
 
             endPoint : '',
 
-            showModal : false,
-
             hasDataPopulated: false,
 
             product_heading: '',
@@ -123,7 +102,7 @@ export default {
 
             version_date: '',
 
-            version_upgrade_count: '',
+            version_install_count: '',
 
             version_status: null,
 
@@ -140,8 +119,6 @@ export default {
     },
 
     components: {
-        'delete-modal': DeleteModal,
-
         'data-table': DynamicDataTable
     },
 
@@ -157,18 +134,6 @@ export default {
 
     methods: {
         lang,
-
-        showDeleteModal(){
-
-            this.showModal = !this.showModal;
-        },
-
-        onClose(){
-
-            this.showModal = false;
-
-            this.$store.dispatch('unsetValidationError');
-        },
 
         getValues(path) {
 

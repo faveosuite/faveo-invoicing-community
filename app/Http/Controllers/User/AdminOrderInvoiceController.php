@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Model\Order\InstallationDetail;
+use App\License\Models\Installation;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
@@ -179,7 +179,7 @@ class AdminOrderInvoiceController extends Controller
                         })
                         ->addColumn('number', function ($model) {
                             $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>';
-                            $installedPath = InstallationDetail::where('order_id', $model->id)->pluck('installation_path')->toArray();
+                            $installedPath = Installation::where('license_code', $model->serial_key)->pluck('installation_path')->toArray();
                             if ($model->subscription_updated_at) {//For few older clients subscription was not generated, so no updated_at column exists
                                 $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>'.installationStatusLabel($installedPath);
                             }

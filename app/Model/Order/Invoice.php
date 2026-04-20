@@ -82,7 +82,10 @@ class Invoice extends BaseModel
 
     public function installationDetail()
     {
-        return $this->hasManyThrough(\App\Model\Order\InstallationDetail::class, \App\Model\Order\Order::class);
+        $orderIds = $this->orderRelation()->pluck('order_id');
+        $licenseCodes = Order::whereIn('id', $orderIds)->get()->map->serial_key;
+
+        return \App\License\Models\Installation::whereIn('license_code', $licenseCodes);
     }
 
     public function orderRelation()

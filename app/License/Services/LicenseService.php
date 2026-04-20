@@ -6,7 +6,7 @@ use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Models\LicenseOption;
 use App\License\Models\LicensePlugin;
-use App\License\Models\ProductVersion;
+use App\Model\Product\ProductUpload;
 use App\Model\Product\Product;
 use App\User;
 use Illuminate\Support\Collection;
@@ -153,17 +153,17 @@ class LicenseService
             foreach ($license->plugins as $plugin) {
                 $product = $plugin->product;
                 if ($product) {
-                    $latestVersion = ProductVersion::where('product_id', $product->id)
-                        ->where('version_status', 1)
-                        ->orderBy('version_date', 'desc')
+                    $latestVersion = ProductUpload::where('product_id', $product->id)
+                        ->active()
+                        ->latest()
                         ->first();
 
                     $result[] = [
                         'product_id' => $product->id,
                         'product_name' => $product->name ?? $product->product_title ?? '',
                         'product_sku' => $product->product_sku ?? '',
-                        'latest_version' => $latestVersion ? $latestVersion->version_number : null,
-                        'latest_version_file' => $latestVersion ? $latestVersion->version_install_file : null,
+                        'latest_version' => $latestVersion ? $latestVersion->version : null,
+                        'latest_version_file' => $latestVersion ? $latestVersion->file : null,
                     ];
                 }
             }
@@ -269,9 +269,9 @@ class LicenseService
         foreach ($license->plugins as $plugin) {
             $product = $plugin->product;
             if ($product) {
-                $latestVersion = ProductVersion::where('product_id', $product->id)
-                    ->where('version_status', 1)
-                    ->orderBy('version_date', 'desc')
+                $latestVersion = ProductUpload::where('product_id', $product->id)
+                    ->active()
+                    ->latest()
                     ->first();
 
                 $options = LicenseOption::where('license_id', $license->id)
@@ -283,8 +283,8 @@ class LicenseService
                     'product_name' => $product->name ?? $product->product_title ?? '',
                     'product_attributes' => $options->where('option_group', 'attributes')->pluck('value', 'key')->toArray(),
                     'product_attributes_license' => $options->where('option_group', 'license_attributes')->pluck('value', 'key')->toArray(),
-                    'latest_version' => $latestVersion ? $latestVersion->version_number : null,
-                    'latest_version_file' => $latestVersion ? $latestVersion->version_install_file : null,
+                    'latest_version' => $latestVersion ? $latestVersion->version : null,
+                    'latest_version_file' => $latestVersion ? $latestVersion->file : null,
                 ];
             }
         }

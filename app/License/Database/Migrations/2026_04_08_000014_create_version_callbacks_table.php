@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('version_callbacks', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('product_id');
-            $table->unsignedBigInteger('version_id')->nullable();
+            $table->unsignedInteger('version_id')->nullable();
             $table->string('callback_type');
             $table->string('callback_ip')->nullable();
             $table->string('callback_path')->nullable();
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-            $table->foreign('version_id')->references('id')->on('product_versions')->onDelete('cascade');
+            $table->foreign('version_id')->references('id')->on('product_uploads')->onDelete('set null');
             $table->index(['product_id', 'callback_date_time']);
         });
     }

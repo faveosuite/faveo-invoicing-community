@@ -4,7 +4,7 @@ namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
-use App\License\Models\ProductVersion;
+use App\Model\Product\ProductUpload;
 use Illuminate\Http\Request;
 
 class VersionsController extends Controller
@@ -16,18 +16,17 @@ class VersionsController extends Controller
         $searchQuery = $request->input('search_query');
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
-        $allowedSortFields = ['id', 'product_id', 'version_number', 'version_date', 'version_status'];
+        $allowedSortFields = ['id', 'product_id', 'version', 'created_at', 'status'];
         $sortField = in_array($sortField, $allowedSortFields, true) ? $sortField : 'id';
         $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
 
-        $versions = ProductVersion::query()
+        $versions = ProductUpload::query()
             ->with(['product:id,name'])
             ->withCount('callbacks as callback_count')
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($q) use ($searchQuery) {
-                    $q->where('version_number', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('version_date', 'LIKE', '%'.$searchQuery.'%')
-                        ->orWhere('version_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
+                    $q->where('version', 'LIKE', '%'.$searchQuery.'%')
+                        ->orWhere('created_at', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhereHas('product', function ($productQuery) use ($searchQuery) {
                             $productQuery->where('name', 'LIKE', '%'.$searchQuery.'%');
                         });
@@ -36,13 +35,14 @@ class VersionsController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $versions->getCollection()->transform(function (ProductVersion $version) {
+        $versions->getCollection()->transform(function (ProductUpload $version) {
             return [
                 'id' => $version->id,
                 'product_id' => $version->product_id,
-                'version_number' => $version->version_number,
-                'version_date' => $version->version_date,
-                'version_status' => $version->version_status,
+                'version_number' => $version->version,
+                'version_date' => $version->created_at,
+                'version_status' => $version->status,
+                'version_install_count' => $version->version_install_count ?? 0,
                 'product_title' => optional($version->product)->name,
                 'callback_count' => $version->callback_count,
             ];

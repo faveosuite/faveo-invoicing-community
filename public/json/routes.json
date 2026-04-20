@@ -23,17 +23,6 @@
             "hasChildren": true,
             "children": [
                 {
-                    "name": "New Version",
-                    "key": null,
-                    "count": 0,
-                    "hasCount": false,
-                    "iconClass": "far fa-circle",
-                    "order": 0,
-                    "routeString": "/versions/create",
-                    "hasChildren": false,
-                    "children": []
-                },
-                {
                     "name": "All Versions",
                     "key": null,
                     "count": 0,

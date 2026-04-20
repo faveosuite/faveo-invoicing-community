@@ -4,7 +4,7 @@ namespace App\License\Controllers\AfuCallbacks;
 
 use App\License\Controllers\Traits\AfuCallbackHelpers;
 use App\License\Helpers\LicenseValidator;
-use App\License\Models\ProductVersion;
+use App\Model\Product\ProductUpload;
 use App\Model\Product\Product;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -55,12 +55,12 @@ class DownloadFileController extends Controller
 
         // Get specified version or latest active one
         if (! empty($version_number)) {
-            $version = ProductVersion::where('product_id', $product->id)
-                ->where('version_number', $version_number)
+            $version = ProductUpload::where('product_id', $product->id)
+                ->where('version', $version_number)
                 ->first();
         } else {
-            $version = ProductVersion::where('product_id', $product->id)
-                ->where('version_status', 1)
+            $version = ProductUpload::where('product_id', $product->id)
+                ->active()
                 ->orderBy('id', 'desc')
                 ->first();
         }

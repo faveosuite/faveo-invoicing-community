@@ -208,12 +208,12 @@ class Product extends BaseModel
 
     public function versions()
     {
-        return $this->hasMany(\App\License\Models\ProductVersion::class, 'product_id');
+        return $this->hasMany(\App\Model\Product\ProductUpload::class, 'product_id');
     }
 
     public function latestVersion()
     {
-        return $this->hasOne(\App\License\Models\ProductVersion::class, 'product_id')->latest('version_date');
+        return $this->hasOne(\App\Model\Product\ProductUpload::class, 'product_id')->latest();
     }
 
     public function licenses()

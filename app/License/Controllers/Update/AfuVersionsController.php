@@ -4,7 +4,7 @@ namespace App\License\Controllers\Update;
 
 use App\Http\Controllers\Controller;
 use App\License\Models\Installation;
-use App\License\Models\ProductVersion;
+use App\Model\Product\ProductUpload;
 use App\License\Models\VersionCallback;
 use App\License\Requests\VersionRequest;
 use App\Model\Product\Product;
@@ -134,24 +134,17 @@ class AfuVersionsController extends Controller
                     } else {
                         $version_upgrade_query = '';
                     }
-                    $added_record = ProductVersion::updateOrCreate(
-                        ['version_number' => $version_number, 'product_id' => $product_id],
+                    $added_record = ProductUpload::updateOrCreate(
+                        ['version' => $version_number, 'product_id' => $product_id],
                         [
-                            'version_number' => $version_number,
+                            'version' => $version_number,
                             'product_id' => $product_id,
-                            'version_install_file' => $version_install_file,
-                            'version_install_query' => $version_install_query,
-                            'version_raw_install_query' => $version_raw_install_query,
-                            'version_upgrade_file' => $version_upgrade_file,
-                            'version_upgrade_query' => $version_upgrade_query,
-                            'version_raw_upgrade_query' => $version_raw_upgrade_query,
-                            'version_install_limit' => $version_install_limit,
-                            'version_upgrade_limit' => $version_upgrade_limit,
-                            'version_changelog' => $version_changelog,
-                            'version_date' => $version_date,
+                            'title' => $version_number,
+                            'description' => $version_changelog,
+                            'file' => $version_install_file,
                             'version_expire_date' => $version_expire_date,
-                            'version_comments' => $version_comments,
-                            'version_status' => $version_status,
+                            'version_install_count' => 0,
+                            'status' => $version_status,
                         ]
                     );
                     $added_records = empty($added_record) ? 0 : 1;
@@ -304,7 +297,7 @@ class AfuVersionsController extends Controller
         $version_comments = $request->get('version_comments');
         $product_title = $request->get('product_title');
 
-        if (empty($version_id) || ! LicenseHelper::validateIntegerValue($version_id) || empty($rows_array = ProductVersion::where('version_id', $version_id)->get()->toArray())) { //invalid record
+        if (empty($version_id) || ! LicenseHelper::validateIntegerValue($version_id) || empty($rows_array = ProductUpload::where('id', $version_id)->get()->toArray())) { //invalid record
             return errorResponse(Lang::get('lang.invalid'), 404);
         }
         $api_action_success = 1;
@@ -444,23 +437,14 @@ class AfuVersionsController extends Controller
                     } else {
                         $version_upgrade_count = $rows_array[0]['version_upgrade_count']; //use old value when no reset is needed
                     }
-                    $updated_records = ProductVersion::updateOrCreate(
-                        ['version_id' => $version_id],
+                    $updated_records = ProductUpload::updateOrCreate(
+                        ['id' => $version_id],
                         [
-                            'version_install_file' => $version_install_file,
-                            'version_install_query' => $version_install_query,
-                            'version_raw_install_query' => $version_raw_install_query,
-                            'version_upgrade_file' => $version_upgrade_file,
-                            'version_upgrade_query' => $version_upgrade_query,
-                            'version_raw_upgrade_query' => $version_raw_upgrade_query,
-                            'version_install_limit' => $version_install_limit,
+                            'file' => $version_install_file,
+                            'description' => $version_changelog,
                             'version_install_count' => $version_install_count,
-                            'version_upgrade_limit' => $version_upgrade_limit,
-                            'version_upgrade_count' => $version_upgrade_count,
-                            'version_changelog' => $version_changelog,
                             'version_expire_date' => $version_expire_date,
-                            'version_comments' => $version_comments,
-                            'version_status' => $version_status,
+                            'status' => $version_status,
                         ]
                     );
                     $updated_records = empty($updated_records) ? 0 : 1;
@@ -634,7 +618,7 @@ class AfuVersionsController extends Controller
         $api_action_success = 1;
 
         if (LicenseHelper::validateIntegerValue($version_id) && $api_action_success == 1) {
-            if (! empty($rows_array = ProductVersion::where('id', $version_id)->get()->toArray())) { //get version_install_file, version_install_query, version_upgrade_file, version_upgrade_query (if any) to remove from server
+            if (! empty($rows_array = ProductUpload::where('id', $version_id)->get()->toArray())) { //get file (if any) to remove from server
                 foreach ($rows_array as $row) {
                     extract((array) $row);
                     try {
@@ -643,7 +627,7 @@ class AfuVersionsController extends Controller
 
                         VersionCallback::where('version_id', $version_id)->delete();
 
-                        $removed_records += ProductVersion::where('id', $version_id)->delete();
+                        $removed_records += ProductUpload::where('id', $version_id)->delete();
 
                         DB::commit();
                     } catch (Exception $e) {

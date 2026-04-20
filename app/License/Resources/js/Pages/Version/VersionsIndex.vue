@@ -15,13 +15,6 @@
 
                 <h3 class="card-title">{{lang('all_versions')}}</h3>
 
-                <div class="card-tools">
-
-                    <router-link to="/versions/create" class="btn btn-tool" v-tooltip="lang('create_version')">
-
-                        <i class="fas fas fa-plus"></i>
-                    </router-link>
-                </div>
             </div>
 
             <div class="card-body" id="my_products">
@@ -61,7 +54,7 @@ export default {
 
             data: '',
 
-            columns: ['version_number', 'product_title', 'version_date', 'version_upgrade_count', 'callback_count', 'version_status', 'actions'],
+            columns: ['version_number', 'product_title', 'version_date', 'version_install_count', 'callback_count', 'version_status', 'actions'],
 
             options: {},
 
@@ -89,7 +82,7 @@ export default {
 
             texts: { filter: '', limit: '' },
 
-            sortable:  ['product_title', 'version_date', 'version_upgrade_count', 'callback_count', 'version_status'],
+            sortable:  ['product_title', 'version_date', 'version_install_count', 'callback_count', 'version_status'],
 
             filterable : [ 'product_title' ],
 
@@ -113,10 +106,6 @@ export default {
 
                     data: data.data.data.map(data => {
 
-                        data.edit_url = '/versions/' + data.id + '/edit';
-
-                        data.delete_url = '/api/admin/versions/delete';
-
                         data.view_url = '/versions/' + data.id + '/view';
 
                         data.keyVal = 'id';
@@ -138,7 +127,7 @@ export default {
 
                 version_date: 'version_date',
 
-                version_upgrade_count: 'version_upgrade_count',
+                version_install_count: 'version_install_count',
 
                 callback_count: 'callback_count',
 
@@ -202,7 +191,7 @@ export default {
 
                 version_date: this.lang('release_date'),
 
-                version_upgrade_count: this.lang('upgrades_count'),
+                version_install_count: this.lang('installs_count'),
 
                 callback_count: this.lang('callbacks_count'),
 

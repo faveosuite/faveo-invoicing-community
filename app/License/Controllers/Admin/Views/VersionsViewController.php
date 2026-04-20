@@ -4,7 +4,7 @@ namespace App\License\Controllers\Admin\Views;
 
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
-use App\License\Models\ProductVersion;
+use App\Model\Product\ProductUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 
@@ -12,7 +12,7 @@ class VersionsViewController extends Controller
 {
     public function getVersionInfo($version_id)
     {
-        $version = ProductVersion::with('product:id,name')
+        $version = ProductUpload::with('product:id,name')
             ->find($version_id);
 
         if (! $version) {
@@ -22,10 +22,10 @@ class VersionsViewController extends Controller
         return successResponse(Lang::get('lang.version_details'), [
             'id' => $version->id,
             'product_id' => $version->product_id,
-            'version_number' => $version->version_number,
-            'version_date' => $version->version_date,
-            'version_status' => $version->version_status,
-            'version_upgrade_count' => $version->version_upgrade_count ?? 0,
+            'version_number' => $version->version,
+            'version_date' => $version->created_at,
+            'version_status' => $version->status,
+            'version_install_count' => $version->version_install_count ?? 0,
             'product' => [
                 'id' => optional($version->product)->id,
                 'name' => optional($version->product)->name,
@@ -41,7 +41,7 @@ class VersionsViewController extends Controller
         $searchQuery = $request->input('search_query');
         $sortOrder = $request->input('sort_order', 'desc');
         $sortField = $request->input('sort_field', 'id');
-        $versionInstallation = ProductVersion::find($version_id)
+        $versionInstallation = ProductUpload::find($version_id)
             ->callbacks()
             ->select('id', 'version_id', 'callback_ip', 'callback_date_time', 'callback_status', 'callback_type')
             ->when($searchQuery, function ($query) use ($searchQuery) {

@@ -289,6 +289,18 @@ trait ApiKeySettings
 
             $system_commands = \Request::get('systemlogs-commands');
             $system_dailyAt = \Request::get('systemlogs-dailyAt');
+            $installationlogs_commands = \Request::get('installationlogs-commands');
+            $installationlogs_dailyAt = \Request::get('installationlogs-dailyAt');
+            $licensereports_commands = \Request::get('licensereports-commands');
+            $licensereports_dailyAt = \Request::get('licensereports-dailyAt');
+            $licensecallbacks_commands = \Request::get('licensecallbacks-commands');
+            $licensecallbacks_dailyAt = \Request::get('licensecallbacks-dailyAt');
+            $licensecrack_commands = \Request::get('licensecrack-commands');
+            $licensecrack_dailyAt = \Request::get('licensecrack-dailyAt');
+            $licensesystem_commands = \Request::get('licensesystem-commands');
+            $licensesystem_dailyAt = \Request::get('licensesystem-dailyAt');
+            $licenseversions_commands = \Request::get('licenseversions-commands');
+            $licenseversions_dailyAt = \Request::get('licenseversions-dailyAt');
 
             $activity_command = $this->getCommand($activity_commands, $activity_dailyAt);
             $expiry_command = $this->getCommand($expiry_commands, $expiry_dailyAt);
@@ -300,9 +312,20 @@ trait ApiKeySettings
             $msg91_command = $this->getCommand($msg91_commands, $msg91_dailyAt);
             $reoon_command = $this->getCommand($reoon_commands, $reoon_dailyAt);
             $system_command = $this->getCommand($system_commands, $system_dailyAt);
+            $installationlogs_command = $this->getCommand($installationlogs_commands, $installationlogs_dailyAt);
+            $licensereports_command = $this->getCommand($licensereports_commands, $licensereports_dailyAt);
+            $licensecallbacks_command = $this->getCommand($licensecallbacks_commands, $licensecallbacks_dailyAt);
+            $licensecrack_command = $this->getCommand($licensecrack_commands, $licensecrack_dailyAt);
+            $licensesystem_command = $this->getCommand($licensesystem_commands, $licensesystem_dailyAt);
+            $licenseversions_command = $this->getCommand($licenseversions_commands, $licenseversions_dailyAt);
 
-            $jobs = ['expiryMail' => $expiry_command, 'deleteLogs' => $activity_command, 'subsExpirymail' => $subexpiry_command, 'postExpirymail' => $postexpiry_command,
-                'cloud' => $cloud_command, 'invoice' => $invoice_command, 'msg91Reports' => $msg91_command, 'reoon' => $reoon_command, 'systemLogs' => $system_command];
+            $jobs = [
+                'expiryMail' => $expiry_command, 'deleteLogs' => $activity_command, 'subsExpirymail' => $subexpiry_command, 'postExpirymail' => $postexpiry_command,
+                'cloud' => $cloud_command, 'invoice' => $invoice_command, 'msg91Reports' => $msg91_command, 'reoon' => $reoon_command, 'systemLogs' => $system_command,
+                'installationLogs' => $installationlogs_command, 'licenseReportsCleanup' => $licensereports_command,
+                'licenseCallbacksCleanup' => $licensecallbacks_command, 'licenseCrackReportsCleanup' => $licensecrack_command,
+                'licenseSystemReportsCleanup' => $licensesystem_command, 'licenseVersionsCleanup' => $licenseversions_command,
+            ];
 
             $this->storeCommand($jobs);
         }

@@ -2058,7 +2058,7 @@
                 $('.overlay').show(); // Show the overlay
                 $('.modal-body').css('pointer-events', 'none');
                 var newDomain = $('#clouduserdomain').val();
-                var currentDomain = "{!! \App\Model\Order\InstallationDetail::where('order_id', $id)->latest()->value('installation_path') !!}";
+                var currentDomain = "{!! \App\License\Models\Installation::where('license_code', $order->serial_key)->latest('last_active')->value('installation_path') !!}";
                 var license_code = "{!!$order->serial_key!!}";
                 var productId = "{!! $order->product !!}";
                 var orderId = {!! $id !!};

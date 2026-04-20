@@ -2,7 +2,14 @@
 
 namespace App\License;
 
+use App\License\Console\Commands\CrackCallbackCleanup;
+use App\License\Console\Commands\CrackReportsCleanup;
+use App\License\Console\Commands\InstallationLogsCommand;
 use App\License\Console\Commands\LicenseDataMigration;
+use App\License\Console\Commands\LicenseReportsCleanup;
+use App\License\Console\Commands\LinkLicenseToPlugin;
+use App\License\Console\Commands\SystemReportsCleanup;
+use App\License\Console\Commands\VersionsCleanup;
 use App\License\Helpers\LicenseValidator;
 use App\License\Services\CallbackService;
 use App\License\Services\InstallationService;
@@ -62,6 +69,13 @@ class LicenseServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 LicenseDataMigration::class,
+                InstallationLogsCommand::class,
+                LicenseReportsCleanup::class,
+                CrackCallbackCleanup::class,
+                CrackReportsCleanup::class,
+                SystemReportsCleanup::class,
+                VersionsCleanup::class,
+                LinkLicenseToPlugin::class,
             ]);
         }
     }

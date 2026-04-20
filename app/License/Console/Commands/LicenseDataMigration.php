@@ -26,11 +26,12 @@ class LicenseDataMigration extends Command
     private const CHUNK_SIZE = 200;
     private const INSERT_BATCH_SIZE = 50;
 
-    private array $userMap = [];
     private array $productMap = [];
     private array $licenseMap = [];
     private array $versionMap = [];
+    private array $licenseCodeUserMap = [];
     private int $skippedUsers = 0;
+    private int $resolvedViaOrder = 0;
     private ?string $tempDatabase = null;
     private string $now;
 
@@ -85,7 +86,6 @@ class LicenseDataMigration extends Command
     private function executeSteps(): void
     {
         $steps = [
-            ['Building user mapping', fn () => $this->buildUserMapping()],
             ['Building product mapping', fn () => $this->buildProductMapping()],
             ['Migrating licenses', fn () => $this->migrateLicenses()],
             ['Migrating installations', fn () => $this->migrateInstallations()],
@@ -125,9 +125,9 @@ class LicenseDataMigration extends Command
         $this->table(
             ['Metric', 'Count'],
             [
-                ['Users mapped', count($this->userMap)],
                 ['Products mapped', count($this->productMap)],
                 ['Licenses migrated', count($this->licenseMap)],
+                ['Licenses user-mapped via order', $this->resolvedViaOrder],
                 ['Versions migrated', count($this->versionMap)],
                 ...($this->skippedUsers > 0
                     ? [['Licenses with no user', $this->skippedUsers]]
@@ -178,13 +178,14 @@ class LicenseDataMigration extends Command
             'afl_installations', 'installations', 'installation_id',
             fn (object $r) => [
                 'product_id' => $this->productMap[$r->product_id],
-                'user_id' => $this->userMap[$r->client_id] ?? null,
+                'user_id' => $this->resolveUserIdForLicense($r->license_code),
                 'license_code' => $r->license_code,
                 'installation_ip' => $r->installation_ip,
                 'installation_domain' => $r->installation_domain,
                 'installation_date' => $this->cleanDate($r->installation_date),
-                'installation_status' => $r->installation_status ?? 1,
+                'installation_status' => ($r->installation_status ?? 1) ? 1 : 0,
                 'installation_hash' => $r->installation_hash,
+                'installation_disable_ip_verification' => $r->installation_disable_ip_verification ?? 0,
                 ...$this->timestamps($r),
             ],
             productKey: 'product_id',
@@ -197,7 +198,7 @@ class LicenseDataMigration extends Command
             'afl_callbacks', 'license_callbacks', 'callback_id',
             fn (object $r) => [
                 'product_id' => $this->productMap[$r->product_id],
-                'user_id' => $this->userMap[$r->client_id] ?? null,
+                'user_id' => $this->resolveUserIdForLicense($r->license_code),
                 'license_code' => $r->license_code,
                 'callback_ip' => $r->callback_ip,
                 'callback_domain' => $r->callback_domain,
@@ -254,7 +255,7 @@ class LicenseDataMigration extends Command
             'afl_reports', 'license_reports', 'report_id',
             fn (object $r) => [
                 'product_id' => $this->productMap[$r->product_id],
-                'user_id' => $this->userMap[$r->account_id] ?? null,
+                'user_id' => $this->resolveUserIdForLicense($r->license_code),
                 'license_code' => $r->license_code,
                 'report_date_time' => $this->cleanDate($r->report_date_time),
                 'report_text' => $r->report_text,
@@ -368,50 +369,6 @@ class LicenseDataMigration extends Command
         );
     }
 
-    private function buildUserMapping(): void
-    {
-        $billingUsers = DB::table('users')->pluck('id', 'email');
-
-        $this->licenseDb()->table('users')
-            ->lazyById(self::CHUNK_SIZE, 'client_id')
-            ->each(function (object $lu) use ($billingUsers) {
-                $email = $lu->client_email ?? null;
-                if (! $email) {
-                    return;
-                }
-
-                if ($billingUsers->has($email)) {
-                    $this->userMap[$lu->client_id] = $billingUsers[$email];
-
-                    return;
-                }
-
-                $newId = DB::table('users')->insertGetId([
-                    'user_name' => $lu->client_username ?? $email,
-                    'first_name' => $lu->client_fname ?? '',
-                    'last_name' => $lu->client_lname ?? '',
-                    'email' => $email,
-                    'password' => $lu->client_password ?? bcrypt('changeme'),
-                    'role' => $lu->client_role === 'admin' ? 'admin' : 'client',
-                    'active' => ($lu->client_status ?? 1) ? 1 : 0,
-                    'mobile' => $lu->client_mobile ?? null,
-                    'timezone_id' => $lu->client_timezone_id ?? null,
-                    'profile_pic' => $lu->client_profile_pic ?? null,
-                    'address' => $lu->client_address ?? null,
-                    'company' => $lu->client_organization ?? null,
-                    'country' => $lu->client_iso2 ?? null,
-                    'created_at' => $this->now,
-                    'updated_at' => $this->now,
-                ]);
-
-                $this->userMap[$lu->client_id] = $newId;
-                $billingUsers[$email] = $newId;
-                $this->warn("  Created new user: {$email} (ID: {$newId})");
-            });
-
-        $this->line('  Mapped '.count($this->userMap).' users');
-    }
-
     private function buildProductMapping(): void
     {
         $billingBySku = DB::table('products')->whereNotNull('product_sku')->pluck('id', 'product_sku');
@@ -458,10 +415,14 @@ class LicenseDataMigration extends Command
     private function migrateLicenses(): int
     {
         $count = 0;
+        $orderUserMap = DB::table('orders')
+            ->whereNotNull('number')
+            ->pluck('client', 'number')
+            ->all();
 
         $this->licenseDb()->table('afl_licenses')
             ->lazyById(self::CHUNK_SIZE, 'license_id')
-            ->each(function (object $lic) use (&$count) {
+            ->each(function (object $lic) use (&$count, $orderUserMap) {
                 $newProductId = $this->productMap[$lic->product_id] ?? null;
                 if (! $newProductId) {
                     $this->warn("  Skipping license #{$lic->license_id} - orphaned product #{$lic->product_id}");
@@ -473,7 +434,15 @@ class LicenseDataMigration extends Command
                     return;
                 }
 
-                $newUserId = $this->userMap[$lic->client_id] ?? null;
+                $orderNumber = $lic->license_order_number;
+                $newUserId = null;
+
+                if ($orderNumber !== null && $orderNumber !== '' && isset($orderUserMap[$orderNumber])) {
+                    $newUserId = (int) $orderUserMap[$orderNumber];
+                    $this->resolvedViaOrder++;
+                }
+
+                $this->licenseCodeUserMap[$lic->license_code] = $newUserId;
 
                 $newId = DB::table('licenses')->insertGetId([
                     'product_id' => $newProductId,
@@ -521,15 +490,15 @@ class LicenseDataMigration extends Command
                 }
 
                 try {
-                    $newId = DB::table('product_versions')->insertGetId([
+                    $newId = DB::table('product_uploads')->insertGetId([
                         'product_id' => $newProductId,
-                        'version_number' => $ver->version_number,
-                        'version_install_file' => $ver->version_install_file,
-                        'version_upgrade_file' => $ver->version_upgrade_file,
-                        'version_changelog' => $ver->version_changelog,
-                        'version_date' => $this->cleanDate($ver->version_date),
-                        'version_expire_date' => $this->cleanDate($ver->version_expire_date),
-                        'version_status' => $ver->version_status ?? 1,
+                        'title' => $ver->version_number,
+                        'description' => $ver->version_changelog ?? '',
+                        'version' => $ver->version_number,
+                        'file' => $ver->version_install_file ?? '',
+                        'version_expire_date' => $this->cleanDate($ver->version_expire_date ?? null),
+                        'version_install_count' => $ver->version_install_count ?? 0,
+                        'status' => ($ver->version_status === 'inactive' || $ver->version_status === 0 || $ver->version_status === '0') ? 0 : 1,
                         ...$this->timestamps($ver),
                     ]);
                     $this->versionMap[$ver->version_id] = $newId;
@@ -766,7 +735,7 @@ class LicenseDataMigration extends Command
         $tables = [
             'installation_logs', 'license_options', 'license_plugins',
             'version_installations', 'version_callbacks',
-            'product_versions', 'license_reports', 'license_whitelist_ips',
+            'product_uploads', 'license_reports', 'license_whitelist_ips',
             'license_banned_hosts', 'license_notifications',
             'version_notifications', 'license_schemes',
             'license_callbacks', 'installations', 'licenses',
@@ -779,6 +748,15 @@ class LicenseDataMigration extends Command
             }
         }
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
+    }
+
+    private function resolveUserIdForLicense(?string $licenseCode): ?int
+    {
+        if ($licenseCode === null || $licenseCode === '') {
+            return null;
+        }
+
+        return $this->licenseCodeUserMap[$licenseCode] ?? null;
     }
 
     private function cleanDate(?string $date): ?string

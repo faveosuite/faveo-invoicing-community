@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Product;
 
 use App\Facades\Attach;
 use App\Http\Controllers\License\LicensePermissionsController;
-use App\Model\Order\InstallationDetail;
+use App\License\Models\Installation;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
@@ -397,7 +397,7 @@ class BaseProductController extends ExtendedBaseProductController
             return errorResponse(\Lang::get('message.invalid_app_key'));
         }
         $domain = $request->input('domain');
-        InstallationDetail::where('installation_path', $domain)->update(['status' => 0]);
+        Installation::where('installation_path', $domain)->update(['installation_status' => 0]);
 
         return successResponse(\Lang::get('message.updated_successfully'));
     }

@@ -8,7 +8,7 @@ use App\Jobs\ReportExport;
 use App\Model\Common\Country;
 use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\QueueService;
-use App\Model\Order\InstallationDetail;
+use App\License\Models\Installation;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -191,7 +191,7 @@ class OrderController extends BaseOrderController
                      return $planName->name ?? '';
                  })
                 ->addColumn('version', function ($model) {
-                    $installedVersions = InstallationDetail::where('order_id', $model->id)->pluck('version')->toArray();
+                    $installedVersions = Installation::where('license_code', $model->serial_key)->pluck('version')->toArray();
 
                     if (count($installedVersions)) {
                         $latest = max($installedVersions);
@@ -215,9 +215,9 @@ class OrderController extends BaseOrderController
                     $ExpireDate = Carbon::now()->subDays($days)->toDateString();
 
 //                    $installedPath = InstallationDetail::where('order_id', $model->id)->exists();
-                    $last_active = InstallationDetail::where('order_id', $model->id)
-                        ->latest()
-                        ->value('last_active');
+                    $last_active = \App\License\Models\InstallationLog::where('license_code', $model->serial_key)
+                        ->latest('installation_last_active_date')
+                        ->value('installation_last_active_date');
                     $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>';
                     if ($model->subscription_updated_at) {
                         $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>'.installationStatusLabel((! empty($last_active) && ($last_active > $ExpireDate)) ? 1 : 0);
@@ -234,7 +234,7 @@ class OrderController extends BaseOrderController
                     return $orderLink;
                 })
                  ->addColumn('status', function ($model) {
-                     return InstallationDetail::where('order_id', $model->id)->exists() ? 'Active' : 'Inactive';
+                     return Installation::where('license_code', $model->serial_key)->exists() ? 'Active' : 'Inactive';
                  })
                 ->addColumn('order_status', function ($model) {
                     return ucfirst($model->order_status);
@@ -321,43 +321,12 @@ class OrderController extends BaseOrderController
             $installationDetails = [];
 
             $installationDetails = app(\App\License\Services\InstallationService::class)->getInstallationsByProduct($order->serial_key, $order->product);
-            if ($installationDetails !== null && ! empty($installationDetails['installed_path'])) {
-                // Loop through each installed_path and corresponding installed_ip
-                for ($i = 0; $i < count($installationDetails['installed_path']); $i++) {
-                    $installedPath = $installationDetails['installed_path'][$i];
-                    $installedIp = $installationDetails['installed_ip'][$i] ?? null;
-                    $installationDate = $installationDetails['installation_date'][$i] ?? null;
-                    $installationStatus = $installationDetails['installation_status'][$i] ?? null;
 
-                    // Find or create InstallationDetail record based on path and IP
-                    $installationDetail = InstallationDetail::where('installation_path', $installedPath)
-                                                            ->where('installation_ip', $installedIp)
-                                                            ->first();
-
-                    if (! $installationDetail) {
-                        // Create a new InstallationDetail record if it doesn't exist
-                        InstallationDetail::create([
-                            'installation_path' => $installedPath,
-                            'installation_ip' => $installedIp,
-                            'last_active' => $installationDate,
-                            'order_id' => $orderId,
-                        ]);
-                    } else {
-                        // Update existing record if found
-                        $installationDetail->update([
-                            'last_active' => $installationDate,
-                            'order_id' => $orderId,
-                            // Add more fields to update as needed
-                        ]);
-                    }
-                }
-            }
-            $insDetail = InstallationDetail::where('order_id', $orderId)->get();
-
-            if (! $insDetail->isEmpty()) {
+            $insDetail = Installation::where('license_code', $order->serial_key)->get();
+            if ($insDetail->isNotEmpty()) {
                 $installationDetails['installed_path'] = $insDetail->pluck('installation_path')->toArray();
                 $installationDetails['installed_ip'] = $insDetail->pluck('installation_ip')->toArray();
-                $installationDetails['installation_date'] = $insDetail->pluck('last_active')->toArray();
+                $installationDetails['installation_date'] = $insDetail->pluck('installation_date')->toArray();
             }
             // }
 

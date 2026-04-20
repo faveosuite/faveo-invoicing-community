@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\LicenseCallback;
 use App\License\Models\License;
-use App\License\Models\ProductVersion;
 use App\License\Models\VersionCallback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
@@ -75,13 +74,13 @@ class CallBackController extends Controller
         $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
 
         $updateCallbacks = VersionCallback::query()
-            ->with(['version:id,product_id,version_number', 'version.product:id,name'])
+            ->with(['version:id,product_id,version', 'version.product:id,name'])
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
                     $query->whereHas('version.product', function ($productQuery) use ($searchQuery) {
                         $productQuery->where('name', 'LIKE', '%'.$searchQuery.'%');
                     })->orWhereHas('version', function ($versionQuery) use ($searchQuery) {
-                        $versionQuery->where('version_number', 'LIKE', '%'.$searchQuery.'%');
+                        $versionQuery->where('version', 'LIKE', '%'.$searchQuery.'%');
                     })->orWhere('callback_type', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('callback_ip', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhere('callback_status', 'LIKE', '%'.LicenseHelper::statusFormatter($searchQuery).'%')
@@ -104,7 +103,7 @@ class CallBackController extends Controller
                 'callback_status' => $callback->callback_status,
                 'product_title' => optional($product)->name,
                 'product_id' => optional($product)->id,
-                'version_number' => optional($version)->version_number,
+                'version_number' => optional($version)->version,
             ];
         });
 

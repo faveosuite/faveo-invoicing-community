@@ -22,6 +22,13 @@
                         <navigation v-for="(navigation, index) in navigations" :menuItem="navigation" :key="index">
 
                         </navigation>
+
+                        <li class="nav-item">
+                            <a href="/" class="nav-link">
+                                <i class="nav-icon fas fa-arrow-left"></i> &nbsp;
+                                <p>Billing Admin</p>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
      	</div>

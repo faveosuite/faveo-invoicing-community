@@ -9,7 +9,8 @@ use App\Http\Requests\ProductRenewalRequest;
 use App\Model\Configure\PluginCompatibleWithProducts;
 use App\Model\Configure\ProductPluginGroup;
 use App\Model\License\LicenseType;
-use App\Model\Order\InstallationDetail;
+use App\License\Models\Installation;
+use App\License\Models\License;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
@@ -536,7 +537,9 @@ class HomeController extends BaseHomeController
     public function renewurl(ProductRenewalRequest $request)
     {
         try {
-            $orderId = InstallationDetail::Where('installation_path', 'like', '%'.$request->input('domain').'%')->value('order_id');
+            $licenseCode = Installation::where('installation_path', 'like', '%'.$request->input('domain').'%')->value('license_code');
+            $orderNumber = License::where('license_code', $licenseCode)->value('license_order_number');
+            $orderId = Order::where('number', $orderNumber)->value('id');
             $subscription = Subscription::where('order_id', $orderId)->first();
 
             $basecron = new CronController();

@@ -18,14 +18,14 @@ return new class extends Migration
             $table->id();
             $table->unsignedInteger('product_id');
             $table->unsignedInteger('user_id')->nullable();
-            $table->unsignedBigInteger('version_id');
+            $table->unsignedInteger('version_id');
             $table->timestamp('installation_date')->nullable();
-            $table->string('installation_status')->default('active');
+            $table->boolean('installation_status')->default(1);
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('version_id')->references('id')->on('product_versions')->onDelete('cascade');
+            $table->foreign('version_id')->references('id')->on('product_uploads')->onDelete('cascade');
             $table->index(['product_id', 'user_id', 'version_id']);
         });
     }

@@ -3,7 +3,7 @@
 use App\FileSystemSettings;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
-use App\Model\Order\InstallationDetail;
+use App\License\Models\Installation;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\TaxByState;
@@ -203,7 +203,7 @@ function getVersionAndLabel($productVersion, $productId, $badge = 'label', $path
         return ProductUpload::where('product_id', $productId)->latest()->value('version');
     });
     if (! $productVersion && $path) {
-        $installationDetail = InstallationDetail::where('installation_path', 'like', '%'.$path.'%')->orderBy('id', 'desc')->first();
+        $installationDetail = Installation::where('installation_path', 'like', '%'.$path.'%')->latest('id')->first();
         $productVersion = $installationDetail ? $installationDetail->version : $latestVersion;
     }
     $status = $productVersion ? ($productVersion < $latestVersion ? 'warning' : 'success') : '';
@@ -213,7 +213,7 @@ function getVersionAndLabel($productVersion, $productId, $badge = 'label', $path
 
 function getInstallationDetail($ip)
 {
-    return InstallationDetail::where('installation_path', 'like', '%'.$ip.'%')->first();
+    return Installation::where('installation_path', 'like', '%'.$ip.'%')->first();
 }
 
 function tooltip($tootipText = '')

@@ -8,8 +8,6 @@ import NotFound from '../Pages/NotFound.vue';
 
 //===========================VERSIONS MENU=========================
 
-import VersionCreateEdit from "../Pages/Version/VersionCreateEdit.vue";
-
 import VersionsIndex from "../Pages/Version/VersionsIndex.vue";
 
 import VersionsView from "../Pages/Version/VersionsView.vue";
@@ -39,28 +37,6 @@ let versionsMenu = {
 
         {
 
-            path: 'create',
-
-            name: 'Version Create',
-
-            component: VersionCreateEdit,
-
-            meta: { title : 'versions', crumb : { link: { name : 'dashboard', to : '/' }, root_link: { name : 'versions', to : '/versions' }, active : 'create' } }
-        },
-
-        {
-
-            path: ':id/edit',
-
-            name: 'Version Edit',
-
-            component: VersionCreateEdit,
-
-            meta: { title : 'version', crumb : { link: { name : 'dashboard', to : '/' }, root_link: { name : 'version', to : '/versions' }, active : 'edit' } }
-        },
-
-        {
-
             path: ':id/view',
 
             name: 'Versions View',
@@ -74,36 +50,6 @@ let versionsMenu = {
 }
 
 //=================================================================
-
-//===========================PROFILE MENU=========================
-
-import Profile from "../Pages/UserProfile/Profile.vue";
-
-let profileMenu = {
-
-    path: '/profile',
-
-    component: LicenseLayout,
-
-    name: 'Profile',
-
-    redirect: '/profile/edit',
-
-    children: [
-
-        {
-
-            path: 'edit',
-
-            name: 'Profile Edit',
-
-            component: Profile,
-
-            meta: { title : 'View Profile', crumb : { link: { name : 'dashboard', to : '/' }, active : 'my_profile' } }
-        },
-
-    ]
-}
 
 //===========================LICENSES MENU=========================
 
@@ -499,8 +445,6 @@ const routes = [
     callbacksMenu,
 
     reportsMenu,
-
-    profileMenu,
 
     bannedMenu,
 
