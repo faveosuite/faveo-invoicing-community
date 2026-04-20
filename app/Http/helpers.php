@@ -767,6 +767,13 @@ function isS3Enabled()
  *
  * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException If the .env file is not found.
  */
+function commonSettings($option, $optionField, $returnColumn = 'option_value')
+{
+    return \App\Model\Common\CommonSettings::where('option_name', $option)
+        ->where('optional_field', $optionField)
+        ->value($returnColumn);
+}
+
 function setEnvValue(array $data)
 {
     $envFile = app()->environmentFilePath();

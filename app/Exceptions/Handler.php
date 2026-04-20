@@ -31,7 +31,7 @@ class Handler extends ExceptionHandler
     /**
      * Report or log an exception.
      *
-     * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
+     * This is a great spot to send exceptions to Sentry, etc.
      *
      * @param  \Exception  $exception
      * @return void
@@ -40,6 +40,8 @@ class Handler extends ExceptionHandler
     {
         // Check if the exception is an UnauthenticatedException
         if (! $exception instanceof AuthenticationException) {
+            $this->reportToSentry($exception);
+
             // Log the exception
             \Log::channel('daily')->error($exception);
         }
@@ -49,6 +51,23 @@ class Handler extends ExceptionHandler
         if ($this->shouldBeLoggedInDB($exception) && isInstall()) {
             // Log exception to database
             Logger::exception($exception);
+        }
+    }
+
+    /**
+     * Report to Sentry.
+     *
+     * @param  Throwable  $exception
+     * @return void
+     */
+    protected function reportToSentry(Throwable $exception)
+    {
+        if (! app()->environment('production')) {
+            return;
+        }
+
+        if (config('app.sentry_reporting')) {
+            \Sentry\captureException($exception);
         }
     }
 

@@ -211,7 +211,7 @@
                         <div class="text-center text-sm fw_400">{{ __('message.debug') }}</div>
                     </div>
                 </div>
-                @if(env('APP_DEBUG') == 'true')
+                @if(config('clockwork.enable'))
                     <div class="col-md-2 col-sm-6">
                         <div class="settingiconblue">
                             <div class="settingdivblue">
@@ -224,6 +224,8 @@
                             <div class="text-center text-sm fw_400">{{ __('message.clockwork') }}</div>
                         </div>
                     </div>
+                @endif
+                @if(config('pulse.enabled'))
                     <div class="col-md-2 col-sm-6">
                         <div class="settingiconblue">
                             <div class="settingdivblue">

@@ -90,6 +90,7 @@ class ChatScriptController extends Controller
 
             return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
         } catch (Exception $ex) {
+            \Sentry\captureException($ex);
             \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());

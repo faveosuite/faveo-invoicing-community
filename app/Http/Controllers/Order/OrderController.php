@@ -498,6 +498,8 @@ class OrderController extends BaseOrderController
             return view('themes.default1.order.edit',
                 compact('clients', 'product', 'subscription', 'promotion', 'order'));
         } catch (\Exception $e) {
+            \Sentry\captureException($e);
+
             return redirect()->back()->with('fails', $e->getMessage());
         }
     }
@@ -516,6 +518,8 @@ class OrderController extends BaseOrderController
 
             return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
         } catch (\Exception $e) {
+            \Sentry\captureException($e);
+
             return redirect()->back()->with('fails', $e->getMessage());
         }
     }

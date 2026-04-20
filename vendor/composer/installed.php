@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '71ccf4581357234499097ab2cde883cd89a26e10',
+        'reference' => '6bc77f765c40beed84840321f4bdc7d4dd9b150f',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -660,6 +660,15 @@
             ),
             'dev_requirement' => false,
         ),
+        'jean85/pretty-package-versions' => array(
+            'pretty_version' => '2.1.1',
+            'version' => '2.1.1.0',
+            'reference' => '4d7aa5dab42e2a76d99559706022885de0e18e1a',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../jean85/pretty-package-versions',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'kodova/hamcrest-php' => array(
             'dev_requirement' => true,
             'replaced' => array(
@@ -705,7 +714,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '71ccf4581357234499097ab2cde883cd89a26e10',
+            'reference' => '6bc77f765c40beed84840321f4bdc7d4dd9b150f',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -1035,6 +1044,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'nyholm/psr7' => array(
+            'pretty_version' => '1.8.2',
+            'version' => '1.8.2.0',
+            'reference' => 'a71f2b11690f4b24d099d6b16690a90ae14fc6f3',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../nyholm/psr7',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'openspout/openspout' => array(
             'pretty_version' => 'v4.32.0',
             'version' => '4.32.0.0',
@@ -1099,6 +1117,12 @@
             'dev_requirement' => false,
             'provided' => array(
                 0 => '*',
+            ),
+        ),
+        'php-http/message-factory-implementation' => array(
+            'dev_requirement' => false,
+            'provided' => array(
+                0 => '1.0',
             ),
         ),
         'php-mock/php-mock' => array(
@@ -1576,6 +1600,24 @@
             'aliases' => array(),
             'dev_requirement' => true,
         ),
+        'sentry/sentry' => array(
+            'pretty_version' => '4.24.0',
+            'version' => '4.24.0.0',
+            'reference' => '5055cc792f630a427fdf9dcccd88faa94b50fd30',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../sentry/sentry',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'sentry/sentry-laravel' => array(
+            'pretty_version' => '4.25.0',
+            'version' => '4.25.0.0',
+            'reference' => '6699c9465df6bee07d82279f7a209db941913456',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../sentry/sentry-laravel',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'slavka/mailchimp-apiv3' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
@@ -1926,6 +1968,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'symfony/options-resolver' => array(
+            'pretty_version' => 'v8.0.8',
+            'version' => '8.0.8.0',
+            'reference' => 'b48bce0a70b914f6953dafbd10474df232ed4de8',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../symfony/options-resolver',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'symfony/polyfill-ctype' => array(
             'pretty_version' => 'v1.33.0',
             'version' => '1.33.0.0',
@@ -2031,6 +2082,15 @@
             'reference' => '608476f4604102976d687c483ac63a79ba18cc97',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/process',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'symfony/psr-http-message-bridge' => array(
+            'pretty_version' => 'v8.0.8',
+            'version' => '8.0.8.0',
+            'reference' => '94facc221260c1d5f20e31ee43cd6c6a824b4a19',
+            'type' => 'symfony-bridge',
+            'install_path' => __DIR__ . '/../symfony/psr-http-message-bridge',
             'aliases' => array(),
             'dev_requirement' => false,
         ),

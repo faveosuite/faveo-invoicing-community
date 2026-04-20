@@ -836,12 +836,37 @@ class SettingsController extends BaseSettingsController
 
     public function postdebugSettings(Request $request)
     {
-        $enable = $request->get('debug') === 'true';
-        setEnvValue([
-            'APP_DEBUG' => $enable ? 'true' : 'false',
-            'PULSE_ENABLED' => $enable ? 'true' : 'false',
-            'CLOCKWORK_ENABLE' => $enable ? 'true' : 'false',
-        ]);
+        $settings = [
+            ['option_name' => 'debugging', 'optional_field' => 'app_debug',        'option_value' => $request->get('debug') === 'true' ? '1' : '0'],
+            ['option_name' => 'debugging', 'optional_field' => 'pulse_enabled',    'option_value' => $request->get('pulse_enabled') === 'true' ? '1' : '0'],
+            ['option_name' => 'debugging', 'optional_field' => 'clockwork_enable', 'option_value' => $request->get('clockwork_enable') === 'true' ? '1' : '0'],
+            ['option_name' => 'sentry',    'optional_field' => 'crash_reporting',        'option_value' => $request->get('sentry_reporting') === 'true' ? '1' : '0'],
+            ['option_name' => 'sentry',    'optional_field' => 'performance_monitoring', 'option_value' => $request->get('sentry_performance') === 'true' ? '1' : '0'],
+        ];
+
+        foreach ($settings as $setting) {
+            \App\Model\Common\CommonSettings::updateOrCreate(
+                ['option_name' => $setting['option_name'], 'optional_field' => $setting['optional_field']],
+                ['option_value' => $setting['option_value'], 'status' => '1']
+            );
+        }
+
+        \Cache::forget('debugging_settings');
+
+        \Config::set('app.debug',            (bool) ($request->get('debug') === 'true'));
+        \Config::set('pulse.enabled',        (bool) ($request->get('pulse_enabled') === 'true'));
+        \Config::set('clockwork.enable',     (bool) ($request->get('clockwork_enable') === 'true'));
+        \Config::set('app.sentry_reporting', (bool) ($request->get('sentry_reporting') === 'true'));
+
+        $tracesRate = $request->get('sentry_performance') === 'true' ? 0.1 : 0;
+        \Config::set('sentry.traces_sample_rate', $tracesRate);
+
+        if (app()->bound(\Sentry\State\HubInterface::class)) {
+            $client = app(\Sentry\State\HubInterface::class)->getClient();
+            if ($client !== null) {
+                $client->getOptions()->setTracesSampleRate($tracesRate ?: null);
+            }
+        }
 
         return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
     }

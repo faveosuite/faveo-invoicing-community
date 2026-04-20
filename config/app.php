@@ -100,12 +100,11 @@ return [
     |--------------------------------------------------------------------------
     | Encryption Key
     |--------------------------------------------------------------------------
-
-'App\Plugins\Razorpay\ServiceProvider',
-'App\Plugins\Stripe\ServiceProvider',//
+    |
     | This key is used by the Illuminate encrypter service and should be set
-//
-
+    | to a random, 32 character string, otherwise these encrypted strings
+    | will not be safe. Please do this before deploying an application!
+    |
     */
 
     'key' => env('APP_KEY', 'base64:G4WSQduFNvk9rYtoLS1ozg=='),
@@ -120,12 +119,15 @@ return [
 
     /*
       |---------------------------------------------------------------------------------
-      | Bugsnag error reporting
+      | Sentry error reporting
       |-----------------------------------------------------------------------------------
       |Accepts true or false as a value. It decides whether to send the error
-      |to AGORA developers  when any exception/error occurs or not. True value of this variable will
-      |allow application to send error reports to AGORA team's bugsnag log.
+      |to FAVEO team when any exception/error occurs or not. True value of this variable will
+      |allow application to send error reports to Sentry.
      */
+
+    'sentry_reporting' => env('APP_BUGSNAG', true),
+
     /*
     |--------------------------------------------------------------------------
     | Logging Configuration
@@ -201,6 +203,7 @@ Torann\GeoIP\GeoIPServiceProvider::class,
         App\Providers\HorizonServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\CustomValidationProvider::class,
+        App\Providers\ConfigServiceProvider::class,
 
         Barryvdh\DomPDF\ServiceProvider::class,
         // Illuminate\Support\Facades\Input::class,
