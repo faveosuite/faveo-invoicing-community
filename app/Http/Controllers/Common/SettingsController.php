@@ -306,7 +306,6 @@ class SettingsController extends BaseSettingsController
         $pipedriveAction = $pipedriveStatus ? '<button id="pipedrive-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $githubAction = $githubStatus
             ? '<button id="github-edit-button" class="btn btn-sm btn-secondary btn-xs mr-1"><span class="nav-icon fa fa-fw fa-edit"></span></button>'
-              .'<a href="'.url('github-create-release').'" class="btn btn-sm btn-primary btn-xs"><i class="fab fa-github"></i> '.__('message.create_release').'</a>'
             : '';
         $recaptchaAction = $captchaStatus ? '<button id="captcha-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $emailValidationAction = $emailStatus ? '<button id="emailValidation-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';

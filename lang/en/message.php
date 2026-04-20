@@ -2937,5 +2937,7 @@ return [
     'github_owner'              => 'Owner / Org',
     'repo_name'                 => 'Repository',
     'workflow_file'             => 'Workflow File',
+    'jenkins_url'               => 'Jenkins URL',
+    'jenkins_job'               => 'Jenkins Job',
     'select_repo'               => 'Select Repository',
 ];

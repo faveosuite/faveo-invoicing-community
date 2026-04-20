@@ -9,7 +9,6 @@ use App\Http\Controllers\Common\PipedriveController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Front;
-use App\Http\Controllers\Github;
 use App\Http\Controllers\Google2FAController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Jobs;
@@ -147,6 +146,9 @@ Route::middleware('installAgora')->group(function () {
 
     Route::get('get-versions/{productid}/{clientid}/{invoiceid}/', [Front\ClientController::class, 'getVersionList'])->name('get-versions');
     Route::get('get-github-versions/{productid}/{clientid}/{invoiceid}/', [Front\ClientController::class, 'getGithubVersionList'])->name('get-github-versions');
+
+    Route::get('get-deploy-versions/{orderId}', [Front\DeployController::class, 'getVersions'])->name('get-deploy-versions');
+    Route::post('deploy-product-step', [Front\DeployController::class, 'deployStep'])->name('deploy-product-step');
 
     // Post Route For Make Razorpay Payment Request
     Route::post('payment/{invoice}', [RazorpayController::class, 'payment'])->name('payment');
@@ -502,30 +504,6 @@ Route::middleware('installAgora')->group(function () {
     // Route::get('get-widgets', [Front\WidgetController::class, 'GetPages']);
     Route::delete('widgets-delete', [Front\WidgetController::class, 'destroy']);
 
-    /*
-     * github
-     */
-    Route::get('github-auth-app', [Github\GithubController::class, 'authForSpecificApp']);
-    Route::get('github-releases', [Github\GithubController::class, 'listRepositories']);
-    Route::get('github-downloads', [Github\GithubController::class, 'getDownloadCount']);
-//    Route::get('github', [Github\GithubController::class, 'getSettings']);
-    Route::post('github-setting', [Github\GithubController::class, 'postSettings']);
-    // Create / manage releases
-    Route::get('github-create-release', [Github\GithubController::class, 'createRelease'])->name('github.create-release');
-    Route::get('github-latest-tag', [Github\GithubController::class, 'latestTag'])->name('github.latest-tag');
-    Route::get('github-check-tag', [Github\GithubController::class, 'checkTag'])->name('github.check-tag');
-    Route::post('github-trigger-workflow', [Github\GithubController::class, 'triggerWorkflow'])->name('github.trigger-workflow');
-    Route::post('github-create-release', [Github\GithubController::class, 'postCreateRelease'])->name('github.post-create-release');
-    Route::post('github-update-release', [Github\GithubController::class, 'updateRelease'])->name('github.update-release');
-    Route::post('github-promote-release', [Github\GithubController::class, 'promoteRelease'])->name('github.promote-release');
-    // Repo management + releases list
-    Route::get('github-repos', [Github\GithubRepoController::class, 'index'])->name('github.repos.index');
-    Route::post('github-repos', [Github\GithubRepoController::class, 'store'])->name('github.repos.store');
-    Route::put('github-repos/{id}', [Github\GithubRepoController::class, 'update'])->name('github.repos.update');
-    Route::delete('github-repos/{id}', [Github\GithubRepoController::class, 'destroy'])->name('github.repos.destroy');
-    Route::get('github-manage-releases', [Github\GithubRepoController::class, 'releases'])->name('github.manage-releases');
-    Route::get('github-fetch-releases/{id}', [Github\GithubRepoController::class, 'fetchReleases'])->name('github.fetch-releases');
-    Route::delete('github-delete-release', [Github\GithubRepoController::class, 'deleteRelease'])->name('github.delete-release');
 
     /*
      * download

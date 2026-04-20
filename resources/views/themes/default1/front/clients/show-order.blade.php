@@ -324,6 +324,15 @@
                                 </a>
                             </li>
                             @endif
+                        @php $hasDeployableUploads = \App\Model\Product\ProductUpload::where('product_id', $product->id)->where('is_private', 0)->whereNotNull('file')->where('file', '!=', '')->exists(); @endphp
+                        @if($hasDeployableUploads && $order->order_status != 'Terminated')
+                            <li class="nav-item">
+                                <a class="nav-link" href="#deploy" data-bs-toggle="tab" data-hash data-hash-offset="0"
+                                   data-hash-offset-lg="500" data-hash-delay="500">
+                                    Deploy
+                                </a>
+                            </li>
+                        @endif
                     </ul>
                 </aside>
             </div>
@@ -834,9 +843,1402 @@
             </div>
         </div>
     </div>
+
+    @if($hasDeployableUploads && $order->order_status != 'Terminated')
+    <div class="tab-pane tab-pane-navigation" id="deploy" role="tabpanel">
+
+    <style>
+    /* ── Faveo Deploy · Design System ──────────────────────────────────── */
+    #fv-deploy {
+      --fv-blue-50:#e8f4fb; --fv-blue-100:#d0e9f7; --fv-blue-500:#0088cc;
+      --fv-blue-600:#0077b3; --fv-blue-700:#006699; --fv-blue-800:#004d80;
+      --fv-slate-50:#f8f9fa; --fv-slate-100:#f0f2f5; --fv-slate-200:#e9ecef;
+      --fv-slate-300:#dee2e6; --fv-slate-400:#adb5bd; --fv-slate-500:#6c757d; --fv-slate-600:#495057;
+      --fv-green-50:#e9f7ee; --fv-green-500:#28a745; --fv-green-600:#218838; --fv-green-700:#1a6e2e;
+      --fv-amber-50:#fff8e1; --fv-amber-600:#d48a00;
+      --fv-red-50:#fdf0f0; --fv-red-500:#dc3545; --fv-red-600:#c82333;
+      --fv-surface:#ffffff; --fv-border:#dee2e6; --fv-text:#212529; --fv-text-2:#6c757d;
+      --fv-accent:#0088cc; --fv-accent-wk:#e8f4fb;
+      --fv-radius:8px; --fv-radius-lg:12px;
+      --fv-shadow-sm:0 1px 2px rgba(14,23,41,.05);
+      --fv-shadow:0 1px 3px rgba(14,23,41,.06),0 4px 14px rgba(14,23,41,.05);
+      --fv-shadow-lg:0 10px 30px rgba(14,23,41,.08);
+      --fv-mono:SFMono-Regular,Menlo,Monaco,Consolas,'Courier New',monospace;
+      font-family:'Poppins',-apple-system,sans-serif;
+    }
+    /* Legacy tokens kept for JS compat */
+    #dw {
+      --p:#0088cc; --pc:#006699; --sf:#f8f9fa; --sfl:#f0f2f5;
+      --sc:#dee2e6; --sch:#d0e9f7; --scl:#ffffff; --scv:#aeddf5;
+      --os:#212529; --osv:#6c757d; --ov:rgba(0,0,0,.12);
+      --inv:#0b1020; --invs:#f8f9fa;
+      background:transparent; min-width:0;
+    }
+    #dw * { box-sizing:border-box; }
+
+    /* ── Two-column layout ──────────────────────────────────────────────── */
+    .fv-layout { display:grid; grid-template-columns:minmax(0,1fr) 280px; gap:20px; align-items:start; }
+    @media (max-width:860px) { .fv-layout { grid-template-columns:1fr; } }
+
+    /* ── Sidebar cards ──────────────────────────────────────────────────── */
+    .fv-card { background:#fff; border:1px solid var(--fv-border); border-radius:var(--fv-radius-lg); box-shadow:var(--fv-shadow-sm); overflow:hidden; margin-bottom:14px; }
+    .fv-card-head { padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px; border-bottom:1px solid var(--fv-border); }
+    .fv-card-head h3 { margin:0; font-size:13px; font-weight:600; color:var(--fv-text); display:flex; align-items:center; gap:7px; }
+    .fv-card-body { padding:14px 16px; }
+    .fv-kv { display:grid; grid-template-columns:auto 1fr; gap:5px 10px; font-size:12.5px; margin:0; }
+    .fv-kv dt { color:var(--fv-text-2); white-space:nowrap; }
+    .fv-kv dd { margin:0; font-weight:600; color:var(--fv-text); text-align:right; word-break:break-all; }
+    .fv-divider { height:1px; background:var(--fv-border); margin:11px 0; }
+    .fv-act-item { display:flex; gap:10px; align-items:flex-start; padding:7px 0; }
+    .fv-act-item+.fv-act-item { border-top:1px solid var(--fv-border); }
+    .fv-act-ic { width:24px; height:24px; border-radius:50%; flex-shrink:0; display:grid; place-items:center; font-size:11px; }
+    .fv-act-ic.ok  { background:var(--fv-green-50); color:var(--fv-green-600); }
+    .fv-act-ic.dim { background:var(--fv-slate-100); color:var(--fv-text-2); }
+    .fv-act-ic.run { background:var(--fv-blue-50); color:var(--fv-accent); }
+    .fv-act-ic.err { background:var(--fv-red-50); color:var(--fv-red-600); }
+    .fv-link-btn { display:flex; align-items:center; gap:8px; padding:7px 0; font-size:12.5px; font-weight:500; color:var(--fv-accent); background:none; border:none; width:100%; text-align:left; text-decoration:none; cursor:pointer; }
+    .fv-link-btn:hover { color:var(--fv-blue-700); text-decoration:none; }
+    .fv-link-btn+.fv-link-btn { border-top:1px solid var(--fv-border); }
+
+    /* ── Stepper ────────────────────────────────────────────────────────── */
+    .fv-stepper { display:flex; gap:2px; background:var(--fv-slate-50); border:1px solid var(--fv-border); border-radius:var(--fv-radius-lg); padding:4px; margin-bottom:20px; }
+    .fv-stp { flex:1; display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; font-size:12px; font-weight:500; color:var(--fv-text-2); }
+    .fv-stp-num { width:22px; height:22px; border-radius:50%; flex-shrink:0; background:#fff; border:1.5px solid var(--fv-border); display:grid; place-items:center; font-size:11px; font-weight:700; color:var(--fv-text-2); }
+    .fv-stp.active { background:#fff; color:var(--fv-text); box-shadow:var(--fv-shadow-sm); }
+    .fv-stp.active .fv-stp-num { background:var(--fv-accent); color:#fff; border-color:var(--fv-accent); }
+    .fv-stp.done { color:var(--fv-green-700); }
+    .fv-stp.done .fv-stp-num { background:var(--fv-green-500); color:#fff; border-color:var(--fv-green-500); font-size:0; }
+    .fv-stp.done .fv-stp-num::after { content:"✓"; font-size:12px; }
+
+    /* ── Badges ────────────────────────────────────────────────────────── */
+    .fv-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; }
+    .fv-badge .fv-dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .fv-badge-green { color:var(--fv-green-700); background:var(--fv-green-50); border:1px solid rgba(40,167,69,.2); }
+    .fv-badge-red   { color:var(--fv-red-600); background:var(--fv-red-50); border:1px solid rgba(220,53,69,.2); }
+    .fv-badge-blue  { color:var(--fv-blue-700); background:var(--fv-blue-50); border:1px solid rgba(0,136,204,.2); }
+
+    /* ── Wizard animations ──────────────────────────────────────────────── */
+    .dw-fade { animation:dw-in .25s ease; }
+    @keyframes dw-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+    .dw-step-badge { display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:var(--sch);color:var(--p);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px; }
+
+    /* ── Type cards ─────────────────────────────────────────────────────── */
+    .dw-type-card { background:#fff;border-radius:var(--fv-radius-lg);padding:20px;box-shadow:var(--fv-shadow-sm);cursor:pointer;border:2px solid var(--fv-border);transition:box-shadow .2s,transform .15s,border-color .2s;text-align:left;width:100%;margin-bottom:12px;position:relative;overflow:hidden;display:block; }
+    .dw-type-card:hover { border-color:var(--sch);box-shadow:var(--fv-shadow); }
+    .dw-type-card.sel { border-color:var(--p);box-shadow:0 0 0 3px rgba(0,136,204,.1); }
+    .dw-card-icon { width:40px;height:40px;border-radius:8px;background:var(--fv-slate-100);color:var(--p);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:12px;transition:background .2s,color .2s; }
+    .dw-type-card.sel .dw-card-icon,.dw-type-card:hover .dw-card-icon { background:var(--p);color:#fff; }
+    .dw-type-card h3 { font-size:13.5px;font-weight:700;color:var(--os);margin:0 0 5px; }
+    .dw-type-card p  { font-size:12px;color:var(--osv);line-height:1.5;margin:0 0 10px; }
+    .dw-tags { display:flex;gap:6px; }
+    .dw-tag { padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.06em;font-family:var(--fv-mono);background:var(--fv-slate-100);color:var(--osv); }
+    .dw-tag.p { background:var(--fv-blue-50);color:var(--p); }
+    .dw-card-decor { position:absolute;top:0;right:0;padding:10px;opacity:.04;pointer-events:none;font-size:64px;line-height:1; }
+
+    /* ── Sys req ────────────────────────────────────────────────────────── */
+    .dw-sysreq { background:var(--fv-slate-50);border:1px solid var(--fv-border);border-radius:var(--fv-radius-lg);padding:16px;margin-top:18px; }
+    .dw-pulse { width:8px;height:8px;border-radius:50%;background:var(--p);animation:dw-pulse-a 2s infinite;flex-shrink:0; }
+    @keyframes dw-pulse-a{0%{box-shadow:0 0 0 0 rgba(0,136,204,.7)}70%{box-shadow:0 0 0 8px rgba(0,136,204,0)}100%{box-shadow:0 0 0 0 rgba(0,136,204,0)}}
+
+    /* ── Form elements ──────────────────────────────────────────────────── */
+    .dw-sec { display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--osv);margin-bottom:12px; }
+    .dw-sec i { color:var(--p);font-size:14px; }
+    .dw-auth-toggle { display:flex;background:var(--fv-slate-100);border:1px solid var(--fv-border);border-radius:var(--fv-radius);padding:3px;margin-bottom:16px; }
+    .dw-auth-btn { flex:1;padding:8px 0;border:none;background:transparent;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--osv);cursor:pointer;transition:all .2s; }
+    .dw-auth-btn.on { background:#fff;color:var(--p);box-shadow:var(--fv-shadow-sm); }
+    .dw-inp { width:100%;background:#fff;border:1px solid var(--fv-border);border-radius:var(--fv-radius);padding:9px 13px;font-size:13px;color:var(--os);transition:border-color .2s,box-shadow .2s;outline:none;font-family:inherit; }
+    .dw-inp:focus { border-color:var(--p);box-shadow:0 0 0 3px rgba(0,136,204,.1); }
+    .dw-inp.mono { font-family:var(--fv-mono);font-size:12px; }
+    .dw-inp.ta { resize:vertical; }
+    select.dw-inp { appearance:auto; }
+    .dw-label { display:block;font-size:11.5px;font-weight:600;color:var(--osv);margin-bottom:5px;padding-left:1px; }
+    .dw-hint { font-size:11px;color:var(--osv);margin-top:5px;padding-left:1px;line-height:1.5; }
+    .dw-hint .pro { font-weight:700;color:var(--p); }
+    .dw-field { margin-bottom:16px; }
+    .dw-grid2 { display:grid;grid-template-columns:2fr 1fr;gap:12px; }
+    .dw-grid2h { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+    .dw-path-sec { background:var(--fv-slate-50);border:1px solid var(--fv-border);border-radius:var(--fv-radius-lg);padding:16px;margin-bottom:16px; }
+    .dw-stack-row { display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:var(--fv-slate-50);border:1px solid var(--fv-border);border-radius:var(--fv-radius);margin-bottom:6px; }
+    .dw-stack-badge { font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--fv-blue-50);color:var(--p);border:1px solid rgba(0,136,204,.2);letter-spacing:.04em; }
+    .dw-ssl-row { display:flex;align-items:center;gap:12px;background:#fff;border-radius:var(--fv-radius);padding:11px 14px;border:1.5px solid var(--fv-border);cursor:pointer;transition:border-color .2s;margin-bottom:8px; }
+    .dw-ssl-row:hover { border-color:var(--sch); }
+    .dw-ssl-row.sel { border-color:var(--p);background:var(--fv-blue-50); }
+    .dw-ssl-radio { width:18px;height:18px;border-radius:50%;border:2px solid var(--fv-border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .2s; }
+    .dw-ssl-row.sel .dw-ssl-radio { border-color:var(--p); }
+    .dw-ssl-dot { width:8px;height:8px;border-radius:50%;background:var(--p);display:none; }
+    .dw-ssl-row.sel .dw-ssl-dot { display:block; }
+    .dw-meta-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px;margin-bottom:20px; }
+    .dw-meta-card { background:#fff;border-radius:var(--fv-radius-lg);padding:14px;border:1px solid var(--fv-border);box-shadow:var(--fv-shadow-sm);display:flex;flex-direction:column;gap:14px;min-height:84px; }
+    .dw-meta-label { font-size:10px;font-weight:700;text-transform:uppercase;color:var(--osv);letter-spacing:.06em;margin-bottom:2px; }
+    .dw-meta-val { font-size:11px;font-weight:600;color:var(--os);line-height:1.3; }
+    .dw-ready { display:flex;align-items:center;gap:6px; }
+    .dw-ready span { font-size:10px;font-weight:900;color:var(--p);letter-spacing:.06em; }
+
+    /* ── Timeline ───────────────────────────────────────────────────────── */
+    #dw-timeline { position:relative;padding-top:4px; }
+    .dw-tl-line { position:absolute;left:19px;top:0;bottom:0;width:4px;background:var(--sch);border-radius:2px;z-index:0; }
+    .dw-tl-item { position:relative;z-index:1;display:flex;gap:20px;padding-bottom:24px; }
+    .dw-tl-item:last-child { padding-bottom:0; }
+    .dw-tl-dot { flex-shrink:0;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .3s; }
+    .dw-tl-dot.pending { background:var(--fv-slate-100);color:var(--osv); }
+    .dw-tl-dot.running { background:#fff;color:var(--p);box-shadow:0 4px 16px rgba(0,136,204,.25);outline:4px solid rgba(0,136,204,.12);animation:dw-pulse-a 2s infinite; }
+    .dw-tl-dot.done  { background:var(--p);color:#fff;box-shadow:0 4px 16px rgba(0,136,204,.25); }
+    .dw-tl-dot.error { background:var(--fv-red-500);color:#fff; }
+    .dw-tl-body { padding-top:8px; }
+    .dw-tl-body h4 { font-size:13px;font-weight:600;color:var(--os);margin:0 0 3px; }
+    .dw-tl-body p  { font-size:11px;color:var(--osv);margin:0; }
+    .dw-tl-item.pend { opacity:.45; }
+    .dw-tl-bar { margin-top:10px;width:140px;height:4px;background:var(--sch);border-radius:2px;overflow:hidden; }
+    .dw-tl-bar-inner { height:100%;background:var(--p);border-radius:2px;animation:dw-ind 1.6s ease-in-out infinite; }
+    @keyframes dw-ind{0%{transform:translateX(-100%);width:60%}100%{transform:translateX(200%);width:60%}}
+
+    /* ── Live badge ─────────────────────────────────────────────────────── */
+    .dw-live-badge { display:inline-flex;align-items:center;gap:8px;background:var(--fv-blue-50);color:var(--p);padding:5px 14px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px;border:1px solid rgba(0,136,204,.2); }
+    .dw-live-dot { position:relative;width:8px;height:8px;flex-shrink:0; }
+    .dw-live-dot::before,.dw-live-dot::after { content:'';position:absolute;border-radius:50%;inset:0; }
+    .dw-live-dot::before { background:var(--p); }
+    .dw-live-dot::after { background:var(--p);opacity:.7;animation:dw-ping 1.2s cubic-bezier(0,0,.2,1) infinite; }
+    @keyframes dw-ping{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.4);opacity:0}}
+
+    /* ── Terminal ───────────────────────────────────────────────────────── */
+    .dw-term { background:#0b1020;border-radius:var(--fv-radius);overflow:hidden;box-shadow:var(--fv-shadow-lg);margin-top:20px;border:1px solid #1f2a47; }
+    .dw-term-hdr { display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(255,255,255,.05); }
+    .dw-term-dots { display:flex;gap:6px; }
+    .dw-term-dots span { width:10px;height:10px;border-radius:50%; }
+    .dw-term-body { padding:14px 16px;font-family:var(--fv-mono);font-size:11.5px;line-height:1.7;color:#c9d3ec;max-height:200px;overflow-y:auto; }
+    .dw-term-body .ts { color:#6de89a; }
+    .dw-term-body::-webkit-scrollbar{width:4px} .dw-term-body::-webkit-scrollbar-thumb{background:#374060;border-radius:2px}
+
+    /* ── Success ────────────────────────────────────────────────────────── */
+    .dw-success-icon { width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,var(--p) 0%,var(--pc) 100%);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;position:relative;box-shadow:0 8px 24px rgba(0,136,204,.3); }
+    .dw-success-icon::before { content:'';position:absolute;inset:-12px;border-radius:50%;background:rgba(0,136,204,.08);filter:blur(12px); }
+    .dw-success-icon i { color:#fff;font-size:34px;position:relative;z-index:1; }
+    .dw-endpoint { background:#fff;border-radius:var(--fv-radius-lg);padding:16px;border:1px solid var(--fv-border);box-shadow:var(--fv-shadow-sm);margin-bottom:12px; }
+    .dw-ep-label { font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--p);margin-bottom:2px; }
+    .dw-ep-sub { font-size:12px;color:var(--osv);margin-bottom:12px; }
+    .dw-url-row { display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--fv-slate-50);border-radius:var(--fv-radius);padding:9px 13px;border:1px solid var(--fv-border); }
+    .dw-url-row code { font-family:var(--fv-mono);font-size:12px;color:var(--p);overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .dw-copy-btn { flex-shrink:0;width:30px;height:30px;border-radius:6px;background:#fff;border:1px solid var(--fv-border);cursor:pointer;color:var(--p);box-shadow:var(--fv-shadow-sm);display:flex;align-items:center;justify-content:center;transition:transform .15s; }
+    .dw-copy-btn:active { transform:scale(.92); }
+    .dw-creds-card { background:var(--fv-slate-50);border-radius:var(--fv-radius-lg);padding:16px;margin-bottom:12px;border:1px solid var(--fv-border); }
+
+    /* ── Buttons ────────────────────────────────────────────────────────── */
+    .dw-btn-p { width:100%;padding:12px 0;background:linear-gradient(135deg,var(--p) 0%,var(--pc) 100%);color:#fff;font-weight:700;font-size:14px;border:none;border-radius:var(--fv-radius);cursor:pointer;box-shadow:0 2px 8px rgba(0,136,204,.25);transition:transform .15s,box-shadow .15s;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none; }
+    .dw-btn-p:hover { box-shadow:0 4px 16px rgba(0,136,204,.35);color:#fff;text-decoration:none; }
+    .dw-btn-p:active { transform:scale(.98); }
+    .dw-btn-p:disabled { opacity:.6;cursor:not-allowed; }
+    .dw-btn-s { width:100%;padding:12px 0;background:var(--fv-blue-50);color:var(--p);font-weight:700;font-size:14px;border:1px solid rgba(0,136,204,.2);border-radius:var(--fv-radius);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s; }
+    .dw-btn-s:hover { background:var(--fv-blue-100); }
+    .dw-btn-back { padding:12px 20px;background:var(--fv-slate-100);color:var(--osv);font-weight:700;font-size:13px;border:1px solid var(--fv-border);border-radius:var(--fv-radius);cursor:pointer;transition:background .2s; }
+    .dw-btn-back:hover { background:var(--fv-slate-200); }
+    .dw-footer { position:sticky;bottom:0;background:rgba(248,249,250,.95);backdrop-filter:blur(8px);padding:14px 0 6px;margin-top:20px;border-top:1px solid var(--fv-border);display:flex;gap:10px;z-index:10; }
+    .dw-alert-e { background:var(--fv-red-50);color:var(--fv-red-600);border:1px solid rgba(220,53,69,.2);border-radius:var(--fv-radius);padding:10px 14px;font-size:12px;margin-bottom:14px; }
+
+    /* ── License key box (design: LicenseKeyBox) ────────────────────────── */
+    .dw-license-box { background:var(--fv-blue-50);border:1.5px dashed rgba(0,136,204,.4);border-radius:var(--fv-radius-lg);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px; }
+    .dw-lic-label { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--p);margin-bottom:4px; }
+    .dw-lic-key { font-family:var(--fv-mono);font-size:13.5px;font-weight:700;color:var(--os);letter-spacing:.06em;word-break:break-all; }
+
+    /* ── Deploy method buttons (design: "3. Deploy options") ────────────── */
+    .dw-callout-i { display:flex;gap:10px;padding:11px 14px;border-radius:var(--fv-radius);background:var(--fv-blue-50);border:1px solid rgba(0,136,204,.2);font-size:13px;color:var(--fv-blue-800);margin-bottom:16px;line-height:1.5; }
+    .dw-meth-row { display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px; }
+    .dw-btn-meth { display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(--fv-radius);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:1.5px solid var(--fv-border);background:#fff;color:var(--os);text-decoration:none;font-family:inherit; }
+    .dw-btn-meth:hover { border-color:var(--sch);color:var(--os);text-decoration:none; }
+    .dw-btn-meth.primary { background:linear-gradient(135deg,var(--p),var(--pc));color:#fff;border-color:var(--p);box-shadow:0 2px 8px rgba(0,136,204,.25); }
+    .dw-btn-meth.primary:hover { color:#fff;box-shadow:0 4px 14px rgba(0,136,204,.35); }
+
+    /* ── Version badge in step 1 ────────────────────────────────────────── */
+    .dw-ver-tile { display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fff;border:1px solid var(--fv-border);border-radius:var(--fv-radius);margin-bottom:12px;box-shadow:var(--fv-shadow-sm); }
+    .dw-ver-ic { width:36px;height:36px;border-radius:var(--fv-radius);background:var(--fv-slate-100);display:flex;align-items:center;justify-content:center;color:var(--osv);flex-shrink:0; }
+    .dw-ver-meta { flex:1;min-width:0; }
+    .dw-ver-name { font-size:13px;font-weight:600;color:var(--os); }
+    .dw-ver-sub  { font-size:11.5px;color:var(--osv);font-family:var(--fv-mono); }
+    </style>
+
+    <div id="fv-deploy">
+    <div class="fv-layout">
+    <div id="dw">
+
+    {{-- ══ STEP 1: DEPLOY OPTIONS ═══════════════════════════════════════════ --}}
+    <div id="dw-s1" class="dw-fade">
+
+        {{-- 2. Latest version tile (populated by JS) ----------------------- --}}
+        <div id="dw-ver-tile-wrap"></div>
+
+        {{-- 3. Deploy options ---------------------------------------------- --}}
+        <div class="dw-sec"><i class="fas fa-rocket"></i> Deploy Options</div>
+
+        <div class="dw-callout-i">
+            <i class="fas fa-info-circle" style="margin-top:2px;flex-shrink:0;"></i>
+            <div><strong>Pick your path.</strong> The <em>guided wizard</em> connects via SSH and automatically deploys Faveo to your server. Choose <em>manual install</em> if you prefer to set up the environment yourself.</div>
+        </div>
+
+        <div class="dw-meth-row">
+            <button class="dw-btn-meth primary" onclick="$('#dw-guided-opts').slideDown(200);$(this).closest('.dw-meth-row').find('.dw-btn-meth').removeClass('primary');$(this).addClass('primary');DW.method='guided';">
+                <i class="fas fa-plug"></i> Start Guided Deploy
+            </button>
+            <a class="dw-btn-meth" href="https://docs.faveohelpdesk.com/" target="_blank">
+                <i class="fas fa-book"></i> Manual Install Guide
+            </a>
+            <button class="dw-btn-meth" disabled style="opacity:.55;cursor:not-allowed;position:relative;">
+                <i class="fab fa-docker"></i> Deploy with Docker
+                <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--fv-amber-600);color:#fff;padding:2px 6px;border-radius:999px;margin-left:6px;">Coming Soon</span>
+            </button>
+        </div>
+
+        {{-- Guided deploy: server type selection --------------------------- --}}
+        <div id="dw-guided-opts" style="display:none;">
+            <div class="dw-sec" style="margin-bottom:14px;"><i class="fas fa-server"></i> Server Type</div>
+
+            <button class="dw-type-card" id="dw-card-extract" onclick="dwSelectMode('extract_only')">
+                <div class="dw-card-icon"><i class="fas fa-server"></i></div>
+                <h3>Deploy on Existing Server</h3>
+                <p>Copies Faveo files to a configured server via SSH/SFTP. Installation is completed using the Faveo web installer.</p>
+                <div class="dw-tags">
+                    <span class="dw-tag">FASTEST</span>
+                    <span class="dw-tag">SSH / SFTP</span>
+                </div>
+                <div class="dw-card-decor"><i class="fas fa-terminal"></i></div>
+            </button>
+
+            <button class="dw-type-card" id="dw-card-fresh" onclick="dwSelectMode('fresh_install')">
+                <div class="dw-card-icon"><i class="fas fa-rocket"></i></div>
+                <h3>Deploy on Fresh Server</h3>
+                <p>Automated full-stack provisioning — installs PHP, Apache / Nginx, MariaDB, Redis, and Supervisor on a bare OS.</p>
+                <div class="dw-tags">
+                    <span class="dw-tag p">FULL STACK</span>
+                    <span class="dw-tag">MANAGED</span>
+                </div>
+            </button>
+
+            {{-- System requirements --}}
+            <div class="dw-sysreq">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                    <div class="dw-pulse"></div>
+                    <span style="font-family:var(--fv-mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--osv);">System Requirements</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:7px;">
+                    <div style="display:flex;justify-content:space-between;"><span style="font-family:var(--fv-mono);font-size:11px;color:var(--osv);">CPU</span><span style="font-family:var(--fv-mono);font-size:11px;font-weight:700;color:var(--os);">4 vCPU</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="font-family:var(--fv-mono);font-size:11px;color:var(--osv);">RAM</span><span style="font-family:var(--fv-mono);font-size:11px;font-weight:700;color:var(--os);">8 GiB</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="font-family:var(--fv-mono);font-size:11px;color:var(--osv);">Storage</span><span style="font-family:var(--fv-mono);font-size:11px;font-weight:700;color:var(--os);">40 GiB</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="font-family:var(--fv-mono);font-size:11px;color:var(--osv);">OS</span><span style="font-family:var(--fv-mono);font-size:11px;font-weight:700;color:var(--os);">Ubuntu / Debian / Rocky / RHEL</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dw-footer">
+            <button class="dw-btn-p" id="dw-confirm-btn" onclick="dwGoTo(2)" disabled>
+                <i class="fas fa-arrow-right"></i> Continue to Configure
+            </button>
+        </div>
     </div>
+
+    {{-- ══ STEP 2: CONFIGURATION ════════════════════════════════════════════ --}}
+    <div id="dw-s2" style="display:none;">
+        <div class="fv-stepper">
+            <div class="fv-stp done"><span class="fv-stp-num">1</span> Select</div>
+            <div class="fv-stp active"><span class="fv-stp-num">2</span> Configure</div>
+            <div class="fv-stp"><span class="fv-stp-num">3</span> Deploy</div>
+            <div class="fv-stp"><span class="fv-stp-num">4</span> Live</div>
+        </div>
+
+        <div id="dw-s2-alert"></div>
+
+        {{-- SSH --}}
+        <div class="dw-sec"><i class="fas fa-network-wired"></i> SSH Connectivity</div>
+        <div class="dw-grid2 dw-field">
+            <div>
+                <label class="dw-label">Host Address</label>
+                <input id="dw-host" class="dw-inp mono" placeholder="192.168.1.1 or server.com" type="text">
+            </div>
+            <div>
+                <label class="dw-label">Port</label>
+                <input id="dw-port" class="dw-inp mono" value="22" type="number" min="1" max="65535">
+            </div>
+        </div>
+        <div class="dw-field">
+            <label class="dw-label">Username</label>
+            <input id="dw-username" class="dw-inp mono" placeholder="root or ubuntu" type="text">
+        </div>
+
+        {{-- Auth toggle --}}
+        <div class="dw-auth-toggle">
+            <button class="dw-auth-btn on" id="dw-abtn-pass" onclick="dwToggleAuth('password')">Password</button>
+            <button class="dw-auth-btn"    id="dw-abtn-key"  onclick="dwToggleAuth('private_key')">Private Key</button>
+        </div>
+        <div id="dw-auth-pass" class="dw-field">
+            <label class="dw-label">SSH Password</label>
+            <div style="position:relative;">
+                <input id="dw-password" class="dw-inp mono" type="password" placeholder="••••••••••••" autocomplete="new-password" style="padding-right:42px;">
+                <button type="button" onclick="dwTogglePwd('dw-password',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--osv);padding:0;">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+        </div>
+        <div id="dw-auth-key" class="dw-field" style="display:none;">
+            <label class="dw-label">SSH Private Key</label>
+            <textarea id="dw-privatekey" class="dw-inp mono ta" rows="6" placeholder="-----BEGIN OPENSSH PRIVATE KEY-----&#10;...&#10;-----END OPENSSH PRIVATE KEY-----" style="font-size:11px;"></textarea>
+            <p class="dw-hint">Paste contents of your key file (e.g. <code style="background:var(--sch);padding:1px 5px;border-radius:4px;">~/.ssh/id_ed25519</code>)</p>
+        </div>
+
+        {{-- Sudo --}}
+        <div class="dw-field">
+            <label class="dw-label">Sudo Password <span style="font-weight:400;color:var(--osv);">(optional)</span></label>
+            <input id="dw-sudo" class="dw-inp mono" type="password" placeholder="Leave blank if SSH user has direct write access" autocomplete="new-password">
+            <p class="dw-hint">Required only if the SSH user needs sudo to write to the deploy path.</p>
+        </div>
+
+        {{-- Deploy path + domain (extract_only only) --}}
+        <div id="dw-path-wrap" class="dw-path-sec">
+            <div class="dw-sec" style="margin-bottom:10px;"><i class="fas fa-folder-open"></i> Deployment Path</div>
+            <div class="dw-field" style="margin-bottom:14px;">
+                <label class="dw-label">Deploy Path</label>
+                <input id="dw-path" class="dw-inp mono" value="/var/www/faveo" placeholder="/var/www/faveo" type="text">
+                <p class="dw-hint"><span class="pro">Pro Tip:</span> Ensure the SSH user has <code style="background:var(--sch);padding:1px 5px;border-radius:4px;">rwx</code> permissions for this directory.</p>
+            </div>
+            <div class="dw-field" style="margin-bottom:0;">
+                <label class="dw-label">Domain <span style="font-weight:400;color:var(--osv);">(optional — for web installer link)</span></label>
+                <input id="dw-domain-extract" class="dw-inp mono" placeholder="helpdesk.example.com" type="text">
+                <p class="dw-hint">Point your domain to this server's IP before deploying. After files are extracted the installer URL will use this domain.</p>
+            </div>
+        </div>
+
+        {{-- Fresh install section --}}
+        <div id="dw-fresh-wrap" style="display:none;">
+            {{-- Stack info --}}
+            <div class="dw-sec" style="margin-top:4px;"><i class="fas fa-layer-group"></i> Server Stack</div>
+            <div style="margin-bottom:20px;">
+                <div class="dw-stack-row"><span style="font-size:12px;font-weight:600;color:var(--os);"><i class="fas fa-code" style="color:var(--p);margin-right:8px;width:16px;"></i>PHP 8.1</span><span class="dw-stack-badge">WILL INSTALL</span></div>
+                <div class="dw-stack-row"><span style="font-size:12px;font-weight:600;color:var(--os);"><i class="fas fa-server" style="color:var(--p);margin-right:8px;width:16px;"></i>Apache 2.4 or Nginx</span><span class="dw-stack-badge">WILL INSTALL</span></div>
+                <div class="dw-stack-row"><span style="font-size:12px;font-weight:600;color:var(--os);"><i class="fas fa-database" style="color:var(--p);margin-right:8px;width:16px;"></i>MariaDB 10.6</span><span class="dw-stack-badge">WILL INSTALL</span></div>
+                <div class="dw-stack-row"><span style="font-size:12px;font-weight:600;color:var(--os);"><i class="fas fa-bolt" style="color:var(--p);margin-right:8px;width:16px;"></i>Redis + Supervisor</span><span class="dw-stack-badge">WILL INSTALL</span></div>
+            </div>
+
+            {{-- Installation details --}}
+            <div class="dw-sec"><i class="fas fa-id-card"></i> Installation Details</div>
+            <div class="dw-grid2h dw-field">
+                <div>
+                    <label class="dw-label">Domain <span style="color:#ba1a1a;">*</span></label>
+                    <input id="dw-domain" class="dw-inp mono" placeholder="helpdesk.example.com" type="text">
+                </div>
+                <div>
+                    <label class="dw-label">Admin Email <span style="color:#ba1a1a;">*</span></label>
+                    <input id="dw-email" class="dw-inp" value="{{ $order->client->email ?? '' }}" type="email">
+                </div>
+            </div>
+            <div class="dw-grid2h dw-field">
+                <div>
+                    <label class="dw-label">License Code <span style="color:#ba1a1a;">*</span></label>
+                    <input id="dw-license" class="dw-inp mono" value="{{ $order->serial_key ?? '' }}" maxlength="16" placeholder="16-char code" type="text">
+                </div>
+                <div>
+                    <label class="dw-label">Order Number <span style="color:#ba1a1a;">*</span></label>
+                    <input id="dw-order" class="dw-inp mono" value="{{ $order->number ?? '' }}" maxlength="8" placeholder="8-char #" type="text">
+                </div>
+            </div>
+
+            {{-- SSL --}}
+            <div class="dw-sec"><i class="fas fa-lock"></i> SSL Setup</div>
+            <div id="dw-ssl-rows" style="margin-bottom:14px;">
+                <div class="dw-ssl-row sel" data-ssl="A" onclick="dwSelectSsl('A')">
+                    <div class="dw-ssl-radio"><div class="dw-ssl-dot"></div></div>
+                    <div><div style="font-size:12px;font-weight:600;color:var(--os);">Free (Let's Encrypt)</div><div style="font-size:11px;color:var(--osv);">Domain must be publicly reachable</div></div>
+                </div>
+                <div class="dw-ssl-row" data-ssl="B" onclick="dwSelectSsl('B')">
+                    <div class="dw-ssl-radio"><div class="dw-ssl-dot"></div></div>
+                    <div><div style="font-size:12px;font-weight:600;color:var(--os);">Self-Signed</div><div style="font-size:11px;color:var(--osv);">For testing or internal use</div></div>
+                </div>
+                <div class="dw-ssl-row" data-ssl="C" onclick="dwSelectSsl('C')">
+                    <div class="dw-ssl-radio"><div class="dw-ssl-dot"></div></div>
+                    <div><div style="font-size:12px;font-weight:600;color:var(--os);">Paid Certificate</div><div style="font-size:11px;color:var(--osv);">Certificate files already on server</div></div>
+                </div>
+            </div>
+            <div id="dw-ssl-cert-wrap" class="dw-grid2h dw-field" style="display:none;">
+                <div>
+                    <label class="dw-label">Certificate Path</label>
+                    <input id="dw-ssl-cert" class="dw-inp mono" placeholder="/etc/ssl/certs/server.crt" type="text">
+                </div>
+                <div>
+                    <label class="dw-label">Key Path</label>
+                    <input id="dw-ssl-key" class="dw-inp mono" placeholder="/etc/ssl/private/server.key" type="text">
+                </div>
+            </div>
+
+            {{-- Web Server --}}
+            <div class="dw-sec"><i class="fas fa-globe"></i> Web Server</div>
+            <div style="display:flex;gap:10px;margin-bottom:20px;">
+                <div class="dw-ssl-row sel" id="dw-ws-apache" onclick="dwSelectWs(1)" style="flex:1;margin-bottom:0;">
+                    <div class="dw-ssl-radio"><div class="dw-ssl-dot"></div></div>
+                    <div style="font-size:12px;font-weight:600;color:var(--os);">Apache</div>
+                </div>
+                <div class="dw-ssl-row" id="dw-ws-nginx" onclick="dwSelectWs(2)" style="flex:1;margin-bottom:0;">
+                    <div class="dw-ssl-radio"><div class="dw-ssl-dot"></div></div>
+                    <div style="font-size:12px;font-weight:600;color:var(--os);">Nginx</div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Version --}}
+        <div class="dw-field" style="margin-top:8px;">
+            <div class="dw-sec"><i class="fas fa-code-branch"></i> Version to Deploy</div>
+            <select id="dw-version" class="dw-inp" disabled>
+                <option value="">Loading versions...</option>
+            </select>
+        </div>
+
+        {{-- Advanced --}}
+        <div style="margin-bottom:20px;">
+            <button type="button" onclick="$('#dw-adv').toggle()" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--p);padding:0;display:flex;align-items:center;gap:6px;">
+                <i class="fas fa-cog"></i> Advanced Settings
+            </button>
+            <div id="dw-adv" style="display:none;margin-top:12px;">
+                <label class="dw-label">Web User <span style="font-weight:400;color:var(--osv);">(auto-detected if blank)</span></label>
+                <input id="dw-webuser" class="dw-inp mono" placeholder="www-data" type="text">
+                <p class="dw-hint">User that should own the deployed files (e.g. www-data, apache).</p>
+            </div>
+        </div>
+
+        {{-- Security meta --}}
+        <div class="dw-meta-grid">
+            <div class="dw-meta-card">
+                <i class="fas fa-shield-alt" style="color:var(--pc);font-size:20px;"></i>
+                <div><div class="dw-meta-label">Security</div><div class="dw-meta-val">Credentials never stored</div></div>
+            </div>
+            <div class="dw-meta-card">
+                <div class="dw-ready"><div class="dw-pulse"></div><span>READY</span></div>
+                <div><div class="dw-meta-label">Connection</div><div class="dw-meta-val">Validated on first step</div></div>
+            </div>
+        </div>
+
+        <div class="dw-footer">
+            <button class="dw-btn-back" onclick="dwGoTo(1)"><i class="fas fa-arrow-left"></i> Back</button>
+            <button class="dw-btn-p" id="dw-deploy-btn" onclick="dwSubmit()" style="flex:1;">
+                <i class="fas fa-rocket"></i>&nbsp;<span id="dw-deploy-label">Deploy</span>
+            </button>
+        </div>
     </div>
+
+    {{-- ══ STEP 3: PROGRESS ════════════════════════════════════════════════ --}}
+    <div id="dw-s3" style="display:none;">
+        <div class="fv-stepper">
+            <div class="fv-stp done"><span class="fv-stp-num">1</span> Select</div>
+            <div class="fv-stp done"><span class="fv-stp-num">2</span> Configure</div>
+            <div class="fv-stp active"><span class="fv-stp-num">3</span> Deploy</div>
+            <div class="fv-stp"><span class="fv-stp-num">4</span> Live</div>
+        </div>
+        <div style="text-align:center;margin-bottom:28px;">
+            <div class="dw-live-badge"><div class="dw-live-dot"></div>Live Deployment</div>
+            <h2 id="dw-v-hero" style="font-size:28px;font-weight:900;letter-spacing:-.04em;color:var(--os);margin-bottom:4px;"></h2>
+            <p id="dw-srv-hero" style="font-size:12px;color:var(--osv);font-weight:500;"></p>
+        </div>
+
+        <div id="dw-timeline">
+            <div class="dw-tl-line"></div>
+        </div>
+
+        <div class="dw-term" id="dw-term" style="display:none;">
+            <div class="dw-term-hdr">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <i class="fas fa-terminal" style="color:#b4c5ff;font-size:12px;"></i>
+                    <span style="font-family:SFMono-Regular,Menlo,Monaco,Consolas,'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#b4c5ff;">Console Output</span>
+                </div>
+                <div class="dw-term-dots">
+                    <span style="background:rgba(239,68,68,.5);"></span>
+                    <span style="background:rgba(251,191,36,.5);"></span>
+                    <span style="background:rgba(74,222,128,.5);"></span>
+                </div>
+            </div>
+            <div class="dw-term-body" id="dw-console"></div>
+        </div>
     </div>
+
+    {{-- ══ STEP 4: SUCCESS ══════════════════════════════════════════════════ --}}
+    <div id="dw-s4" style="display:none;">
+        <div class="fv-stepper">
+            <div class="fv-stp done"><span class="fv-stp-num">1</span> Select</div>
+            <div class="fv-stp done"><span class="fv-stp-num">2</span> Configure</div>
+            <div class="fv-stp done"><span class="fv-stp-num">3</span> Deploy</div>
+            <div class="fv-stp active"><span class="fv-stp-num">4</span> Live</div>
+        </div>
+        <div style="text-align:center;margin-bottom:28px;">
+            <div class="dw-success-icon"><i class="fas fa-check"></i></div>
+            <h2 style="font-size:26px;font-weight:900;letter-spacing:-.03em;color:var(--os);margin-bottom:8px;">Setup Complete!</h2>
+            <p style="font-size:13px;color:var(--osv);line-height:1.6;max-width:400px;margin:0 auto;">
+                Your Faveo instance has been successfully deployed and is ready for the next step.
+            </p>
+        </div>
+
+        <div id="dw-s4-endpoint">
+            <div class="dw-endpoint">
+                <div class="dw-ep-label">Web Installer</div>
+                <div class="dw-ep-sub" id="dw-ep-sub-text">Open this URL to complete the Faveo setup wizard</div>
+                <div class="dw-url-row">
+                    <code id="dw-url-display"></code>
+                    <button class="dw-copy-btn" onclick="dwCopyUrl()" title="Copy URL">
+                        <i class="fas fa-copy" id="dw-copy-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="dw-s4-creds" style="display:none;">
+            <div class="dw-creds-card">
+                <div class="dw-sec"><i class="fas fa-user-shield"></i> Administrator Credentials</div>
+                <p style="font-size:11px;color:var(--osv);margin-bottom:10px;">Saved from server installation — keep these secure.</p>
+                <pre id="dw-creds-text" style="background:#fff;border-radius:8px;padding:12px;font-family:SFMono-Regular,Menlo,Monaco,Consolas,'Courier New',monospace;font-size:11px;line-height:1.7;overflow-x:auto;white-space:pre-wrap;word-break:break-all;color:var(--os);margin:0;"></pre>
+            </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">
+            <a id="dw-installer-btn" href="#" target="_blank" class="dw-btn-p" style="text-decoration:none;">
+                <i class="fas fa-external-link-alt"></i> Visit Web Installer
+            </a>
+            <button class="dw-btn-s" id="dw-logs-toggle-btn" onclick="dwToggleLogs()">
+                <i class="fas fa-terminal"></i> View Server Logs
+            </button>
+        </div>
+
+        <div id="dw-s4-logs" style="display:none;margin-top:14px;">
+            <div class="dw-term">
+                <div class="dw-term-hdr">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <i class="fas fa-terminal" style="color:#b4c5ff;font-size:12px;"></i>
+                        <span style="font-family:var(--fv-mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#b4c5ff;">Console Output</span>
+                    </div>
+                </div>
+                <div class="dw-term-body" id="dw-s4-console-mirror"></div>
+            </div>
+        </div>
+
+        <p style="font-size:11px;color:var(--osv);margin-top:18px;line-height:1.6;">
+            <i class="fas fa-info-circle" style="color:#9d3000;margin-right:4px;"></i>
+            Please save any credentials above securely.
+        </p>
+    </div>
+
+    </div>{{-- #dw --}}
+
+    {{-- ── Sidebar ──────────────────────────────────────────────────────── --}}
+    <aside>
+
+    {{-- Order summary --}}
+    <div class="fv-card">
+        <div class="fv-card-head">
+            <h3><i class="fas fa-file-invoice" style="color:var(--fv-text-2);font-size:12px;"></i> Order Summary</h3>
+            <span class="fv-badge fv-badge-blue">{{ $order->order_status }}</span>
+        </div>
+        <div class="fv-card-body">
+            <dl class="fv-kv">
+                <dt>Product</dt><dd>{{ $product->name ?? 'Faveo Helpdesk' }}</dd>
+                <dt>Order #</dt><dd style="font-family:var(--fv-mono);">{{ $order->number }}</dd>
+                @if($order->serial_key)
+                <dt>License</dt><dd style="font-family:var(--fv-mono);font-size:10.5px;letter-spacing:.04em;">{{ $order->serial_key }}</dd>
+                @endif
+                <dt>Expires</dt><dd>{!! getDateHtml($subscription->update_ends_at) !!}</dd>
+            </dl>
+        </div>
+    </div>
+
+    {{-- Activity log --}}
+    <div class="fv-card">
+        <div class="fv-card-head">
+            <h3><i class="fas fa-stream" style="color:var(--fv-text-2);font-size:12px;"></i> Activity</h3>
+        </div>
+        <div class="fv-card-body" style="padding:10px 14px;" id="fv-activity-list">
+            <div class="fv-act-item">
+                <div class="fv-act-ic ok"><i class="fas fa-check" style="font-size:10px;"></i></div>
+                <div>
+                    <div style="font-size:12.5px;font-weight:600;color:var(--fv-text);">Order active</div>
+                    <div style="font-size:11.5px;color:var(--fv-text-2);">#{{ $order->number }}</div>
+                </div>
+            </div>
+            <div class="fv-act-item" id="fv-act-deploy-pending">
+                <div class="fv-act-ic dim"><i class="fas fa-clock" style="font-size:10px;"></i></div>
+                <div>
+                    <div style="font-size:12.5px;font-weight:600;color:var(--fv-text);">Deploy pending</div>
+                    <div style="font-size:11.5px;color:var(--fv-text-2);">Awaiting configuration</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Help --}}
+    <div class="fv-card">
+        <div class="fv-card-head">
+            <h3><i class="fas fa-life-ring" style="color:var(--fv-text-2);font-size:12px;"></i> Need help?</h3>
+        </div>
+        <div class="fv-card-body">
+            <p style="font-size:12.5px;color:var(--fv-text-2);margin:0 0 10px;line-height:1.5;">A Faveo engineer can assist with your deployment.</p>
+            <a href="https://support.faveohelpdesk.com" target="_blank" class="fv-link-btn">
+                <i class="fas fa-envelope" style="font-size:11px;width:14px;"></i> Open a support ticket
+            </a>
+            <a href="https://docs.faveohelpdesk.com" target="_blank" class="fv-link-btn">
+                <i class="fas fa-book" style="font-size:11px;width:14px;"></i> Install documentation
+            </a>
+        </div>
+    </div>
+
+    </aside>{{-- sidebar --}}
+
+    </div>{{-- .fv-layout --}}
+    </div>{{-- #fv-deploy --}}
+
+    <script>
+    var DW = { mode: null, method: 'guided', authMethod: 'password', sslType: 'A', wsType: 1, siteUrl: null };
+
+    function fvActivity(text, sub, iconCls, cls) {
+        var html = '<div class="fv-act-item">'
+            + '<div class="fv-act-ic ' + cls + '"><i class="' + iconCls + '" style="font-size:10px;"></i></div>'
+            + '<div><div style="font-size:12.5px;font-weight:600;color:var(--fv-text);">' + text + '</div>'
+            + '<div style="font-size:11.5px;color:var(--fv-text-2);">' + sub + '</div></div></div>';
+        $('#fv-act-deploy-pending').remove();
+        $('#fv-activity-list').append(html);
+    }
+
+    $(document).ready(function () {
+        $.get('{{ route("get-deploy-versions", $order->id) }}', function (data) {
+            var $s = $('#dw-version');
+            $s.empty();
+            if (!Array.isArray(data) || !data.length) {
+                $s.append('<option value="">No deployable versions found</option>');
+                return;
+            }
+            $.each(data, function (i, v) {
+                $s.append($('<option>', { value: v.id, text: v.version + ' \u2014 ' + v.title }));
+            });
+            $s.prop('disabled', false);
+        }).fail(function () {
+            $('#dw-version').empty().append('<option value="">Failed to load versions</option>');
+        });
+    });
+
+    function dwGoTo(n) {
+        $('#dw-s1,#dw-s2,#dw-s3,#dw-s4').hide();
+        $('#dw-s' + n).show().addClass('dw-fade');
+        setTimeout(function () { $('#dw-s' + n).removeClass('dw-fade'); }, 300);
+        window.scrollTo(0, 0);
+    }
+
+    function dwSelectMode(mode) {
+        DW.mode = mode;
+        $('#dw-card-extract,#dw-card-fresh').removeClass('sel');
+        $('#dw-card-' + (mode === 'extract_only' ? 'extract' : 'fresh')).addClass('sel');
+        $('#dw-confirm-btn').prop('disabled', false);
+        var isFresh = mode === 'fresh_install';
+        $('#dw-path-wrap').toggle(!isFresh);
+        $('#dw-fresh-wrap').toggle(isFresh);
+        $('#dw-deploy-label').text(isFresh ? 'Install & Deploy' : 'Deploy');
+    }
+
+    function dwToggleAuth(method) {
+        DW.authMethod = method;
+        var isPass = method === 'password';
+        $('#dw-abtn-pass').toggleClass('on', isPass);
+        $('#dw-abtn-key').toggleClass('on', !isPass);
+        $('#dw-auth-pass').toggle(isPass);
+        $('#dw-auth-key').toggle(!isPass);
+    }
+
+    function dwTogglePwd(id, btn) {
+        var $i = $('#' + id);
+        $i.attr('type', $i.attr('type') === 'password' ? 'text' : 'password');
+        $(btn).find('i').toggleClass('fa-eye fa-eye-slash');
+    }
+
+    function dwSelectSsl(t) {
+        DW.sslType = t;
+        $('#dw-ssl-rows .dw-ssl-row').removeClass('sel');
+        $('#dw-ssl-rows .dw-ssl-row[data-ssl="' + t + '"]').addClass('sel');
+        $('#dw-ssl-cert-wrap').toggle(t === 'C');
+    }
+
+    function dwSelectWs(n) {
+        DW.wsType = n;
+        $('#dw-ws-apache,#dw-ws-nginx').removeClass('sel');
+        $('#dw-ws-' + (n === 1 ? 'apache' : 'nginx')).addClass('sel');
+    }
+
+    function dwRenderStep(id, label, state, detail) {
+        var dot = {
+            pending: '<div class="dw-tl-dot pending"><i class="fas fa-circle" style="font-size:7px;opacity:.4;"></i></div>',
+            running: '<div class="dw-tl-dot running"><i class="fas fa-sync fa-spin"></i></div>',
+            done:    '<div class="dw-tl-dot done"><i class="fas fa-check"></i></div>',
+            error:   '<div class="dw-tl-dot error"><i class="fas fa-times"></i></div>',
+        }[state] || '';
+        var bar    = state === 'running' ? '<div class="dw-tl-bar"><div class="dw-tl-bar-inner"></div></div>' : '';
+        var det    = detail ? '<p>' + $('<span>').text(detail).html() + '</p>' : '';
+        var pendCls = state === 'pending' ? ' pend' : '';
+        var h4color = state === 'running' ? ' style="color:var(--p);font-weight:700;"' : '';
+        var html = '<div id="dw-tl-' + id + '" class="dw-tl-item' + pendCls + '">'
+            + dot + '<div class="dw-tl-body"><h4' + h4color + '>' + label + '</h4>' + det + bar + '</div></div>';
+        var $ex = $('#dw-tl-' + id);
+        if ($ex.length) $ex.replaceWith(html); else $('#dw-timeline').append(html);
+    }
+
+    function dwAppendConsole(text) {
+        if (!text) return;
+        var $c = $('#dw-console');
+        text.split('\n').forEach(function (line) {
+            if (!line.trim()) return;
+            var ts = new Date().toTimeString().slice(0, 8);
+            $c.append('<div><span class="ts">[' + ts + ']</span> ' + $('<span>').text(line).html() + '</div>');
+        });
+        $c[0].scrollTop = $c[0].scrollHeight;
+        $('#dw-term').show();
+    }
+
+    function dwCallStep(payload, stepKey, ms) {
+        return new Promise(function (resolve, reject) {
+            $.ajax({
+                url: '{{ route("deploy-product-step") }}',
+                type: 'POST', timeout: ms || 120000,
+                data: Object.assign({}, payload, { step: stepKey }),
+                success: function (d) { d.status === 'success' ? resolve(d) : reject(d.message || 'Step failed.'); },
+                error:   function (x) { reject((x.responseJSON && x.responseJSON.message) ? x.responseJSON.message : 'Connection error.'); }
+            });
+        });
+    }
+
+    async function dwSubmit() {
+        var $alert   = $('#dw-s2-alert');
+        $alert.html('');
+        var host     = $.trim($('#dw-host').val());
+        var port     = $.trim($('#dw-port').val());
+        var username = $.trim($('#dw-username').val());
+        var password = $('#dw-password').val();
+        var privKey  = $.trim($('#dw-privatekey').val());
+        var sudo     = $('#dw-sudo').val();
+        var webUser  = $.trim($('#dw-webuser').val());
+        var path     = $.trim($('#dw-path').val()) || '/var/www/faveo';
+        var domainExtract = $.trim($('#dw-domain-extract').val());
+        var versionId = $('#dw-version').val();
+        var isFresh   = DW.mode === 'fresh_install';
+        var authVal   = DW.authMethod === 'password' ? password : privKey;
+
+        if (!host || !port || !username || !authVal) {
+            $alert.html('<div class="dw-alert-e"><i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>Please fill in all required SSH fields.</div>');
+            return;
+        }
+        if (!versionId) {
+            $alert.html('<div class="dw-alert-e"><i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>Please select a version to deploy.</div>');
+            return;
+        }
+        var domain = '', email = '', license = '', orderNo = '';
+        if (isFresh) {
+            domain  = $.trim($('#dw-domain').val());
+            email   = $.trim($('#dw-email').val());
+            license = $.trim($('#dw-license').val());
+            orderNo = $.trim($('#dw-order').val());
+            if (!domain || !email || !license || !orderNo) {
+                $alert.html('<div class="dw-alert-e">Please fill in all Installation Details fields.</div>'); return;
+            }
+            if (license.length !== 16) { $alert.html('<div class="dw-alert-e">License Code must be exactly 16 characters.</div>'); return; }
+            if (orderNo.length  !==  8) { $alert.html('<div class="dw-alert-e">Order Number must be exactly 8 characters.</div>'); return; }
+            if (DW.sslType === 'C' && (!$.trim($('#dw-ssl-cert').val()) || !$.trim($('#dw-ssl-key').val()))) {
+                $alert.html('<div class="dw-alert-e">Please provide Certificate and Key paths for Paid SSL.</div>'); return;
+            }
+        }
+
+        // Build step list and go to progress
+        var vText = $('#dw-version option:selected').text().split(' \u2014 ')[0];
+        $('#dw-v-hero').text(vText);
+        $('#dw-srv-hero').text('Server: ' + host + (port !== '22' ? ':' + port : ''));
+        $('#dw-timeline .dw-tl-item').remove();
+
+        var steps = [{ id: 'verify', label: 'Connecting to Server' }];
+        if (isFresh) steps.push({ id: 'install', label: 'Installing Stack (15–30 min)' });
+        steps.push({ id: 'upload',  label: 'Copying Files' });
+        steps.push({ id: 'extract', label: 'Extracting & Setting Permissions' });
+        $.each(steps, function (i, s) { dwRenderStep(s.id, s.label, 'pending', ''); });
+
+        fvActivity('Deploy started', host, 'fas fa-rocket', 'run');
+        dwGoTo(3);
+
+        var base = {
+            _token: '{{ csrf_token() }}',
+            order_id: {{ $order->id }},
+            version_id: versionId,
+            host: host, port: port, username: username,
+            auth_method: DW.authMethod, deploy_mode: DW.mode,
+            deploy_path: path, web_user: webUser, sudo_password: sudo,
+        };
+        if (DW.authMethod === 'password') base.password    = password;
+        else                              base.private_key  = privKey;
+        if (isFresh) {
+            base.install_domain = domain; base.install_email = email;
+            base.install_license = license; base.install_order = orderNo;
+            base.web_server = DW.wsType; base.ssl_type = DW.sslType;
+            if (DW.sslType === 'C') {
+                base.ssl_cert_path = $.trim($('#dw-ssl-cert').val());
+                base.ssl_key_path  = $.trim($('#dw-ssl-key').val());
+            }
+        }
+
+        async function run(id, label, ms) {
+            dwRenderStep(id, label, 'running', '');
+            try {
+                var d = await dwCallStep(base, id, ms);
+                dwRenderStep(id, label, 'done', d.message);
+                return d;
+            } catch (e) {
+                dwRenderStep(id, label, 'error', e);
+                throw e;
+            }
+        }
+
+        try {
+            await run('verify', 'Connecting to Server', 30000);
+            fvActivity('SSH connected', host, 'fas fa-check', 'ok');
+
+            var installData = null;
+            if (isFresh) {
+                installData = await run('install', 'Installing Stack (15–30 min)', 2100000);
+                if (installData.output) dwAppendConsole(installData.output);
+                fvActivity('Stack installed', 'PHP · Web server · DB', 'fas fa-server', 'ok');
+            }
+
+            var uploadData  = await run('upload', 'Copying Files', 120000);
+            base.remote_path = uploadData.remote_path;
+            fvActivity('Files uploaded', uploadData.remote_path || '/tmp', 'fas fa-upload', 'ok');
+
+            var extractData = await run('extract', 'Extracting & Setting Permissions', 300000);
+            if (extractData.output) dwAppendConsole(extractData.output);
+            fvActivity('Files extracted', extractData.message || 'Done', 'fas fa-check-circle', 'ok');
+
+            // Success screen — priority: user domain → auto-detected → SSH host
+            if (isFresh) {
+                DW.siteUrl = (installData && installData.setup_url) || ('http://' + host);
+            } else {
+                DW.siteUrl = domainExtract
+                    ? 'http://' + domainExtract
+                    : (extractData.site_url || ('http://' + host));
+            }
+
+            var installerUrl = DW.siteUrl;
+            $('#dw-installer-btn').attr('href', installerUrl);
+            $('#dw-url-display').text(installerUrl);
+            $('#dw-s4-endpoint').show();
+            if (isFresh && installData && installData.credentials) {
+                $('#dw-creds-text').text(installData.credentials);
+                $('#dw-s4-creds').show();
+            }
+
+            var actSub = isFresh ? DW.siteUrl : (domainExtract ? domainExtract : DW.siteUrl);
+            fvActivity('Deployment complete', actSub || 'Ready for web installer', 'fas fa-rocket', 'ok');
+            dwGoTo(4);
+        } catch (e) {
+            fvActivity('Deploy failed', typeof e === 'string' ? e.substring(0,40) : 'See timeline', 'fas fa-times', 'err');
+        }
+    }
+
+    function dwCopyUrl() {
+        var url = $('#dw-url-display').text();
+        if (navigator.clipboard && url) {
+            navigator.clipboard.writeText(url).then(function () {
+                $('#dw-copy-icon').removeClass('fa-copy').addClass('fa-check');
+                setTimeout(function () { $('#dw-copy-icon').removeClass('fa-check').addClass('fa-copy'); }, 2000);
+            });
+        }
+    }
+
+    function dwCopyLic() {
+        var key = $('#dw-lic-display').text();
+        if (navigator.clipboard && key) {
+            navigator.clipboard.writeText(key).then(function () {
+                $('#dw-lic-copy-icon').removeClass('fa-copy').addClass('fa-check');
+                setTimeout(function () { $('#dw-lic-copy-icon').removeClass('fa-check').addClass('fa-copy'); }, 2000);
+            });
+        }
+    }
+
+    function dwToggleLogs() {
+        var $panel = $('#dw-s4-logs');
+        var $btn = $('#dw-logs-toggle-btn');
+        if ($panel.is(':hidden')) {
+            $('#dw-s4-console-mirror').html($('#dw-console').html() || '<span style="color:#6c757d;">No log output available.</span>');
+            $panel.slideDown(200);
+            $btn.html('<i class="fas fa-times"></i> Hide Logs');
+        } else {
+            $panel.slideUp(200);
+            $btn.html('<i class="fas fa-terminal"></i> View Server Logs');
+        }
+    }
+    </script>
+        {{-- old form removed --}}
+        <div class="row mb-3" style="display:none;">
+            <div class="col-lg-8">
+
+                <!-- ── Deployment Mode ── -->
+                <div class="card card-outline card-primary mb-3">
+                    <div class="card-header">
+                        <h3 class="card-title" style="font-size:0.85rem;font-weight:600;"><i class="fas fa-server mr-2"></i>Deployment Type</h3>
+                    </div>
+                    <div class="card-body pb-2" style="font-size:0.82rem;">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="deploy-mode" id="mode-extract-only" value="extract_only" checked onchange="toggleDeployMode()">
+                            <label class="form-check-label" for="mode-extract-only">
+                                <strong>Extract Files Only</strong>
+                                <small class="text-muted d-block">Upload and extract the version ZIP to an existing server. Use this for updates on an already-configured server.</small>
+                            </label>
+                        </div>
+                        <hr class="my-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="deploy-mode" id="mode-fresh-install" value="fresh_install" onchange="toggleDeployMode()">
+                            <label class="form-check-label" for="mode-fresh-install">
+                                <strong>Fresh Server Installation</strong>
+                                <small class="text-muted d-block">Run the Faveo installation script to set up all prerequisites (PHP, MySQL, Nginx/Apache), then deploy your files. Use this for a brand-new server.</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Fresh Install Prerequisites (shown only for fresh_install) ── -->
+                <div id="fresh-install-section" style="display:none;">
+                    <div class="card card-outline card-warning mb-3">
+                        <div class="card-header">
+                            <h3 class="card-title" style="font-size:0.85rem;font-weight:600;"><i class="fas fa-list-check mr-2"></i>Installation Prerequisites</h3>
+                        </div>
+                        <div class="card-body" style="font-size:0.82rem;">
+                            <div class="alert alert-warning py-2 px-3 mb-3" style="font-size:0.82rem;">
+                                <i class="fas fa-clock mr-1"></i>
+                                <strong>This may take 15–30 minutes.</strong> The installer will set up PHP, MySQL, a web server, Supervisor, and Redis on a fresh OS before deploying your files.
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-6 form-group">
+                                    <label class="font-weight-bold">Domain <span class="text-danger">*</span></label>
+                                    <input type="text" id="install-domain" class="form-control" placeholder="e.g. helpdesk.example.com">
+                                    <small class="text-muted">Must point to this server's public IP before running.</small>
+                                </div>
+                                <div class="col-sm-6 form-group">
+                                    <label class="font-weight-bold">Admin Email <span class="text-danger">*</span></label>
+                                    <input type="email" id="install-email" class="form-control" value="{{ $order->client->email ?? '' }}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6 form-group">
+                                    <label class="font-weight-bold">License Code <span class="text-danger">*</span></label>
+                                    <input type="text" id="install-license" class="form-control" value="{{ $order->serial_key ?? '' }}" maxlength="16" style="font-family:monospace;">
+                                    <small class="text-muted">16-character code — auto-filled from your order.</small>
+                                </div>
+                                <div class="col-sm-6 form-group">
+                                    <label class="font-weight-bold">Order Number <span class="text-danger">*</span></label>
+                                    <input type="text" id="install-order" class="form-control" value="{{ $order->number ?? '' }}" maxlength="8" style="font-family:monospace;">
+                                    <small class="text-muted">8-character number — auto-filled from your order.</small>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-6 form-group">
+                                    <label class="font-weight-bold">Web Server <span class="text-danger">*</span></label>
+                                    <div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="install-web-server" id="ws-apache" value="1" checked>
+                                            <label class="form-check-label" for="ws-apache">Apache</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="install-web-server" id="ws-nginx" value="2">
+                                            <label class="form-check-label" for="ws-nginx">Nginx</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 form-group">
+                                    <label class="font-weight-bold">SSL Certificate <span class="text-danger">*</span></label>
+                                    <select id="install-ssl-type" class="form-control" onchange="toggleSslPaths()">
+                                        <option value="A">Let's Encrypt (free, domain must be public)</option>
+                                        <option value="B" selected>Self-Signed (for testing/internal)</option>
+                                        <option value="C">Paid SSL (cert files already on server)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="ssl-paid-section" style="display:none;">
+                                <div class="row">
+                                    <div class="col-sm-6 form-group">
+                                        <label class="font-weight-bold">Certificate File Path <span class="text-danger">*</span></label>
+                                        <input type="text" id="install-ssl-cert" class="form-control" placeholder="/etc/ssl/certs/your-cert.crt" style="font-family:monospace;">
+                                        <small class="text-muted">Absolute path to the .crt file already on the server.</small>
+                                    </div>
+                                    <div class="col-sm-6 form-group">
+                                        <label class="font-weight-bold">Certificate Key File Path <span class="text-danger">*</span></label>
+                                        <input type="text" id="install-ssl-key" class="form-control" placeholder="/etc/ssl/private/your-cert.key" style="font-family:monospace;">
+                                        <small class="text-muted">Absolute path to the .key file already on the server.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="font-weight-bold">Version to Deploy <span class="text-danger">*</span></label>
+                    <select id="deploy-version" class="form-control" disabled>
+                        <option value="">Loading versions...</option>
+                    </select>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-sm-9">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Server Host / IP <span class="text-danger">*</span></label>
+                            <input type="text" id="deploy-host" class="form-control" placeholder="e.g. 192.168.1.10 or example.com">
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Port <span class="text-danger">*</span></label>
+                            <input type="number" id="deploy-port" class="form-control" value="22" min="1" max="65535">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info py-2 px-3 mt-2 mb-1" style="font-size:0.85rem;">
+                    <i class="fas fa-shield-alt me-1"></i>
+                    <strong>Your credentials are never stored.</strong>
+                    SSH credentials are used only for this request and discarded immediately after deployment.
+                </div>
+
+                <div class="form-group mt-2">
+                    <label class="font-weight-bold">SSH Username <span class="text-danger">*</span></label>
+                    <input type="text" id="deploy-username" class="form-control" placeholder="e.g. ubuntu">
+                </div>
+
+                <div class="form-group mt-2">
+                    <label class="font-weight-bold">Authentication Method <span class="text-danger">*</span></label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="deploy-auth-method" id="auth-private-key" value="private_key" checked onchange="toggleAuthMethod()">
+                            <label class="form-check-label" for="auth-private-key">Private Key</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="deploy-auth-method" id="auth-password" value="password" onchange="toggleAuthMethod()">
+                            <label class="form-check-label" for="auth-password">Password</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="auth-private-key-section" class="form-group mt-2">
+                    <label class="font-weight-bold">SSH Private Key <span class="text-danger">*</span></label>
+                    <textarea id="deploy-private-key" class="form-control" rows="6" placeholder="-----BEGIN OPENSSH PRIVATE KEY-----&#10;...&#10;-----END OPENSSH PRIVATE KEY-----" style="font-family: monospace; font-size: 12px;"></textarea>
+                    <small class="text-muted">Paste the contents of your private key file (e.g. <code>~/.ssh/id_ed25519</code>).</small>
+                </div>
+
+                <div id="auth-password-section" class="form-group mt-2" style="display:none;">
+                    <label class="font-weight-bold">SSH Password <span class="text-danger">*</span></label>
+                    <input type="password" id="deploy-password" class="form-control" placeholder="SSH password for the user" autocomplete="new-password">
+                    <small class="text-muted">Password authentication must be enabled on the server (<code>PasswordAuthentication yes</code>).</small>
+                </div>
+
+                <div class="form-group mt-2">
+                    <label class="font-weight-bold">Sudo Password</label>
+                    <input type="password" id="deploy-sudo-password" class="form-control" placeholder="Leave blank if SSH user has direct write access">
+                    <small class="text-muted">Required only if the SSH user needs sudo to write to the deploy path or run commands.</small>
+                </div>
+
+                <div id="deploy-path-section" class="form-group mt-2">
+                    <label class="font-weight-bold">Deploy Path <span class="text-danger">*</span></label>
+                    <input type="text" id="deploy-path" class="form-control" value="/var/www/faveo" placeholder="e.g. /var/www/faveo">
+                    <small class="text-muted">The zip file will be extracted into this directory on the remote server.</small>
+                </div>
+
+                <div id="advanced-settings-section" class="mt-3">
+                    <a href="#deploy-advanced" data-toggle="collapse" style="font-size:0.85rem;">
+                        <i class="fas fa-cog"></i> Advanced Settings
+                    </a>
+
+                    <div id="deploy-advanced" class="collapse mt-2">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Web User</label>
+                            <input type="text" id="deploy-web-user" class="form-control" placeholder="www-data">
+                            <small class="text-muted">User that should own the deployed files (e.g. www-data, apache). Auto-detected if left blank.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <button id="deploy-btn" class="btn btn-primary" onclick="submitDeploy()">
+                        <i class="fas fa-rocket"></i>&nbsp; Deploy
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step progress panel (shown during deployment) -->
+        <div id="deploy-progress" style="display:none;" class="mt-3">
+            <div class="card card-outline card-primary">
+                <div class="card-header"><h3 class="card-title font-weight-bold"><i class="fas fa-tasks mr-1"></i> Deployment Progress</h3></div>
+                <div class="card-body p-0">
+                    <ul id="deploy-steps" class="list-group list-group-flush" style="font-size:0.9rem;"></ul>
+                </div>
+            </div>
+            <div id="deploy-install-details" style="display:none;" class="mt-3"></div>
+            <div id="deploy-output-section" style="display:none;" class="mt-3">
+                <a href="#" onclick="$('#deploy-output-wrap').toggle();return false;" style="font-size:0.8rem;">
+                    <i class="fas fa-terminal"></i> Toggle server output
+                </a>
+                <div id="deploy-output-wrap" style="display:none;">
+                    <pre id="deploy-output" class="bg-dark text-white p-3 rounded mt-1" style="max-height:300px;overflow-y:auto;font-size:11px;"></pre>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                $.get('{{ route("get-deploy-versions", $order->id) }}', function (data) {
+                    var $sel = $('#deploy-version');
+                    $sel.empty();
+                    if (!Array.isArray(data) || !data.length) {
+                        $sel.append('<option value="">No deployable versions found</option>');
+                        return;
+                    }
+                    $.each(data, function (i, v) {
+                        $sel.append($('<option>', { value: v.id, text: v.version + ' — ' + v.title }));
+                    });
+                    $sel.prop('disabled', false);
+                }).fail(function () {
+                    $('#deploy-version').empty().append('<option value="">Failed to load versions</option>');
+                });
+            });
+
+            function toggleSslPaths() {
+                $('#ssl-paid-section').toggle($('#install-ssl-type').val() === 'C');
+            }
+
+            function toggleDeployMode() {
+                var mode = $('input[name="deploy-mode"]:checked').val();
+                var isFresh = mode === 'fresh_install';
+                $('#fresh-install-section').toggle(isFresh);
+                $('#deploy-path-section').toggle(!isFresh);
+                $('#deploy-btn').html(isFresh
+                    ? '<i class="fas fa-rocket"></i>&nbsp; Install &amp; Deploy'
+                    : '<i class="fas fa-rocket"></i>&nbsp; Deploy');
+            }
+
+            function toggleAuthMethod() {
+                var isPassword = $('input[name="deploy-auth-method"]:checked').val() === 'password';
+                $('#auth-private-key-section').toggle(!isPassword);
+                $('#auth-password-section').toggle(isPassword);
+            }
+
+            // ── Step progress helpers ─────────────────────────────────────────
+
+            var STEP_ICONS = {
+                pending: '<i class="fas fa-circle text-secondary" style="width:16px;"></i>',
+                running: '<i class="fas fa-circle-notch fa-spin text-primary" style="width:16px;"></i>',
+                done:    '<i class="fas fa-check-circle text-success" style="width:16px;"></i>',
+                error:   '<i class="fas fa-times-circle text-danger" style="width:16px;"></i>',
+            };
+
+            function renderStep(id, label, state, detail) {
+                var icon   = STEP_ICONS[state] || STEP_ICONS.pending;
+                var detail = detail ? '<br><small class="text-muted ml-4 pl-1">' + detail + '</small>' : '';
+                var existing = $('#step-' + id);
+                var html = '<li id="step-' + id + '" class="list-group-item py-2">'
+                    + icon + ' <span class="ml-2">' + label + '</span>' + detail + '</li>';
+                if (existing.length) { existing.replaceWith(html); }
+                else { $('#deploy-steps').append(html); }
+            }
+
+            function callStep(postData, stepName, timeout) {
+                return new Promise(function (resolve, reject) {
+                    $.ajax({
+                        url:     '{{ route("deploy-product-step") }}',
+                        type:    'POST',
+                        timeout: timeout || 120000,
+                        data:    Object.assign({}, postData, { step: stepName }),
+                        success: function (data) {
+                            if (data.status === 'success') { resolve(data); }
+                            else { reject(data.message || 'Step failed.'); }
+                        },
+                        error: function (xhr) {
+                            var msg = (xhr.responseJSON && xhr.responseJSON.message)
+                                ? xhr.responseJSON.message
+                                : 'Connection error.';
+                            reject(msg);
+                        }
+                    });
+                });
+            }
+
+            // ── Main deploy function ──────────────────────────────────────────
+
+            async function submitDeploy() {
+                var deployMode   = $('input[name="deploy-mode"]:checked').val();
+                var isFresh      = deployMode === 'fresh_install';
+                var host         = $.trim($('#deploy-host').val());
+                var port         = $.trim($('#deploy-port').val());
+                var username     = $.trim($('#deploy-username').val());
+                var authMethod   = $('input[name="deploy-auth-method"]:checked').val();
+                var privateKey   = $.trim($('#deploy-private-key').val());
+                var password     = $('#deploy-password').val();
+                var deployPath   = $.trim($('#deploy-path').val());
+                var webUser      = $.trim($('#deploy-web-user').val());
+                var sudoPassword = $('#deploy-sudo-password').val();
+
+                // ── Validate ──────────────────────────────────────────────────
+                var authValue = authMethod === 'password' ? password : privateKey;
+                if (!host || !port || !username || !authValue || (!isFresh && !deployPath)) {
+                    $('#deploy-alert').html('<div class="alert alert-danger">Please fill in all required fields.</div>');
+                    return;
+                }
+
+                if (isFresh) {
+                    var domain  = $.trim($('#install-domain').val());
+                    var email   = $.trim($('#install-email').val());
+                    var license = $.trim($('#install-license').val());
+                    var orderNo = $.trim($('#install-order').val());
+                    var sslType = $('#install-ssl-type').val();
+
+                    if (!domain || !email || !license || !orderNo) {
+                        $('#deploy-alert').html('<div class="alert alert-danger">Please fill in all Installation Prerequisites fields.</div>');
+                        return;
+                    }
+                    if (license.length !== 16) {
+                        $('#deploy-alert').html('<div class="alert alert-danger">License Code must be exactly 16 characters.</div>');
+                        return;
+                    }
+                    if (orderNo.length !== 8) {
+                        $('#deploy-alert').html('<div class="alert alert-danger">Order Number must be exactly 8 characters.</div>');
+                        return;
+                    }
+                    if (sslType === 'C' && (!$.trim($('#install-ssl-cert').val()) || !$.trim($('#install-ssl-key').val()))) {
+                        $('#deploy-alert').html('<div class="alert alert-danger">Please provide Certificate and Key file paths for Paid SSL.</div>');
+                        return;
+                    }
+                }
+
+                // ── Setup ─────────────────────────────────────────────────────
+                $('#deploy-alert').html('');
+                $('#deploy-btn').prop('disabled', true).html(
+                    '<i class="fas fa-circle-notch fa-spin"></i>&nbsp;' + (isFresh ? 'Installing...' : 'Deploying...')
+                );
+                $('#deploy-steps').empty();
+                $('#deploy-install-details').hide().empty();
+                $('#deploy-output-section').hide();
+                $('#deploy-output').text('');
+                $('#deploy-progress').show();
+
+                // ── Base payload (sent with every step) ───────────────────────
+                var versionId = $('#deploy-version').val();
+                if (!versionId) {
+                    $('#deploy-alert').html('<div class="alert alert-danger">Please select a version to deploy.</div>');
+                    return;
+                }
+
+                var base = {
+                    _token:       '{{ csrf_token() }}',
+                    order_id:     {{ $order->id }},
+                    version_id:   versionId,
+                    host:         host,
+                    port:         port,
+                    username:     username,
+                    auth_method:  authMethod,
+                    deploy_mode:  deployMode,
+                    deploy_path:  deployPath,
+                    web_user:     webUser,
+                    sudo_password: sudoPassword,
+                };
+                if (authMethod === 'password') { base.password    = password; }
+                else                           { base.private_key = privateKey; }
+
+                if (isFresh) {
+                    var sslType = $('#install-ssl-type').val();
+                    base.install_domain  = domain;
+                    base.install_email   = email;
+                    base.install_license = license;
+                    base.install_order   = orderNo;
+                    base.web_server      = $('input[name="install-web-server"]:checked').val();
+                    base.ssl_type        = sslType;
+                    if (sslType === 'C') {
+                        base.ssl_cert_path = $.trim($('#install-ssl-cert').val());
+                        base.ssl_key_path  = $.trim($('#install-ssl-key').val());
+                    }
+                }
+
+                // ── Step runner ───────────────────────────────────────────────
+                var failed = false;
+
+                async function run(stepKey, label, timeoutMs) {
+                    renderStep(stepKey, label, 'running');
+                    try {
+                        var data = await callStep(base, stepKey, timeoutMs);
+                        renderStep(stepKey, label, 'done', data.message);
+                        return data;
+                    } catch (err) {
+                        renderStep(stepKey, label, 'error', err);
+                        failed = true;
+                        throw err;
+                    }
+                }
+
+                try {
+                    // Step 1: Verify SSH
+                    await run('verify', 'Verifying SSH connection & preparing path', 30000);
+
+                    // Step 2: Install (fresh only)
+                    if (isFresh) {
+                        renderStep('install', 'Running installation script (15–30 min)', 'pending');
+                        var installData = await run('install', 'Running installation script (15–30 min)', 2100000);
+
+                        // Show credentials & setup info
+                        if (installData.credentials || installData.setup_url) {
+                            var info = '';
+                            if (installData.credentials) {
+                                info += '<p class="font-weight-bold mb-1">Server Credentials <small class="text-muted">(save these now)</small></p>'
+                                    + '<pre class="bg-light p-2 rounded" style="font-size:11px;">'
+                                    + $('<div>').text(installData.credentials).html() + '</pre>';
+                            }
+                            if (installData.setup_url) {
+                                info += '<div class="alert alert-warning py-2 px-3 mb-2" style="font-size:0.85rem;">'
+                                    + '<i class="fas fa-info-circle mr-1"></i><strong>Next:</strong> '
+                                    + 'Open <a href="' + installData.setup_url + '" target="_blank">' + installData.setup_url + '</a> '
+                                    + 'to complete the setup wizard and create your admin account.</div>';
+                            }
+                            $('#deploy-install-details').html(info).show();
+                        }
+                        if (installData.output) {
+                            $('#deploy-output').text(installData.output);
+                            $('#deploy-output-section').show();
+                        }
+                    }
+
+                    // Step 3: Upload file
+                    var uploadData = await run('upload', 'Uploading Faveo files to server', 120000);
+                    base.remote_path = uploadData.remote_path;
+
+                    // Step 4: Extract
+                    var extractData = await run('extract', 'Extracting files & setting permissions', 300000);
+                    if (extractData.output) {
+                        $('#deploy-output').text(($('#deploy-output').text() + '\n' + extractData.output).trim());
+                        $('#deploy-output-section').show();
+                    }
+
+                    // All done
+                    var successMsg = '<div class="alert alert-success mt-2">'
+                        + '<i class="fas fa-check-circle mr-1"></i><strong>Deployment complete!</strong>';
+                    if (isFresh) {
+                        successMsg += ' Remember to restart Supervisor after completing the GUI setup.';
+                    } else if (extractData.site_url) {
+                        successMsg += ' <a href="' + extractData.site_url + '" target="_blank" class="alert-link">'
+                            + extractData.site_url + ' <i class="fas fa-external-link-alt" style="font-size:0.75em;"></i></a>'
+                            + ' — open this URL to proceed with setup.';
+                    }
+                    successMsg += '</div>';
+                    $('#deploy-alert').html(successMsg);
+
+                } catch (e) {
+                    // error already rendered in the step row
+                }
+
+                var btnReset = isFresh
+                    ? '<i class="fas fa-rocket"></i>&nbsp; Install &amp; Deploy'
+                    : '<i class="fas fa-rocket"></i>&nbsp; Deploy';
+                $('#deploy-btn').prop('disabled', false).html(btnReset);
+            }
+        </script>
+    </div>{{-- hidden old form --}}
+    </div>{{-- #deploy tab pane --}}
+    @endif
 
     <div class="modal fade" id="autorenewModal" tabindex="-1" role="dialog" aria-labelledby="autorenewModalLabel" aria-hidden="true">
 
