@@ -115,7 +115,7 @@ class InstallationController extends Controller
                 'license_code' => $installation->license_code,
                 'installation_ip' => $installation->installation_ip,
                 'installation_domain' => $installation->installation_domain,
-                'installation_date' => $installation->installation_date,
+                'installation_date' => LicenseHelper::formatDatetime($installation->installation_date),
                 'installation_status' => $installation->installation_status,
                 'product_title' => optional($installation->product)->name,
                 'client_email' => optional($installation->user)->email,

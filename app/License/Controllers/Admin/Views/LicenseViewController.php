@@ -31,18 +31,18 @@ class LicenseViewController extends Controller
             'license_ip' => $license->license_ip,
             'license_code' => $license->license_code,
             'license_limit' => $license->license_limit,
-            'license_expire_date' => $license->license_expire_date,
-            'license_support_date' => $license->license_support_date,
+            'license_expire_date' => LicenseHelper::formatDate($license->license_expire_date),
+            'license_support_date' => LicenseHelper::formatDate($license->license_support_date),
             'license_order_number' => $license->license_order_number,
             'license_domain' => $license->license_domain,
-            'license_date' => $license->license_date,
-            'license_updates_date' => $license->license_updates_date,
+            'license_date' => LicenseHelper::formatDatetime($license->license_date),
+            'license_updates_date' => LicenseHelper::formatDate($license->license_updates_date),
             'license_status' => $license->license_status,
             'product_title' => optional($license->product)->name,
             'client_email' => optional($license->user)->email,
             'license_order_url' => $license->license_order_number ?? '',
             'installation_counts' => $license->installation_counts,
-            'latest_call_backs' => $license->latest_call_backs,
+            'latest_call_backs' => LicenseHelper::formatDatetime($license->latest_call_backs),
             'call_backs_count' => $license->call_backs_count,
         ];
 
@@ -103,6 +103,14 @@ class LicenseViewController extends Controller
             })
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
+
+        $licenseCallBacks->getCollection()->transform(fn (LicenseCallback $cb) => [
+            'id' => $cb->id,
+            'callback_domain' => $cb->callback_domain,
+            'callback_ip' => $cb->callback_ip,
+            'callback_date_time' => LicenseHelper::formatDatetime($cb->callback_date_time),
+            'callback_status' => $cb->callback_status,
+        ]);
 
         return successResponse(Lang::get('lang.license_callback'), $licenseCallBacks);
     }

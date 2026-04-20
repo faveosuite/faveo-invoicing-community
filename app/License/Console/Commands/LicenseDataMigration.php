@@ -253,17 +253,22 @@ class LicenseDataMigration extends Command
     {
         return $this->migrateTable(
             'afl_reports', 'license_reports', 'report_id',
-            fn (object $r) => [
-                'product_id' => $this->productMap[$r->product_id],
-                'user_id' => $this->resolveUserIdForLicense($r->license_code),
-                'license_code' => $r->license_code,
-                'report_date_time' => $this->cleanDate($r->report_date_time),
-                'report_text' => $r->report_text,
-                'report_system' => $r->report_system ?? 0,
-                'report_status' => $r->report_status ?? 1,
-                ...$this->timestamps($r),
-            ],
-            productKey: 'product_id',
+            function (object $r) {
+                if ($r->product_id > 0 && ! isset($this->productMap[$r->product_id])) {
+                    return null;
+                }
+
+                return [
+                    'product_id' => $this->productMap[$r->product_id] ?? null,
+                    'user_id' => $this->resolveUserIdForLicense($r->license_code),
+                    'license_code' => $r->license_code ?: null,
+                    'report_date_time' => $this->cleanDate($r->report_date_time),
+                    'report_text' => $r->report_text,
+                    'report_system' => $r->report_system ?? 0,
+                    'report_status' => $r->report_status ?? 1,
+                    ...$this->timestamps($r),
+                ];
+            },
         );
     }
 

@@ -78,7 +78,7 @@ class ReportsController extends Controller
 
         $reportsQuery = LicenseReport::query()
             ->with('user:id,email')
-            ->where('report_status', 1)
+            ->where('report_system', 1)
             ->when($searchQuery, function ($query, $searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
                     $query->where('report_text', 'LIKE', '%'.$searchQuery.'%')
@@ -94,7 +94,7 @@ class ReportsController extends Controller
                 'account_id' => $report->user_id,
                 'license_code' => $report->license_code,
                 'report_text' => $report->report_text,
-                'report_date_time' => $report->report_date_time,
+                'report_date_time' => LicenseHelper::formatDatetime($report->report_date_time),
                 'report_status' => $report->report_status,
                 'user_formatted' => optional($report->user)->email ?? 'System',
             ];
@@ -115,7 +115,12 @@ class ReportsController extends Controller
         $sortField = in_array($sortField, ['id', 'user_id', 'license_code', 'report_text', 'report_date_time', 'report_status'], true) ? $sortField : 'id';
 
         $crakingReports = LicenseReport::query()
-            ->where('report_status', 0)
+            ->whereNull('user_id')
+            ->whereNull('product_id')
+            ->whereNull('license_code')
+            ->where('report_system', 0)
+            ->where('report_text', 'not like', '%upgrade%')
+            ->where('report_text', 'not like', '%file_to_download%')
             ->when($searchQuery, function ($query) use ($searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
                     $query->where('report_text', 'LIKE', '%'.$searchQuery.'%')
@@ -135,7 +140,7 @@ class ReportsController extends Controller
                 'user_id' => $report->user_id,
                 'license_code' => $report->license_code,
                 'report_text' => $report->report_text,
-                'report_date_time' => $report->report_date_time,
+                'report_date_time' => LicenseHelper::formatDatetime($report->report_date_time),
                 'report_status' => $report->report_status,
                 'license_id' => $licenseIdsByCode[$report->license_code] ?? null,
             ];
@@ -181,7 +186,7 @@ class ReportsController extends Controller
                 'client_id' => $report->user_id,
                 'report_text' => $report->report_text,
                 'license_code' => $report->license_code,
-                'report_date_time' => $report->report_date_time,
+                'report_date_time' => LicenseHelper::formatDatetime($report->report_date_time),
                 'report_status' => $report->report_status,
                 'client_email' => optional($report->user)->email,
                 'license_id' => $licenseIdsByCode[$report->license_code] ?? null,
@@ -223,7 +228,7 @@ class ReportsController extends Controller
                 'id' => $report->id,
                 'user_id' => $report->user_id,
                 'report_text' => $report->report_text,
-                'report_date_time' => $report->report_date_time,
+                'report_date_time' => LicenseHelper::formatDatetime($report->report_date_time),
                 'report_status' => $report->report_status,
                 'product_title' => optional($report->product)->name,
                 'product_id' => $report->product_id,

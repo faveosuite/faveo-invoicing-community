@@ -4,6 +4,7 @@ namespace App\License\Controllers\Admin\Views;
 
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
+use App\License\Models\VersionCallback;
 use App\Model\Product\ProductUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
@@ -23,7 +24,7 @@ class VersionsViewController extends Controller
             'id' => $version->id,
             'product_id' => $version->product_id,
             'version_number' => $version->version,
-            'version_date' => $version->created_at,
+            'version_date' => LicenseHelper::formatDatetime($version->created_at),
             'version_status' => $version->status,
             'version_install_count' => $version->version_install_count ?? 0,
             'product' => [
@@ -53,6 +54,15 @@ class VersionsViewController extends Controller
             })
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
+
+        $versionInstallation->getCollection()->transform(fn (VersionCallback $cb) => [
+            'id' => $cb->id,
+            'version_id' => $cb->version_id,
+            'callback_ip' => $cb->callback_ip,
+            'callback_date_time' => LicenseHelper::formatDatetime($cb->callback_date_time),
+            'callback_status' => $cb->callback_status,
+            'callback_type' => $cb->callback_type,
+        ]);
 
         return successResponse(Lang::get('lang.version_callbacks'), $versionInstallation);
     }

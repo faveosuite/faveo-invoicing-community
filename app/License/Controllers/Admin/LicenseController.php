@@ -28,7 +28,7 @@ class LicenseController extends Controller
 
     public function licenseAdd(LicenseRequest $request)
     {
-        $productId = $request->integer('id');
+        $productId = $request->integer('product_id');
         $licenseCode = $request->get('license_code') ?: null;
         $clientId = $request->get('client_id') ?: null;
 
@@ -49,6 +49,12 @@ class LicenseController extends Controller
 
         if (! empty($checks)) {
             return $checks->content();
+        }
+
+        if (LicenseHelper::validateIntegerValue($clientId) && empty($licenseCode)) {
+            do {
+                $licenseCode = strtoupper(substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 5)), 0, 16));
+            } while (License::where('license_code', $licenseCode)->exists());
         }
 
         $license = License::create([
@@ -179,18 +185,18 @@ class LicenseController extends Controller
                 'license_code' => $license->license_code,
                 'license_ip' => $license->license_ip,
                 'license_limit' => $license->license_limit,
-                'license_expire_date' => $license->license_expire_date,
-                'license_support_date' => $license->license_support_date,
+                'license_expire_date' => LicenseHelper::formatDate($license->license_expire_date),
+                'license_support_date' => LicenseHelper::formatDate($license->license_support_date),
                 'license_order_number' => $license->license_order_number,
                 'license_domain' => $license->license_domain,
-                'license_date' => $license->license_date,
-                'license_updates_date' => $license->license_updates_date,
+                'license_date' => LicenseHelper::formatDatetime($license->license_date),
+                'license_updates_date' => LicenseHelper::formatDate($license->license_updates_date),
                 'license_status' => $license->license_status,
                 'product_title' => optional($license->product)->name,
                 'client_email' => optional($license->user)->email,
                 'license_order_url' => $license->license_order_number ?? '',
                 'installation_counts' => $license->installation_counts,
-                'latest_call_backs' => $license->latest_call_backs,
+                'latest_call_backs' => LicenseHelper::formatDatetime($license->latest_call_backs),
                 'call_backs_count' => $license->call_backs_count,
             ];
         });

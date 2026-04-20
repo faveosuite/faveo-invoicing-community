@@ -84,6 +84,13 @@ Route::prefix('api/admin')->middleware(['web', 'auth', 'admin'])->group(function
     Route::get('/dashboarddropdown', [\App\License\Controllers\Admin\DashboardController::class, 'dashboard']);
 
     // ========================================================================
+    // CLIENTS
+    // ========================================================================
+    Route::get('/viewClients', [\App\License\Controllers\Admin\ClientController::class, 'viewClients']);
+    Route::get('/viewClients/{id}', [\App\License\Controllers\Admin\ClientController::class, 'viewClients']);
+    Route::get('/viewproducts', [\App\License\Controllers\Admin\ClientController::class, 'viewProducts']);
+
+    // ========================================================================
     // VERSIONS
     // ========================================================================
     Route::get('/viewVersions', [\App\License\Controllers\Admin\VersionsController::class, 'show']);

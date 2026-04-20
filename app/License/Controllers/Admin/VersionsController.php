@@ -3,6 +3,7 @@
 namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\License\Helpers\LicenseHelper;
 use App\Model\Product\ProductUpload;
 use Illuminate\Http\Request;
 
@@ -39,7 +40,7 @@ class VersionsController extends Controller
                 'id' => $version->id,
                 'product_id' => $version->product_id,
                 'version_number' => $version->version,
-                'version_date' => $version->created_at,
+                'version_date' => LicenseHelper::formatDatetime($version->created_at),
                 'version_status' => $version->status,
                 'version_install_count' => $version->version_install_count ?? 0,
                 'product_title' => optional($version->product)->name,

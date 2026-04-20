@@ -20,7 +20,7 @@ class VersionService
             'release_type' => $data['release_type'] ?? 'official',
             'is_private' => $data['is_private'] ?? 0,
             'is_restricted' => $data['is_restricted'] ?? 0,
-            'version_expire_date' => $data['version_expire_date'] ?? null,
+            'version_expire_date' => $data['version_expire_date'] ?: null,
             'version_install_count' => 0,
             'status' => $data['status'] ?? 1,
         ]);

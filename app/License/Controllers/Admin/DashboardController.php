@@ -3,6 +3,7 @@
 namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\License\Helpers\LicenseHelper;
 use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Models\LicenseCallback;
@@ -52,7 +53,7 @@ class DashboardController extends Controller
                     'id' => $version->id,
                     'product_id' => $version->product_id,
                     'version_number' => $version->version,
-                    'version_date' => $version->created_at,
+                    'version_date' => LicenseHelper::formatDatetime($version->created_at),
                     'version_status' => $version->status,
                     'product_title' => optional($version->product)->name,
                 ];
@@ -71,7 +72,7 @@ class DashboardController extends Controller
                     'license_code' => $installation->license_code,
                     'installation_ip' => $installation->installation_ip,
                     'installation_domain' => $installation->installation_domain,
-                    'installation_date' => $installation->installation_date,
+                    'installation_date' => LicenseHelper::formatDatetime($installation->installation_date),
                     'installation_status' => $installation->installation_status,
                     'license_id' => optional($installation->license)->id,
                 ];
@@ -83,7 +84,14 @@ class DashboardController extends Controller
             ->orderByDesc('callback_date_time')
             ->orderByDesc('id')
             ->take(10)
-            ->get();
+            ->get()
+            ->map(fn (LicenseCallback $cb) => (object) [
+                'id' => $cb->id,
+                'callback_domain' => $cb->callback_domain,
+                'callback_ip' => $cb->callback_ip,
+                'callback_date_time' => LicenseHelper::formatDatetime($cb->callback_date_time),
+                'callback_status' => $cb->callback_status,
+            ]);
 
         $latestReports = LicenseReport::with('product:id,name', 'user:id,email')
             ->where('report_status', '1')
@@ -101,7 +109,14 @@ class DashboardController extends Controller
             })
             ->latest('id')
             ->take(10)
-            ->get();
+            ->get()
+            ->map(fn (ProductUpload $v) => (object) [
+                'id' => $v->id,
+                'version_number' => $v->version,
+                'version_date' => LicenseHelper::formatDatetime($v->created_at),
+                'version_expire_date' => LicenseHelper::formatDate($v->version_expire_date),
+                'version_status' => $v->status,
+            ]);
 
         $latestClients = \App\User::query()
             ->select('id as client_id', 'first_name', 'last_name', 'email as client_email', 'created_at as client_active_date', 'active as client_status')
@@ -115,7 +130,7 @@ class DashboardController extends Controller
                     'client_id' => $user->client_id,
                     'full_name' => trim($user->first_name.' '.$user->last_name),
                     'client_email' => $user->client_email,
-                    'client_active_date' => $user->client_active_date,
+                    'client_active_date' => LicenseHelper::formatDatetime($user->client_active_date),
                     'client_status' => $user->client_status,
                     'license_count' => $user->licenses_count,
                 ];
@@ -132,7 +147,7 @@ class DashboardController extends Controller
                 'license_id' => $license->id,
                 'client_id' => $license->user_id,
                 'license_code' => $license->license_code,
-                'license_date' => $license->license_date,
+                'license_date' => LicenseHelper::formatDatetime($license->license_date),
                 'license_status' => $license->license_status,
                 'product_title' => optional($license->product)->name,
                 'product_id' => $license->product_id,
@@ -151,8 +166,8 @@ class DashboardController extends Controller
                 'license_id' => $license->id,
                 'client_id' => $license->user_id,
                 'license_code' => $license->license_code,
-                'license_date' => $license->license_date,
-                'license_support_date' => $license->license_support_date,
+                'license_date' => LicenseHelper::formatDatetime($license->license_date),
+                'license_support_date' => LicenseHelper::formatDate($license->license_support_date),
                 'license_status' => $license->license_status,
                 'product_title' => optional($license->product)->name,
                 'product_id' => $license->product_id,
@@ -171,8 +186,8 @@ class DashboardController extends Controller
                 'license_id' => $license->id,
                 'client_id' => $license->user_id,
                 'license_code' => $license->license_code,
-                'license_date' => $license->license_date,
-                'license_updates_date' => $license->license_updates_date,
+                'license_date' => LicenseHelper::formatDatetime($license->license_date),
+                'license_updates_date' => LicenseHelper::formatDate($license->license_updates_date),
                 'license_status' => $license->license_status,
                 'product_title' => optional($license->product)->name,
                 'product_id' => $license->product_id,

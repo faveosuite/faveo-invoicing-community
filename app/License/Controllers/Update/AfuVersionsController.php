@@ -142,7 +142,7 @@ class AfuVersionsController extends Controller
                             'title' => $version_number,
                             'description' => $version_changelog,
                             'file' => $version_install_file,
-                            'version_expire_date' => $version_expire_date,
+                            'version_expire_date' => $version_expire_date ?: null,
                             'version_install_count' => 0,
                             'status' => $version_status,
                         ]
@@ -224,7 +224,7 @@ class AfuVersionsController extends Controller
                         'version_upgrade_limit' => $version_upgrade_limit,
                         'version_changelog' => $version_changelog,
                         'version_date' => $version_date,
-                        'version_expire_date' => $version_expire_date,
+                        'version_expire_date' => $version_expire_date ?: null,
                         'version_comments' => $version_comments,
                         'version_status' => $version_status
                     ]);
@@ -443,7 +443,7 @@ class AfuVersionsController extends Controller
                             'file' => $version_install_file,
                             'description' => $version_changelog,
                             'version_install_count' => $version_install_count,
-                            'version_expire_date' => $version_expire_date,
+                            'version_expire_date' => $version_expire_date ?: null,
                             'status' => $version_status,
                         ]
                     );
@@ -569,7 +569,7 @@ class AfuVersionsController extends Controller
                             'version_upgrade_limit' => $version_upgrade_limit,
                             'version_upgrade_count' => $version_upgrade_count,
                             'version_changelog' => $version_changelog,
-                            'version_expire_date' => $version_expire_date,
+                            'version_expire_date' => $version_expire_date ?: null,
                             'version_comments' => $version_comments,
                             'version_status' => $version_status
                         ]);
@@ -680,7 +680,7 @@ class AfuVersionsController extends Controller
             DB::table('afu_versions')
                   ->whereNotIn('version_id', $versionId)
                   ->where('product_id', $product_id)
-                  ->update(['version_expire_date' => $version_expire_date, 'version_comments' => $version_comments]);
+                  ->update(['version_expire_date' => $version_expire_date ?: null, 'version_comments' => $version_comments]);
         }
     }
 

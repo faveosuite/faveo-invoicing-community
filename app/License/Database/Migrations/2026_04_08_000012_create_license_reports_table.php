@@ -18,7 +18,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedInteger('product_id')->nullable();
             $table->unsignedInteger('user_id')->nullable();
-            $table->string('license_code')->index();
+            $table->string('license_code')->nullable()->index();
             $table->timestamp('report_date_time')->useCurrent();
             $table->text('report_text')->nullable();
             $table->string('report_system')->nullable();
