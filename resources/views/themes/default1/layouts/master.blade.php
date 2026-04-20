@@ -257,30 +257,36 @@
                     <div class="dropdown-menu dropdown-menu-right p-0" style="left: inherit; right: 0px;" id="language-dropdown">
                         <!-- Language options will be populated here -->
                     </div>
-                </li>
-                <!-- Messages Dropdown Menu -->
-                <li class="nav-item dropdown user-menu">
-                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
-                        <?php
-                        $user = \DB::table('users')->find(\Auth::user()->id);
-                        ?>
-                        <span class="d-none d-md-inline me-2">{{ucfirst(Auth::user()->first_name)}} {{ucfirst(Auth::user()->last_name)}}</span>
-                        <img src="{{ Auth::user()->profile_pic }}" style="width:30px;height: 30px;" class="user-image img-circle shadow d-none d-md-inline" alt="" />
-                    </a>
+                 </li>
+                 <!-- License Link -->
+                 <li class="nav-item">
+                      <a class="nav-link" href="{{url('license-manager')}}" title="Switch to License" data-toggle="tooltip" data-placement="top">
+                          <i class="fas fa-id-card"></i>
+                      </a>
+                 </li>
+                 <!-- Messages Dropdown Menu -->
+                 <li class="nav-item dropdown user-menu">
+                     <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+                         <?php
+                         $user = \DB::table('users')->find(\Auth::user()->id);
+                         ?>
+                         <span class="d-none d-md-inline me-2">{{ucfirst(Auth::user()->first_name)}} {{ucfirst(Auth::user()->last_name)}}</span>
+                         <img src="{{ Auth::user()->profile_pic }}" style="width:30px;height: 30px;" class="user-image img-circle shadow d-none d-md-inline" alt="" />
+                     </a>
 
-                    <ul class="dropdown-menu dropdown-menu-sm dropdown-profile dropdown-menu-end rounded model-box text-white dropdown-menu-arrow mt-2" >
-                        <li>
-                            <a href="{{url('profile')}}" class="dropdown-item dp-data">
-                                <i class="fa fa-user pr-2"></i>{{ __('message.profile') }}</a>
-                        </li>
-                        <li>
-                            <a href="{{url('auth/logout')}}" class="dropdown-item dp-data mb-4 mt-1">
-                                <i class="fas fa-sign-out-alt pr-2"></i>{{ __('message.log_out') }}</a>
-                        </li>
-                    </ul>
-                </li>
+                     <ul class="dropdown-menu dropdown-menu-sm dropdown-profile dropdown-menu-end rounded model-box text-white dropdown-menu-arrow mt-2" >
+                         <li>
+                             <a href="{{url('profile')}}" class="dropdown-item dp-data">
+                                 <i class="fa fa-user pr-2"></i>{{ __('message.profile') }}</a>
+                         </li>
+                         <li>
+                             <a href="{{url('auth/logout')}}" class="dropdown-item dp-data mb-4 mt-1">
+                                 <i class="fas fa-sign-out-alt pr-2"></i>{{ __('message.log_out') }}</a>
+                         </li>
+                     </ul>
+                 </li>
 
-            </ul>
+             </ul>
         </nav>
         <!-- /.navbar -->
 
@@ -506,14 +512,7 @@
                             </ul>
                         </li>
 
-                        <li class="nav-item has-treeview">
-                            <a href="{{url('license-manager')}}" class="nav-link" id="license">
-                                <i class="nav-icon fas fa-id-card"></i>
-                                <p>
-                                    License
-                                </p>
-                            </a>
-                        </li>
+
 
                         <li class="nav-item has-treeview">
                             <a href="{{url('settings')}}" class="nav-link" id="setting">
@@ -627,7 +626,7 @@
     <script src="{{asset('admin/js-1/jquery-ui.min.js')}}"></script>
     <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
     <script>
-        $.widget.bridge('uibutton', $.ui.button)
+        $.widget.bridge('uibutton', $.ui.button); $(function () { $('[data-toggle="tooltip"]').tooltip(); });
     </script>
     <!-- Bootstrap 4 -->
     <script src="{{asset('admin/js-1/bootstrap.bundle.min.js')}}"></script>
@@ -729,12 +728,12 @@ $("document").ready(function(){
             var advance = $('#advance-search');
 
             if (advance.css('display') == 'none') {
-                this.setAttribute('title', '{{ __('message.collapse') }}');
+                this.setAttribute('title', "{{ __('message.collapse') }}");
                 $('#search-icon').removeClass('fas fa-plus').addClass('fas fa-minus');
 
                 advance.show();
             }else {
-                this.setAttribute('title', '{{ __('message.expand') }}');
+                this.setAttribute('title', "{{ __('message.expand') }}");
                  $('#search-icon').removeClass('fas fa-minus').addClass('fas fa-plus');
                 advance.hide();
             }
@@ -763,7 +762,7 @@ $("document").ready(function(){
                 $('#flagIcon').addClass('flag-icon flag-icon-' + mappedLocale);
 
                 $.ajax({
-                    url: '{{ url('language/control') }}',
+                    url: "{{ url('language/control') }}",
                     type: 'GET',
                     dataType: 'JSON',
                     success: function(response) {
@@ -800,7 +799,7 @@ $("document").ready(function(){
                 function updateLanguage(language, flagClass) {
                     $('#flagIcon').attr('class', flagClass);
                     $.ajax({
-                        url: '{{ url('lang/update') }}',
+                        url: "{{ url('lang/update') }}",
                         type: 'POST',
                         data: { language: language },
                         success: function(response) {

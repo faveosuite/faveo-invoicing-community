@@ -19,16 +19,9 @@
                     <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview"
                         role="menu" data-accordion="false">
 
-                        <navigation v-for="(navigation, index) in navigations" :menuItem="navigation" :key="index">
+                         <navigation v-for="(navigation, index) in navigations" :menuItem="navigation" :key="index">
 
-                        </navigation>
-
-                        <li class="nav-item">
-                            <a href="/" class="nav-link">
-                                <i class="nav-icon fas fa-arrow-left"></i> &nbsp;
-                                <p>Billing Admin</p>
-                            </a>
-                        </li>
+                         </navigation>
                     </ul>
                 </nav>
      	</div>

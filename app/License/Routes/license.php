@@ -6,7 +6,6 @@ use App\License\Controllers\AflCallbacks\LicenseInstallController;
 use App\License\Controllers\AflCallbacks\LicenseSchemeController;
 use App\License\Controllers\AflCallbacks\LicenseVerifyController;
 use App\License\Controllers\AfuCallbacks\DownloadFileController;
-use App\License\Controllers\AfuCallbacks\FetchQueryController;
 use App\License\Controllers\AfuCallbacks\GetAllVersionsController;
 use App\License\Controllers\AfuCallbacks\GetVersionsController;
 use App\License\Controllers\LicenseApiController;
@@ -46,7 +45,6 @@ Route::post('/api/licenseScheme', [LicenseSchemeController::class, 'licenseSchem
 Route::post('/api/licenseVerify', [LicenseVerifyController::class, 'licenseVerify']);
 Route::post('/api/getVersions', [GetVersionsController::class, 'getVersions']);
 Route::post('/api/getAllVersions', [GetAllVersionsController::class, 'getAllVersions']);
-Route::post('/api/fetchQuery', [FetchQueryController::class, 'fetchQuery']);
 Route::post('/api/downloadFile', [DownloadFileController::class, 'downloadFile']);
 Route::post('/api/pdf', [DownloadFileController::class, 'downloadFile']);
 

@@ -51,14 +51,14 @@ class LicenseInstallController extends Controller
 
         // Verify license signature
         if (! $this->validator->verifyScriptSignature($license_signature, $product_id, $root_url, $client_email, $license_code)) {
-            $this->createReport($product_id ?? 0, null, $license_code, 'Invalid license signature', 1);
+            $this->createReport($product_id ?? null, null, $license_code, 'Invalid license signature', 1);
 
             return $this->notificationResponse('notification_invalid_signature', []);
         }
 
         // Check banned hosts
         if ($this->validator->isBanned($ip)) {
-            $this->createReport($product_id ?? 0, null, $license_code, 'Host banned: '.$ip, 1);
+            $this->createReport($product_id ?? null, null, $license_code, 'Host banned: '.$ip, 1);
 
             return $this->notificationResponse('notification_host_banned', []);
         }
@@ -66,7 +66,7 @@ class LicenseInstallController extends Controller
         // Verify product exists
         $product = $this->validator->validateProduct($product_id);
         if (! $product) {
-            $this->createReport(0, null, $license_code, 'Product not found (ID: '.$product_id.')', 1);
+            $this->createReport(null, null, $license_code, 'Product not found (ID: '.$product_id.')', 1);
 
             return $this->notificationResponse('notification_product_not_found', []);
         }

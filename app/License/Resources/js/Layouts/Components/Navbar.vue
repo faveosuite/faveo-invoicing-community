@@ -18,29 +18,35 @@
 
             </ul>
 
-            <ul class="navbar-nav ms-auto" v-if="user">
+               <ul class="navbar-nav ms-auto" v-if="user">
 
-                <li class="nav-item dropdown user-menu">
+                   <li class="nav-item">
+                       <a class="nav-link" :href="basePath()" v-tooltip="'Switch to Billing'" title="Billing">
+                           <i class="fa-solid fa-credit-card"></i>
+                       </a>
+                   </li>
 
-                    <a href="javascript:;" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                   <li class="nav-item dropdown user-menu">
 
-                        <span class="d-none d-md-inline me-2" v-tooltip="user.client_fname + ' ' + user.client_lname" dir="auto">
-                             {{ subString(user.client_fname + ' ' + user.client_lname) }}
-                         </span>
-                        <image-element :sourceUrl="user.client_profile_pic" id="navbar-profile" class="user-image img-circle shadow d-none d-md-inline" alt="User Image"/>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-sm dropdown-profile dropdown-menu-end rounded model-box text-white dropdown-menu-arrow mt-2">
-                        <li>
-                            <a class="dropdown-item dp-data" href="/profile"><i class="fa fa-user pe-2"></i>{{ trans('profile') }}</a>
-                        </li>
-                        <li>
-                            <a href="javascript:;" class="dropdown-item dp-data mb-4 mt-1" @click="signOut">
-                                <i class="fas fa-sign-out-alt pe-2"></i>{{ trans('sign_out') }}
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+                     <a href="javascript:;" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+
+                         <span class="d-none d-md-inline me-2" v-tooltip="user.client_fname + ' ' + user.client_lname" dir="auto">
+                              {{ subString(user.client_fname + ' ' + user.client_lname) }}
+                          </span>
+                         <image-element :sourceUrl="user.client_profile_pic" id="navbar-profile" class="user-image img-circle shadow d-none d-md-inline" alt="User Image"/>
+                     </a>
+                     <ul class="dropdown-menu dropdown-menu-sm dropdown-profile dropdown-menu-end rounded model-box text-white dropdown-menu-arrow mt-2">
+                         <li>
+                             <a class="dropdown-item dp-data" :href="basePath() + '/profile'"><i class="fa fa-user pe-2"></i>{{ trans('profile') }}</a>
+                         </li>
+                         <li>
+                             <a href="javascript:;" class="dropdown-item dp-data mb-4 mt-1" @click="signOut">
+                                 <i class="fas fa-sign-out-alt pe-2"></i>{{ trans('sign_out') }}
+                             </a>
+                         </li>
+                     </ul>
+                 </li>
+             </ul>
         </div>
 
 	    <custom-loader v-if="loading"></custom-loader>

@@ -2,12 +2,14 @@
 
 namespace App\License\Controllers\AfuCallbacks;
 
+use App\Facades\Attach;
 use App\License\Controllers\Traits\AfuCallbackHelpers;
 use App\License\Helpers\LicenseValidator;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DownloadFileController extends Controller
 {
@@ -29,7 +31,6 @@ class DownloadFileController extends Controller
         $product_id = $request->input('product_id');
         $product_key = $request->input('product_key');
         $version_number = $request->input('version_number');
-        $file_type = $request->input('file_type', 'version_install_file');
         $user_local_path = $request->input('user_local_path');
         $script_signature = $request->input('script_signature');
         $ip = $this->validator->resolveIp($request);
@@ -79,7 +80,7 @@ class DownloadFileController extends Controller
         }
 
         // Check version status
-        if ($version->version_status != 1) {
+        if (! $version->status) {
             return $this->notificationResponse('notification_version_inactive', []);
         }
 
@@ -89,67 +90,32 @@ class DownloadFileController extends Controller
             return $this->notificationResponse('notification_version_expired', []);
         }
 
-        // Validate file_type
-        $allowedTypes = [
-            'version_install_file', 'version_install_query',
-            'version_upgrade_file', 'version_upgrade_query',
-        ];
+        $filePath = 'products/'.$version->file;
 
-        if (empty($file_type) || ! in_array($file_type, $allowedTypes)) {
-            return $this->notificationResponse('notification_invalid_parameter', []);
+        if (empty($version->file) || ! Attach::exists($filePath)) {
+            return $this->notificationResponse('notification_install_archive_not_found', []);
         }
 
-        // Get file path and validate it exists
-        $filePath = $version->{$file_type};
-        if (empty($filePath)) {
-            $notifKey = match (true) {
-                $file_type === 'version_install_file' => 'notification_install_archive_not_found',
-                $file_type === 'version_install_query' => 'notification_install_query_not_found',
-                $file_type === 'version_upgrade_file' => 'notification_upgrade_archive_not_found',
-                $file_type === 'version_upgrade_query' => 'notification_upgrade_query_not_found',
-                default => 'notification_unknown_error',
-            };
+        $version->increment('version_install_count');
 
-            return $this->notificationResponse($notifKey, []);
-        }
+        $this->logCallback($product->id, $version->id, 2, $ip, $user_local_path);
 
-        // Check install/upgrade limits
-        if ($file_type === 'version_install_file') {
-            if ($version->version_install_limit > 0 && $version->version_install_count >= $version->version_install_limit) {
-                return $this->notificationResponse('notification_install_limit_reached', []);
+        $filename = basename($filePath);
+        $signature = $this->generateSignature($product->id, $product_key);
+
+        $response = new StreamedResponse(function () use ($filePath) {
+            $stream = Attach::readStream($filePath);
+            while (! feof($stream)) {
+                echo fread($stream, 1024 * 8);
             }
-            $version->increment('version_install_count');
-            $callback_type = 2; // installation
-        } elseif ($file_type === 'version_upgrade_file') {
-            if ($version->version_upgrade_limit > 0 && $version->version_upgrade_count >= $version->version_upgrade_limit) {
-                return $this->notificationResponse('notification_upgrade_limit_reached', []);
-            }
-            $version->increment('version_upgrade_count');
-            $callback_type = 3; // upgrade
-        } else {
-            // Query files: install_query = installation(2), upgrade_query = upgrade(3)
-            $callback_type = str_contains($file_type, 'install') ? 2 : 3;
-        }
+            fclose($stream);
+        });
 
-        // Log callback
-        $this->logCallback($product->id, $version->id, $callback_type, $ip, $user_local_path);
+        $response->headers->set('Content-Type', 'application/octet-stream');
+        $response->headers->set('Content-Disposition', 'attachment; filename="'.$filename.'"');
+        $response->headers->set('notification_case', 'notification_operation_ok');
+        $response->headers->set('notification_server_signature', $signature);
 
-        $responseData = $this->filterSensitiveData(
-            array_merge($product->toArray(), $version->toArray())
-        );
-
-        // If file exists on disk, download it
-        $fullPath = storage_path('app/'.$filePath);
-        if (file_exists($fullPath)) {
-            return response()->download($fullPath)
-                ->header('notification_case', 'notification_operation_ok')
-                ->header('notification_server_signature', $this->generateSignature($product->id, $product_key))
-                ->header('notification_data', json_encode($responseData));
-        }
-
-        // Return file path in headers for external download
-        return $this->notificationResponse('notification_operation_ok', array_merge($responseData, [
-            'file_path' => $filePath,
-        ]));
+        return $response;
     }
 }

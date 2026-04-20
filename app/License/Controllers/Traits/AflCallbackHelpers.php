@@ -155,11 +155,11 @@ trait AflCallbackHelpers
     /**
      * Create license report.
      */
-    protected function createReport(int $productId, ?int $userId, ?string $licenseCode, string $text, int $system): void
+    protected function createReport(?int $productId, ?int $userId, ?string $licenseCode, string $text, int $system): void
     {
         LicenseReport::create([
-            'product_id' => $productId,
-            'user_id' => $userId ?? 0,
+            'product_id' => $productId ?: null,
+            'user_id' => $userId ?: null,
             'license_code' => $licenseCode,
             'report_date_time' => now(),
             'report_text' => $text,

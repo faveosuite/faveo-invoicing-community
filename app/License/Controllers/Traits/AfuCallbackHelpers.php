@@ -13,14 +13,13 @@ trait AfuCallbackHelpers
      */
     protected function notificationResponse(string $notificationCase, array $data = [])
     {
-        // Original only returns notification_data when everything is OK
-        $responseData = ($notificationCase === 'notification_operation_ok') ? $data : '';
+        // Only returns notification_data when everything is OK
+        $responseData = ($notificationCase === 'notification_operation_ok') ? $data : [];
 
-        return response()->json([])
+        return response()->json($responseData)
             ->header('notification_case', $notificationCase)
             ->header('notification_text', $this->getNotificationText($notificationCase))
-            ->header('notification_server_signature', $this->generateSignature())
-            ->header('notification_data', json_encode($responseData));
+            ->header('notification_server_signature', $this->generateSignature());
     }
 
     /**
