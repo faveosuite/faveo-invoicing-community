@@ -218,20 +218,20 @@ class SettingsControllerTest extends DBTestCase
         \Cache::forget('debugging_settings');
 
         $response = $this->post('save/debugg', [
-            'debug'               => 'false',
-            'pulse_enabled'       => 'false',
-            'clockwork_enable'    => 'false',
-            'sentry_reporting'    => 'true',
-            'sentry_performance'  => 'false',
+            'debug' => 'false',
+            'pulse_enabled' => 'false',
+            'clockwork_enable' => 'false',
+            'sentry_reporting' => 'true',
+            'sentry_performance' => 'false',
         ]);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('common_settings', [
-            'option_name'    => 'sentry',
+            'option_name' => 'sentry',
             'optional_field' => 'crash_reporting',
-            'option_value'   => '1',
+            'option_value' => '1',
         ]);
     }
 
@@ -243,20 +243,20 @@ class SettingsControllerTest extends DBTestCase
         \Cache::forget('debugging_settings');
 
         $response = $this->post('save/debugg', [
-            'debug'               => 'false',
-            'pulse_enabled'       => 'false',
-            'clockwork_enable'    => 'false',
-            'sentry_reporting'    => 'false',
-            'sentry_performance'  => 'false',
+            'debug' => 'false',
+            'pulse_enabled' => 'false',
+            'clockwork_enable' => 'false',
+            'sentry_reporting' => 'false',
+            'sentry_performance' => 'false',
         ]);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('common_settings', [
-            'option_name'    => 'sentry',
+            'option_name' => 'sentry',
             'optional_field' => 'crash_reporting',
-            'option_value'   => '0',
+            'option_value' => '0',
         ]);
     }
 
@@ -268,20 +268,20 @@ class SettingsControllerTest extends DBTestCase
         \Cache::forget('debugging_settings');
 
         $response = $this->post('save/debugg', [
-            'debug'               => 'false',
-            'pulse_enabled'       => 'false',
-            'clockwork_enable'    => 'false',
-            'sentry_reporting'    => 'false',
-            'sentry_performance'  => 'true',
+            'debug' => 'false',
+            'pulse_enabled' => 'false',
+            'clockwork_enable' => 'false',
+            'sentry_reporting' => 'false',
+            'sentry_performance' => 'true',
         ]);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('common_settings', [
-            'option_name'    => 'sentry',
+            'option_name' => 'sentry',
             'optional_field' => 'performance_monitoring',
-            'option_value'   => '1',
+            'option_value' => '1',
         ]);
     }
 
@@ -293,20 +293,20 @@ class SettingsControllerTest extends DBTestCase
         \Cache::forget('debugging_settings');
 
         $response = $this->post('save/debugg', [
-            'debug'               => 'false',
-            'pulse_enabled'       => 'false',
-            'clockwork_enable'    => 'false',
-            'sentry_reporting'    => 'false',
-            'sentry_performance'  => 'false',
+            'debug' => 'false',
+            'pulse_enabled' => 'false',
+            'clockwork_enable' => 'false',
+            'sentry_reporting' => 'false',
+            'sentry_performance' => 'false',
         ]);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('common_settings', [
-            'option_name'    => 'sentry',
+            'option_name' => 'sentry',
             'optional_field' => 'performance_monitoring',
-            'option_value'   => '0',
+            'option_value' => '0',
         ]);
     }
 
@@ -318,26 +318,26 @@ class SettingsControllerTest extends DBTestCase
         \Cache::forget('debugging_settings');
 
         $response = $this->post('save/debugg', [
-            'debug'               => 'false',
-            'pulse_enabled'       => 'false',
-            'clockwork_enable'    => 'false',
-            'sentry_reporting'    => 'true',
-            'sentry_performance'  => 'true',
+            'debug' => 'false',
+            'pulse_enabled' => 'false',
+            'clockwork_enable' => 'false',
+            'sentry_reporting' => 'true',
+            'sentry_performance' => 'true',
         ]);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('common_settings', [
-            'option_name'    => 'sentry',
+            'option_name' => 'sentry',
             'optional_field' => 'crash_reporting',
-            'option_value'   => '1',
+            'option_value' => '1',
         ]);
 
         $this->assertDatabaseHas('common_settings', [
-            'option_name'    => 'sentry',
+            'option_name' => 'sentry',
             'optional_field' => 'performance_monitoring',
-            'option_value'   => '1',
+            'option_value' => '1',
         ]);
     }
 
@@ -350,11 +350,11 @@ class SettingsControllerTest extends DBTestCase
         \Cache::put('debugging_settings', ['app.debug' => true], 60);
 
         $this->post('save/debugg', [
-            'debug'               => 'false',
-            'pulse_enabled'       => 'false',
-            'clockwork_enable'    => 'false',
-            'sentry_reporting'    => 'false',
-            'sentry_performance'  => 'false',
+            'debug' => 'false',
+            'pulse_enabled' => 'false',
+            'clockwork_enable' => 'false',
+            'sentry_reporting' => 'false',
+            'sentry_performance' => 'false',
         ]);
 
         $this->assertNull(\Cache::get('debugging_settings'));
@@ -368,11 +368,11 @@ class SettingsControllerTest extends DBTestCase
         \Cache::forget('debugging_settings');
 
         $response = $this->post('save/debugg', [
-            'debug'               => 'true',
-            'pulse_enabled'       => 'true',
-            'clockwork_enable'    => 'true',
-            'sentry_reporting'    => 'true',
-            'sentry_performance'  => 'true',
+            'debug' => 'true',
+            'pulse_enabled' => 'true',
+            'clockwork_enable' => 'true',
+            'sentry_reporting' => 'true',
+            'sentry_performance' => 'true',
         ]);
 
         $response->assertRedirect();
@@ -386,9 +386,9 @@ class SettingsControllerTest extends DBTestCase
             ['sentry',    'performance_monitoring', '1'],
         ] as [$name, $field, $value]) {
             $this->assertDatabaseHas('common_settings', [
-                'option_name'    => $name,
+                'option_name' => $name,
                 'optional_field' => $field,
-                'option_value'   => $value,
+                'option_value' => $value,
             ]);
         }
     }
