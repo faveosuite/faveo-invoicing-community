@@ -4,10 +4,10 @@ namespace App\License\Controllers\Update;
 
 use App\Http\Controllers\Controller;
 use App\License\Models\Installation;
-use App\Model\Product\ProductUpload;
 use App\License\Models\VersionCallback;
 use App\License\Requests\VersionRequest;
 use App\Model\Product\Product;
+use App\Model\Product\ProductUpload;
 use FilesystemIterator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

@@ -13,7 +13,6 @@ use App\License\Models\LicensePlugin;
 use App\License\Requests\LicenseRequest;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
-use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

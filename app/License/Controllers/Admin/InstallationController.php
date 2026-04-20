@@ -28,6 +28,7 @@ class InstallationController extends Controller
 
         if ($request->get('delete_record') == 1) {
             $removed = $this->deleteInstallation($id);
+
             return response()->json([
                 'api_action_success' => 1,
                 'api_error_detected' => 0,
@@ -149,6 +150,7 @@ class InstallationController extends Controller
     public function edit($id)
     {
         $installation = Installation::findOrFail($id);
+
         return successResponse('', ['installation' => $installation], 200);
     }
 

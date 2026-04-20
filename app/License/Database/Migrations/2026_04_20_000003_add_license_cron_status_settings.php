@@ -20,18 +20,18 @@ return new class extends Migration
 
         // Seed default schedule conditions
         $jobs = [
-            'installationLogs'             => 'everyMinute',
-            'licenseReportsCleanup'        => 'daily',
-            'licenseCallbacksCleanup'      => 'daily',
-            'licenseCrackReportsCleanup'   => 'daily',
-            'licenseSystemReportsCleanup'  => 'daily',
-            'licenseVersionsCleanup'       => 'daily',
+            'installationLogs' => 'everyMinute',
+            'licenseReportsCleanup' => 'daily',
+            'licenseCallbacksCleanup' => 'daily',
+            'licenseCrackReportsCleanup' => 'daily',
+            'licenseSystemReportsCleanup' => 'daily',
+            'licenseVersionsCleanup' => 'daily',
         ];
 
         foreach ($jobs as $job => $condition) {
             DB::table('conditions')->insertOrIgnore([
-                'job'        => $job,
-                'value'      => $condition,
+                'job' => $job,
+                'value' => $condition,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

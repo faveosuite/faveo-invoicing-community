@@ -3,7 +3,6 @@
 namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\License\Helpers\LicenseHelper;
 use App\Model\Product\ProductUpload;
 use Illuminate\Http\Request;
 
