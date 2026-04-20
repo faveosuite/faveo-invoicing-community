@@ -4,6 +4,7 @@ namespace Tests\Unit\Common;
 
 use App\ApiKey;
 use App\Http\Controllers\Common\SettingsController;
+use App\Model\Common\CommonSettings;
 use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\StatusSetting;
 use App\Model\Payment\Plan;
@@ -193,5 +194,225 @@ class SettingsControllerTest extends DBTestCase
         $response = $this->post('trial-cloud-products');
         $content = $response->getContent();
         $this->assertEquals('{"success":true,"message":"Products","data":{"12345":"good"}}', $content);
+    }
+
+    // ── Sentry / Debugging Settings ───────────────────────────────────────────
+
+    public function test_debug_settings_view_loads_successfully()
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+
+        $response = $this->get('debugg');
+
+        $response->assertStatus(200);
+        $response->assertViewIs('themes.default1.common.setting.debugging');
+    }
+
+    public function test_post_debug_settings_enables_sentry_crash_reporting()
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        \Cache::forget('debugging_settings');
+
+        $response = $this->post('save/debugg', [
+            'debug'               => 'false',
+            'pulse_enabled'       => 'false',
+            'clockwork_enable'    => 'false',
+            'sentry_reporting'    => 'true',
+            'sentry_performance'  => 'false',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('common_settings', [
+            'option_name'    => 'sentry',
+            'optional_field' => 'crash_reporting',
+            'option_value'   => '1',
+        ]);
+    }
+
+    public function test_post_debug_settings_disables_sentry_crash_reporting()
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        \Cache::forget('debugging_settings');
+
+        $response = $this->post('save/debugg', [
+            'debug'               => 'false',
+            'pulse_enabled'       => 'false',
+            'clockwork_enable'    => 'false',
+            'sentry_reporting'    => 'false',
+            'sentry_performance'  => 'false',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('common_settings', [
+            'option_name'    => 'sentry',
+            'optional_field' => 'crash_reporting',
+            'option_value'   => '0',
+        ]);
+    }
+
+    public function test_post_debug_settings_enables_sentry_performance_monitoring()
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        \Cache::forget('debugging_settings');
+
+        $response = $this->post('save/debugg', [
+            'debug'               => 'false',
+            'pulse_enabled'       => 'false',
+            'clockwork_enable'    => 'false',
+            'sentry_reporting'    => 'false',
+            'sentry_performance'  => 'true',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('common_settings', [
+            'option_name'    => 'sentry',
+            'optional_field' => 'performance_monitoring',
+            'option_value'   => '1',
+        ]);
+    }
+
+    public function test_post_debug_settings_disables_sentry_performance_monitoring()
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        \Cache::forget('debugging_settings');
+
+        $response = $this->post('save/debugg', [
+            'debug'               => 'false',
+            'pulse_enabled'       => 'false',
+            'clockwork_enable'    => 'false',
+            'sentry_reporting'    => 'false',
+            'sentry_performance'  => 'false',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('common_settings', [
+            'option_name'    => 'sentry',
+            'optional_field' => 'performance_monitoring',
+            'option_value'   => '0',
+        ]);
+    }
+
+    public function test_post_debug_settings_enables_both_sentry_options()
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        \Cache::forget('debugging_settings');
+
+        $response = $this->post('save/debugg', [
+            'debug'               => 'false',
+            'pulse_enabled'       => 'false',
+            'clockwork_enable'    => 'false',
+            'sentry_reporting'    => 'true',
+            'sentry_performance'  => 'true',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('common_settings', [
+            'option_name'    => 'sentry',
+            'optional_field' => 'crash_reporting',
+            'option_value'   => '1',
+        ]);
+
+        $this->assertDatabaseHas('common_settings', [
+            'option_name'    => 'sentry',
+            'optional_field' => 'performance_monitoring',
+            'option_value'   => '1',
+        ]);
+    }
+
+    public function test_post_debug_settings_clears_debugging_cache()
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+
+        \Cache::put('debugging_settings', ['app.debug' => true], 60);
+
+        $this->post('save/debugg', [
+            'debug'               => 'false',
+            'pulse_enabled'       => 'false',
+            'clockwork_enable'    => 'false',
+            'sentry_reporting'    => 'false',
+            'sentry_performance'  => 'false',
+        ]);
+
+        $this->assertNull(\Cache::get('debugging_settings'));
+    }
+
+    public function test_post_debug_settings_saves_all_options_together()
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        \Cache::forget('debugging_settings');
+
+        $response = $this->post('save/debugg', [
+            'debug'               => 'true',
+            'pulse_enabled'       => 'true',
+            'clockwork_enable'    => 'true',
+            'sentry_reporting'    => 'true',
+            'sentry_performance'  => 'true',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        foreach ([
+            ['debugging', 'app_debug',             '1'],
+            ['debugging', 'pulse_enabled',         '1'],
+            ['debugging', 'clockwork_enable',      '1'],
+            ['sentry',    'crash_reporting',        '1'],
+            ['sentry',    'performance_monitoring', '1'],
+        ] as [$name, $field, $value]) {
+            $this->assertDatabaseHas('common_settings', [
+                'option_name'    => $name,
+                'optional_field' => $field,
+                'option_value'   => $value,
+            ]);
+        }
+    }
+
+    public function test_debug_settings_view_reflects_saved_sentry_state()
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        \Cache::forget('debugging_settings');
+
+        CommonSettings::updateOrCreate(
+            ['option_name' => 'sentry', 'optional_field' => 'crash_reporting'],
+            ['option_value' => '1', 'status' => '1']
+        );
+        CommonSettings::updateOrCreate(
+            ['option_name' => 'sentry', 'optional_field' => 'performance_monitoring'],
+            ['option_value' => '1', 'status' => '1']
+        );
+
+        $response = $this->get('debugg');
+
+        $response->assertStatus(200);
+        $response->assertSee('sentry_reporting');
+        $response->assertSee('sentry_performance');
     }
 }
