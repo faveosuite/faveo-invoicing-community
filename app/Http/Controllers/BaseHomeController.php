@@ -225,7 +225,7 @@ class BaseHomeController extends Controller
                         ->where('installation_ip', $ip)
                         ->update([
                             'installation_path' => $url,
-                            'version'           => $request->input('version'),
+                            'version' => $request->input('version'),
                         ]);
 
                     $existingVersion = Subscription::where('order_id', $order->id)->value('version');

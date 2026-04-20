@@ -1,9 +1,9 @@
 <?php
 
 use App\FileSystemSettings;
+use App\License\Models\Installation;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
-use App\License\Models\Installation;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\TaxByState;

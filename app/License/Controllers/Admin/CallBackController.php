@@ -4,8 +4,8 @@ namespace App\License\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
-use App\License\Models\LicenseCallback;
 use App\License\Models\License;
+use App\License\Models\LicenseCallback;
 use App\License\Models\VersionCallback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
