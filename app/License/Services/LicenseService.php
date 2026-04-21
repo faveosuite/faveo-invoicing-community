@@ -210,16 +210,18 @@ class LicenseService
 
             // Insert or update license options (upsert like original)
             foreach ($options as $option) {
+                $key = $option['key'] ?? $option['option_key'] ?? '';
+                if ($key === '') {
+                    continue;
+                }
+
                 LicenseOption::updateOrCreate(
                     [
-                        'license_id' => $licenseId,
-                        'product_id' => $option['product_id'] ?? $license->product_id,
-                        'option_group' => $option['option_group'] ?? '',
-                        'option_name' => $option['option_name'] ?? '',
-                        'key' => $option['key'] ?? '',
+                        'option_key' => $key,
+                        'option_group' => (string) $licenseId,
                     ],
                     [
-                        'value' => $option['value'] ?? '',
+                        'option_value' => (string) ($option['value'] ?? $option['option_value'] ?? ''),
                     ]
                 );
             }
@@ -279,23 +281,22 @@ class LicenseService
             ->unique('product_id')
             ->keyBy('product_id');
 
-        $allOptions = LicenseOption::where('license_id', $license->id)
-            ->whereIn('product_id', $pluginProductIds)
+        $licenseOptions = LicenseOption::where('option_group', (string) $license->id)
             ->get()
-            ->groupBy('product_id');
+            ->pluck('option_value', 'option_key')
+            ->toArray();
 
         $addons = [];
         foreach ($license->plugins as $plugin) {
             $product = $plugin->product;
             if ($product) {
                 $latestVersion = $latestVersions->get($product->id);
-                $options = $allOptions->get($product->id, collect());
 
                 $addons[] = [
                     'product_id' => $product->id,
                     'product_name' => $product->name ?? $product->product_title ?? '',
-                    'product_attributes' => $options->where('option_group', 'attributes')->pluck('value', 'key')->toArray(),
-                    'product_attributes_license' => $options->where('option_group', 'license_attributes')->pluck('value', 'key')->toArray(),
+                    'product_attributes' => [],
+                    'product_attributes_license' => $licenseOptions,
                     'latest_version' => $latestVersion ? $latestVersion->version : null,
                     'latest_version_file' => $latestVersion ? $latestVersion->file : null,
                 ];
@@ -320,16 +321,15 @@ class LicenseService
             return [];
         }
 
-        return LicenseOption::where('license_id', $license->id)
+        return LicenseOption::where('option_group', (string) $license->id)
             ->get()
             ->map(function ($option) use ($license) {
                 return [
                     'license_code' => $license->license_code,
-                    'product_id' => $option->product_id,
+                    'id' => $option->id,
                     'option_group' => $option->option_group,
-                    'option_name' => $option->option_name,
-                    'key' => $option->key,
-                    'value' => $option->value,
+                    'key' => $option->option_key,
+                    'value' => $option->option_value,
                 ];
             })
             ->toArray();
@@ -358,7 +358,7 @@ class LicenseService
             Installation::where('license_code', $license->license_code)->delete();
             \App\License\Models\InstallationLog::where('license_code', $license->license_code)->delete();
             LicensePlugin::where('license_id', $license->id)->delete();
-            LicenseOption::where('license_id', $license->id)->delete();
+            LicenseOption::where('option_group', (string) $license->id)->delete();
 
             return $license->delete();
         });

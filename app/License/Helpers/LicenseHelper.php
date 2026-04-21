@@ -29,6 +29,29 @@ class LicenseHelper
         return $dt && empty($errors['warning_count']);
     }
 
+    public static function validateRawDomain(?string $url): bool
+    {
+        if (empty($url)) {
+            return false;
+        }
+
+        return (bool) preg_match('/^[a-z0-9-.]+\.[a-z\.]{2,7}$/', strtolower($url));
+    }
+
+    public static function getRawDomain(?string $url): string
+    {
+        if (empty($url)) {
+            return '';
+        }
+
+        $scheme = parse_url($url, PHP_URL_SCHEME);
+        if (empty($scheme)) {
+            $url = 'http://'.$url;
+        }
+
+        return str_ireplace('www.', '', parse_url($url, PHP_URL_HOST) ?? '');
+    }
+
     public static function logAdminReport(string $reportText, $accountId, int $reportSystem, int $reportStatus): int
     {
         if (empty($reportText) || ! self::validateIntegerValue($reportSystem, 0, 1)) {

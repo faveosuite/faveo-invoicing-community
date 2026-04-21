@@ -48,7 +48,7 @@ class LicenseController extends Controller
         );
 
         if (! empty($checks)) {
-            return $checks->content();
+            return $checks;
         }
 
         if (LicenseHelper::validateIntegerValue($clientId) && empty($licenseCode)) {
@@ -239,7 +239,7 @@ class LicenseController extends Controller
         }
         if (! empty($license_domain)) {
             foreach (explode(',', $license_domain) as $domain) {
-                if (! aflValidateRawDomain(aflGetRawDomain($domain)) || ! ctype_alnum(substr($domain, -1))) {
+                if (! LicenseHelper::validateRawDomain(LicenseHelper::getRawDomain($domain)) || ! ctype_alnum(substr($domain, -1))) {
                     return errorResponse(Lang::get('lang.invalid_domain'), 400);
                 }
             }

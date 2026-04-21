@@ -23,7 +23,6 @@ class StatusSettingFactory extends Factory
             'expiry_mail' => rand(0, 1),
             'subs_expirymail' => rand(0, 1),
             'activity_log_delete' => rand(0, 1),
-            'license_status' => rand(0, 1),
             'github_status' => rand(0, 1),
             'mailchimp_status' => rand(0, 1),
             'twitter_status' => rand(0, 1),

@@ -14,13 +14,13 @@ class VersionService
         return ProductUpload::create([
             'product_id' => $data['product_id'],
             'title' => $data['title'] ?? ($data['version_number'] ?? $data['version'] ?? ''),
-            'description' => $data['version_changelog'] ?? $data['description'] ?? null,
+            'description' => $data['version_changelog'] ?? $data['description'] ?? '',
             'version' => $data['version_number'] ?? $data['version'],
-            'file' => $data['version_install_file'] ?? $data['file'] ?? null,
+            'file' => $data['version_install_file'] ?? $data['file'] ?? '',
             'release_type' => $data['release_type'] ?? 'official',
             'is_private' => $data['is_private'] ?? 0,
             'is_restricted' => $data['is_restricted'] ?? 0,
-            'version_expire_date' => $data['version_expire_date'] ?: null,
+            'version_expire_date' => ($data['version_expire_date'] ?? null) ?: null,
             'version_install_count' => 0,
             'status' => $data['status'] ?? 1,
         ]);
