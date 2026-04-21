@@ -40,8 +40,6 @@ class Handler extends ExceptionHandler
     {
         // Check if the exception is an UnauthenticatedException
         if (! $exception instanceof AuthenticationException) {
-            $this->reportToSentry($exception);
-
             // Log the exception
             \Log::channel('daily')->error($exception);
         }
@@ -49,6 +47,9 @@ class Handler extends ExceptionHandler
         parent::report($exception);
         // Log exception in database if not PDO exception
         if ($this->shouldBeLoggedInDB($exception) && isInstall()) {
+
+            $this->reportToSentry($exception);
+
             // Log exception to database
             Logger::exception($exception);
         }
@@ -67,7 +68,7 @@ class Handler extends ExceptionHandler
         }
 
         if (config('app.sentry_reporting')) {
-            \Sentry\captureException($exception);
+            \Sentry\Laravel\Integration::captureUnhandledException($exception);
         }
     }
 
