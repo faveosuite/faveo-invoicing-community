@@ -52,83 +52,21 @@ class InstallationServiceTest extends LicenseTestCase
 
     #[Test]
     #[Group('license-service')]
-    public function update_returns_original_response_shape_for_success_and_missing_rows(): void
-    {
-        $installation = $this->createInstallation(['installation_status' => 1]);
-
-        $success = $this->service->update($installation->id, [
-            'installation_domain' => 'updated-install.test',
-            'installation_status' => 0,
-        ]);
-        $missing = $this->service->update(99999999, ['installation_status' => 0]);
-
-        $installation->refresh();
-        $this->assertSame(1, $success['api_action_success']);
-        $this->assertSame(0, $success['api_error_detected']);
-        $this->assertSame('Installation updated successfully', $success['page_message']);
-        $this->assertSame('updated-install.test', $installation->installation_domain);
-        $this->assertSame(0, (int) $installation->installation_status);
-        $this->assertSame(0, $missing['api_action_success']);
-        $this->assertSame(1, $missing['api_error_detected']);
-        $this->assertSame('Installation not found', $missing['page_message']);
-    }
-
-    #[Test]
-    #[Group('license-service')]
-    public function license_code_updates_deactivate_counts_remove_and_delete_installations(): void
+    public function update_logs_uses_expected_payload_and_domain_normalization(): void
     {
         $license = $this->createLicense();
-        $active = $this->createInstallation(['license' => $license, 'installation_status' => 1]);
-        $inactive = $this->createInstallation([
-            'license' => $license,
-            'installation_domain' => 'inactive-install.test',
-            'installation_status' => 0,
-        ]);
-
-        $this->assertSame(1, $this->service->countActiveInstallations($license->license_code));
-        $this->assertTrue($this->service->deactivate($active->id));
-        $this->assertSame(0, (int) $active->refresh()->installation_status);
-        $this->assertTrue($this->service->updateByLicenseCode($license->license_code, ['installation_status' => 1]));
-        $this->assertFalse($this->service->updateByLicenseCode('missing-license', ['installation_status' => 0]));
-        $this->assertSame(2, $this->service->countActiveInstallations($license->license_code));
-
-        Installation::whereKey($inactive->id)->update(['installation_status' => 0]);
-        $this->assertSame(1, $this->service->removeUnwanted($license->license_code));
-        $this->assertDatabaseMissing('installations', ['id' => $inactive->id]);
-        $this->assertSame(1, Installation::where('license_code', $license->license_code)->count());
-        $this->assertSame(1, $this->service->deleteByLicenseCode($license->license_code));
-        $this->assertSame(0, Installation::where('license_code', $license->license_code)->count());
-    }
-
-    #[Test]
-    #[Group('license-service')]
-    public function reissue_deletes_installation_by_domain(): void
-    {
-        $installation = $this->createInstallation(['installation_domain' => 'reissue-install.test']);
-
-        $this->assertTrue($this->service->reissue('reissue-install.test'));
-        $this->assertDatabaseMissing('installations', ['id' => $installation->id]);
-        $this->assertFalse($this->service->reissue('missing-install.test'));
-    }
-
-    #[Test]
-    #[Group('license-service')]
-    public function get_logs_and_update_logs_use_expected_payload_and_domain_normalization(): void
-    {
-        $license = $this->createLicense();
-        $oldLog = $this->createInstallationLog([
+        $this->createInstallationLog([
             'license' => $license,
             'version_number' => '1.0.0',
             'installation_last_active_date' => now()->subDay(),
         ]);
-        $newLog = $this->createInstallationLog([
+        $this->createInstallationLog([
             'license' => $license,
             'version_number' => '2.0.0',
             'installation_domain' => 'new-log.test',
             'installation_last_active_date' => now(),
         ]);
 
-        $logs = $this->service->getLogs($license->license_code);
         $this->moduleRequest();
         $updated = $this->service->updateLogs([
             'license_code' => $license->license_code,
@@ -136,9 +74,6 @@ class InstallationServiceTest extends LicenseTestCase
             'version_number' => '3.0.0',
         ]);
 
-        $this->assertSame(1, $logs['api_action_success']);
-        $this->assertSame($newLog->id, $logs['page_message'][0]['id']);
-        $this->assertSame($oldLog->id, $logs['page_message'][1]['id']);
         $this->assertSame(1, $updated['api_action_success']);
         $this->assertSame('Installation Logs updated successfully', $updated['page_message']);
         $this->assertDatabaseHas('installation_logs', [
@@ -153,12 +88,11 @@ class InstallationServiceTest extends LicenseTestCase
 
     #[Test]
     #[Group('license-service')]
-    public function installation_getters_return_license_user_and_product_filtered_data(): void
+    public function installation_getters_return_license_and_product_filtered_data(): void
     {
         $product = $this->createProduct();
         $otherProduct = $this->createProduct();
-        $user = $this->createUser();
-        $license = $this->createLicense(['product_id' => $product->id, 'user_id' => $user->id]);
+        $license = $this->createLicense(['product_id' => $product->id]);
         $matching = $this->createInstallation([
             'license' => $license,
             'product_id' => $product->id,
@@ -174,11 +108,9 @@ class InstallationServiceTest extends LicenseTestCase
         ]);
 
         $byLicense = $this->service->getByLicenseCode($license->license_code);
-        $byUser = $this->service->getByUserId($user->id);
         $details = $this->service->getInstallationsByProduct($license->license_code, $product->id);
 
         $this->assertTrue($byLicense->contains('id', $matching->id));
-        $this->assertTrue($byUser->contains('id', $matching->id));
         $this->assertSame(['matching-install.test'], $details['installed_path']);
         $this->assertSame(['10.0.0.5'], $details['installed_ip']);
         $this->assertSame([1], array_map('intval', $details['installation_status']));

@@ -33,73 +33,6 @@ class InstallationService
     }
 
     /**
-     * Update an installation
-     * Mirrors: POST /api/admin/installations/edit
-     * Returns the same format as original.
-     */
-    public function update(int $id, array $data): array
-    {
-        $installation = Installation::find($id);
-        if (! $installation) {
-            return [
-                'api_action_success' => 0,
-                'api_error_detected' => 1,
-                'action_success' => 0,
-                'error_detected' => 1,
-                'page_message' => 'Installation not found',
-            ];
-        }
-
-        $updated = $installation->update($data);
-
-        return [
-            'api_action_success' => $updated ? 1 : 0,
-            'api_error_detected' => $updated ? 0 : 1,
-            'action_success' => $updated ? 1 : 0,
-            'error_detected' => $updated ? 0 : 1,
-            'page_message' => $updated ? 'Installation updated successfully' : 'Failed to update installation',
-        ];
-    }
-
-    /**
-     * Update installations by license code (set inactive).
-     */
-    public function updateByLicenseCode(string $licenseCode, array $data): bool
-    {
-        return Installation::where('license_code', $licenseCode)->update($data) > 0;
-    }
-
-    /**
-     * Reissue: delete installations for a license code
-     * Mirrors: POST /api/admin/installation/reissue.
-     */
-    public function reissue(string $installationPath): bool
-    {
-        return Installation::where('installation_domain', $installationPath)->delete() > 0;
-    }
-
-    /**
-     * Get installation logs for a license
-     * Mirrors: POST /api/admin/getInstallationLogs
-     * Returns same format as original.
-     */
-    public function getLogs(string $licenseCode): array
-    {
-        $logs = InstallationLog::where('license_code', $licenseCode)
-            ->orderBy('installation_last_active_date', 'desc')
-            ->get()
-            ->toArray();
-
-        return [
-            'api_action_success' => 1,
-            'api_error_detected' => 0,
-            'action_success' => 1,
-            'error_detected' => 0,
-            'page_message' => $logs,
-        ];
-    }
-
-    /**
      * Update installation logs
      * Mirrors: POST /api/admin/updateInstallationLogs
      * Returns same format as original.
@@ -175,53 +108,5 @@ class InstallationService
             'installation_date' => $dates,
             'installation_status' => $statuses,
         ];
-    }
-
-    /**
-     * Get installations for a user.
-     */
-    public function getByUserId(int $userId): Collection
-    {
-        return Installation::where('user_id', $userId)
-            ->with(['product'])
-            ->get();
-    }
-
-    /**
-     * Deactivate an installation.
-     */
-    public function deactivate(int $installationId): bool
-    {
-        return Installation::where('id', $installationId)
-            ->update(['installation_status' => 0]) > 0;
-    }
-
-    /**
-     * Count active installations for a license.
-     */
-    public function countActiveInstallations(string $licenseCode): int
-    {
-        return Installation::where('license_code', $licenseCode)
-            ->where('installation_status', 1)
-            ->count();
-    }
-
-    /**
-     * Delete all installations for a license code.
-     */
-    public function deleteByLicenseCode(string $licenseCode): int
-    {
-        return Installation::where('license_code', $licenseCode)->delete();
-    }
-
-    /**
-     * Remove unwanted installations (inactive/old).
-     */
-    public function removeUnwanted(string $licenseCode, int $keepActive = 0): int
-    {
-        $query = Installation::where('license_code', $licenseCode)
-            ->where('installation_status', 0);
-
-        return $query->delete();
     }
 }

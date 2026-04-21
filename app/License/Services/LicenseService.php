@@ -72,19 +72,6 @@ class LicenseService
     }
 
     /**
-     * Update license by license code.
-     */
-    public function updateByCode(string $licenseCode, array $data): bool
-    {
-        $license = License::where('license_code', $licenseCode)->first();
-        if (! $license) {
-            return false;
-        }
-
-        return $this->update($license->id, $data);
-    }
-
-    /**
      * Deactivate a license
      * Mirrors: POST /api/admin/license/deactivate.
      */
@@ -92,50 +79,6 @@ class LicenseService
     {
         return License::where('license_code', $licenseCode)
             ->update(['license_status' => 0]);
-    }
-
-    /**
-     * Reactivate a license.
-     */
-    public function reactivate(string $licenseCode): bool
-    {
-        return License::where('license_code', $licenseCode)
-            ->update([
-                'license_status' => 1,
-                'license_cancel_date' => null,
-            ]);
-    }
-
-    /**
-     * Search licenses, products, clients, or installations
-     * Mirrors: POST /api/admin/search.
-     */
-    public function search(string $type, string $keyword): array
-    {
-        return match ($type) {
-            'license' => License::where('license_code', 'like', "%{$keyword}%")
-                ->orWhere('license_domain', 'like', "%{$keyword}%")
-                ->orWhere('license_order_number', 'like', "%{$keyword}%")
-                ->with(['product', 'user'])
-                ->get()
-                ->toArray(),
-            'product' => Product::where('name', 'like', "%{$keyword}%")
-                ->orWhere('product_sku', 'like', "%{$keyword}%")
-                ->get()
-                ->toArray(),
-            'client' => User::where('email', 'like', "%{$keyword}%")
-                ->orWhere('first_name', 'like', "%{$keyword}%")
-                ->orWhere('last_name', 'like', "%{$keyword}%")
-                ->get()
-                ->toArray(),
-            'installation' => Installation::where('installation_domain', 'like', "%{$keyword}%")
-                ->orWhere('license_code', 'like', "%{$keyword}%")
-                ->orWhere('installation_ip', 'like', "%{$keyword}%")
-                ->with(['product', 'user'])
-                ->get()
-                ->toArray(),
-            default => [],
-        };
     }
 
     /**
@@ -239,26 +182,6 @@ class LicenseService
     }
 
     /**
-     * Get all licenses for a user.
-     */
-    public function getByUserId(int $userId): Collection
-    {
-        return License::where('user_id', $userId)
-            ->with(['product'])
-            ->get();
-    }
-
-    /**
-     * Get all licenses for a product.
-     */
-    public function getByProductId(int $productId): Collection
-    {
-        return License::where('product_id', $productId)
-            ->with(['user'])
-            ->get();
-    }
-
-    /**
      * Get license info with addons
      * Mirrors: GET /api/licenseInfo.
      */
@@ -346,58 +269,12 @@ class LicenseService
     }
 
     /**
-     * Delete license with all related data.
-     */
-    public function deleteLicense(int $licenseId): bool
-    {
-        return DB::transaction(function () use ($licenseId) {
-            $license = License::findOrFail($licenseId);
-
-            // Delete related records
-            \App\License\Models\LicenseCallback::where('license_code', $license->license_code)->delete();
-            Installation::where('license_code', $license->license_code)->delete();
-            \App\License\Models\InstallationLog::where('license_code', $license->license_code)->delete();
-            LicensePlugin::where('license_id', $license->id)->delete();
-            LicenseOption::where('option_group', (string) $license->id)->delete();
-
-            return $license->delete();
-        });
-    }
-
-    /**
      * Reissue license (delete installations for cloud re-issue)
      * Mirrors: POST /api/LicenseReissue.
      */
     public function reissueLicenseCloud(string $licenseCode): int
     {
         return Installation::where('license_code', $licenseCode)->delete();
-    }
-
-    /**
-     * Update expiration dates.
-     */
-    public function updateExpirationDates(string $licenseCode, array $dates): bool
-    {
-        $updateData = [];
-
-        if (isset($dates['license_expire_date'])) {
-            $updateData['license_expire_date'] = $dates['license_expire_date'];
-            $updateData['license_expire_email_date'] = null;
-        }
-        if (isset($dates['license_updates_date'])) {
-            $updateData['license_updates_date'] = $dates['license_updates_date'];
-            $updateData['license_updates_email_date'] = null;
-        }
-        if (isset($dates['license_support_date'])) {
-            $updateData['license_support_date'] = $dates['license_support_date'];
-            $updateData['license_support_email_date'] = null;
-        }
-
-        if (empty($updateData)) {
-            return false;
-        }
-
-        return License::where('license_code', $licenseCode)->update($updateData) > 0;
     }
 
     /**

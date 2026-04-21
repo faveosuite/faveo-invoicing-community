@@ -3,9 +3,7 @@
 namespace App\License\tests\Services;
 
 use App\License\Models\Installation;
-use App\License\Models\InstallationLog;
 use App\License\Models\License;
-use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseOption;
 use App\License\Models\LicensePlugin;
 use App\License\Services\LicenseService;
@@ -82,49 +80,15 @@ class LicenseServiceTest extends LicenseTestCase
 
     #[Test]
     #[Group('license-service')]
-    public function update_by_code_status_changes_and_license_code_update_work(): void
+    public function status_changes_and_license_code_update_work(): void
     {
         $license = $this->createLicense(['license_status' => 1]);
         $newCode = 'SVC'.strtoupper(substr(uniqid(), -10));
 
-        $this->assertTrue($this->service->updateByCode($license->license_code, ['license_limit' => 5]));
-        $this->assertFalse($this->service->updateByCode('missing-license', ['license_limit' => 5]));
         $this->assertTrue($this->service->deactivate($license->license_code));
         $this->assertSame(0, $license->refresh()->license_status);
-        $this->assertTrue($this->service->reactivate($license->license_code));
-        $this->assertSame(1, $license->refresh()->license_status);
         $this->assertSame(1, $this->service->updateLicenseCode($license->license_code, $newCode));
         $this->assertSame($newCode, $license->refresh()->license_code);
-        $this->assertSame(5, $license->license_limit);
-    }
-
-    #[Test]
-    #[Group('license-service')]
-    public function search_returns_matches_for_each_supported_type(): void
-    {
-        $product = $this->createProduct([
-            'name' => 'Service Search Product',
-            'product_sku' => 'SVC-SEARCH-SKU',
-        ]);
-        $user = $this->createUser([
-            'email' => 'service-search-'.uniqid().'@example.test',
-        ]);
-        $license = $this->createLicense([
-            'product_id' => $product->id,
-            'user_id' => $user->id,
-            'license_code' => 'SVCSEARCH'.strtoupper(substr(uniqid(), -8)),
-            'license_domain' => 'service-search.test',
-        ]);
-        $installation = $this->createInstallation([
-            'license' => $license,
-            'installation_domain' => 'install-service-search.test',
-        ]);
-
-        $this->assertContains($license->id, array_column($this->service->search('license', 'service-search.test'), 'id'));
-        $this->assertContains($product->id, array_column($this->service->search('product', 'SVC-SEARCH-SKU'), 'id'));
-        $this->assertContains($user->id, array_column($this->service->search('client', $user->email), 'id'));
-        $this->assertContains($installation->id, array_column($this->service->search('installation', 'install-service-search.test'), 'id'));
-        $this->assertSame([], $this->service->search('unknown', 'anything'));
     }
 
     #[Test]
@@ -202,7 +166,7 @@ class LicenseServiceTest extends LicenseTestCase
 
     #[Test]
     #[Group('license-service')]
-    public function finders_order_lookup_and_date_updates_return_expected_data(): void
+    public function finders_order_lookup_and_reissue_return_expected_data(): void
     {
         $product = $this->createProduct();
         $user = $this->createUser();
@@ -210,60 +174,15 @@ class LicenseServiceTest extends LicenseTestCase
             'product_id' => $product->id,
             'user_id' => $user->id,
             'license_order_number' => 'ORDER-SVC',
-            'license_expire_email_date' => '2027-01-01',
-            'license_updates_email_date' => '2027-01-01',
-            'license_support_email_date' => '2027-01-01',
         ]);
 
         $this->assertSame($license->id, $this->service->findByCode($license->license_code)->id);
-        $this->assertTrue($this->service->getByUserId($user->id)->contains('id', $license->id));
-        $this->assertTrue($this->service->getByProductId($product->id)->contains('id', $license->id));
         $this->assertSame('ORDER-SVC', $this->service->getOrderNumber($license->license_code));
         $this->assertNull($this->service->getOrderNumber('missing-license'));
 
-        $this->assertFalse($this->service->updateExpirationDates($license->license_code, []));
-        $this->assertFalse($this->service->updateExpirationDates('missing-license', ['license_expire_date' => '2027-04-01']));
-        $this->assertTrue($this->service->updateExpirationDates($license->license_code, [
-            'license_expire_date' => '2027-04-01',
-            'license_updates_date' => '2027-05-01',
-            'license_support_date' => '2027-06-01',
-        ]));
-
-        $license->refresh();
-        $this->assertNull($license->license_expire_email_date);
-        $this->assertNull($license->license_updates_email_date);
-        $this->assertNull($license->license_support_email_date);
-    }
-
-    #[Test]
-    #[Group('license-service')]
-    public function reissue_and_delete_remove_related_license_records(): void
-    {
-        $reissueLicense = $this->createLicense();
-        $this->createInstallation(['license' => $reissueLicense]);
-
-        $this->assertSame(1, $this->service->reissueLicenseCloud($reissueLicense->license_code));
-        $this->assertSame(0, Installation::where('license_code', $reissueLicense->license_code)->count());
-
-        $license = $this->createLicense();
-        $plugin = $this->createProduct();
-        $this->createLicenseCallback(['license' => $license]);
         $this->createInstallation(['license' => $license]);
-        $this->createInstallationLog(['license' => $license]);
-        LicensePlugin::create(['license_id' => $license->id, 'product_id' => $plugin->id]);
-        LicenseOption::create([
-            'option_key' => 'edition',
-            'option_value' => 'enterprise',
-            'option_group' => (string) $license->id,
-        ]);
-
-        $this->assertTrue($this->service->deleteLicense($license->id));
-        $this->assertSame(0, License::whereKey($license->id)->count());
-        $this->assertSame(0, LicenseCallback::where('license_code', $license->license_code)->count());
+        $this->assertSame(1, $this->service->reissueLicenseCloud($license->license_code));
         $this->assertSame(0, Installation::where('license_code', $license->license_code)->count());
-        $this->assertSame(0, InstallationLog::where('license_code', $license->license_code)->count());
-        $this->assertSame(0, LicensePlugin::where('license_id', $license->id)->count());
-        $this->assertSame(0, LicenseOption::where('option_group', (string) $license->id)->count());
     }
 
     #[Test]

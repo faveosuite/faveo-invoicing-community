@@ -11,7 +11,6 @@ use App\License\Console\Commands\LinkLicenseToPlugin;
 use App\License\Console\Commands\SystemReportsCleanup;
 use App\License\Console\Commands\VersionsCleanup;
 use App\License\Helpers\LicenseValidator;
-use App\License\Services\CallbackService;
 use App\License\Services\InstallationService;
 use App\License\Services\LicenseService;
 use App\License\Services\VersionService;
@@ -38,14 +37,6 @@ class LicenseServiceProvider extends ServiceProvider
 
         $this->app->singleton(VersionService::class, function ($app) {
             return new VersionService();
-        });
-
-        $this->app->singleton(CallbackService::class, function ($app) {
-            return new CallbackService(
-                $app->make(LicenseService::class),
-                $app->make(InstallationService::class),
-                $app->make(VersionService::class)
-            );
         });
     }
 
