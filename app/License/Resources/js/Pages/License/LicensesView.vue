@@ -36,7 +36,7 @@
 
                     <div class="row p-1 pb-3 pt-3 col-sm-6 ms-2 ps-0">
                         <label class="col-sm-6 fs-7 fw-bold ps-0">{{lang('client_email')}}:</label>
-                        <router-link :to="'/clients/'+client_id+'/view'" v-if="client_email" class="col-sm-6 fs-7">{{client_email}}</router-link>
+                        <a :href="basePath() + '/clients/' + client_id" v-if="client_email" class="col-sm-6 fs-7">{{client_email}}</a>
                         <span class="col-sm-6 fs-7" v-else >----</span>
                     </div>
 
@@ -70,7 +70,7 @@
 
                     <div class="row p-1 pb-3 pt-3 col-sm-6 border-bottom ms-2 ps-0">
                         <label class="col-sm-6 fs-7 fw-bold ps-0">{{lang('order_number')}}:</label>
-                        <a :href="extractHref(license_order_url)" target="_blank" v-if="license_order_number" class="col-sm-6 fs-7">{{license_order_number}}</a>
+                        <a :href="basePath() + '/orders/license/' + license_order_number" target="_blank" v-if="license_order_number" class="col-sm-6 fs-7">{{license_order_number}}</a>
                         <div v-else class="col-sm-6 fs-7">----</div>
                     </div>
 

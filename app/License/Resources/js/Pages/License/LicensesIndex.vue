@@ -245,9 +245,9 @@ export default {
 
                     if(row.client_email) {
 
-                        return h(RouterLink, {
+                        return h('a', {
 
-                            to: '/clients/' + row.client_id + '/view'
+                            href: self.basePath() + '/clients/' + row.client_id
 
                         },[row.client_email])
 
@@ -281,21 +281,17 @@ export default {
 
                 license_order_number: (f, row) => {
 
-                    if(row.license_order_url && row.license_order_url.includes('href')) {
+                    if(row.license_order_number) {
 
                         return h('a', {
 
-                            href: this.extractHref(row.license_order_url),
+                            href: this.basePath() + '/orders/license/' + row.license_order_number,
                             target: '_blank'
                         },[row.license_order_number])
 
-                    } else if(row.license_order_number) {
-
-                        return row.license_order_number
-
                     } else {
 
-                        return  '----'
+                        return '----'
                     }
 
                 }

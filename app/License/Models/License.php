@@ -35,6 +35,7 @@ class License extends Model
     protected $casts = [
         'license_require_domain' => 'boolean',
         'license_limit' => 'integer',
+        'license_status' => 'integer',
         'product_id' => 'integer',
         'user_id' => 'integer',
     ];
@@ -81,7 +82,7 @@ class License extends Model
 
     public function isActive(): bool
     {
-        return (string) $this->license_status === '1' || $this->license_status === 'active';
+        return $this->license_status === 1;
     }
 
     public function isExpired(): bool
@@ -91,11 +92,11 @@ class License extends Model
 
     public function scopeActive($query)
     {
-        return $query->whereIn('license_status', ['1', 1, 'active']);
+        return $query->where('license_status', 1);
     }
 
     public function scopeSuspended($query)
     {
-        return $query->whereIn('license_status', ['2', 2, 'suspended']);
+        return $query->where('license_status', 2);
     }
 }

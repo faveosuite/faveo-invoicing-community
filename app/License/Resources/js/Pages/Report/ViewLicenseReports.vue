@@ -154,9 +154,9 @@ export default {
 
                     if(row.client_email) {
 
-                        return h(RouterLink, {
+                        return h('a', {
 
-                            to: '/clients/' + row.client_id + '/view'
+                            href: self.basePath() + '/clients/' + row.client_id
 
                         },[row.client_email])
 

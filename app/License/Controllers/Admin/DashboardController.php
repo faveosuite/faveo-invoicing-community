@@ -138,7 +138,7 @@ class DashboardController extends Controller
 
         $latestLicenses = License::query()
             ->with('product:id,name', 'user:id,email')
-            ->where('license_status', '1')
+            ->where('license_status', 1)
             ->orderByDesc('license_date')
             ->orderByDesc('id')
             ->take(10)
@@ -156,7 +156,7 @@ class DashboardController extends Controller
 
         $expiringSupport = License::query()
             ->with('product:id,name', 'user:id,email')
-            ->where('license_status', '1')
+            ->where('license_status', 1)
             ->where('license_support_date', '>', $currentDateTime)
             ->orderBy('license_support_date')
             ->orderBy('id')
@@ -176,7 +176,7 @@ class DashboardController extends Controller
 
         $expiringUpdates = License::query()
             ->with('product:id,name', 'user:id,email')
-            ->where('license_status', '1')
+            ->where('license_status', 1)
             ->where('license_updates_date', '>', $currentDateTime)
             ->orderBy('license_updates_date')
             ->orderBy('id')

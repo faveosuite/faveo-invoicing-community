@@ -153,9 +153,9 @@ export default {
 
                     if(row.user_formatted && row.user_formatted !== 'System') {
 
-                        return h(RouterLink, {
+                        return h('a', {
 
-                            to: '/clients/' + row.account_id + '/view'
+                            href: self.basePath() + '/clients/' + row.account_id
 
                         },[row.user_formatted])
 

@@ -104,11 +104,11 @@ class LicenseValidator
         }
 
         // Check license status (integer: 0=inactive, 1=active, 2=suspended)
-        if ($license->license_status == 2) {
+        if ($license->license_status === 2) {
             return ['valid' => false, 'error' => 'license_suspended'];
         }
 
-        if ($license->license_status === 0 || $license->license_status === '0') {
+        if ($license->license_status === 0) {
             return [
                 'valid' => false,
                 'error' => 'license_cancelled',

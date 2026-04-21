@@ -56,11 +56,11 @@ class CallbackService
         }
 
         // Check status (integer values)
-        if ($license->license_status == 0) {
+        if ($license->license_status === 0) {
             return $this->getResponse('notification_license_cancelled');
         }
 
-        if ($license->license_status == 2) {
+        if ($license->license_status === 2) {
             return $this->getResponse('notification_license_suspended');
         }
 

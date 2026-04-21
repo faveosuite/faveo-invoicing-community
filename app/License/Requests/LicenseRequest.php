@@ -40,7 +40,7 @@ class LicenseRequest extends FormRequest
             'license_updates_email_date' => 'date',
             'license_support_email_date' => 'date',
             'license_support_date' => 'date',
-            'license_status' => 'boolean',
+            'license_status' => 'integer|in:0,1,2',
         ];
     }
 

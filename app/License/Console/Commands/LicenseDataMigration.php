@@ -19,7 +19,8 @@ class LicenseDataMigration extends Command
         {--password= : License database password}
         {--socket= : License database socket}
         {--sql-file= : Path to a SQL dump file; imports into a temporary DB then migrates from it}
-        {--fresh : Truncate all license tables before migration}';
+        {--fresh : Truncate all license tables before migration}
+        {--include-codes= : Comma-separated license codes to include even without an order mapping}';
 
     protected $description = 'Migrate data from the external license database into the billing database';
 
@@ -30,6 +31,7 @@ class LicenseDataMigration extends Command
     private array $licenseMap = [];
     private array $versionMap = [];
     private array $licenseCodeUserMap = [];
+    private array $includedCodes = [];
     private int $skippedUsers = 0;
     private int $resolvedViaOrder = 0;
     private ?string $tempDatabase = null;
@@ -76,6 +78,13 @@ class LicenseDataMigration extends Command
         }
 
         $this->configureLicenseConnection();
+
+        if ($this->option('include-codes')) {
+            $this->includedCodes = array_filter(array_map(
+                'trim',
+                explode(',', $this->option('include-codes'))
+            ));
+        }
 
         if ($this->option('fresh')) {
             $this->warn('Truncating existing license tables...');
@@ -130,7 +139,7 @@ class LicenseDataMigration extends Command
                 ['Licenses user-mapped via order', $this->resolvedViaOrder],
                 ['Versions migrated', count($this->versionMap)],
                 ...($this->skippedUsers > 0
-                    ? [['Licenses with no user', $this->skippedUsers]]
+                    ? [['Licenses skipped (no order mapping)', $this->skippedUsers]]
                     : []),
             ]
         );
@@ -447,6 +456,13 @@ class LicenseDataMigration extends Command
                     $this->resolvedViaOrder++;
                 }
 
+                if (! $newUserId && ! in_array($lic->license_code, $this->includedCodes, true)) {
+                    $this->skippedUsers++;
+                    $this->warn("  Skipping license {$lic->license_code} - no order mapping (use --include-codes to force)");
+
+                    return;
+                }
+
                 $this->licenseCodeUserMap[$lic->license_code] = $newUserId;
 
                 $newId = DB::table('licenses')->insertGetId([
@@ -473,10 +489,6 @@ class LicenseDataMigration extends Command
 
                 $this->licenseMap[$lic->license_id] = $newId;
                 $count++;
-
-                if (! $newUserId) {
-                    $this->skippedUsers++;
-                }
             });
 
         return $count;

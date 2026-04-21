@@ -30,35 +30,40 @@ use Illuminate\Support\Facades\Route;
 // ============================================================================
 
 // APL License Callbacks — original URL format: /apl_callbacks/*.php
-Route::post('/apl_callbacks/connection_test.php', [ConnectionTestController::class, 'connection']);
-Route::post('/apl_callbacks/license_install.php', [LicenseInstallController::class, 'licenseInstall']);
-Route::post('/apl_callbacks/license_scheme.php', [LicenseSchemeController::class, 'licenseScheme']);
-Route::post('/apl_callbacks/license_verify.php', [LicenseVerifyController::class, 'licenseVerify']);
+// AFU Version Callbacks and API-style equivalents — throttled per IP
+Route::middleware('throttle:60,1')->group(function () {
+    Route::post('/apl_callbacks/connection_test.php', [ConnectionTestController::class, 'connection']);
+    Route::post('/apl_callbacks/license_install.php', [LicenseInstallController::class, 'licenseInstall']);
+    Route::post('/apl_callbacks/license_scheme.php', [LicenseSchemeController::class, 'licenseScheme']);
+    Route::post('/apl_callbacks/license_verify.php', [LicenseVerifyController::class, 'licenseVerify']);
+    Route::post('/api/ConnectionTest', [ConnectionTestController::class, 'connection']);
+    Route::post('/api/licenseInstall', [LicenseInstallController::class, 'licenseInstall']);
+    Route::post('/api/licenseScheme', [LicenseSchemeController::class, 'licenseScheme']);
+    Route::post('/api/licenseVerify', [LicenseVerifyController::class, 'licenseVerify']);
+    Route::post('/api/getVersions', [GetVersionsController::class, 'getVersions']);
+    Route::post('/api/getAllVersions', [GetAllVersionsController::class, 'getAllVersions']);
+});
 
-// AFU Version Callbacks — original URL format: /aus_callbacks/*.php
-Route::post('/aus_callbacks/download_file.php', [DownloadFileController::class, 'downloadFile']);
-
-// API-style callback routes (also used by some clients)
-Route::post('/api/ConnectionTest', [ConnectionTestController::class, 'connection']);
-Route::post('/api/licenseInstall', [LicenseInstallController::class, 'licenseInstall']);
-Route::post('/api/licenseScheme', [LicenseSchemeController::class, 'licenseScheme']);
-Route::post('/api/licenseVerify', [LicenseVerifyController::class, 'licenseVerify']);
-Route::post('/api/getVersions', [GetVersionsController::class, 'getVersions']);
-Route::post('/api/getAllVersions', [GetAllVersionsController::class, 'getAllVersions']);
-Route::post('/api/downloadFile', [DownloadFileController::class, 'downloadFile']);
-Route::post('/api/pdf', [DownloadFileController::class, 'downloadFile']);
+// File download routes — tighter limit to prevent bandwidth abuse
+Route::middleware('throttle:10,1')->group(function () {
+    Route::post('/aus_callbacks/download_file.php', [DownloadFileController::class, 'downloadFile']);
+    Route::post('/api/downloadFile', [DownloadFileController::class, 'downloadFile']);
+    Route::post('/api/pdf', [DownloadFileController::class, 'downloadFile']);
+});
 
 // ============================================================================
 // PUBLIC LICENSE INFO ROUTES
 // Called by external Faveo instances for license/plugin info
 // ============================================================================
 
-Route::get('/api/licenseInfo', [LicenseApiController::class, 'licenseInfo']);
-Route::get('/api/IndividuallicenseInfo', [LicenseApiController::class, 'individualLicenseInfo']);
-Route::get('/api/getOrder', [LicenseApiController::class, 'getOrder']);
-Route::get('/api/pluginLicense', [LicenseApiController::class, 'pluginLicense']);
-Route::post('/api/pluginLicense', [LicenseApiController::class, 'pluginLicense']);
-Route::post('/api/LicenseReissue', [LicenseApiController::class, 'reissueLicenseCloud']);
+Route::middleware('throttle:120,1')->group(function () {
+    Route::get('/api/licenseInfo', [LicenseApiController::class, 'licenseInfo']);
+    Route::get('/api/IndividuallicenseInfo', [LicenseApiController::class, 'individualLicenseInfo']);
+    Route::get('/api/getOrder', [LicenseApiController::class, 'getOrder']);
+    Route::get('/api/pluginLicense', [LicenseApiController::class, 'pluginLicense']);
+    Route::post('/api/pluginLicense', [LicenseApiController::class, 'pluginLicense']);
+    Route::post('/api/LicenseReissue', [LicenseApiController::class, 'reissueLicenseCloud']);
+});
 
 // ============================================================================
 // LICENSE MANAGER SPA ENTRY POINT

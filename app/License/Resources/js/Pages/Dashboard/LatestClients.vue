@@ -37,14 +37,14 @@
 
                         <template v-slot:client_email="props">
 
-                            <router-link v-if="props.row.client_email" :to="'/clients/' + props.row.client_id + '/view'">{{ props.row.client_email }}</router-link>
+                            <a v-if="props.row.client_email" :href="basePath() + '/clients/' + props.row.client_id">{{ props.row.client_email }}</a>
 
                             <span v-else>----</span>
                         </template>
 
                         <template v-slot:full_name="props">
 
-                            <router-link v-if="props.row.full_name" :to="'/clients/' + props.row.client_id + '/view'">{{ props.row.full_name }}</router-link>
+                            <a v-if="props.row.full_name" :href="basePath() + '/clients/' + props.row.client_id">{{ props.row.full_name }}</a>
 
                             <span v-else>----</span>
                         </template>

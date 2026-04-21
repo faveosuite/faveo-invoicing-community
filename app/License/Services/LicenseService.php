@@ -64,7 +64,7 @@ class LicenseService
         }
 
         // Set cancel date when status changes to inactive
-        if (isset($data['license_status']) && $data['license_status'] == 0 && $license->license_status != 0) {
+        if (isset($data['license_status']) && (int) $data['license_status'] === 0 && $license->license_status !== 0) {
             $data['license_cancel_date'] = now()->format('Y-m-d');
         }
 
@@ -148,16 +148,21 @@ class LicenseService
             ->whereIn('license_code', $licenseCodes)
             ->get();
 
+        $productIds = $licenses->flatMap(fn ($l) => $l->plugins->pluck('product_id'))->unique()->filter()->values();
+
+        $latestVersions = ProductUpload::whereIn('product_id', $productIds)
+            ->active()
+            ->orderByDesc('id')
+            ->get()
+            ->unique('product_id')
+            ->keyBy('product_id');
+
         $result = [];
         foreach ($licenses as $license) {
             foreach ($license->plugins as $plugin) {
                 $product = $plugin->product;
                 if ($product) {
-                    $latestVersion = ProductUpload::where('product_id', $product->id)
-                        ->active()
-                        ->latest()
-                        ->first();
-
+                    $latestVersion = $latestVersions->get($product->id);
                     $result[] = [
                         'product_id' => $product->id,
                         'product_name' => $product->name ?? $product->product_title ?? '',
@@ -265,18 +270,26 @@ class LicenseService
             return null;
         }
 
+        $pluginProductIds = $license->plugins->pluck('product_id')->unique()->filter()->values();
+
+        $latestVersions = ProductUpload::whereIn('product_id', $pluginProductIds)
+            ->active()
+            ->orderByDesc('id')
+            ->get()
+            ->unique('product_id')
+            ->keyBy('product_id');
+
+        $allOptions = LicenseOption::where('license_id', $license->id)
+            ->whereIn('product_id', $pluginProductIds)
+            ->get()
+            ->groupBy('product_id');
+
         $addons = [];
         foreach ($license->plugins as $plugin) {
             $product = $plugin->product;
             if ($product) {
-                $latestVersion = ProductUpload::where('product_id', $product->id)
-                    ->active()
-                    ->latest()
-                    ->first();
-
-                $options = LicenseOption::where('license_id', $license->id)
-                    ->where('product_id', $product->id)
-                    ->get();
+                $latestVersion = $latestVersions->get($product->id);
+                $options = $allOptions->get($product->id, collect());
 
                 $addons[] = [
                     'product_id' => $product->id,
