@@ -38,7 +38,6 @@
         "laravel/framework": "^v12.49.0",
         "laravel/helpers": "^1.8",
         "laravel/horizon": "^v5.43.0",
-        "laravel/passport": "^13.0",
         "laravel/pulse": "^v1.5.0",
         "laravel/socialite": "^v5.24.2",
         "laravel/tinker": "^v2.11.0",
@@ -145,7 +144,8 @@
         "sort-packages": true,
         "optimize-autoloader": true,
         "allow-plugins": {
-            "endroid/installer": true
+            "endroid/installer": true,
+            "php-http/discovery": true
         }
     }
 }

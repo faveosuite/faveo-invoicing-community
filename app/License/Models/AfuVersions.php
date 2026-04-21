@@ -16,18 +16,8 @@ class AfuVersions extends Model
 
     public $timestamps = false;
 
-    public function product()
-    {
-        return $this->belongsTo(AfuProducts::class, 'product_id', 'product_id');
-    }
-
     public function callback()
     {
         return $this->hasMany(AfuCallbacks::class, 'version_id', 'id');
-    }
-
-    public function updateInstallation()
-    {
-        return $this->hasMany(AfuInstallations::class);
     }
 }

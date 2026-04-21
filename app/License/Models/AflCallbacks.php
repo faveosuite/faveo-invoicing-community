@@ -16,21 +16,6 @@ class AflCallbacks extends Model
 
     public $timestamps = false;
 
-    public function product()
-    {
-        return $this->belongsTo(AflProducts::class, 'product_id', 'product_id');
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(AflClients::class, 'client_id', 'client_id');
-    }
-
-    public function license()
-    {
-        return $this->belongsTo(AflLicenses::class, 'license_code', 'license_code');
-    }
-
     public function scopeWithClientEmailOrLicenseCode($query)
     {
         $query->addSelect([DB::raw('
