@@ -3,7 +3,6 @@
 namespace App\License\tests\Services;
 
 use App\License\Models\Installation;
-use App\License\Models\License;
 use App\License\Models\LicenseOption;
 use App\License\Models\LicensePlugin;
 use App\License\Services\LicenseService;
