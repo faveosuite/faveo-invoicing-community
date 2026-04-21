@@ -47,7 +47,6 @@ class Handler extends ExceptionHandler
         parent::report($exception);
         // Log exception in database if not PDO exception
         if ($this->shouldBeLoggedInDB($exception) && isInstall()) {
-
             $this->reportToSentry($exception);
 
             // Log exception to database
