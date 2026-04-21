@@ -5,7 +5,6 @@ namespace App\License\tests\Controllers\Admin;
 use App\License\Controllers\Admin\LicenseController;
 use App\License\Models\Installation;
 use App\License\Models\InstallationLog;
-use App\License\Models\License;
 use App\License\Models\LicenseCallback;
 use App\License\Models\LicenseOption;
 use App\License\Models\LicensePlugin;

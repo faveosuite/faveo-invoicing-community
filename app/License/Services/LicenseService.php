@@ -199,7 +199,7 @@ class LicenseService
         // Filter out empty values and deduplicate
         $productIds = array_unique(array_filter($productIds, fn ($id) => ! empty($id)));
 
-        DB::transaction(function () use ($license, $licenseId, $productIds, $options) {
+        DB::transaction(function () use ($licenseId, $productIds, $options) {
             // Insert or update license plugins (upsert like original)
             foreach ($productIds as $productId) {
                 LicensePlugin::updateOrCreate(
