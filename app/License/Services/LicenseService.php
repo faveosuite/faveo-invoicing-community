@@ -6,10 +6,7 @@ use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Models\LicenseOption;
 use App\License\Models\LicensePlugin;
-use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
-use App\User;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class LicenseService
