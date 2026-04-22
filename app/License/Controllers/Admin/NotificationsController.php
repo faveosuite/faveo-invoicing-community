@@ -29,7 +29,7 @@ class NotificationsController extends Controller
             array_fill_keys($fields, 'required|string|max:250')
         );
 
-        $notification = LicenseNotification::find($notification_id);
+        $notification = LicenseNotification::find($notification_id) ?? LicenseNotification::first();
 
         if ($notification) {
             $notification->update($validated);
@@ -59,7 +59,7 @@ class NotificationsController extends Controller
             array_fill_keys($fields, 'required|string|max:250')
         );
 
-        $notification = VersionNotification::find($notification_id);
+        $notification = VersionNotification::find($notification_id) ?? VersionNotification::first();
 
         if ($notification) {
             $notification->update($validated);
