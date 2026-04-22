@@ -558,18 +558,16 @@ class CloudActivitiesTest extends DBTestCase
             'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(1)]);
         $FreeTrial = new FreeTrailController();
         StatusSetting::create(['id' => 1, 'mailchimp_status' => 0]);
-        $mock = Mockery::mock(\App\Modules\License\Services\LicenseService::class);
+        $mock = Mockery::mock(\App\License\Services\LicenseService::class);
         $mock->shouldReceive('syncAddons')
             ->withAnyArgs()
             ->once()
             ->andReturn(null);
-
-        $this->app->instance(\App\Modules\License\Services\LicenseService::class, $mock);
-        $baseMock = Mockery::mock(BaseOrderController::class);
-        $baseMock->shouldReceive('addSubscription', 'formatConfigurableOptions')
+        $mock->shouldReceive('create')
             ->withAnyArgs()
-            ->andReturn(['status' => 'success']);
-        $this->app->instance(BaseOrderController::class, $baseMock);
+            ->andReturn(new \App\License\Models\License());
+
+        $this->app->instance(\App\License\Services\LicenseService::class, $mock);
         $response = $this->getPrivateMethod($FreeTrial, 'getIfFreetrailItemPresent', [$invoiceItem, $invoice->id, $user->id, 'executed']);
         $this->assertEquals(16, strlen($response));
     }

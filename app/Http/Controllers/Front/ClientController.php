@@ -1062,7 +1062,7 @@ class ClientController extends BaseClientController
 
             return view(
                 'themes.default1.front.clients.show-order',
-                compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date',
+                compact('invoice', 'order', 'user', 'product', 'subscription', 'installationDetails', 'allowDomainStatus', 'date',
                     'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment', 'stripe_key', 'json', 'gateways',
                     'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal', 'whatsappStatus', 'app_id', 'config_id', 'autorenewal_status', 'actualWhatsappStatus',
                 )
