@@ -198,25 +198,25 @@ export default {
 
             callbacks: 0,
 
-            latest_products : '',
+            latest_products : [],
 
-            latest_versions : '',
+            latest_versions : [],
 
-            latest_installations : '',
+            latest_installations : [],
 
-            latest_callbacks : '',
+            latest_callbacks : [],
 
-            latest_reports : '',
+            latest_reports : [],
 
-            expired_versions : '',
+            expired_versions : [],
 
-            latest_clients : '',
+            latest_clients : [],
 
-            latest_licenses: '',
+            latest_licenses: [],
 
-            expiring_support: '',
+            expiring_support: [],
 
-            expiring_update: '',
+            expiring_update: [],
 
             items: [],
 

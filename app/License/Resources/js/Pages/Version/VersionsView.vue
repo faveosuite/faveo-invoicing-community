@@ -291,8 +291,6 @@ export default {
                     },
                 }
 
-            this.loading = false
-
         }
 
     },
@@ -316,3 +314,4 @@ export default {
 }
 
 </style>
+

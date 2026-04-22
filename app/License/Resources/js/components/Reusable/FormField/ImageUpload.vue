@@ -44,7 +44,7 @@
                                  :src="imageSrc"
                                  :img-style="crop"
                                  @crop="cropImage"
-                                 :aspect-ratio="''"
+                                 :aspect-ratio="aspectRatio"
                     >
                     </vue-cropper>
 

@@ -55,6 +55,7 @@
 
 <script>
 
+	import axios from 'axios';
 	import { errorHandler } from '../../helpers/responseHandler';
     import ImageElement from "../../components/Reusable/ImageElement.vue";
     import {getSubStringValue, lang} from "../../helpers/extraLogics";

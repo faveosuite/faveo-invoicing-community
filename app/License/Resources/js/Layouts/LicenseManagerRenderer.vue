@@ -10,6 +10,8 @@
 
 <script>
 
+import axios from 'axios';
+
 export default {
     props:{
         versioning : { type : String , default : ''},

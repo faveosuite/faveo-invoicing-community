@@ -60,13 +60,13 @@ export default {
 
     /**Image width */
     imgWidth: {
-      type: Number | String,
+      type: [Number, String],
       default: 'auto'
     },
 
     /** Image height */
     imgHeight: {
-      type: Number | String,
+      type: [Number, String],
       default: 'auto'
     },
 

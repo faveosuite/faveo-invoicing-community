@@ -40,7 +40,7 @@
 
 	import {ServerTable, ClientTable, Event} from 'vue-tables-2';
 
-	Vue.use(ServerTable);
+	if (Vue && typeof Vue.use === 'function') { Vue.use(ServerTable); }
 	
 	export default {
 

@@ -16,7 +16,7 @@
 		<div class="dynamic-select">
 			<v-select
 			:name="name"
-			:class="['faveo-dynamic-select', classes]"
+			:class="['faveo-dynamic-select', classname]"
 			ref="faveoDynamicSelect"
 			:options="listElements"
 			v-model="selectedValue"
@@ -91,7 +91,7 @@ import { errorHandler } from "../../../helpers/responseHandler";
 
 import { getSubStringValue, boolean } from "../../../helpers/extraLogics";
 
-// import _ from 'lodash-core';
+import _ from 'lodash';
 
 export default {
 
@@ -100,7 +100,7 @@ export default {
 	props: {
 
 		name: {
-			type: String | Number,
+			type: [String, Number],
 			Required: true
 		},
 
@@ -120,7 +120,7 @@ export default {
 		},
 
 		id: {
-			type: String | Number,
+			type: [String, Number],
 			default: "dynamic-select"
 		},
 
@@ -142,7 +142,7 @@ export default {
 		},
 
 		value: {
-			type: Object | String,
+			type: [Object, String],
 			default: null
 		},
 
@@ -179,7 +179,7 @@ export default {
 		},
 
 		apiParameters: {
-			type: Object | Map,
+			type: [Object],
 			default: () => {}
 		},
 
@@ -224,7 +224,7 @@ export default {
 		},
 
 		strlength: {
-			type: Number | String,
+			type: [Number, String],
 			default: 40
 		},
 
@@ -254,10 +254,10 @@ export default {
 
 		actionBtn: { type: Object, default: () => null },
 
-		showPreview : { type : String | Object, default : '' },
+		showPreview : { type : [String, Object], default : '' },
 
 		//FOR TOOLTIP POSITION
-		tipRule : { type : Number | Boolean, default : false }
+		tipRule : { type : [Number, Boolean], default : false }
 	},
 
 	data: () => {

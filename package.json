@@ -12,6 +12,8 @@
     "@babel/preset-env": "^7.28.5",
     "@popperjs/core": "^2.11.8",
     "@vitejs/plugin-vue": "^6.0.3",
+    "@vue/compiler-dom": "^3.5.33",
+    "@vue/compiler-sfc": "^3.5.33",
     "@vue/test-utils": "^2.4.6",
     "@vue/vue3-jest": "^29.2.6",
     "axios": "^1.13.2",
@@ -52,6 +54,12 @@
   },
   "jest": {
     "testEnvironment": "jsdom",
+    "testEnvironmentOptions": {
+      "customExportConditions": [
+        "node",
+        "node-addons"
+      ]
+    },
     "moduleFileExtensions": [
       "js",
       "json",
@@ -59,7 +67,9 @@
     ],
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/resources/assets/js/$1",
-      "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+      "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+      "^.*Resources/js/(.*)$": "<rootDir>/app/License/Resources/js/$1",
+      "^helpers/(.*)$": "<rootDir>/app/License/Resources/js/helpers/$1"
     },
     "moduleDirectories": [
       "node_modules",
