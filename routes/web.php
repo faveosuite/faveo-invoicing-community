@@ -514,7 +514,6 @@ Route::middleware('installAgora')->group(function () {
     // Route::get('get-widgets', [Front\WidgetController::class, 'GetPages']);
     Route::delete('widgets-delete', [Front\WidgetController::class, 'destroy']);
 
-
     /*
      * download
      */
