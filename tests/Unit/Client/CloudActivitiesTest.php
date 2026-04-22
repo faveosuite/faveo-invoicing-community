@@ -4,7 +4,6 @@ namespace Tests\Unit\Client;
 
 use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\FreeTrailController;
-use App\Http\Controllers\Order\BaseOrderController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\StatusSetting;
