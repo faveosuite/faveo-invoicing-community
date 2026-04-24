@@ -78,6 +78,6 @@ describe('Alert.vue', () => {
             },
         });
 
-        expect(wrapper.find('.fa-warning').exists()).toBe(true);
+        expect(wrapper.find('.fa-check-circle').exists()).toBe(true);
     });
 });
