@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\ApiKey;
-use App\Http\Controllers\Common\PipedriveController;
 use App\Http\Controllers\Common\Sms\SmsOtpController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\License\LicenseController;

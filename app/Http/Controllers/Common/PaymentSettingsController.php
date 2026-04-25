@@ -97,28 +97,28 @@ class PaymentSettingsController extends Controller
                 }
             }
 
-        if (count($fields) > 0) {
-            foreach ($fields as $key => $field) {
-                $plug = $plugs->where('name', $field['name'])->select(['path', 'status'])->orderBy('name')->get();
+            if (count($fields) > 0) {
+                foreach ($fields as $key => $field) {
+                    $plug = $plugs->where('name', $field['name'])->select(['path', 'status'])->orderBy('name')->get();
 
-                if ($plug->isNotEmpty()) {
-                    foreach ($plug as $value) {
-                        $attributes[$key]['path'] = $value['path'];
-                        $attributes[$key]['status'] = $value['status'];
+                    if ($plug->isNotEmpty()) {
+                        foreach ($plug as $value) {
+                            $attributes[$key]['path'] = $value['path'];
+                            $attributes[$key]['status'] = $value['status'];
+                        }
+                    } else {
+                        $attributes[$key]['path'] = $field['name'];
+                        $attributes[$key]['status'] = 0;
                     }
-                } else {
-                    $attributes[$key]['path'] = $field['name'];
-                    $attributes[$key]['status'] = 0;
+                    $attributes[$key]['name'] = $field['name'];
+                    $attributes[$key]['settings'] = $field['settings'];
+                    $attributes[$key]['description'] = $field['description'];
+                    $attributes[$key]['website'] = $field['website'];
+                    $attributes[$key]['version'] = $field['version'];
+                    $attributes[$key]['author'] = $field['author'];
+                    $attributes[$key]['supported_currencies'] = $field['supported_currencies'];
                 }
-                $attributes[$key]['name'] = $field['name'];
-                $attributes[$key]['settings'] = $field['settings'];
-                $attributes[$key]['description'] = $field['description'];
-                $attributes[$key]['website'] = $field['website'];
-                $attributes[$key]['version'] = $field['version'];
-                $attributes[$key]['author'] = $field['author'];
-                $attributes[$key]['supported_currencies'] = $field['supported_currencies'];
             }
-        }
 
             return $attributes;
         } catch (\Exception $exception) {
