@@ -251,7 +251,6 @@ class OrderController extends BaseOrderController
 
             $installationLogs = $licenseController->getInstallationLogsDetails($order->serial_key);
 
-
             if (! authorizeOwnership($order->client, true)) {
                 return redirect()->back()->with('fails', __('messages.unauthorized_action'));
             }
