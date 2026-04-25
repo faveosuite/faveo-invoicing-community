@@ -327,7 +327,8 @@ trait ApiKeySettings
                 'licenseSystemReportsCleanup' => $licensesystem_command, 'licenseVersionsCleanup' => $licenseversions_command,
             ];
 
-        $this->storeCommand($jobs);
+            $this->storeCommand($jobs);
+        }
     }
 
     public function getCommand($command, $daily_at)
