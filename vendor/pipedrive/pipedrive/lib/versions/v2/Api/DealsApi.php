@@ -1333,7 +1333,7 @@ class DealsApi
     /**
      * Operation convertDealToLead
      *
-     * Convert a deal to a lead (BETA)
+     * Convert a deal to a lead
      *
      * @param  int $id The ID of the deal to convert (required)
      *
@@ -1350,7 +1350,7 @@ class DealsApi
     /**
      * Operation convertDealToLeadWithHttpInfo
      *
-     * Convert a deal to a lead (BETA)
+     * Convert a deal to a lead
      *
      * @param  int $id The ID of the deal to convert (required)
      *
@@ -1472,7 +1472,7 @@ class DealsApi
     /**
      * Operation convertDealToLeadAsync
      *
-     * Convert a deal to a lead (BETA)
+     * Convert a deal to a lead
      *
      * @param  int $id The ID of the deal to convert (required)
      *
@@ -1492,7 +1492,7 @@ class DealsApi
     /**
      * Operation convertDealToLeadAsyncWithHttpInfo
      *
-     * Convert a deal to a lead (BETA)
+     * Convert a deal to a lead
      *
      * @param  int $id The ID of the deal to convert (required)
      *
@@ -4621,7 +4621,7 @@ class DealsApi
     /**
      * Operation getDealConversionStatus
      *
-     * Get Deal conversion status (BETA)
+     * Get Deal conversion status
      *
      * @param  int $id The ID of a deal (required)
      * @param  string $conversion_id The ID of the conversion (required)
@@ -4638,7 +4638,7 @@ class DealsApi
     /**
      * Operation getDealConversionStatusWithHttpInfo
      *
-     * Get Deal conversion status (BETA)
+     * Get Deal conversion status
      *
      * @param  int $id The ID of a deal (required)
      * @param  string $conversion_id The ID of the conversion (required)
@@ -4700,7 +4700,7 @@ class DealsApi
     /**
      * Operation getDealConversionStatusAsync
      *
-     * Get Deal conversion status (BETA)
+     * Get Deal conversion status
      *
      * @param  int $id The ID of a deal (required)
      * @param  string $conversion_id The ID of the conversion (required)
@@ -4721,7 +4721,7 @@ class DealsApi
     /**
      * Operation getDealConversionStatusAsyncWithHttpInfo
      *
-     * Get Deal conversion status (BETA)
+     * Get Deal conversion status
      *
      * @param  int $id The ID of a deal (required)
      * @param  string $conversion_id The ID of the conversion (required)

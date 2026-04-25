@@ -74,7 +74,8 @@ class ProductRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'owner_id' => 'int',
         'is_linkable' => 'bool',
         'visible_to' => '\Pipedrive\versions\v2\Model\VisibleTo',
-        'prices' => 'object[]'
+        'prices' => 'object[]',
+        'custom_fields' => 'array<string,object>'
     ];
 
     /**
@@ -93,7 +94,8 @@ class ProductRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'owner_id' => null,
         'is_linkable' => null,
         'visible_to' => null,
-        'prices' => null
+        'prices' => null,
+        'custom_fields' => null
     ];
 
     /**
@@ -135,7 +137,8 @@ class ProductRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'owner_id' => 'owner_id',
         'is_linkable' => 'is_linkable',
         'visible_to' => 'visible_to',
-        'prices' => 'prices'
+        'prices' => 'prices',
+        'custom_fields' => 'custom_fields'
     ];
 
     /**
@@ -152,7 +155,8 @@ class ProductRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'owner_id' => 'setOwnerId',
         'is_linkable' => 'setIsLinkable',
         'visible_to' => 'setVisibleTo',
-        'prices' => 'setPrices'
+        'prices' => 'setPrices',
+        'custom_fields' => 'setCustomFields'
     ];
 
     /**
@@ -169,7 +173,8 @@ class ProductRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'owner_id' => 'getOwnerId',
         'is_linkable' => 'getIsLinkable',
         'visible_to' => 'getVisibleTo',
-        'prices' => 'getPrices'
+        'prices' => 'getPrices',
+        'custom_fields' => 'getCustomFields'
     ];
 
     /**
@@ -248,6 +253,7 @@ class ProductRequest implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['is_linkable'] = $data['is_linkable'] ?? true;
         $this->container['visible_to'] = $data['visible_to'] ?? null;
         $this->container['prices'] = $data['prices'] ?? null;
+        $this->container['custom_fields'] = $data['custom_fields'] ?? null;
     }
 
     /**
@@ -488,6 +494,30 @@ class ProductRequest implements ModelInterface, ArrayAccess, JsonSerializable
     public function setPrices($prices): self
     {
         $this->container['prices'] = $prices;
+
+        return $this;
+    }
+
+    /**
+     * Gets custom_fields
+     *
+     * @return array<string,object>|null
+     */
+    public function getCustomFields()
+    {
+        return $this->container['custom_fields'];
+    }
+
+    /**
+     * Sets custom_fields
+     *
+     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes
+     *
+     * @return self
+     */
+    public function setCustomFields($custom_fields): self
+    {
+        $this->container['custom_fields'] = $custom_fields;
 
         return $this;
     }

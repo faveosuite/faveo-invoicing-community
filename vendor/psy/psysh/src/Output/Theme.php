@@ -19,6 +19,8 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
  */
 class Theme
 {
+    public const BUILTIN_THEMES = ['modern', 'compact', 'classic'];
+
     const MODERN_THEME = []; // Defaults :)
 
     const COMPACT_THEME = [
@@ -34,18 +36,27 @@ class Theme
         'returnValue'  => '=>  ',
     ];
 
+    private const BUILTIN_THEME_CONFIGS = [
+        'modern'  => self::MODERN_THEME,
+        'compact' => self::COMPACT_THEME,
+        'classic' => self::CLASSIC_THEME,
+    ];
+
     // Custom themes fall back to DEFAULT_STYLES for any undefined style.
     const DEFAULT_STYLES = [
-        'info'    => ['white', 'blue', ['bold']],
+        'info'    => ['green', null, ['bold']],
         'warning' => ['black', 'yellow'],
         'error'   => ['white', 'red', ['bold']],
         'whisper' => ['gray'],
 
-        'aside'  => ['blue'],
-        'strong' => [null, null, ['bold']],
-        'return' => ['cyan'],
-        'urgent' => ['red'],
-        'hidden' => ['black'],
+        'aside'            => ['blue'],
+        'strong'           => [null, null, ['bold']],
+        'return'           => ['cyan'],
+        'urgent'           => ['red'],
+        'hidden'           => ['black'],
+        'command'          => ['cyan', null, ['bold']],
+        'command_option'   => ['yellow'],
+        'command_argument' => ['green'],
 
         // Keywords
         'public'    => [null, null, ['bold']],
@@ -61,8 +72,9 @@ class Theme
         // Types
         'number'       => ['magenta'],
         'integer'      => ['magenta'],
-        'float'        => ['yellow'],
+        'float'        => ['magenta'],
         'string'       => ['green'],
+        'array_key'    => ['blue'],
         'bool'         => ['cyan'],
         'keyword'      => ['yellow'],
         'comment'      => ['blue'],
@@ -72,6 +84,11 @@ class Theme
 
         // Code-specific formatting
         'inline_html' => ['cyan'],
+
+        // Interactive readline
+        'input_frame'       => ['bright-white', 'gray'],
+        'input_frame_error' => ['bright-white', 'red'],
+        'input_highlight'   => [null, null, ['reverse']],
     ];
 
     const ERROR_STYLES = ['info', 'warning', 'error', 'whisper', 'class'];
@@ -93,23 +110,11 @@ class Theme
     public function __construct($config = 'modern')
     {
         if (\is_string($config)) {
-            switch ($config) {
-                case 'modern':
-                    $config = static::MODERN_THEME;
-                    break;
-
-                case 'compact':
-                    $config = static::COMPACT_THEME;
-                    break;
-
-                case 'classic':
-                    $config = static::CLASSIC_THEME;
-                    break;
-
-                default:
-                    \trigger_error(\sprintf('Unknown theme: %s', $config), \E_USER_NOTICE);
-                    $config = static::MODERN_THEME;
-                    break;
+            if (isset(self::BUILTIN_THEME_CONFIGS[$config])) {
+                $config = self::BUILTIN_THEME_CONFIGS[$config];
+            } else {
+                \trigger_error(\sprintf('Unknown theme: %s', $config), \E_USER_NOTICE);
+                $config = static::MODERN_THEME;
             }
         }
 
@@ -256,6 +261,34 @@ class Theme
     }
 
     /**
+     * Get the built-in theme name, or null for custom themes.
+     */
+    public function getName(): ?string
+    {
+        foreach (self::BUILTIN_THEMES as $name) {
+            if ($this->equals(new self($name))) {
+                return $name;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Compare two themes by effective config.
+     */
+    public function equals(self $theme): bool
+    {
+        return $this->compact === $theme->compact
+            && $this->prompt === $theme->prompt
+            && $this->bufferPrompt === $theme->bufferPrompt
+            && $this->replayPrompt === $theme->replayPrompt
+            && $this->returnValue === $theme->returnValue
+            && $this->grayFallback === $theme->grayFallback
+            && $this->styles === $theme->styles;
+    }
+
+    /**
      * Apply the current output formatter styles.
      */
     public function applyStyles(OutputFormatterInterface $formatter, bool $useGrayFallback)
@@ -282,9 +315,18 @@ class Theme
      */
     private function getStyle(string $name, bool $useGrayFallback): array
     {
-        return \array_map(function ($style) use ($useGrayFallback) {
-            return ($useGrayFallback && $style === 'gray') ? $this->grayFallback : $style;
-        }, $this->styles[$name]);
+        if (!$useGrayFallback) {
+            return $this->styles[$name];
+        }
+
+        // The default input_frame styles use extended colors (bright-white,
+        // gray) unavailable on older Symfony Console. Drop them rather than
+        // falling back to unreadable backgrounds.
+        if (($name === 'input_frame' || $name === 'input_frame_error') && $this->styles[$name] === static::DEFAULT_STYLES[$name]) {
+            return [null, null];
+        }
+
+        return \array_map(fn ($style) => ($style === 'gray') ? $this->grayFallback : $style, $this->styles[$name]);
     }
 
     /**

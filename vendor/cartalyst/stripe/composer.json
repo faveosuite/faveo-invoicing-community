@@ -1,0 +1,38 @@
+{
+    "name": "cartalyst/stripe",
+    "description": "A comprehensive Stripe API package.",
+    "keywords": [
+        "php",
+        "cartalyst",
+        "stripe"
+    ],
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Cartalyst LLC",
+            "email": "help@cartalyst.com",
+            "homepage": "https://cartalyst.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.9",
+        "guzzlehttp/guzzle": "~6.0|~7.0"
+    },
+    "require-dev": {
+        "mockery/mockery": "^1.0",
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": { "Cartalyst\\Stripe\\": "src/" }
+    },
+    "autoload-dev": {
+        "psr-4": { "Cartalyst\\Stripe\\Tests\\": "tests/" }
+    },
+    "extra": {
+        "component": "package",
+        "branch-alias": {
+            "dev-master": "2.4.x-dev"
+        }
+    },
+    "minimum-stability": "stable"
+}

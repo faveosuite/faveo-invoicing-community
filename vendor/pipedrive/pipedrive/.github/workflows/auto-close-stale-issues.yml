@@ -1,0 +1,19 @@
+name: Auto-close stale issues
+
+on:
+  schedule:
+    - cron: "0 7 * * 0"  # Runs the action on Sundays at 7am UTC
+
+jobs:
+  close-stale-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close stale issues
+        uses: actions/stale@v5
+        with:
+          days-before-stale: 150  # 5 months
+          days-before-close: 30  # 30 days after marking stale (total of 6 months)
+          stale-issue-message: "This issue has been marked as stale due to inactivity. It will be closed in 30 days if no further activity occurs."
+          close-issue-message: "Closing this issue due to 6 months of inactivity."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

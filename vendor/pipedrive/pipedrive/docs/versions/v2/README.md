@@ -272,18 +272,6 @@ Class | Method | HTTP request | Description
 *ActivitiesApi* | [**updateActivity**](Api/ActivitiesApi.md#updateactivity) | **PATCH** /activities/{id} | Update an activity
 *ActivityFieldsApi* | [**getActivityField**](Api/ActivityFieldsApi.md#getactivityfield) | **GET** /activityFields/{field_code} | Get one activity field
 *ActivityFieldsApi* | [**getActivityFields**](Api/ActivityFieldsApi.md#getactivityfields) | **GET** /activityFields | Get all activity fields
-*BetaApi* | [**convertDealToLead**](Api/BetaApi.md#convertdealtolead) | **POST** /deals/{id}/convert/lead | Convert a deal to a lead (BETA)
-*BetaApi* | [**convertLeadToDeal**](Api/BetaApi.md#convertleadtodeal) | **POST** /leads/{id}/convert/deal | Convert a lead to a deal (BETA)
-*BetaApi* | [**deleteInstallment**](Api/BetaApi.md#deleteinstallment) | **DELETE** /deals/{id}/installments/{installment_id} | Delete an installment from a deal
-*BetaApi* | [**deleteProductImage**](Api/BetaApi.md#deleteproductimage) | **DELETE** /products/{id}/images | Delete an image of a product
-*BetaApi* | [**getDealConversionStatus**](Api/BetaApi.md#getdealconversionstatus) | **GET** /deals/{id}/convert/status/{conversion_id} | Get Deal conversion status (BETA)
-*BetaApi* | [**getInstallments**](Api/BetaApi.md#getinstallments) | **GET** /deals/installments | List installments added to a list of deals
-*BetaApi* | [**getLeadConversionStatus**](Api/BetaApi.md#getleadconversionstatus) | **GET** /leads/{id}/convert/status/{conversion_id} | Get Lead conversion status (BETA)
-*BetaApi* | [**getProductImage**](Api/BetaApi.md#getproductimage) | **GET** /products/{id}/images | Get image of a product
-*BetaApi* | [**postInstallment**](Api/BetaApi.md#postinstallment) | **POST** /deals/{id}/installments | Add an installment to a deal
-*BetaApi* | [**updateInstallment**](Api/BetaApi.md#updateinstallment) | **PATCH** /deals/{id}/installments/{installment_id} | Update an installment added to a deal
-*BetaApi* | [**updateProductImage**](Api/BetaApi.md#updateproductimage) | **PUT** /products/{id}/images | Update an image for a product
-*BetaApi* | [**uploadProductImage**](Api/BetaApi.md#uploadproductimage) | **POST** /products/{id}/images | Upload an image for a product
 *DealFieldsApi* | [**addDealField**](Api/DealFieldsApi.md#adddealfield) | **POST** /dealFields | Create one deal field
 *DealFieldsApi* | [**addDealFieldOptions**](Api/DealFieldsApi.md#adddealfieldoptions) | **POST** /dealFields/{field_code}/options | Add deal field options in bulk
 *DealFieldsApi* | [**deleteDealField**](Api/DealFieldsApi.md#deletedealfield) | **DELETE** /dealFields/{field_code} | Delete one deal field
@@ -296,7 +284,7 @@ Class | Method | HTTP request | Description
 *DealsApi* | [**addDealFollower**](Api/DealsApi.md#adddealfollower) | **POST** /deals/{id}/followers | Add a follower to a deal
 *DealsApi* | [**addDealProduct**](Api/DealsApi.md#adddealproduct) | **POST** /deals/{id}/products | Add a product to a deal
 *DealsApi* | [**addManyDealProducts**](Api/DealsApi.md#addmanydealproducts) | **POST** /deals/{id}/products/bulk | Add multiple products to a deal
-*DealsApi* | [**convertDealToLead**](Api/DealsApi.md#convertdealtolead) | **POST** /deals/{id}/convert/lead | Convert a deal to a lead (BETA)
+*DealsApi* | [**convertDealToLead**](Api/DealsApi.md#convertdealtolead) | **POST** /deals/{id}/convert/lead | Convert a deal to a lead
 *DealsApi* | [**deleteAdditionalDiscount**](Api/DealsApi.md#deleteadditionaldiscount) | **DELETE** /deals/{id}/discounts/{discount_id} | Delete a discount from a deal
 *DealsApi* | [**deleteDeal**](Api/DealsApi.md#deletedeal) | **DELETE** /deals/{id} | Delete a deal
 *DealsApi* | [**deleteDealFollower**](Api/DealsApi.md#deletedealfollower) | **DELETE** /deals/{id}/followers/{follower_id} | Delete a follower from a deal
@@ -306,7 +294,7 @@ Class | Method | HTTP request | Description
 *DealsApi* | [**getAdditionalDiscounts**](Api/DealsApi.md#getadditionaldiscounts) | **GET** /deals/{id}/discounts | List discounts added to a deal
 *DealsApi* | [**getArchivedDeals**](Api/DealsApi.md#getarchiveddeals) | **GET** /deals/archived | Get all archived deals
 *DealsApi* | [**getDeal**](Api/DealsApi.md#getdeal) | **GET** /deals/{id} | Get details of a deal
-*DealsApi* | [**getDealConversionStatus**](Api/DealsApi.md#getdealconversionstatus) | **GET** /deals/{id}/convert/status/{conversion_id} | Get Deal conversion status (BETA)
+*DealsApi* | [**getDealConversionStatus**](Api/DealsApi.md#getdealconversionstatus) | **GET** /deals/{id}/convert/status/{conversion_id} | Get Deal conversion status
 *DealsApi* | [**getDealFollowers**](Api/DealsApi.md#getdealfollowers) | **GET** /deals/{id}/followers | List followers of a deal
 *DealsApi* | [**getDealFollowersChangelog**](Api/DealsApi.md#getdealfollowerschangelog) | **GET** /deals/{id}/followers/changelog | List followers changelog of a deal
 *DealsApi* | [**getDealProducts**](Api/DealsApi.md#getdealproducts) | **GET** /deals/{id}/products | List products attached to a deal
@@ -322,8 +310,8 @@ Class | Method | HTTP request | Description
 *DealsApi* | [**updateInstallment**](Api/DealsApi.md#updateinstallment) | **PATCH** /deals/{id}/installments/{installment_id} | Update an installment added to a deal
 *ItemSearchApi* | [**searchItem**](Api/ItemSearchApi.md#searchitem) | **GET** /itemSearch | Perform a search from multiple item types
 *ItemSearchApi* | [**searchItemByField**](Api/ItemSearchApi.md#searchitembyfield) | **GET** /itemSearch/field | Perform a search using a specific field from an item type
-*LeadsApi* | [**convertLeadToDeal**](Api/LeadsApi.md#convertleadtodeal) | **POST** /leads/{id}/convert/deal | Convert a lead to a deal (BETA)
-*LeadsApi* | [**getLeadConversionStatus**](Api/LeadsApi.md#getleadconversionstatus) | **GET** /leads/{id}/convert/status/{conversion_id} | Get Lead conversion status (BETA)
+*LeadsApi* | [**convertLeadToDeal**](Api/LeadsApi.md#convertleadtodeal) | **POST** /leads/{id}/convert/deal | Convert a lead to a deal
+*LeadsApi* | [**getLeadConversionStatus**](Api/LeadsApi.md#getleadconversionstatus) | **GET** /leads/{id}/convert/status/{conversion_id} | Get Lead conversion status
 *LeadsApi* | [**searchLeads**](Api/LeadsApi.md#searchleads) | **GET** /leads/search | Search leads
 *OrganizationFieldsApi* | [**addOrganizationField**](Api/OrganizationFieldsApi.md#addorganizationfield) | **POST** /organizationFields | Create one organization field
 *OrganizationFieldsApi* | [**addOrganizationFieldOptions**](Api/OrganizationFieldsApi.md#addorganizationfieldoptions) | **POST** /organizationFields/{field_code}/options | Add organization field options in bulk
@@ -450,6 +438,7 @@ Class | Method | HTTP request | Description
  - [CreatePersonFieldRequest](Model/CreatePersonFieldRequest.md)
  - [CreateProductField](Model/CreateProductField.md)
  - [CreateProductFieldRequest](Model/CreateProductFieldRequest.md)
+ - [Deal](Model/Deal.md)
  - [DealFieldItem](Model/DealFieldItem.md)
  - [DealFieldItemImportantFields](Model/DealFieldItemImportantFields.md)
  - [DealFieldItemRequiredFields](Model/DealFieldItemRequiredFields.md)
@@ -565,22 +554,21 @@ Class | Method | HTTP request | Description
  - [OrganizationRequestBody](Model/OrganizationRequestBody.md)
  - [OrganizationSearchItem](Model/OrganizationSearchItem.md)
  - [OrganizationSearchItemItem](Model/OrganizationSearchItemItem.md)
+ - [Person](Model/Person.md)
+ - [PersonEmails](Model/PersonEmails.md)
  - [PersonFieldItem](Model/PersonFieldItem.md)
  - [PersonFieldItemImportantFields](Model/PersonFieldItemImportantFields.md)
  - [PersonFieldItemRequiredFields](Model/PersonFieldItemRequiredFields.md)
  - [PersonFieldItemUiVisibility](Model/PersonFieldItemUiVisibility.md)
  - [PersonFieldItemUiVisibilityShowInAddDealDialog](Model/PersonFieldItemUiVisibilityShowInAddDealDialog.md)
+ - [PersonIm](Model/PersonIm.md)
  - [PersonItem](Model/PersonItem.md)
- - [PersonItemEmails](Model/PersonItemEmails.md)
- - [PersonItemIm](Model/PersonItemIm.md)
- - [PersonItemPhones](Model/PersonItemPhones.md)
- - [PersonItemPostalAddress](Model/PersonItemPostalAddress.md)
+ - [PersonPhones](Model/PersonPhones.md)
  - [PersonPictureItem](Model/PersonPictureItem.md)
  - [PersonPictureItemPictures](Model/PersonPictureItemPictures.md)
  - [PersonPictureResponse](Model/PersonPictureResponse.md)
+ - [PersonPostalAddress](Model/PersonPostalAddress.md)
  - [PersonRequestBody](Model/PersonRequestBody.md)
- - [PersonRequestBodyEmails](Model/PersonRequestBodyEmails.md)
- - [PersonRequestBodyPhones](Model/PersonRequestBodyPhones.md)
  - [PersonSearchItem](Model/PersonSearchItem.md)
  - [PersonSearchItemItem](Model/PersonSearchItemItem.md)
  - [PersonSearchItemItemOrganization](Model/PersonSearchItemItemOrganization.md)

@@ -31,6 +31,7 @@ Name | Type | Description | Notes
 **origin_id** | **string** | The optional ID to further distinguish the origin of the deal - e.g. Which API integration created this Deal. | [optional]
 **channel** | **int** | The ID of your Marketing channel this Deal was created from. Recognized Marketing channels can be configured in your &lt;a href&#x3D;\&quot;https://app.pipedrive.com/settings/fields\&quot; target&#x3D;\&quot;_blank\&quot; rel&#x3D;\&quot;noopener noreferrer\&quot;&gt;Company settings&lt;/a&gt;. | [optional]
 **channel_id** | **string** | The optional ID to further distinguish the Marketing channel. | [optional]
+**source_lead_id** | **string** | The ID of the lead if the deal was converted from a lead. Only included when requested via include_fields parameter. | [optional]
 **arr** | **float** | Only available in Growth and above plans  The Annual Recurring Revenue of the deal  Null if there are no products attached to the deal | [optional]
 **mrr** | **float** | Only available in Growth and above plans  The Monthly Recurring Revenue of the deal  Null if there are no products attached to the deal | [optional]
 **acv** | **float** | Only available in Growth and above plans  The Annual Contract Value of the deal  Null if there are no products attached to the deal | [optional]

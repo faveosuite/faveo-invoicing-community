@@ -76,6 +76,7 @@ class UpdateProductRequestBody implements ModelInterface, ArrayAccess, JsonSeria
         'is_linkable' => 'bool',
         'visible_to' => '\Pipedrive\versions\v2\Model\VisibleTo',
         'prices' => 'object[]',
+        'custom_fields' => 'array<string,object>',
         'billing_frequency' => '\Pipedrive\versions\v2\Model\BillingFrequency1',
         'billing_frequency_cycles' => 'int'
     ];
@@ -98,6 +99,7 @@ class UpdateProductRequestBody implements ModelInterface, ArrayAccess, JsonSeria
         'is_linkable' => null,
         'visible_to' => null,
         'prices' => null,
+        'custom_fields' => null,
         'billing_frequency' => null,
         'billing_frequency_cycles' => null
     ];
@@ -143,6 +145,7 @@ class UpdateProductRequestBody implements ModelInterface, ArrayAccess, JsonSeria
         'is_linkable' => 'is_linkable',
         'visible_to' => 'visible_to',
         'prices' => 'prices',
+        'custom_fields' => 'custom_fields',
         'billing_frequency' => 'billing_frequency',
         'billing_frequency_cycles' => 'billing_frequency_cycles'
     ];
@@ -163,6 +166,7 @@ class UpdateProductRequestBody implements ModelInterface, ArrayAccess, JsonSeria
         'is_linkable' => 'setIsLinkable',
         'visible_to' => 'setVisibleTo',
         'prices' => 'setPrices',
+        'custom_fields' => 'setCustomFields',
         'billing_frequency' => 'setBillingFrequency',
         'billing_frequency_cycles' => 'setBillingFrequencyCycles'
     ];
@@ -183,6 +187,7 @@ class UpdateProductRequestBody implements ModelInterface, ArrayAccess, JsonSeria
         'is_linkable' => 'getIsLinkable',
         'visible_to' => 'getVisibleTo',
         'prices' => 'getPrices',
+        'custom_fields' => 'getCustomFields',
         'billing_frequency' => 'getBillingFrequency',
         'billing_frequency_cycles' => 'getBillingFrequencyCycles'
     ];
@@ -264,6 +269,7 @@ class UpdateProductRequestBody implements ModelInterface, ArrayAccess, JsonSeria
         $this->container['is_linkable'] = $data['is_linkable'] ?? true;
         $this->container['visible_to'] = $data['visible_to'] ?? null;
         $this->container['prices'] = $data['prices'] ?? null;
+        $this->container['custom_fields'] = $data['custom_fields'] ?? null;
         $this->container['billing_frequency'] = $data['billing_frequency'] ?? null;
         $this->container['billing_frequency_cycles'] = $data['billing_frequency_cycles'] ?? null;
     }
@@ -530,6 +536,30 @@ class UpdateProductRequestBody implements ModelInterface, ArrayAccess, JsonSeria
     public function setPrices($prices): self
     {
         $this->container['prices'] = $prices;
+
+        return $this;
+    }
+
+    /**
+     * Gets custom_fields
+     *
+     * @return array<string,object>|null
+     */
+    public function getCustomFields()
+    {
+        return $this->container['custom_fields'];
+    }
+
+    /**
+     * Sets custom_fields
+     *
+     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes
+     *
+     * @return self
+     */
+    public function setCustomFields($custom_fields): self
+    {
+        $this->container['custom_fields'] = $custom_fields;
 
         return $this;
     }

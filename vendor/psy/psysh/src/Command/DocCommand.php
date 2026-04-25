@@ -17,9 +17,9 @@ use Psy\Formatter\ManualFormatter;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Input\CodeArgument;
 use Psy\ManualUpdater\ManualUpdate;
-use Psy\Output\ShellOutput;
 use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionLanguageConstruct;
+use Psy\Util\Tty;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -85,6 +85,8 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $shellOutput = $this->shellOutput($output);
+
         if ($input->getOption('update-manual') !== false) {
             return $this->handleUpdateManual($input, $output);
         }
@@ -104,9 +106,7 @@ HELP
 
         $hasManual = $this->getShell()->getManual() !== null;
 
-        if ($output instanceof ShellOutput) {
-            $output->startPaging();
-        }
+        $shellOutput->startPaging();
 
         // Maybe include the declaring class
         if ($reflector instanceof \ReflectionMethod || $reflector instanceof \ReflectionProperty) {
@@ -120,7 +120,7 @@ HELP
             $output->writeln('<warning>PHP manual not found</warning>');
             $output->writeln('    To document core PHP functionality, download the PHP reference manual:');
             $output->writeln('    https://github.com/bobthecow/psysh/wiki/PHP-manual');
-        } else {
+        } elseif ($doc !== null) {
             $output->writeln($doc);
         }
 
@@ -146,9 +146,7 @@ HELP
             }
         }
 
-        if ($output instanceof ShellOutput) {
-            $output->stopPaging();
-        }
+        $shellOutput->stopPaging();
 
         // Set some magic local variables
         $this->setCommandScopeVariables($reflector);
@@ -324,7 +322,7 @@ HELP
 
                 case 3:
                     if ($doc = $manual->get($id)) {
-                        $width = $this->getTerminalWidth();
+                        $width = Tty::getWidth();
                         $formatter = new ManualFormatter($width, $manual);
 
                         return $formatter->format($doc);
@@ -334,36 +332,5 @@ HELP
         }
 
         return null;
-    }
-
-    /**
-     * Get the current terminal width for text wrapping.
-     *
-     * @return int Terminal width in columns
-     */
-    private function getTerminalWidth(): int
-    {
-        // Query terminal size directly
-        if (\function_exists('shell_exec')) {
-            // Output format: "rows cols"
-            $output = @\shell_exec('stty size </dev/tty 2>/dev/null');
-            if ($output && \preg_match('/^\d+ (\d+)$/', \trim($output), $matches)) {
-                return (int) $matches[1];
-            }
-
-            $width = @\shell_exec('tput cols </dev/tty 2>/dev/null');
-            if ($width && \is_numeric(\trim($width))) {
-                return (int) \trim($width);
-            }
-        }
-
-        // Check COLUMNS environment variable (may be stale after resize)
-        $width = \getenv('COLUMNS');
-        if ($width && \is_numeric(\trim($width))) {
-            return (int) \trim($width);
-        }
-
-        // Fallback to 100 if we can't detect
-        return 100;
     }
 }

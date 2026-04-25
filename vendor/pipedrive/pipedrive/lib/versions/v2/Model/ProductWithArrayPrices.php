@@ -433,7 +433,7 @@ class ProductWithArrayPrices implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets is_deleted
      *
-     * @param bool|null $is_deleted Whether this product will be made marked as deleted or not
+     * @param bool|null $is_deleted Whether this product will be marked as deleted or not
      *
      * @return self
      */

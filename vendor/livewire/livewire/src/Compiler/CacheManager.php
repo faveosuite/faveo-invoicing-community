@@ -3,6 +3,7 @@
 namespace Livewire\Compiler;
 
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class CacheManager
 {
@@ -62,7 +63,7 @@ class CacheManager
 
     public function getHash(string $sourcePath): string
     {
-        return substr(md5($sourcePath), 0, 8);
+        return substr(md5(Str::after($sourcePath, base_path())), 0, 8);
     }
 
     public function getClassPath(string $sourcePath): string
@@ -116,7 +117,9 @@ class CacheManager
         $this->ensureCacheDirectoryExists();
         File::makeDirectory($this->cacheDirectory . '/classes', 0777, true, true);
 
-        File::put($classPath, $contents);
+        // Use atomic write to prevent race conditions when multiple
+        // concurrent requests try to compile the same component.
+        File::replace($classPath, $contents);
     }
 
     public function writeViewFile(string $sourcePath, string $contents): void
@@ -126,7 +129,7 @@ class CacheManager
         $this->ensureCacheDirectoryExists();
         File::makeDirectory($this->cacheDirectory . '/views', 0777, true, true);
 
-        File::put($viewPath, $contents);
+        File::replace($viewPath, $contents);
 
         $this->mutateFileModificationTime($viewPath);
     }
@@ -138,7 +141,7 @@ class CacheManager
         $this->ensureCacheDirectoryExists();
         File::makeDirectory($this->cacheDirectory . '/scripts', 0777, true, true);
 
-        File::put($scriptPath, $contents);
+        File::replace($scriptPath, $contents);
     }
 
     public function writeStyleFile(string $sourcePath, string $contents): void
@@ -148,7 +151,7 @@ class CacheManager
         $this->ensureCacheDirectoryExists();
         File::makeDirectory($this->cacheDirectory . '/styles', 0777, true, true);
 
-        File::put($stylePath, $contents);
+        File::replace($stylePath, $contents);
     }
 
     public function writeGlobalStyleFile(string $sourcePath, string $contents): void
@@ -158,7 +161,7 @@ class CacheManager
         $this->ensureCacheDirectoryExists();
         File::makeDirectory($this->cacheDirectory . '/styles', 0777, true, true);
 
-        File::put($stylePath, $contents);
+        File::replace($stylePath, $contents);
     }
 
     public function writePlaceholderFile(string $sourcePath, string $contents): void
@@ -168,7 +171,7 @@ class CacheManager
         $this->ensureCacheDirectoryExists();
         File::makeDirectory($this->cacheDirectory . '/placeholders', 0777, true, true);
 
-        File::put($placeholderPath, $contents);
+        File::replace($placeholderPath, $contents);
 
         $this->mutateFileModificationTime($placeholderPath);
     }
@@ -180,14 +183,15 @@ class CacheManager
         $this->ensureCacheDirectoryExists();
         File::makeDirectory($this->cacheDirectory . '/views', 0777, true, true);
 
-        File::put($viewPath, $contents);
+        File::replace($viewPath, $contents);
 
         $this->mutateFileModificationTime($viewPath);
     }
 
     public function invalidateOpCache(string $sourcePath): void
     {
-        if (function_exists('opcache_invalidate')) {
+        // Prevent error in case if `opcache.restrict_api` directive is set
+        if (function_exists('opcache_invalidate') && strlen(ini_get('opcache.restrict_api')) < 1) {
             opcache_invalidate($sourcePath, true);
         }
     }

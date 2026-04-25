@@ -9,6 +9,7 @@
  */
 namespace PHPUnit\Framework\MockObject;
 
+use const PHP_EOL;
 use function array_flip;
 use function array_key_exists;
 use function array_map;
@@ -19,6 +20,7 @@ use function count;
 use function is_string;
 use function range;
 use function strtolower;
+use PHPUnit\Event\Facade as EventFacade;
 use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\InvalidArgumentException;
 use PHPUnit\Framework\MockObject\Runtime\PropertyHook;
@@ -133,6 +135,7 @@ final class InvocationStubberImplementation implements InvocationStubber
     public function with(mixed ...$arguments): InvocationStubber
     {
         $this->ensureParametersCanBeConfigured();
+        $this->emitDeprecationForWithMethods();
 
         $this->matcher->setParametersRule(new Rule\Parameters($arguments));
 
@@ -148,6 +151,7 @@ final class InvocationStubberImplementation implements InvocationStubber
     public function withAnyParameters(): InvocationStubber
     {
         $this->ensureParametersCanBeConfigured();
+        $this->emitDeprecationForWithMethods();
 
         $this->matcher->setParametersRule(new Rule\AnyParameters);
 
@@ -326,5 +330,18 @@ final class InvocationStubberImplementation implements InvocationStubber
                 );
             }
         }
+    }
+
+    private function emitDeprecationForWithMethods(): void
+    {
+        if ($this->invocationHandler->isMockObject()) {
+            return;
+        }
+
+        EventFacade::emitter()->testTriggeredPhpunitDeprecation(
+            null,
+            'Using with*() on a test stub has no effect and is deprecated.' . PHP_EOL .
+            'With PHPUnit 13, it will not be possible to use with() on a test stub.',
+        );
     }
 }

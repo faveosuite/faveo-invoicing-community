@@ -26,6 +26,8 @@ class ShellOutput extends ConsoleOutput
     private int $paging = 0;
     private OutputPager $pager;
     private Theme $theme;
+    /** @var callable|null */
+    private $writeListener = null;
 
     /**
      * Construct a ShellOutput instance.
@@ -42,15 +44,7 @@ class ShellOutput extends ConsoleOutput
         $this->theme = $theme ?? new Theme('modern');
         $this->initFormatters();
 
-        if ($pager === null) {
-            $this->pager = new PassthruPager($this);
-        } elseif (\is_string($pager)) {
-            $this->pager = new ProcOutputPager($this, $pager);
-        } elseif ($pager instanceof OutputPager) {
-            $this->pager = $pager;
-        } else {
-            throw new \InvalidArgumentException('Unexpected pager parameter: '.$pager);
-        }
+        $this->pager = $this->createPager($pager);
     }
 
     /**
@@ -87,6 +81,14 @@ class ShellOutput extends ConsoleOutput
         }
 
         $this->stopPaging();
+    }
+
+    /**
+     * Set a listener invoked whenever visible output is written.
+     */
+    public function setWriteListener(?callable $listener): void
+    {
+        $this->writeListener = $listener;
     }
 
     /**
@@ -128,14 +130,33 @@ class ShellOutput extends ConsoleOutput
 
         if ($type & self::NUMBER_LINES) {
             $pad = \strlen((string) \count($messages));
-            $template = $this->isDecorated() ? "<aside>%{$pad}s</aside>: %s" : "%{$pad}s: %s";
+            $template = $this->isDecorated() && $this->getFormatter()->hasStyle('whisper')
+                ? "<whisper>%{$pad}s:</whisper> %s"
+                : "%{$pad}s: %s";
 
             if ($type & self::OUTPUT_RAW) {
                 $messages = \array_map([OutputFormatter::class, 'escape'], $messages);
             }
 
+            $indent = \str_repeat(' ', $pad + 2); // Indent continuation lines to align with text
+
             foreach ($messages as $i => $line) {
-                $messages[$i] = \sprintf($template, $i, $line);
+                // Check if line contains newlines (multi-line entry)
+                if (\strpos($line, "\n") !== false) {
+                    // Split into lines and indent continuation lines
+                    $lines = \explode("\n", $line);
+                    $firstLine = \array_shift($lines);
+                    $indentedLines = \array_map(function ($l) use ($indent) {
+                        return $indent.$l;
+                    }, $lines);
+
+                    $messages[$i] = \sprintf($template, $i, $firstLine);
+                    if (!empty($indentedLines)) {
+                        $messages[$i] .= "\n".\implode("\n", $indentedLines);
+                    }
+                } else {
+                    $messages[$i] = \sprintf($template, $i, $line);
+                }
             }
 
             // clean this up for super.
@@ -155,6 +176,10 @@ class ShellOutput extends ConsoleOutput
      */
     public function doWrite($message, $newline): void
     {
+        if ($this->writeListener) {
+            ($this->writeListener)();
+        }
+
         // @todo Update OutputPager interface to require doWrite
         if ($this->paging > 0 && ($this->pager instanceof ProcOutputPager || $this->pager instanceof PassthruPager)) {
             $this->pager->doWrite($message, $newline);
@@ -173,6 +198,18 @@ class ShellOutput extends ConsoleOutput
     }
 
     /**
+     * Replace the output pager used for future paging operations.
+     *
+     * @param string|OutputPager|null $pager
+     */
+    public function setPager($pager): void
+    {
+        $this->closePager();
+        $this->paging = 0;
+        $this->pager = $this->createPager($pager);
+    }
+
+    /**
      * Flush and close the output pager.
      */
     private function closePager()
@@ -180,6 +217,26 @@ class ShellOutput extends ConsoleOutput
         if ($this->paging <= 0) {
             $this->pager->close();
         }
+    }
+
+    /**
+     * @param string|OutputPager|null $pager
+     */
+    private function createPager($pager): OutputPager
+    {
+        if ($pager === null) {
+            return new PassthruPager($this);
+        }
+
+        if (\is_string($pager)) {
+            return new ProcOutputPager($this, $pager);
+        }
+
+        if ($pager instanceof OutputPager) {
+            return $pager;
+        }
+
+        throw new \InvalidArgumentException('Unexpected pager parameter: '.$pager);
     }
 
     /**

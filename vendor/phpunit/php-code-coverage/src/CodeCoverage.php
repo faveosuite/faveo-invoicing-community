@@ -411,7 +411,8 @@ final class CodeCoverage
      */
     public function driverIsPcov(): bool
     {
-        return $this->driver->isPcov();
+        /** @phpstan-ignore isset.initializedProperty */
+        return isset($this->driver) && $this->driver->isPcov();
     }
 
     /**
@@ -419,7 +420,8 @@ final class CodeCoverage
      */
     public function driverIsXdebug(): bool
     {
-        return $this->driver->isXdebug();
+        /** @phpstan-ignore isset.initializedProperty */
+        return isset($this->driver) && $this->driver->isXdebug();
     }
 
     /**

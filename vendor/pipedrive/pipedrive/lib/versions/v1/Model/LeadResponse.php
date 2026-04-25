@@ -78,6 +78,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
         'origin_id' => 'string',
         'channel' => 'int',
         'channel_id' => 'string',
+        'source_deal_id' => 'int',
         'is_archived' => 'bool',
         'was_seen' => 'bool',
         'value' => '\Pipedrive\versions\v1\Model\LeadValue',
@@ -109,6 +110,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
         'origin_id' => null,
         'channel' => null,
         'channel_id' => null,
+        'source_deal_id' => null,
         'is_archived' => null,
         'was_seen' => null,
         'value' => null,
@@ -163,6 +165,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
         'origin_id' => 'origin_id',
         'channel' => 'channel',
         'channel_id' => 'channel_id',
+        'source_deal_id' => 'source_deal_id',
         'is_archived' => 'is_archived',
         'was_seen' => 'was_seen',
         'value' => 'value',
@@ -192,6 +195,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
         'origin_id' => 'setOriginId',
         'channel' => 'setChannel',
         'channel_id' => 'setChannelId',
+        'source_deal_id' => 'setSourceDealId',
         'is_archived' => 'setIsArchived',
         'was_seen' => 'setWasSeen',
         'value' => 'setValue',
@@ -221,6 +225,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
         'origin_id' => 'getOriginId',
         'channel' => 'getChannel',
         'channel_id' => 'getChannelId',
+        'source_deal_id' => 'getSourceDealId',
         'is_archived' => 'getIsArchived',
         'was_seen' => 'getWasSeen',
         'value' => 'getValue',
@@ -311,6 +316,7 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['origin_id'] = $data['origin_id'] ?? null;
         $this->container['channel'] = $data['channel'] ?? null;
         $this->container['channel_id'] = $data['channel_id'] ?? null;
+        $this->container['source_deal_id'] = $data['source_deal_id'] ?? null;
         $this->container['is_archived'] = $data['is_archived'] ?? null;
         $this->container['was_seen'] = $data['was_seen'] ?? null;
         $this->container['value'] = $data['value'] ?? null;
@@ -632,6 +638,30 @@ class LeadResponse implements ModelInterface, ArrayAccess, JsonSerializable
     public function setChannelId($channel_id): self
     {
         $this->container['channel_id'] = $channel_id;
+
+        return $this;
+    }
+
+    /**
+     * Gets source_deal_id
+     *
+     * @return int|null
+     */
+    public function getSourceDealId()
+    {
+        return $this->container['source_deal_id'];
+    }
+
+    /**
+     * Sets source_deal_id
+     *
+     * @param int|null $source_deal_id The ID of the deal if the lead was converted from a deal.
+     *
+     * @return self
+     */
+    public function setSourceDealId($source_deal_id): self
+    {
+        $this->container['source_deal_id'] = $source_deal_id;
 
         return $this;
     }

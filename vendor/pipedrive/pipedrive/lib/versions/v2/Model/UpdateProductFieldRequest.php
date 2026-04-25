@@ -67,8 +67,7 @@ class UpdateProductFieldRequest implements ModelInterface, ArrayAccess, JsonSeri
       */
     protected static array $openAPITypes = [
         'field_name' => 'string',
-        'ui_visibility' => 'array<string,object>',
-        'description' => 'string'
+        'ui_visibility' => 'array<string,object>'
     ];
 
     /**
@@ -80,8 +79,7 @@ class UpdateProductFieldRequest implements ModelInterface, ArrayAccess, JsonSeri
       */
     protected static $openAPIFormats = [
         'field_name' => null,
-        'ui_visibility' => null,
-        'description' => null
+        'ui_visibility' => null
     ];
 
     /**
@@ -116,8 +114,7 @@ class UpdateProductFieldRequest implements ModelInterface, ArrayAccess, JsonSeri
      */
     protected static $attributeMap = [
         'field_name' => 'field_name',
-        'ui_visibility' => 'ui_visibility',
-        'description' => 'description'
+        'ui_visibility' => 'ui_visibility'
     ];
 
     /**
@@ -127,8 +124,7 @@ class UpdateProductFieldRequest implements ModelInterface, ArrayAccess, JsonSeri
      */
     protected static $setters = [
         'field_name' => 'setFieldName',
-        'ui_visibility' => 'setUiVisibility',
-        'description' => 'setDescription'
+        'ui_visibility' => 'setUiVisibility'
     ];
 
     /**
@@ -138,8 +134,7 @@ class UpdateProductFieldRequest implements ModelInterface, ArrayAccess, JsonSeri
      */
     protected static $getters = [
         'field_name' => 'getFieldName',
-        'ui_visibility' => 'getUiVisibility',
-        'description' => 'getDescription'
+        'ui_visibility' => 'getUiVisibility'
     ];
 
     /**
@@ -211,7 +206,6 @@ class UpdateProductFieldRequest implements ModelInterface, ArrayAccess, JsonSeri
     {
         $this->container['field_name'] = $data['field_name'] ?? null;
         $this->container['ui_visibility'] = $data['ui_visibility'] ?? null;
-        $this->container['description'] = $data['description'] ?? null;
     }
 
     /**
@@ -299,30 +293,6 @@ class UpdateProductFieldRequest implements ModelInterface, ArrayAccess, JsonSeri
     public function setUiVisibility($ui_visibility): self
     {
         $this->container['ui_visibility'] = $ui_visibility;
-
-        return $this;
-    }
-
-    /**
-     * Gets description
-     *
-     * @return string|null
-     */
-    public function getDescription()
-    {
-        return $this->container['description'];
-    }
-
-    /**
-     * Sets description
-     *
-     * @param string|null $description Field description
-     *
-     * @return self
-     */
-    public function setDescription($description): self
-    {
-        $this->container['description'] = $description;
 
         return $this;
     }

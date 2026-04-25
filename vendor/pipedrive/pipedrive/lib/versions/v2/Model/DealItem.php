@@ -93,6 +93,7 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         'origin_id' => 'string',
         'channel' => 'int',
         'channel_id' => 'string',
+        'source_lead_id' => 'string',
         'arr' => 'float',
         'mrr' => 'float',
         'acv' => 'float',
@@ -134,6 +135,7 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         'origin_id' => null,
         'channel' => null,
         'channel_id' => null,
+        'source_lead_id' => 'uuid',
         'arr' => null,
         'mrr' => null,
         'acv' => null,
@@ -198,6 +200,7 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         'origin_id' => 'origin_id',
         'channel' => 'channel',
         'channel_id' => 'channel_id',
+        'source_lead_id' => 'source_lead_id',
         'arr' => 'arr',
         'mrr' => 'mrr',
         'acv' => 'acv',
@@ -237,6 +240,7 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         'origin_id' => 'setOriginId',
         'channel' => 'setChannel',
         'channel_id' => 'setChannelId',
+        'source_lead_id' => 'setSourceLeadId',
         'arr' => 'setArr',
         'mrr' => 'setMrr',
         'acv' => 'setAcv',
@@ -276,6 +280,7 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         'origin_id' => 'getOriginId',
         'channel' => 'getChannel',
         'channel_id' => 'getChannelId',
+        'source_lead_id' => 'getSourceLeadId',
         'arr' => 'getArr',
         'mrr' => 'getMrr',
         'acv' => 'getAcv',
@@ -376,6 +381,7 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['origin_id'] = $data['origin_id'] ?? null;
         $this->container['channel'] = $data['channel'] ?? null;
         $this->container['channel_id'] = $data['channel_id'] ?? null;
+        $this->container['source_lead_id'] = $data['source_lead_id'] ?? null;
         $this->container['arr'] = $data['arr'] ?? null;
         $this->container['mrr'] = $data['mrr'] ?? null;
         $this->container['acv'] = $data['acv'] ?? null;
@@ -1052,6 +1058,30 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
     public function setChannelId($channel_id): self
     {
         $this->container['channel_id'] = $channel_id;
+
+        return $this;
+    }
+
+    /**
+     * Gets source_lead_id
+     *
+     * @return string|null
+     */
+    public function getSourceLeadId()
+    {
+        return $this->container['source_lead_id'];
+    }
+
+    /**
+     * Sets source_lead_id
+     *
+     * @param string|null $source_lead_id The ID of the lead if the deal was converted from a lead. Only included when requested via include_fields parameter.
+     *
+     * @return self
+     */
+    public function setSourceLeadId($source_lead_id): self
+    {
+        $this->container['source_lead_id'] = $source_lead_id;
 
         return $this;
     }
