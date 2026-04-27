@@ -1,4 +1,5 @@
 import { defineAsyncComponent } from 'vue';
+import 'flag-icons/css/flag-icons.min.css';
 
 // Layout shell — loaded eagerly (always needed on first render)
 import DefaultLayout from './layouts/DefaultLayout.vue';
