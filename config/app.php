@@ -206,8 +206,6 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\CustomValidationProvider::class,
         App\License\LicenseServiceProvider::class,
-
-        Barryvdh\DomPDF\ServiceProvider::class,
         // Illuminate\Support\Facades\Input::class,
         Spatie\Activitylog\ActivitylogServiceProvider::class,
         Spatie\Referer\RefererServiceProvider::class,
@@ -252,7 +250,6 @@ return [
         'Google2FA' => PragmaRX\Google2FALaravel\Facade::class,
         'Html' => Spatie\Html\Facades\Html::class,
         'Input' => Illuminate\Support\Facades\Input::class,
-        'PDF' => Barryvdh\DomPDF\Facade::class,
         'Redis' => Illuminate\Support\Facades\Redis::class,
         'Stripe' => Cartalyst\Stripe\Laravel\Facades\Stripe::class,
         'Gravatar' => Creativeorange\Gravatar\Facades\Gravatar::class,

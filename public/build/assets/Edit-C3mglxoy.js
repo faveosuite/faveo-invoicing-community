@@ -1,0 +1,1 @@
+import"./vendor-vue-W3vvBaId.js";import{b4 as n,Z as s,_ as e,F as r}from"./vendor-BUtQ0h04.js";const i={__name:"Edit",setup(a){return(l,t)=>(n(),s(r,null,[t[0]||(t[0]=e("div",{class:"content-header"},[e("h1",null,"Edit")],-1)),t[1]||(t[1]=e("div",{class:"content"},null,-1))],64))}};export{i as default};

@@ -1,0 +1,1 @@
+import"./vendor-vue-W3vvBaId.js";import{_ as t}from"./chunk-settings-C4QfTSii.js";import{b4 as o,Z as r,bg as s}from"./vendor-BUtQ0h04.js";const c={},a={class:"toggleswitch-wrapper"};function n(e,l){return o(),r("div",a,[s(e.$slots,"default")])}const p=t(c,[["render",n]]);export{p as default};

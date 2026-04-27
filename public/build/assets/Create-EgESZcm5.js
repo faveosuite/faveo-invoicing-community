@@ -1,0 +1,1 @@
+import"./vendor-vue-W3vvBaId.js";import{b4 as n,Z as r,_ as t,F as a}from"./vendor-BUtQ0h04.js";const p={__name:"Create",setup(s){return(l,e)=>(n(),r(a,null,[e[0]||(e[0]=t("div",{class:"content-header"},[t("h1",null,"Create")],-1)),e[1]||(e[1]=t("div",{class:"content"},null,-1))],64))}};export{p as default};
