@@ -20,9 +20,9 @@ class WhatsappController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth',['except'=>['whatsappWebhook']]);
         $this->middleware('admin', [
-            'except' => ['urlSave', 'saveAccessToken', 'saveWabaId', 'getWebhookUrl', 'webhookUrlEdit', 'whatsappClientTable', 'deregister'],
+            'except' => ['urlSave', 'saveAccessToken', 'saveWabaId', 'getWebhookUrl', 'webhookUrlEdit', 'whatsappClientTable', 'deregister','whatsappWebhook'],
         ]);
 
         $this->client = new Client();
