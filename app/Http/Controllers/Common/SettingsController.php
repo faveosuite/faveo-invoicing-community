@@ -14,7 +14,6 @@ use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\Setting;
 use App\Model\Common\State;
 use App\Model\Common\StatusSetting;
-use App\Model\Common\Template;
 use App\Model\Github\Github;
 use App\Model\Mailjob\QueueService;
 use App\Model\Order\Order;
@@ -506,9 +505,9 @@ class SettingsController extends BaseSettingsController
             $set = $settings->find(1);
 
             return successResponse('', [
-                'forgot_password'  => $set->forgot_password,
-                'order_mail'       => $set->order_mail,
-                'welcome_mail'     => $set->welcome_mail,
+                'forgot_password' => $set->forgot_password,
+                'order_mail' => $set->order_mail,
+                'welcome_mail' => $set->welcome_mail,
                 'invoice_template' => $set->invoice_template,
             ]);
         } catch (\Exception $ex) {
@@ -545,7 +544,7 @@ class SettingsController extends BaseSettingsController
             $set = $settings->find(1);
 
             return successResponse('', [
-                'error_log'   => (bool) $set->error_log,
+                'error_log' => (bool) $set->error_log,
                 'error_email' => $set->error_email ?? '',
             ]);
         } catch (\Exception $ex) {
@@ -1245,8 +1244,8 @@ class SettingsController extends BaseSettingsController
     {
         $enable = filter_var($request->get('debug'), FILTER_VALIDATE_BOOLEAN);
         setEnvValue([
-            'APP_DEBUG'        => $enable ? 'true' : 'false',
-            'PULSE_ENABLED'    => $enable ? 'true' : 'false',
+            'APP_DEBUG' => $enable ? 'true' : 'false',
+            'PULSE_ENABLED' => $enable ? 'true' : 'false',
             'CLOCKWORK_ENABLE' => $enable ? 'true' : 'false',
         ]);
 
@@ -1439,9 +1438,9 @@ class SettingsController extends BaseSettingsController
     public function contactOption()
     {
         return successResponse('', [
-            'sending_status'          => Setting::value('sending_status'),
+            'sending_status' => Setting::value('sending_status'),
             'emailverification_status' => StatusSetting::value('emailverification_status'),
-            'msg91_status'            => StatusSetting::value('msg91_status'),
+            'msg91_status' => StatusSetting::value('msg91_status'),
             'verification_preference' => ApiKey::value('verification_preference'),
         ]);
     }

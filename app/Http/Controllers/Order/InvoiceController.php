@@ -189,7 +189,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                     'partially paid' => 'Partially Paid',
                 ];
                 $status = \Str::lower($invoice->status);
-                
+
                 $products = $invoice->invoiceItem ? $invoice->invoiceItem->pluck('item_name')->toArray() : [];
 
                 return [
@@ -563,7 +563,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $query = Invoice::with([
                 'user:id,first_name,last_name,email,company,address,town,state,country,zip,mobile_code,mobile,gstin',
                 'invoiceItem.order:id,number,invoice_item_id',
-                'payment'
+                'payment',
             ])->findOrFail($id);
 
             if (! $query->user || User::onlyTrashed()->find($query->user->id)) {

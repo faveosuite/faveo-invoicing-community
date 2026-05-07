@@ -146,19 +146,19 @@ class OrderController extends BaseOrderController
                     : intval(substr($order->serial_key, 12, 16), 10);
 
                 return [
-                    'id'                     => $order->id,
-                    'number'                 => $order->number,
-                    'order_status'           => ucfirst($order->order_status),
-                    'product_name'           => $order->productRelation?->name,
-                    'group'                  => $order->productRelation?->groupRelation?->name,
-                    'plan'                   => $order->subscription->plan?->name,
-                    'version'                => $latestVersion ? getVersionAndLabel($latestVersion, $order->product) : null,
-                    'agents'                 => $licenseAgents,
-                    'status'                 => ! empty($order->installationDetail) ? 'Active' : 'Inactive',
-                    'order_date'             => $order->created_at,
-                    'update_ends_at'         => strtotime($order->subscription->ends_at) > 1 ? $order->subscription->ends_at : null,
-                    'subscription_updated_at'=> $order->subscription->updated_at,
-                    'user'                   => $user,
+                    'id' => $order->id,
+                    'number' => $order->number,
+                    'order_status' => ucfirst($order->order_status),
+                    'product_name' => $order->productRelation?->name,
+                    'group' => $order->productRelation?->groupRelation?->name,
+                    'plan' => $order->subscription->plan?->name,
+                    'version' => $latestVersion ? getVersionAndLabel($latestVersion, $order->product) : null,
+                    'agents' => $licenseAgents,
+                    'status' => ! empty($order->installationDetail) ? 'Active' : 'Inactive',
+                    'order_date' => $order->created_at,
+                    'update_ends_at' => strtotime($order->subscription->ends_at) > 1 ? $order->subscription->ends_at : null,
+                    'subscription_updated_at' => $order->subscription->updated_at,
+                    'user' => $user,
                 ];
             });
 
@@ -186,8 +186,8 @@ class OrderController extends BaseOrderController
 
         $expiryDates = [
             'subscription_end' => $subscription && strtotime($subscription->ends_at) > 1 ? getExpiryLabel($subscription->ends_at) : null,
-            'update_end'       => $subscription && strtotime($subscription->update_ends_at) > 1 ? getExpiryLabel($subscription->update_ends_at) : null,
-            'support_end'      => $subscription && strtotime($subscription->support_ends_at) > 1 ? getExpiryLabel($subscription->support_ends_at) : null,
+            'update_end' => $subscription && strtotime($subscription->update_ends_at) > 1 ? getExpiryLabel($subscription->update_ends_at) : null,
+            'support_end' => $subscription && strtotime($subscription->support_ends_at) > 1 ? getExpiryLabel($subscription->support_ends_at) : null,
         ];
 
         $paymentLog = \App\Payment_log::where('order', $order->number)
@@ -196,14 +196,14 @@ class OrderController extends BaseOrderController
             ->first(['payment_method', 'date']);
 
         return successResponse('', [
-            'order'           => $order,
+            'order' => $order,
             'license_details' => [
                 'licence_code' => $order->serial_key,
                 'expiry_dates' => $expiryDates,
             ],
-            'autorenewal'  => $order->subscription->autoRenew_status,
-            'is_subscribed'=> $order->subscription->is_subscribed,
-            'payment_log'  => $paymentLog,
+            'autorenewal' => $order->subscription->autoRenew_status,
+            'is_subscribed' => $order->subscription->is_subscribed,
+            'payment_log' => $paymentLog,
         ]);
     }
 
@@ -234,10 +234,10 @@ class OrderController extends BaseOrderController
             $rows = InstallationDetail::where('order_id', $orderId)->get();
 
             $installationDetails = $rows->map(fn ($row) => [
-                'path'             => $row->installation_path,
-                'ip'               => $row->installation_ip,
-                'version'          => $row->version ?? null,
-                'status'           => $row->installation_status,
+                'path' => $row->installation_path,
+                'ip' => $row->installation_ip,
+                'version' => $row->version ?? null,
+                'status' => $row->installation_status,
                 'last_active_date' => $row->last_active,
             ])->values()->all();
 
@@ -502,13 +502,13 @@ class OrderController extends BaseOrderController
 
             $payments->getCollection()->transform(function ($payment) {
                 return [
-                    'id'             => $payment->id,
+                    'id' => $payment->id,
                     'invoice_number' => $payment->invoice->number,
-                    'user_id'        => $payment->user_id,
-                    'amount'         => currencyFormat($payment->amount, $payment->invoice->currency),
+                    'user_id' => $payment->user_id,
+                    'amount' => currencyFormat($payment->amount, $payment->invoice->currency),
                     'payment_method' => $payment->payment_method,
                     'payment_status' => $payment->payment_status,
-                    'created_at'     => $payment->created_at,
+                    'created_at' => $payment->created_at,
                 ];
             });
 
@@ -534,11 +534,11 @@ class OrderController extends BaseOrderController
 
         $invoices->getCollection()->transform(function ($invoice) {
             return [
-                'id'       => $invoice->id,
-                'number'   => $invoice->number,
-                'amount'   => currencyFormat($invoice->grand_total, $invoice->currency),
-                'status'   => $invoice->status,
-                'date'     => $invoice->date,
+                'id' => $invoice->id,
+                'number' => $invoice->number,
+                'amount' => currencyFormat($invoice->grand_total, $invoice->currency),
+                'status' => $invoice->status,
+                'date' => $invoice->date,
                 'products' => $invoice->invoiceItem->pluck('product_name')->toArray(),
             ];
         });

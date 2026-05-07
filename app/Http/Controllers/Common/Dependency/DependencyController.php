@@ -98,7 +98,7 @@ class DependencyController extends NonPublicDependencies
 
         return $this->get('countries', $baseQuery, function ($element) {
             return (object) [
-                'id'   => $element->country_id,
+                'id' => $element->country_id,
                 'name' => $element->country_name,
                 'code' => $element->country_code_char2,
             ];
@@ -124,7 +124,7 @@ class DependencyController extends NonPublicDependencies
 
         return $this->get('states', $baseQuery, function ($element) {
             return (object) [
-                'id'   => $element->state_subdivision_id,
+                'id' => $element->state_subdivision_id,
                 'name' => $element->state_subdivision_name,
             ];
         });
