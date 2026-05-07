@@ -12,8 +12,6 @@ class EmailSettingsController extends Controller
     protected $emailConfig;
     protected $error;
 
-    protected $error;
-
     public function __construct()
     {
         $this->middleware('auth');

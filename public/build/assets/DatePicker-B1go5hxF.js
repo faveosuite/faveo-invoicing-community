@@ -1,1 +1,0 @@
-import"./vendor-vue-W3vvBaId.js";import{_ as r}from"./chunk-settings-C4QfTSii.js";import{b4 as t,Z as o,bg as s}from"./vendor-BUtQ0h04.js";const c={},a={class:"datepicker-wrapper"};function n(e,_){return t(),o("div",a,[s(e.$slots,"default")])}const f=r(c,[["render",n]]);export{f as default};

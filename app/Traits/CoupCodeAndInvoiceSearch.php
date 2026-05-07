@@ -14,7 +14,7 @@ trait CoupCodeAndInvoiceSearch
 {
     public function advanceSearch($request)
     {
-        return Invoice::with(['user:id,first_name,last_name,email', 'payment'])
+        return Invoice::with(['user:id,first_name,last_name,email,mobile,mobile_code,country', 'payment', 'invoiceItem'])
             ->when($request->name, function ($query, $name) {
                 $query->whereHas('user', function ($q) use ($name) {
                     $q->whereRaw('CONCAT(first_name, " ", last_name) LIKE ?', ["%{$name}%"]);

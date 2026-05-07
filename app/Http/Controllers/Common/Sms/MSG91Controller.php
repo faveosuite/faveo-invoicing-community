@@ -216,10 +216,7 @@ class MSG91Controller extends Controller
                 ];
             });
 
-            return successResponse(__('message.msg91_reports_fetched'), [
-                'logs' => $logs,
-                'total' => $total,
-            ]);
+            return successResponse(__('message.msg91_reports_fetched'), $logs);
         } catch (\Exception $e) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }

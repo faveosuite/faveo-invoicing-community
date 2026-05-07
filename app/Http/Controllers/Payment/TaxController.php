@@ -103,7 +103,7 @@ class TaxController extends Controller
                 ];
             });
 
-            return successResponse(__('message.tax_fetched'), ['data' => $taxes], 200);
+            return successResponse(__('message.tax_fetched'), $taxes);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -296,17 +296,11 @@ class TaxController extends Controller
     public function getState(Request $request, $stateid)
     {
         try {
-            $id = $stateid;
-            $states = \App\Model\Common\State::where('country_code', $id)
-            ->orderBy('state_subdivision_name', 'asc')->get();
-            echo '<option value="">'.__('message.choose').'</option>';
-            foreach ($states as $state) {
-                echo '<option value='.$state->iso2.'>'.$state->state_subdivision_name.'</option>';
-            }
+            $states = \App\Model\Common\State::where('country_code', $stateid)
+                ->orderBy('state_subdivision_name', 'asc')
+                ->get(['iso2', 'state_subdivision_name']);
 
-            return successResponse('', [
-                'states' => $states,
-            ]);
+            return successResponse('', ['states' => $states]);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }

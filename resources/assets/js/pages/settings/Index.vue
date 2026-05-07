@@ -10,7 +10,7 @@
                         <RouterLink :to="item.to"
                                     class="settings-tile d-flex flex-column align-items-center text-center text-decoration-none gap-2 py-2">
                             <span class="settings-icon">
-                                <i :class="['bi', item.icon]"></i>
+                                <i :class="item.icon"></i>
                             </span>
                             <small class="text-body-secondary lh-sm">{{ item.label }}</small>
                         </RouterLink>
@@ -26,63 +26,63 @@ const sections = [
     {
         title: __('message.settings'),
         items: [
-            { to: '/settings/system',              icon: 'bi-display',                  label: __('message.system-settings') },
-            { to: '/settings/cron',                icon: 'bi-speedometer2',             label: __('message.cron-setting') },
-            { to: '/settings/license-type',        icon: 'bi-file-earmark-text-fill',   label: __('message.lic_type') },
-            { to: '/settings/license-permissions', icon: 'bi-diagram-3-fill',           label: __('message.license_permission') },
-            { to: '/settings/file-storage',        icon: 'bi-hdd-fill',                 label: __('message.file_storage') },
-            { to: '/settings/payment-gateway',     icon: 'bi-credit-card-fill',         label: __('message.payment_gateway_integrations') },
-            { to: '/settings/system-managers',     icon: 'bi-people-fill',              label: __('message.system_manager_settings') },
-            { to: '/settings/third-party-apps',    icon: 'bi-puzzle-fill',              label: __('message.third_party_apps') },
-            { to: '/settings/cloud-details',       icon: 'bi-cloud-fill',               label: __('message.cloud_hub') },
-            { to: '/settings/localized-license',   icon: 'bi-globe',                    label: __('message.localized_license') },
-            { to: '/settings/debugging',           icon: 'bi-bug-fill',                 label: __('message.debugging') },
-            { to: '/settings/social-logins',       icon: 'bi-person-badge-fill',        label: __('message.social-logins') },
-            { to: '/settings/language',            icon: 'bi-translate',                label: __('message.language') },
-            { to: '/settings/whatsapp-users',      icon: 'bi-whatsapp',                 label: __('message.whatsapp_users') },
-            { to: '/settings/contact-options',     icon: 'bi-telephone-fill',           label: __('message.contact_options') },
+            { to: '/settings/system',              icon: 'fas fa-display',           label: __('message.system-settings') },
+            { to: '/settings/cron',                icon: 'fas fa-gauge',             label: __('message.cron-setting') },
+            { to: '/settings/license-type',        icon: 'fas fa-file-lines',        label: __('message.lic_type') },
+            { to: '/settings/license-permissions', icon: 'fas fa-diagram-project',   label: __('message.license_permission') },
+            { to: '/settings/file-storage',        icon: 'fas fa-hard-drive',        label: __('message.file_storage') },
+            { to: '/settings/payment-gateway',     icon: 'fas fa-credit-card',       label: __('message.payment_gateway_integrations') },
+            { to: '/settings/system-managers',     icon: 'fas fa-people-group',      label: __('message.system_manager_settings') },
+            { to: '/settings/third-party-apps',    icon: 'fas fa-puzzle-piece',      label: __('message.third_party_apps') },
+            { to: '/settings/cloud-details',       icon: 'fas fa-cloud',             label: __('message.cloud_hub') },
+            { to: '/settings/localized-license',   icon: 'fas fa-globe',             label: __('message.localized_license') },
+            { to: '/settings/debugging',           icon: 'fas fa-bug',               label: __('message.debugging') },
+            { to: '/settings/social-logins',       icon: 'fas fa-id-badge',          label: __('message.social-logins') },
+            { to: '/settings/language',            icon: 'fas fa-language',          label: __('message.language') },
+            { to: '/settings/whatsapp-users',      icon: 'fab fa-whatsapp',          label: __('message.whatsapp_users') },
+            { to: '/settings/contact-options',     icon: 'fas fa-phone',             label: __('message.contact_options') },
         ],
     },
     {
         title: __('message.logs'),
         items: [
-            { to: '/settings/logs/system',   icon: 'bi-list-ul',               label: __('message.log_setting') },
-            { to: '/settings/logs/activity', icon: 'bi-activity',              label: __('message.activity_logs') },
-            { to: '/settings/logs/payment',  icon: 'bi-cash-stack',            label: __('message.payment_logs') },
-            { to: '/settings/logs/msg91',    icon: 'bi-chat-square-text-fill', label: __('message.msg91_reports') },
+            { to: '/settings/logs/system',   icon: 'fas fa-list-ul',          label: __('message.log_setting') },
+            { to: '/settings/logs/activity', icon: 'fas fa-wave-square',      label: __('message.activity_logs') },
+            { to: '/settings/logs/payment',  icon: 'fas fa-money-bill-wave',  label: __('message.payment_logs') },
+            { to: '/settings/logs/msg91',    icon: 'fas fa-message',          label: __('message.msg91_reports') },
         ],
     },
     {
         title: __('message.email'),
         items: [
-            { to: '/settings/email/settings',          icon: 'bi-envelope-fill',              label: __('message.email_settings') },
-            { to: '/settings/email/template-settings', icon: 'bi-layout-text-window-reverse', label: __('message.template_settings') },
-            { to: '/settings/email/templates',         icon: 'bi-file-earmark-text-fill',     label: __('message.email_templates') },
+            { to: '/settings/email/settings',          icon: 'fas fa-envelope',     label: __('message.email_settings') },
+            { to: '/settings/email/template-settings', icon: 'fas fa-table-list',   label: __('message.template_settings') },
+            { to: '/settings/email/templates',         icon: 'fas fa-file-lines',   label: __('message.email_templates') },
         ],
     },
     {
         title: __('message.common'),
         items: [
-            { to: '/settings/common/currency',  icon: 'bi-currency-exchange', label: __('message.currency') },
-            { to: '/settings/common/countries', icon: 'bi-globe2',            label: __('message.countries') },
-            { to: '/settings/common/queues',    icon: 'bi-stack',             label: __('message.queues') },
-            { to: '/settings/common/tax',       icon: 'bi-calculator-fill',   label: __('message.tax') },
+            { to: '/settings/common/currency',  icon: 'fas fa-money-bill-transfer', label: __('message.currency') },
+            { to: '/settings/common/countries', icon: 'fas fa-globe',               label: __('message.countries') },
+            { to: '/settings/common/queues',    icon: 'fas fa-layer-group',         label: __('message.queues') },
+            { to: '/settings/common/tax',       icon: 'fas fa-calculator',          label: __('message.tax') },
         ],
     },
     {
         title: __('message.widgets'),
         items: [
-            { to: '/settings/widgets/footer',       icon: 'bi-list-ul',  label: __('message.footer_widget') },
-            { to: '/settings/widgets/social-media', icon: 'bi-share-fill',     label: __('message.social_media') },
-            { to: '/settings/widgets/analytics',    icon: 'bi-bar-chart-fill', label: __('message.analytics') },
+            { to: '/settings/widgets/footer',       icon: 'fas fa-list-ul',     label: __('message.footer_widget') },
+            { to: '/settings/widgets/social-media', icon: 'fas fa-share-nodes', label: __('message.social_media') },
+            { to: '/settings/widgets/analytics',    icon: 'fas fa-chart-bar',   label: __('message.analytics') },
         ],
     },
     {
         title: __('message.api_integrations'),
         items: [
-            { to: '/settings/api/pipedrive',   icon: 'bi-diagram-3-fill',    label: __('message.pipedrive') },
-            { to: '/settings/api/recaptcha',   icon: 'bi-shield-fill-check', label: __('message.recaptcha') },
-            { to: '/settings/api/third-party', icon: 'bi-link-45deg',        label: __('message.third_party_integrations') },
+            { to: '/settings/api/pipedrive',   icon: 'fas fa-diagram-project', label: __('message.pipedrive') },
+            { to: '/settings/api/recaptcha',   icon: 'fas fa-shield-halved',   label: __('message.recaptcha') },
+            { to: '/settings/api/third-party', icon: 'fas fa-link',            label: __('message.third_party_integrations') },
         ],
     },
 ]

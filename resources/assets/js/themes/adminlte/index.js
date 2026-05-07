@@ -8,11 +8,14 @@ import Navbar from './components/common/Navbar.vue';
 import AppFooter from './components/common/Footer.vue';
 import AppButton from './components/common/Button.vue';
 import AppBadge from './components/common/Badge.vue';
-import AppAlert from './components/common/Alert.vue';
+import AppAlert from './components/common/Alert.vue'
+import DeleteModal from './components/common/DeleteModal.vue';
 import AppBreadcrumb from './components/common/Breadcrumb.vue';
 
 // Heavy / page-specific components — split into their own chunks, loaded on demand
 const AppTable      = defineAsyncComponent(() => import('./components/common/Table.vue'));
+const DataTable        = defineAsyncComponent(() => import('./components/common/DataTable.vue'));
+const SimplePagination = defineAsyncComponent(() => import('./components/common/SimplePagination.vue'));
 const AppModal      = defineAsyncComponent(() => import('./components/common/Modal.vue'));
 const AppPagination = defineAsyncComponent(() => import('./components/common/Pagination.vue'));
 const AppCard       = defineAsyncComponent(() => import('./components/common/Card.vue'));
@@ -22,6 +25,9 @@ const TextareaField = defineAsyncComponent(() => import('./components/forms/Text
 const DatePicker    = defineAsyncComponent(() => import('./components/forms/DatePicker.vue'));
 const FileUpload    = defineAsyncComponent(() => import('./components/forms/FileUpload.vue'));
 const ToggleSwitch  = defineAsyncComponent(() => import('./components/forms/ToggleSwitch.vue'));
+const DynamicSelect = defineAsyncComponent(() => import('./components/forms/DynamicSelect.vue'));
+const PhoneField    = defineAsyncComponent(() => import('./components/forms/PhoneField.vue'));
+const TinyMCE       = defineAsyncComponent(() => import('./components/forms/TinyMCE.vue'));
 
 export const components = {
     DefaultLayout,
@@ -31,8 +37,11 @@ export const components = {
     AppButton,
     AppBadge,
     AppAlert,
+    DeleteModal,
     AppBreadcrumb,
     AppTable,
+    DataTable,
+    SimplePagination,
     AppModal,
     AppPagination,
     AppCard,
@@ -42,4 +51,7 @@ export const components = {
     DatePicker,
     FileUpload,
     ToggleSwitch,
+    DynamicSelect,
+    PhoneField,
+    TinyMCE,
 };

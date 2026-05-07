@@ -189,13 +189,17 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                     'partially paid' => 'Partially Paid',
                 ];
                 $status = \Str::lower($invoice->status);
+                
+                $products = $invoice->invoiceItem ? $invoice->invoiceItem->pluck('item_name')->toArray() : [];
 
                 return [
                     'id' => $invoice->id,
                     'user' => $invoice->user,
                     'number' => $invoice->number,
+                    'products' => $products,
+                    'created_at' => $invoice->created_at,
                     'grand_total' => currencyFormat($invoice->grand_total, $invoice->currency),
-                    'status' => $statusMapping[$status],
+                    'status' => $statusMapping[$status] ?? $invoice->status,
                 ];
             });
 
@@ -557,8 +561,9 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     {
         try {
             $query = Invoice::with([
-                'user:id,first_name,last_name,email,company,address,town,state,country,zip,mobile_code,mobile',
+                'user:id,first_name,last_name,email,company,address,town,state,country,zip,mobile_code,mobile,gstin',
                 'invoiceItem.order:id,number,invoice_item_id',
+                'payment'
             ])->findOrFail($id);
 
             if (! $query->user || User::onlyTrashed()->find($query->user->id)) {
@@ -583,13 +588,20 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             $invoice = [
                 'invoice' => [
+                    'id' => $query->id,
                     'number' => $query->number,
                     'date' => $query->date,
+                    'status' => $query->status,
+                    'grand_total' => $query->grand_total,
+                    'currency' => $query->currency,
+                    'coupon_code' => $query->coupon_code,
+                    'processing_fee_label' => $query->processing_fee,
                 ],
                 'from' => $setting,
                 'to' => $query->user,
                 'items' => $query->invoiceItem,
                 'totals' => $result,
+                'payments' => $query->payment,
             ];
 
             return successResponse('', $invoice);

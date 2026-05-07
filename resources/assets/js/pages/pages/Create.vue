@@ -1,12 +1,137 @@
 <template>
-    <div class="content-header">
-        <h1>Create</h1>
-    </div>
-    <div class="content">
-        <!-- Create page content goes here -->
+    <div>
+        <AppAlert :componentName="COMPONENT" />
+        <div class="card card-secondary card-outline">
+            <div class="card-header">
+                <h4 class="card-title">Create Page</h4>
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <TextField name="name" label="Name *" :value="form.name" :onChange="onChange" />
+                    </div>
+                    <div class="col-md-6">
+                        <TextField name="slug" label="Slug *" :value="form.slug" :onChange="onChange" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Type</label>
+                            <select class="form-select" v-model="form.type" @change="onTypeChange">
+                                <option value="">Custom</option>
+                                <option value="contactus">Contact Us</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <TextField name="url" label="URL *" :value="form.url" :onChange="onChange" :disabled="form.type === 'contactus'" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <DynamicSelect
+                            name="parent_page_id"
+                            label="Parent Page"
+                            :apiEndpoint="`${baseUrl}/pages`"
+                            dataKey="data"
+                            :value="form.parentObj"
+                            :onChange="onChange"
+                            placeholder="Select parent page"
+                        />
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold d-block">Publish</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" v-model="form.publish" id="publish" />
+                                <label class="form-check-label" for="publish">{{ form.publish ? 'Active' : 'Inactive' }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Content *</label>
+                    <TinyMCE name="content" id="editor-content" :value="form.content" :onChange="onChange" />
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <button class="btn btn-primary" @click="submit" :disabled="saving">
+                    <span v-if="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    Save
+                </button>
+                <router-link to="/pages" class="btn btn-secondary ms-2">Cancel</router-link>
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup>
-// Create
+import { reactive, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import http from '@/plugins/axios'
+import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+
+const COMPONENT = 'pages-create'
+const el = document.getElementById('app-root')
+const baseUrl = el?.dataset?.baseUrl ?? ''
+const router = useRouter()
+
+const saving = ref(false)
+
+const form = reactive({
+    name:          '',
+    slug:          '',
+    url:           '',
+    type:          '',
+    publish:       false,
+    content:       '',
+    parent_page_id: null,
+    parentObj:     null,
+})
+
+watch(() => form.name, (val) => {
+    form.slug = val.replace(/\s+/g, '').toLowerCase()
+})
+
+function onChange(val, name) {
+    if (name === 'parent_page_id') {
+        form.parentObj = val
+        form.parent_page_id = val?.id ?? null
+    } else {
+        form[name] = val
+    }
+}
+
+function onTypeChange() {
+    if (form.type === 'contactus') {
+        form.url = `${baseUrl}/contact-us`
+    }
+}
+
+async function submit() {
+    saving.value = true
+    try {
+        const res = await http.post(`${baseUrl}/page`, {
+            name:           form.name,
+            slug:           form.slug,
+            url:            form.url,
+            type:           form.type,
+            publish:        form.publish ? 1 : 0,
+            content:        form.content,
+            parent_page_id: form.parent_page_id,
+        })
+        successHandler(res, COMPONENT)
+        router.push('/pages')
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        saving.value = false
+    }
+}
 </script>

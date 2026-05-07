@@ -1,8 +1,134 @@
 <template>
-    <div class="selectfield-wrapper">
-        <slot />
+    <div class="mb-3">
+        <label v-if="label" class="form-label fw-bold">{{ label }}</label>
+        <v-select
+            :inputId="name"
+            :options="elements"
+            v-model="selectedValue"
+            :label="optionLabel"
+            :multiple="multiple"
+            :placeholder="placeholder"
+            :disabled="disabled"
+            :clearable="clearable"
+            :searchable="searchable"
+            :closeOnSelect="closeOnSelect"
+            :taggable="taggable"
+            :noDrop="noDrop"
+            class="faveo-dynamic-select"
+            @update:modelValue="onValueChange"
+        >
+            <template #no-options="{ search }">
+                <span v-if="search">No results for <em>{{ search }}</em></span>
+                <span v-else>No options found</span>
+            </template>
+        </v-select>
     </div>
 </template>
 
 <script setup>
+import { ref, watch } from 'vue'
+import vSelect from 'vue-select'
+import 'vue-select/dist/vue-select.css'
+
+const props = defineProps({
+    name:          { type: String, required: true },
+    label:         { type: String, default: '' },
+    elements:      { type: Array, default: () => [] },
+    multiple:      { type: Boolean, default: false },
+    value:         { type: [Object, Array, String, Number], default: null },
+    onChange:      { type: Function, required: true },
+    placeholder:   { type: String, default: 'Select' },
+    clearable:     { type: Boolean, default: true },
+    searchable:    { type: Boolean, default: false },
+    disabled:      { type: Boolean, default: false },
+    closeOnSelect: { type: Boolean, default: true },
+    taggable:      { type: Boolean, default: false },
+    noDrop:        { type: Boolean, default: false },
+    optionLabel:   { type: String, default: 'name' },
+})
+
+const selectedValue = ref(props.value)
+
+function onValueChange(val) {
+    props.onChange(val, props.name)
+}
+
+watch(() => props.value,    (val) => { selectedValue.value = val })
+watch(() => props.elements, () => {
+    // Re-validate selected value when the options list changes
+    if (!props.elements.includes(selectedValue.value)) {
+        selectedValue.value = null
+    }
+})
 </script>
+
+<style>
+/* Shared with DynamicSelect — styles live here so SelectField is self-contained */
+.faveo-dynamic-select .vs__dropdown-toggle {
+    width: 100%;
+    line-height: 1.4;
+    display: flex;
+    padding: 0;
+    border: 1px solid rgba(60, 60, 60, 0.26);
+    overflow-y: auto;
+    min-height: 35px;
+    max-height: 85px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.faveo-dynamic-select .vs__dropdown-toggle::-webkit-scrollbar {
+    display: none;
+}
+
+.faveo-dynamic-select.field-danger .vs__dropdown-toggle {
+    border: 1px solid #d73925 !important;
+}
+
+.faveo-dynamic-select .vs__selected {
+    margin: 3px;
+}
+
+.faveo-dynamic-select .vs__selected .selected {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 400px;
+}
+
+.faveo-dynamic-select .vs__dropdown-menu {
+    max-height: 200px;
+}
+
+.faveo-dynamic-select .vs__dropdown-menu::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+    border-radius: 10px;
+}
+
+.faveo-dynamic-select .vs__dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+    background-color: #f1f1f1;
+}
+
+.faveo-dynamic-select .vs__dropdown-menu::-webkit-scrollbar-thumb {
+    background-color: #c1c1c1;
+    border-radius: 10px;
+}
+
+.faveo-dynamic-select .vs__selected-options {
+    padding: 0;
+}
+
+.faveo-dynamic-select .vs__actions {
+    padding: 0 5px 0 3px;
+}
+
+.faveo-dynamic-select .vs__clear {
+    position: relative;
+}
+
+.faveo-dynamic-select .vs__search,
+.faveo-dynamic-select .vs__search:focus {
+    margin: 5px;
+}
+</style>

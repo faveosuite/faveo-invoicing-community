@@ -55,6 +55,39 @@
     color: #fff;
 }
 
+/* ── License module form validation ────────────────────────────────────────── */
+
+.is-danger,
+.faveo-danger { color: #d73925; }
+
+.faveo-trash  { color: #d73925; cursor: pointer; font-size: 18px; }
+.faveo-add    { color: green;   cursor: pointer; }
+
+.faveo-danger-text { color: #d73925; font-size: 14px; }
+
+.faveo-header-title { font-size: 18px; font-weight: 500; text-transform: capitalize; }
+
+.faveo-field-danger { border-color: #d73925; }
+
+.has-error .form-control,
+.has-error .dropdown-toggle,
+.is-danger > .dropdown-toggle,
+.field-danger > .dropdown-toggle,
+.field-danger,
+.has-error { border-color: #d73925 !important; }
+
+.error-block { color: #d73925; font-size: 0.85em; margin-top: 0.25rem; }
+
+.form-field-template .form-control { margin-bottom: 0 !important; }
+
+.relate { position: relative; }
+
+.pull-right { float: right; }
+
+.bg-gb { background: gainsboro !important; }
+
+.form-control { font-size: inherit !important; }
+
 /* ── Alert slide transition ────────────────────────────────────────────────── */
 .alert-slide-enter-active,
 .alert-slide-leave-active {

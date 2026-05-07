@@ -1164,6 +1164,15 @@ class PageController extends Controller
         }
     }
 
+    public function getDemoStatus()
+    {
+        $demo = Demo_page::first();
+
+        return successResponse('', [
+            'status' => $demo ? (bool) $demo->status : false,
+        ]);
+    }
+
     public function saveDemoPage(Request $request)
     {
         $request->validate([
@@ -1240,10 +1249,44 @@ class PageController extends Controller
         return $formatted.$span;
     }
 
+    public function createPage(Request $request)
+    {
+        try {
+            $pagesCount = FrontendPage::count();
+            if ($pagesCount >= 3) {
+                return errorResponse(__('message.limit_exceed'));
+            }
+
+            $url = $request->input('url');
+            if ($request->input('type') === 'contactus') {
+                $url = url('/contact-us');
+            }
+
+            $page = FrontendPage::create([
+                'name'           => $request->input('name'),
+                'publish'        => $request->input('publish', 0),
+                'slug'           => $request->input('slug'),
+                'url'            => $url,
+                'parent_page_id' => $request->input('parent_page_id'),
+                'type'           => $request->input('type'),
+                'content'        => $request->input('content'),
+            ]);
+
+            return successResponse(__('message.saved-successfully'), $page);
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
     public function getPage(Request $request, $pageId)
     {
         try {
-            return successResponse('', FrontendPage::with('parent:id,name')->findOrFail($pageId));
+            $page = FrontendPage::with('parent:id,name')->findOrFail($pageId);
+            $defaultPageId = DefaultPage::value('page_id');
+            $data = $page->toArray();
+            $data['is_default'] = (int) $page->id === (int) $defaultPageId;
+
+            return successResponse('', $data);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }

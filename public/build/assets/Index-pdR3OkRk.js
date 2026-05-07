@@ -1,0 +1,1 @@
+import"./vendor-vue-Cp6G9hM5.js";import{b4 as a,Z as n,_ as e,bv as o,F as r}from"./vendor-B52Oqw8K.js";const l={class:"content"},i={__name:"Index",setup(d){return(t,s)=>(a(),n(r,null,[s[0]||(s[0]=e("div",{class:"content-header"},[e("h1",null,"Index")],-1)),e("div",l,o(t.__("message.dashboard")),1)],64))}};export{i as default};

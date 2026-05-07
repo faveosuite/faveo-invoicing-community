@@ -1,1 +1,0 @@
-import"./vendor-vue-W3vvBaId.js";import{b4 as t,Z as s,_ as n,F as r}from"./vendor-BUtQ0h04.js";const m={__name:"Index",setup(a){return(l,e)=>(t(),s(r,null,[e[0]||(e[0]=n("div",{class:"content-header"},[n("h1",null,"User Index")],-1)),e[1]||(e[1]=n("div",{class:"content"},null,-1))],64))}};export{m as default};

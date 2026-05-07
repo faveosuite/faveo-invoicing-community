@@ -132,6 +132,48 @@ class LocalizedLicenseController extends Controller
         return successResponse(__('message.status_change_successfully'));
     }
 
+    public function filesApi()
+    {
+        try {
+            $files = collect(Storage::disk('public')->files())
+                ->filter(fn ($file) => \Illuminate\Support\Str::startsWith($file, 'faveo-license'))
+                ->values()
+                ->map(function ($file) {
+                    $orderNo = null;
+                    if (preg_match('/faveo-license-\{(.+)\}\.txt/', $file, $matches)) {
+                        $orderNo = $matches[1];
+                    }
+
+                    return [
+                        'file_name' => $file,
+                        'order_number' => $orderNo,
+                        'download_url' => url('LocalizedLicense/downloadLicense/'.$file),
+                        'private_key_url' => url('LocalizedLicense/downloadPrivateKey/'.$file),
+                    ];
+                });
+
+            return successResponse('', ['files' => $files]);
+        } catch (\Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function deleteFileApi(Request $request)
+    {
+        try {
+            $fileName = $request->input('file_name');
+            if (! $fileName || ! \Illuminate\Support\Str::startsWith($fileName, 'faveo-license')) {
+                return errorResponse(__('message.invalid'));
+            }
+
+            Storage::disk('public')->delete($fileName);
+
+            return successResponse(Lang::get('message.license_file_deleted', ['file' => $fileName]));
+        } catch (\Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
     /**
      * Stores the license file after the client has entered a domain and downloads the license.
      * */

@@ -37,12 +37,8 @@ class LicenseSettingsController extends LicensePermissionsController
 
             $licenseTypes = $query->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
-            $total = $licenseTypes->count();
 
-            return successResponse('', [
-                'license_types' => $licenseTypes,
-                'total' => $total,
-            ]);
+            return successResponse('', $licenseTypes);
         } catch (\Exception $ex) {
             return errorResponse(__('message.something_went_wrong_try_again'));
         }
@@ -105,6 +101,17 @@ class LicenseSettingsController extends LicensePermissionsController
             }
 
             return successResponse(__('message.deleted-successfully'));
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    public function getLicenseTypeById($id)
+    {
+        try {
+            $type = $this->licenseType->select('id', 'name')->findOrFail($id);
+
+            return successResponse('', $type);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }

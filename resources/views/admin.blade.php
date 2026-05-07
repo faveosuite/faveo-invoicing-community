@@ -13,7 +13,7 @@
 
     {{-- Critical CSS — render-blocking, needed before first paint --}}
     <link rel="stylesheet" href="{{ assetLink('css', 'bootstrap') }}">
-    <link rel="stylesheet" href="{{ assetLink('css', 'bootstrap-icons') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', 'fontawesome') }}">
     <link rel="stylesheet" href="{{ assetLink('css', 'AdminLTE') }}">
 
     {{-- Non-critical CSS — async, zero render-blocking --}}
@@ -33,7 +33,7 @@
     @vite(['resources/assets/js/main.js'])
 </head>
 
-<body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary fs-7">
+<body class="sidebar-expand-lg sidebar-open bg-body-tertiary fs-7">
 
     <div class="app-wrapper" id="app-root"
          data-theme="{{ config('theme.active') }}"

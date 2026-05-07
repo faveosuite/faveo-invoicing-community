@@ -377,6 +377,16 @@ class PaymentSettingsController extends Controller
         return successResponse(\Lang::get('message.status_change'));
     }
 
+    public function getPaymentGatewayList()
+    {
+        try {
+            $configs = $this->fetchConfig();
+            return successResponse('', array_values($configs));
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage(), 500);
+        }
+    }
+
     public function getPaymentPluginMap(): array
     {
         static $pluginMap = null;

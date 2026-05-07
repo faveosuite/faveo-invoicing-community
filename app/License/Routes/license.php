@@ -65,15 +65,6 @@ Route::middleware('throttle:120,1')->group(function () {
     Route::post('/api/LicenseReissue', [LicenseApiController::class, 'reissueLicenseCloud']);
 });
 
-// ============================================================================
-// LICENSE MANAGER SPA ENTRY POINT
-// Catch-all route to serve the Vue SPA for the license manager UI
-// ============================================================================
-
-Route::get('/license-manager/{any?}', function () {
-    return view('license::welcome');
-})->where('any', '.*')->middleware(['web', 'auth', 'admin']);
-
 // Language translations for Vue
 Route::get('/license-manager-lang', [LanguageController::class, 'getLanguageFile']);
 

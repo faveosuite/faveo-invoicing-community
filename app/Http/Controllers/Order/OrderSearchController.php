@@ -18,36 +18,35 @@ class OrderSearchController extends Controller
 
     public function advanceOrderSearch(Request $request)
     {
-        try {
-            $query = Order::with([
-                'user' => function ($q) {
-                    $q->withTrashed()
-                        ->select('id', 'first_name', 'last_name', 'email', 'mobile', 'mobile_code', 'country');
-                },
-                'productRelation',
-                'installationDetail',
-                'subscription' => function ($q) {
-                    $q->with('plan');
-                },
-            ]);
+        $query = Order::with([
+            'user' => function ($q) {
+                $q->withTrashed()
+                    ->select('id', 'first_name', 'last_name', 'email', 'mobile', 'mobile_code', 'country');
+            },
+            'productRelation.groupRelation',
+            'installationDetail',
+            'subscription' => function ($q) {
+                $q->with('plan');
+            },
+        ]);
 
-            // Filters
-            $this->filterOrderNum($query, $request->order_no);
-            $this->filterProduct($query, $request->product_id);
-            $this->filterDateRange($query, $request);
-            $this->filterDomain($query, $request->domain);
-            $this->filterInstallation($query, $request->act_ins);
-            $this->filterRenewal($query, $request->renewal);
-            $this->filterVersion($query, $request->version, $request->product_id);
+        $this->filterOrderNum($query, $request->order_no);
+        $this->filterProduct($query, $request->product_id);
+        $this->filterDateRange($query, $request);
+        $this->filterDomain($query, $request->domain);
+        $this->filterInstallation($query, $request->act_ins);
+        $this->filterRenewal($query, $request->renewal);
+        $this->filterVersion($query, $request->version, $request->product_id);
 
-            if (in_array($request->renewal, ['expiring_subscription', 'expired_subscription'])) {
-                $query->orderByDesc('subscription.update_ends_at');
-            }
-
-            return $query;
-        } catch (\Exception $ex) {
-            return $ex;
+        if (in_array($request->renewal, ['expiring_subscription', 'expired_subscription'])) {
+            $query->orderByDesc(
+                \App\Model\Product\Subscription::select('update_ends_at')
+                    ->whereColumn('subscriptions.order_id', 'orders.id')
+                    ->limit(1)
+            );
         }
+
+        return $query;
     }
 
     private function filterOrderNum($query, $orderNo)
@@ -124,32 +123,38 @@ class OrderSearchController extends Controller
 
     private function filterRenewal($query, $renewal)
     {
-        if ($version) {
-            if ($productId == 'paid') {
-                $latestVersion = ProductUpload::orderBy('version', 'desc')->value('version');
-                if ($version == 'Latest' && $latestVersion) {
-                    $baseQuery->where('subscriptions.version', '=', $latestVersion);
-                } elseif ($version == 'Outdated' && $latestVersion) {
-                    $baseQuery->where('subscriptions.version', '<', $latestVersion);
-                }
-            } elseif ($productId == 'unpaid') {
-                $latestVersion = ProductUpload::orderBy('version', 'desc')->value('version');
-                if ($version == 'Latest' && $latestVersion) {
-                    $baseQuery->where('subscriptions.version', '=', $latestVersion);
-                } elseif ($version == 'Outdated' && $latestVersion) {
-                    $baseQuery->where('subscriptions.version', '<', $latestVersion);
-                }
-            } elseif ($version == 'Outdated') {
-                $latestVersion = Subscription::where('product_id', $productId)->orderBy('version', 'desc')->value('version');
+        if (! $renewal) {
+            return;
+        }
 
-                if (! empty($latestVersion)) {
-                    $baseQuery->whereNotNull('subscriptions.version')
-                        ->where('subscriptions.version', '!=', '')
-                        ->where('subscriptions.version', '<', $latestVersion);
-                }
-            } else {
-                $baseQuery->where('subscriptions.version', '=', $version);
-            }
+        $now = Carbon::now();
+
+        if ($renewal === 'expired_subscription') {
+            $query->whereHas('subscription', function ($q) use ($now) {
+                $q->where('update_ends_at', '<', $now);
+            });
+        } elseif ($renewal === 'active_subscription') {
+            $query->whereHas('subscription', function ($q) use ($now) {
+                $q->where('update_ends_at', '>=', $now);
+            });
+        } elseif ($renewal === 'expiring_subscription') {
+            $thirtyDaysFromNow = $now->copy()->addDays(30);
+            $query->whereHas('subscription', function ($q) use ($now, $thirtyDaysFromNow) {
+                $q->whereBetween('update_ends_at', [$now, $thirtyDaysFromNow]);
+            });
+        }
+    }
+
+    private function filterVersion($query, $version, $productId)
+    {
+        if (! $version) {
+            return;
+        }
+
+        if (in_array($productId, ['paid', 'unpaid'])) {
+            $latest = ProductUpload::orderBy('version', 'desc')->value('version');
+        } else {
+            $latest = Subscription::where('product_id', $productId)->orderBy('version', 'desc')->value('version');
         }
 
         $query->whereHas('subscription', function ($q) use ($version, $latest) {

@@ -1,0 +1,191 @@
+<template>
+    <div>
+        <AppAlert :componentName="COMPONENT" />
+        <div class="card card-secondary card-outline">
+            <div class="card-header">
+                <h4 class="card-title">Create Plan</h4>
+            </div>
+
+            <div class="card-body">
+                <!-- Row 1: Name / Product / Period / Status -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <TextField name="name" label="Name *" :value="form.name" :onChange="onChange" />
+                    </div>
+                    <div class="col-md-3">
+                        <DynamicSelect
+                            name="product"
+                            label="Product *"
+                            :apiEndpoint="`${baseUrl}/dependency/products`"
+                            dataKey="products"
+                            :value="form.productObj"
+                            :onChange="onChange"
+                            placeholder="Select product"
+                        />
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Period</label>
+                            <select class="form-select" v-model="form.days">
+                                <option value="">Choose</option>
+                                <option v-for="p in periods" :key="p.id" :value="p.id">{{ p.name }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Status *</label>
+                            <select class="form-select" v-model="form.status">
+                                <option :value="1">Active</option>
+                                <option :value="0">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agents / Quantity -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <TextField name="no_of_agents" label="No of Agents" type="number" :value="form.no_of_agents" :onChange="onChange" />
+                    </div>
+                    <div class="col-md-3">
+                        <TextField name="product_quantity" label="Product Quantity" type="number" :value="form.product_quantity" :onChange="onChange" />
+                    </div>
+                </div>
+
+                <!-- Pricing Table -->
+                <div class="mt-3">
+                    <label class="form-label fw-bold">Pricing</label>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Currency *</th>
+                                <th>Price *</th>
+                                <th>Offer Price (%)</th>
+                                <th>Renew Price *</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, idx) in form.prices" :key="idx">
+                                <td>
+                                    <select class="form-select form-select-sm" v-model="row.currency">
+                                        <option value="">Choose</option>
+                                        <option v-for="c in currencies" :key="c.id" :value="c.id">{{ c.name }}</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm" v-model="row.add_price" min="0" />
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm" v-model="row.offer_price" min="0" max="100" step="0.01" />
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm" v-model="row.renew_price" min="0" />
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" @click="removeRow(idx)" type="button" :disabled="form.prices.length === 1">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="btn btn-sm btn-secondary" @click="addRow" type="button">
+                        <i class="fas fa-plus me-1"></i>Add Currency
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <button class="btn btn-primary" @click="submit" :disabled="saving">
+                    <span v-if="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    Save
+                </button>
+                <router-link to="/products/plans" class="btn btn-secondary ms-2">Cancel</router-link>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script setup>
+import { reactive, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import http from '@/plugins/axios'
+import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+
+const COMPONENT = 'plans-create'
+const el = document.getElementById('app-root')
+const baseUrl = el?.dataset?.baseUrl ?? ''
+const router = useRouter()
+
+const saving = ref(false)
+const periods = ref([])
+const currencies = ref([])
+
+const form = reactive({
+    name: '',
+    product: null,
+    productObj: null,
+    days: '',
+    status: 1,
+    no_of_agents: '',
+    product_quantity: '',
+    prices: [{ currency: '', add_price: '', offer_price: '', renew_price: '' }],
+})
+
+function onChange(val, name) {
+    if (name === 'product') {
+        form.productObj = val
+        form.product = val?.id ?? null
+    } else {
+        form[name] = val
+    }
+}
+
+function addRow() {
+    form.prices.push({ currency: '', add_price: '', offer_price: '', renew_price: '' })
+}
+
+function removeRow(idx) {
+    form.prices.splice(idx, 1)
+}
+
+onMounted(async () => {
+    try {
+        const [pRes, cRes] = await Promise.all([
+            http.get(`${baseUrl}/dependency/periods`),
+            http.get(`${baseUrl}/dependency/currencies`),
+        ])
+        periods.value = pRes.data?.data?.periods ?? []
+        currencies.value = cRes.data?.data?.currencies ?? []
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    }
+})
+
+async function submit() {
+    saving.value = true
+    try {
+        const payload = {
+            name:             form.name,
+            product:          form.product,
+            days:             form.days || null,
+            status:           form.status,
+            no_of_agents:     form.no_of_agents !== '' ? form.no_of_agents : null,
+            product_quantity: form.product_quantity !== '' ? form.product_quantity : null,
+            currency:         form.prices.map(p => p.currency),
+            add_price:        form.prices.map(p => p.add_price),
+            renew_price:      form.prices.map(p => p.renew_price),
+            offer_price:      form.prices.map(p => p.offer_price !== '' ? p.offer_price : null),
+        }
+        const res = await http.put(`${baseUrl}/plans`, payload)
+        successHandler(res, COMPONENT)
+        router.push('/products/plans')
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        saving.value = false
+    }
+}
+</script>

@@ -13,7 +13,7 @@ return [
 
     'css' => [
         'bootstrap'         => 'themes/default/common/bootstrap/css/bootstrap.min.css',
-        'bootstrap-icons'   => 'themes/default/common/bootstrap-icons/css/bootstrap-icons.min.css',
+        'fontawesome'       => 'themes/default/common/fontawesome/css/all.min.css',
         'AdminLTE'          => 'themes/default/admin/adminlte/css/adminlte.css',
         'overlayscrollbars' => 'themes/default/common/overlayscrollbars/css/overlayscrollbars.min.css',
         'apexcharts'        => 'themes/default/common/apexcharts/css/apexcharts.css',

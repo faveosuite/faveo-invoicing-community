@@ -14,6 +14,7 @@ use App\Model\Order\Order;
 use App\Model\Payment\Currency;
 use App\Model\User\AccountActivate;
 use App\ReportColumn;
+use App\Traits\PaginationTotal;
 use App\Traits\PaymentsAndInvoices;
 use App\User;
 use App\UserLinkReport;
@@ -26,7 +27,7 @@ use Yajra\DataTables\DataTables;
 
 class ClientController extends AdvanceSearchController
 {
-    use PaymentsAndInvoices;
+    use PaginationTotal, PaymentsAndInvoices;
 
     public $user;
 
@@ -760,7 +761,13 @@ class ClientController extends AdvanceSearchController
         $sortField = $request->input('sort-field', 'created_at');
         $limit = $request->input('limit', 10);
 
-        $query = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'country', 'created_at');
+        $query = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'country', 'created_at', 'email_verified', 'mobile_verified', 'is_2fa_enabled');
+
+        $total = $this->cachedTotal($query, $request, [
+            'company', 'country', 'industry', 'role', 'position',
+            'actmanager', 'salesmanager', 'mobile_verified', 'email_verified',
+            'is_2fa_enabled', 'reg_from', 'reg_till',
+        ]);
 
         $query = $this->applyUsersFilters($query, $request);
 
@@ -770,7 +777,7 @@ class ClientController extends AdvanceSearchController
             ->orderBy($sortField, $sortOrder)
             ->simplePaginate($limit);
 
-        return successResponse('', $users);
+        return $this->paginateResponse($users, $total);
     }
 
     public function deleteBulkUsers(Request $request)
@@ -806,7 +813,7 @@ class ClientController extends AdvanceSearchController
             ]));
         }
 
-        User::whereIn('id', $ids)->delete();
+        User::whereIn('id', $ids)->get()->each->delete();
 
         return successResponse(__('message.user-suspend-successfully'));
     }
@@ -854,7 +861,78 @@ class ClientController extends AdvanceSearchController
 
     public function getEditUser($id)
     {
-        return successResponse('', User::find($id));
+        $user = User::with([
+            'timezone',
+            'manager:id,first_name,last_name,email',
+            'accountManager:id,first_name,last_name,email',
+        ])->find($id);
+
+        if (! $user) {
+            return errorResponse(__('message.user_not_found'), 404);
+        }
+
+        $bussinessShort = $user->attributes['bussiness'] ?? null;
+        $bussinessObj = null;
+        if ($bussinessShort) {
+            $b = \App\Model\Common\Bussiness::where('short', $bussinessShort)->first();
+            $bussinessObj = $b ? ['id' => $b->short, 'name' => $b->name] : null;
+        }
+
+        $countryObj = null;
+        if ($user->country) {
+            $c = \App\Model\Common\Country::where('country_code_char2', $user->country)->first();
+            $countryObj = $c ? ['id' => $c->country_id, 'name' => $c->country_name, 'code' => $c->country_code_char2] : null;
+        }
+
+        $stateObj = null;
+        if ($user->state) {
+            $s = \App\Model\Common\State::find($user->state);
+            $stateObj = $s ? ['id' => $s->state_subdivision_id, 'name' => $s->state_subdivision_name] : null;
+        }
+
+        $timezoneObj = $user->timezone
+            ? ['id' => $user->timezone->id, 'name' => $user->timezone->timezone_name]
+            : null;
+
+        $managerObj = $user->manager ? [
+            'id'    => $user->manager->id,
+            'name'  => trim($user->manager->first_name.' '.$user->manager->last_name),
+            'email' => $user->manager->email,
+        ] : null;
+
+        $accountManagerObj = $user->accountManager ? [
+            'id'    => $user->accountManager->id,
+            'name'  => trim($user->accountManager->first_name.' '.$user->accountManager->last_name),
+            'email' => $user->accountManager->email,
+        ] : null;
+
+        return successResponse('', [
+            'id'               => $user->id,
+            'first_name'       => $user->first_name,
+            'last_name'        => $user->last_name,
+            'email'            => $user->email,
+            'user_name'        => $user->user_name,
+            'company'          => $user->company ?? '',
+            'bussiness'        => $bussinessObj,
+            'active'           => $user->active ?? 1,
+            'mobile_verified'  => $user->mobile_verified ?? 0,
+            'role'             => $user->role,
+            'position'         => $user->position,
+            'company_type'     => $user->attributes['company_type'] ?? null,
+            'company_size'     => $user->attributes['company_size'] ?? null,
+            'address'          => $user->address ?? '',
+            'town'             => $user->town ?? '',
+            'country'          => $countryObj,
+            'state'            => $stateObj,
+            'zip'              => $user->zip ?? '',
+            'timezone_id'      => $timezoneObj,
+            'mobile'           => $user->mobile ?? '',
+            'mobile_code'      => $user->mobile_code ?? '',
+            'mobile_country_iso' => $user->mobile_country_iso ?? '',
+            'skype'            => $user->skype ?? '',
+            'manager'          => $managerObj,
+            'account_manager'  => $accountManagerObj,
+        ]);
     }
 
     public function userUpdate($id, ClientRequest $request)

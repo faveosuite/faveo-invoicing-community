@@ -739,8 +739,14 @@ class ProductController extends BaseProductController
                 'groupRelation',
                 'licenseType',
             ])
-        ->orderBy($sortField, $sortOrder)
-        ->simplePaginate($limit);
+            ->when($searchQuery, function ($query, $searchQuery) {
+                $query->where('name', 'like', "%{$searchQuery}%")
+                      ->orWhereHas('groupRelation', function ($q) use ($searchQuery) {
+                          $q->where('name', 'like', "%{$searchQuery}%");
+                      });
+            })
+            ->orderBy($sortField, $sortOrder)
+            ->simplePaginate($limit);
 
         $products->getCollection()->transform(function ($product) {
             $permissions = LicensePermissionsController::getPermissionsForProduct($product->id);

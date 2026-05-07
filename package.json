@@ -35,6 +35,7 @@
     "vite": "^7.3.1"
   },
   "dependencies": {
+    "@tinymce/tinymce-vue": "^6.3.0",
     "axios": "^1.13.5",
     "clipboard-copy": "^4.0.1",
     "flag-icons": "^7.5.0",
@@ -43,6 +44,7 @@
     "moment": "^2.30.1",
     "moment-timezone": "^0.6.0",
     "pinia": "^3.0.4",
+    "tinymce": "^8.5.0",
     "v-tables-3": "^0.4.7",
     "v-tooltip": "^4.0.0-beta.17",
     "validator": "^13.15.23",

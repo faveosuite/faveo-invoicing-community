@@ -28,7 +28,7 @@
                         <RouterLink to="/dashboard" class="nav-link"
                                     :class="{ active: isExact('/dashboard') }"
                                     active-class="" exact-active-class="">
-                            <i class="nav-icon bi bi-speedometer2"></i>
+                            <i class="nav-icon fas fa-gauge"></i>
                             <p>{{ __('message.dashboard') }}</p>
                         </RouterLink>
                     </li>
@@ -37,29 +37,29 @@
                     <li class="nav-item" :class="{ 'menu-open': isOpen('users') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/users') }"
                            @click.prevent="toggle('users')">
-                            <i class="nav-icon bi bi-person-fill"></i>
-                            <p>{{ __('message.users') }} <i class="nav-arrow bi bi-chevron-right"></i></p>
+                            <i class="nav-icon fas fa-user"></i>
+                            <p>{{ __('message.users') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <RouterLink to="/users" class="nav-link"
                                             :class="{ active: isExact('/users') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.all-users') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.all-users') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink to="/users/create" class="nav-link"
                                             :class="{ active: isExact('/users/create') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.add-new') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.add-new') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink to="/users/suspended" class="nav-link"
                                             :class="{ active: isExact('/users/suspended') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.suspended_users') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.suspended_users') }}</p>
                                 </RouterLink>
                             </li>
                         </ul>
@@ -69,15 +69,15 @@
                     <li class="nav-item" :class="{ 'menu-open': isOpen('orders') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/orders') }"
                            @click.prevent="toggle('orders')">
-                            <i class="nav-icon bi bi-pie-chart-fill"></i>
-                            <p>{{ __('message.orders') }} <i class="nav-arrow bi bi-chevron-right"></i></p>
+                            <i class="nav-icon fas fa-chart-pie"></i>
+                            <p>{{ __('message.orders') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <RouterLink to="/orders" class="nav-link"
                                             :class="{ active: isExact('/orders') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.all-orders') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.all-orders') }}</p>
                                 </RouterLink>
                             </li>
                         </ul>
@@ -87,22 +87,22 @@
                     <li class="nav-item" :class="{ 'menu-open': isOpen('invoices') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/invoices') }"
                            @click.prevent="toggle('invoices')">
-                            <i class="nav-icon bi bi-receipt"></i>
-                            <p>{{ __('message.invoices') }} <i class="nav-arrow bi bi-chevron-right"></i></p>
+                            <i class="nav-icon fas fa-receipt"></i>
+                            <p>{{ __('message.invoices') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <RouterLink to="/invoices" class="nav-link"
                                             :class="{ active: isExact('/invoices') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.all-invoices') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.all-invoices') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink to="/invoices/create" class="nav-link"
                                             :class="{ active: isExact('/invoices/create') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.add-new') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.add-new') }}</p>
                                 </RouterLink>
                             </li>
                         </ul>
@@ -112,29 +112,29 @@
                     <li class="nav-item" :class="{ 'menu-open': isOpen('pages') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/pages') }"
                            @click.prevent="toggle('pages')">
-                            <i class="nav-icon bi bi-file-earmark-text-fill"></i>
-                            <p>{{ __('message.pages') }} <i class="nav-arrow bi bi-chevron-right"></i></p>
+                            <i class="nav-icon fas fa-file-lines"></i>
+                            <p>{{ __('message.pages') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <RouterLink to="/pages" class="nav-link"
                                             :class="{ active: isExact('/pages') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.all-pages') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.all-pages') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink to="/pages/create" class="nav-link"
                                             :class="{ active: isExact('/pages/create') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.add-new') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.add-new') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink to="/pages/demo" class="nav-link"
                                             :class="{ active: isExact('/pages/demo') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.add-demo') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.add-demo') }}</p>
                                 </RouterLink>
                             </li>
                         </ul>
@@ -144,22 +144,22 @@
                     <li class="nav-item" :class="{ 'menu-open': isOpen('products') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/products') }"
                            @click.prevent="toggle('products')">
-                            <i class="nav-icon bi bi-briefcase-fill"></i>
-                            <p>{{ __('message.products') }} <i class="nav-arrow bi bi-chevron-right"></i></p>
+                            <i class="nav-icon fas fa-briefcase"></i>
+                            <p>{{ __('message.products') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <RouterLink to="/products" class="nav-link"
                                             :class="{ active: isExact('/products') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.all_products') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.all_products') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink to="/products/create" class="nav-link"
                                             :class="{ active: isExact('/products/create') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.add_product') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.add_product') }}</p>
                                 </RouterLink>
                             </li>
                             <!-- Plans/Coupons/Groups: active on self AND child routes (e.g. /edit) -->
@@ -167,21 +167,21 @@
                                 <RouterLink to="/products/plans" class="nav-link"
                                             :class="{ active: isGroupActive('/products/plans') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.plans') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.plans') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink to="/products/coupons" class="nav-link"
                                             :class="{ active: isGroupActive('/products/coupons') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.coupons') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.coupons') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink to="/products/groups" class="nav-link"
                                             :class="{ active: isGroupActive('/products/groups') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.groups') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.groups') }}</p>
                                 </RouterLink>
                             </li>
                         </ul>
@@ -191,22 +191,216 @@
                     <li class="nav-item" :class="{ 'menu-open': isOpen('reports') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/reports') }"
                            @click.prevent="toggle('reports')">
-                            <i class="nav-icon bi bi-bar-chart-line-fill"></i>
-                            <p>{{ __('message.reports') }} <i class="nav-arrow bi bi-chevron-right"></i></p>
+                            <i class="nav-icon fas fa-chart-bar"></i>
+                            <p>{{ __('message.reports') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <RouterLink to="/reports" class="nav-link"
                                             :class="{ active: isExact('/reports') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.all_reports') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.all_reports') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink to="/reports/settings" class="nav-link"
                                             :class="{ active: isExact('/reports/settings') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon bi bi-circle"></i><p>{{ __('message.report_settings') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.report_settings') }}</p>
+                                </RouterLink>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- ── Log Reports ─────────────────────────────────────── -->
+                    <li class="nav-item" :class="{ 'menu-open': isOpen('log-reports') }">
+                        <a class="nav-link" :class="{ active: isGroupActive('/log-reports') }"
+                           @click.prevent="toggle('log-reports')">
+                            <i class="nav-icon fas fa-clipboard-list"></i>
+                            <p>Log Reports <i class="nav-arrow fas fa-chevron-right"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <RouterLink to="/log-reports/license" class="nav-link"
+                                            :class="{ active: isExact('/log-reports/license') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>License Reports</p>
+                                </RouterLink>
+                            </li>
+                            <li class="nav-item">
+                                <RouterLink to="/log-reports/system" class="nav-link"
+                                            :class="{ active: isExact('/log-reports/system') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>System Reports</p>
+                                </RouterLink>
+                            </li>
+                            <li class="nav-item">
+                                <RouterLink to="/log-reports/update" class="nav-link"
+                                            :class="{ active: isExact('/log-reports/update') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>Update Reports</p>
+                                </RouterLink>
+                            </li>
+                            <li class="nav-item">
+                                <RouterLink to="/log-reports/crack" class="nav-link"
+                                            :class="{ active: isExact('/log-reports/crack') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>Cracking Reports</p>
+                                </RouterLink>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- ── License Module ──────────────────────────────────── -->
+                    <!-- Versions -->
+                    <li class="nav-item" :class="{ 'menu-open': isOpen('versions') }">
+                        <a class="nav-link" :class="{ active: isGroupActive('/versions') }"
+                           @click.prevent="toggle('versions')">
+                            <i class="nav-icon fas fa-box"></i>
+                            <p>Versions <i class="nav-arrow fas fa-chevron-right"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <RouterLink to="/versions/list" class="nav-link"
+                                            :class="{ active: isExact('/versions/list') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>All Versions</p>
+                                </RouterLink>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Licenses -->
+                    <li class="nav-item" :class="{ 'menu-open': isOpen('licenses') }">
+                        <a class="nav-link" :class="{ active: isGroupActive('/licenses') }"
+                           @click.prevent="toggle('licenses')">
+                            <i class="nav-icon fas fa-key"></i>
+                            <p>Licenses <i class="nav-arrow fas fa-chevron-right"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <RouterLink to="/licenses/create" class="nav-link"
+                                            :class="{ active: isExact('/licenses/create') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>New License</p>
+                                </RouterLink>
+                            </li>
+                            <li class="nav-item">
+                                <RouterLink to="/licenses/list" class="nav-link"
+                                            :class="{ active: isExact('/licenses/list') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>All Licenses</p>
+                                </RouterLink>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Installations -->
+                    <li class="nav-item" :class="{ 'menu-open': isOpen('installations') }">
+                        <a class="nav-link" :class="{ active: isGroupActive('/installations') }"
+                           @click.prevent="toggle('installations')">
+                            <i class="nav-icon fas fa-download"></i>
+                            <p>Installations <i class="nav-arrow fas fa-chevron-right"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <RouterLink to="/installations/list" class="nav-link"
+                                            :class="{ active: isExact('/installations/list') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>All Installations</p>
+                                </RouterLink>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Callbacks -->
+                    <li class="nav-item" :class="{ 'menu-open': isOpen('callbacks') }">
+                        <a class="nav-link" :class="{ active: isGroupActive('/callbacks') }"
+                           @click.prevent="toggle('callbacks')">
+                            <i class="nav-icon fas fa-phone"></i>
+                            <p>Callbacks <i class="nav-arrow fas fa-chevron-right"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <RouterLink to="/callbacks/list" class="nav-link"
+                                            :class="{ active: isExact('/callbacks/list') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>All Callbacks</p>
+                                </RouterLink>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Banned Hosts -->
+                    <li class="nav-item" :class="{ 'menu-open': isOpen('banned-hosts') }">
+                        <a class="nav-link" :class="{ active: isGroupActive('/banned-hosts') }"
+                           @click.prevent="toggle('banned-hosts')">
+                            <i class="nav-icon fas fa-circle-xmark"></i>
+                            <p>Banned Hosts <i class="nav-arrow fas fa-chevron-right"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <RouterLink to="/banned-hosts/create" class="nav-link"
+                                            :class="{ active: isExact('/banned-hosts/create') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>New Banned Host</p>
+                                </RouterLink>
+                            </li>
+                            <li class="nav-item">
+                                <RouterLink to="/banned-hosts/list" class="nav-link"
+                                            :class="{ active: isExact('/banned-hosts/list') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>All Banned Hosts</p>
+                                </RouterLink>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Whitelist IP -->
+                    <li class="nav-item" :class="{ 'menu-open': isOpen('whitelist') }">
+                        <a class="nav-link" :class="{ active: isGroupActive('/whitelist') }"
+                           @click.prevent="toggle('whitelist')">
+                            <i class="nav-icon fas fa-shield-halved"></i>
+                            <p>Whitelist IP <i class="nav-arrow fas fa-chevron-right"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <RouterLink to="/whitelist/create" class="nav-link"
+                                            :class="{ active: isExact('/whitelist/create') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>New Whitelist</p>
+                                </RouterLink>
+                            </li>
+                            <li class="nav-item">
+                                <RouterLink to="/whitelist/list" class="nav-link"
+                                            :class="{ active: isExact('/whitelist/list') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>All Whitelist</p>
+                                </RouterLink>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Server Notifications -->
+                    <li class="nav-item" :class="{ 'menu-open': isOpen('server') }">
+                        <a class="nav-link" :class="{ active: isGroupActive('/server') }"
+                           @click.prevent="toggle('server')">
+                            <i class="nav-icon fas fa-server"></i>
+                            <p>Server Notifications <i class="nav-arrow fas fa-chevron-right"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <RouterLink to="/server/notifications" class="nav-link"
+                                            :class="{ active: isExact('/server/notifications') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>License Notification</p>
+                                </RouterLink>
+                            </li>
+                            <li class="nav-item">
+                                <RouterLink to="/server/update-notifications" class="nav-link"
+                                            :class="{ active: isExact('/server/update-notifications') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>Update Notification</p>
                                 </RouterLink>
                             </li>
                         </ul>
@@ -217,7 +411,7 @@
                         <RouterLink to="/settings" class="nav-link"
                                     :class="{ active: isGroupActive('/settings') }"
                                     active-class="" exact-active-class="">
-                            <i class="nav-icon bi bi-gear-fill"></i>
+                            <i class="nav-icon fas fa-gear"></i>
                             <p>{{ __('message.settings') }}</p>
                         </RouterLink>
                     </li>
@@ -250,6 +444,14 @@ const routeGroupMap = {
     '/pages':    'pages',
     '/products': 'products',
     '/reports':  'reports',
+    '/log-reports': 'log-reports',
+    '/server': 'server',
+    '/versions': 'versions',
+    '/licenses': 'licenses',
+    '/installations': 'installations',
+    '/callbacks': 'callbacks',
+    '/banned-hosts': 'banned-hosts',
+    '/whitelist': 'whitelist',
 }
 
 function toggle(key) {

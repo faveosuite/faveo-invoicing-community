@@ -64,6 +64,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('whatsapp-users', [\App\Http\Controllers\WhatsappController::class, 'index1'])->middleware('auth');
     Route::post('webhook-url-edit', [\App\Http\Controllers\WhatsappController::class, 'webhookUrlEdit']);
     Route::get('whatsapp-users-table', [\App\Http\Controllers\WhatsappController::class, 'whatsappTable']);
+    Route::get('whatsapp-users-api', [\App\Http\Controllers\WhatsappController::class, 'whatsappUsersApi']);
     Route::get('whatsapp-client-table/{orderid}', [\App\Http\Controllers\WhatsappController::class, 'whatsappClientTable']);
     Route::post('whatsapp-deregister', [\App\Http\Controllers\WhatsappController::class, 'deregister']);
     Route::post('direct-whatsapp', [\App\Http\Controllers\WhatsappController::class, 'directSaveWhatsapp']);
@@ -325,12 +326,25 @@ Route::middleware('installAgora')->group(function () {
      */
     Route::get('systemSettings/list', [Common\SettingsController::class, 'settingsSystem']);
     Route::post('systemSettings/update', [Common\SettingsController::class, 'postSettingsSystem']);
+    Route::get('settings/system-data', [Common\SettingsController::class, 'getSystemSettingsData']);
+    Route::patch('settings/system-data', [Common\SettingsController::class, 'updateSystemSettingsData']);
 
     Route::get('settings/email', [Common\EmailSettingsController::class, 'settingsEmail'])->middleware('auth');
     Route::patch('settings/email', [Common\EmailSettingsController::class, 'postSettingsEmail']);
     Route::get('settings/template', [Common\SettingsController::class, 'settingsTemplate']);
     Route::patch('settings/template', [Common\SettingsController::class, 'postSettingsTemplate']);
+    Route::get('settings/error', [Common\SettingsController::class, 'getErrorSettings']);
     Route::patch('settings/error', [Common\SettingsController::class, 'postSettingsError']);
+    Route::get('settings/cron-data', [Common\SettingsController::class, 'getCronSettingsData']);
+    Route::patch('settings/cron-data', [Common\SettingsController::class, 'updateCronSettingsData']);
+    Route::patch('settings/cron-days', [Common\SettingsController::class, 'updateCronDaysData']);
+    Route::get('settings/recaptcha', [Common\SettingsController::class, 'getRecaptchaSettings']);
+    Route::patch('settings/recaptcha', [Common\SettingsController::class, 'updateRecaptchaSettings']);
+    Route::get('settings/pipedrive', [Common\SettingsController::class, 'getPipedriveSettings']);
+    Route::patch('settings/pipedrive', [Common\SettingsController::class, 'updatePipedriveSettings']);
+    Route::get('settings/cloud-details', [Common\SettingsController::class, 'getCloudDetails']);
+    Route::get('localized-license/files', [LocalizedLicenseController::class, 'filesApi']);
+    Route::delete('localized-license/files', [LocalizedLicenseController::class, 'deleteFileApi']);
     Route::get('settings/activitylog', [Common\SettingsController::class, 'settingsActivity']);
     Route::get('settings/maillog', [Common\SettingsController::class, 'settingsMail']);
 
@@ -362,16 +376,18 @@ Route::middleware('installAgora')->group(function () {
 
     // Get Activity Log
     Route::get('get-activity', [Common\SettingsController::class, 'getActivity'])->name('get-activity');
+    Route::get('get-activity-api', [Common\SettingsController::class, 'getActivityApi']);
 
     // Get Payment Log
 //    Route::get('settings/paymentlog', [Common\SettingsController::class, 'settingsPayment']);
     Route::get('get-paymentlog', [Common\SettingsController::class, 'getPaymentlog'])->name('get-paymentlog');
+    Route::get('get-payment-log-api', [Common\SettingsController::class, 'getPaymentLogApi']);
     Route::delete('paymentlog-delete', [Common\SettingsController::class, 'destroyPayment'])->name('paymentlog-delete');
 
     // Get Msg91 Log
-//    Route::get('sms/reports', [Common\MSG91Controller::class, 'msg91Reports']);
-    Route::get('sms/reports', [Common\MSG91Controller::class, 'getMsg91Reports']);
-    Route::get('getMsgStatus', [Common\MSG91Controller::class, 'getMsgStauts']);
+//    Route::get('sms/reports', [Common\Sms\MSG91Controller::class, 'msg91Reports']);
+    Route::get('sms/reports', [Common\Sms\MSG91Controller::class, 'getMsg91Reports']);
+    Route::get('getMsgStatus', [Common\Sms\MSG91Controller::class, 'getMsgStauts']);
 
     Route::get('get-email', [Common\SettingsController::class, 'getMails'])->name('get-email');
     Route::get('/email-log/body/{id}', [Common\SettingsController::class, 'getBody'])->name('email-log.body');
@@ -504,6 +520,7 @@ Route::middleware('installAgora')->group(function () {
      * License Type
     */
     Route::get('get-license-type', [License\LicenseSettingsController::class, 'getLicenseTypes'])->name('get-license-type');
+    Route::get('get-license-type/{id}', [License\LicenseSettingsController::class, 'getLicenseTypeById']);
     Route::post('create-license-type', [License\LicenseSettingsController::class, 'createLicense']);
     Route::put('update-license-type/{id}', [License\LicenseSettingsController::class, 'updateLicense']);
     Route::delete('delete-license-type', [License\LicenseSettingsController::class, 'deleteLicense'])->name('license-type-delete');
@@ -663,6 +680,7 @@ Route::middleware('installAgora')->group(function () {
      * plugins
      */
     Route::get('payment-gateway-integration', [Common\SettingsController::class, 'plugins']);
+    Route::get('payment-gateway-list', [Common\PaymentSettingsController::class, 'getPaymentGatewayList']);
     Route::post('updatePaymentStatus', [Common\PaymentSettingsController::class, 'updatePaymentStatus']);
 
     // Route::get('get-plugin', [Common\PaymentSettingsController::class, 'getPlugin'])->name('get-plugin');
@@ -921,8 +939,10 @@ Route::get('dependency/{type}', [Common\Dependency\DependencyController::class, 
 
 Route::get('pages', [Front\PageController::class, 'getAllPages']);
 Route::delete('pages', [Front\PageController::class, 'deleteBulkPages']);
+Route::post('page', [Front\PageController::class, 'createPage']);
 Route::get('page/{id}', [Front\PageController::class, 'getPage']);
 Route::put('page/{id}', [Front\PageController::class, 'updatePage']);
+Route::get('demo', [Front\PageController::class, 'getDemoStatus']);
 Route::post('save/demo', [Front\PageController::class, 'saveDemoPage']);
 Route::get('products', [Product\ProductController::class, 'getAllProducts']);
 Route::delete('products', [Product\ProductController::class, 'deleteBulkProducts']);

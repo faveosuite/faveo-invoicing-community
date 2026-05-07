@@ -1,1 +1,0 @@
-import"./vendor-vue-W3vvBaId.js";import{_ as t}from"./chunk-settings-C4QfTSii.js";import{b4 as r,Z as o,bg as s}from"./vendor-BUtQ0h04.js";const c={},a={class:"textfield-wrapper"};function n(e,l){return r(),o("div",a,[s(e.$slots,"default")])}const i=t(c,[["render",n]]);export{i as default};

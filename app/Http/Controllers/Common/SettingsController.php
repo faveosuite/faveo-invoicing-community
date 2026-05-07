@@ -504,12 +504,15 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $set = $settings->find(1);
-            $template = new Template();
 
-            //$templates = $template->lists('name', 'id')->toArray();
-            return view('themes.default1.common.setting.template', compact('set', 'template'));
+            return successResponse('', [
+                'forgot_password'  => $set->forgot_password,
+                'order_mail'       => $set->order_mail,
+                'welcome_mail'     => $set->welcome_mail,
+                'invoice_template' => $set->invoice_template,
+            ]);
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -517,11 +520,11 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $setting = $settings->find(1);
-            $setting->fill($request->input())->save();
+            $setting->fill($request->only(['forgot_password', 'order_mail', 'welcome_mail', 'invoice_template']))->save();
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+            return successResponse(\Lang::get('message.updated-successfully'));
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -533,6 +536,329 @@ class SettingsController extends BaseSettingsController
             return view('themes.default1.common.setting.error-log', compact('set'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
+        }
+    }
+
+    public function getErrorSettings(Setting $settings)
+    {
+        try {
+            $set = $settings->find(1);
+
+            return successResponse('', [
+                'error_log'   => (bool) $set->error_log,
+                'error_email' => $set->error_email ?? '',
+            ]);
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function getSystemSettingsData(Setting $settings)
+    {
+        try {
+            $set = $settings->find(1) ?: $settings->create(['company' => '']);
+            $languages = (new InstallerController())->languageList()->getData()->data ?? [];
+
+            return successResponse('', [
+                'settings' => [
+                    'company' => $set->company,
+                    'company_email' => $set->company_email,
+                    'title' => $set->title,
+                    'website' => $set->website,
+                    'phone' => $set->phone,
+                    'phone_code' => $set->phone_code,
+                    'phone_country_iso' => $set->phone_country_iso,
+                    'address' => $set->address,
+                    'city' => $set->city,
+                    'state' => $set->state,
+                    'country' => $set->country,
+                    'zip' => $set->zip,
+                    'cin_no' => $set->cin_no,
+                    'gstin' => $set->gstin,
+                    'default_currency' => $set->default_currency,
+                    'language' => $set->content,
+                    'knowledge_base_url' => $set->knowledge_base_url,
+                    'autorenewal_status' => (bool) $set->autorenewal_status,
+                    'logo' => $set->logo,
+                    'admin_logo' => $set->admin_logo,
+                    'fav_icon' => $set->fav_icon,
+                ],
+                'countries' => Country::orderBy('country_name')->get(['country_code_char2', 'country_name']),
+                'states' => State::where('country_code', $set->country)->orderBy('state_subdivision_name')->get(['iso2', 'state_subdivision_name']),
+                'currencies' => Currency::orderBy('name')->get(['code', 'name', 'symbol']),
+                'languages' => $languages,
+            ]);
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function updateSystemSettingsData(Setting $settings, Request $request)
+    {
+        $request->validate([
+            'company' => 'required|max:50',
+            'company_email' => 'required|email',
+            'website' => 'required|url',
+            'phone' => 'required',
+            'address' => 'required',
+            'state' => 'required',
+            'country' => 'required',
+            'default_currency' => 'required',
+            'logo' => 'sometimes|file|mimes:jpeg,png,jpg|max:2048',
+            'admin-logo' => 'sometimes|file|mimes:jpeg,png,jpg|max:2048',
+            'fav-icon' => 'sometimes|file|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        try {
+            $setting = $settings->find(1) ?: $settings->create(['company' => '']);
+            $input = $request->only([
+                'company', 'company_email', 'title', 'website', 'phone', 'phone_code',
+                'phone_country_iso', 'address', 'city', 'state', 'country', 'zip',
+                'cin_no', 'gstin', 'default_currency', 'knowledge_base_url',
+            ]);
+            $input['autorenewal_status'] = $request->boolean('autorenewal_status');
+
+            if ($request->hasFile('logo')) {
+                $path = Attach::put('images', $request->file('logo'), null, true);
+                $setting->logo = basename($path);
+            }
+            if ($request->hasFile('admin-logo')) {
+                $path = Attach::put('admin/images', $request->file('admin-logo'), null, true);
+                $setting->admin_logo = basename($path);
+            }
+            if ($request->hasFile('fav-icon')) {
+                $path = Attach::put('common/images', $request->file('fav-icon'), null, true);
+                $setting->fav_icon = basename($path);
+            }
+
+            $setting->default_symbol = Currency::where('code', $request->input('default_currency'))->value('symbol');
+            $setting->content = $request->input('language');
+            $setting->fill($input)->save();
+
+            return successResponse(\Lang::get('message.updated-successfully'));
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function getModuleSettings()
+    {
+        try {
+            $status = StatusSetting::first();
+
+            return successResponse('', [
+                'modules' => [
+                    ['key' => 'gcaptchastatus', 'slug' => 'recaptcha', 'name' => \Lang::get('message.recaptcha_heading'), 'description' => \Lang::get('message.google_description'), 'enabled' => (bool) optional($status)->recaptcha_status, 'route' => '/settings/api/recaptcha'],
+                    ['key' => 'mstatus', 'slug' => 'msg91', 'name' => \Lang::get('message.msg91_heading'), 'description' => \Lang::get('message.msg91_description'), 'enabled' => (bool) optional($status)->msg91_status],
+                    ['key' => 'mailchimpstatus', 'slug' => 'mailchimp', 'name' => \Lang::get('message.mailchimp_heading'), 'description' => \Lang::get('message.mailchimp_description'), 'enabled' => (bool) optional($status)->mailchimp_status],
+                    ['key' => 'termsStatus', 'slug' => 'terms', 'name' => \Lang::get('message.terms_heading'), 'description' => \Lang::get('message.terms_description'), 'enabled' => (bool) optional($status)->terms],
+                    ['key' => 'pipedrivestatus', 'slug' => 'pipedrive', 'name' => \Lang::get('message.pipedrive_heading'), 'description' => \Lang::get('message.pipedrive_description'), 'enabled' => (bool) optional($status)->pipedrive_status, 'route' => '/settings/api/pipedrive'],
+                    ['key' => 'githubstatus', 'slug' => 'github', 'name' => \Lang::get('message.github_heading'), 'description' => \Lang::get('message.github_description'), 'enabled' => (bool) optional($status)->github_status],
+                    ['key' => 'email_validation_status', 'slug' => 'email-validation', 'name' => \Lang::get('message.email_provider'), 'description' => \Lang::get('message.email_validation_description'), 'enabled' => (bool) optional($status)->email_validation_status],
+                    ['key' => 'mobile_validation_status', 'slug' => 'mobile-validation', 'name' => \Lang::get('message.mobile_provider'), 'description' => \Lang::get('message.mobile_validation_description'), 'enabled' => (bool) optional($status)->mobile_validation_status],
+                    ['key' => 'whatsapp_status', 'slug' => 'whatsapp', 'name' => \Lang::get('message.whatsapp_config'), 'description' => \Lang::get('message.whatsapp_thirdParty_explanation'), 'enabled' => (bool) optional($status)->whatsapp_status, 'route' => '/settings/whatsapp-users'],
+                ],
+            ]);
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function getRecaptchaSettings()
+    {
+        try {
+            $keys = ApiKey::first();
+            $status = StatusSetting::first();
+
+            return successResponse('', [
+                'recaptcha_status' => (bool) optional($status)->recaptcha_status,
+                'site_key' => optional($keys)->nocaptcha_sitekey,
+                'secret_key' => optional($keys)->captcha_secretCheck,
+            ]);
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function updateRecaptchaSettings(Request $request)
+    {
+        try {
+            $status = StatusSetting::findOrFail(1);
+            $status->recaptcha_status = $request->boolean('recaptcha_status');
+            $status->save();
+
+            $keys = ApiKey::findOrFail(1);
+            $keys->nocaptcha_sitekey = $request->input('site_key');
+            $keys->captcha_secretCheck = $request->input('secret_key');
+            $keys->save();
+
+            return successResponse(__('message.recaptcha_settings_updated'));
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function getPipedriveSettings()
+    {
+        try {
+            return successResponse('', [
+                'status' => (bool) StatusSetting::value('pipedrive_status'),
+                'pipedrive_key' => ApiKey::value('pipedrive_api_key'),
+                'require_pipedrive_user_verification' => (bool) ApiKey::value('require_pipedrive_user_verification'),
+            ]);
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function updatePipedriveSettings(Request $request)
+    {
+        try {
+            StatusSetting::findOrFail(1)->update(['pipedrive_status' => $request->boolean('status')]);
+            ApiKey::findOrFail(1)->update([
+                'pipedrive_api_key' => $request->input('pipedrive_key'),
+                'require_pipedrive_user_verification' => $request->boolean('require_pipedrive_user_verification'),
+            ]);
+
+            return successResponse(\Lang::get('message.pipedrive_setting'));
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function getCronSettingsData()
+    {
+        try {
+            $status = StatusSetting::find(1);
+            $days = \App\Model\Mailjob\ExpiryMailDay::first();
+            $activityDay = \App\Model\Mailjob\ActivityLogDay::first();
+            $conditions = \App\Model\Mailjob\Condition::pluck('value', 'job');
+
+            return successResponse('', [
+                'cron_path' => base_path('artisan'),
+                'exec_enabled' => $this->execEnabled(),
+                'php_paths' => $this->getPHPBinPath(),
+                'statuses' => [
+                    'expiry_cron' => (bool) optional($status)->expiry_mail,
+                    'activity' => (bool) optional($status)->activity_log_delete,
+                    'subs_expirymail' => (bool) optional($status)->subs_expirymail,
+                    'postsubs_expirymail' => (bool) optional($status)->post_expirymail,
+                    'cloud_cron' => (bool) optional($status)->cloud_mail_status,
+                    'invoice_cron' => (bool) optional($status)->invoice_deletion_status,
+                    'msg91_cron' => (bool) optional($status)->msg91_report_delete_status,
+                    'reoon_cron' => (bool) optional($status)->reoon_deletion_status,
+                    'systemlogs_cron' => (bool) optional($status)->system_log_status,
+                    'installationlogs_cron' => (bool) optional($status)->installation_logs_status,
+                    'licensereports_cron' => (bool) optional($status)->license_reports_cleanup_status,
+                    'licensecallbacks_cron' => (bool) optional($status)->license_callbacks_cleanup_status,
+                    'licensecrack_cron' => (bool) optional($status)->license_crack_reports_cleanup_status,
+                    'licensesystem_cron' => (bool) optional($status)->license_system_reports_cleanup_status,
+                    'licenseversions_cron' => (bool) optional($status)->license_versions_cleanup_status,
+                ],
+                'conditions' => $conditions,
+                'days' => [
+                    'expiryday' => json_decode(optional($days)->days ?: '[]', true),
+                    'subexpiryday' => json_decode(optional($days)->autorenewal_days ?: '[]', true),
+                    'postsubexpiry_days' => json_decode(optional($days)->postexpiry_days ?: '[]', true),
+                    'cloud_days' => optional($days)->cloud_days,
+                    'invoice_days' => optional($days)->invoice_days,
+                    'msg91_days' => optional($days)->msg91_days,
+                    'reoon_days' => optional($days)->reoon_logs_days,
+                    'system_logs_days' => optional($days)->system_logs_days,
+                    'installation_logs_days' => optional($days)->installation_logs_expire_days,
+                    'license_reports_days' => optional($days)->license_reports_cleanup_days,
+                    'license_callbacks_days' => optional($days)->license_callbacks_cleanup_days,
+                    'license_crack_days' => optional($days)->license_crack_reports_cleanup_days,
+                    'license_system_days' => optional($days)->license_system_reports_cleanup_days,
+                    'license_versions_days' => optional($days)->license_versions_cleanup_days,
+                    'logdelday' => optional($activityDay)->days,
+                ],
+            ]);
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function updateCronSettingsData(Request $request)
+    {
+        try {
+            $status = StatusSetting::findOrFail(1);
+            $map = [
+                'expiry_cron' => 'expiry_mail',
+                'activity' => 'activity_log_delete',
+                'subs_expirymail' => 'subs_expirymail',
+                'postsubs_expirymail' => 'post_expirymail',
+                'cloud_cron' => 'cloud_mail_status',
+                'invoice_cron' => 'invoice_deletion_status',
+                'msg91_cron' => 'msg91_report_delete_status',
+                'reoon_cron' => 'reoon_deletion_status',
+                'systemlogs_cron' => 'system_log_status',
+                'installationlogs_cron' => 'installation_logs_status',
+                'licensereports_cron' => 'license_reports_cleanup_status',
+                'licensecallbacks_cron' => 'license_callbacks_cleanup_status',
+                'licensecrack_cron' => 'license_crack_reports_cleanup_status',
+                'licensesystem_cron' => 'license_system_reports_cleanup_status',
+                'licenseversions_cron' => 'license_versions_cleanup_status',
+            ];
+            foreach ($map as $input => $column) {
+                $status->{$column} = $request->boolean("statuses.$input");
+            }
+            $status->save();
+
+            \App\Model\Mailjob\Condition::truncate();
+            foreach ($request->input('conditions', []) as $job => $value) {
+                \App\Model\Mailjob\Condition::create(['job' => $job, 'value' => $value]);
+            }
+
+            return successResponse(\Lang::get('message.updated-successfully'));
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function updateCronDaysData(Request $request)
+    {
+        try {
+            \App\Model\Mailjob\ExpiryMailDay::truncate();
+            \App\Model\Mailjob\ExpiryMailDay::create([
+                'days' => json_encode($request->input('expiryday', [])),
+                'autorenewal_days' => json_encode($request->input('subexpiryday', [])),
+                'postexpiry_days' => json_encode($request->input('postsubexpiry_days', [])),
+            ]);
+
+            \DB::table('expiry_mail_days')->update([
+                'cloud_days' => $request->input('cloud_days'),
+                'invoice_days' => $request->input('invoice_days'),
+                'msg91_days' => $request->input('msg91_days'),
+                'reoon_logs_days' => $request->input('reoon_days'),
+                'system_logs_days' => $request->input('system_logs_days'),
+                'installation_logs_expire_days' => $request->input('installation_logs_days'),
+                'license_reports_cleanup_days' => $request->input('license_reports_days'),
+                'license_callbacks_cleanup_days' => $request->input('license_callbacks_days'),
+                'license_crack_reports_cleanup_days' => $request->input('license_crack_days'),
+                'license_system_reports_cleanup_days' => $request->input('license_system_days'),
+                'license_versions_cleanup_days' => $request->input('license_versions_days'),
+            ]);
+            \App\Model\Mailjob\ActivityLogDay::updateOrCreate(['id' => 1], ['days' => $request->input('logdelday')]);
+
+            return successResponse(\Lang::get('message.updated-successfully'));
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function getCloudDetails()
+    {
+        try {
+            $cloud = \App\Model\Common\FaveoCloud::find(1);
+
+            return successResponse('', [
+                'cloud_central_domain' => optional($cloud)->cloud_central_domain,
+                'cloud_cname' => optional($cloud)->cloud_cname,
+                'cloud_button' => (bool) StatusSetting::value('cloud_button'),
+            ]);
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -644,6 +970,122 @@ class SettingsController extends BaseSettingsController
 
                 ->rawColumns(['performed_by', 'created_at', 'description'])
                 ->make(true);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    public function getActivityApi(Request $request)
+    {
+        try {
+            $searchString = $request->input('search-query', '');
+            $sortField = $request->input('sort-field', 'created_at');
+            $sortOrder = $request->input('sort-order', 'desc');
+            $limit = $request->input('limit', 10);
+
+            $query = Activity::query()
+                ->leftJoin('users', 'activity_log.causer_id', '=', 'users.id')
+                ->select(
+                    'activity_log.id',
+                    'activity_log.log_name',
+                    'activity_log.description',
+                    'activity_log.event',
+                    'activity_log.created_at',
+                    'users.first_name',
+                    'users.last_name',
+                    'users.email',
+                    'users.role as user_role'
+                );
+
+            if ($module = $request->input('module')) {
+                $query->where('activity_log.log_name', $module);
+            }
+            if ($event = $request->input('event')) {
+                $query->where('activity_log.event', $event);
+            }
+            if ($searchString) {
+                $query->where(function ($q) use ($searchString) {
+                    $q->where('activity_log.log_name', 'like', "%{$searchString}%")
+                        ->orWhere('activity_log.event', 'like', "%{$searchString}%")
+                        ->orWhere('activity_log.description', 'like', "%{$searchString}%")
+                        ->orWhere('users.email', 'like', "%{$searchString}%")
+                        ->orWhereRaw("CONCAT(users.first_name, ' ', users.last_name) LIKE ?", ["%{$searchString}%"]);
+                });
+            }
+
+            $logs = $query->orderBy('activity_log.'.$sortField, $sortOrder)->simplePaginate($limit);
+
+            $logs->getCollection()->transform(function ($row) {
+                return [
+                    'id' => $row->id,
+                    'module' => $row->log_name ?? '—',
+                    'event' => ucfirst($row->event ?? '—'),
+                    'description' => $row->description ?? '—',
+                    'performed_by' => $row->first_name ? trim($row->first_name.' '.$row->last_name) : __('message.system'),
+                    'email' => $row->email ?? '',
+                    'role' => ucfirst($row->user_role ?? '—'),
+                    'created_at' => $row->created_at ? $row->created_at->format('Y-m-d H:i') : '—',
+                ];
+            });
+
+            return successResponse('', $logs);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    public function getPaymentLogApi(Request $request)
+    {
+        try {
+            $searchString = $request->input('search-query', '');
+            $sortField = $request->input('sort-field', 'date');
+            $sortOrder = $request->input('sort-order', 'desc');
+            $limit = $request->input('limit', 10);
+
+            $query = Payment_log::query()
+                ->leftJoin('users', 'payment_logs.from', '=', 'users.email')
+                ->select(
+                    'payment_logs.id',
+                    'payment_logs.from',
+                    'payment_logs.date',
+                    'payment_logs.status',
+                    'payment_logs.payment_method',
+                    'payment_logs.order',
+                    'payment_logs.exception',
+                    'payment_logs.amount',
+                    'payment_logs.payment_type',
+                    'payment_logs.created_at',
+                    'users.id as user_id',
+                    \DB::raw("CONCAT(users.first_name, ' ', users.last_name) as user_name")
+                );
+
+            if ($searchString) {
+                $query->where(function ($q) use ($searchString) {
+                    $q->where('payment_logs.order', 'like', "%{$searchString}%")
+                        ->orWhere('payment_logs.status', 'like', "%{$searchString}%")
+                        ->orWhere('payment_logs.payment_method', 'like', "%{$searchString}%")
+                        ->orWhere('payment_logs.from', 'like', "%{$searchString}%");
+                });
+            }
+
+            $logs = $query->orderBy('payment_logs.'.$sortField, $sortOrder)->simplePaginate($limit);
+
+            $logs->getCollection()->transform(function ($row) {
+                return [
+                    'id' => $row->id,
+                    'date' => $row->date ? \Carbon\Carbon::parse($row->date)->format('Y-m-d H:i') : '—',
+                    'user' => $row->user_name ? trim($row->user_name) : ($row->from ?? '—'),
+                    'user_id' => $row->user_id,
+                    'order' => $row->order ?? '—',
+                    'amount' => $row->amount ?? '—',
+                    'payment_method' => ucfirst($row->payment_method ?? '—'),
+                    'payment_type' => ucfirst($row->payment_type ?? '—'),
+                    'status' => ucfirst($row->status ?? '—'),
+                    'exception' => $row->status === 'failed' ? $row->exception : null,
+                ];
+            });
+
+            return successResponse('', $logs);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
@@ -784,29 +1226,31 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $setting = $settings->find(1);
-            $setting->fill($request->input())->save();
+            $setting->fill($request->only(['error_log', 'error_email']))->save();
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+            return successResponse(\Lang::get('message.updated-successfully'));
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', \Lang::get('message.err_msg'));
+            return errorResponse(\Lang::get('message.err_msg'));
         }
     }
 
     public function debugSettings()
     {
-        return view('themes.default1.common.setting.debugging');
+        return successResponse('', [
+            'debug' => env('APP_DEBUG', false),
+        ]);
     }
 
     public function postdebugSettings(Request $request)
     {
-        $enable = $request->get('debug') === 'true';
+        $enable = filter_var($request->get('debug'), FILTER_VALIDATE_BOOLEAN);
         setEnvValue([
-            'APP_DEBUG' => $enable ? 'true' : 'false',
-            'PULSE_ENABLED' => $enable ? 'true' : 'false',
+            'APP_DEBUG'        => $enable ? 'true' : 'false',
+            'PULSE_ENABLED'    => $enable ? 'true' : 'false',
             'CLOCKWORK_ENABLE' => $enable ? 'true' : 'false',
         ]);
 
-        return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+        return successResponse(\Lang::get('message.updated-successfully'));
     }
 
     public function settingsPayment(Setting $settings, Request $request)
@@ -994,12 +1438,12 @@ class SettingsController extends BaseSettingsController
 
     public function contactOption()
     {
-        $mailSendingStatus = Setting::value('sending_status');
-        $emailStatus = StatusSetting::value('emailverification_status');
-        $mobileStatus = StatusSetting::value('msg91_status');
-        $preferred_verification = ApiKey::value('verification_preference');
-
-        return view('themes.default1.common.setting.contact-options', compact('mailSendingStatus', 'emailStatus', 'mobileStatus', 'preferred_verification'));
+        return successResponse('', [
+            'sending_status'          => Setting::value('sending_status'),
+            'emailverification_status' => StatusSetting::value('emailverification_status'),
+            'msg91_status'            => StatusSetting::value('msg91_status'),
+            'verification_preference' => ApiKey::value('verification_preference'),
+        ]);
     }
 
     public function postContactOption(Request $request)

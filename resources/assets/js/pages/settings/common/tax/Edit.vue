@@ -1,12 +1,136 @@
 <template>
-    <div class="content-header">
-        <h1>Edit</h1>
-    </div>
-    <div class="content">
-        <!-- Edit page content goes here -->
+    <div>
+        <AppAlert :componentName="COMPONENT" />
+        <div class="card card-light">
+            <div class="card-header">
+                <h4 class="card-title">Edit Tax</h4>
+            </div>
+
+            <div v-if="loading" class="card-body text-center py-5">
+                <span class="spinner-border text-secondary"></span>
+            </div>
+
+            <template v-else>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <TextField name="name" label="Tax Name *" :value="form.name" :onChange="onChange" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold">Tax Class *</label>
+                            <select class="form-select" v-model="form.tax_classes_id" @change="onClassChange">
+                                <option v-for="c in taxClasses" :key="c" :value="c">{{ c }}</option>
+                            </select>
+                        </div>
+                        <template v-if="form.tax_classes_id === 'Others'">
+                            <div class="col-md-4 mb-3">
+                                <TextField name="rate" label="Rate *" :value="form.rate" :onChange="onChange" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Country</label>
+                                <select class="form-select" v-model="form.country" @change="loadStates">
+                                    <option v-for="c in countries" :key="c.id" :value="c.id">{{ c.name }}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">State</label>
+                                <select class="form-select" v-model="form.state">
+                                    <option value="">— Any —</option>
+                                    <option v-for="s in states" :key="s.iso2" :value="s.iso2">{{ s.state_subdivision_name }}</option>
+                                </select>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <button class="btn btn-primary" @click="submit" :disabled="saving">
+                        <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
+                        Update
+                    </button>
+                    <RouterLink to="/settings/common/tax" class="btn btn-secondary ms-2">Cancel</RouterLink>
+                </div>
+            </template>
+        </div>
     </div>
 </template>
 
 <script setup>
-// Edit
+import { reactive, ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { RouterLink } from 'vue-router'
+import http from '@/plugins/axios'
+import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+
+const COMPONENT = 'tax-edit'
+const el = document.getElementById('app-root')
+const baseUrl = el?.dataset?.baseUrl ?? ''
+const route = useRoute()
+const id = route.params.id
+
+const loading = ref(true)
+const saving = ref(false)
+const taxClasses = ['CGST', 'SGST', 'IGST', 'UTGST', 'Others']
+const countries = ref([])
+const states = ref([])
+
+const form = reactive({
+    name: '', tax_classes_id: '', rate: '', country: 'IN', state: '',
+})
+
+function onChange(val, name) { form[name] = val }
+
+function onClassChange() {
+    form.rate = ''
+    form.country = 'IN'
+    form.state = ''
+    if (form.tax_classes_id === 'Others') loadStates()
+}
+
+async function loadStates() {
+    form.state = ''
+    states.value = []
+    if (!form.country) return
+    try {
+        const res = await http.get(`${baseUrl}/get-state/${form.country}`)
+        states.value = res.data?.data?.states ?? []
+    } catch (e) { /* ignore */ }
+}
+
+onMounted(async () => {
+    try {
+        const [editRes, optRes] = await Promise.all([
+            http.get(`${baseUrl}/tax/edit/${id}`),
+            http.get(`${baseUrl}/tax-options`),
+        ])
+        const d = editRes.data?.data ?? {}
+        form.name = d.tax?.name ?? ''
+        form.tax_classes_id = d.tax_class_name ?? ''
+        form.rate = d.tax?.rate ?? ''
+        form.country = d.tax?.country ?? 'IN'
+        form.state = d.tax?.state ?? ''
+
+        countries.value = Object.entries(optRes.data?.data?.countries ?? {}).map(([cid, name]) => ({ id: cid, name }))
+
+        if (form.tax_classes_id === 'Others' && form.country) {
+            states.value = Object.entries(d.states ?? {}).map(([iso2, name]) => ({ iso2, state_subdivision_name: name }))
+        }
+    } catch (e) { errorHandler(e, COMPONENT) }
+    finally { loading.value = false }
+})
+
+async function submit() {
+    saving.value = true
+    try {
+        const res = await http.put(`${baseUrl}/tax/${id}`, {
+            name: form.name,
+            tax_classes_id: form.tax_classes_id,
+            rate: form.rate,
+            country: form.country,
+            state: form.state,
+        })
+        successHandler(res, COMPONENT)
+    } catch (e) { errorHandler(e, COMPONENT) }
+    finally { saving.value = false }
+}
 </script>

@@ -63,10 +63,10 @@ class Promotion extends BaseModel
         return $this->hasOneThrough(
             Product::class,
             \App\Model\Payment\PromoProductRelation::class,
-            'promotion_id', // Foreign key on promo_product_relations table...
-            'id',           // Foreign key on products table...
-            'id',           // Local key on promotions table...
-            'product_id'    // Local key on promo_product_relations table
+            'promotion_id',
+            'id',
+            'id',
+            'product_id'
         );
     }
 }

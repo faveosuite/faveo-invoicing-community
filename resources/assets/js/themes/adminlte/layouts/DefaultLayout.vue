@@ -81,14 +81,16 @@ import { useRoute }           from 'vue-router'
 import { useSidebar }         from '@/core/composables/useSidebar.js'
 import { useBreadcrumb }      from '@/core/composables/useBreadcrumb.js'
 import { useNotification }    from '@/core/composables/useNotification.js'
+import { useAlertStore }      from '@/core/stores/alert.js'
 
 const { isOpen, close }          = useSidebar()
 const { pageTitle, breadcrumbs } = useBreadcrumb()
 const { message, type, visible, dismiss } = useNotification()
 const route                      = useRoute()
+const alertStore                 = useAlertStore()
 
-// Close sidebar on navigation when in mobile overlay mode (viewport < lg / 992 px)
 watch(() => route.path, () => {
+    alertStore.unsetAlert()
     if (window.innerWidth < 992) {
         close()
     }

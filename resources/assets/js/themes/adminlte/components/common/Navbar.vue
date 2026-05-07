@@ -11,14 +11,14 @@
                 <li class="nav-item">
                     <button type="button" class="nav-link btn btn-link" :aria-expanded="isOpen"
                         aria-controls="app-sidebar" aria-label="Toggle sidebar" @click="toggle">
-                        <i class="bi bi-list" aria-hidden="true"></i>
+                        <i class="fas fa-bars" aria-hidden="true"></i>
                     </button>
                 </li>
 
                 <!-- Go to client panel -->
                 <li class="nav-item d-none d-md-block">
                     <a :href="baseUrl" class="nav-link" target="_blank" rel="noopener noreferrer" aria-label="Go to client panel (opens in new tab)">
-                        <i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>
+                        <i class="fas fa-arrow-up-right-from-square me-1" aria-hidden="true"></i>
                         {{ __('message.go_to_client') }}
                     </a>
                 </li>
@@ -32,7 +32,7 @@
 
                     <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" data-bs-toggle="dropdown"
                        href="javascript:;" role="button" :aria-label="`Change language, current: ${currentLocale}`" aria-haspopup="true">
-                        <span :class="`fi fi-${flagCode(currentLocale)}`" :title="currentLocale.toUpperCase()"></span>
+                        <span :class="`fi fi-${flagCode(currentLocale)}`" :title="currentLocale.toUpperCase()" v-tooltip></span>
                         <span class="d-none d-md-inline">{{ currentLocale.toUpperCase() }}</span>
                     </a>
 
@@ -71,13 +71,13 @@
 
                         <li>
                             <RouterLink to="/profile" class="dropdown-item">
-                                <i class="bi bi-person me-2" aria-hidden="true"></i>{{ __('message.profile') }}
+                                <i class="far fa-user me-2" aria-hidden="true"></i>{{ __('message.profile') }}
                             </RouterLink>
                         </li>
 
                         <li>
                             <a href="javascript:;" class="dropdown-item" @click.prevent="logout">
-                                <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>{{ __('message.log_out') }}
+                                <i class="fas fa-right-from-bracket me-2" aria-hidden="true"></i>{{ __('message.log_out') }}
                             </a>
                         </li>
                     </ul>

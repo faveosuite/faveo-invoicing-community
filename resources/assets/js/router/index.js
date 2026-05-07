@@ -13,6 +13,7 @@ import emailRoutes from './routes/settings/email.js'
 import apiRoutes from './routes/settings/api.js'
 import commonRoutes from './routes/settings/common.js'
 import widgetRoutes from './routes/settings/widgets.js'
+import licenseRoutes from './routes/license.js'
 
 const routes = [
     { path: '/', redirect: '/dashboard' },
@@ -30,6 +31,7 @@ const routes = [
     ...apiRoutes,
     ...commonRoutes,
     ...widgetRoutes,
+    ...licenseRoutes,
 ]
 
 // Read the admin base path from the blade-rendered data attribute.

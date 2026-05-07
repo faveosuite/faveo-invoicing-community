@@ -169,6 +169,59 @@ class WhatsappController extends Controller
         }
     }
 
+    public function whatsappUsersApi(Request $request)
+    {
+        try {
+            $searchString = $request->input('search-query', '');
+            $sortField = $request->input('sort-field', 'created_at');
+            $sortOrder = $request->input('sort-order', 'desc');
+            $limit = $request->input('limit', 10);
+            $allowedSorts = ['created_at', 'phone_number', 'waba_id', 'phone_number_id', 'business_id'];
+
+            if (! in_array($sortField, $allowedSorts, true)) {
+                $sortField = 'created_at';
+            }
+
+            $users = WhatsappIntegrationUser::with('user:id,first_name,last_name,email')
+                ->when($searchString, function ($query) use ($searchString) {
+                    $query->where(function ($q) use ($searchString) {
+                        $q->where('phone_number', 'like', "%{$searchString}%")
+                            ->orWhere('waba_id', 'like', "%{$searchString}%")
+                            ->orWhere('phone_number_id', 'like', "%{$searchString}%")
+                            ->orWhere('business_id', 'like', "%{$searchString}%")
+                            ->orWhereHas('user', function ($userQuery) use ($searchString) {
+                                $userQuery->where('first_name', 'like', "%{$searchString}%")
+                                    ->orWhere('last_name', 'like', "%{$searchString}%")
+                                    ->orWhere('email', 'like', "%{$searchString}%");
+                            });
+                    });
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
+
+            $users->getCollection()->transform(function ($model) {
+                $name = trim(($model->user->first_name ?? '').' '.($model->user->last_name ?? ''));
+
+                return [
+                    'id' => $model->id,
+                    'user_id' => $model->user_id,
+                    'user_name' => $name ?: ($model->user->email ?? '---'),
+                    'user_email' => $model->user->email ?? '',
+                    'phone_number' => $model->phone_number,
+                    'waba_id' => $model->waba_id,
+                    'phone_number_id' => $model->phone_number_id,
+                    'business_id' => $model->business_id,
+                    'callback_url' => $model->user_callback_url,
+                    'created_at' => optional($model->created_at)->format('Y-m-d H:i'),
+                ];
+            });
+
+            return successResponse('', $users);
+        } catch (\Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
+    }
+
     public function whatsappClientTable($orderid)
     {
         $query = WhatsappIntegrationUser::select('*')->where('user_id', \Auth::user()->id)->where('order_id', $orderid);
