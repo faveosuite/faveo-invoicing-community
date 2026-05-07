@@ -82,8 +82,8 @@ class NonPublicDependencies extends BaseDependencyController
                 });
 
         return $this->get('managers', $baseQuery, fn ($u) => [
-            'id'    => $u->id,
-            'name'  => trim($u->first_name.' '.$u->last_name),
+            'id' => $u->id,
+            'name' => trim($u->first_name.' '.$u->last_name),
             'email' => $u->email,
         ]);
     }
@@ -114,7 +114,7 @@ class NonPublicDependencies extends BaseDependencyController
             ->select('name', 'short');
 
         return $this->get('industries', $baseQuery, fn ($item) => [
-            'id'   => $item->short,
+            'id' => $item->short,
             'name' => $item->name,
         ]);
     }
@@ -201,7 +201,7 @@ class NonPublicDependencies extends BaseDependencyController
         $items = Period::orderByRaw('CAST(days AS UNSIGNED)')->get(['id', 'name', 'days']);
 
         return [
-            'periods'       => $items->map(fn ($p) => ['id' => $p->days, 'name' => $p->name]),
+            'periods' => $items->map(fn ($p) => ['id' => $p->days, 'name' => $p->name]),
             'next_page_url' => null,
         ];
     }

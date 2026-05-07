@@ -1263,13 +1263,13 @@ class PageController extends Controller
             }
 
             $page = FrontendPage::create([
-                'name'           => $request->input('name'),
-                'publish'        => $request->input('publish', 0),
-                'slug'           => $request->input('slug'),
-                'url'            => $url,
+                'name' => $request->input('name'),
+                'publish' => $request->input('publish', 0),
+                'slug' => $request->input('slug'),
+                'url' => $url,
                 'parent_page_id' => $request->input('parent_page_id'),
-                'type'           => $request->input('type'),
-                'content'        => $request->input('content'),
+                'type' => $request->input('type'),
+                'content' => $request->input('content'),
             ]);
 
             return successResponse(__('message.saved-successfully'), $page);

@@ -381,6 +381,7 @@ class PaymentSettingsController extends Controller
     {
         try {
             $configs = $this->fetchConfig();
+
             return successResponse('', array_values($configs));
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage(), 500);

@@ -70,6 +70,7 @@ class CurrencyController extends Controller
                     'dashboard_currency' => (bool) $currency->dashboard_currency,
                 ];
             });
+
             return successResponse(__('message.currency_list_retrieved_successfully'), $currencyData);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage(), 500);
