@@ -372,10 +372,10 @@ class DashboardController extends Controller
         $allowedCurrencies1 = Setting::find(1)->value('default_currency');
         $allowedCurrencies2 = Currency::where('dashboard_currency', 1)->pluck('code')->first();
 
-        if ($allowedCurrencies1 && !isset($totals[$allowedCurrencies1])) {
+        if ($allowedCurrencies1 && ! isset($totals[$allowedCurrencies1])) {
             $totals[$allowedCurrencies1] = 0;
         }
-        if ($allowedCurrencies2 && !isset($totals[$allowedCurrencies2])) {
+        if ($allowedCurrencies2 && ! isset($totals[$allowedCurrencies2])) {
             $totals[$allowedCurrencies2] = 0;
         }
 
