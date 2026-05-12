@@ -29,8 +29,8 @@ class SettingsController extends Controller
             $rzpKeys = ApiKey::select('rzp_key', 'rzp_secret', 'apilayer_key')->first();
 
             return successResponse('', [
-                'rzp_key'      => $rzpKeys->rzp_key      ?? '',
-                'rzp_secret'   => $rzpKeys->rzp_secret   ?? '',
+                'rzp_key' => $rzpKeys->rzp_key ?? '',
+                'rzp_secret' => $rzpKeys->rzp_secret ?? '',
                 'apilayer_key' => $rzpKeys->apilayer_key ?? '',
             ]);
         } catch (\Exception $e) {
