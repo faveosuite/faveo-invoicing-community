@@ -1,135 +1,164 @@
 <template>
+    <div class="user-table-actions">
 
-	<div class="actions-row">
-
-		<router-link v-if="data.edit_url" class="btn btn-light btn-act" :to="data.edit_url" v-tooltip="trans('edit')">
-
-			<i class="fas fa-edit"></i>
-		</router-link> &nbsp;
-
-        <span v-tooltip="disabled ? trans('default_field_is_not_restore') : trans('restore')">
-
-			<button v-if="data.restore_url" class="btn btn-light btn-act me-2" @click="showRestoreModalMethod"
-                    :disabled="disabled">
-
-				<i class="fas fa-sync-alt"></i>
-			</button>
-		</span>
-
-		<span v-tooltip="disabled ? trans('default_field_is_not_deletable') : data.tooltip ? trans(data.tooltip) : trans('delte')">
-
-			<button v-if="data.delete_url" class="btn btn-light btn-act" @click="showModalMethod"
-				:disabled="disabled">
-
-				<i class="fas fa-trash"></i>
-			</button>
-		</span>
-
-        <router-link v-if="data.view_url" class="btn btn-light btn-act ms-2" :to="data.view_url" v-tooltip="trans('view')">
-
-            <i class="fas fa-eye"></i>
+        <router-link v-if="data.edit_url" class="btn btn-light table_btn"
+                     :to="data.edit_url" v-tooltip="trans('edit')">
+            <i class="fas fa-edit"></i>
         </router-link>
 
-		<transition name="modal">
+        <div v-if="data.view_url || data.agent_view_url" class="btn-group">
+            <template v-if="data.view_url && data.agent_view_url">
+                <button
+                    ref="dropdownBtn"
+                    type="button"
+                    class="btn btn-default table_btn dropdown-toggle"
+                    :class="{ active: isOpen }"
+                    @click.stop="toggleDropdown"
+                    v-tooltip="trans('view')">
+                    <i class="fas fa-eye"></i>
+                </button>
 
-		 	<delete-modal v-if="showModal" :onClose="onClose" :showModal="showModal" :deleteUrl="data.delete_url"
-		 		:alertComponentName="alert" :keyVal="data.keyVal" :idVal="data.idVal" :modalMessage="data.modalMessage"
-                :btnTitle="data.btnTitle" :softDelete="data.softDelete" :modalTitle="data.modalTitle">
+                <Teleport to="body">
+                    <div
+                        v-if="isOpen"
+                        ref="dropdownMenu"
+                        class="dropdown-menu show shadow-sm"
+                        :style="menuStyle">
 
-		 	</delete-modal>
-		</transition>
+                        <router-link
+                            class="dropdown-item pointer"
+                            :to="data.view_url"
+                            @click="isOpen = false">
+                            {{ trans('view') }}
+                        </router-link>
+
+                        <router-link
+                            v-if="data.agent_view_url"
+                            class="dropdown-item pointer"
+                            :to="data.agent_view_url"
+                            @click="isOpen = false">
+                            {{ trans('view_agent') }}
+                        </router-link>
+                    </div>
+                </Teleport>
+            </template>
+
+            <router-link v-else class="btn btn-default table_btn"
+                         :to="data.view_url || data.agent_view_url"
+                         v-tooltip="trans(data.agent_view_url ? 'view_agent' : 'view')">
+                <i class="fas fa-eye"></i>
+            </router-link>
+        </div>
+
+        <span v-tooltip="disabled ? trans('default_field_is_not_restore') : trans('restore')">
+            <button v-if="data.restore_url" class="btn btn-light table_btn"
+                    @click="showRestoreModalMethod" :disabled="disabled">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </span>
+
+        <span v-tooltip="disabled ? trans('default_field_is_not_deletable') : data.tooltip ? trans(data.tooltip) : trans('delete')">
+            <button v-if="data.delete_url" class="btn btn-light table_btn"
+                    @click="showModalMethod" :disabled="disabled">
+                <i class="fas fa-trash"></i>
+            </button>
+        </span>
 
         <transition name="modal">
-
-            <delete-modal v-if="showRestoreModal" :onClose="onClose" :showModal="showRestoreModal" :deleteUrl="data.restore_url"
-                          :alertComponentName="alert" :keyVal="data.keyVal" :idVal="data.idVal" :modalMessage="data.restoreModalMessage"
-                          :btnTitle="data.restoreBtnTitle" :modalTitle="data.restoreModalTitle">
-
-            </delete-modal>
+            <DeleteModal v-if="showModal" :onClose="onClose" :showModal="showModal"
+                         :deleteUrl="data.delete_url" :alertComponentName="alert"
+                         :keyVal="data.keyVal" :idVal="data.idVal"
+                         :modalMessage="data.modalMessage" :btnTitle="data.btnTitle"
+                         :softDelete="data.softDelete" :modalTitle="data.modalTitle" />
         </transition>
-	</div>
+
+        <transition name="modal">
+            <DeleteModal v-if="showRestoreModal" :onClose="onClose" :showModal="showRestoreModal"
+                         :deleteUrl="data.restore_url" :alertComponentName="alert"
+                         :keyVal="data.keyVal" :idVal="data.idVal"
+                         :modalMessage="data.restoreModalMessage" :btnTitle="data.restoreBtnTitle"
+                         :modalTitle="data.restoreModalTitle" />
+        </transition>
+    </div>
 </template>
 
-<script type="text/javascript">
+<script setup>
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { boolean, lang } from '@/helpers/extraLogics'
+import { useAlertStore } from '@/core/stores/alert'
+import DeleteModal from './DeleteModal.vue'
 
-	import axios from '@/plugins/axios';
+const props = defineProps({
+    data: { type: Object, required: true },
+})
 
-	import {boolean} from '../../helpers/extraLogics'
+const alertStore = useAlertStore()
 
-    import DeleteModal from './DeleteModal.vue'
+const showModal = ref(false)
+const showRestoreModal = ref(false)
+const alert = ref(props.data.alertComponentName ?? 'dataTableModal')
 
-	export default {
+const disabled = computed(() => boolean(props.data.is_default))
 
-		name:"data-table-actions",
+const trans = (string) => lang(string)
 
-		props: {
+function showModalMethod() {
+    showModal.value = !props.data.is_default
+}
 
-			data : { type : Object, required : true },
-		},
+function showRestoreModalMethod() {
+    showRestoreModal.value = !props.data.is_default
+}
 
-		data(){
+function onClose() {
+    showModal.value = false
+    showRestoreModal.value = false
+    alertStore.unsetValidationError()
+}
 
-			return{
+/* ── Dropdown positioning (favMer pattern) ── */
+const dropdownBtn = ref(null)
+const dropdownMenu = ref(null)
+const isOpen = ref(false)
+const menuStyle = ref({})
 
-				showModal : false,
+function updateMenuPosition() {
+    if (!dropdownBtn.value) return
+    const rect = dropdownBtn.value.getBoundingClientRect()
+    menuStyle.value = {
+        position: 'fixed',
+        top: `${rect.bottom + 4}px`,
+        left: `${rect.right}px`,
+        transform: 'translateX(-100%)',
+        zIndex: 9999,
+        minWidth: '160px',
+    }
+}
 
-                showRestoreModal : false,
+async function toggleDropdown() {
+    isOpen.value = !isOpen.value
+    if (isOpen.value) {
+        await nextTick()
+        updateMenuPosition()
+    }
+}
 
-				alert : ''
-			}
-		},
+function closeDropdown(e) {
+    if (
+        dropdownBtn.value && !dropdownBtn.value.contains(e.target) &&
+        dropdownMenu.value && !dropdownMenu.value.contains(e.target)
+    ) {
+        isOpen.value = false
+    }
+}
 
-		computed : {
+onMounted(() => {
+    document.addEventListener('click', closeDropdown)
+    window.addEventListener('scroll', () => { if (isOpen.value) updateMenuPosition() }, true)
+    window.addEventListener('resize', () => { if (isOpen.value) updateMenuPosition() })
+})
 
-			disabled() {
-
-				return boolean(this.data.is_default)
-			}
-		},
-
-		created() {
-
-			this.updateAlert()
-		},
-
-		methods:{
-
-			updateAlert() {
-
-				this.alert = this.data.alertComponentName ? this.data.alertComponentName : 'dataTableModal';
-			},
-
-            showRestoreModalMethod() {
-
-                this.showRestoreModal = this.data.is_default ? false : true;
-            },
-
-			showModalMethod(){
-
-				this.showModal = this.data.is_default ? false : true;
-			},
-
-			onClose(){
-
-		    	this.showModal = false;
-
-                this.showRestoreModal = false;
-
-		    	this.$store.dispatch('unsetValidationError');
-		  	},
-		},
-
-		components:{
-
-			'delete-modal': DeleteModal
-		}
-	};
+onBeforeUnmount(() => {
+    document.removeEventListener('click', closeDropdown)
+})
 </script>
-
-<style scoped>
-
-	.actions-row a { padding-right: 10px;padding-left: 10px; }
-
-	.btn-act { background: gainsboro !important; }
-</style>
-

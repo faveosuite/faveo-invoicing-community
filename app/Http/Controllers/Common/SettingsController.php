@@ -563,6 +563,8 @@ class SettingsController extends BaseSettingsController
                     'company' => $set->company,
                     'company_email' => $set->company_email,
                     'title' => $set->title,
+                    'favicon_title' => $set->favicon_title,
+                    'favicon_title_client' => $set->favicon_title_client,
                     'website' => $set->website,
                     'phone' => $set->phone,
                     'phone_code' => $set->phone_code,
@@ -611,9 +613,9 @@ class SettingsController extends BaseSettingsController
         try {
             $setting = $settings->find(1) ?: $settings->create(['company' => '']);
             $input = $request->only([
-                'company', 'company_email', 'title', 'website', 'phone', 'phone_code',
-                'phone_country_iso', 'address', 'city', 'state', 'country', 'zip',
-                'cin_no', 'gstin', 'default_currency', 'knowledge_base_url',
+                'company', 'company_email', 'title', 'favicon_title', 'favicon_title_client',
+                'website', 'phone', 'phone_code', 'phone_country_iso', 'address', 'city',
+                'state', 'country', 'zip', 'cin_no', 'gstin', 'default_currency', 'knowledge_base_url',
             ]);
             $input['autorenewal_status'] = $request->boolean('autorenewal_status');
 

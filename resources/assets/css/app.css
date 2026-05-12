@@ -14,14 +14,6 @@
     color: #c2c7d0;
 }
 
-.nav-child-indent .nav-treeview {
-    padding-left: .5rem;
-}
-
-/* ── Sidebar logo white ─────────────────────────────────────────────────────── */
-.sidebar-brand .brand-image {
-    filter: brightness(0) invert(1);
-}
 
 /* ── User profile dropdown ─────────────────────────────────────────────────── */
 .navbar .user-image {
@@ -87,6 +79,13 @@
 .bg-gb { background: gainsboro !important; }
 
 .form-control { font-size: inherit !important; }
+
+/* ── Remove Bootstrap validation icon inside inputs ────────────────────────── */
+.form-control.is-invalid,
+.form-select.is-invalid {
+    background-image: none;
+    padding-right: 0.75rem;
+}
 
 /* ── Alert slide transition ────────────────────────────────────────────────── */
 .alert-slide-enter-active,

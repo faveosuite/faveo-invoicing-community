@@ -4,28 +4,31 @@
         <input
             ref="phoneRef"
             type="tel"
-            class="form-control"
+            :class="['form-control', { 'is-invalid': fieldError }]"
             :value="value"
             @input="onInput"
             @keypress="numbersOnly"
         />
-        <div v-if="error" class="text-danger small mt-1">{{ error }}</div>
+        <div v-if="fieldError" class="invalid-feedback d-block">{{ fieldError }}</div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import intlTelInput from 'intl-tel-input/intlTelInputWithUtils'
+import { useAlertStore } from '@/core/stores/alert'
 
 const props = defineProps({
-    name:     { type: String, required: true },
-    label:    { type: String, default: '' },
-    value:    { type: [String, Number], default: '' },
-    error:    { type: String, default: '' },
-    onChange: { type: Function, default: () => {} },
+    name:           { type: String, required: true },
+    label:          { type: String, default: '' },
+    value:          { type: [String, Number], default: '' },
+    onChange:       { type: Function, default: () => {} },
+    initialCountry: { type: String, default: 'auto' },
 })
 
 const emit = defineEmits(['countryChange'])
+
+const fieldError = computed(() => useAlertStore().validation_errors[props.name] ?? '')
 
 const phoneRef = ref(null)
 let iti = null
@@ -47,23 +50,26 @@ function emitCountry() {
 
 onMounted(() => {
     if (!phoneRef.value) return
-    iti = intlTelInput(phoneRef.value, {
-        initialCountry:        'auto',
-        geoIpLookup(success) {
+    const options = {
+        initialCountry:  props.initialCountry || 'auto',
+        separateDialCode: true,
+        allowDropdown:    true,
+        showFlags:        true,
+        formatAsYouType:  false,
+        strictMode:       true,
+        formatOnDisplay:  false,
+        nationalMode:     false,
+        excludeCountries: ['ax'],
+    }
+    if (options.initialCountry === 'auto') {
+        options.geoIpLookup = (success) => {
             fetch('https://ipapi.co/json')
                 .then(r => r.json())
                 .then(d => success(d.country_code))
                 .catch(() => success('IN'))
-        },
-        separateDialCode:  true,
-        allowDropdown:     true,
-        showFlags:         true,
-        formatAsYouType:   false,
-        strictMode:        true,
-        formatOnDisplay:   false,
-        nationalMode:      false,
-        excludeCountries:  ['ax'],
-    })
+        }
+    }
+    iti = intlTelInput(phoneRef.value, options)
     phoneRef.value.addEventListener('countrychange', emitCountry)
     emitCountry()
 })

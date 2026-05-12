@@ -116,7 +116,7 @@ const tableOptions = reactive({
         uses:     (f, row) => row.uses ?? '—',
         start:    (f, row) => row.start ? row.start.substring(0, 10) : '—',
         expiry:   (f, row) => row.expiry ? row.expiry.substring(0, 10) : '—',
-        action:   (f, row) => h(RouterLink, { to: `/products/coupons/${row.id}/edit`, class: 'btn btn-light table_btn', title: 'Edit' }, () => h('i', { class: 'fas fa-pen' })),
+        action:   (f, row) => h(RouterLink, { to: `/products/coupons/${row.id}/edit`, class: 'btn btn-light table_btn', title: 'Edit' }, () => h('i', { class: 'fas fa-edit' })),
     },
     sortable: ['code', 'type', 'start', 'expiry'],
     filterable: true,

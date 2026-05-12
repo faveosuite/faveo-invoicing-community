@@ -44,7 +44,8 @@ import { getIdFromUrl, lang } from '@/helpers/extraLogics'
 import { validateInstallationSettings } from '@/helpers/validator/installationValidation'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
-import store from '@/store'
+import { useAlertStore } from '@/core/stores/alert'
+const alertStore = useAlertStore()
 
 const router = useRouter()
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
@@ -101,7 +102,7 @@ function onSubmit() {
         axios.post(baseUrl + '/api/admin/installations/edit', data).then(res => {
             loading.value = false
             if (!res.data.api_action_success || res.data.error_detected || res.data.api_error_detected) {
-                store.dispatch('setAlert', { type: 'danger', message: res.data.page_message, component_name: 'installation' })
+                alertStore.setAlert({ type: 'danger', message: res.data.page_message, component_name: 'installation' })
             } else if (res.data.api_action_success && res.data.action_success) {
                 successHandler({ status: 200, data: { message: res.data.page_message } }, 'installation')
                 setTimeout(() => { router.push('/installations') }, 2000)

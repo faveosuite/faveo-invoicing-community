@@ -234,7 +234,7 @@
 import { reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import http from '@/plugins/axios'
-import { errorHandler} from "../../../../../app/License/Resources/js/helpers/responseHandler.js";
+import { errorHandler } from '@/helpers/responseHandler.js';
 
 const COMPONENT = 'users-create'
 

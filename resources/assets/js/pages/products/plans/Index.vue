@@ -110,7 +110,7 @@ const tableOptions = reactive({
         product:    (f, row) => row.product || '—',
         period:     (f, row) => row.period || '—',
         currencies: (f, row) => (row.currencies ?? []).join(', ') || '—',
-        action:     (f, row) => h(RouterLink, { to: `/products/plans/${row.id}/edit`, class: 'btn btn-light table_btn', title: 'Edit' }, () => h('i', { class: 'fas fa-pen' })),
+        action:     (f, row) => h(RouterLink, { to: `/products/plans/${row.id}/edit`, class: 'btn btn-light table_btn', title: 'Edit' }, () => h('i', { class: 'fas fa-edit' })),
     },
     sortable: ['name', 'product', 'period'],
     filterable: true,

@@ -36,7 +36,7 @@
                     <!-- ── Users ───────────────────────────────────────────── -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('users') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/users') }"
-                           @click.prevent="toggle('users')">
+                           @click.prevent="toggleSection('users')">
                             <i class="nav-icon fas fa-user"></i>
                             <p>{{ __('message.users') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
@@ -68,7 +68,7 @@
                     <!-- ── Orders ──────────────────────────────────────────── -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('orders') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/orders') }"
-                           @click.prevent="toggle('orders')">
+                           @click.prevent="toggleSection('orders')">
                             <i class="nav-icon fas fa-chart-pie"></i>
                             <p>{{ __('message.orders') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
@@ -86,7 +86,7 @@
                     <!-- ── Invoices ────────────────────────────────────────── -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('invoices') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/invoices') }"
-                           @click.prevent="toggle('invoices')">
+                           @click.prevent="toggleSection('invoices')">
                             <i class="nav-icon fas fa-receipt"></i>
                             <p>{{ __('message.invoices') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
@@ -111,7 +111,7 @@
                     <!-- ── Pages ───────────────────────────────────────────── -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('pages') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/pages') }"
-                           @click.prevent="toggle('pages')">
+                           @click.prevent="toggleSection('pages')">
                             <i class="nav-icon fas fa-file-lines"></i>
                             <p>{{ __('message.pages') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
@@ -143,7 +143,7 @@
                     <!-- ── Products ────────────────────────────────────────── -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('products') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/products') }"
-                           @click.prevent="toggle('products')">
+                           @click.prevent="toggleSection('products')">
                             <i class="nav-icon fas fa-briefcase"></i>
                             <p>{{ __('message.products') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
@@ -190,7 +190,7 @@
                     <!-- ── Reports ─────────────────────────────────────────── -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('reports') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/reports') }"
-                           @click.prevent="toggle('reports')">
+                           @click.prevent="toggleSection('reports')">
                             <i class="nav-icon fas fa-chart-bar"></i>
                             <p>{{ __('message.reports') }} <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
@@ -215,7 +215,7 @@
                     <!-- ── Log Reports ─────────────────────────────────────── -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('log-reports') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/log-reports') }"
-                           @click.prevent="toggle('log-reports')">
+                           @click.prevent="toggleSection('log-reports')">
                             <i class="nav-icon fas fa-clipboard-list"></i>
                             <p>Log Reports <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
@@ -255,7 +255,7 @@
                     <!-- Versions -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('versions') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/versions') }"
-                           @click.prevent="toggle('versions')">
+                           @click.prevent="toggleSection('versions')">
                             <i class="nav-icon fas fa-box"></i>
                             <p>Versions <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
@@ -273,7 +273,7 @@
                     <!-- Licenses -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('licenses') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/licenses') }"
-                           @click.prevent="toggle('licenses')">
+                           @click.prevent="toggleSection('licenses')">
                             <i class="nav-icon fas fa-key"></i>
                             <p>Licenses <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
@@ -298,7 +298,7 @@
                     <!-- Installations -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('installations') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/installations') }"
-                           @click.prevent="toggle('installations')">
+                           @click.prevent="toggleSection('installations')">
                             <i class="nav-icon fas fa-download"></i>
                             <p>Installations <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
@@ -316,7 +316,7 @@
                     <!-- Callbacks -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('callbacks') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/callbacks') }"
-                           @click.prevent="toggle('callbacks')">
+                           @click.prevent="toggleSection('callbacks')">
                             <i class="nav-icon fas fa-phone"></i>
                             <p>Callbacks <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
@@ -334,7 +334,7 @@
                     <!-- Banned Hosts -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('banned-hosts') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/banned-hosts') }"
-                           @click.prevent="toggle('banned-hosts')">
+                           @click.prevent="toggleSection('banned-hosts')">
                             <i class="nav-icon fas fa-circle-xmark"></i>
                             <p>Banned Hosts <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
@@ -359,7 +359,7 @@
                     <!-- Whitelist IP -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('whitelist') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/whitelist') }"
-                           @click.prevent="toggle('whitelist')">
+                           @click.prevent="toggleSection('whitelist')">
                             <i class="nav-icon fas fa-shield-halved"></i>
                             <p>Whitelist IP <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
@@ -384,7 +384,7 @@
                     <!-- Server Notifications -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('server') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/server') }"
-                           @click.prevent="toggle('server')">
+                           @click.prevent="toggleSection('server')">
                             <i class="nav-icon fas fa-server"></i>
                             <p>Server Notifications <i class="nav-arrow fas fa-chevron-right"></i></p>
                         </a>
@@ -454,7 +454,7 @@ const routeGroupMap = {
     '/whitelist': 'whitelist',
 }
 
-function toggle(key) {
+function toggleSection(key) {
     const next = new Set(openItems.value)
     next.has(key) ? next.delete(key) : next.add(key)
     openItems.value = next

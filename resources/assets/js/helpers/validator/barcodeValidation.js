@@ -4,7 +4,7 @@
  * RULES : method name for the form should be 'validateFormName'
  * */
 
-import store from "../../store/index";
+import { useAlertStore } from "../../core/stores/alert";
 import {Validator} from "../easy-validator";
 import {lang} from "../extraLogics";
 
@@ -23,7 +23,7 @@ export function validateBarcode(data){
     const {errors, isValid} = validator.validate(validatingData);
 
     // write to vuex if errors
-    store.dispatch('setValidationError', errors); //if component is valid, an empty state will be sent
+    useAlertStore().setValidationError(errors); //if component is valid, an empty state will be sent
 
     return {errors, isValid};
 };

@@ -1,8 +1,8 @@
 <template>
-    <div class="d-inline-flex gap-1">
+    <div class="user-table-actions">
         <router-link
             :to="`/orders/${orderId}`"
-            class="btn btn-light table_btn"
+            class="btn btn-default table_btn"
             title="View"
             v-tooltip
         >

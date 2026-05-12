@@ -1,7 +1,6 @@
-
 import moment from "moment";
 import 'moment-timezone'
-import store from '../store';
+import { useAuthStore } from '../core/stores/auth';
 
 /**
  * gets the last integer from a given url(string)
@@ -221,7 +220,7 @@ const formatDateTimeWithTimezone = (utcDate, timezone, dateFormat, timeFormat) =
 export const formatDateTime = (dateTime, timezone, dateFormat, timeFormat, format = 'YYYY-MM-DD HH:mm:ss') => {
     if (!dateTime) return '----';
 
-    const clientTimezone = store.getters.getClientTimezone?.name || 'UTC';
+    const clientTimezone = useAuthStore().clientTimezone?.name || 'UTC';
     let effectiveTimezone = '';
 
     effectiveTimezone = clientTimezone === 'UTC' ? timezone : clientTimezone;

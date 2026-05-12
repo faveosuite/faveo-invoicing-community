@@ -17,6 +17,7 @@ const AppTable      = defineAsyncComponent(() => import('./components/common/Tab
 const DataTable        = defineAsyncComponent(() => import('./components/common/DataTable.vue'));
 const SimplePagination = defineAsyncComponent(() => import('./components/common/SimplePagination.vue'));
 const AppModal      = defineAsyncComponent(() => import('./components/common/Modal.vue'));
+const modal         = AppModal;
 const AppPagination = defineAsyncComponent(() => import('./components/common/Pagination.vue'));
 const AppCard       = defineAsyncComponent(() => import('./components/common/Card.vue'));
 const TextField     = defineAsyncComponent(() => import('./components/forms/TextField.vue'));
@@ -43,6 +44,7 @@ export const components = {
     DataTable,
     SimplePagination,
     AppModal,
+    modal,
     AppPagination,
     AppCard,
     TextField,

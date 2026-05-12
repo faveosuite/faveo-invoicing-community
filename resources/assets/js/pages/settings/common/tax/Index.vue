@@ -163,7 +163,7 @@ const tableOptions = reactive({
             to: `/settings/common/tax/${row.id}/edit`,
             class: 'btn btn-light table_btn',
             title: 'Edit',
-        }, () => h('i', { class: 'fas fa-pen' })),
+        }, () => h('i', { class: 'fas fa-edit' })),
     },
     sortable: ['name', 'country', 'rate'],
     filterable: true,

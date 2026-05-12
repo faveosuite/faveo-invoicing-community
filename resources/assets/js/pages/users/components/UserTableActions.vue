@@ -1,16 +1,16 @@
 <template>
-    <div class="d-inline-flex gap-1">
+    <div class="user-table-actions">
         <router-link
             :to="`/users/${userId}/edit`"
             class="btn btn-light table_btn"
             title="Edit"
             v-tooltip
         >
-            <i class="fas fa-pen"></i>
+            <i class="fas fa-edit"></i>
         </router-link>
         <router-link
             :to="`/users/${userId}`"
-            class="btn btn-light table_btn"
+            class="btn btn-default table_btn"
             title="View"
             v-tooltip
         >

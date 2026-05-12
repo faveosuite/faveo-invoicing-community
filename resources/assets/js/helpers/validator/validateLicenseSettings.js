@@ -1,4 +1,4 @@
-import store from '../../store'
+import { useAlertStore } from '../../core/stores/alert'
 
 import { Validator } from '../easy-validator';
 
@@ -38,7 +38,7 @@ export function validateLicenseSettings(data) {
 
   const { errors, isValid } = validator.validate(validatingData);
 
-  store.dispatch('setValidationError', errors);
+  useAlertStore().setValidationError(errors);
 
   return { errors, isValid };
 }

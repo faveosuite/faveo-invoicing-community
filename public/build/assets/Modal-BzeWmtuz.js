@@ -1,1 +1,0 @@
-import"./vendor-vue-Cp6G9hM5.js";import{_ as e}from"./chunk-settings-NljL_1Fs.js";import{b4 as r,Z as t,bg as s}from"./vendor-B52Oqw8K.js";import"./chunk-products-BECXs5vi.js";const a={},c={class:"modal-wrapper"};function n(o,l){return r(),t("div",c,[s(o.$slots,"default")])}const f=e(a,[["render",n]]);export{f as default};

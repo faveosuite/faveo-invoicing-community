@@ -23,6 +23,21 @@ class SettingsController extends Controller
         $this->middleware('admin', ['except' => ['postPaymentWithRazorpay']]);
     }
 
+    public function getSettings()
+    {
+        try {
+            $rzpKeys = ApiKey::select('rzp_key', 'rzp_secret', 'apilayer_key')->first();
+
+            return successResponse('', [
+                'rzp_key'      => $rzpKeys->rzp_key      ?? '',
+                'rzp_secret'   => $rzpKeys->rzp_secret   ?? '',
+                'apilayer_key' => $rzpKeys->apilayer_key ?? '',
+            ]);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
     public function Settings()
     {
         try {

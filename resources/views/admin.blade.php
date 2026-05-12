@@ -33,7 +33,7 @@
     @vite(['resources/assets/js/main.js'])
 </head>
 
-<body class="sidebar-expand-lg sidebar-open bg-body-tertiary fs-7">
+<body class="layout-fixed fixed-header bg-body-tertiary sidebar-expand-lg sidebar-mini app-loaded fs-7">
 
     <div class="app-wrapper" id="app-root"
          data-theme="{{ config('theme.active') }}"

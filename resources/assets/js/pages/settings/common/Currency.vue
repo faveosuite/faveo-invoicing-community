@@ -71,7 +71,7 @@ const tableOptions = reactive({
         }, row.dashboard_currency ? 'Shown' : 'Hidden'),
         action: (f, row) => h('div', { class: 'd-flex gap-1' }, [
             h('button', {
-                class: `btn btn-sm ${row.status ? 'btn-light table_btn' : 'btn-light table_btn'}`,
+                class: 'btn btn-sm btn-light table_btn',
                 title: row.status ? 'Disable' : 'Enable',
                 onClick: () => toggleStatus(row),
             }, h('i', { class: row.status ? 'fas fa-toggle-on' : 'fas fa-toggle-off' })),

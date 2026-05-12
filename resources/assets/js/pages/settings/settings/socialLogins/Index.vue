@@ -41,7 +41,7 @@ const tableOptions = reactive({
         status:    (f, row) => h('span', {
             class: row.status ? 'badge bg-success' : 'badge bg-danger',
         }, row.status ? 'Active' : 'Inactive'),
-        action:    (f, row) => h(RouterLink, { to: `/settings/social-logins/${row.id}/edit`, class: 'btn btn-light table_btn', title: 'Edit' }, () => h('i', { class: 'fas fa-pen' })),
+        action:    (f, row) => h(RouterLink, { to: `/settings/social-logins/${row.id}/edit`, class: 'btn btn-light table_btn', title: 'Edit' }, () => h('i', { class: 'fas fa-edit' })),
     },
     sortable: ['type', 'status'],
     filterable: true,

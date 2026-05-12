@@ -57,7 +57,7 @@ const tableOptions = reactive({
                 to: `/settings/widgets/social-media/${row.id}/edit`,
                 class: 'btn btn-light table_btn',
                 title: 'Edit',
-            }, () => h('i', { class: 'fas fa-pen' })),
+            }, () => h('i', { class: 'fas fa-edit' })),
             h('button', {
                 class: 'btn btn-light table_btn',
                 title: 'Delete',

@@ -1,114 +1,40 @@
 <template>
-  <img
-    :id="id"
-    :src="getSrc"
-    :class="classes"
-    :alt="alternativeText"
-    :width="imgWidth"
-    :height="imgHeight"
-    :style="styleObject"
-    @error="onImageLoadError($event)"
-  />
+    <img
+        :id="id"
+        :src="getSrc"
+        :class="classes"
+        :alt="alternativeText"
+        :width="imgWidth"
+        :height="imgHeight"
+        :style="styleObject"
+        @error="onImageLoadError($event)"
+    />
 </template>
 
-<script>
-export default {
+<script setup>
+import { computed } from 'vue'
 
-  name: 'faveo-image-element',
+const props = defineProps({
+    id:              { type: String,           required: true },
+    sourceUrl:       { type: String,           required: true },
+    styleObject:     { type: Object,           default: () => ({}) },
+    classes:         { type: Array,            default: () => [] },
+    alternativeText: { type: String,           default: '' },
+    imgWidth:        { type: [Number, String], default: 'auto' },
+    imgHeight:       { type: [Number, String], default: 'auto' },
+    defaultImage:    { type: String,           default: 'default.png' },
+})
 
-  description: 'Common element for image tag',
+const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
-  props: {
+const getSrc = computed(() =>
+    props.sourceUrl ? props.sourceUrl : `${baseUrl}/themes/default/img/${props.defaultImage}`
+)
 
-    /**
-     * Unique id of the image
-     */
-    id: {
-      type: String,
-      required: true
-    },
-
-    /**
-     * src atrribute value
-     */
-    sourceUrl: {
-      type: String,
-      required: true
-    },
-
-    /**
-     * Used to style the image
-     */
-    styleObject: {
-      type: Object,
-      default: () => {}
-    },
-
-    /**
-     * Class names (bootstrap/admineLTE)
-     */
-    classes: {
-      type: Array,
-      default: () => []
-    },
-
-    /**alt attribute text */
-    alternativeText: {
-      type: String,
-      default: ''
-    },
-
-    /**Image width */
-    imgWidth: {
-      type: [Number, String],
-      default: 'auto'
-    },
-
-    /** Image height */
-    imgHeight: {
-      type: [Number, String],
-      default: 'auto'
-    },
-
-    /**
-     * file name of the image
-     * Used when onError event fired
-     * ----OR----
-     * `sourceUrl` is not truthy
-     * 
-     * NOTE: This file must be present in /themes/default/common/images directory
-     */
-    defaultImage: {
-      type: String,
-      default: 'default.png'
-    }
-  },
-
-  data: () => {
-    return {
-
-    }
-  },
-
-  computed: {
-    getSrc: function() {
-      return this.sourceUrl ? this.sourceUrl : this.basePath() + '/themes/default/img/' + this.defaultImage;
-    }
-  },
-
-
-  methods: {
-    /**
-     * we will need `onerror` hook else without internet it will show a broken image
-    **/
-    onImageLoadError(event) {
-      event.target.onerror = null;
-      event.target.src = this.basePath() + '/themes/default/img/' + this.defaultImage;
-    }
-  }
-
-};
+function onImageLoadError(event) {
+    event.target.onerror = null
+    event.target.src = `${baseUrl}/themes/default/img/${props.defaultImage}`
+}
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

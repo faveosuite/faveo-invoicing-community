@@ -1,5 +1,5 @@
 <template>
-    <div class="d-inline-flex gap-1">
+    <div class="user-table-actions">
         <button
             class="btn btn-light table_btn"
             title="Restore"

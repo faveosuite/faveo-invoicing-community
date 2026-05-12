@@ -1,1 +1,0 @@
-import"./vendor-vue-Cp6G9hM5.js";import{_ as r}from"./chunk-settings-NljL_1Fs.js";import{b4 as t,Z as o,bg as a}from"./vendor-B52Oqw8K.js";import"./chunk-products-BECXs5vi.js";const s={},c={class:"textareafield-wrapper"};function n(e,i){return t(),o("div",c,[a(e.$slots,"default")])}const p=r(s,[["render",n]]);export{p as default};

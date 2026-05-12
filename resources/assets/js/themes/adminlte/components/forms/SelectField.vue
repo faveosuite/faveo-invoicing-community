@@ -14,7 +14,7 @@
             :closeOnSelect="closeOnSelect"
             :taggable="taggable"
             :noDrop="noDrop"
-            class="faveo-dynamic-select"
+            :class="['faveo-dynamic-select', { 'is-invalid': fieldError }]"
             @update:modelValue="onValueChange"
         >
             <template #no-options="{ search }">
@@ -22,13 +22,15 @@
                 <span v-else>No options found</span>
             </template>
         </v-select>
+        <div v-if="fieldError" class="invalid-feedback">{{ fieldError }}</div>
     </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
+import { useAlertStore } from '@/core/stores/alert'
 
 const props = defineProps({
     name:          { type: String, required: true },
@@ -47,6 +49,8 @@ const props = defineProps({
     optionLabel:   { type: String, default: 'name' },
 })
 
+const fieldError = computed(() => useAlertStore().validation_errors[props.name] ?? '')
+
 const selectedValue = ref(props.value)
 
 function onValueChange(val) {
@@ -55,7 +59,6 @@ function onValueChange(val) {
 
 watch(() => props.value,    (val) => { selectedValue.value = val })
 watch(() => props.elements, () => {
-    // Re-validate selected value when the options list changes
     if (!props.elements.includes(selectedValue.value)) {
         selectedValue.value = null
     }
@@ -63,7 +66,6 @@ watch(() => props.elements, () => {
 </script>
 
 <style>
-/* Shared with DynamicSelect — styles live here so SelectField is self-contained */
 .faveo-dynamic-select .vs__dropdown-toggle {
     width: 100%;
     line-height: 1.4;
@@ -81,8 +83,8 @@ watch(() => props.elements, () => {
     display: none;
 }
 
-.faveo-dynamic-select.field-danger .vs__dropdown-toggle {
-    border: 1px solid #d73925 !important;
+.faveo-dynamic-select.is-invalid .vs__dropdown-toggle {
+    border-color: #dc3545 !important;
 }
 
 .faveo-dynamic-select .vs__selected {

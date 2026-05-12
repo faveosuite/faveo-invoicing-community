@@ -3,7 +3,6 @@ export default [
     { path: '/settings/system',                   component: () => import('../../../pages/settings/settings/SystemSettings.vue'),       meta: { title: 'System Settings',       titleKey: 'message.system-settings' } },
     { path: '/settings/cron',                     component: () => import('../../../pages/settings/settings/Cron.vue'),                 meta: { title: 'Cron Settings',         titleKey: 'message.cron-setting' } },
     { path: '/settings/license-type',             component: () => import('../../../pages/settings/settings/licenseType/Index.vue'),    meta: { title: 'License Types',         titleKey: 'message.license_types' } },
-    { path: '/settings/license-type/:id/edit',    component: () => import('../../../pages/settings/settings/licenseType/Edit.vue'),    meta: { title: 'Edit License Type',     titleKey: 'message.edit-license-type' } },
     { path: '/settings/license-permissions',      component: () => import('../../../pages/settings/settings/LicensePermissions.vue'),  meta: { title: 'License Permissions',   titleKey: 'message.license_permission' } },
     { path: '/settings/file-storage',             component: () => import('../../../pages/settings/settings/FileStorage.vue'),         meta: { title: 'File Storage',          titleKey: 'message.file_storage' } },
     { path: '/settings/payment-gateway',          component: () => import('../../../pages/settings/settings/paymentGateway/Index.vue'), meta: { title: 'Payment Gateways',     titleKey: 'message.payment_gateways' } },

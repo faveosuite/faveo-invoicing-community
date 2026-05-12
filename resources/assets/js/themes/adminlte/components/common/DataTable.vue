@@ -194,8 +194,9 @@ table                             { border-collapse: collapse; }
 }
 
 /* ── Custom Button & Action Classes ── */
+.btn-light { border-color: #c6c7c8; box-shadow: none; }
 .table_btn { background: #dcdcdc !important; }
-.actions-row .btn { margin-right: 4px; }
+.user-table-actions .btn { margin-right: 4px; }
 .dt-success { color: #017701 !important; }
 .dt-danger { color: red !important; }
 </style>

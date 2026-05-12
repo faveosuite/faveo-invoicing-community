@@ -5,94 +5,131 @@
             <div class="card-header">
                 <h4 class="card-title">License Permissions</h4>
             </div>
-
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
+            <div class="card-body">
+                <DataTable
+                    ref="dtRef"
+                    :url="apiUrl"
+                    :dataColumns="columns"
+                    :option="tableOptions"
+                />
             </div>
+        </div>
 
-            <template v-else>
-                <div class="card-body">
-                    <p class="text-muted mb-3">Assign permissions to each license type.</p>
-                    <div v-for="license in licenseTypes" :key="license.id" class="card card-outline card-secondary mb-3">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">{{ license.name }}</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div v-for="perm in license.all_permissions" :key="perm.id" class="col-md-4 mb-2">
-                                    <div class="form-check">
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            :id="`perm-${license.id}-${perm.id}`"
-                                            :checked="perm.assigned"
-                                            @change="togglePermission(license, perm, $event.target.checked)"
-                                        />
-                                        <label class="form-check-label" :for="`perm-${license.id}-${perm.id}`">
-                                            {{ perm.permissions }}
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn btn-primary btn-sm" @click="savePermissions(license)" :disabled="saving === license.id">
-                                <span v-if="saving === license.id" class="spinner-border spinner-border-sm me-1"></span>
-                                Save
-                            </button>
-                        </div>
-                    </div>
-
-                    <div v-if="!licenseTypes.length" class="text-muted text-center py-4">
-                        No license types found.
-                    </div>
+        <!-- Add/Edit Permissions Modal -->
+        <modal
+            v-if="editLicense"
+            :showModal="!!editLicense"
+            :onClose="closeModal"
+            :containerStyle="{ maxWidth: '500px' }"
+            :showCloseBtn="false"
+        >
+            <template #title>
+                <h4>{{ editLicense.name }}</h4>
+            </template>
+            <template #fields>
+                <div v-for="perm in editPerms" :key="perm.id" class="form-check mb-2">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        :id="`perm-${perm.id}`"
+                        v-model="perm.assigned"
+                    />
+                    <label class="form-check-label" :for="`perm-${perm.id}`">
+                        {{ perm.permissions }}
+                    </label>
                 </div>
             </template>
-        </div>
+            <template #controls>
+                <button type="button" class="btn btn-primary" :disabled="saving" @click="savePerms">
+                    <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
+                    <i v-else class="fas fa-save me-1"></i>
+                    Save
+                </button>
+            </template>
+        </modal>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { h, ref, reactive } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
 const COMPONENT = 'license-permissions'
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
+const apiUrl = `${baseUrl}/get-license-permission`
 
-const loading = ref(true)
-const saving = ref(null)
-const licenseTypes = ref([])
+const dtRef = ref(null)
+const editLicense = ref(null)
+const editPerms = ref([])
+const saving = ref(false)
 
-onMounted(async () => {
-    await loadPermissions()
-})
-
-async function loadPermissions() {
-    loading.value = true
-    try {
-        const res = await http.get(`${baseUrl}/get-license-permission`, { params: { limit: 200 } })
-        licenseTypes.value = res.data?.data?.license_types?.data ?? []
-    } catch (e) { errorHandler(e, COMPONENT) }
-    finally { loading.value = false }
+function openEdit(license) {
+    editLicense.value = license
+    editPerms.value = (license.all_permissions ?? []).map(p => ({ ...p }))
 }
 
-function togglePermission(license, perm, checked) {
-    perm.assigned = checked
+function closeModal() {
+    editLicense.value = null
+    editPerms.value = []
 }
 
-async function savePermissions(license) {
-    saving.value = license.id
-    const assignedIds = license.all_permissions
-        .filter(p => p.assigned)
-        .map(p => p.id)
+async function savePerms() {
+    saving.value = true
+    const permissionid = editPerms.value.filter(p => p.assigned).map(p => p.id)
     try {
         const res = await http.delete(`${baseUrl}/add-permission`, {
-            data: { licenseId: license.id, permissionid: assignedIds },
+            data: { licenseId: editLicense.value.id, permissionid },
         })
         successHandler(res, COMPONENT)
-    } catch (e) { errorHandler(e, COMPONENT) }
-    finally { saving.value = null }
+        closeModal()
+        dtRef.value?.refresh()
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        saving.value = false
+    }
 }
+
+const columns = ['name', 'permissions', 'action']
+
+const tableOptions = reactive({
+    headings: {
+        name:        'License Type',
+        permissions: 'License Permissions',
+        action:      'Action',
+    },
+    templates: {
+        name: (f, row) => row.name || '—',
+        permissions: (f, row) => {
+            const perms = row.permissions ?? []
+            if (!perms.length) return h('span', { class: 'text-muted fst-italic' }, 'No Permissions Selected')
+            return h('ul', { class: 'mb-0 ps-3' }, perms.map(p => h('li', { class: 'fw-bold' }, p)))
+        },
+        action: (f, row) => h('button', {
+            class: 'btn btn-secondary btn-sm',
+            onClick: () => openEdit(row),
+        }, [h('i', { class: 'fas fa-plus me-1' }), 'Add Permissions']),
+    },
+    sortable: ['name'],
+    filterable: true,
+    requestAdapter(data) {
+        return {
+            'sort-field':   data.orderBy ?? 'name',
+            'sort-order':   data.ascending ? 'asc' : 'desc',
+            'search-query': (data.query ?? '').trim(),
+            page:           data.page,
+            limit:          data.limit,
+        }
+    },
+    responseAdapter({ data }) {
+        const types = data?.data?.license_types
+        return {
+            data:  types?.data ?? [],
+            count: types?.to   ?? types?.data?.length ?? 0,
+        }
+    },
+    orderBy: { column: 'name', ascending: true },
+})
 </script>

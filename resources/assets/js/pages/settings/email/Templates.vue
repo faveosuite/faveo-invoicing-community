@@ -156,7 +156,7 @@ const tableOptions = reactive({
             class: 'btn btn-light table_btn',
             title: 'Edit',
             onClick: () => openEdit(row.id),
-        }, h('i', { class: 'fas fa-pen' })),
+        }, h('i', { class: 'fas fa-edit' })),
     },
     sortable: ['name', 'type'],
     filterable: true,

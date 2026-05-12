@@ -367,13 +367,28 @@ class DashboardController extends Controller
             )->groupBy('orders.number');
     }
 
+    private function formatCurrencyTotals($totals)
+    {
+        $allowedCurrencies1 = Setting::find(1)->value('default_currency');
+        $allowedCurrencies2 = Currency::where('dashboard_currency', 1)->pluck('code')->first();
+
+        if ($allowedCurrencies1 && !isset($totals[$allowedCurrencies1])) {
+            $totals[$allowedCurrencies1] = 0;
+        }
+        if ($allowedCurrencies2 && !isset($totals[$allowedCurrencies2])) {
+            $totals[$allowedCurrencies2] = 0;
+        }
+
+        return $totals;
+    }
+
     public function dashboard()
     {
         return [
-            'totalSales' => $this->getTotalSalesByCurrency(),
-            'yearlySales' => $this->getYearlySalesByCurrency(),
-            'monthlySales' => $this->getMonthlySalesByCurrency(),
-            'pendingPayments' => $this->getAllPendingPayments(),
+            'totalSales' => $this->formatCurrencyTotals($this->getTotalSalesByCurrency()),
+            'yearlySales' => $this->formatCurrencyTotals($this->getYearlySalesByCurrency()),
+            'monthlySales' => $this->formatCurrencyTotals($this->getMonthlySalesByCurrency()),
+            'pendingPayments' => $this->formatCurrencyTotals($this->getAllPendingPayments()),
             'productInstalledRate' => $this->getLastNoOfDaysInstallation(30),
             'paidOrderRate' => $this->getConversionRateByDays(30),
 
@@ -535,9 +550,9 @@ class DashboardController extends Controller
 
     public function getMonthlySalesByCurrency()
     {
-        // Fetch invoices for the current year that are not pending
+        // Fetch invoices for the current month that are not pending
         $invoices = Invoice::where('status', '!=', 'pending')
-            ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
+            ->whereBetween('date', [now()->startOfMonth(), now()->endOfMonth()])
             ->with('payment')
             ->get();
 

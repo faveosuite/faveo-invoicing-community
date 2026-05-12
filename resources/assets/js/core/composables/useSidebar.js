@@ -2,8 +2,9 @@
  * useSidebar — mirrors AdminLTE 4's PushMenu toggle logic.
  *
  * AdminLTE uses body classes to control sidebar state:
- *   sidebar-collapse  →  sidebar is hidden / collapsed
- *   sidebar-open      →  sidebar is visible (mobile overlay mode)
+ *   sidebar-mini      →  enables mini sidebar mode (icons only when collapsed)
+ *   sidebar-collapse  →  sidebar is collapsed (mini icons if sidebar-mini is set)
+ *   sidebar-open      →  sidebar is fully visible
  *
  * We replicate the same class manipulation so all AdminLTE CSS transitions
  * continue to work without relying on AdminLTE JS event delegation.

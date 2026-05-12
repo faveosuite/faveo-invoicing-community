@@ -6,8 +6,6 @@ import pinia from './plugins/pinia.js'
 import i18n from './plugins/i18n.js'
 import { ServerTable } from 'v-tables-3'
 
-import store from './store/index.js'
-import globalMixins from './globalMixins.js'
 import CustomLoader from './components/Reusable/CustomLoader.vue'
 import DatatableActions from './components/Reusable/DatatableActions.vue'
 import mitt from 'mitt'
@@ -42,8 +40,6 @@ import(`./themes/${theme}/index.js`).then(themeModule => {
     app.use(pinia)
     app.use(router)
     app.use(i18n)
-    app.use(store)
-    app.mixin(globalMixins)
     app.use(ServerTable, {}, 'bootstrap4', {})
 
     // ── Global Bootstrap 5 tooltip directive ───────────────────────────────

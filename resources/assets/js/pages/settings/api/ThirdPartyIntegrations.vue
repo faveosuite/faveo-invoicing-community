@@ -38,7 +38,7 @@
                             </td>
                             <td class="text-center">
                                 <RouterLink v-if="module.route && module.enabled" :to="module.route" class="btn btn-light table_btn">
-                                    <i class="fas fa-pen"></i>
+                                    <i class="fas fa-edit"></i>
                                 </RouterLink>
                                 <span v-else class="text-muted">--</span>
                             </td>

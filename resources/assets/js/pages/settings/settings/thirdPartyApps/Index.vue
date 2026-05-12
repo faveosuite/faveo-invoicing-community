@@ -116,7 +116,7 @@ const tableOptions = reactive({
                 class: 'btn btn-light table_btn',
                 title: 'Edit',
                 onClick: () => openEdit(row),
-            }, h('i', { class: 'fas fa-pen' })),
+            }, h('i', { class: 'fas fa-edit' })),
             h('button', {
                 class: 'btn btn-light table_btn',
                 title: 'Delete',

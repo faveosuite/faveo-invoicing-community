@@ -15,18 +15,17 @@
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label fw-bold">Storage Disk</label>
-                            <select class="form-select" v-model="form.disk">
+                            <select class="form-select" v-model="form.disk" @change="onDiskChange">
                                 <option value="system">System (Local)</option>
                                 <option value="s3">Amazon S3</option>
                             </select>
                         </div>
+
                         <div v-if="form.disk === 'system'" class="col-md-4 mb-3">
                             <TextField name="path" label="Storage Path *" :value="form.path" :onChange="onChange" />
                         </div>
-                    </div>
 
-                    <template v-if="form.disk === 's3'">
-                        <div class="row">
+                        <template v-if="form.disk === 's3'">
                             <div class="col-md-4 mb-3">
                                 <label class="form-label fw-bold">S3 Path Style Endpoint</label>
                                 <select class="form-select" v-model="form.s3_path_style_endpoint">
@@ -41,16 +40,12 @@
                                 <TextField name="s3_region" label="S3 Region *" :value="form.s3_region" :onChange="onChange" />
                             </div>
                             <div class="col-md-4 mb-3">
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">S3 Access Key *</label>
-                                    <input type="password" class="form-control" v-model="form.s3_access_key" autocomplete="new-password" />
-                                </div>
+                                <TextField name="s3_access_key" label="S3 Access Key *" type="password"
+                                    :value="form.s3_access_key" :onChange="onChange" />
                             </div>
                             <div class="col-md-4 mb-3">
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">S3 Secret Key *</label>
-                                    <input type="password" class="form-control" v-model="form.s3_secret_key" autocomplete="new-password" />
-                                </div>
+                                <TextField name="s3_secret_key" label="S3 Secret Key *" type="password"
+                                    :value="form.s3_secret_key" :onChange="onChange" />
                             </div>
                             <div class="col-md-4 mb-3">
                                 <TextField name="s3_endpoint_url" label="S3 Endpoint URL *" :value="form.s3_endpoint_url" :onChange="onChange" />
@@ -58,8 +53,8 @@
                             <div class="col-md-4 mb-3">
                                 <TextField name="s3_url" label="S3 URL" :value="form.s3_url" :onChange="onChange" />
                             </div>
-                        </div>
-                    </template>
+                        </template>
+                    </div>
                 </div>
 
                 <div class="card-footer">
@@ -77,11 +72,14 @@
 import { reactive, ref, onMounted } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { validateFileStorage } from '@/helpers/validator/fileStorageValidation.js'
+import { useAlertStore } from '@/core/stores/alert'
 
 const COMPONENT = 'file-storage'
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
+const alertStore = useAlertStore()
 const loading = ref(true)
 const saving = ref(false)
 
@@ -98,6 +96,10 @@ const form = reactive({
 })
 
 function onChange(val, name) { form[name] = val }
+
+function onDiskChange() {
+    alertStore.unsetValidationError()
+}
 
 onMounted(async () => {
     try {
@@ -119,6 +121,9 @@ onMounted(async () => {
 })
 
 async function submit() {
+    const { isValid } = validateFileStorage(form)
+    if (!isValid) return
+
     saving.value = true
     try {
         const payload = { disk: form.disk }
@@ -136,6 +141,7 @@ async function submit() {
             })
         }
         const res = await http.post(`${baseUrl}/file-storage-path`, payload)
+        alertStore.unsetValidationError()
         successHandler(res, COMPONENT)
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { saving.value = false }

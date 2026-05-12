@@ -4,22 +4,14 @@
         <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">License Types</h4>
+                <div class="card-tools">
+                    <button class="btn btn-tool" title="Add License Type" v-tooltip @click="openCreate">
+                        <i class="fas fa-plus fw-bold"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="card-body">
-                <!-- Inline create form -->
-                <form class="row g-2 mb-3" @submit.prevent="create">
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" v-model="newName" placeholder="New license type name" required />
-                    </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-primary" :disabled="creating">
-                            <span v-if="creating" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                            Add
-                        </button>
-                    </div>
-                </form>
-
                 <DataTable
                     ref="dtRef"
                     :url="apiUrl"
@@ -47,14 +39,87 @@
                 </DataTable>
             </div>
         </div>
+
+        <!-- Create Modal -->
+        <modal :showModal="showCreate" :onClose="closeCreate" :containerStyle="{ maxWidth: '600px' }" :showCloseBtn="false">
+            <template #title>
+                <h4>Add License Type</h4>
+            </template>
+            <template #fields>
+                <TextField
+                    name="license_type_name"
+                    label="Name"
+                    :value="newName"
+                    :onChange="(val) => newName = val"
+                    placeholder="Enter license type name"
+                />
+            </template>
+            <template #controls>
+                <button type="button" class="btn btn-primary" :disabled="creating" @click="create">
+                    <span v-if="creating" class="spinner-border spinner-border-sm me-1"></span>
+                    <i v-else class="fas fa-save me-1"></i>
+                    Save
+                </button>
+            </template>
+        </modal>
+
+        <!-- Edit Modal -->
+        <modal :showModal="showEdit" :onClose="closeEdit" :containerStyle="{ maxWidth: '600px' }" :showCloseBtn="false">
+            <template #title>
+                <h4>Edit License Type</h4>
+            </template>
+            <template #fields>
+                <div v-if="editLoading" class="text-center py-3">
+                    <span class="spinner-border text-secondary"></span>
+                </div>
+                <TextField
+                    v-else
+                    name="license_type_edit_name"
+                    label="Name"
+                    :value="editName"
+                    :onChange="(val) => editName = val"
+                    placeholder="Enter license type name"
+                />
+            </template>
+            <template #controls>
+                <button type="button" class="btn btn-primary" :disabled="saving || editLoading" @click="update">
+                    <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
+                    <i v-else class="fas fa-save me-1"></i>
+                    Update
+                </button>
+            </template>
+        </modal>
+
+        <!-- Delete Modal -->
+        <DeleteModal
+            v-if="deleteId !== null"
+            :showModal="deleteId !== null"
+            :onClose="closeDelete"
+            :deleteUrl="`${baseUrl}/delete-license-type`"
+            :deleteData="{ select: [deleteId] }"
+            componentName="license-type-index"
+            @deleted="onDeleted"
+        />
+
+        <!-- Bulk Delete Modal -->
+        <DeleteModal
+            v-if="showBulkDelete"
+            :showModal="showBulkDelete"
+            :onClose="() => showBulkDelete = false"
+            :deleteUrl="`${baseUrl}/delete-license-type`"
+            :deleteData="{ select: selected }"
+            componentName="license-type-index"
+            @deleted="onBulkDeleted"
+        />
+
     </div>
 </template>
 
 <script setup>
 import { h, ref, computed, reactive } from 'vue'
-import { RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
 
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
@@ -63,9 +128,53 @@ const apiUrl = `${baseUrl}/get-license-type`
 const dtRef = ref(null)
 const selected = ref([])
 const deleting = ref(false)
+
+// Create
+const showCreate = ref(false)
 const newName = ref('')
 const creating = ref(false)
 
+function openCreate() { showCreate.value = true }
+function closeCreate() { showCreate.value = false; newName.value = '' }
+
+// Edit
+const showEdit = ref(false)
+const editId = ref(null)
+const editName = ref('')
+const editLoading = ref(false)
+const saving = ref(false)
+
+async function openEdit(id) {
+    editId.value = id
+    editName.value = ''
+    showEdit.value = true
+    editLoading.value = true
+    try {
+        const res = await http.get(`${baseUrl}/get-license-type/${id}`)
+        const d = res.data?.data ?? res.data
+        editName.value = d.name ?? ''
+    } catch (e) {
+        errorHandler(e, 'license-type-index')
+        closeEdit()
+    } finally {
+        editLoading.value = false
+    }
+}
+
+function closeEdit() { showEdit.value = false; editId.value = null; editName.value = '' }
+
+// Delete
+const deleteId = ref(null)
+
+function openDelete(id) { deleteId.value = id }
+function closeDelete() { deleteId.value = null }
+function onDeleted() { closeDelete(); dtRef.value?.refresh() }
+
+// Bulk Delete
+const showBulkDelete = ref(false)
+function onBulkDeleted() { showBulkDelete.value = false; selected.value = []; dtRef.value?.refresh() }
+
+// Select all
 const allSelected = computed(() => {
     const data = dtRef.value?.tableData ?? []
     return data.length > 0 && data.every(row => selected.value.includes(row.id))
@@ -88,11 +197,12 @@ function toggleAll(e) {
 }
 
 async function create() {
+    if (!newName.value.trim()) return
     creating.value = true
     try {
         const res = await http.post(`${baseUrl}/create-license-type`, { name: newName.value })
         successHandler(res, 'license-type-index')
-        newName.value = ''
+        closeCreate()
         dtRef.value?.refresh()
     } catch (e) {
         errorHandler(e, 'license-type-index')
@@ -101,19 +211,24 @@ async function create() {
     }
 }
 
-async function bulkDelete() {
-    if (!selected.value.length) return
-    if (!confirm(`Delete ${selected.value.length} selected license type(s)? This cannot be undone.`)) return
-    deleting.value = true
+async function update() {
+    if (!editName.value.trim()) return
+    saving.value = true
     try {
-        await http.delete(`${baseUrl}/delete-license-type`, { data: { select: selected.value } })
-        selected.value = []
+        const res = await http.put(`${baseUrl}/update-license-type/${editId.value}`, { name: editName.value })
+        successHandler(res, 'license-type-index')
+        closeEdit()
         dtRef.value?.refresh()
     } catch (e) {
         errorHandler(e, 'license-type-index')
     } finally {
-        deleting.value = false
+        saving.value = false
     }
+}
+
+function bulkDelete() {
+    if (!selected.value.length) return
+    showBulkDelete.value = true
 }
 
 const columns = ['select', 'name', 'action']
@@ -127,7 +242,10 @@ const tableOptions = reactive({
     templates: {
         select: (f, row) => h('input', { type: 'checkbox', checked: selected.value.includes(row.id), onChange: () => toggleRow(row.id) }),
         name:   (f, row) => row.name || '—',
-        action: (f, row) => h(RouterLink, { to: `/settings/license-type/${row.id}/edit`, class: 'btn btn-light table_btn', title: 'Edit' }, () => h('i', { class: 'fas fa-pen' })),
+        action: (f, row) => h('div', { class: 'd-flex gap-1' }, [
+            h('button', { class: 'btn btn-light table_btn', title: 'Edit',   onClick: () => openEdit(row.id)   }, [h('i', { class: 'fas fa-edit' })]),
+            h('button', { class: 'btn btn-light table_btn', title: 'Delete', onClick: () => openDelete(row.id) }, [h('i', { class: 'fas fa-trash' })]),
+        ]),
     },
     sortable: ['name'],
     filterable: true,

@@ -107,7 +107,7 @@ const tableOptions = reactive({
         name:       (f, row) => row.name || '—',
         url:        (f, row) => row.url || '—',
         created_at: (f, row) => row.created_at ? row.created_at.substring(0, 10) : '—',
-        action:     (f, row) => h(RouterLink, { to: `/pages/${row.id}/edit`, class: 'btn btn-light table_btn', title: 'Edit' }, () => h('i', { class: 'fas fa-pen' })),
+        action:     (f, row) => h(RouterLink, { to: `/pages/${row.id}/edit`, class: 'btn btn-light table_btn', title: 'Edit' }, () => h('i', { class: 'fas fa-edit' })),
     },
     sortable: ['name', 'url', 'created_at'],
     filterable: true,

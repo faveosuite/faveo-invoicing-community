@@ -1,1 +1,0 @@
-import"./vendor-vue-Cp6G9hM5.js";import{_ as t}from"./chunk-settings-NljL_1Fs.js";import{b4 as e,Z as r,bg as a}from"./vendor-B52Oqw8K.js";import"./chunk-products-BECXs5vi.js";const n={},s={class:"pagination-wrapper"};function c(o,i){return e(),r("div",s,[a(o.$slots,"default")])}const m=t(n,[["render",c]]);export{m as default};
