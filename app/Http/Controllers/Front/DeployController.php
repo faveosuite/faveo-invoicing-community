@@ -58,28 +58,28 @@ class DeployController extends BaseClientController
     public function deployStep(Request $request): JsonResponse
     {
         $request->validate([
-            'step'            => 'required|in:verify,install,upload,extract',
-            'order_id'        => 'required|integer',
-            'host'            => 'required|string|max:255',
-            'port'            => 'required|integer|min:1|max:65535',
-            'username'        => 'required|string|max:255',
-            'auth_method'     => 'required|in:private_key,password',
-            'private_key'     => 'nullable|string|required_if:auth_method,private_key',
-            'password'        => 'nullable|string|required_if:auth_method,password',
-            'deploy_mode'     => 'required|in:fresh_install,extract_only',
-            'deploy_path'     => 'nullable|string|max:1000|required_if:deploy_mode,extract_only',
-            'install_domain'  => 'nullable|string|max:255',
-            'install_email'   => 'nullable|email|max:255',
+            'step' => 'required|in:verify,install,upload,extract',
+            'order_id' => 'required|integer',
+            'host' => 'required|string|max:255',
+            'port' => 'required|integer|min:1|max:65535',
+            'username' => 'required|string|max:255',
+            'auth_method' => 'required|in:private_key,password',
+            'private_key' => 'nullable|string|required_if:auth_method,private_key',
+            'password' => 'nullable|string|required_if:auth_method,password',
+            'deploy_mode' => 'required|in:fresh_install,extract_only',
+            'deploy_path' => 'nullable|string|max:1000|required_if:deploy_mode,extract_only',
+            'install_domain' => 'nullable|string|max:255',
+            'install_email' => 'nullable|email|max:255',
             'install_license' => 'nullable|string|size:16',
-            'install_order'   => 'nullable|string|size:8',
-            'web_server'      => 'nullable|in:1,2',
-            'ssl_type'        => 'nullable|in:A,B,C',
-            'ssl_cert_path'   => 'nullable|string|max:500',
-            'ssl_key_path'    => 'nullable|string|max:500',
-            'web_user'        => 'nullable|string|max:64',
-            'sudo_password'   => 'nullable|string',
-            'version_id'      => 'nullable|integer',
-            'remote_path'     => 'nullable|string|max:500', // passed from upload → extract
+            'install_order' => 'nullable|string|size:8',
+            'web_server' => 'nullable|in:1,2',
+            'ssl_type' => 'nullable|in:A,B,C',
+            'ssl_cert_path' => 'nullable|string|max:500',
+            'ssl_key_path' => 'nullable|string|max:500',
+            'web_user' => 'nullable|string|max:64',
+            'sudo_password' => 'nullable|string',
+            'version_id' => 'nullable|integer',
+            'remote_path' => 'nullable|string|max:500', // passed from upload → extract
         ]);
 
         try {
@@ -109,12 +109,13 @@ class DeployController extends BaseClientController
 
         if (! $ssh->login($request->username, $credential)) {
             $errors = implode(' | ', $ssh->getErrors() ?: [__('message.deploy_auth_failed_fallback')]);
+
             return errorResponse(__('message.deploy_ssh_auth_failed', ['errors' => $errors]));
         }
 
         if ($request->deploy_mode === 'extract_only') {
             $result = trim($ssh->exec(
-                'mkdir -p ' . escapeshellarg($deployPath) . ' 2>&1 && echo "ok" || echo "failed"'
+                'mkdir -p '.escapeshellarg($deployPath).' 2>&1 && echo "ok" || echo "failed"'
             ));
 
             if (str_contains($result, 'failed')) {
@@ -136,6 +137,7 @@ class DeployController extends BaseClientController
 
         if (! $ssh->login($request->username, $credential)) {
             $errors = implode(' | ', $ssh->getErrors() ?: [__('message.deploy_auth_failed_fallback')]);
+
             return errorResponse(__('message.deploy_ssh_auth_failed', ['errors' => $errors]));
         }
 
@@ -144,8 +146,8 @@ class DeployController extends BaseClientController
         if (empty($installScript)) {
             return errorResponse(__('message.deploy_install_script_not_configured'), 422);
         }
-        $license       = $request->install_license;
-        $order         = $request->install_order;
+        $license = $request->install_license;
+        $order = $request->install_order;
 
         // read -n 16 and read -n 8 consume fixed character counts from stdin.
         // license+order must be concatenated without a newline between them so each
@@ -153,26 +155,26 @@ class DeployController extends BaseClientController
         // consumed by the confirmation prompt.
         if ($request->ssl_type === 'C') {
             $cmd = sprintf(
-                'wget -q -O /tmp/faveo_install.sh %s && chmod +x /tmp/faveo_install.sh && ' .
-                'printf "%%s\n%%s\n%%sy\n%%s\nC\n%%s\n%%s\n" %s %s %s %s %s %s | bash /tmp/faveo_install.sh 2>&1; ' .
+                'wget -q -O /tmp/faveo_install.sh %s && chmod +x /tmp/faveo_install.sh && '.
+                'printf "%%s\n%%s\n%%sy\n%%s\nC\n%%s\n%%s\n" %s %s %s %s %s %s | bash /tmp/faveo_install.sh 2>&1; '.
                 'rm -f /tmp/faveo_install.sh',
                 escapeshellarg($installScript),
                 escapeshellarg($request->install_domain),
                 escapeshellarg($request->install_email),
-                escapeshellarg($license . $order),
+                escapeshellarg($license.$order),
                 escapeshellarg($request->web_server),
                 escapeshellarg($request->ssl_cert_path),
                 escapeshellarg($request->ssl_key_path)
             );
         } else {
             $cmd = sprintf(
-                'wget -q -O /tmp/faveo_install.sh %s && chmod +x /tmp/faveo_install.sh && ' .
-                'printf "%%s\n%%s\n%%sy\n%%s\n%%s\n" %s %s %s %s %s | bash /tmp/faveo_install.sh 2>&1; ' .
+                'wget -q -O /tmp/faveo_install.sh %s && chmod +x /tmp/faveo_install.sh && '.
+                'printf "%%s\n%%s\n%%sy\n%%s\n%%s\n" %s %s %s %s %s | bash /tmp/faveo_install.sh 2>&1; '.
                 'rm -f /tmp/faveo_install.sh',
                 escapeshellarg($installScript),
                 escapeshellarg($request->install_domain),
                 escapeshellarg($request->install_email),
-                escapeshellarg($license . $order),
+                escapeshellarg($license.$order),
                 escapeshellarg($request->web_server),
                 escapeshellarg($request->ssl_type)
             );
@@ -190,8 +192,8 @@ class DeployController extends BaseClientController
 
         return successResponse(__('message.deploy_install_completed'), [
             'credentials' => $credentials,
-            'setup_url'   => 'http://' . $request->install_domain . '/',
-            'output'      => $output,
+            'setup_url' => 'http://'.$request->install_domain.'/',
+            'output' => $output,
         ]);
     }
 
@@ -220,15 +222,15 @@ class DeployController extends BaseClientController
             return errorResponse(__('message.deploy_no_file_attached'));
         }
 
-        $filePath = 'products/' . $upload->file;
+        $filePath = 'products/'.$upload->file;
 
         if (! Attach::exists($filePath)) {
             return errorResponse(__('message.deploy_file_not_found'));
         }
 
         // Write to local temp file
-        $stream    = Attach::readStream($filePath);
-        $tmpFile   = tempnam(sys_get_temp_dir(), 'deploy_');
+        $stream = Attach::readStream($filePath);
+        $tmpFile = tempnam(sys_get_temp_dir(), 'deploy_');
         $tmpHandle = fopen($tmpFile, 'wb');
         stream_copy_to_stream($stream, $tmpHandle);
         fclose($tmpHandle);
@@ -236,16 +238,18 @@ class DeployController extends BaseClientController
             fclose($stream);
         }
 
-        $remotePath = '/tmp/' . basename($upload->file);
+        $remotePath = '/tmp/'.basename($upload->file);
 
         $sftp = new SFTP($request->host, (int) $request->port);
         if (! $sftp->login($request->username, $credential)) {
             @unlink($tmpFile);
+
             return errorResponse(__('message.deploy_sftp_failed'));
         }
 
         if (! $sftp->put($remotePath, $tmpFile, SFTP::SOURCE_LOCAL_FILE)) {
             @unlink($tmpFile);
+
             return errorResponse(__('message.deploy_upload_failed'));
         }
 
@@ -262,25 +266,26 @@ class DeployController extends BaseClientController
 
     private function stepExtract(Request $request, $credential, string $deployPath): JsonResponse
     {
-        $remotePath   = $request->remote_path;
+        $remotePath = $request->remote_path;
         $sudoPassword = $request->filled('sudo_password') ? $request->sudo_password : null;
 
-        $withSudo = fn(string $cmd) => $sudoPassword
-            ? 'echo ' . escapeshellarg($sudoPassword) . ' | sudo -S ' . $cmd
+        $withSudo = fn (string $cmd) => $sudoPassword
+            ? 'echo '.escapeshellarg($sudoPassword).' | sudo -S '.$cmd
             : $cmd;
 
         // Detect web user if not provided
         $ssh = new SSH2($request->host, (int) $request->port);
         if (! $ssh->login($request->username, $credential)) {
             $errors = implode(' | ', $ssh->getErrors() ?: [__('message.deploy_auth_failed_fallback')]);
+
             return errorResponse(__('message.deploy_ssh_auth_failed', ['errors' => $errors]));
         }
 
         if ($request->filled('web_user')) {
             $webUser = $request->web_user;
         } else {
-            $detected = trim($ssh->exec('stat -c %U ' . escapeshellarg($deployPath) . ' 2>/dev/null'));
-            $webUser  = ($detected && ! str_contains($detected, 'stat:')) ? $detected : 'www-data';
+            $detected = trim($ssh->exec('stat -c %U '.escapeshellarg($deployPath).' 2>/dev/null'));
+            $webUser = ($detected && ! str_contains($detected, 'stat:')) ? $detected : 'www-data';
         }
 
         // New connection for the extraction exec (phpseclib3 single exec per connection)
@@ -289,9 +294,9 @@ class DeployController extends BaseClientController
         $ssh2->login($request->username, $credential);
 
         $output = $ssh2->exec(
-            $withSudo('unzip -o ' . escapeshellarg($remotePath) . ' -d ' . escapeshellarg($deployPath)) . ' 2>&1;' .
-            'rm -f ' . escapeshellarg($remotePath) . ';' .
-            $withSudo('chown -R ' . escapeshellarg($webUser) . ':' . escapeshellarg($webUser) . ' ' . escapeshellarg($deployPath))
+            $withSudo('unzip -o '.escapeshellarg($remotePath).' -d '.escapeshellarg($deployPath)).' 2>&1;'.
+            'rm -f '.escapeshellarg($remotePath).';'.
+            $withSudo('chown -R '.escapeshellarg($webUser).':'.escapeshellarg($webUser).' '.escapeshellarg($deployPath))
         );
 
         if (str_contains($output, 'Permission denied')) {
@@ -305,23 +310,23 @@ class DeployController extends BaseClientController
             $ssh3->login($request->username, $credential);
 
             $domainCmd =
-                'domain=""; ' .
-                'f=$(grep -rl "DocumentRoot ' . $deployPath . '" /etc/apache2/sites-enabled/ 2>/dev/null | head -1); ' .
-                '[ -n "$f" ] && domain=$(grep -iE "^[[:space:]]*ServerName[[:space:]]+" "$f" 2>/dev/null | head -1 | awk \'{print $2}\'); ' .
-                'if [ -z "$domain" ]; then ' .
-                '  f=$(grep -rl "root ' . $deployPath . '" /etc/nginx/sites-enabled/ /etc/nginx/conf.d/ 2>/dev/null | head -1); ' .
-                '  [ -n "$f" ] && domain=$(grep -iE "^[[:space:]]*server_name[[:space:]]+" "$f" 2>/dev/null | grep -v "#" | head -1 | awk \'{print $2}\' | tr -d ";"); ' .
-                'fi; ' .
+                'domain=""; '.
+                'f=$(grep -rl "DocumentRoot '.$deployPath.'" /etc/apache2/sites-enabled/ 2>/dev/null | head -1); '.
+                '[ -n "$f" ] && domain=$(grep -iE "^[[:space:]]*ServerName[[:space:]]+" "$f" 2>/dev/null | head -1 | awk \'{print $2}\'); '.
+                'if [ -z "$domain" ]; then '.
+                '  f=$(grep -rl "root '.$deployPath.'" /etc/nginx/sites-enabled/ /etc/nginx/conf.d/ 2>/dev/null | head -1); '.
+                '  [ -n "$f" ] && domain=$(grep -iE "^[[:space:]]*server_name[[:space:]]+" "$f" 2>/dev/null | grep -v "#" | head -1 | awk \'{print $2}\' | tr -d ";"); '.
+                'fi; '.
                 'echo "$domain"';
 
             $detected = trim($ssh3->exec($domainCmd));
             if ($detected && ! str_contains($detected, ' ') && str_contains($detected, '.')) {
-                $siteUrl = 'http://' . $detected;
+                $siteUrl = 'http://'.$detected;
             }
         }
 
         return successResponse(__('message.deploy_extract_completed'), [
-            'output'   => $output,
+            'output' => $output,
             'site_url' => $siteUrl,
         ]);
     }
