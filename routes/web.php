@@ -9,6 +9,7 @@ use App\Http\Controllers\Common\Sms\MSG91Controller;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Front;
+use App\Http\Controllers\Github;
 use App\Http\Controllers\Google2FAController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Jobs;
@@ -514,6 +515,15 @@ Route::middleware('installAgora')->group(function () {
     // Route::get('get-widgets', [Front\WidgetController::class, 'GetPages']);
     Route::delete('widgets-delete', [Front\WidgetController::class, 'destroy']);
 
+
+    /*
+    * github
+    */
+    Route::get('github-auth-app', [Github\GithubController::class, 'authForSpecificApp']);
+    Route::get('github-releases', [Github\GithubController::class, 'listRepositories']);
+    Route::get('github-downloads', [Github\GithubController::class, 'getDownloadCount']);
+//    Route::get('github', [Github\GithubController::class, 'getSettings']);
+    Route::post('github-setting', [Github\GithubController::class, 'postSettings']);
 
     /*
      * download
