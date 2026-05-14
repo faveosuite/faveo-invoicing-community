@@ -291,8 +291,8 @@ class SettingsController extends BaseSettingsController
         $emailStatus = $this->statusSetting->value('email_validation_status');
         $mobileValStatus = $this->statusSetting->value('mobile_validation_status');
         $whatsappStatus = $this->statusSetting->value('whatsapp_status');
-        $manualGuideUrl    = \App\Model\Common\Setting::value('help_docs_url');
-        $installScriptUrl  = \App\Model\Common\Setting::value('help_support_url');
+        $manualGuideUrl = \App\Model\Common\Setting::value('help_docs_url');
+        $installScriptUrl = \App\Model\Common\Setting::value('help_support_url');
         $toggleSwitch = '
         <label class="switch toggle_event_editing gcaptcha">
             <input type="checkbox" value="'.$checkboxValue.'"  
