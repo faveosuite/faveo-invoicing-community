@@ -1,95 +1,109 @@
 <template>
     <div>
         <AppAlert componentName="language-index" />
-        <div class="card card-light">
+        <div class="card card-secondary card-outline">
             <div class="card-header">
                 <h4 class="card-title">Languages</h4>
             </div>
-
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
-
-            <div v-else class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Locale</th>
-                                <th>Default</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="lang in languages" :key="lang.id">
-                                <td>{{ lang.name }}</td>
-                                <td>{{ lang.locale }}</td>
-                                <td>
-                                    <span v-if="lang.locale === defaultLanguage" class="badge bg-info">Default</span>
-                                </td>
-                                <td>
-                                    <div class="form-check form-switch">
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            :checked="Boolean(lang.status)"
-                                            :disabled="toggling === lang.locale"
-                                            @change="toggleStatus(lang)"
-                                        />
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr v-if="!languages.length">
-                                <td colspan="4" class="text-center text-muted">No languages found.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="card-body">
+                <DataTable
+                    ref="dtRef"
+                    :url="`${baseUrl}/languages`"
+                    :dataColumns="columns"
+                    :option="tableOptions"
+                />
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { h, ref, reactive } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import LanguageTableActions from './LanguageTableActions.vue'
 
-const el = document.getElementById('app-root')
+const COMPONENT = 'language-index'
+const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
-const loading = ref(true)
-const toggling = ref(null)
-const languages = ref([])
-const defaultLanguage = ref('')
+const dtRef          = ref(null)
+const toggling       = ref(null)
+const settingDefault = ref(null)
 
-onMounted(async () => {
-    try {
-        const res = await http.get(`${baseUrl}/languages`, { params: { limit: 100 } })
-        const d = res.data?.data ?? {}
-        languages.value = d.languages?.data ?? []
-        defaultLanguage.value = d.default_language ?? ''
-    } catch (e) {
-        errorHandler(e, 'language-index')
-    } finally {
-        loading.value = false
-    }
-})
-
-async function toggleStatus(lang) {
-    toggling.value = lang.locale
+async function toggleStatus(row) {
+    toggling.value = row.locale
     try {
         const res = await http.post(`${baseUrl}/language-toggle`, {
-            locale: lang.locale,
-            status: !lang.status,
+            locale: row.locale,
+            status: row.status ? 0 : 1,
         })
-        lang.status = !lang.status
-        successHandler(res, 'language-index')
+        successHandler(res, COMPONENT)
+        dtRef.value?.refresh()
     } catch (e) {
-        errorHandler(e, 'language-index')
+        errorHandler(e, COMPONENT)
     } finally {
         toggling.value = null
     }
 }
+
+async function setDefault(row) {
+    settingDefault.value = row.locale
+    try {
+        const res = await http.post(`${baseUrl}/language-set-default`, { locale: row.locale })
+        successHandler(res, COMPONENT)
+        dtRef.value?.refresh()
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        settingDefault.value = null
+    }
+}
+
+const columns = ['name', 'translation', 'locale', 'default', 'action']
+
+const tableOptions = reactive({
+    headings: {
+        name:        'Language',
+        translation: 'Native Name',
+        locale:      'ISO Code',
+        default:     'System Default',
+        action:      'Action',
+    },
+    templates: {
+        name:        (f, row) => row.name        || '—',
+        translation: (f, row) => row.translation || '—',
+        locale:  (f, row) => row.locale || '—',
+        default: (f, row) => row.is_default
+            ? h('span', { class: 'badge bg-success' }, 'Yes')
+            : h('span', { class: 'badge bg-secondary' }, 'No'),
+        action: (f, row) => h(LanguageTableActions, {
+            status:         row.status,
+            isDefault:      Boolean(row.is_default),
+            toggling:       toggling.value === row.locale,
+            settingDefault: settingDefault.value === row.locale,
+            onToggle:       () => toggleStatus(row),
+            onSetDefault:   () => setDefault(row),
+        }),
+    },
+    sortable:   ['name', 'translation', 'locale'],
+    filterable: true,
+    requestAdapter(data) {
+        return {
+            'sort-field':   data.orderBy  ?? 'name',
+            'sort-order':   data.ascending ? 'asc' : 'desc',
+            'search-query': (data.query   ?? '').trim(),
+            page:           data.page,
+            limit:          data.limit,
+        }
+    },
+    responseAdapter({ data }) {
+        const res = data?.data ?? {}
+        return {
+            data:  res.data  ?? [],
+            count: res.total ?? 0,
+        }
+    },
+    orderBy: { column: 'name', ascending: true },
+})
 </script>

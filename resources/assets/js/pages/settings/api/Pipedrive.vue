@@ -1,9 +1,21 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
+
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">{{ __('message.pipedrive') }}</h4>
+                <h4 class="card-title">{{ __('message.mapping_fields') }}</h4>
+                <div class="card-tools">
+                    <button
+                        class="btn btn-tool"
+                        v-tooltip
+                        :title="__('message.click_pipedrive_sync')"
+                        :disabled="syncing"
+                        @click="syncFields"
+                    >
+                        <i class="fas fa-sync" :class="{ 'fa-spin': syncing }"></i>
+                    </button>
+                </div>
             </div>
 
             <div v-if="loading" class="card-body text-center py-5">
@@ -12,35 +24,87 @@
 
             <template v-else>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label fw-bold">{{ __('message.status') }}</label>
-                            <div class="form-check form-switch mt-2">
-                                <input id="pipedriveStatus" class="form-check-input" type="checkbox" v-model="form.status" />
-                                <label class="form-check-label" for="pipedriveStatus">
-                                    {{ form.status ? __('message.enable') : __('message.disable') }}
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-md-8 mb-3">
-                            <label class="form-label fw-bold">{{ __('message.pipedrive') }} API Key</label>
-                            <input class="form-control" type="password" v-model="form.pipedrive_key" autocomplete="new-password" />
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <div class="form-check">
-                                <input id="pipedriveVerify" class="form-check-input" type="checkbox" v-model="form.require_pipedrive_user_verification" />
-                                <label class="form-check-label" for="pipedriveVerify">
-                                    Require Pipedrive user verification
-                                </label>
-                            </div>
-                        </div>
+                    <!-- Info alert -->
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle me-2"></i>{{ __('message.pipedrive_config_info') }}
                     </div>
+
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs mb-4">
+                        <li class="nav-item" v-for="tab in tabs" :key="tab.groupId">
+                            <a
+                                class="nav-link"
+                                :class="{ active: activeGroupId === tab.groupId }"
+                                href="#"
+                                @click.prevent="switchTab(tab.groupId)"
+                            >
+                                <i :class="tab.icon + ' me-1'"></i>{{ tab.label }}
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div v-if="loadingMapping" class="text-center py-4">
+                        <span class="spinner-border text-secondary"></span>
+                    </div>
+
+                    <template v-else>
+                        <div v-for="(row, index) in rows" :key="index" class="row mb-3 align-items-end">
+                            <div class="col-5">
+                                <SelectField
+                                    :name="'select1_' + index"
+                                    :label="index === 0 ? __('message.pipedrive_fields') : ''"
+                                    :elements="availablePipedriveOptions(index)"
+                                    :value="row.pipedriveField"
+                                    :onChange="(val) => onPipedriveChange(index, val)"
+                                    :searchable="true"
+                                    :clearable="true"
+                                    :placeholder="__('message.pipe_select_option')"
+                                />
+                            </div>
+                            <div class="col-5">
+                                <SelectField
+                                    :name="'select2_' + index"
+                                    :label="index === 0 ? __('message.faveo_invoicing_fields') : ''"
+                                    :elements="row.faveoOptions"
+                                    :value="row.faveoField"
+                                    :onChange="(val) => { row.faveoField = val }"
+                                    :searchable="true"
+                                    :clearable="true"
+                                    :placeholder="__('message.pipe_select_option')"
+                                />
+                            </div>
+                            <div class="col-2 mb-3">
+                                <button
+                                    v-if="index > 0"
+                                    type="button"
+                                    class="btn btn-light table_btn"
+                                    :title="__('message.delete_attribute')"
+                                    v-tooltip
+                                    @click="deleteRow(index)"
+                                >
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-1">
+                            <button
+                                type="button"
+                                class="btn btn-primary"
+                                :disabled="rows.length >= allPipedriveOptions.length"
+                                @click="addRow"
+                            >
+                                <i class="fas fa-plus me-1"></i>{{ __('message.addnew') }}
+                            </button>
+                        </div>
+                    </template>
                 </div>
 
-                <div class="card-footer">
-                    <button class="btn btn-primary" @click="save" :disabled="saving">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                        {{ __('message.update') }}
+                <div class="card-footer" v-if="!loading && !loadingMapping">
+                    <button class="btn btn-primary" @click="saveMapping" :disabled="savingMapping">
+                        <span v-if="savingMapping" class="spinner-border spinner-border-sm me-1"></span>
+                        <i v-else class="fas fa-save me-1"></i>
+                        {{ __('message.save') }}
                     </button>
                 </div>
             </template>
@@ -49,46 +113,179 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
 
 const COMPONENT = 'pipedrive-settings'
-const el = document.getElementById('app-root')
+const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
-const loading = ref(true)
-const saving = ref(false)
-const form = reactive({
-    status: false,
-    pipedrive_key: '',
-    require_pipedrive_user_verification: false,
-})
+const loading        = ref(true)
+const loadingMapping = ref(false)
+const savingMapping  = ref(false)
+const syncing        = ref(false)
+const activeGroupId  = ref(null)
 
+const tabs               = ref([])
+const allPipedriveOptions = ref([])
+const localOptions        = ref([])
+const rows                = ref([])
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function toOptions(arr, nameKey) {
+    return (arr ?? []).map(f => ({ id: f.id, name: f[nameKey] ?? f.value ?? '' }))
+}
+
+function availablePipedriveOptions(rowIndex) {
+    const used = rows.value
+        .filter((_, i) => i !== rowIndex)
+        .map(r => r.pipedriveField?.id)
+        .filter(Boolean)
+    return allPipedriveOptions.value.filter(o => !used.includes(o.id))
+}
+
+// ── Mount ─────────────────────────────────────────────────────────────────────
 onMounted(async () => {
     try {
         const res = await http.get(`${baseUrl}/settings/pipedrive`)
-        Object.assign(form, res.data?.data ?? {})
+        const groups = res.data?.data?.groups ?? {}
+        if (groups.personId) {
+            tabs.value = [
+                { groupId: groups.personId,       label: __('message.pipe_person'),  icon: 'fas fa-user' },
+                { groupId: groups.organizationId, label: __('message.organization'), icon: 'fas fa-building' },
+                { groupId: groups.dealId,         label: __('message.pipe_deal'),    icon: 'fas fa-handshake' },
+            ]
+            activeGroupId.value = groups.personId
+        }
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {
         loading.value = false
     }
+
+    if (activeGroupId.value) {
+        await loadMappingForGroup(activeGroupId.value)
+    }
 })
 
-async function save() {
-    saving.value = true
+// ── Load mapping for a group ──────────────────────────────────────────────────
+async function loadMappingForGroup(groupId) {
+    loadingMapping.value = true
     try {
-        const res = await http.patch(`${baseUrl}/settings/pipedrive`, {
-            status: form.status ? 1 : 0,
-            pipedrive_key: form.pipedrive_key,
-            require_pipedrive_user_verification: form.require_pipedrive_user_verification ? 1 : 0,
+        const res = await http.get(`${baseUrl}/pipedrive/mapping/${groupId}`)
+        applyMapping(res.data?.data ?? {})
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        loadingMapping.value = false
+    }
+}
+
+function applyMapping(data) {
+    const pipedriveFields = data.pipedriveData?.pipedrive_fields ?? []
+    const localFields     = data.pipedriveData?.local_fields     ?? []
+
+    allPipedriveOptions.value = toOptions(pipedriveFields, 'field_name')
+    localOptions.value        = toOptions(localFields,     'field_name')
+
+    const mapped = pipedriveFields.filter(f => f.selected_field && Object.keys(f.selected_field).length > 0)
+
+    if (mapped.length > 0) {
+        rows.value = mapped.map(f => {
+            const isLocal   = !(f.pipedrive_options?.length)
+            const faveoOpts = isLocal
+                ? localOptions.value
+                : toOptions(f.pipedrive_options ?? [], 'value')
+            const faveoField = faveoOpts.find(o => o.id === (f.selected_field?.id ?? null)) ?? null
+
+            return {
+                pipedriveField: allPipedriveOptions.value.find(o => o.id === f.id) ?? null,
+                faveoField,
+                faveoOptions:  faveoOpts,
+                isFaveoField:  isLocal,
+            }
         })
+    } else {
+        rows.value = [{ pipedriveField: null, faveoField: null, faveoOptions: localOptions.value, isFaveoField: true }]
+    }
+}
+
+// ── Tab switch ────────────────────────────────────────────────────────────────
+async function switchTab(groupId) {
+    if (groupId === activeGroupId.value) return
+    activeGroupId.value = groupId
+    await loadMappingForGroup(groupId)
+}
+
+// ── Pipedrive field change ────────────────────────────────────────────────────
+async function onPipedriveChange(index, val) {
+    rows.value[index].pipedriveField = val
+    rows.value[index].faveoField     = null
+
+    if (!val) {
+        rows.value[index].faveoOptions = localOptions.value
+        rows.value[index].isFaveoField = true
+        return
+    }
+
+    try {
+        const res = await http.post(`${baseUrl}/pipedrive/get-dropdown`, { pipedrive_field_id: val.id })
+        const d = res.data?.data ?? {}
+        rows.value[index].faveoOptions = toOptions(d.options ?? [], 'value')
+        rows.value[index].isFaveoField = d.is_faveo_options ?? true
+    } catch {
+        rows.value[index].faveoOptions = localOptions.value
+        rows.value[index].isFaveoField = true
+    }
+}
+
+// ── Add / delete row ──────────────────────────────────────────────────────────
+function addRow() {
+    if (rows.value.length >= allPipedriveOptions.value.length) return
+    rows.value.push({ pipedriveField: null, faveoField: null, faveoOptions: localOptions.value, isFaveoField: true })
+}
+
+function deleteRow(index) {
+    rows.value.splice(index, 1)
+}
+
+// ── Save mapping ──────────────────────────────────────────────────────────────
+async function saveMapping() {
+    const hasEmpty = rows.value.some(r => !r.pipedriveField || !r.faveoField)
+    if (hasEmpty) {
+        errorHandler({ message: __('message.pipe_select_field') }, COMPONENT)
+        return
+    }
+
+    savingMapping.value = true
+    try {
+        const res = await http.post(`${baseUrl}/sync/pipedrive`, {
+            group_id: activeGroupId.value,
+            select1:  rows.value.map(r => ({ id: r.pipedriveField.id })),
+            select2:  rows.value.map(r => ({ id: r.faveoField.id, faveo_fields: r.isFaveoField })),
+        })
+        await http.post(`${baseUrl}/licenseStatus`, { pipedrivestatus: 1 })
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {
-        saving.value = false
+        savingMapping.value = false
+    }
+}
+
+// ── Sync fields ───────────────────────────────────────────────────────────────
+async function syncFields() {
+    syncing.value = true
+    try {
+        const res = await http.get(`${baseUrl}/syncing/pipedriveFields`)
+        successHandler(res, COMPONENT)
+        await loadMappingForGroup(activeGroupId.value)
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        syncing.value = false
     }
 }
 </script>

@@ -57,11 +57,17 @@ class ProfileController extends BaseAuthController
             }
             $user->fill($request->input())->save();
 
-//            return successResponse(\Lang::get('message.updated-successfully'));
+            if ($request->expectsJson()) {
+                return successResponse(\Lang::get('message.updated-successfully'));
+            }
+
             return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
         } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return errorResponse($e->getMessage());
+            }
+
             return redirect()->back()->with('fails', $e->getMessage());
-//            return errorResponse($e->getMessage());
         }
     }
 
@@ -76,19 +82,44 @@ class ProfileController extends BaseAuthController
                 $user->password = Hash::make($newpassword);
                 $user->save();
 
-                //logout all other session when password is updated
                 deleteUserSessions($user->id, $newpassword);
 
                 \DB::table('password_resets')->where('email', $user->email)->delete();
 
-//                return successResponse(\Lang::get('message.updated-successfully'));
+                if ($request->expectsJson()) {
+                    return successResponse(\Lang::get('message.updated-successfully'));
+                }
+
                 return redirect()->back()->with('success1', \Lang::get('message.updated-successfully'));
             } else {
+                if ($request->expectsJson()) {
+                    return errorResponse(__('message.incorrect_old_password'));
+                }
+
                 return redirect()->back()->with('fails1', __('message.incorrect_old_password'));
-//                return errorResponse( __('message.incorrect_old_password'));
             }
         } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return errorResponse($e->getMessage());
+            }
+
             return redirect()->back()->with('fails', $e->getMessage());
         }
+    }
+
+    public function getCountries()
+    {
+        $countries = getSupportedCountriesForIntlInput();
+        $list = collect($countries)->map(fn ($name, $iso) => ['id' => $iso, 'name' => $name])->values();
+
+        return successResponse('', ['countries' => $list]);
+    }
+
+    public function getStatesByCountry($countryCode)
+    {
+        $states = findStateByRegionId($countryCode);
+        $list = collect($states)->map(fn ($name, $iso) => ['id' => $iso, 'name' => $name])->values();
+
+        return successResponse('', ['states' => $list]);
     }
 }

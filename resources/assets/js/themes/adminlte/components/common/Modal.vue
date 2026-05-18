@@ -74,7 +74,7 @@ watch(() => props.showModal, (val) => {
 }
 
 .modal-content.common-modal {
-    max-width: 840px;
+    max-width: 600px;
     margin: 0 auto;
     background-color: #fff;
     border-radius: 0.25rem;

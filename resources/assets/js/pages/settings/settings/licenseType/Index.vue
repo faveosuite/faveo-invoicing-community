@@ -41,7 +41,7 @@
         </div>
 
         <!-- Create Modal -->
-        <modal :showModal="showCreate" :onClose="closeCreate" :containerStyle="{ maxWidth: '600px' }" :showCloseBtn="false">
+        <modal :showModal="showCreate" :onClose="closeCreate" :showCloseBtn="false">
             <template #title>
                 <h4>Add License Type</h4>
             </template>
@@ -64,7 +64,7 @@
         </modal>
 
         <!-- Edit Modal -->
-        <modal :showModal="showEdit" :onClose="closeEdit" :containerStyle="{ maxWidth: '600px' }" :showCloseBtn="false">
+        <modal :showModal="showEdit" :onClose="closeEdit" :showCloseBtn="false">
             <template #title>
                 <h4>Edit License Type</h4>
             </template>

@@ -19,7 +19,7 @@
             <label class="is-danger" v-if="required">*</label>
         </span>
 
-        <modal v-if="showModal" :showModal="showModal" :onClose="onClose" :containerStyle="containerStyle">
+        <modal v-if="showModal" :showModal="showModal" :onClose="onClose">
             <template #title>
                 <div><h4>Crop Profile</h4></div>
             </template>
@@ -95,7 +95,6 @@ const imageSrc = ref('')
 const tooltip = ref('')
 const styleObj = ref({ background: 'none' })
 const showModal = ref(false)
-const containerStyle = ref({ maxWidth: '700px' })
 const crop = ref({ width: '400px', height: '300px' })
 const cropImg = ref('')
 const resultImage = ref('')

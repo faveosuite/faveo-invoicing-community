@@ -18,42 +18,15 @@
 
                     <div class="row">
                         <div v-for="plugin in plugins" :key="plugin.name" class="col-md-4 mb-4">
-                            <div class="card h-100 card-outline card-secondary">
-
-                                <div class="card-header">
-                                    <h5 class="card-title mb-0 fw-bold">
-                                        <i :class="gatewayIcon(plugin.name)" class="me-2"></i>
-                                        {{ plugin.name }}
-                                    </h5>
-                                    <div class="card-tools d-flex align-items-center gap-2">
-                                        <button
-                                            class="btn btn-sm rounded-pill px-2 py-0"
-                                            :class="plugin.status ? 'btn-success' : 'btn-danger'"
-                                            :disabled="toggling === plugin.name"
-                                            :title="plugin.status ? 'Click to deactivate' : 'Click to activate'"
-                                            @click="toggleStatus(plugin)"
-                                        >
-                                            <span v-if="toggling === plugin.name" class="spinner-border spinner-border-sm me-1"></span>
-                                            {{ plugin.status ? 'Active' : 'Inactive' }}
-                                        </button>
-                                        <RouterLink
-                                            :to="`/settings/payment-gateway/${plugin.name}/edit`"
-                                            class="btn btn-tool"
-                                            title="Settings"
-                                            v-tooltip
-                                        >
-                                            <i class="fas fa-gear"></i>
-                                        </RouterLink>
-                                    </div>
-                                </div>
-
-                                <div class="card-body">
-                                    <p class="description-clamp text-muted mb-0">
-                                        {{ gatewayDescription(plugin.name) || plugin.description || 'No description available.' }}
-                                    </p>
-                                </div>
-
-                            </div>
+                            <GatewayCard
+                                :plugin="plugin"
+                                :logo-src="gatewayLogo(plugin.name)"
+                                :icon-class="gatewayIcon(plugin.name)"
+                                :toggling="toggling === plugin.name"
+                                :description="gatewayDescription(plugin.name) || plugin.description || 'No description available.'"
+                                @toggle="toggleStatus"
+                                @settings="goToSettings"
+                            />
                         </div>
                     </div>
                 </div>
@@ -64,17 +37,22 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
+import { useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import GatewayCard from './GatewayCard.vue'
 
 const COMPONENT = 'payment-gateway-index'
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
+const router = useRouter()
 const loading = ref(true)
 const toggling = ref(null)
 const plugins = ref([])
+
+const GATEWAY_LOGOS = {
+}
 
 const GATEWAY_DESCRIPTIONS = {
     paypal:       'Accept payments worldwide using PayPal — one of the most trusted online payment platforms supporting 200+ countries and multiple currencies.',
@@ -135,6 +113,16 @@ function gatewayIcon(name) {
     return match ? match[1] : 'fas fa-credit-card'
 }
 
+function gatewayLogo(name) {
+    const key = name.toLowerCase().replace(/\s+/g, '')
+    const match = Object.entries(GATEWAY_LOGOS).find(([k]) => key.includes(k))
+    return match ? match[1] : null
+}
+
+function goToSettings(plugin) {
+    router.push(`/settings/payment-gateway/${plugin.name}/edit`)
+}
+
 onMounted(loadPlugins)
 
 async function loadPlugins() {
@@ -160,13 +148,3 @@ async function toggleStatus(plugin) {
 }
 </script>
 
-<style scoped>
-.description-clamp {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-height: 1.5;
-    min-height: 4.5em;
-}
-</style>

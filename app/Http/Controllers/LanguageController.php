@@ -24,6 +24,7 @@ class LanguageController extends Controller
 
         foreach ($languages as $lang) {
             $this->appendCoreLanguage($lang, $languageArray);
+            $this->appendPackageLanguage('BillingLog', $lang, 'log', $languageArray);
         }
 
         header('Content-Type: text/javascript');
@@ -36,6 +37,15 @@ class LanguageController extends Controller
     {
         $path = base_path('lang/'.$languageName);
         $this->updateLanguageArray($path, $languageArray);
+    }
+
+    private function appendPackageLanguage(string $package, string $locale, string $namespace, array &$languageArray): void
+    {
+        $path = app_path("{$package}/lang/{$locale}");
+        foreach ($this->getLanguageFileArray($path) as $file) {
+            $content = require $file;
+            $languageArray[$namespace] = array_merge($languageArray[$namespace] ?? [], $content);
+        }
     }
 
     private function updateLanguageArray(string $path, array &$languageArray): void
@@ -73,14 +83,16 @@ class LanguageController extends Controller
                     ->orWhere('locale', 'like', "%$searchString%");
             })
                 ->orderBy($sortField, $sortOrder)
-                ->simplePaginate($limit);
+                ->paginate($limit);
 
-            $defaultLang = Setting::value('content') ?? 'en';
+            $defaultLocale  = Setting::value('content') ?: 'en';
+            $result         = $languages->toArray();
+            $result['data'] = array_map(function ($lang) use ($defaultLocale) {
+                $lang['is_default'] = $lang['locale'] === $defaultLocale;
+                return $lang;
+            }, $result['data']);
 
-            return successResponse(__('message.language_fetched'), [
-                'languages' => $languages,
-                'default_language' => $defaultLang,
-            ]);
+            return successResponse(__('message.language_fetched'), $result);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
@@ -90,27 +102,32 @@ class LanguageController extends Controller
     {
         try {
             $request->validate([
-                'locale' => 'required|string',
+                'locale' => 'required|string|exists:languages,locale',
                 'status' => 'required|boolean',
             ]);
 
-            $language = Language::where('locale', $request->locale)->first();
+            $language = Language::where('locale', $request->input('locale'))->firstOrFail();
+            $language->status = (int) $request->boolean('status');
+            $language->save();
 
-            if ($language) {
-                $languageById = Language::find($language->id);
-
-                if ($languageById) {
-                    $languageById->update([
-                        'status' => $request->status,
-                    ]);
-
-                    return successResponse(__('message.language_status_updated_successfully'));
-                }
-            }
-
-            return errorResponse(__('message.language_not_found'));
+            return successResponse(__('message.language_status_updated_successfully'));
         } catch (\Exception $e) {
-            return errorResponse(__('message.something_went_wrong'));
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    public function setDefaultLanguage(Request $request)
+    {
+        try {
+            $request->validate(['locale' => 'required|string|exists:languages,locale']);
+
+            $setting = Setting::first();
+            $setting->content = $request->input('locale');
+            $setting->save();
+
+            return successResponse(__('message.language_set_as_default'));
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
         }
     }
 

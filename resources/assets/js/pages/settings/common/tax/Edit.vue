@@ -13,31 +13,45 @@
             <template v-else>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-4">
                             <TextField name="name" label="Tax Name *" :value="form.name" :onChange="onChange" />
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label fw-bold">Tax Class *</label>
-                            <select class="form-select" v-model="form.tax_classes_id" @change="onClassChange">
-                                <option v-for="c in taxClasses" :key="c" :value="c">{{ c }}</option>
-                            </select>
+                        <div class="col-md-4">
+                            <SelectField
+                                name="tax_classes_id"
+                                label="Tax Class *"
+                                :elements="taxClassOptions"
+                                :value="taxClassOptions.find(o => o.id === form.tax_classes_id) ?? null"
+                                :onChange="onClassSelect"
+                                :clearable="false"
+                                :searchable="false"
+                            />
                         </div>
                         <template v-if="form.tax_classes_id === 'Others'">
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-4">
                                 <TextField name="rate" label="Rate *" :value="form.rate" :onChange="onChange" />
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">Country</label>
-                                <select class="form-select" v-model="form.country" @change="loadStates">
-                                    <option v-for="c in countries" :key="c.id" :value="c.id">{{ c.name }}</option>
-                                </select>
+                            <div class="col-md-4">
+                                <SelectField
+                                    name="country"
+                                    label="Country"
+                                    :elements="countries"
+                                    :value="countries.find(c => c.id === form.country) ?? null"
+                                    :onChange="onCountrySelect"
+                                    :clearable="false"
+                                    :searchable="true"
+                                />
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">State</label>
-                                <select class="form-select" v-model="form.state">
-                                    <option value="">— Any —</option>
-                                    <option v-for="s in states" :key="s.iso2" :value="s.iso2">{{ s.state_subdivision_name }}</option>
-                                </select>
+                            <div class="col-md-4">
+                                <SelectField
+                                    name="state"
+                                    label="State"
+                                    :elements="[{ id: '', name: '— Any —' }, ...states]"
+                                    :value="states.find(s => s.id === form.state) ?? { id: '', name: '— Any —' }"
+                                    :onChange="(val) => form.state = val?.id ?? ''"
+                                    :clearable="false"
+                                    :searchable="true"
+                                />
                             </div>
                         </template>
                     </div>
@@ -57,8 +71,7 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import { RouterLink } from 'vue-router'
+import { useRoute, RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
@@ -68,11 +81,18 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const id = route.params.id
 
-const loading = ref(true)
-const saving = ref(false)
-const taxClasses = ['CGST', 'SGST', 'IGST', 'UTGST', 'Others']
+const loading  = ref(true)
+const saving   = ref(false)
 const countries = ref([])
-const states = ref([])
+const states    = ref([])
+
+const taxClassOptions = [
+    { id: 'CGST',   name: 'CGST'   },
+    { id: 'SGST',   name: 'SGST'   },
+    { id: 'IGST',   name: 'IGST'   },
+    { id: 'UTGST',  name: 'UTGST'  },
+    { id: 'Others', name: 'Others' },
+]
 
 const form = reactive({
     name: '', tax_classes_id: '', rate: '', country: 'IN', state: '',
@@ -80,20 +100,27 @@ const form = reactive({
 
 function onChange(val, name) { form[name] = val }
 
-function onClassChange() {
-    form.rate = ''
+function onClassSelect(val) {
+    form.tax_classes_id = val?.id ?? ''
+    form.rate    = ''
     form.country = 'IN'
-    form.state = ''
+    form.state   = ''
     if (form.tax_classes_id === 'Others') loadStates()
 }
 
+async function onCountrySelect(val) {
+    form.country = val?.id ?? ''
+    form.state   = ''
+    loadStates()
+}
+
 async function loadStates() {
-    form.state = ''
+    form.state  = ''
     states.value = []
     if (!form.country) return
     try {
         const res = await http.get(`${baseUrl}/get-state/${form.country}`)
-        states.value = res.data?.data?.states ?? []
+        states.value = (res.data?.data?.states ?? []).map(s => ({ id: s.iso2, name: s.state_subdivision_name }))
     } catch (e) { /* ignore */ }
 }
 
@@ -104,16 +131,16 @@ onMounted(async () => {
             http.get(`${baseUrl}/tax-options`),
         ])
         const d = editRes.data?.data ?? {}
-        form.name = d.tax?.name ?? ''
+        form.name           = d.tax?.name ?? ''
         form.tax_classes_id = d.tax_class_name ?? ''
-        form.rate = d.tax?.rate ?? ''
-        form.country = d.tax?.country ?? 'IN'
-        form.state = d.tax?.state ?? ''
+        form.rate           = d.tax?.rate ?? ''
+        form.country        = d.tax?.country ?? 'IN'
+        form.state          = d.tax?.state ?? ''
 
         countries.value = Object.entries(optRes.data?.data?.countries ?? {}).map(([cid, name]) => ({ id: cid, name }))
 
         if (form.tax_classes_id === 'Others' && form.country) {
-            states.value = Object.entries(d.states ?? {}).map(([iso2, name]) => ({ iso2, state_subdivision_name: name }))
+            states.value = Object.entries(d.states ?? {}).map(([iso2, name]) => ({ id: iso2, name }))
         }
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { loading.value = false }
@@ -123,11 +150,11 @@ async function submit() {
     saving.value = true
     try {
         const res = await http.put(`${baseUrl}/tax/${id}`, {
-            name: form.name,
+            name:           form.name,
             tax_classes_id: form.tax_classes_id,
-            rate: form.rate,
-            country: form.country,
-            state: form.state,
+            rate:           form.rate,
+            country:        form.country,
+            state:          form.state,
         })
         successHandler(res, COMPONENT)
     } catch (e) { errorHandler(e, COMPONENT) }

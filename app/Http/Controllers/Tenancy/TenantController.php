@@ -23,6 +23,7 @@ use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Lang;
 
 class TenantController extends Controller
@@ -113,9 +114,10 @@ class TenantController extends Controller
     {
         try {
             $searchQuery = $request->input('search-query', '');
-            $sortOrder = $request->input('sort-order', 'asc');
-            $sortField = $request->input('sort-field', 'created_at');
-            $limit = (int) $request->input('limit', 10);
+            $sortOrder   = $request->input('sort-order', 'asc');
+            $sortField   = $request->input('sort-field', 'created_at');
+            $limit       = (int) $request->input('limit', 10);
+            $page        = (int) $request->input('page', 1);
 
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')
                     ->select('app_key', 'app_secret')
@@ -135,38 +137,38 @@ class TenantController extends Controller
             $tenants = collect($data['message'])->reject(fn ($t) => $t === null);
 
             $tenantList = $tenants->map(function ($model) {
-                $order_id = $this->getOrderId($model['domain']);
-                $order_number = $order_id ? Order::find($order_id)?->number : null;
-
-                $userData = $this->getUserData($order_id);
-                $subData = $this->getSubscriptionDataForCloud($order_id);
+                $order_id     = $this->getOrderId($model['domain']);
+                $order_number = $order_id ? Order::select('id', 'number')->find($order_id)?->number : null;
+                $userData     = $this->getUserData($order_id);
+                $subData      = $this->getSubscriptionDataForCloud($order_id);
 
                 return [
                     'tenant_id' => $model['id'] ?? null,
-                    'domain' => $model['domain'] ?? null,
+                    'domain'    => $model['domain'] ?? null,
 
                     'database' => [
-                        'name' => $model['database_name'] ?? null,
+                        'name'     => $model['database_name']      ?? null,
                         'username' => $model['database_user_name'] ?? null,
                     ],
 
                     'order' => [
-                        'order_id' => $order_id,
+                        'order_id'     => $order_id,
                         'order_number' => $order_number,
                         'subscription' => $subData['plan'] ?? null,
                     ],
 
-                    'user' => $userData,
+                    'user'  => $userData,
                     'dates' => $subData,
+
                     'links' => [
                         'tenant_domain' => $model['domain'] ? "http://{$model['domain']}" : null,
                     ],
 
                     'action' => [
                         'delete' => [
-                            'tenant_id' => $model['id'],
+                            'tenant_id'    => $model['id'],
                             'order_number' => $order_number,
-                            'delete_url' => url("tenants/{$model['id']}/delete"),
+                            'delete_url'   => url("tenants/{$model['id']}/delete"),
                         ],
                     ],
                 ];
@@ -179,11 +181,18 @@ class TenantController extends Controller
                 });
             }
 
-            $tenantList = $tenantList->sortBy($sortField, SORT_REGULAR, $sortOrder);
+            $tenantList = $tenantList->sortBy($sortField, SORT_REGULAR, $sortOrder)->values();
 
-            $tenantList = $tenantList->values()->take($limit);
+            $total  = $tenantList->count();
+            $offset = ($page - 1) * $limit;
+            $items  = $tenantList->slice($offset, $limit)->values();
 
-            return successResponse(__('message.tenants_fetched_successfully'), $tenantList);
+            $paginator = new LengthAwarePaginator($items, $total, $limit, $page, [
+                'path'  => $request->url(),
+                'query' => $request->query(),
+            ]);
+
+            return successResponse(__('message.tenants_fetched_successfully'), $paginator);
         } catch (\Throwable $e) {
             return errorResponse(__('message.something_went_wrong'), 500);
         }
@@ -302,17 +311,10 @@ class TenantController extends Controller
                 ]);
 
                 //template
-                $template = new \App\Model\Common\Template();
-                $temp_type_id = \DB::table('template_types')->where('name', 'cloud_created')->value('id');
-                $template = $template->where('type', $temp_type_id)->first();
+                $template = \App\Model\Common\TemplateType::getSelectedTemplate('cloud_created');
                 $contact = getContactData();
 
-                $type = '';
-                if ($template) {
-                    $type_id = $template->type;
-                    $temp_type = new \App\Model\Common\TemplateType();
-                    $type = $temp_type->where('id', $type_id)->first()->name;
-                }
+                $type = $template?->type()->value('name') ?? '';
                 $subject = 'Your '.$order[0]->product()->value('name').' is now ready for use. Get started!';
                 $message = (isset($result->reason) && $result->reason != '') ? __('message.'.$result->message, ['installationUrl' => $result->installationUrl, 'reason' => $result->reason]) :
                                         __('message.'.$result->message, ['installationUrl' => $result->installationUrl]);
@@ -707,7 +709,7 @@ class TenantController extends Controller
         }
 
         $userId = Order::where('id', $order_id)->value('client');
-        $user = User::find($userId);
+        $user = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'mobile_code', 'country')->find($userId);
 
         if (! $user) {
             return null;
@@ -731,7 +733,7 @@ class TenantController extends Controller
             return null;
         }
 
-        $subscription = Subscription::where('order_id', $order_id)->first();
+        $subscription = Subscription::select('id', 'order_id', 'plan_id', 'ends_at')->where('order_id', $order_id)->first();
 
         if (! $subscription) {
             return null;

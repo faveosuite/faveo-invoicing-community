@@ -13,44 +13,52 @@
             <template v-else>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label fw-bold">Storage Disk</label>
-                            <select class="form-select" v-model="form.disk" @change="onDiskChange">
-                                <option value="system">System (Local)</option>
-                                <option value="s3">Amazon S3</option>
-                            </select>
+                        <div class="col-md-4">
+                            <SelectField
+                                name="disk"
+                                label="Storage Disk"
+                                :elements="diskOptions"
+                                :value="diskOptions.find(o => o.id === form.disk) ?? null"
+                                :onChange="onDiskSelect"
+                                :clearable="false"
+                                :searchable="false"
+                            />
                         </div>
 
-                        <div v-if="form.disk === 'system'" class="col-md-4 mb-3">
+                        <div v-if="form.disk === 'system'" class="col-md-4">
                             <TextField name="path" label="Storage Path *" :value="form.path" :onChange="onChange" />
                         </div>
 
                         <template v-if="form.disk === 's3'">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">S3 Path Style Endpoint</label>
-                                <select class="form-select" v-model="form.s3_path_style_endpoint">
-                                    <option value="true">Yes</option>
-                                    <option value="false">No</option>
-                                </select>
+                            <div class="col-md-4">
+                                <SelectField
+                                    name="s3_path_style_endpoint"
+                                    label="S3 Path Style Endpoint"
+                                    :elements="yesNoOptions"
+                                    :value="yesNoOptions.find(o => o.id === form.s3_path_style_endpoint) ?? null"
+                                    :onChange="(val) => form.s3_path_style_endpoint = val?.id ?? 'false'"
+                                    :clearable="false"
+                                    :searchable="false"
+                                />
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-4">
                                 <TextField name="s3_bucket" label="S3 Bucket *" :value="form.s3_bucket" :onChange="onChange" />
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-4">
                                 <TextField name="s3_region" label="S3 Region *" :value="form.s3_region" :onChange="onChange" />
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-4">
                                 <TextField name="s3_access_key" label="S3 Access Key *" type="password"
                                     :value="form.s3_access_key" :onChange="onChange" />
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-4">
                                 <TextField name="s3_secret_key" label="S3 Secret Key *" type="password"
                                     :value="form.s3_secret_key" :onChange="onChange" />
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-4">
                                 <TextField name="s3_endpoint_url" label="S3 Endpoint URL *" :value="form.s3_endpoint_url" :onChange="onChange" />
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-4">
                                 <TextField name="s3_url" label="S3 URL" :value="form.s3_url" :onChange="onChange" />
                             </div>
                         </template>
@@ -81,7 +89,17 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const alertStore = useAlertStore()
 const loading = ref(true)
-const saving = ref(false)
+const saving  = ref(false)
+
+const diskOptions = [
+    { id: 'system', name: 'System (Local)' },
+    { id: 's3',     name: 'Amazon S3'      },
+]
+
+const yesNoOptions = [
+    { id: 'true',  name: 'Yes' },
+    { id: 'false', name: 'No'  },
+]
 
 const form = reactive({
     disk: 'system',
@@ -97,7 +115,8 @@ const form = reactive({
 
 function onChange(val, name) { form[name] = val }
 
-function onDiskChange() {
+function onDiskSelect(val) {
+    form.disk = val?.id ?? 'system'
     alertStore.unsetValidationError()
 }
 
@@ -132,12 +151,12 @@ async function submit() {
         } else {
             Object.assign(payload, {
                 s3_path_style_endpoint: form.s3_path_style_endpoint,
-                s3_bucket: form.s3_bucket,
-                s3_region: form.s3_region,
+                s3_bucket:     form.s3_bucket,
+                s3_region:     form.s3_region,
                 s3_access_key: form.s3_access_key,
                 s3_secret_key: form.s3_secret_key,
                 s3_endpoint_url: form.s3_endpoint_url,
-                s3_url: form.s3_url,
+                s3_url:        form.s3_url,
             })
         }
         const res = await http.post(`${baseUrl}/file-storage-path`, payload)

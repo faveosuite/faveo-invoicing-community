@@ -67,37 +67,28 @@ class SystemManagerController extends Controller
     public function searchAdmin(Request $request)
     {
         try {
-            $term = trim($request->q);
+            $term = trim($request->input('search-query') ?? '');
 
-            if (empty($term)) {
-                return errorResponse(__('message.search_term_required'));
-            }
+            $users = User::where('role', 'admin')
+                ->when($term, function ($query) use ($term) {
+                    $query->where(function ($q) use ($term) {
+                        $q->where('first_name', 'LIKE', "%{$term}%")
+                            ->orWhere('last_name', 'LIKE', "%{$term}%")
+                            ->orWhere('email', 'LIKE', "%{$term}%");
+                    });
+                })
+                ->select('id', 'email', 'first_name', 'last_name')
+                ->simplePaginate();
 
-            $users = User::where(function ($query) use ($term) {
-                $query->where('email', 'LIKE', "%{$term}%")
-                    ->orWhere('first_name', 'LIKE', "%{$term}%")
-                    ->orWhere('last_name', 'LIKE', "%{$term}%");
-            })
-                ->where('role', 'admin')
-                ->select('id', 'email', 'profile_pic', 'first_name', 'last_name', 'role')
-                ->get();
-
-            if ($users->isEmpty()) {
-                return errorResponse(__('message.no_admins_found'));
-            }
-
-            $formattedUsers = $users->map(function ($user) {
+            $users->getCollection()->transform(function ($user) {
                 return [
-                    'id' => $user->id,
+                    'id'    => $user->id,
+                    'name'  => $user->first_name.' '.$user->last_name,
                     'email' => $user->email,
-                    'profile_pic' => $user->profile_pic,
-                    'first_name' => $user->first_name,
-                    'last_name' => $user->last_name,
-                    'role' => $user->role,
                 ];
             });
 
-            return successResponse('', $formattedUsers);
+            return successResponse('', $users);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }

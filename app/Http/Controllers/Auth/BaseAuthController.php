@@ -84,7 +84,7 @@ class BaseAuthController extends Controller
             $settings = \App\Model\Common\Setting::find(1);
 
             // Retrieve the template
-            $template = \App\Model\Common\Template::find($settings->welcome_mail);
+            $template = \App\Model\Common\TemplateType::getSelectedTemplate('welcome_mail');
             $website_url = url('/');
             $replace = [
                 'name' => $user->first_name.' '.$user->last_name,
@@ -97,12 +97,7 @@ class BaseAuthController extends Controller
                 'reply_email' => $settings->company_email,
             ];
 
-            $type = '';
-            if ($template) {
-                $type_id = $template->type;
-                $temp_type = new \App\Model\Common\TemplateType();
-                $type = $temp_type->where('id', $type_id)->first()->name;
-            }
+            $type = $template?->type()->value('name') ?? '';
 
             $mail = new \App\Http\Controllers\Common\PhpMailController();
             $mail->SendEmail($settings->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);

@@ -15,6 +15,7 @@ export default [
     { path: '/settings/social-logins',            component: () => import('../../../pages/settings/settings/socialLogins/Index.vue'),  meta: { title: 'Social Logins',         titleKey: 'message.social_logins' } },
     { path: '/settings/social-logins/:id/edit',   component: () => import('../../../pages/settings/settings/socialLogins/Edit.vue'),  meta: { title: 'Edit Social Login',     titleKey: 'message.edit_social_login' } },
     { path: '/settings/language',                 component: () => import('../../../pages/settings/settings/Language.vue'),            meta: { title: 'Language',              titleKey: 'message.language' } },
-    { path: '/settings/whatsapp-users',           component: () => import('../../../pages/settings/settings/WhatsappUsers.vue'),       meta: { title: 'WhatsApp Users',        titleKey: 'message.whatsapp_users' } },
+    { path: '/settings/whatsapp-users',           component: () => import('../../../pages/settings/settings/WhatsappUsers.vue'),       meta: { title: 'WhatsApp Users',           titleKey: 'message.whatsapp_users' } },
+    { path: '/settings/whatsapp-integration',     component: () => import('../../../pages/settings/settings/WhatsappSettings.vue'),    meta: { title: 'WhatsApp Integration',     titleKey: 'message.whatsapp_config' } },
     { path: '/settings/contact-options',          component: () => import('../../../pages/settings/settings/ContactOptions.vue'),      meta: { title: 'Contact Options',       titleKey: 'message.contact_options' } },
 ]

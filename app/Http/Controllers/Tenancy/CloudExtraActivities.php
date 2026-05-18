@@ -1324,7 +1324,7 @@ class CloudExtraActivities extends Controller
                     });
                 })
                 ->orderBy($sortField, $sortOrder)
-                ->simplePaginate($limit);
+                ->paginate($limit);
 
             // Transform output for API
             $productPlanData->getCollection()->transform(function ($model) {
@@ -1431,9 +1431,9 @@ class CloudExtraActivities extends Controller
             $location = array_first(explode(', ', $request->location_id));
             CloudDataCenters::where('cloud_state', $location)->orWhere('cloud_city', $location)->delete();
 
-            return redirect()->back()->with('success', trans('message.removed_datacenter'));
-        } catch(\Exception $e) {
-            return redirect()->back()->with('fails', trans('message.something_went_wrong'));
+            return successResponse(trans('message.removed_datacenter'));
+        } catch (\Exception $e) {
+            return errorResponse(trans('message.something_went_wrong'));
         }
     }
 }

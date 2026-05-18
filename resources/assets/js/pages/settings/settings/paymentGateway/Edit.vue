@@ -2,11 +2,8 @@
     <div>
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header">
                 <h4 class="card-title mb-0">{{ plugin?.name ?? pluginSlug }} Settings</h4>
-                <RouterLink to="/settings/payment-gateway" class="btn btn-sm btn-secondary">
-                    <i class="fas fa-arrow-left me-1"></i> Back
-                </RouterLink>
             </div>
 
             <div v-if="loading" class="card-body text-center py-5">
@@ -63,7 +60,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
@@ -88,6 +85,14 @@ const GATEWAY_CONFIGS = {
         ],
         fetchUrl: `${baseUrl}/get-razorpay-settings`,
         saveUrl:  `${baseUrl}/update-api-key/payment-gateway/razorpay`,
+    },
+    stripe: {
+        fields: [
+            { name: 'stripe_key',    label: 'Stripe Publishable Key', type: 'text'     },
+            { name: 'stripe_secret', label: 'Stripe Secret Key',      type: 'password' },
+        ],
+        fetchUrl: `${baseUrl}/get-stripe-settings`,
+        saveUrl:  `${baseUrl}/update-api-key/payment-gateway/stripe`,
     },
 }
 

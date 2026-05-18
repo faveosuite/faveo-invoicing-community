@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@tinymce/tinymce-vue": "^6.3.0",
+    "@vueform/toggle": "^2.1.4",
     "axios": "^1.13.5",
     "clipboard-copy": "^4.0.1",
     "flag-icons": "^7.5.0",
@@ -53,7 +54,7 @@
     "vue-datepicker-next": "^1.0.3",
     "vue-loader": "^17.4.2",
     "vue-loading-overlay": "^6.0.6",
-    "vue-recaptcha": "^2.0.3",
+    "vue-recaptcha": "^3.0.0-alpha.6",
     "vue-router": "^4.6.4",
     "vue-select": "^4.0.0-beta.6",
     "vuex": "^4.1.0",

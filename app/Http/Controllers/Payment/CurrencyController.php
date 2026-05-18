@@ -38,14 +38,12 @@ class CurrencyController extends Controller
             // Get default currency
             $defaultCurrency = Setting::pluck('default_currency')->first();
 
-            // Query for currencies
+            // Query for currencies (include default currency so it can be shown with is_default flag)
             $currencyData = Currency::whereNotNull('name')
-                ->where('code', '!=', $defaultCurrency)
-                ->whereIn('id', function ($subQuery) use ($defaultCurrency) {
+                ->whereIn('id', function ($subQuery) {
                     $subQuery->selectRaw('MIN(id)')
                         ->from('currencies')
                         ->whereNotNull('name')
-                        ->where('code', '!=', $defaultCurrency)
                         ->groupBy('name', 'code');
                 })
                 ->when($searchString, function ($q) use ($searchString) {
@@ -291,6 +289,21 @@ class CurrencyController extends Controller
                     'status' => $currency->status,
                 ]);
             });
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function setDefaultCurrency($id)
+    {
+        try {
+            $currency = Currency::findOrFail($id);
+            Setting::where('id', 1)->update([
+                'default_currency' => $currency->code,
+                'default_symbol'   => $currency->symbol,
+            ]);
+
+            return successResponse(__('message.updated-successfully'));
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }

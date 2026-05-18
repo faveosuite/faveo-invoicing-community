@@ -5,92 +5,119 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.third_party_integrations') }}</h4>
             </div>
-
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
-
-            <div v-else class="card-body table-responsive p-0">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>{{ __('message.options') }}</th>
-                            <th>{{ __('message.description') }}</th>
-                            <th class="text-center">{{ __('message.status') }}</th>
-                            <th class="text-center">{{ __('message.action') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="module in modules" :key="module.slug">
-                            <td class="fw-semibold">{{ module.name }}</td>
-                            <td>{{ module.description }}</td>
-                            <td class="text-center">
-                                <div class="form-check form-switch d-inline-block">
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        :id="`module-${module.slug}`"
-                                        v-model="module.enabled"
-                                        :disabled="savingKey === module.key"
-                                        @change="toggle(module)"
-                                    />
-                                </div>
-                            </td>
-                            <td class="text-center">
-                                <RouterLink v-if="module.route && module.enabled" :to="module.route" class="btn btn-light table_btn">
-                                    <i class="fas fa-edit"></i>
-                                </RouterLink>
-                                <span v-else class="text-muted">--</span>
-                            </td>
-                        </tr>
-                        <tr v-if="!modules.length">
-                            <td colspan="4" class="text-center text-muted py-4">{{ __('message.no-record') }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="card-body">
+                <DataTable
+                    ref="dtRef"
+                    :url="apiUrl"
+                    :dataColumns="columns"
+                    :option="tableOptions"
+                />
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { h, ref, reactive, resolveComponent } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
 const COMPONENT = 'third-party-integrations'
-const el = document.getElementById('app-root')
+const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
+const apiUrl  = `${baseUrl}/module-settings`
 
-const loading = ref(true)
+const router    = useRouter()
+const dtRef     = ref(null)
 const savingKey = ref(null)
-const modules = ref([])
+const columns   = ['title', 'action']
 
-onMounted(load)
-
-async function load() {
-    loading.value = true
-    try {
-        const res = await http.get(`${baseUrl}/module-settings`)
-        modules.value = res.data?.data?.modules ?? []
-    } catch (e) {
-        errorHandler(e, COMPONENT)
-    } finally {
-        loading.value = false
+async function toggle(row, newVal) {
+    // Enabling a module that requires configuration → go to settings page first.
+    // The settings page is responsible for saving config and enabling the module.
+    if (newVal && row.route) {
+        dtRef.value?.refresh()   // revert the switch back to off
+        router.push(row.route)
+        return
     }
-}
 
-async function toggle(module) {
-    savingKey.value = module.key
+    savingKey.value = row.key
     try {
-        const payload = { [module.key]: module.enabled ? 1 : 0 }
+        const payload = { [row.key]: newVal ? 1 : 0 }
         const res = await http.post(`${baseUrl}/licenseStatus`, payload)
         successHandler(res, COMPONENT)
     } catch (e) {
-        module.enabled = !module.enabled
         errorHandler(e, COMPONENT)
     } finally {
         savingKey.value = null
+        dtRef.value?.refresh()
     }
 }
+
+const tableOptions = reactive({
+    headings: {
+        title:  '',
+        action: '',
+    },
+    templates: {
+        title: (f, row) => h('div', {}, [
+            h('div', { class: 'fw-normal' }, [
+                row.route && row.enabled
+                    ? h(RouterLink, { to: row.route }, () => h('b', {}, row.name))
+                    : row.name,
+            ]),
+            h('p', { class: 'mb-0 mt-2 text-muted' }, row.description),
+        ]),
+        action: (f, row) => h(resolveComponent('status-switch'), {
+            name:      row.key,
+            value:     row.enabled ? 1 : 0,
+            disabled:  savingKey.value === row.key ? 1 : 0,
+            classname: 'float-end me-1',
+            onChange:  (val) => toggle(row, val),
+        }),
+    },
+    skin:       'table',
+    sortable:   [],
+    filterable: true,
+    requestAdapter(data) {
+        return {
+            'search-query': (data.query ?? '').trim(),
+            page:           data.page,
+            limit:          data.limit,
+        }
+    },
+})
 </script>
+
+<style scoped>
+/* Hide the empty header row */
+:deep(.VueTables__table thead) {
+    display: none;
+}
+
+/* Match favMer column widths */
+:deep(.VueTables__table td:first-child) {
+    width: 90%;
+    border-top: none;
+    border-bottom: 1px solid #dee2e6;
+}
+
+:deep(.VueTables__table td:last-child) {
+    width: 10%;
+    border-top: none;
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: middle;
+    text-align: right;
+}
+
+/* Remove bottom border on last row */
+:deep(.VueTables__table tr:last-child td) {
+    border-bottom: none;
+}
+
+:deep(.fw-normal) {
+    font-size: 14px;
+    font-weight: 500;
+}
+</style>

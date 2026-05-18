@@ -1,61 +1,95 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-light">
+        <div class="card card-secondary card-outline">
             <div class="card-header">
-                <h4 class="card-title">Footer Widget</h4>
+                <h4 class="card-title">{{ __('message.footer_widget') }}</h4>
             </div>
+            <div class="card-body">
+                <div v-if="loading" class="text-center py-4">
+                    <span class="spinner-border text-secondary"></span>
+                </div>
+                <template v-else>
+                    <ul class="nav nav-tabs mb-3">
+                        <li v-for="ft in footerTypes" :key="ft.key" class="nav-item">
+                            <button
+                                class="nav-link"
+                                :class="{ active: activeTab === ft.key }"
+                                @click="activeTab = ft.key"
+                            >
+                                {{ ft.label }}
+                            </button>
+                        </li>
+                    </ul>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
+                    <template v-for="ft in footerTypes" :key="ft.key">
+                        <div v-if="activeTab === ft.key">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <TextField
+                                        name="name"
+                                        :label="__('message.name_page') + ' *'"
+                                        :value="forms[ft.key].name"
+                                        :onChange="(val) => forms[ft.key].name = val"
+                                    />
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">{{ __('message.publish') }}</label>
+                                    <div class="form-check form-switch mt-1">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            v-model="forms[ft.key].publish"
+                                        />
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">{{ __('message.allow_mailchimp') }}</label>
+                                    <div class="form-check form-switch mt-1">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            v-model="forms[ft.key].allow_mailchimp"
+                                            :disabled="!mailchimpStatus"
+                                            :title="!mailchimpStatus ? __('message.configure_mailchimp') : ''"
+                                        />
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">{{ __('message.allow_social_media_icons') }}</label>
+                                    <div class="form-check form-switch mt-1">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            v-model="forms[ft.key].allow_social_media"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">{{ __('message.content') }}</label>
+                                <TinyMCE
+                                    name="content"
+                                    :id="`editor-${ft.key}`"
+                                    :value="forms[ft.key].content"
+                                    :onChange="(val) => forms[ft.key].content = val"
+                                />
+                            </div>
+                            <div class="mt-3">
+                                <button
+                                    class="btn btn-primary"
+                                    :disabled="saving[ft.key]"
+                                    @click="save(ft.key)"
+                                >
+                                    <span v-if="saving[ft.key]" class="spinner-border spinner-border-sm me-1"></span>
+                                    <i v-else class="fas fa-save me-1"></i>
+                                    {{ widgetIds[ft.key] ? __('message.update') : __('message.save') }}
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </template>
             </div>
-
-            <template v-else-if="!widgetId">
-                <div class="card-body">
-                    <div class="alert alert-info">No footer widget found. Create one using the Analytics Widgets section with type <code>footer</code>.</div>
-                </div>
-            </template>
-
-            <template v-else>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <TextField name="name" label="Name *" :value="form.name" :onChange="onChange" />
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label fw-bold">Published</label>
-                            <div class="form-check form-switch mt-1">
-                                <input class="form-check-input" type="checkbox" v-model="form.publish" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" v-model="form.allow_mailchimp" id="allowMailchimp" />
-                                <label class="form-check-label" for="allowMailchimp">Allow Mailchimp</label>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" v-model="form.allow_social_media" id="allowSocialMedia" />
-                                <label class="form-check-label" for="allowSocialMedia">Allow Social Media</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Content</label>
-                        <TinyMCE name="content" id="editor-footer" :value="form.content" :onChange="onChange" />
-                    </div>
-                </div>
-
-                <div class="card-footer">
-                    <button class="btn btn-primary" @click="submit" :disabled="saving">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                        Update
-                    </button>
-                </div>
-            </template>
         </div>
     </div>
 </template>
@@ -69,51 +103,78 @@ const COMPONENT = 'footer-widget'
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
-const loading = ref(true)
-const saving = ref(false)
-const widgetId = ref(null)
-const form = reactive({
-    name: '', publish: true, content: '',
-    allow_mailchimp: false, allow_social_media: false,
+const footerTypes = [
+    { key: 'footer1', label: 'Footer 1' },
+    { key: 'footer2', label: 'Footer 2' },
+    { key: 'footer3', label: 'Footer 3' },
+]
+
+const loading         = ref(true)
+const activeTab       = ref('footer1')
+const mailchimpStatus = ref(false)
+
+const widgetIds = reactive({ footer1: null, footer2: null, footer3: null })
+
+const forms = reactive({
+    footer1: { name: '', publish: true, allow_mailchimp: false, allow_social_media: false, content: '' },
+    footer2: { name: '', publish: true, allow_mailchimp: false, allow_social_media: false, content: '' },
+    footer3: { name: '', publish: true, allow_mailchimp: false, allow_social_media: false, content: '' },
 })
 
-function onChange(val, name) { form[name] = val }
+const saving = reactive({ footer1: false, footer2: false, footer3: false })
 
 onMounted(async () => {
     try {
         const res = await http.get(`${baseUrl}/widgets/list`, { params: { limit: 200 } })
         const pages = res.data?.data?.pages?.data ?? []
-        const footer = pages.find(w => w.type === 'footer')
-        if (footer) {
-            widgetId.value = footer.id
-            const detailRes = await http.get(`${baseUrl}/widgets/show/${footer.id}`)
-            const d = detailRes.data?.data?.widget ?? {}
-            Object.assign(form, {
-                name:               d.name ?? '',
-                publish:            Boolean(d.publish),
-                content:            d.content ?? '',
-                allow_mailchimp:    Boolean(d.allow_mailchimp),
-                allow_social_media: Boolean(d.allow_social_media),
-            })
+
+        for (const ft of footerTypes) {
+            const found = pages.find(w => w.type === ft.key)
+            if (found) {
+                widgetIds[ft.key] = found.id
+                const detail = await http.get(`${baseUrl}/widgets/show/${found.id}`)
+                const d = detail.data?.data?.widget ?? {}
+                mailchimpStatus.value = Boolean(detail.data?.data?.mailchimpStatus)
+                Object.assign(forms[ft.key], {
+                    name:               d.name ?? '',
+                    publish:            Boolean(d.publish),
+                    allow_mailchimp:    Boolean(d.allow_mailchimp),
+                    allow_social_media: Boolean(d.allow_social_media),
+                    content:            d.content ?? '',
+                })
+            }
         }
-    } catch (e) { errorHandler(e, COMPONENT) }
-    finally { loading.value = false }
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        loading.value = false
+    }
 })
 
-async function submit() {
-    if (!widgetId.value) return
-    saving.value = true
+async function save(type) {
+    saving[type] = true
     try {
-        const res = await http.put(`${baseUrl}/widgets/update/${widgetId.value}`, {
-            name:               form.name,
-            type:               'footer',
-            publish:            form.publish ? 1 : 0,
-            content:            form.content,
-            allow_mailchimp:    form.allow_mailchimp ? 1 : 0,
-            allow_social_media: form.allow_social_media ? 1 : 0,
-        })
+        const payload = {
+            name:               forms[type].name,
+            type,
+            publish:            forms[type].publish ? 1 : 0,
+            allow_mailchimp:    forms[type].allow_mailchimp ? 1 : 0,
+            allow_social_media: forms[type].allow_social_media ? 1 : 0,
+            content:            forms[type].content,
+        }
+
+        let res
+        if (widgetIds[type]) {
+            res = await http.put(`${baseUrl}/widgets/update/${widgetIds[type]}`, payload)
+        } else {
+            res = await http.post(`${baseUrl}/widgets/create`, payload)
+            widgetIds[type] = res.data?.data?.id ?? null
+        }
         successHandler(res, COMPONENT)
-    } catch (e) { errorHandler(e, COMPONENT) }
-    finally { saving.value = false }
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        saving[type] = false
+    }
 }
 </script>

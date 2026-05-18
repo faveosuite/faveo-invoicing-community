@@ -185,12 +185,10 @@ class PhpMailController extends Controller
                         $setting = $settings::find(1);
 
                         //template
-                        $template = new \App\Model\Common\Template();
-                        $temp_id = \DB::table('template_types')->where('name', 'cloud_deleted')->value('id');
-                        $template = $template->where('id', $temp_id)->first();
+                        $template = \App\Model\Common\TemplateType::getSelectedTemplate('cloud_deleted');
 
                         $mail = new \App\Http\Controllers\Common\PhpMailController();
-                        $type = '';
+                        $type = $template?->type()->value('name') ?? '';
                         $replace = ['name' => $user->first_name.' '.$user->last_name,
                             'product' => $product->name,
                             'number' => $order->number,
@@ -199,11 +197,6 @@ class PhpMailController extends Controller
                             'logo' => $contact['logo'],
                             'reply_email' => $setting->company_email,
                         ];
-                        if ($template) {
-                            $type_id = $template->type;
-                            $temp_type = new \App\Model\Common\TemplateType();
-                            $type = $temp_type->where('id', $type_id)->first()->name;
-                        }
                         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
                     }
                 }

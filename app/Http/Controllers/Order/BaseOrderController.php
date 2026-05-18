@@ -348,10 +348,7 @@ class BaseOrderController extends ExtendedOrderController
         $product = Product::where('id', $productId)->first();
         $value = $product->type;
 
-        $templates = new \App\Model\Common\Template();
-        $temp_id = TemplateType::where('name', 'order_mail')->value('id');
-
-        $template = $templates->where('type', $temp_id)->first();
+        $template = TemplateType::getSelectedTemplate('order_mail');
 
         $knowledgeBaseUrl = $setting->knowledge_base_url;
 
@@ -384,12 +381,7 @@ class BaseOrderController extends ExtendedOrderController
             'licenseCode' => $licenseCode,
         ];
 
-        $type = '';
-        if ($template) {
-            $type_id = $template->type;
-            $temp_type = new \App\Model\Common\TemplateType();
-            $type = $temp_type->where('id', $type_id)->first()->name;
-        }
+        $type = $template?->type()->value('name') ?? '';
         $mail = new \App\Http\Controllers\Common\PhpMailController();
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
 

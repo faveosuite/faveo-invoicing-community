@@ -19,6 +19,8 @@ class Setting extends Model
         'error_log', 'error_email', 'state', 'city', 'country',
         'invoice', 'download', 'subscription_over', 'subscription_going_to_end',
         'forgot_password', 'order_mail', 'welcome_mail', 'invoice_template',
+        'autosubscription_going_to_end', 'payment_successfull', 'payment_failed',
+        'cloud_deleted', 'cloud_order',
         'driver', 'admin_logo', 'title', 'favicon_title', 'fav_icon',
         'company_email', 'favicon_title_client', 'default_currency', 'default_symbol', 'file_storage', 'cin_no', 'gstin', 'zip', 'from_name', 'phone_code', 'knowledge_base_url', 'content', 'autorenewal_status', 'sending_status'];
 
@@ -32,6 +34,8 @@ class Setting extends Model
         'error_log', 'error_email', 'state', 'city', 'country',
         'invoice', 'download', 'subscription_over', 'subscription_going_to_end',
         'forgot_password', 'order_mail', 'welcome_mail', 'invoice_template',
+        'autosubscription_going_to_end', 'payment_successfull', 'payment_failed',
+        'cloud_deleted', 'cloud_order',
         'driver', 'admin_logo', 'title', 'favicon_title', 'fav_icon',
         'company_email', 'favicon_title_client', 'default_currency', 'default_symbol', 'file_storage', 'cin_no', 'gstin', 'zip', 'from_name', 'phone_code', 'knowledge_base_url', 'content',
         'sending_status',

@@ -246,10 +246,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
 
         $mail = new \App\Http\Controllers\Common\PhpMailController();
         //template
-        $templates = new \App\Model\Common\Template();
-        $temp_id = $setting->payment_successfull;
-
-        $template = $templates->where('id', $temp_id)->first();
+        $template = \App\Model\Common\TemplateType::getSelectedTemplate('payment_successfull');
         $date = date_create($future_expiry->update_ends_at);
         $end = date_format($date, 'l, F j, Y ');
 
@@ -264,12 +261,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             'reply_email' => $setting->company_email,
         ];
 
-        $type = '';
-        if ($template) {
-            $type_id = $template->type;
-            $temp_type = new \App\Model\Common\TemplateType();
-            $type = $temp_type->where('id', $type_id)->first()->name;
-        }
+        $type = $template?->type()->value('name') ?? '';
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
@@ -285,10 +277,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $mail = new \App\Http\Controllers\Common\PhpMailController();
         $mailer = $mail->setMailConfig($setting);
         //template
-        $templates = new \App\Model\Common\Template();
-        $temp_id = $setting->payment_failed;
-
-        $template = $templates->where('id', $temp_id)->first();
+        $template = \App\Model\Common\TemplateType::getSelectedTemplate('payment_failed');
         $url = url("autopaynow/$invoice->invoice_id");
         $type = '';
         $replace = ['name' => ucfirst($user->first_name).' '.ucfirst($user->last_name),
@@ -301,13 +290,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             'contact' => $contact['contact'],
             'logo' => $contact['logo'],
             'reply_email' => $setting->company_email, ];
-        $type = '';
-
-        if ($template) {
-            $type_id = $template->type;
-            $temp_type = new \App\Model\Common\TemplateType();
-            $type = $temp_type->where('id', $type_id)->first()->name;
-        }
+        $type = $template?->type()->value('name') ?? '';
 
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
         $this->FailedPaymenttoAdmin($invoice, $total, $product_details->name, $exceptionMessage, $user, $template->name, $order, $payment);

@@ -25,6 +25,20 @@ class SettingsController extends Controller
         $this->cart = new Cart();
     }
 
+    public function getSettings()
+    {
+        try {
+            $stripeKeys = ApiKey::select('stripe_key', 'stripe_secret')->first();
+
+            return successResponse('', [
+                'stripe_key'    => $stripeKeys->stripe_key ?? '',
+                'stripe_secret' => $stripeKeys->stripe_secret ?? '',
+            ]);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
     public function Settings()
     {
         try {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SendWhatsappMessage;
+use App\Model\Common\StatusSetting;
 use App\User;
 use App\WhatsappIntegration;
 use App\WhatsappIntegrationUser;
@@ -585,6 +586,7 @@ class WhatsappController extends Controller
                     'verify_token' => $verify_token,
                 ]
             );
+            StatusSetting::where('id', 1)->update(['whatsapp_status' => 1]);
 
             return successResponse(__('message.updated-successfully'));
         } catch (\Exception $exception) {
@@ -594,13 +596,20 @@ class WhatsappController extends Controller
 
     public function webhookUrlEdit(Request $request)
     {
-        $url = $request->input('url');
-        $id = $request->input('id');
-        if ($id !== \Auth::user()->id) {
+        $request->validate([
+            'id'  => 'required|integer|exists:whatsapp_integration_users,id',
+            'url' => 'required|string',
+        ]);
+
+        $id   = $request->input('id');
+        $user = \Auth::user();
+
+        if ($user->role !== 'admin' && (int) $id !== $user->id) {
             return errorResponse(__('message.unauthorized'), 403);
         }
+
         try {
-            WhatsappIntegrationUser::where('id', $id)->update(['user_callback_url' => $url]);
+            WhatsappIntegrationUser::where('id', $id)->update(['user_callback_url' => $request->input('url')]);
 
             return successResponse(__('message.updated-successfully'));
         } catch (\Exception $exception) {

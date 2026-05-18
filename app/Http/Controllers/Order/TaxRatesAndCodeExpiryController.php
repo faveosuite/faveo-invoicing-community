@@ -122,9 +122,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
         $setting = $settings::find(1);
         $invoiceurl = $this->invoiceUrl($invoiceid);
         //template
-        $templates = new \App\Model\Common\Template();
-        $temp_id = TemplateType::where('name', 'invoice_mail')->value('id');
-        $template = $templates->where('type', $temp_id)->first();
+        $template = TemplateType::getSelectedTemplate('invoice_mail');
         $type = '';
         $replace = [
             'name' => $user->first_name.' '.$user->last_name,
@@ -137,11 +135,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
             'logo' => $contact['logo'],
             'reply_email' => $setting->company_email,
         ];
-        if ($template) {
-            $type_id = $template->type;
-            $temp_type = new \App\Model\Common\TemplateType();
-            $type = $temp_type->where('id', $type_id)->first()->name;
-        }
+        $type = $template?->type()->value('name') ?? '';
         $mail = new \App\Http\Controllers\Common\PhpMailController();
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }

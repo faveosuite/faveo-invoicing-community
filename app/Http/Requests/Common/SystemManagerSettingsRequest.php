@@ -22,10 +22,10 @@ class SystemManagerSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'existingAccManager' => 'required_with:newAccManager|integer',
-            'newAccManager' => 'required_with:existingAccManager|integer|different:existingAccManager',
-            'existingSaleManager' => 'required_with:newSaleManager|integer',
-            'newSaleManager' => 'required_with:existingSaleManager|integer|different:existingSaleManager',
+            'existingAccManager' => 'nullable|required_with:newAccManager|integer',
+            'newAccManager' => 'nullable|required_with:existingAccManager|integer|different:existingAccManager',
+            'existingSaleManager' => 'nullable|required_with:newSaleManager|integer',
+            'newSaleManager' => 'nullable|required_with:existingSaleManager|integer|different:existingSaleManager',
             'autoAssignAccount' => 'required|boolean',
             'autoAssignSales' => 'required|boolean',
         ];

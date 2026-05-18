@@ -205,20 +205,39 @@ class MSG91Controller extends Controller
                 $fullName = $log->user ? trim($log->user->first_name.' '.$log->user->last_name) : null;
 
                 return [
-                    'request_id' => $log->request_id,
-                    'user_fullname' => $fullName,
-                    'user_email' => $log->user->email ?? null,
-                    'status' => $log->readableStatus->status_label ?? null,
+                    'request_id'    => $log->request_id,
+                    'user_id'       => $log->user?->id,
+                    'user_fullname' => $fullName ?: null,
+                    'user_email'    => $log->user?->email,
+                    'status'        => $log->readableStatus?->status_label,
+                    'status_code'   => $log->status,
+                    'source'        => $log->source,
+                    'action'        => $log->action,
                     'failure_reason' => $log->failure_reason,
                     'mobile_number' => $log->mobile_number,
                     'delivery_date' => $log->date,
-                    'created_at' => $log->created_at ?? null,
+                    'created_at'    => $log->created_at?->format('Y-m-d H:i'),
                 ];
             });
 
             return successResponse(__('message.msg91_reports_fetched'), $logs);
         } catch (\Exception $e) {
             return errorResponse(__('message.something_went_wrong_try_again'));
+        }
+    }
+
+    public function getMsgFilters()
+    {
+        try {
+            $statuses = Msg91Status::orderBy('status_label')->pluck('status_label')->filter()->values();
+            $sources  = MsgDeliveryReports::whereNotNull('source')->where('source', '!=', '')
+                ->distinct()->orderBy('source')->pluck('source');
+            $actions  = MsgDeliveryReports::whereNotNull('action')->where('action', '!=', '')
+                ->distinct()->orderBy('action')->pluck('action');
+
+            return successResponse('', compact('statuses', 'sources', 'actions'));
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
         }
     }
 
@@ -252,8 +271,8 @@ class MSG91Controller extends Controller
     {
         $request = request();
 
-        $from = $request->input('log_from');
-        $till = $request->input('log_till');
+        $from = $request->input('date_from');
+        $till = $request->input('date_to');
 
         return $query
             // Request ID Filter
@@ -287,6 +306,16 @@ class MSG91Controller extends Controller
                 $q->whereHas('readableStatus', function ($subQuery) use ($request) {
                     $subQuery->where('status_label', 'like', '%'.$request->status.'%');
                 });
+            })
+
+            // Source Filter
+            ->when($request->filled('source'), function ($q) use ($request) {
+                $q->where('source', 'like', '%'.$request->source.'%');
+            })
+
+            // Action Filter
+            ->when($request->filled('action'), function ($q) use ($request) {
+                $q->where('action', 'like', '%'.$request->action.'%');
             })
 
             // Failure Reason Filter

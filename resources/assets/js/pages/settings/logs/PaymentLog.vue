@@ -3,76 +3,286 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Payment Log</h4>
+                <h4 class="card-title">{{ __('message.payment_logs') }}</h4>
+                <div class="card-tools">
+                    <button class="btn btn-tool" :title="__('message.filters')" v-tooltip @click="showFilter = !showFilter">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                </div>
             </div>
             <div class="card-body">
+                <PaymentFilter
+                    :show="showFilter"
+                    :baseUrl="baseUrl"
+                    @apply="onFilterApply"
+                    @reset="onFilterReset"
+                    @close="showFilter = false"
+                />
                 <DataTable
                     ref="dtRef"
                     :url="apiUrl"
                     :dataColumns="columns"
                     :option="tableOptions"
-                />
+                >
+                    <template #bulk-actions>
+                        <div v-if="selected.length > 0" class="dropdown">
+                            <button
+                                class="btn btn-sm btn-secondary dropdown-toggle"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                            >
+                                Bulk Action
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <button class="dropdown-item" @click="showBulkDeleteModal = true">
+                                        <i class="fas fa-trash me-1"></i> Delete
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </template>
+                </DataTable>
             </div>
         </div>
+
+        <!-- Exception detail modal -->
+        <AppModal
+            :showModal="showExceptionModal"
+            :onClose="() => showExceptionModal = false"
+            classname="modal-lg"
+            :containerStyle="{ maxWidth: '900px' }"
+        >
+            <template #title><h4>Payment Failed — Exception</h4></template>
+            <template #fields>
+                <div class="code-container">
+                    <button :class="['copy-btn', copied && 'copied']" @click="copyException">
+                        <i :class="copied ? 'fas fa-check' : 'fas fa-copy'"></i>
+                        <span>{{ copied ? __('log.copied') : __('log.copy') }}</span>
+                    </button>
+                    <pre class="code-block">{{ exceptionContent }}</pre>
+                </div>
+            </template>
+        </AppModal>
+
+        <!-- Single row delete -->
+        <DeleteModal
+            v-if="deleteTarget"
+            :showModal="!!deleteTarget"
+            :onClose="() => deleteTarget = null"
+            :deleteUrl="`${baseUrl}/paymentlog-delete`"
+            :deleteData="{ ids: [deleteTarget.id] }"
+            :componentName="COMPONENT"
+            @deleted="onDeleted"
+        />
+
+        <!-- Bulk delete -->
+        <DeleteModal
+            v-if="showBulkDeleteModal"
+            :showModal="showBulkDeleteModal"
+            :onClose="() => showBulkDeleteModal = false"
+            :deleteUrl="`${baseUrl}/paymentlog-delete`"
+            :deleteData="{ ids: selected }"
+            :componentName="COMPONENT"
+            @deleted="onBulkDeleted"
+        />
     </div>
 </template>
 
 <script setup>
-import { h, reactive, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { h, reactive, ref, computed } from 'vue'
+import PaymentFilter from './PaymentFilter.vue'
 
 const COMPONENT = 'payment-log'
-const el = document.getElementById('app-root')
+const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl = `${baseUrl}/get-payment-log-api`
+const apiUrl  = `${baseUrl}/get-payment-log-api`
 
-const dtRef = ref(null)
+// ── filter ────────────────────────────────────────────────────────────────────
+const dtRef         = ref(null)
+const showFilter    = ref(false)
+const activeFilters = ref({})
 
-const columns = ['date', 'user', 'order', 'amount', 'payment_method', 'payment_type', 'status']
+function onFilterApply(params) {
+    activeFilters.value = params
+    showFilter.value    = false
+    dtRef.value?.refresh()
+}
+
+function onFilterReset() {
+    activeFilters.value = {}
+    dtRef.value?.refresh()
+}
+
+// ── selection ─────────────────────────────────────────────────────────────────
+const selected = ref([])
+
+const allSelected = computed(() => {
+    const rows = dtRef.value?.tableData ?? []
+    return rows.length > 0 && rows.every(r => selected.value.includes(r.id))
+})
+
+function toggleRow(id) {
+    const idx = selected.value.indexOf(id)
+    if (idx === -1) selected.value.push(id)
+    else selected.value.splice(idx, 1)
+}
+
+function toggleAll(e) {
+    const rows = dtRef.value?.tableData ?? []
+    if (e.target.checked) {
+        rows.forEach(r => { if (!selected.value.includes(r.id)) selected.value.push(r.id) })
+    } else {
+        const ids = rows.map(r => r.id)
+        selected.value = selected.value.filter(id => !ids.includes(id))
+    }
+}
+
+// ── delete ────────────────────────────────────────────────────────────────────
+const deleteTarget       = ref(null)
+const showBulkDeleteModal = ref(false)
+
+function onDeleted() {
+    deleteTarget.value = null
+    dtRef.value?.refresh()
+}
+
+function onBulkDeleted() {
+    showBulkDeleteModal.value = false
+    selected.value = []
+    dtRef.value?.refresh()
+}
+
+// ── exception modal ───────────────────────────────────────────────────────────
+const showExceptionModal = ref(false)
+const exceptionContent   = ref('')
+const copied             = ref(false)
+
+function openException(text) {
+    exceptionContent.value   = text
+    showExceptionModal.value = true
+    copied.value             = false
+}
+
+async function copyException() {
+    try {
+        await navigator.clipboard.writeText(exceptionContent.value)
+    } catch {
+        const ta = document.createElement('textarea')
+        ta.value = exceptionContent.value
+        document.body.appendChild(ta)
+        ta.select()
+        document.execCommand('copy')
+        document.body.removeChild(ta)
+    }
+    copied.value = true
+    setTimeout(() => { copied.value = false }, 1500)
+}
+
+// ── table ─────────────────────────────────────────────────────────────────────
+const columns = ['select', 'date', 'user', 'order', 'amount', 'payment_type', 'payment_method', 'status', 'action']
 
 const tableOptions = reactive({
     headings: {
-        date: 'Date',
-        user: 'User',
-        order: 'Order',
-        amount: 'Amount',
-        payment_method: 'Method',
-        payment_type: 'Type',
-        status: 'Status',
+        select: () => h('input', {
+            type: 'checkbox',
+            checked: allSelected.value,
+            onChange: toggleAll,
+        }),
+        date:           __('message.date'),
+        user:           __('message.user'),
+        order:          __('message.order_no'),
+        amount:         __('message.amount'),
+        payment_type:   __('message.description'),
+        payment_method: 'Payment Method',
+        status:         __('message.status'),
+        action:         __('message.action'),
     },
     templates: {
-        date: (f, row) => row.date || '—',
-        user: (f, row) => row.user_id
-            ? h(RouterLink, { to: `/clients/${row.user_id}` }, () => row.user)
-            : (row.user || '—'),
-        order: (f, row) => row.order || '—',
-        amount: (f, row) => row.amount || '—',
+        select: (f, row) => h('input', {
+            type: 'checkbox',
+            checked: selected.value.includes(row.id),
+            onChange: () => toggleRow(row.id),
+        }),
+        user: (f, row) => {
+            const name = row.user || '—'
+            if (!row.user_id) return name
+            return h('a', { href: `${baseUrl}/admin/clients/${row.user_id}` }, name)
+        },
+        order:          (f, row) => row.order          || '—',
+        payment_type:   (f, row) => row.payment_type   || '—',
         payment_method: (f, row) => row.payment_method || '—',
-        payment_type: (f, row) => row.payment_type || '—',
         status: (f, row) => {
-            if (row.status?.toLowerCase() === 'failed') {
+            const s = row.status?.toLowerCase()
+            if (s === 'failed' && row.exception) {
                 return h('span', {
                     class: 'badge bg-danger',
-                    title: row.exception || '',
-                    style: 'cursor:help',
+                    style: 'cursor:pointer',
+                    onClick: () => openException(row.exception),
                 }, row.status)
             }
             return h('span', {
-                class: row.status?.toLowerCase() === 'success' ? 'badge bg-success' : 'badge bg-secondary',
+                class: s === 'success' ? 'badge bg-success' : 'badge bg-secondary',
             }, row.status || '—')
         },
+        action: (f, row) => h('button', {
+            class: 'btn btn-light table_btn',
+            title: 'Delete',
+            onClick: () => { deleteTarget.value = row },
+        }, h('i', { class: 'fas fa-trash' })),
     },
     sortable: ['date', 'amount', 'status'],
     filterable: true,
     requestAdapter(data) {
         return {
-            'sort-field': data.orderBy ?? 'date',
-            'sort-order': data.ascending ? 'asc' : 'desc',
+            'sort-field':   data.orderBy ?? 'date',
+            'sort-order':   data.ascending ? 'asc' : 'desc',
             'search-query': (data.query ?? '').trim(),
-            page: data.page,
+            page:  data.page,
             limit: data.limit,
+            ...activeFilters.value,
         }
     },
     orderBy: { column: 'date', ascending: false },
 })
 </script>
+
+<style scoped>
+.code-container {
+    position: relative;
+    background-color: #000;
+    border-radius: 8px;
+}
+.code-block {
+    background-color: #000 !important;
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    padding: 50px 20px 20px;
+    border-radius: 8px;
+    overflow: auto;
+    max-height: 500px;
+    border: none;
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #333;
+    border: 1px solid #555;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    z-index: 10;
+    transition: all 0.3s ease;
+}
+.copy-btn:hover  { background: #555; border-color: #777; }
+.copy-btn.copied { background: #28a745; border-color: #28a745; }
+.copy-btn i      { margin-right: 5px; }
+</style>

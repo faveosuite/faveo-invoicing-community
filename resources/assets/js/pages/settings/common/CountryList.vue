@@ -24,25 +24,22 @@ const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const apiUrl = `${baseUrl}/get-country`
 
-const columns = ['country', 'code', 'count']
+const columns = ['country', 'count']
 
 const tableOptions = reactive({
     headings: {
         country: 'Country',
-        code: 'Code',
         count: 'Users',
     },
     templates: {
         country: (f, row) => row.country || '—',
-        code: (f, row) => row.code || '—',
         count: (f, row) => row.count ?? 0,
     },
-    sortable: ['country', 'code', 'count'],
+    sortable: ['country', 'count'],
     filterable: true,
     requestAdapter(data) {
         let sortField = data.orderBy ?? 'country_name'
         if (sortField === 'country') sortField = 'country_name'
-        if (sortField === 'code')    sortField = 'country_code_char2'
         if (sortField === 'count')   sortField = 'users_count'
 
         return {

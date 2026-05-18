@@ -20,7 +20,6 @@
             v-if="editLicense"
             :showModal="!!editLicense"
             :onClose="closeModal"
-            :containerStyle="{ maxWidth: '500px' }"
             :showCloseBtn="false"
         >
             <template #title>

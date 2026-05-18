@@ -12,35 +12,18 @@
 
             <template v-else>
                 <div class="card-body">
-                    <p class="text-muted mb-3">Select which email template to use for each notification type.</p>
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Forgot Password</label>
-                            <select class="form-select" v-model="form.forgot_password">
-                                <option value="">— None —</option>
-                                <option v-for="t in templates" :key="t.id" :value="t.id">{{ t.name }}</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Order Mail</label>
-                            <select class="form-select" v-model="form.order_mail">
-                                <option value="">— None —</option>
-                                <option v-for="t in templates" :key="t.id" :value="t.id">{{ t.name }}</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Welcome Mail</label>
-                            <select class="form-select" v-model="form.welcome_mail">
-                                <option value="">— None —</option>
-                                <option v-for="t in templates" :key="t.id" :value="t.id">{{ t.name }}</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Invoice Template</label>
-                            <select class="form-select" v-model="form.invoice_template">
-                                <option value="">— None —</option>
-                                <option v-for="t in templates" :key="t.id" :value="t.id">{{ t.name }}</option>
-                            </select>
+                        <div v-for="type in types" :key="type.id" class="col-md-6">
+                            <SelectField
+                                :name="String(type.id)"
+                                :label="toLabel(type.name)"
+                                :elements="templates"
+                                :value="selected(type.id)"
+                                :onChange="(val) => onSelect(type.id, val)"
+                                :searchable="true"
+                                :clearable="true"
+                                placeholder="Select a template"
+                            />
                         </div>
                     </div>
                 </div>
@@ -57,35 +40,62 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
 
 const COMPONENT = 'template-settings'
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
-const loading = ref(true)
-const saving = ref(false)
+const loading   = ref(true)
+const saving    = ref(false)
+const types     = ref([])
 const templates = ref([])
+const mappings  = reactive({})  // typeId → templateId (number | null)
 
-const form = reactive({
-    forgot_password: '', order_mail: '', welcome_mail: '', invoice_template: '',
-})
+const LABEL_OVERRIDES = {
+    welcome_mail:                   'Welcome Mail',
+    forgot_password_mail:           'Forgot Password',
+    subscription_going_to_end_mail: 'Subscription Going To End',
+    subscription_over_mail:         'Subscription Over',
+    invoice_mail:                   'Invoice',
+    order_mail:                     'Order Mail',
+    auto_subscription_going_to_end: 'Auto Renewal Reminder',
+    payment_successfull:            'Auto Payment Successfull',
+    payment_failed:                 'Auto Payment Failed',
+    cloud_deleted:                  'URGENT: Order has been deleted',
+    cloud_created:                  'New instance created',
+    contact_us:                     'Contact Us',
+    demo_request:                   'Request a Demo',
+    registration_mail:              'Register Mail',
+    sales_manager_email:            'New Sales Manager',
+    account_manager_email:          'New Account Manager',
+}
+
+function toLabel(name) {
+    return LABEL_OVERRIDES[name]
+        ?? name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+}
+
+// SelectField expects the full object as value, not just the id
+function selected(typeId) {
+    const id = mappings[typeId]
+    return id ? (templates.value.find(t => t.id === id) ?? null) : null
+}
+
+function onSelect(typeId, val) {
+    mappings[typeId] = val?.id ?? null
+}
 
 onMounted(async () => {
     try {
-        const [settingsRes, templatesRes] = await Promise.all([
-            http.get(`${baseUrl}/settings/template`),
-            http.get(`${baseUrl}/template/list`, { params: { limit: 200 } }),
-        ])
-        const d = settingsRes.data?.data ?? {}
-        form.forgot_password  = d.forgot_password  ?? ''
-        form.order_mail       = d.order_mail       ?? ''
-        form.welcome_mail     = d.welcome_mail     ?? ''
-        form.invoice_template = d.invoice_template ?? ''
-
-        templates.value = templatesRes.data?.data?.data ?? []
+        const res = await http.get(`${baseUrl}/settings/template`)
+        const data = res.data?.data ?? {}
+        types.value     = data.types     ?? []
+        templates.value = data.templates ?? []
+        types.value.forEach(t => { mappings[t.id] = t.selected_template_id ?? null })
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { loading.value = false }
 })
@@ -93,7 +103,7 @@ onMounted(async () => {
 async function submit() {
     saving.value = true
     try {
-        const res = await http.patch(`${baseUrl}/settings/template`, form)
+        const res = await http.patch(`${baseUrl}/settings/template`, { mappings })
         successHandler(res, COMPONENT)
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { saving.value = false }

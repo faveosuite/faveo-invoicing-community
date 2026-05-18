@@ -84,12 +84,9 @@ class ForgotPasswordController extends Controller
             $user = $user->where('email', $email)->firstOrFail();
 
             //check in the settings
-            $settings = new \App\Model\Common\Setting();
-            $setting = $settings::find(1);
+            $setting = \App\Model\Common\Setting::find(1);
             //template
-            $templates = new \App\Model\Common\Template();
-            $temp_id = $setting->forgot_password;
-            $template = $templates->where('id', $temp_id)->first();
+            $template = \App\Model\Common\TemplateType::getSelectedTemplate('forgot_password_mail');
 
             $contact = getContactData();
             $replace = ['name' => $user->first_name.' '.$user->last_name, 'url' => $url, 'contact_us' => $setting->website, 'contact' => $contact['contact'],
@@ -99,13 +96,7 @@ class ForgotPasswordController extends Controller
             $contactUs = $setting->website;
             $subject = $template->name;
             $data = $template->data;
-            $type = '';
-
-            if ($template) {
-                $type_id = $template->type;
-                $temp_type = new \App\Model\Common\TemplateType();
-                $type = $temp_type->where('id', $type_id)->first()->name;
-            }
+            $type = $template?->type()->value('name') ?? '';
             if (emailSendingStatus()) {
                 $mail = new \App\Http\Controllers\Common\PhpMailController();
                 $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);

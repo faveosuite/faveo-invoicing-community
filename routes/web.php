@@ -307,6 +307,8 @@ Route::middleware('installAgora')->group(function () {
     Route::get('profile', [User\ProfileController::class, 'profile']);
     Route::patch('profile', [User\ProfileController::class, 'updateProfile']);
     Route::patch('password', [User\ProfileController::class, 'updatePassword']);
+    Route::get('profile/countries', [User\ProfileController::class, 'getCountries']);
+    Route::get('profile/states/{countryCode}', [User\ProfileController::class, 'getStatesByCountry']);
 
     /*
      * Settings
@@ -331,6 +333,7 @@ Route::middleware('installAgora')->group(function () {
 
     Route::get('settings/email', [Common\EmailSettingsController::class, 'settingsEmail'])->middleware('auth');
     Route::patch('settings/email', [Common\EmailSettingsController::class, 'postSettingsEmail']);
+    Route::get('settings/index-data', [Common\SettingsController::class, 'getSettingsIndexData']);
     Route::get('settings/template', [Common\SettingsController::class, 'settingsTemplate']);
     Route::patch('settings/template', [Common\SettingsController::class, 'postSettingsTemplate']);
     Route::get('settings/error', [Common\SettingsController::class, 'getErrorSettings']);
@@ -342,6 +345,12 @@ Route::middleware('installAgora')->group(function () {
     Route::patch('settings/recaptcha', [Common\SettingsController::class, 'updateRecaptchaSettings']);
     Route::get('settings/pipedrive', [Common\SettingsController::class, 'getPipedriveSettings']);
     Route::patch('settings/pipedrive', [Common\SettingsController::class, 'updatePipedriveSettings']);
+    Route::get('settings/msg91', [Common\SettingsController::class, 'getMsg91Settings']);
+    Route::get('settings/github', [Common\SettingsController::class, 'getGithubSettings']);
+    Route::get('settings/mailchimp', [Common\SettingsController::class, 'getMailchimpSettings']);
+    Route::get('settings/terms', [Common\SettingsController::class, 'getTermsSettings']);
+    Route::get('settings/email-validation', [Common\SettingsController::class, 'getEmailValidationSettings']);
+    Route::get('settings/mobile-validation', [Common\SettingsController::class, 'getMobileValidationSettings']);
     Route::get('settings/cloud-details', [Common\SettingsController::class, 'getCloudDetails']);
     Route::get('localized-license/files', [LocalizedLicenseController::class, 'filesApi']);
     Route::delete('localized-license/files', [LocalizedLicenseController::class, 'deleteFileApi']);
@@ -360,6 +369,7 @@ Route::middleware('installAgora')->group(function () {
     //language
     Route::get('languages', [LanguageController::class, 'viewLanguage'])->middleware('auth');
     Route::post('language-toggle', [LanguageController::class, 'toggleLanguageStatus']);
+    Route::post('language-set-default', [LanguageController::class, 'setDefaultLanguage']);
 
     // Contact API
     Route::get('contact-option', [Common\SettingsController::class, 'contactOption'])->name('contact-option');
@@ -377,6 +387,7 @@ Route::middleware('installAgora')->group(function () {
     // Get Activity Log
     Route::get('get-activity', [Common\SettingsController::class, 'getActivity'])->name('get-activity');
     Route::get('get-activity-api', [Common\SettingsController::class, 'getActivityApi']);
+    Route::get('get-activity-filters', [Common\SettingsController::class, 'getActivityFilters']);
 
     // Get Payment Log
 //    Route::get('settings/paymentlog', [Common\SettingsController::class, 'settingsPayment']);
@@ -470,6 +481,7 @@ Route::middleware('installAgora')->group(function () {
         Route::get('list', [Payment\CurrencyController::class, 'getCurrencyList']);
         Route::post('update-currency', [Payment\CurrencyController::class, 'updatecurrency']);
         Route::post('dashboard-currency/{id}', [Payment\CurrencyController::class, 'setDashboardCurrency']);
+        Route::post('default-currency/{id}',   [Payment\CurrencyController::class, 'setDefaultCurrency']);
     });
 
     /*
@@ -825,6 +837,7 @@ Route::middleware('installAgora')->group(function () {
 
     Route::get('sms/reports', [Common\Sms\MSG91Controller::class, 'msg91Reports']);
     Route::get('getMsgReports', [Common\Sms\MSG91Controller::class, 'getMsg91Reports']);
+    Route::get('getMsgFilters', [Common\Sms\MSG91Controller::class, 'getMsgFilters']);
     Route::get('msgThirdPartyUpdate/{thirdPartyId}', [MSG91Controller::class, 'getThirdPartyMsgDetails']);
 
     //preview image

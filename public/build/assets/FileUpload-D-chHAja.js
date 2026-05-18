@@ -1,0 +1,1 @@
+import"./vendor-vue-DhQGSFe9.js";import{_ as o}from"./chunk-settings-DE8TZj7m.js";import{b4 as r,Z as t,bg as s}from"./vendor-DFZGHMSo.js";import"./chunk-products-D2TThPZE.js";const a={},c={class:"fileupload-wrapper"};function l(e,n){return r(),t("div",c,[s(e.$slots,"default")])}const f=o(a,[["render",l]]);export{f as default};

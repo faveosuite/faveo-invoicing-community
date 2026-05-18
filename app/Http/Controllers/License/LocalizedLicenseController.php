@@ -8,12 +8,14 @@ use App\License\Services\InstallationService;
 use App\Model\Order\Order;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 
 class LocalizedLicenseController extends Controller
 {
@@ -132,27 +134,49 @@ class LocalizedLicenseController extends Controller
         return successResponse(__('message.status_change_successfully'));
     }
 
-    public function filesApi()
+    public function filesApi(Request $request)
     {
         try {
+            $searchQuery = $request->input('search-query', '');
+            $sortOrder   = $request->input('sort-order', 'asc');
+            $sortField   = $request->input('sort-field', 'file_name');
+            $limit       = (int) $request->input('limit', 10);
+            $page        = (int) $request->input('page', 1);
+
             $files = collect(Storage::disk('public')->files())
-                ->filter(fn ($file) => \Illuminate\Support\Str::startsWith($file, 'faveo-license'))
+                ->filter(fn ($file) => Str::startsWith($file, 'faveo-license'))
                 ->values()
                 ->map(function ($file) {
                     $orderNo = null;
-                    if (preg_match('/faveo-license-\{(.+)\}\.txt/', $file, $matches)) {
+                    if (preg_match('/faveo-license-\{(.+)}\.txt/', $file, $matches)) {
                         $orderNo = $matches[1];
                     }
 
                     return [
-                        'file_name' => $file,
-                        'order_number' => $orderNo,
-                        'download_url' => url('LocalizedLicense/downloadLicense/'.$file),
+                        'file_name'       => $file,
+                        'order_number'    => $orderNo,
+                        'download_url'    => url('LocalizedLicense/downloadLicense/'.$file),
                         'private_key_url' => url('LocalizedLicense/downloadPrivateKey/'.$file),
                     ];
                 });
 
-            return successResponse('', ['files' => $files]);
+            if ($searchQuery) {
+                $files = $files->filter(fn ($f) =>
+                    str_contains(strtolower($f['file_name'] ?? ''), strtolower($searchQuery)) ||
+                    str_contains(strtolower($f['order_number'] ?? ''), strtolower($searchQuery))
+                )->values();
+            }
+
+            $files = $files->sortBy($sortField, SORT_REGULAR, $sortOrder === 'desc')->values();
+
+            $total     = $files->count();
+            $items     = $files->slice(($page - 1) * $limit, $limit)->values();
+            $paginator = new LengthAwarePaginator($items, $total, $limit, $page, [
+                'path'  => $request->url(),
+                'query' => $request->query(),
+            ]);
+
+            return successResponse('', $paginator);
         } catch (\Exception $exception) {
             return errorResponse($exception->getMessage());
         }

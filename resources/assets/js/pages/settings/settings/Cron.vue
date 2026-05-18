@@ -23,11 +23,17 @@
                                 <span class="fs-5 text-muted fw-bold">* &nbsp;* &nbsp;* &nbsp;* &nbsp;*</span>
                             </div>
                             <div class="col-sm-4">
-                                <select v-if="phpPath !== 'other'" class="form-control" v-model="phpPath">
-                                    <option disabled value="">{{ __('message.specify_php_executable') }}</option>
-                                    <option v-for="path in phpPaths" :key="path" :value="path">{{ path }}</option>
-                                    <option value="other">{{ __('message.other') }}</option>
-                                </select>
+                                <SelectField
+                                    v-if="phpPath !== 'other'"
+                                    name="php_path"
+                                    label=""
+                                    :elements="phpPathOptions"
+                                    :value="phpPathOptions.find(o => o.id === phpPath) ?? null"
+                                    :onChange="(val) => phpPath = val?.id ?? ''"
+                                    :clearable="false"
+                                    :searchable="false"
+                                    :placeholder="__('message.specify_php_executable')"
+                                />
                                 <div v-else class="input-group">
                                     <input type="text" class="form-control" v-model="customPhpPath"
                                            :placeholder="__('message.specify_php_executable')" />
@@ -212,6 +218,11 @@ const phpPath         = ref('')
 const phpPaths        = ref([])
 const customPhpPath   = ref('')
 const execEnabled     = ref(false)
+
+const phpPathOptions = computed(() => [
+    ...phpPaths.value.map(p => ({ id: p, name: p })),
+    { id: 'other', name: __('message.other') },
+])
 
 const cronCommand = computed(() => {
     const path = phpPath.value === 'other' ? customPhpPath.value : phpPath.value

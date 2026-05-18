@@ -1,1 +1,0 @@
-import"./vendor-vue-Doy2YyBQ.js";import{_ as e}from"./chunk-settings-BhzsMR-s.js";import{b4 as o,Z as t,bg as s}from"./vendor-TxH7N0st.js";import"./chunk-products-DMFFF7gm.js";const a={},c={class:"card-wrapper"};function n(r,_){return o(),t("div",c,[s(r.$slots,"default")])}const l=e(a,[["render",n]]);export{l as default};

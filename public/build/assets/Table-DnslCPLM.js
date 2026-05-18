@@ -1,0 +1,1 @@
+import"./vendor-vue-DhQGSFe9.js";import{_ as r}from"./chunk-settings-DE8TZj7m.js";import{b4 as t,Z as o,bg as s}from"./vendor-DFZGHMSo.js";import"./chunk-products-D2TThPZE.js";const a={},c={class:"table-wrapper"};function n(e,l){return t(),o("div",c,[s(e.$slots,"default")])}const m=r(a,[["render",n]]);export{m as default};

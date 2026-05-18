@@ -8,6 +8,7 @@ import { ServerTable } from 'v-tables-3'
 
 import CustomLoader from './components/Reusable/CustomLoader.vue'
 import DatatableActions from './components/Reusable/DatatableActions.vue'
+import StatusSwitch from './components/Reusable/FormField/Switch.vue'
 import mitt from 'mitt'
 
 const el = document.getElementById('app-root')
@@ -36,6 +37,7 @@ import(`./themes/${theme}/index.js`).then(themeModule => {
 
     app.component('custom-loader', CustomLoader)
     app.component('table-actions', DatatableActions)
+    app.component('status-switch', StatusSwitch)
 
     app.use(pinia)
     app.use(router)

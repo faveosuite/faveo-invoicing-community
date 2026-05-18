@@ -26,18 +26,16 @@ const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const apiUrl = `${baseUrl}/social-logins`
 
-const columns = ['type', 'client_id', 'status', 'action']
+const columns = ['type', 'status', 'action']
 
 const tableOptions = reactive({
     headings: {
-        type:      'Type',
-        client_id: 'Client ID / API Key',
-        status:    'Status',
-        action:    'Action',
+        type:   'Type',
+        status: 'Status',
+        action: 'Action',
     },
     templates: {
-        type:      (f, row) => row.type || '—',
-        client_id: (f, row) => row.client_id || '—',
+        type:   (f, row) => row.type || '—',
         status:    (f, row) => h('span', {
             class: row.status ? 'badge bg-success' : 'badge bg-danger',
         }, row.status ? 'Active' : 'Inactive'),

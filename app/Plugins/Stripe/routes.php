@@ -4,6 +4,7 @@ Event::listen(\App\Events\PaymentGateway::class, function ($event) {
     $controller = new App\Plugins\Stripe\Controllers\ProcessController();
     echo $controller->PassToPayment($event->para);
 });
+Route::get('get-stripe-settings', 'App\Plugins\Stripe\Controllers\SettingsController@getSettings');
 Route::get('payment-gateway/stripe', 'App\Plugins\Stripe\Controllers\SettingsController@Settings');
 Route::patch('payment-gateway/stripe', 'App\Plugins\Stripe\Controllers\SettingsController@postSettings');
 Route::post('change-base-currency/payment-gateway/stripe', 'App\Plugins\Stripe\Controllers\SettingsController@changeBaseCurrency');

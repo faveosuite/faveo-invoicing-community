@@ -1,9 +1,9 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-light">
+        <div class="card card-secondary card-outline">
             <div class="card-header">
-                <h4 class="card-title">System Managers</h4>
+                <h3 class="card-title">System Manager Settings</h3>
             </div>
 
             <div v-if="loading" class="card-body text-center py-5">
@@ -12,78 +12,80 @@
 
             <template v-else>
                 <div class="card-body">
-                    <!-- Account Managers -->
-                    <h5 class="fw-bold mb-3">Account Managers</h5>
-                    <div class="row mb-4">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Existing Account Manager</label>
-                            <select class="form-select" v-model="form.existingAccManager">
-                                <option value="">— None —</option>
-                                <option v-for="m in accountManagers" :key="m.id" :value="m.id">
-                                    {{ m.name }} ({{ m.email }})
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">New Account Manager</label>
-                            <DynamicSelect
-                                :apiEndpoint="`${baseUrl}/search-admins`"
-                                searchParam="q"
-                                dataKey="data"
-                                labelKey="name"
-                                valueKey="id"
-                                placeholder="Search admin users..."
-                                :value="form.newAccManager"
-                                @update:value="form.newAccManager = $event"
-                            />
-                        </div>
-                        <div class="col-md-6 mb-3">
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" v-model="form.autoAssignAccount" />
-                                <label class="form-check-label">Auto-assign Account Manager</label>
+                                <input type="checkbox" class="form-check-input" id="autoAssignAccountSwitch" v-model="form.autoAssignAccount" />
+                                <label class="form-check-label" for="autoAssignAccountSwitch">
+                                    <strong>Enable Auto Assignment for Account Managers</strong>
+                                    <small class="text-muted d-block">Automatically assign an account manager to new clients upon creation.</small>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" id="autoAssignSalesSwitch" v-model="form.autoAssignSales" />
+                                <label class="form-check-label" for="autoAssignSalesSwitch">
+                                    <strong>Enable Auto Assignment for Sales Managers</strong>
+                                    <small class="text-muted d-block">Automatically assign a sales manager to new clients upon creation.</small>
+                                </label>
                             </div>
                         </div>
                     </div>
 
-                    <hr />
-
-                    <!-- Sales Managers -->
-                    <h5 class="fw-bold mb-3">Sales Managers</h5>
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Existing Sales Manager</label>
-                            <select class="form-select" v-model="form.existingSaleManager">
-                                <option value="">— None —</option>
-                                <option v-for="m in salesManagers" :key="m.id" :value="m.id">
-                                    {{ m.name }} ({{ m.email }})
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">New Sales Manager</label>
+                        <div class="col-md-6">
                             <DynamicSelect
-                                :apiEndpoint="`${baseUrl}/search-admins`"
-                                searchParam="q"
-                                dataKey="data"
-                                labelKey="name"
-                                valueKey="id"
-                                placeholder="Search admin users..."
-                                :value="form.newSaleManager"
-                                @update:value="form.newSaleManager = $event"
+                                name="existingAccManager"
+                                label="Current Account Manager"
+                                :elements="accountManagers"
+                                :value="form.existingAccManager"
+                                :onChange="(val) => form.existingAccManager = val"
+                                placeholder="Select an option"
                             />
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" v-model="form.autoAssignSales" />
-                                <label class="form-check-label">Auto-assign Sales Manager</label>
-                            </div>
+                        <div class="col-md-6">
+                            <DynamicSelect
+                                name="newAccManager"
+                                label="Select Replacement Account Manager"
+                                :apiEndpoint="`${baseUrl}/search-admins`"
+                                :value="form.newAccManager"
+                                :onChange="(val) => form.newAccManager = val"
+                                placeholder="Search..."
+                            />
                         </div>
                     </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <DynamicSelect
+                                name="existingSaleManager"
+                                label="Current Sales Manager"
+                                :elements="salesManagers"
+                                :value="form.existingSaleManager"
+                                :onChange="(val) => form.existingSaleManager = val"
+                                placeholder="Select an option"
+                            />
+                        </div>
+                        <div class="col-md-6">
+                            <DynamicSelect
+                                name="newSaleManager"
+                                label="Select Replacement Sales Manager"
+                                :apiEndpoint="`${baseUrl}/search-admins`"
+                                :value="form.newSaleManager"
+                                :onChange="(val) => form.newSaleManager = val"
+                                placeholder="Search..."
+                            />
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="card-footer">
                     <button class="btn btn-primary" @click="submit" :disabled="saving">
                         <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
+                        <i v-else class="fas fa-save me-1"></i>
                         Save
                     </button>
                 </div>
@@ -107,11 +109,11 @@ const accountManagers = ref([])
 const salesManagers = ref([])
 
 const form = reactive({
-    existingAccManager: '',
-    newAccManager: '',
+    existingAccManager: null,
+    newAccManager: null,
     autoAssignAccount: false,
-    existingSaleManager: '',
-    newSaleManager: '',
+    existingSaleManager: null,
+    newSaleManager: null,
     autoAssignSales: false,
 })
 
@@ -123,8 +125,6 @@ onMounted(async () => {
         salesManagers.value = d.sales_managers ?? []
         form.autoAssignAccount = d.account_managers_auto_assign ?? false
         form.autoAssignSales = d.sales_managers_auto_assign ?? false
-        if (accountManagers.value.length) form.existingAccManager = accountManagers.value[0].id
-        if (salesManagers.value.length) form.existingSaleManager = salesManagers.value[0].id
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { loading.value = false }
 })
@@ -133,11 +133,11 @@ async function submit() {
     saving.value = true
     try {
         const res = await http.post(`${baseUrl}/updateSystemManager`, {
-            existingAccManager: form.existingAccManager || null,
-            newAccManager: form.newAccManager || null,
+            existingAccManager: form.existingAccManager?.id || null,
+            newAccManager: form.newAccManager?.id || null,
             autoAssignAccount: form.autoAssignAccount ? 1 : 0,
-            existingSaleManager: form.existingSaleManager || null,
-            newSaleManager: form.newSaleManager || null,
+            existingSaleManager: form.existingSaleManager?.id || null,
+            newSaleManager: form.newSaleManager?.id || null,
             autoAssignSales: form.autoAssignSales ? 1 : 0,
         })
         successHandler(res, COMPONENT)

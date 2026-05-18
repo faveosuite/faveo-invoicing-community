@@ -1,99 +1,121 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-light">
+
+        <!-- Queue list -->
+        <div class="card card-secondary card-outline">
             <div class="card-header">
-                <h4 class="card-title">Queue Management</h4>
+                <h4 class="card-title">{{ __('message.queue') }}</h4>
             </div>
-
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
-
-            <template v-else>
-                <div class="card-body">
-                    <!-- Cron command info -->
-                    <div v-if="cronPath" class="alert alert-info mb-4">
-                        <strong>Artisan Path:</strong>
-                        <code class="ms-2">{{ cronPath }}</code>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Queue</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="q in queues" :key="q.id">
-                                    <td>
-                                        <template v-if="q.QueueDetails?.name?.link">
-                                            <a :href="q.QueueDetails.name.link">{{ q.QueueDetails.name.text }}</a>
-                                        </template>
-                                        <template v-else>{{ q.QueueDetails?.name?.text }}</template>
-                                    </td>
-                                    <td>
-                                        <span
-                                            :class="q.QueueDetails?.status?.code === 1 ? 'badge bg-success' : 'badge bg-secondary'"
-                                        >{{ q.QueueDetails?.status?.label }}</span>
-                                    </td>
-                                    <td>
-                                        <button
-                                            v-if="q.QueueDetails?.action?.type !== 'activated'"
-                                            class="btn btn-sm btn-primary"
-                                            :disabled="activating === q.id"
-                                            @click="activate(q.id)"
-                                        >
-                                            <span v-if="activating === q.id" class="spinner-border spinner-border-sm me-1"></span>
-                                            Activate
-                                        </button>
-                                        <span v-else class="text-success fw-bold">
-                                            <i class="fas fa-circle-check me-1"></i>Active
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr v-if="!queues.length">
-                                    <td colspan="3" class="text-center text-muted">No queues found</td>
-                                </tr>
-                            </tbody>
-                        </table>
+            <div class="card-body">
+                <!-- Cron command – only shown when Database queue is active -->
+                <div v-if="activeQueueName === 'Database'" class="card p-3 bg-light mb-3">
+                    <div class="row align-items-center g-2">
+                        <div class="col-sm-2">
+                            <span class="fs-5 text-muted fw-bold">* &nbsp;* &nbsp;* &nbsp;* &nbsp;*</span>
+                        </div>
+                        <div class="col-sm-4">
+                            <SelectField
+                                v-if="phpPath !== 'other'"
+                                name="php_path"
+                                label=""
+                                :elements="phpPathOptions"
+                                :value="phpPathOptions.find(o => o.id === phpPath) ?? null"
+                                :onChange="(val) => phpPath = val?.id ?? ''"
+                                :clearable="false"
+                                :searchable="false"
+                                :placeholder="__('message.specify_php_executable')"
+                            />
+                            <div v-else class="input-group">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    v-model="customPhpPath"
+                                    :placeholder="__('message.specify_php_executable')"
+                                />
+                                <button class="btn btn-outline-secondary" type="button" @click="clearPhpPath">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <code class="text-break" style="color: inherit;">{{ cronCommand }}</code>
+                        </div>
+                        <div class="col-sm-1 text-center">
+                            <span
+                                v-if="!copying"
+                                style="cursor:pointer"
+                                :title="__('message.verify_and_copy_command')"
+                                @click="copyCommand"
+                            >
+                                <i class="far fa-clipboard fa-2x text-secondary"></i>
+                            </span>
+                            <span v-else>
+                                <i class="fas fa-circle-notch fa-spin fa-2x text-secondary"></i>
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </template>
+                <DataTable
+                    ref="dtRef"
+                    :url="apiUrl"
+                    :dataColumns="columns"
+                    :option="tableOptions"
+                />
+            </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { h, ref, computed, reactive } from 'vue'
+import { RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
 const COMPONENT = 'queues'
-const el = document.getElementById('app-root')
+const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
+const apiUrl  = `${baseUrl}/queue/list`
 
-const loading = ref(true)
-const activating = ref(null)
-const cronPath = ref('')
-const queues = ref([])
+const dtRef           = ref(null)
+const activating      = ref(null)
+const copying         = ref(false)
+const cronPath        = ref('')
+const phpPaths        = ref([])
+const phpPath         = ref('')
+const customPhpPath   = ref('')
+const activeQueueName = ref('')
 
-onMounted(async () => {
-    await loadQueues()
+const phpPathOptions = computed(() => [
+    ...phpPaths.value.map(p => ({ id: p, name: p })),
+    { id: 'other', name: __('message.other') },
+])
+
+const cronCommand = computed(() => {
+    const path = phpPath.value === 'other' ? customPhpPath.value : phpPath.value
+    return path
+        ? `${path} -q ${cronPath.value} queue:work`
+        : `${cronPath.value} queue:work`
 })
 
-async function loadQueues() {
-    loading.value = true
+function clearPhpPath() {
+    phpPath.value       = ''
+    customPhpPath.value = ''
+}
+
+async function copyCommand() {
+    const path = phpPath.value === 'other' ? customPhpPath.value : phpPath.value
+    copying.value = true
     try {
-        const res = await http.get(`${baseUrl}/queue/list`)
-        const d = res.data?.data ?? {}
-        cronPath.value = d.cron_path ?? ''
-        queues.value = d.queues?.data ?? []
-    } catch (e) { errorHandler(e, COMPONENT) }
-    finally { loading.value = false }
+        const res = await http.post(`${baseUrl}/verify-php-path`, { path })
+        await navigator.clipboard.writeText(`* * * * * ${cronCommand.value}`)
+        successHandler(res, COMPONENT)
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        copying.value = false
+    }
 }
 
 async function activate(id) {
@@ -101,8 +123,72 @@ async function activate(id) {
     try {
         const res = await http.post(`${baseUrl}/queue/${id}/activate`)
         successHandler(res, COMPONENT)
-        await loadQueues()
-    } catch (e) { errorHandler(e, COMPONENT) }
-    finally { activating.value = null }
+        dtRef.value?.refresh()
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        activating.value = null
+    }
 }
+
+const columns = ['name', 'status', 'action']
+
+const tableOptions = reactive({
+    headings: {
+        name:   __('message.name_page'),
+        status: __('message.status'),
+        action: __('message.action'),
+    },
+    templates: {
+        name: (f, row) => {
+            const id   = row.QueueDetails?.id
+            const link = row.QueueDetails?.name?.link
+            const text = row.QueueDetails?.name?.text ?? '—'
+            if (link && id) return h(RouterLink, { to: `/settings/common/queue/${id}` }, () => text)
+            return text
+        },
+        status: (f, row) => h('span', {
+            class: row.QueueDetails?.status?.code === 1 ? 'btn btn-success btn-sm' : 'btn btn-danger btn-sm',
+            style: 'cursor:default',
+        }, row.QueueDetails?.status?.label ?? '—'),
+        action: (f, row) => {
+            const id         = row.QueueDetails?.id
+            const isActivated = row.QueueDetails?.action?.type === 'activated'
+            const busy        = activating.value === id
+            return h('button', {
+                class:    'btn btn-sm btn-primary',
+                disabled: isActivated || busy,
+                onClick:  () => activate(id),
+            }, busy
+                ? [h('span', { class: 'spinner-border spinner-border-sm me-1' }), __('message.activate')]
+                : [h('i', { class: 'fas fa-check-circle me-1' }), __('message.activate')]
+            )
+        },
+    },
+    sortable:   [],
+    filterable: false,
+    requestAdapter(data) {
+        return {
+            'sort_field':   data.orderBy  ?? 'name',
+            'sort_order':   data.ascending ? 'asc' : 'desc',
+            'search-query': (data.query   ?? '').trim(),
+            page:           data.page,
+            limit:          data.limit,
+        }
+    },
+    responseAdapter({ data }) {
+        const d = data?.data ?? {}
+        cronPath.value        = d.cron_path       ?? ''
+        phpPaths.value        = d.php_paths        ?? []
+        if (!phpPath.value && phpPaths.value.length) phpPath.value = phpPaths.value[0]
+        activeQueueName.value = d.active_queue?.name ?? ''
+        if (activeQueueName.value !== 'Database') clearPhpPath()
+        const queues = d.queues ?? {}
+        return {
+            data:  queues.data  ?? [],
+            count: queues.total ?? queues.data?.length ?? 0,
+        }
+    },
+    orderBy: { column: 'name', ascending: true },
+})
 </script>

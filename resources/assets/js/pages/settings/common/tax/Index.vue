@@ -1,58 +1,76 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
+
+        <!-- Tax Options -->
         <div class="card card-light">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <h4 class="card-title mb-0">Tax</h4>
-                <div>
-                    <button class="btn btn-sm btn-danger me-2" :disabled="!selected.length" @click="bulkDelete">
-                        <i class="fas fa-trash"></i> Delete Selected
-                    </button>
-                    <button class="btn btn-sm btn-success" @click="showCreate = !showCreate">
-                        <i class="fas fa-plus"></i> Add Tax
+            <div class="card-header">
+                <h4 class="card-title">{{ __('message.options') }}</h4>
+            </div>
+            <div v-if="optionsLoading" class="card-body text-center py-4">
+                <span class="spinner-border text-secondary"></span>
+            </div>
+            <template v-else>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <SelectField
+                                name="tax_enable"
+                                :label="__('message.tax-enable')"
+                                :elements="enabledOptions"
+                                :value="enabledOptions.find(o => o.id === options.tax_enable) ?? null"
+                                :onChange="(val) => options.tax_enable = val?.id ?? 0"
+                                :clearable="false"
+                                :searchable="false"
+                            />
+                        </div>
+                        <div class="col-md-4">
+                            <SelectField
+                                name="inclusive"
+                                :label="__('message.prices-entered-with-tax')"
+                                :elements="inclusiveOptions"
+                                :value="inclusiveOptions.find(o => o.id === options.inclusive) ?? null"
+                                :onChange="(val) => options.inclusive = val?.id ?? 0"
+                                :clearable="false"
+                                :searchable="false"
+                            />
+                        </div>
+                        <div class="col-md-4">
+                            <SelectField
+                                name="rounding"
+                                :label="__('message.rounding')"
+                                :elements="enabledOptions"
+                                :value="enabledOptions.find(o => o.id === options.rounding) ?? null"
+                                :onChange="(val) => options.rounding = val?.id ?? 0"
+                                :clearable="false"
+                                :searchable="false"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary" @click="saveOptions" :disabled="savingOptions">
+                        <span v-if="savingOptions" class="spinner-border spinner-border-sm me-1"></span>
+                        <i v-else class="fas fa-save me-1"></i>
+                        {{ __('message.save') }}
                     </button>
                 </div>
-            </div>
+            </template>
+        </div>
 
-            <div v-if="showCreate" class="card-body border-bottom bg-light">
-                <div class="row g-2 align-items-end">
-                    <div class="col-md-2">
-                        <label class="form-label fw-bold">Tax Class *</label>
-                        <select class="form-select form-select-sm" v-model="createForm.name" @change="createForm.rate='';createForm.country='IN';createForm.state=''">
-                            <option value="">— Select —</option>
-                            <option v-for="c in taxClasses" :key="c" :value="c">{{ c }}</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label fw-bold">Tax Name *</label>
-                        <input class="form-control form-control-sm" v-model="createForm['tax-name']" placeholder="Tax name" />
-                    </div>
-                    <template v-if="createForm.name === 'Others'">
-                        <div class="col-md-2">
-                            <label class="form-label fw-bold">Rate *</label>
-                            <input class="form-control form-control-sm" v-model="createForm.rate" type="number" step="0.01" placeholder="0.00" />
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label fw-bold">Country</label>
-                            <select class="form-select form-select-sm" v-model="createForm.country" @change="loadCreateStates">
-                                <option v-for="c in countries" :key="c.id" :value="c.id">{{ c.name }}</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label fw-bold">State</label>
-                            <select class="form-select form-select-sm" v-model="createForm.state">
-                                <option value="">— Any —</option>
-                                <option v-for="s in createStates" :key="s.iso2" :value="s.iso2">{{ s.state_subdivision_name }}</option>
-                            </select>
-                        </div>
-                    </template>
-                    <div class="col-md-auto">
-                        <button class="btn btn-primary btn-sm" @click="createTax" :disabled="creating">
-                            <span v-if="creating" class="spinner-border spinner-border-sm me-1"></span>
-                            Create
-                        </button>
-                        <button class="btn btn-secondary btn-sm ms-2" @click="showCreate = false">Cancel</button>
-                    </div>
+        <!-- Tax Classes -->
+        <div class="card card-light mt-3">
+            <div class="card-header">
+                <h4 class="card-title">{{ __('message.tax_classes') }}</h4>
+                <div class="card-tools">
+                    <RouterLink
+                        to="/settings/common/tax/create"
+                        class="btn btn-tool"
+                        :title="__('message.create')"
+                        v-tooltip
+                    >
+                        <i class="fas fa-plus fw-bold"></i>
+                    </RouterLink>
                 </div>
             </div>
 
@@ -62,65 +80,100 @@
                     :url="apiUrl"
                     :dataColumns="columns"
                     :option="tableOptions"
-                    @row-select="onRowSelect"
-                />
+                >
+                    <template #bulk-actions>
+                        <div v-if="selected.length > 0" class="dropdown">
+                            <button
+                                class="btn btn-sm btn-secondary dropdown-toggle"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                            >
+                                Bulk Action
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <button class="dropdown-item" @click="bulkDelete">
+                                        Delete
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </template>
+                </DataTable>
             </div>
         </div>
+
     </div>
 </template>
 
 <script setup>
-import { h, ref, reactive, onMounted } from 'vue'
+import { h, ref, reactive, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
 const COMPONENT = 'tax-index'
-const el = document.getElementById('app-root')
+const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl = `${baseUrl}/tax-tables`
+const apiUrl  = `${baseUrl}/tax-tables`
 
-const dtRef = ref(null)
-const selected = ref([])
-const showCreate = ref(false)
-const creating = ref(false)
-const taxClasses = ['CGST', 'SGST', 'IGST', 'UTGST', 'Others']
-const countries = ref([])
-const createStates = ref([])
+const dtRef          = ref(null)
+const selected       = ref([])
+const optionsLoading = ref(true)
+const savingOptions  = ref(false)
 
-const createForm = reactive({
-    name: '', 'tax-name': '', rate: '', country: 'IN', state: '',
+const allSelected = computed(() => {
+    const data = dtRef.value?.tableData ?? []
+    return data.length > 0 && data.every(row => selected.value.includes(row.id))
 })
+
+function toggleAll(e) {
+    const data = dtRef.value?.tableData ?? []
+    if (e.target.checked) {
+        const ids = data.map(r => r.id).filter(id => !selected.value.includes(id))
+        selected.value.push(...ids)
+    } else {
+        const ids = data.map(r => r.id)
+        selected.value = selected.value.filter(id => !ids.includes(id))
+    }
+}
+
+const enabledOptions  = [{ id: 1, name: __('message.caps_enabled') }, { id: 0, name: __('message.caps_disabled') }]
+const inclusiveOptions = [{ id: 1, name: __('message.caps_inclusive') }, { id: 0, name: __('message.caps_exclusive') }]
+
+const options = reactive({ tax_enable: 0, inclusive: 0, rounding: 0 })
 
 onMounted(async () => {
     try {
         const res = await http.get(`${baseUrl}/tax-options`)
-        countries.value = Object.entries(res.data?.data?.countries ?? {}).map(([id, name]) => ({ id, name }))
-    } catch (e) { /* countries optional */ }
+        const d   = res.data?.data ?? {}
+        const o   = d.options ?? {}
+        options.tax_enable = o.tax_enable ?? 0
+        options.inclusive  = o.inclusive  ?? 0
+        options.rounding   = o.rounding   ?? 0
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        optionsLoading.value = false
+    }
 })
 
-async function loadCreateStates() {
-    createForm.state = ''
-    createStates.value = []
-    if (!createForm.country) return
+async function saveOptions() {
+    savingOptions.value = true
     try {
-        const res = await http.get(`${baseUrl}/get-state/${createForm.country}`)
-        createStates.value = res.data?.data?.states ?? []
-    } catch (e) { /* ignore */ }
-}
-
-function onRowSelect(ids) { selected.value = ids }
-
-async function createTax() {
-    creating.value = true
-    try {
-        const res = await http.post(`${baseUrl}/create/tax-class`, createForm)
+        const res = await http.post(`${baseUrl}/taxes/option`, {
+            tax_enable: options.tax_enable,
+            inclusive:  options.inclusive,
+            rounding:   options.rounding,
+        })
         successHandler(res, COMPONENT)
-        showCreate.value = false
-        Object.assign(createForm, { name: '', 'tax-name': '', rate: '', country: 'IN', state: '' })
-        dtRef.value?.refresh()
-    } catch (e) { errorHandler(e, COMPONENT) }
-    finally { creating.value = false }
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        savingOptions.value = false
+    }
 }
 
 async function bulkDelete() {
@@ -130,49 +183,55 @@ async function bulkDelete() {
         successHandler(res, COMPONENT)
         selected.value = []
         dtRef.value?.refresh()
-    } catch (e) { errorHandler(e, COMPONENT) }
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    }
 }
 
-const columns = ['select', 'name', 'country', 'state', 'rate', 'tax_class_name', 'action']
+const columns = ['select', 'tax_class_name', 'name', 'country', 'state', 'rate', 'action']
 
 const tableOptions = reactive({
     headings: {
-        select: '',
-        name: 'Name',
-        country: 'Country',
-        state: 'State',
-        rate: 'Rate',
-        tax_class_name: 'Tax Class',
-        action: 'Action',
+        select: () => h('input', {
+            type:     'checkbox',
+            checked:  allSelected.value,
+            onChange: toggleAll,
+        }),
+        tax_class_name: __('message.tax-type'),
+        name:           __('message.name_page'),
+        country:        __('message.country'),
+        state:          __('message.state'),
+        rate:           __('message.rate') + ' (%)',
+        action:         __('message.action'),
     },
     templates: {
         select: (f, row) => h('input', {
-            type: 'checkbox',
-            checked: selected.value.includes(row.id),
+            type:     'checkbox',
+            checked:  selected.value.includes(row.id),
             onChange: (e) => {
                 if (e.target.checked) selected.value = [...selected.value, row.id]
                 else selected.value = selected.value.filter(id => id !== row.id)
             },
         }),
-        name: (f, row) => row.name || '—',
-        country: (f, row) => row.country || '—',
-        state: (f, row) => row.state || '—',
-        rate: (f, row) => row.rate || '—',
         tax_class_name: (f, row) => row.tax_class_name || '—',
+        name:           (f, row) => row.name            || '—',
+        country:        (f, row) => row.country          || '—',
+        state:          (f, row) => row.state            || '—',
+        rate:           (f, row) => row.rate             || '—',
         action: (f, row) => h(RouterLink, {
-            to: `/settings/common/tax/${row.id}/edit`,
+            to:    `/settings/common/tax/${row.id}/edit`,
             class: 'btn btn-light table_btn',
-            title: 'Edit',
+            title: __('message.edit'),
         }, () => h('i', { class: 'fas fa-edit' })),
     },
-    sortable: ['name', 'country', 'rate'],
+    sortable:   ['name', 'country', 'rate'],
     filterable: true,
     requestAdapter(data) {
         return {
-            'sort-field': data.orderBy ?? 'id',
-            'sort-order': data.ascending ? 'asc' : 'desc',
+            'sort-field':   data.orderBy   ?? 'id',
+            'sort-order':   data.ascending ? 'asc' : 'desc',
             'search-query': (data.query ?? '').trim(),
-            page: data.page,
+            page:  data.page,
             limit: data.limit,
         }
     },

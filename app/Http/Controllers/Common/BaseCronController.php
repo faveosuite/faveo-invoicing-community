@@ -202,12 +202,9 @@ class BaseCronController extends Controller
         $product_type = $product->type;
         $expiryDays = ExpiryMailDay::first()->cloud_days;
         //check in the settings
-        $settings = new \App\Model\Common\Setting();
-        $setting = $settings::find(1);
+        $setting = \App\Model\Common\Setting::find(1);
         //template
-        $templates = new \App\Model\Common\Template();
-        $temp_id = $setting->subscription_going_to_end;
-        $template = $templates->where('id', $temp_id)->first();
+        $template = TemplateType::getSelectedTemplate('subscription_going_to_end_mail');
         $data = $template->data;
         $date = date_create($end);
         $end = date_format($date, 'l, F j, Y');
@@ -227,12 +224,7 @@ class BaseCronController extends Controller
             'reply_email' => $setting->company_email,
 
         ];
-        $type = '';
-        if ($template) {
-            $type_id = $template->type;
-            $temp_type = new \App\Model\Common\TemplateType();
-            $type = $temp_type->where('id', $type_id)->first()->name;
-        }
+        $type = $template?->type()->value('name') ?? '';
         $mail = new \App\Http\Controllers\Common\PhpMailController();
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
@@ -254,10 +246,7 @@ class BaseCronController extends Controller
         $mail = new \App\Http\Controllers\Common\PhpMailController();
 
         //template
-        $templates = new \App\Model\Common\Template();
-        $temp_id = TemplateType::where('name', 'auto_subscription_going_to_end')->value('id');
-
-        $template = $templates->where('type', $temp_id)->first();
+        $template = TemplateType::getSelectedTemplate('auto_subscription_going_to_end');
         $data = $template->data;
 
         $date = date_create($end);
@@ -276,12 +265,7 @@ class BaseCronController extends Controller
             'reply_email' => $setting->company_email,
         ];
 
-        $type = '';
-        if ($template) {
-            $type_id = $template->type;
-            $temp_type = new \App\Model\Common\TemplateType();
-            $type = $temp_type->where('id', $type_id)->first()->name;
-        }
+        $type = $template?->type()->value('name') ?? '';
         $from = $setting->email;
         $to = $user->email;
         $subject = $template->name;
@@ -303,10 +287,7 @@ class BaseCronController extends Controller
         $mail = new \App\Http\Controllers\Common\PhpMailController();
 
         //template
-        $templates = new \App\Model\Common\Template();
-        $temp_id = $setting->subscription_over;
-
-        $template = $templates->where('id', $temp_id)->first();
+        $template = TemplateType::getSelectedTemplate('subscription_over_mail');
         $data = $template->data;
 
         $date = date_create($end);
@@ -325,12 +306,7 @@ class BaseCronController extends Controller
             'url' => url('my-orders'),
             'reply_email' => $setting->company_email,
         ];
-        $type = '';
-        if ($template) {
-            $type_id = $template->type;
-            $temp_type = new \App\Model\Common\TemplateType();
-            $type = $temp_type->where('id', $type_id)->first()->name;
-        }
+        $type = $template?->type()->value('name') ?? '';
         $from = $setting->email;
         $to = $user->email;
         $subject = $template->name;

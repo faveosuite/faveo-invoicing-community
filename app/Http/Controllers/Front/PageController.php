@@ -1017,8 +1017,7 @@ class PageController extends Controller
             $set = new \App\Model\Common\Setting();
             $set = $set->findOrFail(1);
 
-            $template_type = TemplateType::where('name', 'contact_us')->value('id');
-            $template = Template::where('type', $template_type)->first();
+            $template = TemplateType::getSelectedTemplate('contact_us');
             $replace = [
                 'name' => $request->input('conName'),
                 'email' => $request->input('email'),
@@ -1032,13 +1031,7 @@ class PageController extends Controller
                 'reply_email' => $request->input('email'),
 
             ];
-            $type = '';
-
-            if ($template) {
-                $type_id = $template->type;
-                $temp_type = new \App\Model\Common\TemplateType();
-                $type = $temp_type->where('id', $type_id)->first()->name;
-            }
+            $type = $template?->type()->value('name') ?? '';
 
             if (emailSendingStatus()) {
                 $mail = new \App\Http\Controllers\Common\PhpMailController();
@@ -1117,8 +1110,7 @@ class PageController extends Controller
             $set = new \App\Model\Common\Setting();
             $set = $set->findOrFail(1);
 
-            $template_type = TemplateType::where('name', 'demo_request')->value('id');
-            $template = Template::where('type', $template_type)->first();
+            $template = TemplateType::getSelectedTemplate('demo_request');
             $replace = [
                 'name' => $request->input('demoname'),
                 'email' => $request->input('demoemail'),
@@ -1132,13 +1124,7 @@ class PageController extends Controller
                 'reply_email' => $request->input('demoemail'),
 
             ];
-            $type = '';
-
-            if ($template) {
-                $type_id = $template->type;
-                $temp_type = new \App\Model\Common\TemplateType();
-                $type = $temp_type->where('id', $type_id)->first()->name;
-            }
+            $type = $template?->type()->value('name') ?? '';
             $product = $request->input('product') != 'online' ? $request->input('product') : 'our product ';
             $templatename = $template->name.' '.'for'.' '.$product;
 

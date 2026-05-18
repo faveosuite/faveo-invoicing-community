@@ -33,34 +33,31 @@ class TemplateController extends Controller
     public function getTemplates(Request $request)
     {
         try {
-            $searchString = $request->input('search-query', '');
-            $sortField = $request->input('sort_field', 'id');
-            $sortOrder = $request->input('sort_order', 'desc');
-            $limit = $request->input('limit', 10);
+            $search    = $request->input('search-query', '');
+            $sortField = $request->input('sort-field', 'name');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $limit     = (int) $request->input('limit', 10);
 
-            $templateData = $this->template
+            $allowedSort = ['name', 'id'];
+            if (! in_array($sortField, $allowedSort)) {
+                $sortField = 'name';
+            }
+
+            $typeNames = TemplateType::pluck('name', 'id');
+
+            $paginated = $this->template
                 ->select('id', 'name', 'type')
-                ->when($searchString, function ($query) use ($searchString) {
-                    $query->where(function ($q) use ($searchString) {
-                        $q->where('name', 'like', "%{$searchString}%")
-                            ->orWhere('type', 'like', "%{$searchString}%");
-                    });
-                })
-                ->orderBy($sortField, $sortOrder)
-                ->simplePaginate($limit);
+                ->when($search, fn ($q) => $q->where('name', 'like', "%{$search}%"))
+                ->orderBy($sortField, $sortOrder === 'desc' ? 'desc' : 'asc')
+                ->paginate($limit);
 
-            $templateData->getCollection()->transform(function ($template) {
-                $typeName = $this->type->where('id', $template->type)->value('name') ?? '';
+            $paginated->getCollection()->transform(fn ($t) => [
+                'id'   => $t->id,
+                'name' => $t->name,
+                'type' => $typeNames[$t->type] ?? '',
+            ]);
 
-                return [
-                    'id' => $template->id,
-                    'name' => $template->name,
-                    'type' => $typeName,
-                    'edit_url' => hyperLinkGenerator("template/edit/{$template->id}", __('message.edit')),
-                ];
-            });
-
-            return successResponse(__('message.templates_fetched_successfully'), $templateData);
+            return successResponse('', $paginated);
         } catch (\Exception $ex) {
             return errorResponse(__('message.something_went_wrong_fetch_templates'));
         }
