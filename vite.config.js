@@ -4,6 +4,7 @@ import laravel from 'laravel-vite-plugin';
 import path from 'path';
 
 export default defineConfig({
+    base: './',
     plugins: [
         laravel({
             input: [
@@ -32,21 +33,7 @@ export default defineConfig({
         manifest: 'manifest.json',
         rollupOptions: {
             output: {
-                manualChunks(id) {
-                    if (
-                        id.includes('/node_modules/vue/') ||
-                        id.includes('/node_modules/vue-router/') ||
-                        id.includes('/node_modules/pinia/')
-                    ) {
-                        return 'vendor-vue';
-                    }
-                    if (id.includes('/node_modules/')) {
-                        return 'vendor';
-                    }
-                    if (id.includes('/pages/settings/')) { return 'chunk-settings'; }
-                    if (id.includes('/pages/products/')) { return 'chunk-products'; }
-                    if (id.includes('/pages/reports/'))  { return 'chunk-reports'; }
-                },
+                manualChunks: undefined,
             },
         },
     },
