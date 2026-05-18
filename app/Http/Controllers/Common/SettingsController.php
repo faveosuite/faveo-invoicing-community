@@ -3,36 +3,36 @@
 namespace App\Http\Controllers\Common;
 
 use App\ApiKey;
+use App\CloudPopUp;
 use App\Email_log;
 use App\EmailValidationResults;
 use App\Facades\Attach;
 use App\Http\Controllers\BillingInstaller\InstallerController;
-use App\CloudPopUp;
 use App\Http\Requests\Common\SettingsRequest;
 use App\Model\CloudDataCenters;
 use App\Model\Common\Country;
-use App\Model\Payment\Plan;
-use App\Model\Product\Product;
 use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\Mailchimp\MailchimpSetting;
+use App\Model\Common\PipedriveGroups;
 use App\Model\Common\Setting;
 use App\Model\Common\State;
-use App\Model\Common\TemplateType;
 use App\Model\Common\StatusSetting;
+use App\Model\Common\TemplateType;
 use App\Model\Github\Github;
 use App\Model\Mailjob\QueueService;
 use App\Model\Order\Order;
 use App\Model\Payment\Currency;
+use App\Model\Payment\Plan;
 use App\Model\Plugin;
+use App\Model\Product\Product;
 use App\Payment_log;
+use App\Plugins\Recaptcha\Model\RecaptchaSetting;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Spatie\Activitylog\Models\Activity;
-use App\Model\Common\PipedriveGroups;
-use App\Plugins\Recaptcha\Model\RecaptchaSetting;
 use Yajra\DataTables\DataTables;
 
 class SettingsController extends BaseSettingsController
@@ -511,12 +511,12 @@ class SettingsController extends BaseSettingsController
         $statusSetting = $this->statusSetting->first();
 
         return successResponse('', [
-            'is_redis_configured'     => (bool) QueueService::where('short_name', 'redis')->value('status'),
-            'is_debug_mode'           => (bool) config('app.debug'),
+            'is_redis_configured' => (bool) QueueService::where('short_name', 'redis')->value('status'),
+            'is_debug_mode' => (bool) config('app.debug'),
             'is_mail_sending_enabled' => (int) Setting::value('sending_status') === 1,
-            'is_msg91_enabled'        => (bool) $statusSetting?->msg91_status,
-            'is_pipedrive_enabled'    => (int) $statusSetting?->pipedrive_status === 1,
-            'is_recaptcha_enabled'    => (int) $statusSetting?->recaptcha_status === 1,
+            'is_msg91_enabled' => (bool) $statusSetting?->msg91_status,
+            'is_pipedrive_enabled' => (int) $statusSetting?->pipedrive_status === 1,
+            'is_recaptcha_enabled' => (int) $statusSetting?->recaptcha_status === 1,
         ]);
     }
 
@@ -524,8 +524,8 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $types = TemplateType::all()->map(fn ($t) => [
-                'id'                   => $t->id,
-                'name'                 => $t->name,
+                'id' => $t->id,
+                'name' => $t->name,
                 'selected_template_id' => $t->selected_template_id,
             ])->values();
 
@@ -680,36 +680,35 @@ class SettingsController extends BaseSettingsController
                 ['key' => 'termsStatus',            'slug' => 'terms',             'name' => \Lang::get('message.terms_heading'),                   'description' => \Lang::get('message.terms_description'),               'enabled' => (bool) optional($status)->terms,                   'route' => '/settings/api/terms'],
                 ['key' => 'pipedrivestatus',        'slug' => 'pipedrive',         'name' => \Lang::get('message.pipedrive_heading'),               'description' => \Lang::get('message.pipedrive_description'),           'enabled' => (bool) optional($status)->pipedrive_status,        'route' => '/settings/api/pipedrive'],
                 ['key' => 'githubstatus',           'slug' => 'github',            'name' => \Lang::get('message.github_heading'),                  'description' => \Lang::get('message.github_description'),              'enabled' => (bool) optional($status)->github_status,           'route' => '/settings/api/github'],
-                ['key' => 'email_validation_status','slug' => 'email-validation',  'name' => \Lang::get('message.email_provider'),                  'description' => \Lang::get('message.email_validation_description'),    'enabled' => (bool) optional($status)->email_validation_status, 'route' => '/settings/api/email-validation'],
-                ['key' => 'mobile_validation_status','slug' => 'mobile-validation','name' => \Lang::get('message.mobile_provider'),                 'description' => \Lang::get('message.mobile_validation_description'),   'enabled' => (bool) optional($status)->mobile_validation_status,'route' => '/settings/api/mobile-validation'],
+                ['key' => 'email_validation_status', 'slug' => 'email-validation',  'name' => \Lang::get('message.email_provider'),                  'description' => \Lang::get('message.email_validation_description'),    'enabled' => (bool) optional($status)->email_validation_status, 'route' => '/settings/api/email-validation'],
+                ['key' => 'mobile_validation_status', 'slug' => 'mobile-validation', 'name' => \Lang::get('message.mobile_provider'),                 'description' => \Lang::get('message.mobile_validation_description'),   'enabled' => (bool) optional($status)->mobile_validation_status, 'route' => '/settings/api/mobile-validation'],
                 ['key' => 'whatsapp_status',        'slug' => 'whatsapp',          'name' => \Lang::get('message.whatsapp_config'),                  'description' => \Lang::get('message.whatsapp_thirdParty_explanation'), 'enabled' => (bool) optional($status)->whatsapp_status,         'route' => '/settings/whatsapp-integration'],
             ];
 
             $search = trim((string) $request->input('search-query', ''));
             if ($search !== '') {
-                $all = array_values(array_filter($all, fn ($m) =>
-                    stripos($m['name'], $search) !== false ||
+                $all = array_values(array_filter($all, fn ($m) => stripos($m['name'], $search) !== false ||
                     stripos($m['description'], $search) !== false
                 ));
             }
 
-            $total   = count($all);
+            $total = count($all);
             $perPage = max(1, (int) $request->input('limit', 10));
-            $page    = max(1, (int) $request->input('page', 1));
-            $offset  = ($page - 1) * $perPage;
-            $items   = array_slice($all, $offset, $perPage);
+            $page = max(1, (int) $request->input('page', 1));
+            $offset = ($page - 1) * $perPage;
+            $items = array_slice($all, $offset, $perPage);
             $lastPage = max(1, (int) ceil($total / $perPage));
-            $base    = $request->url();
+            $base = $request->url();
 
             return successResponse('', [
-                'data'          => $items,
-                'total'         => $total,
-                'per_page'      => $perPage,
-                'current_page'  => $page,
-                'from'          => $total > 0 ? $offset + 1 : null,
-                'to'            => $total > 0 ? min($offset + $perPage, $total) : null,
+                'data' => $items,
+                'total' => $total,
+                'per_page' => $perPage,
+                'current_page' => $page,
+                'from' => $total > 0 ? $offset + 1 : null,
+                'to' => $total > 0 ? min($offset + $perPage, $total) : null,
                 'next_page_url' => $page < $lastPage ? $base.'?page='.($page + 1).'&limit='.$perPage : null,
-                'prev_page_url' => $page > 1        ? $base.'?page='.($page - 1).'&limit='.$perPage : null,
+                'prev_page_url' => $page > 1 ? $base.'?page='.($page - 1).'&limit='.$perPage : null,
             ]);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
@@ -719,21 +718,21 @@ class SettingsController extends BaseSettingsController
     public function getRecaptchaSettings()
     {
         try {
-            $status   = StatusSetting::first();
+            $status = StatusSetting::first();
             $settings = RecaptchaSetting::firstOrCreate([]);
 
             return successResponse('', [
-                'recaptcha_status'  => (bool) optional($status)->recaptcha_status,
-                'captcha_version'   => $settings->captcha_version  ?? 'v2_checkbox',
-                'failover_action'   => $settings->failover_action  ?? 'none',
-                'v3_site_key'       => $settings->v3_site_key      ?? '',
-                'v3_secret_key'     => $settings->v3_secret_key    ?? '',
-                'score_threshold'   => $settings->score_threshold  ?? 0.5,
-                'v2_site_key'       => $settings->v2_site_key      ?? '',
-                'v2_secret_key'     => $settings->v2_secret_key    ?? '',
-                'theme'             => $settings->theme             ?? 'light',
-                'size'              => $settings->size              ?? 'normal',
-                'badge_position'    => $settings->badge_position   ?? 'bottomright',
+                'recaptcha_status' => (bool) optional($status)->recaptcha_status,
+                'captcha_version' => $settings->captcha_version ?? 'v2_checkbox',
+                'failover_action' => $settings->failover_action ?? 'none',
+                'v3_site_key' => $settings->v3_site_key ?? '',
+                'v3_secret_key' => $settings->v3_secret_key ?? '',
+                'score_threshold' => $settings->score_threshold ?? 0.5,
+                'v2_site_key' => $settings->v2_site_key ?? '',
+                'v2_secret_key' => $settings->v2_secret_key ?? '',
+                'theme' => $settings->theme ?? 'light',
+                'size' => $settings->size ?? 'normal',
+                'badge_position' => $settings->badge_position ?? 'bottomright',
             ]);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
@@ -768,13 +767,13 @@ class SettingsController extends BaseSettingsController
                 ->pluck('id', 'group_name');
 
             return successResponse('', [
-                'status'                              => (bool) StatusSetting::value('pipedrive_status'),
-                'pipedrive_key'                       => ApiKey::value('pipedrive_api_key'),
+                'status' => (bool) StatusSetting::value('pipedrive_status'),
+                'pipedrive_key' => ApiKey::value('pipedrive_api_key'),
                 'require_pipedrive_user_verification' => (bool) ApiKey::value('require_pipedrive_user_verification'),
                 'groups' => [
-                    'personId'       => $groups['Person']       ?? null,
+                    'personId' => $groups['Person'] ?? null,
                     'organizationId' => $groups['Organization'] ?? null,
-                    'dealId'         => $groups['Deal']         ?? null,
+                    'dealId' => $groups['Deal'] ?? null,
                 ],
             ]);
         } catch (\Exception $ex) {
@@ -937,22 +936,22 @@ class SettingsController extends BaseSettingsController
 
             $regions = CloudDataCenters::all()
                 ->map(fn ($r) => [
-                    'name'      => implode(', ', array_filter([$r->cloud_city, $r->cloud_state, $r->cloud_countries])),
-                    'latitude'  => (float) $r->latitude,
+                    'name' => implode(', ', array_filter([$r->cloud_city, $r->cloud_state, $r->cloud_countries])),
+                    'latitude' => (float) $r->latitude,
                     'longitude' => (float) $r->longitude,
                 ]);
 
             return successResponse('', [
                 'cloud_central_domain' => optional($cloud)->cloud_central_domain,
-                'cloud_cname'          => optional($cloud)->cloud_cname,
-                'cloud_button'         => (bool) StatusSetting::value('cloud_button'),
-                'cloud_top_message'    => optional($cloudPopUp)->cloud_top_message ?? '',
-                'cloud_label_field'    => optional($cloudPopUp)->cloud_label_field ?? '',
-                'cloud_label_radio'    => optional($cloudPopUp)->cloud_label_radio ?? '',
-                'products'             => $products,
-                'plans'                => $plans,
-                'countries'            => $countries,
-                'regions'              => $regions,
+                'cloud_cname' => optional($cloud)->cloud_cname,
+                'cloud_button' => (bool) StatusSetting::value('cloud_button'),
+                'cloud_top_message' => optional($cloudPopUp)->cloud_top_message ?? '',
+                'cloud_label_field' => optional($cloudPopUp)->cloud_label_field ?? '',
+                'cloud_label_radio' => optional($cloudPopUp)->cloud_label_radio ?? '',
+                'products' => $products,
+                'plans' => $plans,
+                'countries' => $countries,
+                'regions' => $regions,
             ]);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
@@ -1117,7 +1116,7 @@ class SettingsController extends BaseSettingsController
                     'event' => ucfirst($row->event ?? '—'),
                     'description' => $row->description ?? '—',
                     'detailed_properties' => $this->formatProperties($row->properties, $row->event),
-                    'performed_by'    => $row->first_name ? trim($row->first_name.' '.$row->last_name) : __('message.system'),
+                    'performed_by' => $row->first_name ? trim($row->first_name.' '.$row->last_name) : __('message.system'),
                     'performed_by_id' => $row->causer_id ?? null,
                     'email' => $row->email ?? '',
                     'role' => ucfirst($row->user_role ?? '—'),
@@ -1142,7 +1141,7 @@ class SettingsController extends BaseSettingsController
                 ->orderBy('first_name')
                 ->get()
                 ->map(fn ($u) => [
-                    'id'   => $u->id,
+                    'id' => $u->id,
                     'name' => trim($u->first_name.' '.$u->last_name).' <'.$u->email.'>',
                 ]);
 
@@ -1855,11 +1854,11 @@ class SettingsController extends BaseSettingsController
             $thirdPartyApps = \App\ThirdPartyApp::orderBy('app_name')->get(['id', 'app_name']);
 
             return successResponse('', [
-                'msg91_auth_key'    => $apiKey->msg91_auth_key     ?? '',
-                'msg91_sender'      => $apiKey->msg91_sender        ?? '',
-                'msg91_template_id' => $apiKey->msg91_template_id   ?? '',
-                'third_party_id'    => $apiKey->msg91_third_party_id ?? null,
-                'third_party_apps'  => $thirdPartyApps,
+                'msg91_auth_key' => $apiKey->msg91_auth_key ?? '',
+                'msg91_sender' => $apiKey->msg91_sender ?? '',
+                'msg91_template_id' => $apiKey->msg91_template_id ?? '',
+                'third_party_id' => $apiKey->msg91_third_party_id ?? null,
+                'third_party_apps' => $thirdPartyApps,
             ]);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
@@ -1884,24 +1883,24 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $setting = MailchimpSetting::first();
-            $apiKey  = $setting->api_key ?? '';
+            $apiKey = $setting->api_key ?? '';
             $allLists = [];
             $selectedList = $setting->list_id ?? null;
 
             if ($apiKey) {
                 try {
                     $mailchimp = new \Mailchimp\Mailchimp($apiKey);
-                    $allLists  = $mailchimp->get('lists?count=100')['lists'] ?? [];
+                    $allLists = $mailchimp->get('lists?count=100')['lists'] ?? [];
                 } catch (\Exception $e) {
                     // API key invalid or network error — return empty list
                 }
             }
 
             return successResponse('', [
-                'api_key'          => $apiKey,
-                'list_id'          => $selectedList,
+                'api_key' => $apiKey,
+                'list_id' => $selectedList,
                 'subscribe_status' => $setting->subscribe_status ?? 0,
-                'lists'            => array_map(fn ($l) => ['id' => $l['id'], 'name' => $l['name']], $allLists),
+                'lists' => array_map(fn ($l) => ['id' => $l['id'], 'name' => $l['name']], $allLists),
             ]);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
@@ -1930,18 +1929,18 @@ class SettingsController extends BaseSettingsController
                 $provider = EmailMobileValidationProviders::where('type', 'email')->first();
             }
 
-            $statusBits  = [1, 2, 4, 8, 16, 32, 64, 128, 256];
+            $statusBits = [1, 2, 4, 8, 16, 32, 64, 128, 256];
             $statusNames = ['safe', 'catch_all', 'unknown', 'invalid', 'disabled', 'disposable', 'inbox_full', 'role_account', 'spamtrap'];
-            $current     = (int) ($provider->accepted_output ?? 1);
-            $selected    = array_values(array_filter($statusBits, fn ($b) => ($current & $b) === $b));
+            $current = (int) ($provider->accepted_output ?? 1);
+            $selected = array_values(array_filter($statusBits, fn ($b) => ($current & $b) === $b));
 
             return successResponse('', [
-                'provider'        => $provider->provider        ?? 'reoon',
-                'api_key'         => $provider->api_key         ?? '',
-                'mode'            => $provider->mode            ?? 'quick',
+                'provider' => $provider->provider ?? 'reoon',
+                'api_key' => $provider->api_key ?? '',
+                'mode' => $provider->mode ?? 'quick',
                 'accepted_output' => $current,
-                'selected_bits'   => $selected,
-                'status_options'  => array_map(fn ($b, $n) => ['bit' => $b, 'name' => $n], $statusBits, $statusNames),
+                'selected_bits' => $selected,
+                'status_options' => array_map(fn ($b, $n) => ['bit' => $b, 'name' => $n], $statusBits, $statusNames),
             ]);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
@@ -1960,10 +1959,10 @@ class SettingsController extends BaseSettingsController
             }
 
             return successResponse('', [
-                'provider'   => $provider->provider   ?? 'vonage',
-                'api_key'    => $provider->api_key    ?? '',
+                'provider' => $provider->provider ?? 'vonage',
+                'api_key' => $provider->api_key ?? '',
                 'api_secret' => $provider->api_secret ?? '',
-                'mode'       => $provider->mode       ?? 'basic',
+                'mode' => $provider->mode ?? 'basic',
             ]);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());

@@ -43,7 +43,6 @@ class ThirdPartyAppController extends Controller
             $thirdPartyApps = $query->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-
             return successResponse(__('message.third_party_apps_fetched'), [
                 'third_party_apps' => $thirdPartyApps,
                 'total' => $total,
@@ -97,13 +96,13 @@ class ThirdPartyAppController extends Controller
     public function updateThirdPartyApp(Request $request, $id)
     {
         $this->validate($request, [
-            'app_name'   => 'required',
-            'app_key'    => 'required|size:32',
+            'app_name' => 'required',
+            'app_key' => 'required|size:32',
             'app_secret' => 'nullable|string',
         ], [
             'app_name.required' => __('validation.thirdparty_api.app_name_required'),
-            'app_key.required'  => __('validation.thirdparty_api.app_key_required'),
-            'app_key.size'      => __('validation.thirdparty_api.app_key_size'),
+            'app_key.required' => __('validation.thirdparty_api.app_key_required'),
+            'app_key.size' => __('validation.thirdparty_api.app_key_size'),
         ]);
 
         $thirdPartyApp = ThirdPartyApp::findOrFail($id);

@@ -205,18 +205,18 @@ class MSG91Controller extends Controller
                 $fullName = $log->user ? trim($log->user->first_name.' '.$log->user->last_name) : null;
 
                 return [
-                    'request_id'    => $log->request_id,
-                    'user_id'       => $log->user?->id,
+                    'request_id' => $log->request_id,
+                    'user_id' => $log->user?->id,
                     'user_fullname' => $fullName ?: null,
-                    'user_email'    => $log->user?->email,
-                    'status'        => $log->readableStatus?->status_label,
-                    'status_code'   => $log->status,
-                    'source'        => $log->source,
-                    'action'        => $log->action,
+                    'user_email' => $log->user?->email,
+                    'status' => $log->readableStatus?->status_label,
+                    'status_code' => $log->status,
+                    'source' => $log->source,
+                    'action' => $log->action,
                     'failure_reason' => $log->failure_reason,
                     'mobile_number' => $log->mobile_number,
                     'delivery_date' => $log->date,
-                    'created_at'    => $log->created_at?->format('Y-m-d H:i'),
+                    'created_at' => $log->created_at?->format('Y-m-d H:i'),
                 ];
             });
 
@@ -230,9 +230,9 @@ class MSG91Controller extends Controller
     {
         try {
             $statuses = Msg91Status::orderBy('status_label')->pluck('status_label')->filter()->values();
-            $sources  = MsgDeliveryReports::whereNotNull('source')->where('source', '!=', '')
+            $sources = MsgDeliveryReports::whereNotNull('source')->where('source', '!=', '')
                 ->distinct()->orderBy('source')->pluck('source');
-            $actions  = MsgDeliveryReports::whereNotNull('action')->where('action', '!=', '')
+            $actions = MsgDeliveryReports::whereNotNull('action')->where('action', '!=', '')
                 ->distinct()->orderBy('action')->pluck('action');
 
             return successResponse('', compact('statuses', 'sources', 'actions'));

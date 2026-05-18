@@ -481,7 +481,7 @@ Route::middleware('installAgora')->group(function () {
         Route::get('list', [Payment\CurrencyController::class, 'getCurrencyList']);
         Route::post('update-currency', [Payment\CurrencyController::class, 'updatecurrency']);
         Route::post('dashboard-currency/{id}', [Payment\CurrencyController::class, 'setDashboardCurrency']);
-        Route::post('default-currency/{id}',   [Payment\CurrencyController::class, 'setDefaultCurrency']);
+        Route::post('default-currency/{id}', [Payment\CurrencyController::class, 'setDefaultCurrency']);
     });
 
     /*

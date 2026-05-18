@@ -31,7 +31,7 @@ class SettingsController extends Controller
             $stripeKeys = ApiKey::select('stripe_key', 'stripe_secret')->first();
 
             return successResponse('', [
-                'stripe_key'    => $stripeKeys->stripe_key ?? '',
+                'stripe_key' => $stripeKeys->stripe_key ?? '',
                 'stripe_secret' => $stripeKeys->stripe_secret ?? '',
             ]);
         } catch (\Exception $e) {

@@ -138,10 +138,10 @@ class LocalizedLicenseController extends Controller
     {
         try {
             $searchQuery = $request->input('search-query', '');
-            $sortOrder   = $request->input('sort-order', 'asc');
-            $sortField   = $request->input('sort-field', 'file_name');
-            $limit       = (int) $request->input('limit', 10);
-            $page        = (int) $request->input('page', 1);
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'file_name');
+            $limit = (int) $request->input('limit', 10);
+            $page = (int) $request->input('page', 1);
 
             $files = collect(Storage::disk('public')->files())
                 ->filter(fn ($file) => Str::startsWith($file, 'faveo-license'))
@@ -153,26 +153,25 @@ class LocalizedLicenseController extends Controller
                     }
 
                     return [
-                        'file_name'       => $file,
-                        'order_number'    => $orderNo,
-                        'download_url'    => url('LocalizedLicense/downloadLicense/'.$file),
+                        'file_name' => $file,
+                        'order_number' => $orderNo,
+                        'download_url' => url('LocalizedLicense/downloadLicense/'.$file),
                         'private_key_url' => url('LocalizedLicense/downloadPrivateKey/'.$file),
                     ];
                 });
 
             if ($searchQuery) {
-                $files = $files->filter(fn ($f) =>
-                    str_contains(strtolower($f['file_name'] ?? ''), strtolower($searchQuery)) ||
+                $files = $files->filter(fn ($f) => str_contains(strtolower($f['file_name'] ?? ''), strtolower($searchQuery)) ||
                     str_contains(strtolower($f['order_number'] ?? ''), strtolower($searchQuery))
                 )->values();
             }
 
             $files = $files->sortBy($sortField, SORT_REGULAR, $sortOrder === 'desc')->values();
 
-            $total     = $files->count();
-            $items     = $files->slice(($page - 1) * $limit, $limit)->values();
+            $total = $files->count();
+            $items = $files->slice(($page - 1) * $limit, $limit)->values();
             $paginator = new LengthAwarePaginator($items, $total, $limit, $page, [
-                'path'  => $request->url(),
+                'path' => $request->url(),
                 'query' => $request->query(),
             ]);
 
