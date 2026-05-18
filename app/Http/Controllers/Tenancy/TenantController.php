@@ -114,10 +114,10 @@ class TenantController extends Controller
     {
         try {
             $searchQuery = $request->input('search-query', '');
-            $sortOrder   = $request->input('sort-order', 'asc');
-            $sortField   = $request->input('sort-field', 'created_at');
-            $limit       = (int) $request->input('limit', 10);
-            $page        = (int) $request->input('page', 1);
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = (int) $request->input('limit', 10);
+            $page = (int) $request->input('page', 1);
 
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')
                     ->select('app_key', 'app_secret')
@@ -137,27 +137,27 @@ class TenantController extends Controller
             $tenants = collect($data['message'])->reject(fn ($t) => $t === null);
 
             $tenantList = $tenants->map(function ($model) {
-                $order_id     = $this->getOrderId($model['domain']);
+                $order_id = $this->getOrderId($model['domain']);
                 $order_number = $order_id ? Order::select('id', 'number')->find($order_id)?->number : null;
-                $userData     = $this->getUserData($order_id);
-                $subData      = $this->getSubscriptionDataForCloud($order_id);
+                $userData = $this->getUserData($order_id);
+                $subData = $this->getSubscriptionDataForCloud($order_id);
 
                 return [
                     'tenant_id' => $model['id'] ?? null,
-                    'domain'    => $model['domain'] ?? null,
+                    'domain' => $model['domain'] ?? null,
 
                     'database' => [
-                        'name'     => $model['database_name']      ?? null,
+                        'name' => $model['database_name'] ?? null,
                         'username' => $model['database_user_name'] ?? null,
                     ],
 
                     'order' => [
-                        'order_id'     => $order_id,
+                        'order_id' => $order_id,
                         'order_number' => $order_number,
                         'subscription' => $subData['plan'] ?? null,
                     ],
 
-                    'user'  => $userData,
+                    'user' => $userData,
                     'dates' => $subData,
 
                     'links' => [
@@ -166,9 +166,9 @@ class TenantController extends Controller
 
                     'action' => [
                         'delete' => [
-                            'tenant_id'    => $model['id'],
+                            'tenant_id' => $model['id'],
                             'order_number' => $order_number,
-                            'delete_url'   => url("tenants/{$model['id']}/delete"),
+                            'delete_url' => url("tenants/{$model['id']}/delete"),
                         ],
                     ],
                 ];
@@ -183,12 +183,12 @@ class TenantController extends Controller
 
             $tenantList = $tenantList->sortBy($sortField, SORT_REGULAR, $sortOrder)->values();
 
-            $total  = $tenantList->count();
+            $total = $tenantList->count();
             $offset = ($page - 1) * $limit;
-            $items  = $tenantList->slice($offset, $limit)->values();
+            $items = $tenantList->slice($offset, $limit)->values();
 
             $paginator = new LengthAwarePaginator($items, $total, $limit, $page, [
-                'path'  => $request->url(),
+                'path' => $request->url(),
                 'query' => $request->query(),
             ]);
 

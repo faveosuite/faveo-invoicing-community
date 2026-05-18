@@ -300,7 +300,7 @@ class CurrencyController extends Controller
             $currency = Currency::findOrFail($id);
             Setting::where('id', 1)->update([
                 'default_currency' => $currency->code,
-                'default_symbol'   => $currency->symbol,
+                'default_symbol' => $currency->symbol,
             ]);
 
             return successResponse(__('message.updated-successfully'));

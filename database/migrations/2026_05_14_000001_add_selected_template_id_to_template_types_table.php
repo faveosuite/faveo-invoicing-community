@@ -18,17 +18,17 @@ return new class extends Migration
         $setting = DB::table('settings')->find(1);
         if ($setting) {
             $map = [
-                'welcome_mail'                   => $setting->welcome_mail                   ?? null,
-                'forgot_password_mail'           => $setting->forgot_password                ?? null,
-                'subscription_going_to_end_mail' => $setting->subscription_going_to_end      ?? null,
-                'subscription_over_mail'         => $setting->subscription_over              ?? null,
-                'invoice_mail'                   => $setting->invoice                        ?? null,
-                'order_mail'                     => $setting->order_mail                     ?? null,
-                'auto_subscription_going_to_end' => $setting->autosubscription_going_to_end  ?? null,
-                'payment_successfull'            => $setting->payment_successfull            ?? null,
-                'payment_failed'                 => $setting->payment_failed                 ?? null,
-                'cloud_deleted'                  => $setting->cloud_deleted                  ?? null,
-                'cloud_created'                  => $setting->cloud_order                    ?? null,
+                'welcome_mail' => $setting->welcome_mail ?? null,
+                'forgot_password_mail' => $setting->forgot_password ?? null,
+                'subscription_going_to_end_mail' => $setting->subscription_going_to_end ?? null,
+                'subscription_over_mail' => $setting->subscription_over ?? null,
+                'invoice_mail' => $setting->invoice ?? null,
+                'order_mail' => $setting->order_mail ?? null,
+                'auto_subscription_going_to_end' => $setting->autosubscription_going_to_end ?? null,
+                'payment_successfull' => $setting->payment_successfull ?? null,
+                'payment_failed' => $setting->payment_failed ?? null,
+                'cloud_deleted' => $setting->cloud_deleted ?? null,
+                'cloud_created' => $setting->cloud_order ?? null,
             ];
 
             foreach ($map as $typeName => $templateId) {

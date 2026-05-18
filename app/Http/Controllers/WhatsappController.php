@@ -597,11 +597,11 @@ class WhatsappController extends Controller
     public function webhookUrlEdit(Request $request)
     {
         $request->validate([
-            'id'  => 'required|integer|exists:whatsapp_integration_users,id',
+            'id' => 'required|integer|exists:whatsapp_integration_users,id',
             'url' => 'required|string',
         ]);
 
-        $id   = $request->input('id');
+        $id = $request->input('id');
         $user = \Auth::user();
 
         if ($user->role !== 'admin' && (int) $id !== $user->id) {

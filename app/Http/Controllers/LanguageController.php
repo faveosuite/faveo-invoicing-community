@@ -85,10 +85,11 @@ class LanguageController extends Controller
                 ->orderBy($sortField, $sortOrder)
                 ->paginate($limit);
 
-            $defaultLocale  = Setting::value('content') ?: 'en';
-            $result         = $languages->toArray();
+            $defaultLocale = Setting::value('content') ?: 'en';
+            $result = $languages->toArray();
             $result['data'] = array_map(function ($lang) use ($defaultLocale) {
                 $lang['is_default'] = $lang['locale'] === $defaultLocale;
+
                 return $lang;
             }, $result['data']);
 

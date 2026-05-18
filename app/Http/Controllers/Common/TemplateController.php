@@ -33,10 +33,10 @@ class TemplateController extends Controller
     public function getTemplates(Request $request)
     {
         try {
-            $search    = $request->input('search-query', '');
+            $search = $request->input('search-query', '');
             $sortField = $request->input('sort-field', 'name');
             $sortOrder = $request->input('sort-order', 'asc');
-            $limit     = (int) $request->input('limit', 10);
+            $limit = (int) $request->input('limit', 10);
 
             $allowedSort = ['name', 'id'];
             if (! in_array($sortField, $allowedSort)) {
@@ -52,7 +52,7 @@ class TemplateController extends Controller
                 ->paginate($limit);
 
             $paginated->getCollection()->transform(fn ($t) => [
-                'id'   => $t->id,
+                'id' => $t->id,
                 'name' => $t->name,
                 'type' => $typeNames[$t->type] ?? '',
             ]);
