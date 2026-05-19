@@ -120,7 +120,7 @@
                                 <RouterLink to="/pages" class="nav-link"
                                             :class="{ active: isExact('/pages') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.all-pages') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.all_pages') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">
@@ -152,7 +152,7 @@
                                 <RouterLink to="/products" class="nav-link"
                                             :class="{ active: isExact('/products') }"
                                             active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.all_products') }}</p>
+                                    <i class="nav-icon far fa-circle"></i><p>{{ __('message.all-products') }}</p>
                                 </RouterLink>
                             </li>
                             <li class="nav-item">

@@ -3,9 +3,9 @@
         <AppAlert componentName="products-index" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Products</h4>
+                <h4 class="card-title">{{ __('message.products') }}</h4>
                 <div class="card-tools">
-                    <router-link to="/products/create" class="btn btn-tool" title="Add Product" v-tooltip>
+                    <router-link to="/products/create" class="btn btn-tool" :title="__('message.add_product')" v-tooltip>
                         <i class="fas fa-plus"></i>
                     </router-link>
                 </div>
@@ -27,13 +27,13 @@
                                 aria-expanded="false"
                                 :disabled="deleting"
                             >
-                                <span v-if="deleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                <span v-else>Bulk Action</span>
+                                <spinner-loader v-if="deleting" :size="18" />
+                                <span v-else>{{ __('message.bulk_action') }}</span>
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
                                     <button class="dropdown-item" @click="bulkDelete">
-                                        Delete
+                                        {{ __('message.Delete') }}
                                     </button>
                                 </li>
                             </ul>
@@ -103,11 +103,11 @@ const columns = ['select', 'name', 'image', 'license_type', 'group', 'action']
 const tableOptions = reactive({
     headings: {
         select:        () => h('input', { type: 'checkbox', checked: allSelected.value, onChange: toggleAll }),
-        name:          'Name',
-        image:         'Image',
-        license_type:  'License Type',
-        group:         'Group',
-        action:        'Actions',
+        name:          __('message.name'),
+        image:         __('message.image'),
+        license_type:  __('message.license-type'),
+        group:         __('message.group'),
+        action:        __('message.actions'),
     },
 
     templates: {

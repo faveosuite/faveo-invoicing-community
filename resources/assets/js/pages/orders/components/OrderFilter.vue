@@ -1,23 +1,23 @@
 <template>
     <div v-if="show" class="card card-light mb-3">
         <div class="card-header">
-            <h4 class="card-title">Filter</h4>
+            <h4 class="card-title">{{ __('message.filter') }}</h4>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    <label class="form-label fw-bold">Order No</label>
+                    <label class="form-label fw-bold">{{ __('message.order_no') }}</label>
                     <input
                         type="text"
                         class="form-control mb-3"
                         v-model="form.order_no"
-                        placeholder="Exact order number"
+                        :placeholder="__('message.exact_order_number')"
                     />
                 </div>
                 <div class="col-md-4">
                     <DynamicSelect
                         name="product_id"
-                        label="Product"
+                        :label="__('message.product')"
                         :apiEndpoint="`${baseUrl}/dependency/products`"
                         dataKey="products"
                         :value="form.product_id"
@@ -27,10 +27,10 @@
                 <div class="col-md-4">
                     <DatePicker
                         name="from"
-                        label="From"
+                        :label="__('message.from')"
                         :value="form.from"
                         :onChange="(val) => form.from = val"
-                        placeholder="Select date"
+                        :placeholder="__('message.select_date')"
                     />
                 </div>
             </div>
@@ -38,14 +38,14 @@
                 <div class="col-md-4">
                     <DatePicker
                         name="till"
-                        label="To"
+                        :label="__('message.to')"
                         :value="form.till"
                         :onChange="(val) => form.till = val"
-                        placeholder="Select date"
+                        :placeholder="__('message.select_date')"
                     />
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label fw-bold">Domain</label>
+                    <label class="form-label fw-bold">{{ __('message.domain') }}</label>
                     <input
                         type="text"
                         class="form-control mb-3"
@@ -56,11 +56,11 @@
                 <div class="col-md-4">
                     <DynamicSelect
                         name="act_ins"
-                        label="Installations"
+                        :label="__('message.installations')"
                         :elements="installationOptions"
                         :value="form.act_ins"
                         :onChange="(val) => form.act_ins = val"
-                        placeholder="Choose"
+                        :placeholder="__('message.choose')"
                     />
                 </div>
             </div>
@@ -68,36 +68,30 @@
                 <div class="col-md-4">
                     <DynamicSelect
                         name="renewal"
-                        label="Subscriptions"
+                        :label="__('message.subscriptions')"
                         :elements="subscriptionOptions"
                         :value="form.renewal"
                         :onChange="(val) => form.renewal = val"
-                        placeholder="Choose"
+                        :placeholder="__('message.choose')"
                     />
                 </div>
                 <div class="col-md-4">
                     <DynamicSelect
                         name="version"
-                        label="Version"
+                        :label="__('message.version')"
                         :apiEndpoint="`${baseUrl}/dependency/order-versions`"
                         dataKey="versions"
                         :value="form.version"
                         :onChange="(val) => form.version = val"
-                        placeholder="Choose"
+                        :placeholder="__('message.choose')"
                     />
                 </div>
             </div>
         </div>
         <div class="card-footer d-flex gap-2">
-            <button class="btn btn-primary" type="button" @click="apply">
-                <i class="fas fa-check"></i>&nbsp; Apply
-            </button>
-            <button class="btn btn-primary" type="button" @click="reset">
-                <i class="fas fa-rotate-left"></i>&nbsp; Reset
-            </button>
-            <button class="btn btn-secondary" type="button" @click="$emit('close')">
-                <i class="fas fa-xmark"></i>&nbsp; Cancel
-            </button>
+            <action-button action="apply" type="button" @click="apply" />
+            <action-button action="reset" type="button" @click="reset" />
+            <action-button action="cancel" type="button" @click="$emit('close')" />
         </div>
     </div>
 </template>
@@ -113,16 +107,16 @@ const props = defineProps({
 const emit = defineEmits(['apply', 'reset', 'close'])
 
 const installationOptions = [
-    { id: 'installed',         name: 'Installed (at least once)' },
-    { id: 'not_installed',     name: 'Not Installed' },
-    { id: 'paid_ins',          name: 'Active Installation' },
-    { id: 'paid_inactive_ins', name: 'Inactive Installation' },
+    { id: 'installed',         name: __('message.installed_at_least_once') },
+    { id: 'not_installed',     name: __('message.not_installed') },
+    { id: 'paid_ins',          name: __('message.active_installation') },
+    { id: 'paid_inactive_ins', name: __('message.inactive_installation') },
 ]
 
 const subscriptionOptions = [
-    { id: 'active_subscription',   name: 'Active' },
-    { id: 'expiring_subscription', name: 'Expiring (within 30 days)' },
-    { id: 'expired_subscription',  name: 'Expired' },
+    { id: 'active_subscription',   name: __('message.active') },
+    { id: 'expiring_subscription', name: __('message.expiring_subscription') },
+    { id: 'expired_subscription',  name: __('message.expired') },
 ]
 
 const empty = () => ({

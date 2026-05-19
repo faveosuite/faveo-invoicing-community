@@ -384,7 +384,7 @@ $json = json_encode($data);
                                         ?>
 
                                   <td class="border-top-0" style="color: indianred">
-                                                        <strong class="d-block text-color-dark line-height-1 font-weight-semibold">{{ __('message.amount_pending') }}
+                                                        <strong class="d-block text-color-dark line-height-1 font-weight-semibold">{{ __('message.balance') }}
                                                         </strong></td>
                                    <td class="text-end align-top border-top-0">
                                                         <span class="amount font-weight-medium text-color-grey">
@@ -625,7 +625,7 @@ $json = json_encode($data);
 
                                     <tr class="total">
                                         <td class="border-top-0">
-                                            <strong class="d-block text-color-dark line-height-1 font-weight-semibold">{{ __('message.amount_pending') }}</strong>
+                                            <strong class="d-block text-color-dark line-height-1 font-weight-semibold">{{ __('message.balance') }}</strong>
                                         </td>
                                             <td class="border-top-0 text-end">
                                             <span class="amount font-weight-medium">
@@ -639,7 +639,7 @@ $json = json_encode($data);
                                     @if(\App\User::where('id',\Auth::user()->id)->value('billing_pay_balance'))
                                         <tr class="cart-subtotal" style="color: indianred">
                                              <td class="border-top-0">
-                                            <strong class="text-color-dark">{{ __('message.amount_pending') }}</strong>
+                                            <strong class="text-color-dark">{{ __('message.balance') }}</strong>
 
                                             </td>
                                               <td class="border-top-0 text-end">

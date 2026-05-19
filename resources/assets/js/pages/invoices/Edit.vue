@@ -2,16 +2,14 @@
     <div>
         <AppAlert componentName="invoices-edit" />
         
-        <div v-if="loading" class="text-center py-5">
-            <span class="spinner-border text-secondary"></span>
-        </div>
+        <inline-loader v-if="loading" />
 
         <div v-else class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Edit Invoice: #{{ invoice?.number }}</h4>
+                <h4 class="card-title">{{ __('message.edit_invoice') }}: #{{ invoice?.number }}</h4>
                 <div class="card-tools">
-                    <router-link to="/invoices" class="btn btn-tool" title="Back to Invoices" v-tooltip>
-                        <i class="fas fa-arrow-left"></i> Back
+                    <router-link to="/invoices" class="btn btn-tool" :title="__('message.back_to_invoices')" v-tooltip>
+                        <i class="fas fa-arrow-left"></i> {{ __('message.back') }}
                     </router-link>
                 </div>
             </div>
@@ -23,7 +21,7 @@
                         <div class="col-md-4 mb-3">
                             <DatePicker
                                 name="date"
-                                label="Date"
+                                :label="__('message.date')"
                                 :value="form.date"
                                 :onChange="(val) => { form.date = val; errors.date = null; }"
                                 placeholder="MM/DD/YYYY"
@@ -33,7 +31,7 @@
 
                         <!-- Invoice Total -->
                         <div class="col-md-4 mb-3">
-                            <label class="form-label fw-bold">Invoice Total</label>
+                            <label class="form-label fw-bold">{{ __('message.invoice-total') }}</label>
                             <input
                                 type="text"
                                 class="form-control"
@@ -45,22 +43,19 @@
 
                         <!-- Status -->
                         <div class="col-md-4 mb-3">
-                            <label class="form-label fw-bold">Status</label>
+                            <label class="form-label fw-bold">{{ __('message.status') }}</label>
                             <select class="form-select" v-model="form.status" @change="errors.status = null">
-                                <option value="">Choose</option>
-                                <option value="success">Success</option>
-                                <option value="pending">Pending</option>
-                                <option value="Partially paid">Partially Paid</option>
+                                <option value="">{{ __('message.choose') }}</option>
+                                <option value="success">{{ __('message.success') }}</option>
+                                <option value="pending">{{ __('message.pending') }}</option>
+                                <option value="Partially paid">{{ __('message.partially_paid') }}</option>
                             </select>
                             <span v-if="errors.status" class="text-danger small">{{ errors.status[0] }}</span>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2 mt-3">
-                        <button type="submit" class="btn btn-primary" :disabled="saving">
-                            <span v-if="saving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            <i v-else class="fas fa-floppy-disk"></i>&nbsp; Update
-                        </button>
+                        <action-button action="update" type="submit" :loading="saving" />
                     </div>
                 </form>
             </div>

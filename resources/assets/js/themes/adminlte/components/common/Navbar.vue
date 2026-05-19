@@ -49,9 +49,7 @@
                         </li>
 
                         <li v-if="loadingLangs" class="d-flex justify-content-center py-2">
-                            <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                <span class="visually-hidden">{{__('message.loading')}}</span>
-                            </div>
+                            <spinner-loader :size="18" />
                         </li>
                     </ul>
                 </li>
@@ -173,8 +171,8 @@ async function loadLanguages() {
         const { data } = await http.get('languages', {
             params: { 'sort-order': 'asc', limit: LIMIT, page: page.value },
         })
-        const batch           = data?.data?.languages?.data ?? []
-        const defaultLocale   = data?.data?.default_language
+        const batch         = data?.data?.data ?? []
+        const defaultLocale = batch.find(l => l.is_default)?.locale
         languages.value.push(...batch)
         hasMore.value = batch.length === LIMIT
         page.value++
@@ -212,6 +210,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.nav-link.btn-link {
+  color: inherit;
+}
+
 .lang-dropdown {
     max-height: 300px;
     overflow-y: auto;

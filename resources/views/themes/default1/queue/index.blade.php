@@ -69,7 +69,7 @@
                  <table id="products-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
                     
                     <thead><tr>
-                            <th>{{ __('message.name_page') }}</th>
+                            <th>{{ __('message.name') }}</th>
                             <th>{{ __('message.status') }}</th>
                             <th>{{ __('message.action') }}</th>
                         </tr></thead>
@@ -133,7 +133,7 @@
                 infoEmpty:      "{{ __('message.info_empty') }}",
                 infoFiltered:   "{{ __('message.info_filtered') }}",
                 lengthMenu:     "{{ __('message.sLengthMenu') }}",
-                loadingRecords: "{{ __('message.loading_records') }}",
+                loadingRecords: "{{ __('message.loading') }}",
             },
 
             columnDefs: [

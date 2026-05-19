@@ -35,6 +35,7 @@
     "vite": "^7.3.1"
   },
   "dependencies": {
+    "@aacassandra/vue3-progressbar": "^1.0.3",
     "@tinymce/tinymce-vue": "^6.3.0",
     "@vueform/toggle": "^2.1.4",
     "axios": "^1.13.5",

@@ -3,41 +3,41 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-secondary card-outline">
             <div class="card-header">
-                <h4 class="card-title">Create Plan</h4>
+                <h4 class="card-title">{{ __('message.create_product_plan') }}</h4>
             </div>
 
             <div class="card-body">
                 <!-- Row 1: Name / Product / Period / Status -->
                 <div class="row">
                     <div class="col-md-3">
-                        <TextField name="name" label="Name *" :value="form.name" :onChange="onChange" />
+                        <TextField name="name" :label="__('message.name') + ' *'" :value="form.name" :onChange="onChange" />
                     </div>
                     <div class="col-md-3">
                         <DynamicSelect
                             name="product"
-                            label="Product *"
+                            :label="__('message.product') + ' *'"
                             :apiEndpoint="`${baseUrl}/dependency/products`"
                             dataKey="products"
                             :value="form.productObj"
                             :onChange="onChange"
-                            placeholder="Select product"
+                            :placeholder="__('message.choose')"
                         />
                     </div>
                     <div class="col-md-3">
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Period</label>
+                            <label class="form-label fw-bold">{{ __('message.period') }}</label>
                             <select class="form-select" v-model="form.days">
-                                <option value="">Choose</option>
+                                <option value="">{{ __('message.choose') }}</option>
                                 <option v-for="p in periods" :key="p.id" :value="p.id">{{ p.name }}</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Status *</label>
+                            <label class="form-label fw-bold">{{ __('message.status') }} *</label>
                             <select class="form-select" v-model="form.status">
-                                <option :value="1">Active</option>
-                                <option :value="0">Inactive</option>
+                                <option :value="1">{{ __('message.active') }}</option>
+                                <option :value="0">{{ __('message.inactive') }}</option>
                             </select>
                         </div>
                     </div>
@@ -46,23 +46,23 @@
                 <!-- Agents / Quantity -->
                 <div class="row">
                     <div class="col-md-3">
-                        <TextField name="no_of_agents" label="No of Agents" type="number" :value="form.no_of_agents" :onChange="onChange" />
+                        <TextField name="no_of_agents" :label="__('message.agent')" type="number" :value="form.no_of_agents" :onChange="onChange" />
                     </div>
                     <div class="col-md-3">
-                        <TextField name="product_quantity" label="Product Quantity" type="number" :value="form.product_quantity" :onChange="onChange" />
+                        <TextField name="product_quantity" :label="__('message.product_quantity')" type="number" :value="form.product_quantity" :onChange="onChange" />
                     </div>
                 </div>
 
                 <!-- Pricing Table -->
                 <div class="mt-3">
-                    <label class="form-label fw-bold">Pricing</label>
+                    <label class="form-label fw-bold">{{ __('message.pricing') }}</label>
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th>Currency *</th>
-                                <th>Price *</th>
-                                <th>Offer Price (%)</th>
-                                <th>Renew Price *</th>
+                                <th>{{ __('message.currency') }} *</th>
+                                <th>{{ __('message.price') }} *</th>
+                                <th>{{ __('message.offer_price') }} (%)</th>
+                                <th>{{ __('message.renew-price') }} *</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -70,7 +70,7 @@
                             <tr v-for="(row, idx) in form.prices" :key="idx">
                                 <td>
                                     <select class="form-select form-select-sm" v-model="row.currency">
-                                        <option value="">Choose</option>
+                                        <option value="">{{ __('message.choose') }}</option>
                                         <option v-for="c in currencies" :key="c.id" :value="c.id">{{ c.name }}</option>
                                     </select>
                                 </td>
@@ -92,17 +92,14 @@
                         </tbody>
                     </table>
                     <button class="btn btn-sm btn-secondary" @click="addRow" type="button">
-                        <i class="fas fa-plus me-1"></i>Add Currency
+                        <i class="fas fa-plus me-1"></i>{{ __('message.add_currency') }}
                     </button>
                 </div>
             </div>
 
             <div class="card-footer">
-                <button class="btn btn-primary" @click="submit" :disabled="saving">
-                    <span v-if="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                    Save
-                </button>
-                <router-link to="/products/plans" class="btn btn-secondary ms-2">Cancel</router-link>
+                <action-button action="save" :loading="saving" @click="submit" />
+                <action-button action="cancel" to="/products/plans" class="ms-2" />
             </div>
         </div>
     </div>

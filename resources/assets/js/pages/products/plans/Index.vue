@@ -3,9 +3,9 @@
         <AppAlert componentName="plans-index" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Plans</h4>
+                <h4 class="card-title">{{ __('message.plans') }}</h4>
                 <div class="card-tools">
-                    <router-link to="/products/plans/create" class="btn btn-tool" title="Create Plan" v-tooltip>
+                    <router-link to="/products/plans/create" class="btn btn-tool" :title="__('message.create_product_plan')" v-tooltip>
                         <i class="fas fa-plus"></i>
                     </router-link>
                 </div>
@@ -26,12 +26,12 @@
                                 data-bs-toggle="dropdown"
                                 :disabled="deleting"
                             >
-                                <span v-if="deleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                <span v-else>Bulk Action</span>
+                                <spinner-loader v-if="deleting" :size="18" />
+                                <span v-else>{{ __('message.bulk_action') }}</span>
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <button class="dropdown-item" @click="bulkDelete">Delete</button>
+                                    <button class="dropdown-item" @click="bulkDelete">{{ __('message.Delete') }}</button>
                                 </li>
                             </ul>
                         </div>
@@ -98,11 +98,11 @@ const columns = ['select', 'name', 'product', 'period', 'currencies', 'action']
 const tableOptions = reactive({
     headings: {
         select:     () => h('input', { type: 'checkbox', checked: allSelected.value, onChange: toggleAll }),
-        name:       'Name',
-        product:    'Product',
-        period:     'Period',
-        currencies: 'Currencies',
-        action:     'Actions',
+        name:       __('message.name'),
+        product:    __('message.product'),
+        period:     __('message.period'),
+        currencies: __('message.currency'),
+        action:     __('message.actions'),
     },
     templates: {
         select:     (f, row) => h('input', { type: 'checkbox', checked: selectedPlans.value.includes(row.id), onChange: () => toggleRow(row.id) }),
@@ -110,13 +110,14 @@ const tableOptions = reactive({
         product:    (f, row) => row.product || '—',
         period:     (f, row) => row.period || '—',
         currencies: (f, row) => (row.currencies ?? []).join(', ') || '—',
-        action:     (f, row) => h(RouterLink, { to: `/products/plans/${row.id}/edit`, class: 'btn btn-light table_btn', title: 'Edit' }, () => h('i', { class: 'fas fa-edit' })),
+        action:     (f, row) => h(RouterLink, { to: `/products/plans/${row.id}/edit`, class: 'btn btn-light table_btn', title: __('message.edit') }, () => h('i', { class: 'fas fa-edit' })),
     },
     sortable: ['name', 'product', 'period'],
     filterable: true,
     requestAdapter(data) {
+        const columnMap = { period: 'days' }
         return {
-            'sort-field':   data.orderBy ?? 'created_at',
+            'sort-field':   columnMap[data.orderBy] ?? data.orderBy ?? 'created_at',
             'sort-order':   data.ascending ? 'asc' : 'desc',
             'search-query': (data.query ?? '').trim(),
             page:           data.page,

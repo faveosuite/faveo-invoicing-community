@@ -124,7 +124,7 @@
                     required: "{{ __('message.renew_plan') }}"
                 },
                 payment_method: {
-                    required: "{{ __('message.renew_payment_method') }}"
+                    required: "{{ __('message.payment_method') }}"
                 },
                 cost: {
                     required: "{{ __('message.renew_price') }}",

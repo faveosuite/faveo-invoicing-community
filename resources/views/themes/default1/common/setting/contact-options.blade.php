@@ -47,7 +47,7 @@
                 <div class="form-group row" id="preference_group">
                     <label for="preferred_verification" class="col-sm-4 col-form-label">{{ __('message.preferred_verification') }}</label>
                     <div class="col-sm-8">
-                        {!! html()->select('preferred_verification')->options(['' => __('message.select'),'email' => __('message.email_first'),'mobile' => __('message.mobile_first'),])->class('form-control')->id('preferred_verification')->value($preferred_verification) !!}
+                        {!! html()->select('preferred_verification')->options(['' => __('message.Select'),'email' => __('message.email_first'),'mobile' => __('message.mobile_first'),])->class('form-control')->id('preferred_verification')->value($preferred_verification) !!}
                     </div>
                 </div>
             </div>

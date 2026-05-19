@@ -2,34 +2,34 @@
     <div class="d-flex gap-1">
         <button
             class="btn btn-light table_btn"
-            :title="isDefault ? 'Cannot disable the default currency' : isDashboard ? 'Cannot disable a dashboard currency' : (status ? 'Disable' : 'Enable')"
+            :title="isDefault ? __('message.cannot_disable_default_currency') : isDashboard ? __('message.cannot_disable_dashboard_currency') : (status ? __('message.disable') : __('message.enable'))"
             :disabled="toggling || isDefault || isDashboard"
             v-tooltip
             @click="emit('toggle')"
         >
-            <span v-if="toggling" class="spinner-border spinner-border-sm"></span>
+            <spinner-loader v-if="toggling" :size="18" />
             <i v-else :class="status ? 'fas fa-toggle-on text-success' : 'fas fa-toggle-off text-danger'"></i>
         </button>
         <button
             v-if="!isDefault && status"
             class="btn btn-light table_btn"
-            title="Set as Default Currency"
+            :title="__('message.set_as_default_currency')"
             :disabled="settingDefault"
             v-tooltip
             @click="emit('set-default')"
         >
-            <span v-if="settingDefault" class="spinner-border spinner-border-sm"></span>
+            <spinner-loader v-if="settingDefault" :size="18" />
             <i v-else class="fas fa-star"></i>
         </button>
         <button
             v-if="status && !isDashboard"
             class="btn btn-light table_btn"
-            title="Set as Dashboard Currency"
+            :title="__('message.set_as_dashboard_currency')"
             :disabled="settingDashboard"
             v-tooltip
             @click="emit('set-dashboard')"
         >
-            <span v-if="settingDashboard" class="spinner-border spinner-border-sm"></span>
+            <spinner-loader v-if="settingDashboard" :size="18" />
             <i v-else class="fas fa-chart-bar"></i>
         </button>
     </div>

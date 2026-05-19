@@ -34,7 +34,7 @@
                             <ul class="dropdown-menu">
                                 <li>
                                     <button class="dropdown-item" @click="bulkDelete">
-                                        {{ __('message.delete') }}
+                                        {{ __('message.Delete') }}
                                     </button>
                                 </li>
                             </ul>
@@ -114,7 +114,7 @@ const tableOptions = reactive({
             checked: allSelected.value,
             onChange: toggleAll,
         }),
-        name:   __('message.name_page'),
+        name:   __('message.name'),
         action: __('message.action'),
     },
     templates: {
@@ -132,7 +132,7 @@ const tableOptions = reactive({
             }, () => h('i', { class: 'fas fa-edit' })),
             h('button', {
                 class:   'btn btn-light table_btn',
-                title:   __('message.delete'),
+                title:   __('message.Delete'),
                 onClick: () => deleteRow(row.id),
             }, h('i', { class: 'fas fa-trash' })),
         ]),

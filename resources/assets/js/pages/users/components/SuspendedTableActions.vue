@@ -2,18 +2,18 @@
     <div class="user-table-actions">
         <button
             class="btn btn-light table_btn"
-            title="Restore"
+            :title="__('message.restore')"
             v-tooltip
             :disabled="restoring"
             @click="restore"
         >
-            <span v-if="restoring" class="spinner-border spinner-border-sm"></span>
+            <spinner-loader v-if="restoring" :size="18" />
             <i v-else class="fas fa-rotate-left"></i>
         </button>
 
         <button
             class="btn btn-light table_btn"
-            title="Delete"
+            :title="__('message.Delete')"
             v-tooltip
             @click="showModal = true"
         >

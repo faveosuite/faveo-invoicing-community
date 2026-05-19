@@ -3,12 +3,10 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">reCAPTCHA Configuration</h4>
+                <h4 class="card-title">{{ __('message.recaptcha_configuration') }}</h4>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
@@ -16,14 +14,14 @@
                     <!-- General Configuration -->
                     <div class="card card-light mb-3">
                         <div class="card-header">
-                            <h4 class="card-title">General</h4>
+                            <h4 class="card-title">{{ __('message.general') }}</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <SelectField
                                         name="captcha_version"
-                                        label="reCAPTCHA Version"
+                                        :label="__('message.recaptcha_version')"
                                         :elements="versionOptions"
                                         :value="selectedVersion"
                                         :onChange="(val) => form.captcha_version = val?.id ?? 'v2_checkbox'"
@@ -34,7 +32,7 @@
                                 <div class="col-md-6 mb-3" v-show="isV3">
                                     <SelectField
                                         name="failover_action"
-                                        label="Failover Action"
+                                        :label="__('message.failover_action')"
                                         :elements="failoverOptions"
                                         :value="selectedFailover"
                                         :onChange="(val) => form.failover_action = val?.id ?? 'none'"
@@ -49,33 +47,33 @@
                     <!-- v3 Settings -->
                     <div class="card card-light mb-3" v-show="isV3">
                         <div class="card-header">
-                            <h4 class="card-title">reCAPTCHA v3 Settings</h4>
+                            <h4 class="card-title">{{ __('message.recaptcha_v3_settings') }}</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <TextField
                                         name="v3_site_key"
-                                        label="v3 Site Key"
+                                        :label="__('message.v3_site_key')"
                                         :value="form.v3_site_key"
-                                        placeholder="Enter your reCAPTCHA v3 site key"
+                                        :placeholder="__('message.enter_v3_site_key')"
                                         :onChange="(val, key) => form[key] = val"
                                     />
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <TextField
                                         name="v3_secret_key"
-                                        label="v3 Secret Key"
+                                        :label="__('message.v3_secret_key')"
                                         type="password"
                                         :value="form.v3_secret_key"
-                                        placeholder="Enter your reCAPTCHA v3 secret key"
+                                        :placeholder="__('message.enter_v3_secret_key')"
                                         :onChange="(val, key) => form[key] = val"
                                     />
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <TextField
                                         name="score_threshold"
-                                        label="v3 Score Threshold (0.0 – 1.0)"
+                                        :label="__('message.v3_score_threshold')"
                                         type="number"
                                         :value="form.score_threshold"
                                         :onChange="(val, key) => form[key] = parseFloat(val)"
@@ -84,7 +82,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">v3 Preview</label>
+                                    <label class="form-label fw-bold">{{ __('message.recaptcha_v3') }} {{ __('message.preview') }}</label>
                                     <div class="border rounded p-3 bg-light" style="min-height: 60px;">
                                         <div id="v3_response"></div>
                                     </div>
@@ -96,33 +94,33 @@
                     <!-- v2 Settings -->
                     <div class="card card-light mb-3" v-show="isV2">
                         <div class="card-header">
-                            <h4 class="card-title">reCAPTCHA v2 Settings</h4>
+                            <h4 class="card-title">{{ __('message.recaptcha_v2_settings') }}</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <TextField
                                         name="v2_site_key"
-                                        label="v2 Site Key"
+                                        :label="__('message.v2_site_key')"
                                         :value="form.v2_site_key"
-                                        placeholder="Enter your reCAPTCHA v2 site key"
+                                        :placeholder="__('message.enter_v2_site_key')"
                                         :onChange="(val, key) => form[key] = val"
                                     />
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <TextField
                                         name="v2_secret_key"
-                                        label="v2 Secret Key"
+                                        :label="__('message.v2_secret_key')"
                                         type="password"
                                         :value="form.v2_secret_key"
-                                        placeholder="Enter your reCAPTCHA v2 secret key"
+                                        :placeholder="__('message.enter_v2_secret_key')"
                                         :onChange="(val, key) => form[key] = val"
                                     />
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">v2 Preview</label>
+                                    <label class="form-label fw-bold">{{ __('message.recaptcha_v2') }} {{ __('message.preview') }}</label>
                                     <div class="border rounded p-3 bg-light" style="min-height: 100px;">
                                         <div id="v2_response"></div>
                                     </div>
@@ -134,40 +132,40 @@
                     <!-- Appearance -->
                     <div class="card card-light mb-0">
                         <div class="card-header">
-                            <h4 class="card-title">Appearance</h4>
+                            <h4 class="card-title">{{ __('message.appearance') }}</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6 mb-3" v-show="isV2Checkbox">
-                                    <label class="form-label fw-bold">Theme</label>
+                                    <label class="form-label fw-bold">{{ __('message.theme') }}</label>
                                     <div class="d-flex gap-3 mt-1">
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" id="theme_light" value="light" v-model="form.theme" />
-                                            <label class="form-check-label" for="theme_light">Light</label>
+                                            <label class="form-check-label" for="theme_light">{{ __('message.theme_light') }}</label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" id="theme_dark" value="dark" v-model="form.theme" />
-                                            <label class="form-check-label" for="theme_dark">Dark</label>
+                                            <label class="form-check-label" for="theme_dark">{{ __('message.theme_dark') }}</label>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3" v-show="isV2Checkbox">
-                                    <label class="form-label fw-bold">Size</label>
+                                    <label class="form-label fw-bold">{{ __('message.size') }}</label>
                                     <div class="d-flex gap-3 mt-1">
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" id="size_normal" value="normal" v-model="form.size" />
-                                            <label class="form-check-label" for="size_normal">Normal</label>
+                                            <label class="form-check-label" for="size_normal">{{ __('message.size_normal') }}</label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" id="size_compact" value="compact" v-model="form.size" />
-                                            <label class="form-check-label" for="size_compact">Compact</label>
+                                            <label class="form-check-label" for="size_compact">{{ __('message.size_compact') }}</label>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3" v-show="showBadge">
                                     <SelectField
                                         name="badge_position"
-                                        label="Badge Position"
+                                        :label="__('message.badge_position')"
                                         :elements="badgeOptions"
                                         :value="selectedBadge"
                                         :onChange="(val) => form.badge_position = val?.id ?? 'bottomright'"
@@ -182,11 +180,7 @@
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn btn-primary" @click="save" :disabled="saving">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                        <i v-else class="fas fa-save me-1"></i>
-                        {{ __('message.save') }}
-                    </button>
+                    <action-button action="save" :loading="saving" @click="save" />
                 </div>
             </template>
         </div>
@@ -201,9 +195,9 @@
                 <ChallengeV3 action="settings_preview" :autoExecute="false">
                     <template #default="{ response, execute }">
                         <div class="d-flex align-items-center gap-2">
-                            <button class="btn btn-sm btn-outline-secondary" @click="execute">Verify v3 key</button>
+                            <button class="btn btn-sm btn-outline-secondary" @click="execute">{{ __('message.verify_v3_key') }}</button>
                             <span v-if="response" class="text-success small">
-                                <i class="fas fa-check-circle me-1"></i> v3 key valid
+                                <i class="fas fa-check-circle me-1"></i> {{ __('message.v3_key_valid') }}
                             </span>
                         </div>
                     </template>
@@ -261,18 +255,18 @@ const form = reactive({
 })
 
 const versionOptions = [
-    { id: 'v3_invisible', name: 'reCAPTCHA v3' },
-    { id: 'v2_invisible', name: 'reCAPTCHA v2 Invisible' },
-    { id: 'v2_checkbox',  name: 'reCAPTCHA v2 Checkbox' },
+    { id: 'v3_invisible', name: __('message.recaptcha_v3') },
+    { id: 'v2_invisible', name: __('message.recaptcha_v2_invisible') },
+    { id: 'v2_checkbox',  name: __('message.recaptcha_v2_checkbox') },
 ]
 const failoverOptions = [
-    { id: 'none',        name: 'None' },
-    { id: 'v2_checkbox', name: 'Fallback to reCAPTCHA v2 Checkbox' },
+    { id: 'none',        name: __('message.none') },
+    { id: 'v2_checkbox', name: __('message.fallback_v2_checkbox') },
 ]
 const badgeOptions = [
-    { id: 'bottomright', name: 'Bottom Right' },
-    { id: 'bottomleft',  name: 'Bottom Left' },
-    { id: 'inline',      name: 'Inline' },
+    { id: 'bottomright', name: __('message.badge_bottomright') },
+    { id: 'bottomleft',  name: __('message.badge_bottomleft') },
+    { id: 'inline',      name: __('message.badge_inline') },
 ]
 
 const isV3           = computed(() => form.captcha_version === 'v3_invisible')

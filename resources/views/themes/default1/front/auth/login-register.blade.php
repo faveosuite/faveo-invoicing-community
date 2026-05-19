@@ -274,7 +274,7 @@ foreach($scripts as $script) {
 
                             <div class="form-group col {{ $errors->has('company') ? 'has-error' : '' }}">
 
-                                <label class="form-label text-color-dark text-3">{{ __('message.company_name')}} <span class="text-color-danger">*</span></label>
+                                <label class="form-label text-color-dark text-3">{{ __('message.company')}} <span class="text-color-danger">*</span></label>
 
                                 {!! html()->text('company')
     ->class('form-control form-control-lg text-4')

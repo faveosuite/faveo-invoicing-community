@@ -4,7 +4,7 @@
 @stop
 @section('content-header')
    <div class="col-sm-6">
-       <h1> {{ __('message.create_new_payment') }}</h1>
+       <h1> {{ __('message.create-payment') }}</h1>
    </div>
    <div class="col-sm-6">
        <ol class="breadcrumb float-sm-right">
@@ -140,7 +140,7 @@
                                            <th>{{Lang::get('message.invoice_number')}}</th>
                                            <th>{{Lang::get('message.total')}}</th>
                                            <th>{{ __('message.invoice_due') }}</th>
-                                           <th>{{Lang::get('message.pay')}}</th>
+                                           <th>{{Lang::get('message.payment')}}</th>
                                           
                                          
                                        </tr>

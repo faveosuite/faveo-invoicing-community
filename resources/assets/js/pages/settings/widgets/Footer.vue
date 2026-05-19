@@ -6,9 +6,7 @@
                 <h4 class="card-title">{{ __('message.footer_widget') }}</h4>
             </div>
             <div class="card-body">
-                <div v-if="loading" class="text-center py-4">
-                    <span class="spinner-border text-secondary"></span>
-                </div>
+                <inline-loader v-if="loading" />
                 <template v-else>
                     <ul class="nav nav-tabs mb-3">
                         <li v-for="ft in footerTypes" :key="ft.key" class="nav-item">
@@ -28,7 +26,7 @@
                                 <div class="col-md-4 mb-3">
                                     <TextField
                                         name="name"
-                                        :label="__('message.name_page') + ' *'"
+                                        :label="__('message.name') + ' *'"
                                         :value="forms[ft.key].name"
                                         :onChange="(val) => forms[ft.key].name = val"
                                     />
@@ -76,15 +74,7 @@
                                 />
                             </div>
                             <div class="mt-3">
-                                <button
-                                    class="btn btn-primary"
-                                    :disabled="saving[ft.key]"
-                                    @click="save(ft.key)"
-                                >
-                                    <span v-if="saving[ft.key]" class="spinner-border spinner-border-sm me-1"></span>
-                                    <i v-else class="fas fa-save me-1"></i>
-                                    {{ widgetIds[ft.key] ? __('message.update') : __('message.save') }}
-                                </button>
+                                <action-button action="save" :loading="saving[ft.key]" @click="save(ft.key)" />
                             </div>
                         </div>
                     </template>

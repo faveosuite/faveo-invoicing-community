@@ -149,7 +149,7 @@ const sections = computed(() => [
         items: [
             { to: '/settings/system',              icon: 'fas fa-display',           label: __('message.system-settings') },
             { to: '/settings/cron',                icon: 'fas fa-gauge',             label: __('message.cron-setting') },
-            { to: '/settings/license-type',        icon: 'fas fa-file-lines',        label: __('message.lic_type') },
+            { to: '/settings/license-type',        icon: 'fas fa-file-lines',        label: __('message.license-type') },
             { to: '/settings/license-permissions', icon: 'fas fa-diagram-project',   label: __('message.license_permission') },
             { to: '/settings/file-storage',        icon: 'fas fa-hard-drive',        label: __('message.file_storage') },
             { to: '/settings/payment-gateway',     icon: 'fas fa-credit-card',       label: __('message.payment_gateway_integrations') },
@@ -158,7 +158,7 @@ const sections = computed(() => [
             { to: '/settings/cloud-details',       icon: 'fas fa-cloud',             label: __('message.cloud_hub') },
             { to: '/settings/localized-license',   icon: 'fas fa-globe',             label: __('message.localized_license') },
             { to: '/settings/debugging',           icon: 'fas fa-bug',               label: __('message.debugging') },
-            { to: '/settings/social-logins',       icon: 'fas fa-id-badge',          label: __('message.social-logins') },
+            { to: '/settings/social-logins',       icon: 'fas fa-id-badge',          label: __('message.social_logins') },
             { to: '/settings/language',            icon: 'fas fa-language',          label: __('message.language') },
             { to: '/settings/whatsapp-users',      icon: 'fab fa-whatsapp',          label: __('message.whatsapp_users') },
             ...(flags.value.is_mail_sending_enabled ? [{ to: '/settings/contact-options', icon: 'fas fa-phone', label: __('message.contact_options') }] : []),
@@ -174,7 +174,7 @@ const sections = computed(() => [
             { to: '/settings/logs/system',   icon: 'fas fa-list-ul',         label: __('message.log_setting') },
             { to: '/settings/logs/activity', icon: 'fas fa-wave-square',     label: __('message.activity_logs') },
             { to: '/settings/logs/payment',  icon: 'fas fa-money-bill-wave', label: __('message.payment_logs') },
-            ...(flags.value.is_msg91_enabled ? [{ to: '/settings/logs/msg91', icon: 'fas fa-message', label: __('message.msg91_reports') }] : []),
+            ...(flags.value.is_msg91_enabled ? [{ to: '/settings/logs/msg91', icon: 'fas fa-message', label: __('message.msg_reports') }] : []),
         ],
     },
     {

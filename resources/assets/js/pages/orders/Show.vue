@@ -2,9 +2,7 @@
     <div>
         <AppAlert :componentName="COMPONENT" />
 
-        <div v-if="loading" class="text-center py-5">
-            <span class="spinner-border text-secondary"></span>
-        </div>
+        <inline-loader v-if="loading" />
 
         <div v-else class="card card-secondary card-outline">
             <div class="card-body">
@@ -12,20 +10,20 @@
                 <!-- ── Overview ────────────────────────────────────────── -->
                 <div class="card-header with-border mb-3">
                     <h4 class="card-title">
-                        Order Details
+                        {{ __('message.order_details') }}
                     </h4>
                 </div>
 
                 <div class="callout callout-info">
                     <div class="row">
                         <div class="col-md-4">
-                            <b>Date: </b>{{ order?.created_at || '—' }}
+                            <b>{{ __('message.date') }}: </b>{{ order?.created_at || '—' }}
                         </div>
                         <div class="col-md-4">
-                            <b>Order No: </b>#{{ order?.number }}
+                            <b>{{ __('message.order_no') }}: </b>#{{ order?.number }}
                         </div>
                         <div class="col-md-4">
-                            <b>Status: </b>{{ order?.order_status }}
+                            <b>{{ __('message.status') }}: </b>{{ order?.order_status }}
                         </div>
                     </div>
                 </div>
@@ -35,21 +33,21 @@
                     <div class="col-md-12">
                         <div class="card card-secondary card-outline">
                             <div class="card-header">
-                                <h5 class="card-title">User Details</h5>
+                                <h5 class="card-title">{{ __('message.user_details') }}</h5>
                             </div>
                             <div class="card-body table-responsive">
                                 <table class="table table-hover">
                                     <tbody>
                                         <tr>
-                                            <td><b>Name:</b></td>
+                                            <td><b>{{ __('message.name') }}:</b></td>
                                             <td>{{ userName }}</td>
                                         </tr>
                                         <tr>
-                                            <td><b>Email:</b></td>
+                                            <td><b>{{ __('message.email') }}:</b></td>
                                             <td>{{ order?.user?.email || '—' }}</td>
                                         </tr>
                                         <tr>
-                                            <td><b>Mobile:</b></td>
+                                            <td><b>{{ __('message.mobile') }}:</b></td>
                                             <td>
                                                 <span v-if="order?.user?.mobile_code">
                                                     (<b>+</b>{{ order.user.mobile_code }})&nbsp;
@@ -58,7 +56,7 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td><b>Country:</b></td>
+                                            <td><b>{{ __('message.country') }}:</b></td>
                                             <td>{{ order?.user?.country || '—' }}</td>
                                         </tr>
                                     </tbody>
@@ -73,40 +71,41 @@
                     <div class="col-md-12">
                         <div class="card card-secondary card-outline">
                             <div class="card-header">
-                                <h4 class="card-title">License Details</h4>
+                                <h4 class="card-title">{{ __('message.license_details') }}</h4>
                             </div>
                             <div class="card-body table-responsive">
                                 <table class="table table-hover">
                                     <tbody>
                                         <!-- License Code -->
                                         <tr>
-                                            <td><b>License Code:</b></td>
+                                            <td><b>{{ __('message.license_code') }}:</b></td>
                                             <td>{{ licenseDetails?.licence_code || '—' }}</td>
                                             <td>
                                                 <button
                                                     class="btn btn-sm btn-secondary btn-xs"
-                                                    title="Copy"
+                                                    :title="__('message.copy')"
                                                     v-tooltip
                                                     @click="copyLicenseCode"
                                                 >
                                                     <i :class="copied ? 'fas fa-check' : 'fas fa-clipboard'"></i>
                                                 </button>
-                                                <button
-                                                    class="btn btn-sm btn-secondary btn-xs ms-1"
-                                                    title="Reissue License"
+                                                <action-button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    class="btn-xs ms-1"
+                                                    icon="fas fa-credit-card"
+                                                    :icon-only="true"
+                                                    :loading="saving.reissue"
                                                     v-tooltip
-                                                    :disabled="saving.reissue"
+                                                    :title="__('message.reissue_license')"
                                                     @click="reissueLicense"
-                                                >
-                                                    <span v-if="saving.reissue" class="spinner-border spinner-border-sm"></span>
-                                                    <i v-else class="fas fa-credit-card"></i>
-                                                </button>
+                                                />
                                             </td>
                                         </tr>
 
                                         <!-- Updates Expiry -->
                                         <tr>
-                                            <td><b>Updates Expiry:</b></td>
+                                            <td><b>{{ __('message.updates_expiry') }}:</b></td>
                                             <td>
                                                 <span :class="expiryStatus('update_end') ? 'text-danger' : ''">
                                                     {{ expiryDate('update_end') || '—' }}
@@ -119,7 +118,7 @@
                                                 <button
                                                     v-if="expiryDate('update_end')"
                                                     class="btn btn-sm btn-secondary btn-xs"
-                                                    title="Edit"
+                                                    :title="__('message.edit')"
                                                     v-tooltip
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#updateExpiryModal"
@@ -132,7 +131,7 @@
 
                                         <!-- License Expiry -->
                                         <tr>
-                                            <td><b>License Expiry:</b></td>
+                                            <td><b>{{ __('message.license_expiry') }}:</b></td>
                                             <td>
                                                 <span :class="expiryStatus('subscription_end') ? 'text-danger' : ''">
                                                     {{ expiryDate('subscription_end') || '—' }}
@@ -145,7 +144,7 @@
                                                 <button
                                                     v-if="expiryDate('subscription_end')"
                                                     class="btn btn-sm btn-secondary btn-xs"
-                                                    title="Edit"
+                                                    :title="__('message.edit')"
                                                     v-tooltip
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#licenseExpiryModal"
@@ -158,7 +157,7 @@
 
                                         <!-- Support Expiry -->
                                         <tr>
-                                            <td><b>Support Expiry:</b></td>
+                                            <td><b>{{ __('message.support_expiry') }}:</b></td>
                                             <td>
                                                 <span :class="expiryStatus('support_end') ? 'text-danger' : ''">
                                                     {{ expiryDate('support_end') || '—' }}
@@ -171,7 +170,7 @@
                                                 <button
                                                     v-if="expiryDate('support_end')"
                                                     class="btn btn-sm btn-secondary btn-xs"
-                                                    title="Edit"
+                                                    :title="__('message.edit')"
                                                     v-tooltip
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#supportExpiryModal"
@@ -184,7 +183,7 @@
 
                                         <!-- Localized License -->
                                         <tr>
-                                            <td><b>Switch Localized License</b></td>
+                                            <td><b>{{ __('message.switch_localized_license') }}</b></td>
                                             <td>
                                                 <div class="form-check form-switch">
                                                     <input
@@ -211,7 +210,7 @@
                         <div class="card card-secondary card-outline">
                             <div class="card-header with-border">
                                 <h4 class="card-title">
-                                    Installation Details
+                                    {{ __('message.installation_details') }}
                                 </h4>
                             </div>
                             <div class="card-body table-responsive">
@@ -231,7 +230,7 @@
                         <div class="card card-secondary card-outline">
                             <div class="card-header with-border">
                                 <h4 class="card-title">
-                                    Invoice List
+                                    {{ __('message.invoice_list') }}
                                 </h4>
                             </div>
                             <div class="card-body table-responsive">
@@ -251,7 +250,7 @@
                         <div class="card card-secondary card-outline">
                             <div class="card-header with-border">
                                 <h4 class="card-title">
-                                    Payment Receipts
+                                    {{ __('message.payment_receipts') }}
                                 </h4>
                             </div>
                             <div class="card-body table-responsive">
@@ -271,14 +270,14 @@
                         <div class="card card-secondary card-outline">
                             <div class="card-header with-border">
                                 <h4 class="card-title">
-                                    Auto Renewal
+                                    {{ __('message.auto_renewal') }}
                                 </h4>
                             </div>
                             <div class="card-body">
                                 <table class="table table-hover">
                                     <tbody>
                                         <tr>
-                                            <td><b>Auto Renewal Subscription</b></td>
+                                            <td><b>{{ __('message.auto_renewal_subscription') }}</b></td>
                                             <td>
                                                 <div class="form-check form-switch">
                                                     <input
@@ -292,19 +291,19 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td><b>Status:</b></td>
+                                            <td><b>{{ __('message.status') }}:</b></td>
                                             <td>
-                                                <span v-if="isSubscribed" class="text-success fw-bold">Active</span>
-                                                <span v-else class="text-danger fw-bold">Inactive</span>
+                                                <span v-if="isSubscribed" class="text-success fw-bold">{{ __('message.active') }}</span>
+                                                <span v-else class="text-danger fw-bold">{{ __('message.inactive') }}</span>
                                             </td>
                                         </tr>
                                         <template v-if="isSubscribed && paymentLog">
                                             <tr>
-                                                <td><b>Payment Method:</b></td>
+                                                <td><b>{{ __('message.payment-method') }}:</b></td>
                                                 <td>{{ paymentLog?.payment_method ? capitalize(paymentLog.payment_method) : '—' }}</td>
                                             </tr>
                                             <tr>
-                                                <td><b>Subscription Start Date:</b></td>
+                                                <td><b>{{ __('message.subscription_start_date') }}:</b></td>
                                                 <td>{{ paymentLog?.date ? formatDate(paymentLog.date) : '—' }}</td>
                                             </tr>
                                         </template>
@@ -321,7 +320,7 @@
         <!-- ── Modals ──────────────────────────────────────────────────── -->
         <ExpiryModal
             id="updateExpiryModal"
-            title="Edit Updates Expiry Date"
+            :title="__('message.edit_updates_expiry')"
             :orderId="orderId"
             :initialDate="modal.date"
             endpoint="edit-update-expiry"
@@ -330,7 +329,7 @@
         />
         <ExpiryModal
             id="licenseExpiryModal"
-            title="Edit License Expiry Date"
+            :title="__('message.edit_license_expiry')"
             :orderId="orderId"
             :initialDate="modal.date"
             endpoint="edit-license-expiry"
@@ -339,7 +338,7 @@
         />
         <ExpiryModal
             id="supportExpiryModal"
-            title="Edit Support Expiry Date"
+            :title="__('message.edit_support_expiry')"
             :orderId="orderId"
             :initialDate="modal.date"
             endpoint="edit-support-expiry"
@@ -392,7 +391,7 @@ function capitalize(str) {
 }
 
 function formatDate(d) {
-    return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+    return new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
 function expiryEntry(key) {
@@ -490,11 +489,11 @@ onMounted(async () => {
 const installColumns = ['path', 'ip', 'version', 'status', 'last_active_date']
 const installTableOptions = reactive({
     headings: {
-        path:             'Installation Path',
-        ip:               'Installation IP',
+        path:             __('message.installation_path'),
+        ip:               __('message.installation_ip'),
         version:          'Version',
-        status:           'Status',
-        last_active_date: 'Last Active',
+        status:           __('message.status'),
+        last_active_date: __('message.last_active'),
     },
     templates: {
         path:             (f, row) => row.path || '—',
@@ -518,11 +517,11 @@ const installTableOptions = reactive({
 const invoiceColumns = ['number', 'products', 'date', 'amount', 'status']
 const invoiceTableOptions = reactive({
     headings: {
-        number:   'Invoice No',
-        products: 'Products',
-        date:     'Date',
-        amount:   'Total',
-        status:   'Status',
+        number:   __('message.invoice_no'),
+        products: __('message.products'),
+        date:     __('message.date'),
+        amount:   __('message.total'),
+        status:   __('message.status'),
     },
     templates: {
         products: (f, row) => (row.products ?? []).join(', ') || '—',
@@ -530,11 +529,12 @@ const invoiceTableOptions = reactive({
             class: row.status === 'Success' ? 'badge bg-success' : 'badge bg-secondary',
         }, row.status),
     },
-    sortable:   ['date'],
+    sortable:   ['date', 'number', 'amount', 'status'],
     filterable: false,
     requestAdapter(data) {
+        const columnMap = { amount: 'grand_total' }
         return {
-            'sort-field':   data.orderBy || 'date',
+            'sort-field':   (columnMap[data.orderBy] ?? data.orderBy) || 'date',
             'sort-order':   data.ascending ? 'asc' : 'desc',
             'search-query': '',
             page:           data.page,
@@ -548,11 +548,11 @@ const invoiceTableOptions = reactive({
 const paymentColumns = ['invoice_number', 'amount', 'payment_method', 'payment_status', 'created_at']
 const paymentTableOptions = reactive({
     headings: {
-        invoice_number: 'Invoice No',
-        amount:         'Total',
-        payment_method: 'Method',
-        payment_status: 'Status',
-        created_at:     'Payment Date',
+        invoice_number: __('message.invoice_no'),
+        amount:         __('message.total'),
+        payment_method: __('message.method'),
+        payment_status: __('message.status'),
+        created_at:     __('message.payment_date'),
     },
     templates: {
         payment_status: (f, row) => h('span', {
@@ -560,7 +560,7 @@ const paymentTableOptions = reactive({
         }, row.payment_status),
         created_at: (f, row) => row.created_at ? formatDate(row.created_at) : '—',
     },
-    sortable:   ['created_at'],
+    sortable:   ['created_at', 'amount', 'payment_method', 'payment_status'],
     filterable: false,
     requestAdapter(data) {
         return {

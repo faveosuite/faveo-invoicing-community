@@ -3,9 +3,9 @@
         <AppAlert componentName="pages-index" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Pages</h4>
+                <h4 class="card-title">{{ __('message.pages') }}</h4>
                 <div class="card-tools">
-                    <router-link to="/pages/create" class="btn btn-tool" title="Create Page" v-tooltip>
+                    <router-link to="/pages/create" class="btn btn-tool" :title="__('message.create_page')" v-tooltip>
                         <i class="fas fa-plus"></i>
                     </router-link>
                 </div>
@@ -26,12 +26,12 @@
                                 data-bs-toggle="dropdown"
                                 :disabled="deleting"
                             >
-                                <span v-if="deleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                <span v-else>Bulk Action</span>
+                                <spinner-loader v-if="deleting" :size="18" />
+                                <span v-else>{{ __('message.bulk_action') }}</span>
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <button class="dropdown-item" @click="bulkDelete">Delete</button>
+                                    <button class="dropdown-item" @click="bulkDelete">{{ __('message.Delete') }}</button>
                                 </li>
                             </ul>
                         </div>
@@ -97,17 +97,17 @@ const columns = ['select', 'name', 'url', 'created_at', 'action']
 const tableOptions = reactive({
     headings: {
         select:     () => h('input', { type: 'checkbox', checked: allSelected.value, onChange: toggleAll }),
-        name:       'Name',
+        name:       __('message.name'),
         url:        'URL',
-        created_at: 'Created At',
-        action:     'Action',
+        created_at: __('message.created_at'),
+        action:     __('message.actions'),
     },
     templates: {
         select:     (f, row) => h('input', { type: 'checkbox', checked: selected.value.includes(row.id), onChange: () => toggleRow(row.id) }),
         name:       (f, row) => row.name || '—',
         url:        (f, row) => row.url || '—',
         created_at: (f, row) => row.created_at ? row.created_at.substring(0, 10) : '—',
-        action:     (f, row) => h(RouterLink, { to: `/pages/${row.id}/edit`, class: 'btn btn-light table_btn', title: 'Edit' }, () => h('i', { class: 'fas fa-edit' })),
+        action:     (f, row) => h(RouterLink, { to: `/pages/${row.id}/edit`, class: 'btn btn-light table_btn', title: __('message.edit') }, () => h('i', { class: 'fas fa-edit' })),
     },
     sortable: ['name', 'url', 'created_at'],
     filterable: true,

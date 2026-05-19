@@ -10,7 +10,7 @@
                     <div class="col-md-4 mb-3">
                         <TextField
                             name="name"
-                            :label="__('message.name_page') + ' *'"
+                            :label="__('message.name') + ' *'"
                             :value="form.name"
                             :onChange="(val) => form.name = val"
                         />
@@ -57,14 +57,8 @@
                 </div>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary me-2" :disabled="saving" @click="submit">
-                    <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                    <i v-else class="fas fa-save me-1"></i>
-                    {{ __('message.save') }}
-                </button>
-                <RouterLink to="/settings/widgets/analytics" class="btn btn-secondary">
-                    {{ __('message.cancel') }}
-                </RouterLink>
+                <action-button action="save" :loading="saving" @click="submit" />
+                <action-button action="cancel" to="/settings/widgets/analytics" />
             </div>
         </div>
     </div>
@@ -72,7 +66,7 @@
 
 <script setup>
 import { reactive, ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 

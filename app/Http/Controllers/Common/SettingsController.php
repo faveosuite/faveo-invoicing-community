@@ -298,7 +298,7 @@ class SettingsController extends BaseSettingsController
                     <span class="slider round"></span>
                     </label>', 'action' => $mobileAction,
                 ],
-                ['options' => \Lang::get('message.mailchimp_heading'), 'description' => \Lang::get('message.mailchimp_description'), 'status' => '<label class="switch toggle_event_editing mailchimpstatus">
+                ['options' => \Lang::get('message.mailchimp'), 'description' => \Lang::get('message.mailchimp_description'), 'status' => '<label class="switch toggle_event_editing mailchimpstatus">
                         <input type="checkbox" value="'.($mailchimpSetting ? '1' : '0').'"  name="mobile_settings"
                                class="checkbox9" id="mailchimp"'.($mailchimpSetting ? 'checked' : '').'>
                         <span class="slider round"></span>
@@ -311,7 +311,7 @@ class SettingsController extends BaseSettingsController
                         <span class="slider round"></span>
                     </label>', 'action' => $termsAction,
                 ],
-                ['options' => \Lang::get('message.pipedrive_heading'), 'description' => \Lang::get('message.pipedrive_description'), 'status' => '<label class="switch toggle_event_editing pipedrivestatus">
+                ['options' => \Lang::get('message.pipedrive'), 'description' => \Lang::get('message.pipedrive_description'), 'status' => '<label class="switch toggle_event_editing pipedrivestatus">
                         <input type="checkbox" value="'.($pipedriveStatus ? '1' : '0').'"  name="pipedrive_settings"
                            class="checkbox13" id="pipedrive"'.($pipedriveStatus ? 'checked' : '').'>
                         <span class="slider round"></span>
@@ -676,9 +676,9 @@ class SettingsController extends BaseSettingsController
             $all = [
                 ['key' => 'gcaptchastatus',        'slug' => 'recaptcha',         'name' => \Lang::get('message.recaptcha_heading'),               'description' => \Lang::get('message.google_description'),               'enabled' => (bool) optional($status)->recaptcha_status,        'route' => '/settings/api/recaptcha'],
                 ['key' => 'mstatus',               'slug' => 'msg91',             'name' => \Lang::get('message.msg91_heading'),                   'description' => \Lang::get('message.msg91_description'),               'enabled' => (bool) optional($status)->msg91_status,            'route' => '/settings/api/msg91'],
-                ['key' => 'mailchimpstatus',        'slug' => 'mailchimp',         'name' => \Lang::get('message.mailchimp_heading'),                'description' => \Lang::get('message.mailchimp_description'),           'enabled' => (bool) optional($status)->mailchimp_status,        'route' => '/settings/api/mailchimp'],
+                ['key' => 'mailchimpstatus',        'slug' => 'mailchimp',         'name' => \Lang::get('message.mailchimp'),                'description' => \Lang::get('message.mailchimp_description'),           'enabled' => (bool) optional($status)->mailchimp_status,        'route' => '/settings/api/mailchimp'],
                 ['key' => 'termsStatus',            'slug' => 'terms',             'name' => \Lang::get('message.terms_heading'),                   'description' => \Lang::get('message.terms_description'),               'enabled' => (bool) optional($status)->terms,                   'route' => '/settings/api/terms'],
-                ['key' => 'pipedrivestatus',        'slug' => 'pipedrive',         'name' => \Lang::get('message.pipedrive_heading'),               'description' => \Lang::get('message.pipedrive_description'),           'enabled' => (bool) optional($status)->pipedrive_status,        'route' => '/settings/api/pipedrive'],
+                ['key' => 'pipedrivestatus',        'slug' => 'pipedrive',         'name' => \Lang::get('message.pipedrive'),               'description' => \Lang::get('message.pipedrive_description'),           'enabled' => (bool) optional($status)->pipedrive_status,        'route' => '/settings/api/pipedrive'],
                 ['key' => 'githubstatus',           'slug' => 'github',            'name' => \Lang::get('message.github_heading'),                  'description' => \Lang::get('message.github_description'),              'enabled' => (bool) optional($status)->github_status,           'route' => '/settings/api/github'],
                 ['key' => 'email_validation_status', 'slug' => 'email-validation',  'name' => \Lang::get('message.email_provider'),                  'description' => \Lang::get('message.email_validation_description'),    'enabled' => (bool) optional($status)->email_validation_status, 'route' => '/settings/api/email-validation'],
                 ['key' => 'mobile_validation_status', 'slug' => 'mobile-validation', 'name' => \Lang::get('message.mobile_provider'),                 'description' => \Lang::get('message.mobile_validation_description'),   'enabled' => (bool) optional($status)->mobile_validation_status, 'route' => '/settings/api/mobile-validation'],
@@ -1107,7 +1107,17 @@ class SettingsController extends BaseSettingsController
                 });
             }
 
-            $logs = $query->orderBy('activity_log.'.$sortField, $sortOrder)->simplePaginate($limit);
+            $allowedActivitySorts = ['created_at', 'module', 'event', 'performed_by', 'role'];
+            if (!in_array($sortField, $allowedActivitySorts, true)) {
+                $sortField = 'created_at';
+            }
+            $activitySortMap = [
+                'performed_by' => 'users.first_name',
+                'role'         => 'users.role',
+                'module'       => 'activity_log.log_name',
+            ];
+            $activitySortColumn = $activitySortMap[$sortField] ?? 'activity_log.'.$sortField;
+            $logs = $query->orderBy($activitySortColumn, $sortOrder)->simplePaginate($limit);
 
             $logs->getCollection()->transform(function ($row) {
                 return [
@@ -1194,7 +1204,13 @@ class SettingsController extends BaseSettingsController
                 });
             }
 
-            $logs = $query->orderBy('payment_logs.'.$sortField, $sortOrder)->simplePaginate($limit);
+            $allowedPaymentSorts = ['date', 'amount', 'status', 'order', 'payment_method', 'payment_type', 'user'];
+            if (!in_array($sortField, $allowedPaymentSorts, true)) {
+                $sortField = 'date';
+            }
+            $paymentSortMap = ['user' => 'users.first_name'];
+            $paymentSortColumn = $paymentSortMap[$sortField] ?? 'payment_logs.'.$sortField;
+            $logs = $query->orderBy($paymentSortColumn, $sortOrder)->simplePaginate($limit);
 
             $logs->getCollection()->transform(function ($row) {
                 return [

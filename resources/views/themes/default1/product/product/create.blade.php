@@ -90,7 +90,7 @@
 
                         <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                             <!-- last name -->
-                            {!! html()->label(Lang::get('message.lic_type'), 'type')->class('required') !!}
+                            {!! html()->label(Lang::get('message.license-type'), 'type')->class('required') !!}
                             {!! html()->select('type', ['' => __('message.choose'), 'Types' => $type])->class('form-control'.($errors->has('type') ? ' is-invalid' : ''))->id('type') !!}
                             <div class="input-group-append"></div>
                             @error('type')

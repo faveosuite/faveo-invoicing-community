@@ -3,11 +3,11 @@
         <AppAlert componentName="orders-index" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Orders</h4>
+                <h4 class="card-title">{{ __('message.orders') }}</h4>
                 <div class="card-tools">
                     <button
                         class="btn btn-tool"
-                        title="Filter"
+                        :title="__('message.filter')"
                         v-tooltip
                         @click="showFilter = !showFilter"
                     >
@@ -38,12 +38,12 @@
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false"
                             >
-                                Bulk Action
+                                {{ __('message.bulk_action') }}
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
                                     <button class="dropdown-item" @click="bulkDelete">
-                                        Delete
+                                        {{ __('message.Delete') }}
                                     </button>
                                 </li>
                             </ul>
@@ -122,21 +122,21 @@ const columns = ['select', 'client', 'email', 'mobile', 'country', 'number', 'or
 const tableOptions = reactive({
     headings: {
         select:        () => h('input', { type: 'checkbox', checked: allSelected.value, onChange: toggleAll }),
-        client:        'User',
-        email:         'Email',
-        mobile:        'Mobile',
-        country:       'Country',
-        number:        'Order No',
-        order_status:  'Order Status',
-        product_name:  'Product',
-        group:         'Group',
-        plan:          'Plan',
-        version:       'Version',
-        agents:        'Agents',
-        status:        'Status',
-        order_date:    'Order Date',
-        update_ends_at: 'Expiry',
-        action:        'Actions',
+        client:        __('message.user'),
+        email:         __('message.email'),
+        mobile:        __('message.mobile'),
+        country:       __('message.country'),
+        number:        __('message.order_no'),
+        order_status:  __('message.order-status'),
+        product_name:  __('message.product'),
+        group:         __('message.group'),
+        plan:          __('message.plan'),
+        version:       __('message.version'),
+        agents:        __('message.agents'),
+        status:        __('message.status'),
+        order_date:    __('message.order_date'),
+        update_ends_at: __('message.expiry'),
+        action:        __('message.actions'),
     },
 
     templates: {

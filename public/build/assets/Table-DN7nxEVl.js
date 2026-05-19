@@ -1,0 +1,1 @@
+import{d as s,P as t,k as r,$ as a}from"./main-Cs4iTYcp.js";const o={},c={class:"table-wrapper"};function n(e,l){return t(),r("div",c,[a(e.$slots,"default")])}const d=s(o,[["render",n]]);export{d as default};

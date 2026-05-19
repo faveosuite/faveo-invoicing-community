@@ -7,9 +7,7 @@
                 <h4 class="card-title">{{ __('message.cloud_hub') }}</h4>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
@@ -83,11 +81,7 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <button class="btn btn-primary" @click="saveSettings" :disabled="saving">
-                                    <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                                    <i v-else class="fas fa-save me-1"></i>
-                                    {{ __('message.save') }}
-                                </button>
+                                <action-button action="save" :loading="saving" @click="saveSettings" />
                             </div>
                         </div>
                     </div>
@@ -129,11 +123,7 @@
                                         />
                                     </div>
                                 </div>
-                                <button class="btn btn-primary mb-3" @click="saveProduct" :disabled="savingProduct">
-                                    <span v-if="savingProduct" class="spinner-border spinner-border-sm me-1"></span>
-                                    <i v-else class="fas fa-plus me-1"></i>
-                                    {{ __('message.add') }}
-                                </button>
+                                <action-button action="save" class="mb-3" :loading="savingProduct" @click="saveProduct" />
                                 <hr />
                                 <DataTable
                                     ref="productDtRef"
@@ -156,7 +146,7 @@
                                     <div class="col-md-4">
                                         <SelectField
                                             name="cloud_countries"
-                                            :label="__('message.cloud_country')"
+                                            :label="__('message.country')"
                                             :elements="countries"
                                             :value="dcForm.cloud_countries"
                                             :onChange="v => { dcForm.cloud_countries = v; fetchStates() }"
@@ -166,7 +156,7 @@
                                     <div class="col-md-4">
                                         <SelectField
                                             name="cloud_state"
-                                            :label="__('message.cloud_state')"
+                                            :label="__('message.state')"
                                             :elements="states"
                                             :value="dcForm.cloud_state"
                                             :onChange="v => dcForm.cloud_state = v"
@@ -177,17 +167,13 @@
                                     <div class="col-md-4">
                                         <TextField
                                             name="cloud_city"
-                                            :label="__('message.cloud_city')"
+                                            :label="__('message.city')"
                                             :value="dcForm.cloud_city"
                                             :onChange="v => dcForm.cloud_city = v"
                                         />
                                     </div>
                                 </div>
-                                <button class="btn btn-primary mb-3" @click="saveDataCenter" :disabled="savingDC">
-                                    <span v-if="savingDC" class="spinner-border spinner-border-sm me-1"></span>
-                                    <i v-else class="fas fa-plus me-1"></i>
-                                    {{ __('message.add') }}
-                                </button>
+                                <action-button action="save" class="mb-3" :loading="savingDC" @click="saveDataCenter" />
                                 <hr />
                                 <div id="cloud-map" style="height: 450px;"></div>
                             </div>
@@ -246,10 +232,10 @@ const productDtRef = ref(null)
 let leafletMap = null
 
 const tabs = [
-    { key: 'settings',    label: 'Settings',     icon: 'fas fa-cog' },
-    { key: 'products',    label: 'Products',     icon: 'fas fa-box' },
-    { key: 'datacenters', label: 'Data Centers', icon: 'fas fa-map-marker-alt' },
-    { key: 'tenants',     label: 'Tenants',      icon: 'fas fa-users' },
+    { key: 'settings',    label: __('message.settings'),          icon: 'fas fa-cog' },
+    { key: 'products',    label: __('message.products'),          icon: 'fas fa-box' },
+    { key: 'datacenters', label: __('message.cloud_data_centers'), icon: 'fas fa-map-marker-alt' },
+    { key: 'tenants',     label: __('message.tenants'),           icon: 'fas fa-users' },
 ]
 
 function switchTab(key) {
@@ -424,11 +410,11 @@ const productColumns = ['cloud_product', 'cloud_free_plan', 'cloud_product_key',
 
 const productTableOptions = reactive({
     headings: {
-        cloud_product:     'Cloud Product',
-        cloud_free_plan:   'Free Plan',
-        cloud_product_key: 'Product Key',
-        trial_status:      'Trial Status',
-        action:            'Action',
+        cloud_product:     __('message.cloud_product'),
+        cloud_free_plan:   __('message.cloud_free_plan'),
+        cloud_product_key: __('message.cloud_product_key'),
+        trial_status:      __('message.trial_status_heading'),
+        action:            __('message.action'),
     },
     templates: {
         cloud_product:     (f, row) => row.cloud_product     || '—',
@@ -442,7 +428,7 @@ const productTableOptions = reactive({
         }),
         action: (f, row) => h('button', {
             class:   'btn btn-light table_btn',
-            title:   'Delete',
+            title:   __('message.Delete'),
             onClick: () => deleteProduct(row.id),
         }, [h('i', { class: 'fas fa-trash' })]),
     },
@@ -483,19 +469,19 @@ const tenantColumns = [
 
 const tenantTableOptions = reactive({
     headings: {
-        order:       'Order',
-        user:        'User',
-        email:       'Email',
-        mobile:      'Mobile',
-        country:     'Country',
-        expiry:      'Expiry Day',
-        deletion:    'Deletion Day',
-        plan:        'Plan Status',
-        tenant:      'Tenant',
-        domain:      'Admin Domain',
-        db_name:     'DB Name',
-        db_username: 'DB Username',
-        action:      'Action',
+        order:       __('message.order'),
+        user:        __('message.user'),
+        email:       __('message.email'),
+        mobile:      __('message.mobile'),
+        country:     __('message.country'),
+        expiry:      __('message.expiry_day'),
+        deletion:    __('message.deletion_day'),
+        plan:        __('message.plan_status'),
+        tenant:      __('message.tenant'),
+        domain:      __('message.admin_domain'),
+        db_name:     __('message.db_name'),
+        db_username: __('message.db_username'),
+        action:      __('message.action'),
     },
     templates: {
         order:       (f, row) => row.order?.order_number        || '—',
@@ -514,7 +500,7 @@ const tenantTableOptions = reactive({
         db_username: (f, row) => row.database?.username         || '—',
         action:      (f, row) => h('button', {
             class:   'btn btn-light table_btn',
-            title:   'Delete',
+            title:   __('message.Delete'),
             onClick: () => deleteTenant(row.action?.delete?.tenant_id, row.order?.order_id),
         }, [h('i', { class: 'fas fa-trash' })]),
     },

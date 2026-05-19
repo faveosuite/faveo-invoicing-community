@@ -93,7 +93,7 @@
 
                             <!-- /.form-group -->
                             <div class="form-group select2">
-                                <label >{{Lang::get('message.expiry_mail_sent')}}</label>
+                                <label >{{Lang::get('message.expiry_mail')}}</label>
                                 <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{ __('message.cron_trigger') }}"></i>
 
                                 <?php

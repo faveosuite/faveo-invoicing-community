@@ -103,7 +103,7 @@
 
                     <tr>
 
-                        <td><b>{!! html()->label(Lang::get('message.company-name'), 'company')->class('required') !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.company'), 'company')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
 

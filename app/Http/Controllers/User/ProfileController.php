@@ -6,7 +6,6 @@ use App\Facades\Attach;
 use App\Http\Controllers\Auth\BaseAuthController;
 use App\Http\Requests\User\ProfileRequest;
 use Hash;
-use Illuminate\Support\Facades\Cache;
 
 class ProfileController extends BaseAuthController
 {
@@ -18,7 +17,6 @@ class ProfileController extends BaseAuthController
 
     public function profile()
     {
-        Cache::a();
         try {
             $user = \Auth::user();
             $timezonesList = \App\Model\Common\Timezone::get();

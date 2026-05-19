@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    {{ __('message.social-media') }}
+    {{ __('message.social_media') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -40,7 +40,7 @@
                     <thead><tr>
                         <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
 
-                        <th>{{ __('message.name_page') }}</th>
+                        <th>{{ __('message.name') }}</th>
                         <th>{{ __('message.content') }}</th>
                         <th>{{ __('message.action') }}</th>
                         </tr></thead>
@@ -89,7 +89,7 @@
                 infoEmpty:      "{{ __('message.info_empty') }}",
                 infoFiltered:   "{{ __('message.info_filtered') }}",
                 lengthMenu:     "{{ __('message.length_menu') }}",
-                loadingRecords: "{{ __('message.loading_records') }}",
+                loadingRecords: "{{ __('message.loading') }}",
                 search:         "{{ __('message.table_search') }}",
             },
                 "columnDefs": [{

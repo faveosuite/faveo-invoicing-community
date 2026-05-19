@@ -86,7 +86,7 @@
                                                     <div class="custom-select-1">
                                                         @php
                                                             $options = !empty($plans)
-                                                                ? ['' => __('message.select')] + $plans
+                                                                ? ['' => __('message.Select')] + $plans
                                                                 : ['' => __('message.no_matching_plans')];
                                                         @endphp
 

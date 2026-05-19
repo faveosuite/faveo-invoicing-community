@@ -103,7 +103,7 @@
                                         </li>
                                     @endforeach
                                 @else
-                                    <li class="list-group-item" style="text-align: center">{{ __('message.activity_recorded')}}</li>
+                                    <li class="list-group-item" style="text-align: center">{{ __('message.no_activity_credit')}}</li>
                                 @endif
                             </ul>
                         </div>
@@ -198,11 +198,11 @@
                    </button>
                </div>
                <div class="modal-body">
-                   {{ __('message.delete_invoice') }}
+                   {{ __('message.invoice_delete') }}
                </div>
                <div class="modal-footer">
                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" id="cancelBtn">{{ __('message.cancel') }}</button>
-                   <button type="button" class="btn btn-primary" id="confirmDeleteBtn">{{ __('message.delete') }}</button>
+                   <button type="button" class="btn btn-primary" id="confirmDeleteBtn">{{ __('message.Delete') }}</button>
                </div>
            </div>
        </div>
@@ -355,7 +355,7 @@
                 infoEmpty:      "{{ __('message.info_empty') }}",
                 infoFiltered:   "{{ __('message.info_filtered') }}",
                 lengthMenu:     "{{ __('message.length_menu') }}",
-                loadingRecords: "{{ __('message.loading_records') }}",
+                loadingRecords: "{{ __('message.loading') }}",
                 search:         "{{ __('message.table_search') }}",
             },
 

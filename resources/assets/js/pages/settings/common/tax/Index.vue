@@ -7,9 +7,7 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.options') }}</h4>
             </div>
-            <div v-if="optionsLoading" class="card-body text-center py-4">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="optionsLoading" />
             <template v-else>
                 <div class="card-body">
                     <div class="row">
@@ -49,11 +47,7 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <button class="btn btn-primary" @click="saveOptions" :disabled="savingOptions">
-                        <span v-if="savingOptions" class="spinner-border spinner-border-sm me-1"></span>
-                        <i v-else class="fas fa-save me-1"></i>
-                        {{ __('message.save') }}
-                    </button>
+                    <action-button action="save" :loading="savingOptions" @click="saveOptions" />
                 </div>
             </template>
         </div>
@@ -89,13 +83,13 @@
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false"
                             >
-                                Bulk Action
+                                {{ __('message.bulk_action') }}
                             </button>
                             <ul class="dropdown-menu">
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <button class="dropdown-item" @click="bulkDelete">
-                                        Delete
+                                        {{ __('message.Delete') }}
                                     </button>
                                 </li>
                             </ul>
@@ -198,7 +192,7 @@ const tableOptions = reactive({
             onChange: toggleAll,
         }),
         tax_class_name: __('message.tax-type'),
-        name:           __('message.name_page'),
+        name:           __('message.name'),
         country:        __('message.country'),
         state:          __('message.state'),
         rate:           __('message.rate') + ' (%)',
@@ -224,17 +218,17 @@ const tableOptions = reactive({
             title: __('message.edit'),
         }, () => h('i', { class: 'fas fa-edit' })),
     },
-    sortable:   ['name', 'country', 'rate'],
+    sortable:   ['name', 'country', 'state', 'rate'],
     filterable: true,
     requestAdapter(data) {
         return {
-            'sort-field':   data.orderBy   ?? 'id',
+            'sort-field':   data.orderBy   ?? 'created_at',
             'sort-order':   data.ascending ? 'asc' : 'desc',
             'search-query': (data.query ?? '').trim(),
             page:  data.page,
             limit: data.limit,
         }
     },
-    orderBy: { column: 'id', ascending: false },
+    orderBy: { column: 'created_at', ascending: false },
 })
 </script>

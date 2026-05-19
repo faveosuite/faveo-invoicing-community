@@ -12,24 +12,28 @@
 
                     <div class="modal-body">
                         <AppAlert componentName="delete-modal" />
-                        <div v-if="loading" class="d-flex justify-content-center my-3">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
+                        <inline-loader v-if="loading" :min-height="80" />
                         <p v-if="!loading" class="mb-0">
                             {{ modalMessage ? lang(modalMessage) : lang('are_you_sure') }}
                         </p>
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @click="onClose" :disabled="isDisabled">
-                            {{ lang('cancel') }}
-                        </button>
-                        <button type="button" class="btn btn-danger" @click="onSubmit()" :disabled="isDisabled">
-                            <i :class="btnTitle === 'restore' ? 'fas fa-sync-alt' : 'fas fa-trash'" class="me-1"></i>
-                            {{ btnTitle ? lang(btnTitle) : lang('delte') }}
-                        </button>
+                        <action-button
+                            action="cancel"
+                            type="button"
+                            :disabled="isDisabled"
+                            @click="onClose"
+                        />
+                        <action-button
+                            :action="btnTitle === 'restore' ? 'restore' : 'delete'"
+                            :variant="btnTitle === 'restore' ? 'success' : 'danger'"
+                            type="button"
+                            :loading="loading"
+                            :disabled="isDisabled"
+                            :label="btnTitle ? lang(btnTitle) : lang('delete')"
+                            @click="onSubmit()"
+                        />
                     </div>
                 </div>
             </div>

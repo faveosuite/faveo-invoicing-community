@@ -858,7 +858,7 @@
 
                             <div class="custom-select-1">
                                 <select class="form-select form-control h-auto py-2" data-msg-required="{{ __('message.please_select_city')}}" name="city" required>
-                                    <option value="">{{ __('message.select')}}</option>
+                                    <option value="">{{ __('message.Select')}}</option>
                                     <option value="1">{{ __('message.razorpay')}}</option>
                                     <option value="2">{{ __('message.stripe')}}</option>
                                 </select>
@@ -1343,7 +1343,7 @@
                     infoEmpty:      "{{ __('message.info_empty') }}",
                     infoFiltered:   "{{ __('message.info_filtered') }}",
                     lengthMenu:     "{{ __('message.length_menu') }}",
-                    loadingRecords: "{{ __('message.loading_records') }}",
+                    loadingRecords: "{{ __('message.loading') }}",
                     search:         "{{ __('message.table_search') }}",
                 },
 
@@ -1926,7 +1926,7 @@
                 infoEmpty:      "{{ __('message.info_empty') }}",
                 infoFiltered:   "{{ __('message.info_filtered') }}",
                 lengthMenu:     "{{ __('message.length_menu') }}",
-                loadingRecords: "{{ __('message.loading_records') }}",
+                loadingRecords: "{{ __('message.loading') }}",
                 search:         "{{ __('message.table_search') }}",
 
             },
@@ -1988,7 +1988,7 @@
                 infoEmpty:      "{{ __('message.info_empty') }}",
                 infoFiltered:   "{{ __('message.info_filtered') }}",
                 lengthMenu:     "{{ __('message.length_menu') }}",
-                loadingRecords: "{{ __('message.loading_records') }}",
+                loadingRecords: "{{ __('message.loading') }}",
                 search:         "{{ __('message.table_search') }}",
 
             },
@@ -2464,7 +2464,7 @@ $(document).ready(function() {
                                   infoEmpty:      "{{ __('message.info_empty') }}",
                                   infoFiltered:   "{{ __('message.info_filtered') }}",
                                   lengthMenu:     "{{ __('message.length_menu') }}",
-                                  loadingRecords: "{{ __('message.loading_records') }}",
+                                  loadingRecords: "{{ __('message.loading') }}",
                                   search:         "{{ __('message.table_search') }}",
 
                               },

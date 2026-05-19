@@ -3,19 +3,17 @@
         <AppAlert componentName="reports-settings" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Report Settings</h4>
+                <h4 class="card-title">{{ __('message.report_settings') }}</h4>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Records Per Export</label>
+                                <label class="form-label fw-bold">{{ __('message.records_per_export') }}</label>
                                 <input
                                     type="number"
                                     class="form-control"
@@ -24,17 +22,14 @@
                                     max="3000"
                                     placeholder="e.g. 3000"
                                 />
-                                <small class="text-muted">Maximum number of records to include in each export (1–3000).</small>
+                                <small class="text-muted">{{ __('message.records_per_export_desc') }}</small>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn btn-primary" @click="submit" :disabled="saving">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                        Save
-                    </button>
+                    <action-button action="save" :loading="saving" @click="submit" />
                 </div>
             </template>
         </div>

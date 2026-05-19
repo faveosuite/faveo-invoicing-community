@@ -243,7 +243,7 @@
                                         infoEmpty:      "{{ __('message.info_empty') }}",
                                         infoFiltered:   "{{ __('message.info_filtered') }}",
                                         lengthMenu:     "{{ __('message.sLengthMenu') }}",
-                                        loadingRecords: "{{ __('message.loading_records') }}",
+                                        loadingRecords: "{{ __('message.loading') }}",
                                         search:         "{{ __('message.table_search') }}",
                                     },
 
@@ -535,7 +535,7 @@
                                         infoEmpty:      "{{ __('message.info_empty') }}",
                                         infoFiltered:   "{{ __('message.info_filtered') }}",
                                         lengthMenu:     "{{ __('message.sLengthMenu') }}",
-                                        loadingRecords: "{{ __('message.loading_records') }}",
+                                        loadingRecords: "{{ __('message.loading') }}",
                                     },
 
                                     columnDefs: [
@@ -721,7 +721,7 @@
                                             infoEmpty:      "{{ __('message.info_empty') }}",
                                             infoFiltered:   "{{ __('message.info_filtered') }}",
                                             lengthMenu:     "{{ __('message.sLengthMenu') }}",
-                                            loadingRecords: "{{ __('message.loading_records') }}",
+                                            loadingRecords: "{{ __('message.loading') }}",
                                         },
 
                                         columnDefs: [
@@ -898,7 +898,7 @@
                                                     <div class="timeline-footer">
                                                         <button type="submit" class="btn btn-secondary btn-sm btn-xs edit-comment"data-description="{{$comment->description}}" data-comment-id="{{$comment->id}}" data-user_id="{{$comment->user_id}}" data-admin_id="{{$comment->updated_by_user_id}}"><i class='fa fa-edit' style='color:white;'{!! tooltip( __('message.edit')) !!} </i></button>
 
-                                                        <button type="submit" class="btn btn-danger btn-sm btn-xs deleteComment" data-comment-id="{{$comment->id}}"> <i class='fa fa-trash' style='color:white;' {!! tooltip( __('message.delete')) !!} </i></button>
+                                                        <button type="submit" class="btn btn-danger btn-sm btn-xs deleteComment" data-comment-id="{{$comment->id}}"> <i class='fa fa-trash' style='color:white;' {!! tooltip( __('message.Delete')) !!} </i></button>
 
                                                     </div>
                                                 </div>

@@ -422,7 +422,7 @@
                                 <li class="nav-item">
                                     <a href="{{url('pages')}}" class="nav-link" id="all_page">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>{{Lang::get('message.all-pages')}}</p>
+                                        <p>{{Lang::get('message.all_pages')}}</p>
                                     </a>
                                 </li>
                                 @if($page_count <= 2)

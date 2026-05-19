@@ -405,7 +405,7 @@
                   <div class="row">
                       <div class="col-md-4">
                           <?php $countries = \App\Model\Common\Country::cursor(); ?>
-                          {!! html()->label(Lang::get('message.cloud_country'))->class('required') !!}
+                          {!! html()->label(Lang::get('message.country'))->class('required') !!}
                           <div class="form-group">
                               <!-- Select Field 1 -->
                               <select id="cloud_countries" name="cloud_countries" class="form-control select2">
@@ -422,7 +422,7 @@
                           <?php
                           $states = \App\Model\Common\State::get();
                           ?>
-                          {!! html()->label(Lang::get('message.cloud_state'))->class('required') !!}
+                          {!! html()->label(Lang::get('message.state'))->class('required') !!}
                           <div class="form-group">
 
                               <select id="cloud_state" name="cloud_state" class="form-control select2">
@@ -433,7 +433,7 @@
                       </div>
 
                       <div class="col-md-4">
-                          {!! html()->label(Lang::get('message.cloud_city')) !!}
+                          {!! html()->label(Lang::get('message.city')) !!}
                           <div class="form-group">
                               <input type="text" name="cloud_city" class="form-control">
                           </div>
@@ -656,7 +656,7 @@
                     infoEmpty:      "{{ __('message.info_empty') }}",
                     infoFiltered:   "{{ __('message.info_filtered') }}",
                     lengthMenu:     "{{ __('message.sLengthMenu') }}",
-                    loadingRecords: "{{ __('message.loading_records') }}",
+                    loadingRecords: "{{ __('message.loading') }}",
                 },
 
                 columnDefs: [
@@ -1013,7 +1013,7 @@
                     infoEmpty:      "{{ __('message.info_empty') }}",
                     infoFiltered:   "{{ __('message.info_filtered') }}",
                     lengthMenu:     "{{ __('message.sLengthMenu') }}",
-                    loadingRecords: "{{ __('message.loading_records') }}",
+                    loadingRecords: "{{ __('message.loading') }}",
                 },
 
                 columnDefs: [

@@ -101,7 +101,7 @@
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">{{ __('message.lic_type') }}</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.license-type') }}</div>
                     </div>
                 </div>
 
@@ -362,7 +362,7 @@
                                 </span>
                                 </a>
                             </div>
-                            <div class="text-center text-sm fw_400">{{ __('message.msg91_reports') }}</div>
+                            <div class="text-center text-sm fw_400">{{ __('message.msg_reports') }}</div>
                         </div>
                     </div>
                 @endif
@@ -624,7 +624,7 @@
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">{{ __('message.social-media') }}</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.social_media') }}</div>
                     </div>
                 </div>
                 <!--/.col-md-2-->

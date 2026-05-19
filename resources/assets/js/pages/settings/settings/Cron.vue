@@ -7,15 +7,13 @@
                 <h3 class="card-title">{{ __('message.cron-setting') }}</h3>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
 
                     <!-- Cron Command Section -->
-                    <p class="text-muted mb-3">{{ __('message.copy_cron_command_description') }}</p>
+                    <p class="text-muted mb-3">{{ __('message.copy-cron-command-description') }}</p>
 
                     <div class="card p-3 bg-light mb-4">
                         <div class="row align-items-center g-2">
@@ -119,11 +117,7 @@
                 </div>
 
                 <div class="card-footer">
-                    <button type="button" class="btn btn-primary" @click="saveScheduler" :disabled="savingScheduler">
-                        <span v-if="savingScheduler" class="spinner-border spinner-border-sm me-1"></span>
-                        <i v-else class="fas fa-save me-1"></i>
-                        {{ __('message.save') }}
-                    </button>
+                    <action-button action="save" type="button" :loading="savingScheduler" @click="saveScheduler" />
                 </div>
             </template>
         </div>
@@ -188,11 +182,7 @@
                 </div>
             </div>
             <div class="card-footer">
-                <button type="button" class="btn btn-primary" @click="saveDays" :disabled="savingDays">
-                    <span v-if="savingDays" class="spinner-border spinner-border-sm me-1"></span>
-                    <i v-else class="fas fa-save me-1"></i>
-                    {{ __('message.save') }}
-                </button>
+                <action-button action="save" type="button" :loading="savingDays" @click="saveDays" />
             </div>
         </div>
     </div>
@@ -232,16 +222,16 @@ const cronCommand = computed(() => {
 })
 
 const commandOptions = [
-    { id: 'everyMinute',        name: 'Every Minute' },
-    { id: 'everyFiveMinutes',   name: 'Every Five Minutes' },
-    { id: 'everyTenMinutes',    name: 'Every Ten Minutes' },
-    { id: 'everyThirtyMinutes', name: 'Every Thirty Minutes' },
-    { id: 'hourly',             name: 'Hourly' },
-    { id: 'daily',              name: 'Daily' },
-    { id: 'dailyAt',            name: 'Daily At' },
-    { id: 'weekly',             name: 'Weekly' },
-    { id: 'monthly',            name: 'Monthly' },
-    { id: 'yearly',             name: 'Yearly' },
+    { id: 'everyMinute',        name: __('message.every_minute') },
+    { id: 'everyFiveMinutes',   name: __('message.every_five_minutes') },
+    { id: 'everyTenMinutes',    name: __('message.every_ten_minutes') },
+    { id: 'everyThirtyMinutes', name: __('message.every_thirty_minutes') },
+    { id: 'hourly',             name: __('message.hourly') },
+    { id: 'daily',              name: __('message.daily') },
+    { id: 'dailyAt',            name: __('message.daily_at') },
+    { id: 'weekly',             name: __('message.weekly') },
+    { id: 'monthly',            name: __('message.monthly') },
+    { id: 'yearly',             name: __('message.yearly') },
 ]
 
 const jobs = [
@@ -283,18 +273,18 @@ const expiryElements  = makeOptions(['30', '15', '7', '1'])
 const licenseElements = makeOptions(['720', '365', '180', '90', '30', '15', '7', '1'])
 
 const dayFields = [
-    { key: 'cloud_days',             label: 'Cloud Mail Days',        elements: expiryElements,                                                                                    jobStatus: 'cloud_cron' },
-    { key: 'invoice_days',           label: 'Invoice Deletion Days',  elements: makeOptions(['7', '5', '2', '1']),                                                                 jobStatus: 'invoice_cron' },
-    { key: 'msg91_days',             label: 'MSG91 Report Days',      elements: makeOptions(['720', '365', '180', '150', '60', '30', '15', '5', '2', '0'], 'Delete All Reports'),  jobStatus: 'msg91_cron' },
-    { key: 'reoon_days',             label: 'Reoon Log Days',         elements: makeOptions(['30', '15', '10', '5', '1']),                                                         jobStatus: 'reoon_cron' },
-    { key: 'system_logs_days',       label: 'System Log Days',        elements: makeOptions(['720', '365', '180', '150', '60', '30', '15', '5', '2', '0'], 'Delete All Logs'),     jobStatus: 'systemlogs_cron' },
-    { key: 'installation_logs_days', label: 'Installation Log Days',  elements: licenseElements,                                                                                   jobStatus: 'installationlogs_cron' },
-    { key: 'license_reports_days',   label: 'License Reports Days',   elements: licenseElements,                                                                                   jobStatus: 'licensereports_cron' },
-    { key: 'license_callbacks_days', label: 'License Callbacks Days', elements: licenseElements,                                                                                   jobStatus: 'licensecallbacks_cron' },
-    { key: 'license_crack_days',     label: 'License Crack Days',     elements: licenseElements,                                                                                   jobStatus: 'licensecrack_cron' },
-    { key: 'license_system_days',    label: 'License System Days',    elements: licenseElements,                                                                                   jobStatus: 'licensesystem_cron' },
-    { key: 'license_versions_days',  label: 'License Versions Days',  elements: licenseElements,                                                                                   jobStatus: 'licenseversions_cron' },
-    { key: 'logdelday',              label: 'Activity Log Days',      elements: makeOptions(['720', '365', '180', '150', '60', '30', '15', '5', '2', '0'], 'Delete All Logs'),     jobStatus: 'activity' },
+    { key: 'cloud_days',             label: __('message.cloud_mail_days'),             elements: expiryElements,                                                                                                    jobStatus: 'cloud_cron' },
+    { key: 'invoice_days',           label: __('message.invoice_deletion_days'),       elements: makeOptions(['7', '5', '2', '1']),                                                                                 jobStatus: 'invoice_cron' },
+    { key: 'msg91_days',             label: __('message.msg91_report_days'),           elements: makeOptions(['720', '365', '180', '150', '60', '30', '15', '5', '2', '0'], __('message.delete_all_reports')),     jobStatus: 'msg91_cron' },
+    { key: 'reoon_days',             label: __('message.reoon_log_days'),              elements: makeOptions(['30', '15', '10', '5', '1']),                                                                         jobStatus: 'reoon_cron' },
+    { key: 'system_logs_days',       label: __('message.system_log_days'),             elements: makeOptions(['720', '365', '180', '150', '60', '30', '15', '5', '2', '0'], __('message.delete_all_logs')),        jobStatus: 'systemlogs_cron' },
+    { key: 'installation_logs_days', label: __('message.installation_log_days'),       elements: licenseElements,                                                                                                   jobStatus: 'installationlogs_cron' },
+    { key: 'license_reports_days',   label: __('message.license_reports_days'),        elements: licenseElements,                                                                                                   jobStatus: 'licensereports_cron' },
+    { key: 'license_callbacks_days', label: __('message.license_callbacks_days'),      elements: licenseElements,                                                                                                   jobStatus: 'licensecallbacks_cron' },
+    { key: 'license_crack_days',     label: __('message.license_crack_days'),          elements: licenseElements,                                                                                                   jobStatus: 'licensecrack_cron' },
+    { key: 'license_system_days',    label: __('message.license_system_days'),         elements: licenseElements,                                                                                                   jobStatus: 'licensesystem_cron' },
+    { key: 'license_versions_days',  label: __('message.license_versions_days'),       elements: licenseElements,                                                                                                   jobStatus: 'licenseversions_cron' },
+    { key: 'logdelday',              label: __('message.activity_log_days'),           elements: makeOptions(['720', '365', '180', '150', '60', '30', '15', '5', '2', '0'], __('message.delete_all_logs')),        jobStatus: 'activity' },
 ]
 
 jobs.forEach(job => {

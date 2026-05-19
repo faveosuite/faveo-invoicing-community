@@ -3,11 +3,11 @@
         <AppAlert componentName="invoices-index" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Invoices</h4>
+                <h4 class="card-title">{{ __('message.invoices') }}</h4>
                 <div class="card-tools">
                     <button
                         class="btn btn-tool"
-                        title="Filter"
+                        :title="__('message.filter')"
                         v-tooltip
                         @click="showFilter = !showFilter"
                     >
@@ -15,15 +15,15 @@
                     </button>
                     <button
                         class="btn btn-tool"
-                        title="Export"
+                        :title="__('message.export')"
                         v-tooltip
                         @click="exportInvoices"
                         :disabled="exporting"
                     >
-                        <span v-if="exporting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <spinner-loader v-if="exporting" :size="18" />
                         <i v-else class="fas fa-paper-plane"></i>
                     </button>
-                    <router-link to="/invoices/create" class="btn btn-tool" title="Create Invoice" v-tooltip>
+                    <router-link to="/invoices/create" class="btn btn-tool" :title="__('message.create_invoice')" v-tooltip>
                         <i class="fas fa-plus"></i>
                     </router-link>
                 </div>
@@ -53,13 +53,13 @@
                                 aria-expanded="false"
                                 :disabled="deleting"
                             >
-                                <span v-if="deleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                <span v-else>Bulk Action</span>
+                                <spinner-loader v-if="deleting" :size="18" />
+                                <span v-else>{{ __('message.bulk_action') }}</span>
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
                                     <button class="dropdown-item" @click="bulkDelete">
-                                        Delete
+                                        {{ __('message.Delete') }}
                                     </button>
                                 </li>
                             </ul>
@@ -163,16 +163,16 @@ const columns = ['select', 'user', 'email', 'mobile', 'country', 'number', 'prod
 const tableOptions = reactive({
     headings: {
         select:        () => h('input', { type: 'checkbox', checked: allSelected.value, onChange: toggleAll }),
-        user:          'User',
-        email:         'Email',
-        mobile:        'Mobile',
-        country:       'Country',
-        number:        'Invoice No',
-        product:       'Product',
-        date:          'Date',
-        grand_total:   'Total',
-        status:        'Status',
-        action:        'Actions',
+        user:          __('message.user'),
+        email:         __('message.email'),
+        mobile:        __('message.mobile'),
+        country:       __('message.country'),
+        number:        __('message.invoice_no'),
+        product:       __('message.product'),
+        date:          __('message.date'),
+        grand_total:   __('message.total'),
+        status:        __('message.status'),
+        action:        __('message.actions'),
     },
 
     templates: {
@@ -194,7 +194,7 @@ const tableOptions = reactive({
         action:       (f, row) => h(InvoiceTableActions, { invoiceId: row.id }),
     },
 
-    sortable: ['number', 'date', 'grand_total'],
+    sortable: ['number', 'date', 'grand_total', 'status'],
     filterable: true,
 
     requestAdapter(data) {

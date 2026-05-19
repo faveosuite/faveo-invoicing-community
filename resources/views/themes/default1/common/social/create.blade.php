@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    {{ __('message.social-media') }}
+    {{ __('message.social_media') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -10,7 +10,7 @@
         <ol class="breadcrumb float-sm-right">
             <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
             <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
-            <li class="breadcrumb-item"><a href="{{url('social-media')}}"><i class="fa fa-dashboard"></i> {{ __('message.social-media') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('social-media')}}"><i class="fa fa-dashboard"></i> {{ __('message.social_media') }}</a></li>
             <li class="breadcrumb-item active">{{ __('message.create_new_social_media') }}</li>
         </ol>
     </div><!-- /.col -->

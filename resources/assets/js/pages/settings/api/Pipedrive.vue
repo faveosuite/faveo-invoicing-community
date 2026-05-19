@@ -18,9 +18,7 @@
                 </div>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
@@ -43,9 +41,7 @@
                         </li>
                     </ul>
 
-                    <div v-if="loadingMapping" class="text-center py-4">
-                        <span class="spinner-border text-secondary"></span>
-                    </div>
+                    <inline-loader v-if="loadingMapping" />
 
                     <template v-else>
                         <div v-for="(row, index) in rows" :key="index" class="row mb-3 align-items-end">
@@ -88,24 +84,19 @@
                         </div>
 
                         <div class="mb-1">
-                            <button
+                            <action-button
+                                action="add"
                                 type="button"
-                                class="btn btn-primary"
                                 :disabled="rows.length >= allPipedriveOptions.length"
+                                :label="__('message.add-new')"
                                 @click="addRow"
-                            >
-                                <i class="fas fa-plus me-1"></i>{{ __('message.addnew') }}
-                            </button>
+                            />
                         </div>
                     </template>
                 </div>
 
                 <div class="card-footer" v-if="!loading && !loadingMapping">
-                    <button class="btn btn-primary" @click="saveMapping" :disabled="savingMapping">
-                        <span v-if="savingMapping" class="spinner-border spinner-border-sm me-1"></span>
-                        <i v-else class="fas fa-save me-1"></i>
-                        {{ __('message.save') }}
-                    </button>
+                    <action-button action="save" :loading="savingMapping" @click="saveMapping" />
                 </div>
             </template>
         </div>

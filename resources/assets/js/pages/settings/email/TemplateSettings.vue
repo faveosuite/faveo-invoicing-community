@@ -3,12 +3,10 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Template Settings</h4>
+                <h4 class="card-title">{{ __('message.template_settings') }}</h4>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
@@ -22,17 +20,14 @@
                                 :onChange="(val) => onSelect(type.id, val)"
                                 :searchable="true"
                                 :clearable="true"
-                                placeholder="Select a template"
+                                :placeholder="__('message.select_a_template')"
                             />
                         </div>
                     </div>
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn btn-primary" @click="submit" :disabled="saving">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                        Save
-                    </button>
+                    <action-button action="save" :loading="saving" @click="submit" />
                 </div>
             </template>
         </div>

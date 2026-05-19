@@ -171,8 +171,8 @@ class MSG91Controller extends Controller
     {
         try {
             $searchString = $request->input('search-query', '');
-            $sortField = $request->input('sort_field', 'created_at');
-            $sortOrder = $request->input('sort_order', 'desc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $sortOrder = $request->input('sort-order', 'desc');
             $limit = $request->input('limit', 10);
 
             $baseQuery = $this->msgLogData();

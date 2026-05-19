@@ -3,7 +3,7 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">License Permissions</h4>
+                <h4 class="card-title">{{ __('message.license_permission') }}</h4>
             </div>
             <div class="card-body">
                 <DataTable
@@ -39,11 +39,7 @@
                 </div>
             </template>
             <template #controls>
-                <button type="button" class="btn btn-primary" :disabled="saving" @click="savePerms">
-                    <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                    <i v-else class="fas fa-save me-1"></i>
-                    Save
-                </button>
+                <action-button action="save" type="button" :loading="saving" @click="savePerms" />
             </template>
         </modal>
     </div>
@@ -95,21 +91,21 @@ const columns = ['name', 'permissions', 'action']
 
 const tableOptions = reactive({
     headings: {
-        name:        'License Type',
-        permissions: 'License Permissions',
-        action:      'Action',
+        name:        __('message.license-type'),
+        permissions: __('message.license_permission'),
+        action:      __('message.action'),
     },
     templates: {
         name: (f, row) => row.name || '—',
         permissions: (f, row) => {
             const perms = row.permissions ?? []
-            if (!perms.length) return h('span', { class: 'text-muted fst-italic' }, 'No Permissions Selected')
+            if (!perms.length) return h('span', { class: 'text-muted fst-italic' }, __('message.no_permissions_selected'))
             return h('ul', { class: 'mb-0 ps-3' }, perms.map(p => h('li', { class: 'fw-bold' }, p)))
         },
         action: (f, row) => h('button', {
             class: 'btn btn-secondary btn-sm',
             onClick: () => openEdit(row),
-        }, [h('i', { class: 'fas fa-plus me-1' }), 'Add Permissions']),
+        }, [h('i', { class: 'fas fa-plus me-1' }), __('message.add-permissions')]),
     },
     sortable: ['name'],
     filterable: true,

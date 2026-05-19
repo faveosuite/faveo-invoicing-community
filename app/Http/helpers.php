@@ -212,7 +212,7 @@ function getStatusLabel($status)
 {
     switch ($status) {
         case 'Success':
-            return __('message.amount_received');
+            return __('message.paid');
 
         case 'Pending':
             return __('message.unpaid');

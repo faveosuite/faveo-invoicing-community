@@ -32,12 +32,12 @@
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false"
                             >
-                                Bulk Action
+                                {{ __('message.bulk_action') }}
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
                                     <button class="dropdown-item" @click="showBulkDeleteModal = true">
-                                        <i class="fas fa-trash me-1"></i> Delete
+                                        <i class="fas fa-trash me-1"></i> {{ __('message.Delete') }}
                                     </button>
                                 </li>
                             </ul>
@@ -54,7 +54,7 @@
             classname="modal-lg"
             :containerStyle="{ maxWidth: '900px' }"
         >
-            <template #title><h4>Payment Failed — Exception</h4></template>
+            <template #title><h4>{{ __('message.payment_failed_exception') }}</h4></template>
             <template #fields>
                 <div class="code-container">
                     <button :class="['copy-btn', copied && 'copied']" @click="copyException">
@@ -195,7 +195,7 @@ const tableOptions = reactive({
         order:          __('message.order_no'),
         amount:         __('message.amount'),
         payment_type:   __('message.description'),
-        payment_method: 'Payment Method',
+        payment_method: __('message.payment-method'),
         status:         __('message.status'),
         action:         __('message.action'),
     },
@@ -228,11 +228,11 @@ const tableOptions = reactive({
         },
         action: (f, row) => h('button', {
             class: 'btn btn-light table_btn',
-            title: 'Delete',
+            title: __('message.Delete'),
             onClick: () => { deleteTarget.value = row },
         }, h('i', { class: 'fas fa-trash' })),
     },
-    sortable: ['date', 'amount', 'status'],
+    sortable: ['date', 'amount', 'status', 'order', 'payment_method', 'payment_type', 'user'],
     filterable: true,
     requestAdapter(data) {
         return {

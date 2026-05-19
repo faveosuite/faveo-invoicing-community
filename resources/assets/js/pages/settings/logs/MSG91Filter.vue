@@ -8,7 +8,7 @@
                 <div class="col-md-4">
                     <TextField
                         name="filter_request_id"
-                        label="Request ID"
+                        :label="__('message.request_id')"
                         :value="form.requestId"
                         :onChange="(val) => form.requestId = val"
                     />
@@ -49,7 +49,7 @@
                 <div class="col-md-4">
                     <SelectField
                         name="filter_source"
-                        label="Source"
+                        :label="__('message.source')"
                         :elements="sourceOptions"
                         :value="form.source"
                         :onChange="(val) => form.source = val"
@@ -58,7 +58,7 @@
                 <div class="col-md-4">
                     <SelectField
                         name="filter_action"
-                        label="Action"
+                        :label="__('message.action')"
                         :elements="actionOptions"
                         :value="form.action"
                         :onChange="(val) => form.action = val"
@@ -67,7 +67,7 @@
                 <div class="col-md-4">
                     <TextField
                         name="filter_failure_reason"
-                        label="Failure Reason"
+                        :label="__('message.failure_reason')"
                         :value="form.failureReason"
                         :onChange="(val) => form.failureReason = val"
                     />
@@ -93,15 +93,9 @@
             </div>
         </div>
         <div class="card-footer d-flex gap-2">
-            <button class="btn btn-primary" type="button" @click="apply">
-                <i class="fas fa-check"></i>&nbsp;{{ __('message.apply') }}
-            </button>
-            <button class="btn btn-primary" type="button" @click="reset">
-                <i class="fas fa-rotate-left"></i>&nbsp;{{ __('message.reset') }}
-            </button>
-            <button class="btn btn-secondary" type="button" @click="$emit('close')">
-                <i class="fas fa-xmark"></i>&nbsp;{{ __('message.cancel') }}
-            </button>
+            <action-button action="apply" type="button" @click="apply" />
+            <action-button action="reset" type="button" @click="reset" />
+            <action-button action="cancel" type="button" @click="$emit('close')" />
         </div>
     </div>
 </template>

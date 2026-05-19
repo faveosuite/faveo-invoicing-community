@@ -3,12 +3,10 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-secondary card-outline">
             <div class="card-header">
-                <h3 class="card-title">Settings</h3>
+                <h3 class="card-title">{{ __('message.settings') }}</h3>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
@@ -69,11 +67,7 @@
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn btn-primary" :disabled="saving" @click="submit">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
-                        <i v-else class="fa fa-save me-1"></i>
-                        {{ __('message.save') }}
-                    </button>
+                    <action-button action="save" :loading="saving" @click="submit" />
                 </div>
             </template>
         </div>
@@ -99,8 +93,8 @@ const form = reactive({
 })
 
 const preferenceOptions = [
-    { id: 'email',  name: 'Email First'  },
-    { id: 'mobile', name: 'Mobile First' },
+    { id: 'email',  name: __('message.email_first')  },
+    { id: 'mobile', name: __('message.mobile_first') },
 ]
 
 const preferenceEnabled = computed(() => form.email_enabled && form.mobile_enabled)

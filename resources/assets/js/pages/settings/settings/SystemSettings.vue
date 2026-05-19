@@ -6,9 +6,7 @@
                 <h4 class="card-title">{{ __('message.system-settings') }}</h4>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
@@ -27,7 +25,7 @@
                             <TextField
                                 name="company_email"
                                 type="email"
-                                :label="__('message.company_email') + ' *'"
+                                :label="__('message.company-email') + ' *'"
                                 :value="form.company_email"
                                 :onChange="(val, name) => form[name] = val"
                             />
@@ -109,7 +107,7 @@
                         <div class="col-md-4">
                             <SelectField
                                 name="default_currency"
-                                :label="__('message.default_currency') + ' *'"
+                                :label="__('message.default-currency') + ' *'"
                                 :elements="currencyOptions"
                                 :value="form.default_currency"
                                 :onChange="(val) => form.default_currency = val"
@@ -120,7 +118,7 @@
                         <div class="col-md-4">
                             <TextField
                                 name="cin_no"
-                                label="CIN"
+                                :label="__('message.cin')"
                                 :value="form.cin_no"
                                 :onChange="(val, name) => form[name] = val"
                             />
@@ -128,7 +126,7 @@
                         <div class="col-md-4">
                             <TextField
                                 name="gstin"
-                                label="GSTIN"
+                                :label="__('message.gstin')"
                                 :value="form.gstin"
                                 :onChange="(val, name) => form[name] = val"
                             />
@@ -195,7 +193,7 @@
                             />
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold d-block">{{ __('message.autorenewal') }}</label>
+                            <label class="form-label fw-bold d-block">{{ __('message.auto_renewal') }}</label>
                             <div class="form-check form-switch mt-2">
                                 <input id="autorenewalStatus" class="form-check-input" type="checkbox" v-model="form.autorenewal_status" />
                                 <label class="form-check-label" for="autorenewalStatus">
@@ -238,7 +236,7 @@
 
                                 <div class="row">
                                     <ImageUpload
-                                        :label="__('message.favicon')"
+                                        :label="__('message.fav-icon')"
                                         :labelStyle="{ visibility: 'hidden' }"
                                         :value="icon"
                                         name="icon"
@@ -250,7 +248,7 @@
                                     />
 
                                     <ImageUpload
-                                        :label="__('message.admin_logo')"
+                                        :label="__('message.admin-logo')"
                                         :labelStyle="{ visibility: 'hidden' }"
                                         :value="logo_admin_agent"
                                         name="logo_admin_agent"
@@ -261,7 +259,7 @@
                                     />
 
                                     <ImageUpload
-                                        :label="__('message.client_logo')"
+                                        :label="__('message.client-logo')"
                                         :labelStyle="{ visibility: 'hidden' }"
                                         :value="logo"
                                         name="logo"
@@ -276,10 +274,7 @@
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn btn-primary" @click="save" :disabled="saving">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                        {{ __('message.update') }}
-                    </button>
+                    <action-button action="save" :loading="saving" @click="save" />
                 </div>
             </template>
         </div>

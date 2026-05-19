@@ -3,10 +3,10 @@
         <AppAlert componentName="invoices-create" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Create New Invoice</h4>
+                <h4 class="card-title">{{ __('message.create-invoice') }}</h4>
                 <div class="card-tools">
-                    <router-link to="/invoices" class="btn btn-tool" title="Back to Invoices" v-tooltip>
-                        <i class="fas fa-arrow-left"></i> Back
+                    <router-link to="/invoices" class="btn btn-tool" :title="__('message.back_to_invoices')" v-tooltip>
+                        <i class="fas fa-arrow-left"></i> {{ __('message.back') }}
                     </router-link>
                 </div>
             </div>
@@ -18,12 +18,12 @@
                         <div class="col-md-4 mb-3">
                             <DynamicSelect
                                 name="user"
-                                label="User"
+                                :label="__('message.user')"
                                 :apiEndpoint="`${baseUrl}/dependency/managers?role=client`"
                                 dataKey="managers"
                                 :value="form.user"
                                 :onChange="(val) => { form.user = val; errors.user = null; }"
-                                placeholder="Select User"
+                                :placeholder="__('message.select_user')"
                             />
                             <span v-if="errors.user" class="text-danger small">{{ errors.user[0] }}</span>
                         </div>
@@ -32,7 +32,7 @@
                         <div class="col-md-4 mb-3">
                             <DatePicker
                                 name="date"
-                                label="Invoice Date"
+                                :label="__('message.invoice_date')"
                                 :value="form.date"
                                 :onChange="(val) => { form.date = val; errors.date = null; }"
                                 placeholder="MM/DD/YYYY"
@@ -44,12 +44,12 @@
                         <div class="col-md-4 mb-3">
                             <DynamicSelect
                                 name="product"
-                                label="Product"
+                                :label="__('message.product')"
                                 :apiEndpoint="`${baseUrl}/dependency/products`"
                                 dataKey="products"
                                 :value="form.product"
                                 :onChange="onProductChange"
-                                placeholder="Select Product"
+                                :placeholder="__('message.select_product')"
                             />
                             <span v-if="errors.product" class="text-danger small">{{ errors.product[0] }}</span>
                         </div>
@@ -58,19 +58,19 @@
                         <div v-if="form.product" class="col-md-4 mb-3">
                             <DynamicSelect
                                 name="plan"
-                                label="Plan"
+                                :label="__('message.plan')"
                                 :apiEndpoint="`${baseUrl}/dependency/product-plans?product_id=${form.product?.id || form.product}`"
                                 dataKey="plans"
                                 :value="form.plan"
                                 :onChange="(val) => { form.plan = val; errors.plan = null; }"
-                                placeholder="Select Plan"
+                                :placeholder="__('message.select_plan')"
                             />
                             <span v-if="errors.plan" class="text-danger small">{{ errors.plan[0] }}</span>
                         </div>
 
                         <!-- Price -->
                         <div class="col-md-4 mb-3">
-                            <label class="form-label fw-bold">Price</label>
+                            <label class="form-label fw-bold">{{ __('message.price') }}</label>
                             <input
                                 type="text"
                                 class="form-control"
@@ -83,7 +83,7 @@
 
                         <!-- Quantity -->
                         <div class="col-md-4 mb-3">
-                            <label class="form-label fw-bold">Quantity</label>
+                            <label class="form-label fw-bold">{{ __('message.quantity') }}</label>
                             <input
                                 type="number"
                                 class="form-control"
@@ -94,7 +94,7 @@
 
                         <!-- Agents -->
                         <div class="col-md-4 mb-3">
-                            <label class="form-label fw-bold">Agents</label>
+                            <label class="form-label fw-bold">{{ __('message.agents') }}</label>
                             <input
                                 type="number"
                                 class="form-control"
@@ -105,7 +105,7 @@
 
                         <!-- Coupon Code -->
                         <div class="col-md-4 mb-3">
-                            <label class="form-label fw-bold">Coupon Code</label>
+                            <label class="form-label fw-bold">{{ __('message.coupon-code') }}</label>
                             <input
                                 type="text"
                                 class="form-control"
@@ -115,7 +115,7 @@
 
                         <!-- Domain -->
                         <div class="col-md-4 mb-3">
-                            <label class="form-label fw-bold">Domain</label>
+                            <label class="form-label fw-bold">{{ __('message.domain') }}</label>
                             <input
                                 type="text"
                                 class="form-control"
@@ -126,7 +126,7 @@
 
                         <!-- Cloud Domain -->
                         <div class="col-md-4 mb-3">
-                            <label class="form-label fw-bold">Cloud Domain</label>
+                            <label class="form-label fw-bold">{{ __('message.cloud_domain_label') }}</label>
                             <input
                                 type="text"
                                 class="form-control"
@@ -136,7 +136,7 @@
 
                         <!-- Description -->
                         <div class="col-md-12 mb-3">
-                            <label class="form-label fw-bold">Description</label>
+                            <label class="form-label fw-bold">{{ __('message.description') }}</label>
                             <textarea
                                 class="form-control"
                                 rows="3"
@@ -146,10 +146,7 @@
                     </div>
 
                     <div class="d-flex justify-content-end gap-2 mt-3">
-                        <button type="submit" class="btn btn-primary" :disabled="saving">
-                            <span v-if="saving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            <i v-else class="fas fa-check"></i>&nbsp; Generate Invoice
-                        </button>
+                        <action-button action="create" type="submit" :loading="saving" :label="__('message.generate-invoice')" />
                     </div>
                 </form>
             </div>
@@ -194,7 +191,7 @@ function onProductChange(val) {
 
 async function submit() {
     Object.keys(errors).forEach(k => delete errors[k])
-    
+
     // Prepare payload
     const payload = {
         user: typeof form.user === 'object' ? form.user?.id : form.user,
@@ -209,7 +206,7 @@ async function submit() {
         cloud_domain: form.cloud_domain,
         description: form.description,
     }
-    
+
     saving.value = true
     try {
         const res = await http.post(`${baseUrl}/generate/invoice`, payload)

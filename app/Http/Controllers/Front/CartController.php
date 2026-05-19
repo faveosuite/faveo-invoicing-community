@@ -440,7 +440,7 @@ class CartController extends BaseCartController
                 return redirect()->back()->with('fails', \Lang::get('message.no_product'));
             }
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', \Lang::get('message.oops'));
+            return redirect()->back()->with('fails', \Lang::get('message.err_msg'));
         }
     }
 }

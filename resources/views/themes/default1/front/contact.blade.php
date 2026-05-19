@@ -43,7 +43,7 @@
 
                             <div class="form-group col-lg-6">
 
-                                <label class="form-label mb-1 text-2">{{ __('message.contact_name')}} <span class="text-color-danger">*</span></label>
+                                <label class="form-label mb-1 text-2">{{ __('message.name')}} <span class="text-color-danger">*</span></label>
 
                                 <input type="text" value="" data-msg-required="{{ __('message.contact_error_name')}}" maxlength="100" class="form-control text-3 h-auto py-2" name="conName" id="conName">
                             </div>

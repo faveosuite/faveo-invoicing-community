@@ -2,7 +2,7 @@
     <div class="d-flex gap-1">
         <button
             class="btn btn-light table_btn"
-            :title="isDefault ? 'Cannot disable the default language' : (status ? 'Disable' : 'Enable')"
+            :title="isDefault ? __('message.cannot_disable_default_language') : (status ? __('message.disable') : __('message.enable'))"
             :disabled="toggling || isDefault"
             v-tooltip
             @click="emit('toggle')"
@@ -12,7 +12,7 @@
         <button
             v-if="!isDefault && status"
             class="btn btn-light table_btn"
-            title="Make Default"
+            :title="__('message.make_default')"
             :disabled="settingDefault"
             v-tooltip
             @click="emit('set-default')"

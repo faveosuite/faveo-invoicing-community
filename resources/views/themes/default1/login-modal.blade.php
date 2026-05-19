@@ -404,7 +404,7 @@ $country = findCountryByGeoip($location['iso_code']);
                                                         <div class="form-group col">
 
                                                             <button type="button" class="btn btn-primary mb-xl next-step float-right" name="sendOtp" id="sendOtp" onclick="sendOTP()">
-                                                                {{ __('message.next') }}
+                                                                {{ __('message.paginate_next') }}
                                                             </button>
                                                         </div>
                                                     </div>

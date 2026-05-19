@@ -3,36 +3,34 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-secondary card-outline">
             <div class="card-header">
-                <h4 class="card-title">Edit Page</h4>
+                <h4 class="card-title">{{ __('message.edit_page') }}</h4>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <TextField name="name" label="Name *" :value="form.name" :onChange="onChange" />
+                            <TextField name="name" :label="__('message.name') + ' *'" :value="form.name" :onChange="onChange" />
                         </div>
                         <div class="col-md-6">
-                            <TextField name="slug" label="Slug *" :value="form.slug" :onChange="onChange" />
+                            <TextField name="slug" :label="__('message.slug') + ' *'" :value="form.slug" :onChange="onChange" />
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Type</label>
+                                <label class="form-label fw-bold">{{ __('message.type') }}</label>
                                 <select class="form-select" v-model="form.type" @change="onTypeChange">
-                                    <option value="">Custom</option>
-                                    <option value="contactus">Contact Us</option>
+                                    <option value="">{{ __('message.custom') }}</option>
+                                    <option value="contactus">{{ __('message.contact_us') }}</option>
                                 </select>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <TextField name="url" label="URL *" :value="form.url" :onChange="onChange" :disabled="form.type === 'contactus'" />
+                            <TextField name="url" :label="__('message.page_url') + ' *'" :value="form.url" :onChange="onChange" :disabled="form.type === 'contactus'" />
                         </div>
                     </div>
 
@@ -40,26 +38,26 @@
                         <div class="col-md-4">
                             <DynamicSelect
                                 name="parent_page_id"
-                                label="Parent Page"
+                                :label="__('message.parent-page')"
                                 :apiEndpoint="`${baseUrl}/pages`"
                                 dataKey="data"
                                 :value="form.parentObj"
                                 :onChange="onChange"
-                                placeholder="Select parent page"
+                                :placeholder="__('message.select_parent_page')"
                             />
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Publishing Date *</label>
+                                <label class="form-label fw-bold">{{ __('message.publish-date') }} *</label>
                                 <input type="date" class="form-control" v-model="form.created_at_date" />
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label fw-bold d-block">Publish</label>
+                                <label class="form-label fw-bold d-block">{{ __('message.publish') }}</label>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" v-model="form.publish" id="publish" />
-                                    <label class="form-check-label" for="publish">{{ form.publish ? 'Active' : 'Inactive' }}</label>
+                                    <label class="form-check-label" for="publish">{{ form.publish ? __('message.active') : __('message.inactive') }}</label>
                                 </div>
                             </div>
                         </div>
@@ -68,27 +66,24 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="mb-3">
-                                <label class="form-label fw-bold d-block">Set as Default Page</label>
+                                <label class="form-label fw-bold d-block">{{ __('message.set_as_default_page') }}</label>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" v-model="form.is_default" id="isDefault" />
-                                    <label class="form-check-label" for="isDefault">{{ form.is_default ? 'Yes' : 'No' }}</label>
+                                    <label class="form-check-label" for="isDefault">{{ form.is_default ? __('message.yes') : __('message.no') }}</label>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Content *</label>
+                        <label class="form-label fw-bold">{{ __('message.content') }} *</label>
                         <TinyMCE name="content" id="editor-content" :value="form.content" :onChange="onChange" />
                     </div>
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn btn-primary" @click="submit" :disabled="saving">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                        Update
-                    </button>
-                    <router-link to="/pages" class="btn btn-secondary ms-2">Cancel</router-link>
+                    <action-button action="update" :loading="saving" @click="submit" />
+                    <action-button action="cancel" to="/pages" class="ms-2" />
                 </div>
             </template>
         </div>

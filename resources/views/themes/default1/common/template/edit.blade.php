@@ -94,7 +94,7 @@
                     <div class="col-md-6 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! html()->label(Lang::get('message.template-types'))->class('required') !!}
-                        {!! html()->select('type', ['' => __('message.select'), 'Type' => $type])->class('form-control') !!}
+                        {!! html()->select('type', ['' => __('message.Select'), 'Type' => $type])->class('form-control') !!}
                         @error('type')
                         <span class="error-message"> {{$message}}</span>
                         @enderror

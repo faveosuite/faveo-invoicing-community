@@ -3,12 +3,10 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">File Storage</h4>
+                <h4 class="card-title">{{ __('message.file_storage') }}</h4>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
@@ -16,7 +14,7 @@
                         <div class="col-md-4">
                             <SelectField
                                 name="disk"
-                                label="Storage Disk"
+                                :label="__('message.storage_disk')"
                                 :elements="diskOptions"
                                 :value="diskOptions.find(o => o.id === form.disk) ?? null"
                                 :onChange="onDiskSelect"
@@ -26,14 +24,14 @@
                         </div>
 
                         <div v-if="form.disk === 'system'" class="col-md-4">
-                            <TextField name="path" label="Storage Path *" :value="form.path" :onChange="onChange" />
+                            <TextField name="path" :label="__('message.storage_path') + ' *'" :value="form.path" :onChange="onChange" />
                         </div>
 
                         <template v-if="form.disk === 's3'">
                             <div class="col-md-4">
                                 <SelectField
                                     name="s3_path_style_endpoint"
-                                    label="S3 Path Style Endpoint"
+                                    :label="__('message.s3_path_style_endpoint')"
                                     :elements="yesNoOptions"
                                     :value="yesNoOptions.find(o => o.id === form.s3_path_style_endpoint) ?? null"
                                     :onChange="(val) => form.s3_path_style_endpoint = val?.id ?? 'false'"
@@ -42,34 +40,31 @@
                                 />
                             </div>
                             <div class="col-md-4">
-                                <TextField name="s3_bucket" label="S3 Bucket *" :value="form.s3_bucket" :onChange="onChange" />
+                                <TextField name="s3_bucket" :label="__('message.s3_bucket') + ' *'" :value="form.s3_bucket" :onChange="onChange" />
                             </div>
                             <div class="col-md-4">
-                                <TextField name="s3_region" label="S3 Region *" :value="form.s3_region" :onChange="onChange" />
+                                <TextField name="s3_region" :label="__('message.s3_region') + ' *'" :value="form.s3_region" :onChange="onChange" />
                             </div>
                             <div class="col-md-4">
-                                <TextField name="s3_access_key" label="S3 Access Key *" type="password"
+                                <TextField name="s3_access_key" :label="__('message.s3_access_key') + ' *'" type="password"
                                     :value="form.s3_access_key" :onChange="onChange" />
                             </div>
                             <div class="col-md-4">
-                                <TextField name="s3_secret_key" label="S3 Secret Key *" type="password"
+                                <TextField name="s3_secret_key" :label="__('message.s3_secret_key') + ' *'" type="password"
                                     :value="form.s3_secret_key" :onChange="onChange" />
                             </div>
                             <div class="col-md-4">
-                                <TextField name="s3_endpoint_url" label="S3 Endpoint URL *" :value="form.s3_endpoint_url" :onChange="onChange" />
+                                <TextField name="s3_endpoint_url" :label="__('message.s3_endpoint_url') + ' *'" :value="form.s3_endpoint_url" :onChange="onChange" />
                             </div>
                             <div class="col-md-4">
-                                <TextField name="s3_url" label="S3 URL" :value="form.s3_url" :onChange="onChange" />
+                                <TextField name="s3_url" :label="__('message.s3_url')" :value="form.s3_url" :onChange="onChange" />
                             </div>
                         </template>
                     </div>
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn btn-primary" @click="submit" :disabled="saving">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                        Save
-                    </button>
+                    <action-button action="save" :loading="saving" @click="submit" />
                 </div>
             </template>
         </div>
@@ -92,13 +87,13 @@ const loading = ref(true)
 const saving  = ref(false)
 
 const diskOptions = [
-    { id: 'system', name: 'System (Local)' },
-    { id: 's3',     name: 'Amazon S3'      },
+    { id: 'system', name: __('message.system_local') },
+    { id: 's3',     name: __('message.amazon_s3')    },
 ]
 
 const yesNoOptions = [
-    { id: 'true',  name: 'Yes' },
-    { id: 'false', name: 'No'  },
+    { id: 'true',  name: __('message.yes') },
+    { id: 'false', name: __('message.no')  },
 ]
 
 const form = reactive({

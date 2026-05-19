@@ -6,9 +6,7 @@
                 <h4 class="card-title">{{ __('message.queue') }}</h4>
             </div>
             <div class="card-body">
-                <div v-if="loading" class="text-center py-4">
-                    <span class="spinner-border text-secondary"></span>
-                </div>
+                <inline-loader v-if="loading" />
                 <template v-else-if="fields.length">
                     <div class="row">
                         <div v-for="field in fields" :key="field.name" class="col-sm-6 mb-3">
@@ -28,14 +26,8 @@
                 <div v-else class="text-muted">{{ __('message.no-record') }}</div>
             </div>
             <div v-if="!loading && fields.length" class="card-footer">
-                <button type="button" class="btn btn-primary me-2" :disabled="saving" @click="save">
-                    <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                    <i v-else class="fas fa-save me-1"></i>
-                    {{ __('message.save') }}
-                </button>
-                <RouterLink to="/settings/common/queues" class="btn btn-secondary">
-                    {{ __('message.cancel') }}
-                </RouterLink>
+                <action-button action="save" :loading="saving" @click="save" />
+                <action-button action="cancel" to="/settings/common/queues" />
             </div>
         </div>
     </div>

@@ -124,13 +124,17 @@ class OrderController extends BaseOrderController
     {
         try {
             $searchQuery = $request->input('search-query', '');
-            $sortOrder = $request->input('sort-order', 'asc');
+            $sortOrder = $request->input('sort-order', 'desc');
             $sortField = $request->input('sort-field', 'created_at');
             $limit = $request->input('limit', 10);
 
+            $allowedSorts = ['created_at', 'number', 'order_status', 'update_ends_at'];
+            if (!in_array($sortField, $allowedSorts, true)) {
+                $sortField = 'created_at';
+            }
+
             $orderSearch = new OrderSearchController();
             $query = $orderSearch->advanceOrderSearch($request);
-
             $query = $orderSearch->applyOrdersSearch($query, $searchQuery);
 
             $paginated = $query->orderBy($sortField, $sortOrder)

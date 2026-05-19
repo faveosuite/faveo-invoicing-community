@@ -54,12 +54,12 @@ main
     <input type="text" class="form-control" id="last_name" placeholder="{{ __('message.enter_your_lastname') }}" name="last_name">
   </div>
     <div class="form-group">
-    <label for="company_name">{{ __('message.company-name') }}</label>
+    <label for="company_name">{{ __('message.company') }}</label>
     <input type="text" class="form-control" id="company_name" placeholder="{{ __('message.enter_your_companyname') }}" name="company_name">
   </div>
     <div class="form-group">
     <label for="country">{{ __('message.countryname') }}</label>
-    <input type="text" class="form-control" id="country" placeholder="{{ __('message.enter_your_countryname') }}" name="country">
+    <input type="text" class="form-control" id="country" placeholder="{{ __('message.enter_your_companyname') }}" name="country">
   </div>
     <div class="form-group">
     <label for="address">{{ __('message.address') }}</label>
@@ -97,7 +97,7 @@ main
                             alert('in');
                             window.location.reload();
                         } else {
-                            alert('{{ __('message.oops') }}');
+                            alert('{{ __('message.err_msg') }}');
                         }
                     }).catch(function(error) {
                         console.error(error);

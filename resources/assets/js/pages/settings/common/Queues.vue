@@ -135,7 +135,7 @@ const columns = ['name', 'status', 'action']
 
 const tableOptions = reactive({
     headings: {
-        name:   __('message.name_page'),
+        name:   __('message.name'),
         status: __('message.status'),
         action: __('message.action'),
     },
@@ -165,12 +165,12 @@ const tableOptions = reactive({
             )
         },
     },
-    sortable:   [],
+    sortable:   ['name'],
     filterable: false,
     requestAdapter(data) {
         return {
-            'sort_field':   data.orderBy  ?? 'name',
-            'sort_order':   data.ascending ? 'asc' : 'desc',
+            'sort-field':   data.orderBy  ?? 'name',
+            'sort-order':   data.ascending ? 'asc' : 'desc',
             'search-query': (data.query   ?? '').trim(),
             page:           data.page,
             limit:          data.limit,

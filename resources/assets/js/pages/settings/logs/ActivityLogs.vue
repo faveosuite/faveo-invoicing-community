@@ -70,10 +70,7 @@
                 <div v-if="deleteError" class="text-danger small mt-1">{{ deleteError }}</div>
             </template>
             <template #controls>
-                <button class="btn btn-primary" :disabled="deleting" @click="confirmDelete">
-                    <span v-if="deleting" class="spinner-border spinner-border-sm me-1"></span>
-                    {{ __('log.delete_logs') }}
-                </button>
+                <action-button action="delete" :loading="deleting" :label="__('log.delete_logs')" @click="confirmDelete" />
             </template>
         </AppModal>
     </div>
@@ -118,11 +115,12 @@ const tableOptions = reactive({
         role:         __('message.role'),
         created_at:   __('message.created_at'),
     },
-    sortable: ['module', 'event', 'created_at'],
+    sortable: ['module', 'event', 'created_at', 'role', 'performed_by'],
     filterable: true,
     requestAdapter(data) {
+        const columnMap = { module: 'module', event: 'event' }
         return {
-            'sort-field':   data.orderBy ?? 'created_at',
+            'sort-field':   columnMap[data.orderBy] ?? data.orderBy ?? 'created_at',
             'sort-order':   data.ascending ? 'asc' : 'desc',
             'search-query': (data.query ?? '').trim(),
             page:  data.page,
@@ -176,7 +174,7 @@ function closeDeleteModal() {
 async function confirmDelete() {
     deleteError.value = ''
     if (!deleteDate.value) {
-        deleteError.value = 'Please select a date.'
+        deleteError.value = __('message.please_select_date')
         return
     }
     deleting.value = true

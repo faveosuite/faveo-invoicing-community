@@ -13,7 +13,7 @@
                     <b class="text-header">{{ plugin.name }}</b>
                     <div class="mt-1">
                         <span class="provider-status-label" :class="plugin.status ? 'text-success' : 'text-danger'">
-                            {{ plugin.status ? 'Active' : 'Inactive' }}
+                            {{ plugin.status ? __('message.active') : __('message.inactive') }}
                         </span>
                     </div>
                 </div>
@@ -24,14 +24,14 @@
 
         <!-- Actions -->
         <div class="d-flex align-items-center gap-2 ms-2 flex-shrink-0 align-self-start pt-1">
-            <button class="btn btn-link p-0 text-muted" title="Settings" @click="$emit('settings', plugin)">
+            <button class="btn btn-link p-0 text-muted" :title="__('message.settings')" @click="$emit('settings', plugin)">
                 <i class="fas fa-gear"></i>
             </button>
 
             <button
                 class="btn btn-link p-0"
                 :class="{ 'opacity-50 pe-none': toggling }"
-                :title="plugin.status ? 'Disable' : 'Enable'"
+                :title="plugin.status ? __('message.disable') : __('message.enable')"
                 :disabled="toggling"
                 @click="$emit('toggle', plugin)"
             >

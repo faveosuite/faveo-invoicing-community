@@ -3,7 +3,7 @@
         <router-link
             :to="`/orders/${orderId}`"
             class="btn btn-default table_btn"
-            title="View"
+            :title="__('message.view')"
             v-tooltip
         >
             <i class="fas fa-eye"></i>

@@ -926,6 +926,13 @@ Route::delete('users', [User\ClientController::class, 'deleteBulkUsers']);
 Route::put('users', [User\ClientController::class, 'userCreate']);
 Route::get('user/{id}', [User\ClientController::class, 'getEditUser']);
 Route::patch('user/{id}', [User\ClientController::class, 'userUpdate']);
+Route::get('user/{id}/summary', [User\ClientController::class, 'getUserSummary']);
+Route::get('user/{id}/invoices', [User\ClientController::class, 'getUserInvoices']);
+Route::get('user/{id}/payments', [User\ClientController::class, 'getUserPayments']);
+Route::get('user/{id}/comments', [User\ClientController::class, 'getUserComments']);
+Route::post('user/{id}/comments', [User\ClientController::class, 'storeUserComment']);
+Route::put('user/{id}/comments/{commentId}', [User\ClientController::class, 'updateUserComment']);
+Route::delete('user/{id}/comments/{commentId}', [User\ClientController::class, 'deleteUserComment']);
 
 Route::get('soft-delete', [User\SoftDeleteController::class, 'softDeletedUsers']);
 Route::get('user/restore/{id}', [User\SoftDeleteController::class, 'restoreUser']);

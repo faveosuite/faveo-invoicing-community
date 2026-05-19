@@ -1,8 +1,6 @@
 <template>
   <div>
-        <div v-if="loading" class="text-center py-5">
-          <i class="fas fa-spinner fa-spin fa-2x"></i>
-        </div>
+        <inline-loader v-if="loading" />
         <div v-else>
           <div class="row">
             <div class="col-lg-4 col-6">
@@ -531,3 +529,12 @@ const isExpired = (dateStr) => {
   return new Date(dateStr) < new Date()
 }
 </script>
+
+<style scoped>
+.small-box-footer {
+  color: rgba(255, 255, 255, 0.8);
+}
+.small-box-footer:hover {
+  color: #fff;
+}
+</style>

@@ -3,7 +3,7 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">MSG91 Delivery Reports</h4>
+                <h4 class="card-title">{{ __('message.msg_reports') }}</h4>
                 <div class="card-tools">
                     <button class="btn btn-tool" :title="__('message.filters')" v-tooltip @click="showFilter = !showFilter">
                         <i class="fas fa-filter"></i>
@@ -92,16 +92,16 @@ const columns = [
 
 const tableOptions = reactive({
     headings: {
-        request_id:     'Request ID',
+        request_id:     __('message.request_id'),
         user_fullname:  __('message.user'),
         user_email:     __('message.email'),
         mobile_number:  __('message.mobile_number'),
-        source:         'Source',
-        action:         'Attempt',
+        source:         __('message.source'),
+        action:         __('message.attempt'),
         status:         __('message.status'),
-        failure_reason: 'Failure Reason',
-        created_at:     'Sent At',
-        delivery_date:  'Delivered At',
+        failure_reason: __('message.failure_reason'),
+        created_at:     __('message.sent_at'),
+        delivery_date:  __('message.delivered_at'),
     },
     templates: {
         request_id: (f, row) => row.request_id || '—',
@@ -123,8 +123,8 @@ const tableOptions = reactive({
     filterable: true,
     requestAdapter(data) {
         return {
-            sort_field:     data.orderBy ?? 'created_at',
-            sort_order:     data.ascending ? 'asc' : 'desc',
+            'sort-field':   data.orderBy ?? 'created_at',
+            'sort-order':   data.ascending ? 'asc' : 'desc',
             'search-query': (data.query ?? '').trim(),
             page:           data.page,
             limit:          data.limit,

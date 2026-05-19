@@ -109,7 +109,7 @@
 
                         <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                             <!-- last name -->
-                            {!! html()->label(trans('message.lic_type'), 'type')->class('required') !!}
+                            {!! html()->label(trans('message.license-type'), 'type')->class('required') !!}
                             {!! html()->select('type', ['' => __('message.choose'), 'Types' => $type])->class('form-control'.($errors->has('type') ? ' is-invalid' : '')) !!}
                             <div class="input-group-append"></div>
                             @error('type')
@@ -215,7 +215,7 @@
 
                                                 <label for="chkYes" style="">
                                                     <input type="radio" id="chkYes" name="chkTax" />
-                                                    {{ __('message.github') }}
+                                                    {{ __('message.github_heading') }}
                                                 </label>
 
                                                 <div class="col-md-10 gitstatus" id="git" style="display:none">
@@ -460,7 +460,7 @@
                         <table class="table">
 
                             <tr>
-                                <th>{{ __('message.name_page') }}</th>
+                                <th>{{ __('message.name') }}</th>
                                 <th>{{ __('message.months') }}</th>
                                 <th>{{ __('message.action') }}</th>
                             </tr>
@@ -560,7 +560,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('message.cancel') }}</button>
-                    <button type="button" id="confirmDelete" class="btn btn-danger">{{ __('message.delete') }}</button>
+                    <button type="button" id="confirmDelete" class="btn btn-danger">{{ __('message.Delete') }}</button>
                 </div>
             </div>
         </div>
@@ -1248,7 +1248,7 @@ tinymce.init({
                 infoEmpty:      "{{ __('message.info_empty') }}",
                 infoFiltered:   "{{ __('message.info_filtered') }}",
                 lengthMenu:     "{{ __('message.sLengthMenu') }}",
-                loadingRecords: "{{ __('message.loading_records') }}",
+                loadingRecords: "{{ __('message.loading') }}",
             },
             columnDefs: [
                 {

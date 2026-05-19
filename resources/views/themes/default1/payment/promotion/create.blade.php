@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-{{ __('message.create_coupon') }}
+{{ __('message.create_coupon_title') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -60,7 +60,7 @@
 
                         <td>
                             <div class="form-group col-lg-6 {{ $errors->has('type') ? 'has-error' : '' }}">
-                                {!! html()->select('type', ['' => __('message.select'), 'Types' => $type])->class('form-control'.($errors->has('type') ? ' is-invalid' : ''))->attribute('title', __('message.type_of_coupon')) !!}
+                                {!! html()->select('type', ['' => __('message.Select'), 'Types' => $type])->class('form-control'.($errors->has('type') ? ' is-invalid' : ''))->attribute('title', __('message.type_of_coupon')) !!}
                                 @error('type')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror

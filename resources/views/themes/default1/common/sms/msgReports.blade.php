@@ -65,7 +65,7 @@
                             <div class="col-md-3 form-group">
                                 <label for="source">{{ __('message.source') }}</label>
                                 <select name="source" class="form-control">
-                                    <option value="">{{ __('message.select') }} {{ __('message.source') }}</option>
+                                    <option value="">{{ __('message.Select') }} {{ __('message.source') }}</option>
                                     @foreach($sources as $source)
                                         <option value="{{ $source }}"
                                                 {{ request('source') === (string) $source ? 'selected' : '' }}>
@@ -77,7 +77,7 @@
                             <div class="col-md-3 form-group">
                                 <label for="action">{{ __('message.attempt') }}</label>
                                 <select name="action" class="form-control">
-                                    <option value="">{{ __('message.select') }} {{ __('message.attempt') }}</option>
+                                    <option value="">{{ __('message.Select') }} {{ __('message.attempt') }}</option>
                                     @foreach($actions as $action)
                                         @php
                                             $ordinals = ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
@@ -183,7 +183,7 @@
                 },
                 language: {
                     search: "<span style='margin-right: 10px;'>{{ __('message.table_search') }}</span>",
-                    processing: '<div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading_records') }}</div></div>',
+                    processing: '<div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>',
                     paginate: {
                         first:      "{{ __('message.paginate_first') }}",
                         last:       "{{ __('message.paginate_last') }}",

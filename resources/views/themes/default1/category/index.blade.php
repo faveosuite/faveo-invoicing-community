@@ -39,7 +39,7 @@
                      <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash"></i>&nbsp;&nbsp;{{Lang::get('message.delmultiple')}}</button><br /><br />
                     <thead><tr>
                         <th class="no-sort" style="width:20px"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
-                            <th>{{ __('message.category_name')}}</th>
+                            <th>{{ __('message.name')}}</th>
                             <th>{{ __('message.action')}}</th>
                         </tr></thead>
 
@@ -87,7 +87,7 @@
                 infoEmpty:      "{{ __('message.info_empty') }}",
                 infoFiltered:   "{{ __('message.info_filtered') }}",
                 lengthMenu:     "{{ __('message.length_menu') }}",
-                loadingRecords: "{{ __('message.loading_records') }}",
+                loadingRecords: "{{ __('message.loading') }}",
                 search:         "{{ __('message.table_search') }}",
             },
             columnDefs: [

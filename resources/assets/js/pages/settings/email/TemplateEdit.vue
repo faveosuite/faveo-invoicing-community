@@ -3,12 +3,10 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title mb-0">{{ form.name || 'Edit Template' }}</h4>
+                <h4 class="card-title mb-0">{{ form.name || __('message.edit_template') }}</h4>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
@@ -16,13 +14,13 @@
                     <!-- Collapsible shortcodes card -->
                     <div v-if="form.codes" class="card card-light mb-3" :class="{ 'collapsed-card': shortcodesCollapsed }">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">List of Available Shortcodes</h5>
+                            <h5 class="card-title mb-0">{{ __('message.list_of_available_shortcodes') }}</h5>
                             <div class="card-tools">
                                 <button
                                     type="button"
                                     class="btn btn-tool"
                                     @click="shortcodesCollapsed = !shortcodesCollapsed"
-                                    :title="shortcodesCollapsed ? 'Expand' : 'Collapse'"
+                                    :title="shortcodesCollapsed ? __('message.expand') : __('message.collapse')"
                                 >
                                     <i :class="shortcodesCollapsed ? 'fas fa-plus' : 'fas fa-minus'"></i>
                                 </button>
@@ -31,7 +29,7 @@
                         <div class="card-body">
                             <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
                                 <i class="fas fa-info-circle me-1"></i>
-                                Copy a shortcode and paste it into the template content where you want the value to appear.
+                                {{ __('message.copy_shortcode_info') }}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                             <ul class="list-inline mb-0">
@@ -51,7 +49,7 @@
                         <div class="col-md-4">
                             <TextField
                                 name="name"
-                                label="Name *"
+                                :label="__('message.name') + ' *'"
                                 :value="form.name"
                                 :onChange="(val, key) => form[key] = val"
                             />
@@ -59,7 +57,7 @@
                         <div class="col-md-4">
                             <SelectField
                                 name="type"
-                                label="Type *"
+                                :label="__('message.type') + ' *'"
                                 :elements="typeOptions"
                                 :value="selectedType"
                                 :onChange="(val) => form.type = val?.id ?? ''"
@@ -71,7 +69,7 @@
                         <div class="col-md-4">
                             <TextField
                                 name="reply_to"
-                                label="Reply Email"
+                                :label="__('message.reply_email')"
                                 :value="form.reply_to"
                                 :onChange="(val, key) => form[key] = val"
                             />
@@ -79,7 +77,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Content *</label>
+                        <label class="form-label fw-bold">{{ __('message.content') }} *</label>
                         <TinyMCE
                             name="data"
                             id="editor-template"
@@ -90,13 +88,8 @@
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn btn-primary" @click="save" :disabled="saving">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                        Update
-                    </button>
-                    <RouterLink to="/settings/email/templates" class="btn btn-secondary ms-2">
-                        Cancel
-                    </RouterLink>
+                    <action-button action="update" :loading="saving" @click="save" />
+                    <action-button action="cancel" to="/settings/email/templates" class="ms-2" />
                 </div>
             </template>
         </div>
@@ -105,7 +98,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { useRoute, useRouter, RouterLink } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'

@@ -61,15 +61,9 @@
             </div>
         </div>
         <div class="card-footer d-flex gap-2">
-            <button class="btn btn-primary" type="button" @click="apply">
-                <i class="fas fa-check"></i>&nbsp;{{ __('message.apply') }}
-            </button>
-            <button class="btn btn-primary" type="button" @click="reset">
-                <i class="fas fa-rotate-left"></i>&nbsp;{{ __('message.reset') }}
-            </button>
-            <button class="btn btn-secondary" type="button" @click="$emit('close')">
-                <i class="fas fa-xmark"></i>&nbsp;{{ __('message.cancel') }}
-            </button>
+            <action-button action="apply" type="button" @click="apply" />
+            <action-button action="reset" type="button" @click="reset" />
+            <action-button action="cancel" type="button" @click="$emit('close')" />
         </div>
     </div>
 </template>

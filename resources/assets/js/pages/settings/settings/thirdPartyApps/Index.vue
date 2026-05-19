@@ -3,9 +3,9 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-secondary card-outline">
             <div class="card-header">
-                <h4 class="card-title">Third-Party Apps</h4>
+                <h4 class="card-title">{{ __('message.third_party_apps') }}</h4>
                 <div class="card-tools">
-                    <button class="btn btn-tool" title="Add App" v-tooltip @click="openCreate">
+                    <button class="btn btn-tool" :title="__('message.add_app')" v-tooltip @click="openCreate">
                         <i class="fas fa-plus fw-bold"></i>
                     </button>
                 </div>
@@ -26,12 +26,12 @@
                                 data-bs-toggle="dropdown"
                                 :disabled="deleting"
                             >
-                                <span v-if="deleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                <span v-else>Bulk Action</span>
+                                <spinner-loader v-if="deleting" :size="18" />
+                                <span v-else>{{ __('message.bulk_action') }}</span>
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <button class="dropdown-item" @click="bulkDelete">Delete</button>
+                                    <button class="dropdown-item" @click="bulkDelete">{{ __('message.Delete') }}</button>
                                 </li>
                             </ul>
                         </div>
@@ -43,97 +43,83 @@
         <!-- Create Modal -->
         <modal :showModal="showCreate" :onClose="closeCreate" :showCloseBtn="false">
             <template #title>
-                <h4>Add App</h4>
+                <h4>{{ __('message.add_app') }}</h4>
             </template>
             <template #fields>
                 <TextField
                     name="app_name"
-                    label="App Name"
+                    :label="__('message.app_name')"
                     :value="form.app_name"
                     :onChange="(val) => form.app_name = val"
-                    placeholder="App Name"
+                    :placeholder="__('message.app_name')"
                 />
                 <div class="mb-3">
-                    <label class="form-label fw-bold">App Key (32 chars)</label>
+                    <label class="form-label fw-bold">{{ __('message.app_key') }}</label>
                     <div class="input-group">
                         <input
                             type="text"
                             name="app_key"
                             :value="form.app_key"
                             @input="form.app_key = $event.target.value"
-                            placeholder="32-character key"
+                            :placeholder="__('message.app_key')"
                             :class="['form-control', { 'is-invalid': appKeyError }]"
                         />
-                        <button type="button" class="btn btn-secondary" @click="generateKey" :disabled="generatingKey" title="Generate random key">
-                            <span v-if="generatingKey" class="spinner-border spinner-border-sm me-1"></span>
-                            <i v-else class="fas fa-sync-alt me-1"></i>Generate
-                        </button>
+                        <action-button action="refresh" variant="secondary" type="button" :loading="generatingKey" :label="__('message.generate_key')" @click="generateKey" />
                         <div v-if="appKeyError" class="invalid-feedback">{{ appKeyError }}</div>
                     </div>
                 </div>
                 <TextField
                     name="app_secret"
-                    label="App Secret"
+                    :label="__('message.app_secret')"
                     type="password"
                     :value="form.app_secret"
                     :onChange="(val) => form.app_secret = val"
-                    placeholder="Secret"
+                    :placeholder="__('message.app_secret')"
                 />
             </template>
             <template #controls>
-                <button type="button" class="btn btn-primary" :disabled="saving" @click="saveApp">
-                    <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                    <i v-else class="fas fa-save me-1"></i>
-                    Save
-                </button>
+                <action-button action="save" type="button" :loading="saving" @click="saveApp" />
             </template>
         </modal>
 
         <!-- Edit Modal -->
         <modal :showModal="showEdit" :onClose="closeEdit" :showCloseBtn="false">
             <template #title>
-                <h4>Edit App</h4>
+                <h4>{{ __('message.edit_app') }}</h4>
             </template>
             <template #fields>
                 <TextField
                     name="app_name"
-                    label="App Name"
+                    :label="__('message.app_name')"
                     :value="form.app_name"
                     :onChange="(val) => form.app_name = val"
-                    placeholder="App Name"
+                    :placeholder="__('message.app_name')"
                 />
                 <div class="mb-3">
-                    <label class="form-label fw-bold">App Key (32 chars)</label>
+                    <label class="form-label fw-bold">{{ __('message.app_key') }}</label>
                     <div class="input-group">
                         <input
                             type="text"
                             name="app_key"
                             :value="form.app_key"
                             @input="form.app_key = $event.target.value"
-                            placeholder="32-character key"
+                            :placeholder="__('message.app_key')"
                             :class="['form-control', { 'is-invalid': appKeyError }]"
                         />
-                        <button type="button" class="btn btn-secondary" @click="generateKey" :disabled="generatingKey" title="Generate random key">
-                            <span v-if="generatingKey" class="spinner-border spinner-border-sm me-1"></span>
-                            <i v-else class="fas fa-sync-alt me-1"></i>Generate
-                        </button>
+                        <action-button action="refresh" variant="secondary" type="button" :loading="generatingKey" :label="__('message.generate_key')" @click="generateKey" />
                         <div v-if="appKeyError" class="invalid-feedback">{{ appKeyError }}</div>
                     </div>
                 </div>
                 <TextField
                     name="app_secret"
-                    label="App Secret"
+                    :label="__('message.app_secret')"
                     :value="form.app_secret"
                     :onChange="(val) => form.app_secret = val"
-                    placeholder="Secret"
+                    :placeholder="__('message.app_secret')"
                 />
             </template>
             <template #controls>
-                <button type="button" class="btn btn-primary" :disabled="saving" @click="saveApp">
-                    <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                    <i v-else class="fas fa-save me-1"></i>
-                    Update
-                </button>
+                <action-button action="save" type="button" :loading="saving" @click="saveApp" />
             </template>
         </modal>
 
@@ -253,10 +239,10 @@ const columns = ['select', 'app_name', 'app_key', 'app_secret', 'action']
 const tableOptions = reactive({
     headings: {
         select:     () => h('input', { type: 'checkbox', checked: allSelected.value, onChange: toggleAll }),
-        app_name:   'App Name',
-        app_key:    'App Key',
-        app_secret: 'App Secret',
-        action:     'Action',
+        app_name:   __('message.app_name'),
+        app_key:    __('message.app_key'),
+        app_secret: __('message.app_secret'),
+        action:     __('message.action'),
     },
     templates: {
         select:     (f, row) => h('input', { type: 'checkbox', checked: selected.value.includes(row.id), onChange: () => toggleRow(row.id) }),
@@ -264,8 +250,8 @@ const tableOptions = reactive({
         app_key:    (f, row) => row.app_key    || '—',
         app_secret: (f, row) => row.app_secret || '—',
         action:     (f, row) => h('div', { class: 'd-flex gap-1' }, [
-            h('button', { class: 'btn btn-light table_btn', title: 'Edit',   onClick: () => openEdit(row)    }, [h('i', { class: 'fas fa-edit'  })]),
-            h('button', { class: 'btn btn-light table_btn', title: 'Delete', onClick: () => openDelete(row.id) }, [h('i', { class: 'fas fa-trash' })]),
+            h('button', { class: 'btn btn-light table_btn', title: __('message.edit'),   onClick: () => openEdit(row)    }, [h('i', { class: 'fas fa-edit'  })]),
+            h('button', { class: 'btn btn-light table_btn', title: __('message.Delete'), onClick: () => openDelete(row.id) }, [h('i', { class: 'fas fa-trash' })]),
         ]),
     },
     sortable: ['app_name'],

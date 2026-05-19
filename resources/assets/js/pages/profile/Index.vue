@@ -1,24 +1,20 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div v-if="!hasDataPopulated" class="row">
-            <div class="col-12 text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
-        </div>
+        <inline-loader v-if="!hasDataPopulated" />
 
         <div class="row">
             <!-- Left: Profile Card -->
             <div class="col-md-6" v-if="hasDataPopulated">
                 <div class="card card-light">
                     <div class="card-header">
-                        <h3 class="card-title">{{ __('message.profile') }}</h3>
+                        <h4 class="card-title">{{ __('message.profile') }}</h4>
                     </div>
                     <div class="card-body">
                         <div class="text-center">
                             <ImageUpload
                                 name="profile_pic"
-                                label="Profile Picture"
+                                :label="__('message.profile-picture')"
                                 :labelStyle="{ display: 'none' }"
                                 :labelCss="{ visibility: 'hidden', margin: 'auto' }"
                                 :componentName="COMPONENT"
@@ -60,25 +56,14 @@
                             :onChange="onChange"
                         />
 
-                        <div class="form-group">
-                            <label class="form-label fw-bold">{{ __('message.mobile') }} *</label>
-                            <div class="input-group">
-                                <select
-                                    class="form-select"
-                                    style="max-width: 110px"
-                                    v-model="form.mobile_country_iso"
-                                >
-                                    <option v-for="c in countries" :key="c.id" :value="c.id">
-                                        {{ c.id }}
-                                    </option>
-                                </select>
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    v-model="form.mobile"
-                                />
-                            </div>
-                        </div>
+                        <PhoneField
+                            name="mobile"
+                            :label="__('message.mobile') + ' *'"
+                            :value="form.mobile"
+                            :initialCountry="form.mobile_country_iso"
+                            :onChange="onChange"
+                            @countryChange="onMobileCountryChange"
+                        />
 
                         <TextField
                             name="address"
@@ -131,9 +116,7 @@
                         />
                     </div>
                     <div class="card-footer">
-                        <button class="btn btn-primary" @click="submitProfile" :disabled="savingProfile">
-                            <i class="fas fa-sync me-1"></i> {{ __('message.update') }}
-                        </button>
+                        <action-button action="update" :loading="savingProfile" @click="submitProfile" />
                     </div>
                 </div>
             </div>
@@ -141,9 +124,9 @@
             <!-- Right: Password + 2FA -->
             <div class="col-md-6" v-if="hasDataPopulated">
                 <!-- Password Card -->
-                <div class="card card-light">
+                <div class="card card-light mb-3">
                     <div class="card-header">
-                        <h3 class="card-title">{{ __('message.change_password') }}</h3>
+                        <h4 class="card-title">{{ __('message.change_password') }}</h4>
                     </div>
                     <div class="card-body">
                         <TextField
@@ -186,16 +169,14 @@
                         />
                     </div>
                     <div class="card-footer">
-                        <button class="btn btn-primary" @click="submitPassword" :disabled="savingPassword">
-                            <i class="fas fa-sync me-1"></i> {{ __('message.update') }}
-                        </button>
+                        <action-button action="update" :loading="savingPassword" @click="submitPassword" />
                     </div>
                 </div>
 
                 <!-- 2FA Card -->
                 <div class="card card-light">
                     <div class="card-header">
-                        <h3 class="card-title">{{ __('message.two_factor_authentication') }}</h3>
+                        <h4 class="card-title">{{ __('message.two_factor_authentication') }}</h4>
                     </div>
                     <div class="card-body">
                         <div class="row align-items-center">
@@ -204,40 +185,36 @@
                                     <i class="fas fa-shield-alt me-1 text-secondary" style="font-size:20px; vertical-align:middle;"></i>
                                     {{
                                         is2faEnabled
-                                            ? '2-Step Verification is ON since ' + dateSinceEnabled
+                                            ? __('message.2_step_verification') + ' ' + dateSinceEnabled
                                             : __('message.authenticator_app')
                                     }}
                                 </span>
                             </div>
                             <div class="col-md-3 text-end">
-                                <button
+                                <action-button
                                     v-if="!is2faEnabled"
-                                    type="button"
-                                    class="btn btn-primary btn-sm"
+                                    variant="primary"
+                                    size="sm"
+                                    icon="fas fa-toggle-on"
+                                    :label="__('message.enable')"
                                     @click="showSetup = true"
-                                >
-                                    <i class="fas fa-toggle-on me-1"></i> {{ __('message.enable') }}
-                                </button>
-                                <button
+                                />
+                                <action-button
                                     v-else
-                                    type="button"
-                                    class="btn btn-secondary btn-sm"
+                                    variant="secondary"
+                                    size="sm"
+                                    icon="fas fa-toggle-off"
+                                    :label="__('message.disable')"
+                                    :loading="disabling2fa"
                                     @click="disable2fa"
-                                    :disabled="disabling2fa"
-                                >
-                                    <span v-if="disabling2fa" class="spinner-border spinner-border-sm me-1"></span>
-                                    <i v-else class="fas fa-toggle-off me-1"></i> {{ __('message.disable') }}
-                                </button>
+                                />
                             </div>
                         </div>
 
                         <!-- 2FA Setup inline section -->
                         <div v-if="showSetup && !is2faEnabled" class="mt-3">
                             <div v-if="!qrLoaded" class="text-center">
-                                <button class="btn btn-success btn-sm" :disabled="enabling2fa" @click="load2faQr">
-                                    <span v-if="enabling2fa" class="spinner-border spinner-border-sm me-1"></span>
-                                    {{ __('message.enable') }} 2FA
-                                </button>
+                                <action-button variant="success" size="sm" :label="__('message.enable') + ' 2FA'" :loading="enabling2fa" @click="load2faQr" />
                             </div>
                             <div v-else>
                                 <p class="mb-2">{{ __('message.scan_barcode') }}</p>
@@ -245,7 +222,7 @@
                                     <img :src="qrImage" alt="QR Code" style="max-width:180px" />
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Secret Key:</label>
+                                    <label class="form-label fw-bold">{{ __('message.secret_key_label') }}:</label>
                                     <input
                                         type="text"
                                         class="form-control"
@@ -265,13 +242,8 @@
                                         maxlength="6"
                                     />
                                 </div>
-                                <button class="btn btn-primary btn-sm" :disabled="verifying2fa" @click="verify2fa">
-                                    <span v-if="verifying2fa" class="spinner-border spinner-border-sm me-1"></span>
-                                    {{ __('message.verify') }}
-                                </button>
-                                <button class="btn btn-secondary btn-sm ms-2" @click="cancelSetup">
-                                    {{ __('message.cancel') }}
-                                </button>
+                                <action-button action="confirm" size="sm" :label="__('message.verify')" :loading="verifying2fa" @click="verify2fa" />
+                                <action-button action="cancel" size="sm" class="ms-2" @click="cancelSetup" />
                             </div>
                         </div>
                     </div>
@@ -320,6 +292,7 @@ const form = reactive({
     company:            '',
     mobile:             '',
     mobile_country_iso: 'IN',
+    mobile_code:        '',
     address:            '',
     town:               '',
     timezone_id:        null,
@@ -370,6 +343,7 @@ onMounted(async () => {
             company:            user.company             ?? '',
             mobile:             user.mobile              ?? '',
             mobile_country_iso: user.mobile_country_iso  ?? 'IN',
+            mobile_code:        user.mobile_code         ?? '',
             address:            user.address             ?? '',
             town:               user.town                ?? '',
             timezone_id:        user.timezone_id ? Number(user.timezone_id) : null,
@@ -380,7 +354,7 @@ onMounted(async () => {
         })
 
         if (user.profile_pic) {
-            profilePicUrl.value = `${baseUrl}/common/images/users/${user.profile_pic}`
+            profilePicUrl.value = user.profile_pic
         }
 
         if (form.country) {
@@ -416,6 +390,11 @@ function onImageChange(value, _name) {
     if (value?.image) profilePicUrl.value = value.image
 }
 
+function onMobileCountryChange({ iso, dialCode }) {
+    form.mobile_country_iso = iso
+    form.mobile_code        = dialCode
+}
+
 async function onCountryChange(val) {
     form.country = val?.id ?? ''
     form.state   = ''
@@ -437,7 +416,9 @@ async function submitProfile() {
         }
         data.append('_method', 'PATCH')
 
-        const res = await http.post(`${baseUrl}/profile`, data)
+        const res = await http.post(`${baseUrl}/profile`, data, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        })
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -517,8 +498,3 @@ async function disable2fa() {
 }
 </script>
 
-<style scoped>
-.card-light {
-    border-top: 3px solid #6c757d;
-}
-</style>

@@ -12,7 +12,7 @@
 
         <AppModal :showModal="!!editRow" :onClose="closeEdit" classname="modal-md">
             <template #title>
-                <h4>Edit Webhook URL</h4>
+                <h4>{{ __('message.edit_webhook_url') }}</h4>
             </template>
 
             <template #alert>
@@ -21,21 +21,18 @@
 
             <template #fields>
                 <div class="mb-0">
-                    <label class="form-label fw-semibold">Webhook URL</label>
+                    <label class="form-label fw-semibold">{{ __('message.webhook_url') }}</label>
                     <input
                         v-model="editWebhookUrl"
                         type="text"
                         class="form-control"
-                        placeholder="Enter webhook URL"
+                        :placeholder="__('message.enter_webhook_url')"
                     />
                 </div>
             </template>
 
             <template #controls>
-                <button class="btn btn-primary" :disabled="saving" @click="saveWebhook">
-                    <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                    Save
-                </button>
+                <action-button action="save" :loading="saving" @click="saveWebhook" />
             </template>
         </AppModal>
     </div>
@@ -101,7 +98,7 @@ async function copyToClipboard(id, text) {
 }
 
 async function remove(row) {
-    if (!confirm(`Delete WhatsApp user ${row.phone_number || row.user_name}?`)) return
+    if (!confirm(`${__('message.delete_whatsapp_user_confirm')} ${row.phone_number || row.user_name}?`)) return
     try {
         const res = await http.post(`${baseUrl}/whatsapp-deregister`, { id: row.id })
         successHandler(res, COMPONENT)
@@ -116,14 +113,24 @@ const columns = ['user_name', 'phone_number', 'waba_id', 'phone_number_id', 'bus
 const options = {
     sortable: ['phone_number', 'waba_id', 'phone_number_id', 'business_id', 'created_at'],
     filterable: true,
+    requestAdapter(data) {
+        return {
+            'sort-field':   data.orderBy ?? 'created_at',
+            'sort-order':   data.ascending ? 'asc' : 'desc',
+            'search-query': (data.query ?? '').trim(),
+            page:           data.page,
+            limit:          data.limit,
+        }
+    },
+    orderBy: { column: 'created_at', ascending: false },
     headings: {
-        user_name:       'User',
-        phone_number:    'Phone Number',
-        waba_id:         'WABA ID',
-        phone_number_id: 'Phone Number ID',
-        business_id:     'Business ID',
-        created_at:      'Created At',
-        action:          'Action',
+        user_name:       __('message.user'),
+        phone_number:    __('message.phone_number'),
+        waba_id:         __('message.waba_id'),
+        phone_number_id: __('message.phone_number_id'),
+        business_id:     __('message.business_id'),
+        created_at:      __('message.created_at'),
+        action:          __('message.action'),
     },
     templates: {
         user_name: (f, row) => row.user_id
@@ -134,7 +141,7 @@ const options = {
             h('span', '****'),
             h('button', {
                 class:   'btn btn-light table_btn',
-                title:   copiedId.value === row.id ? 'Copied!' : 'Copy Phone Number ID',
+                title:   copiedId.value === row.id ? __('message.copied') : __('message.copy_phone_number_id'),
                 onClick: () => copyToClipboard(row.id, row.phone_number_id),
             }, h('i', { class: copiedId.value === row.id ? 'fas fa-check text-success' : 'fas fa-copy' })),
         ]),
@@ -142,12 +149,12 @@ const options = {
         action: (f, row) => h('div', { class: 'd-flex gap-1' }, [
             h('button', {
                 class:   'btn btn-light table_btn',
-                title:   'Edit Webhook URL',
+                title:   __('message.edit_webhook_url'),
                 onClick: () => openEdit(row),
             }, h('i', { class: 'fas fa-edit' })),
             h('button', {
                 class:   'btn btn-light table_btn',
-                title:   'Delete',
+                title:   __('message.Delete'),
                 onClick: () => remove(row),
             }, h('i', { class: 'fas fa-trash' })),
         ]),

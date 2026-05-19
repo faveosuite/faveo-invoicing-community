@@ -3,40 +3,38 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Edit Social Login — {{ form.type }}</h4>
+                <h4 class="card-title">{{ __('message.edit_social_login') }} — {{ form.type }}</h4>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">{{ form.type === 'Twitter' ? 'API Key' : 'Client ID' }}</label>
+                                <label class="form-label fw-bold">{{ form.type === 'Twitter' ? __('message.api_key') : __('message.client_id') }}</label>
                                 <input type="text" class="form-control" v-model="form.client_id" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">{{ form.type === 'Twitter' ? 'API Secret' : 'Client Secret' }}</label>
+                                <label class="form-label fw-bold">{{ form.type === 'Twitter' ? __('message.lic_api_secret') : __('message.client_secret') }}</label>
                                 <input type="text" class="form-control" v-model="form.client_secret" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Redirect URL</label>
+                                <label class="form-label fw-bold">{{ __('message.redirect_url') }}</label>
                                 <input type="text" class="form-control" v-model="form.redirect_url" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold d-block">Status</label>
+                                <label class="form-label fw-bold d-block">{{ __('message.status') }}</label>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" v-model="form.status" id="status" />
-                                    <label class="form-check-label" for="status">{{ form.status ? 'Active' : 'Inactive' }}</label>
+                                    <label class="form-check-label" for="status">{{ form.status ? __('message.active') : __('message.inactive') }}</label>
                                 </div>
                             </div>
                         </div>
@@ -44,11 +42,8 @@
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn btn-primary" @click="submit" :disabled="saving">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                        Update
-                    </button>
-                    <router-link to="/settings/social-logins" class="btn btn-secondary ms-2">Cancel</router-link>
+                    <action-button action="update" :loading="saving" @click="submit" />
+                    <action-button action="cancel" to="/settings/social-logins" class="ms-2" />
                 </div>
             </template>
         </div>

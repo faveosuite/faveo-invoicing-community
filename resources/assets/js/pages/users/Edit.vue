@@ -3,73 +3,71 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Edit User</h4>
+                <h4 class="card-title">{{ __('message.edit_user') }}</h4>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
                     <!-- Row 1: First Name / Last Name / Email / User Name -->
                     <div class="row">
                         <div class="col-md-3">
-                            <TextField name="first_name" label="First Name" :value="form.first_name" :onChange="onChange" />
+                            <TextField name="first_name" :label="__('message.first_name')" :value="form.first_name" :onChange="onChange" />
                         </div>
                         <div class="col-md-3">
-                            <TextField name="last_name" label="Last Name" :value="form.last_name" :onChange="onChange" />
+                            <TextField name="last_name" :label="__('message.last_name')" :value="form.last_name" :onChange="onChange" />
                         </div>
                         <div class="col-md-3">
-                            <TextField name="email" label="Email" type="email" :value="form.email" :onChange="onChange" />
+                            <TextField name="email" :label="__('message.email')" type="email" :value="form.email" :onChange="onChange" />
                         </div>
                         <div class="col-md-3">
-                            <TextField name="user_name" label="User Name" :value="form.user_name" :onChange="onChange" />
+                            <TextField name="user_name" :label="__('message.user_name')" :value="form.user_name" :onChange="onChange" />
                         </div>
                     </div>
 
                     <!-- Row 2: Company / Industry / Email Status / Mobile Status -->
                     <div class="row">
                         <div class="col-md-3">
-                            <TextField name="company" label="Company Name" :value="form.company" :onChange="onChange" />
+                            <TextField name="company" :label="__('message.company')" :value="form.company" :onChange="onChange" />
                         </div>
                         <div class="col-md-3">
                             <DynamicSelect
                                 name="bussiness"
-                                label="Industry"
+                                :label="__('message.industry')"
                                 :apiEndpoint="`${baseUrl}/dependency/industries`"
                                 dataKey="industries"
                                 :value="form.bussiness"
                                 :onChange="onChange"
-                                placeholder="Choose"
+                                :placeholder="__('message.choose')"
                             />
                         </div>
                         <div class="col-md-3">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Email Status</label>
+                                <label class="form-label fw-bold">{{ __('message.email_status') }}</label>
                                 <div class="d-flex gap-3 mt-1">
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" :value="1" v-model="form.active" id="emailActive" />
-                                        <label class="form-check-label" for="emailActive">Active</label>
+                                        <label class="form-check-label" for="emailActive">{{ __('message.active') }}</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" :value="0" v-model="form.active" id="emailInactive" />
-                                        <label class="form-check-label" for="emailInactive">Inactive</label>
+                                        <label class="form-check-label" for="emailInactive">{{ __('message.inactive') }}</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Mobile Status</label>
+                                <label class="form-label fw-bold">{{ __('message.mobile_status') }}</label>
                                 <div class="d-flex gap-3 mt-1">
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" :value="1" v-model="form.mobile_verified" id="mobileActive" />
-                                        <label class="form-check-label" for="mobileActive">Active</label>
+                                        <label class="form-check-label" for="mobileActive">{{ __('message.active') }}</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" :value="0" v-model="form.mobile_verified" id="mobileInactive" />
-                                        <label class="form-check-label" for="mobileInactive">Inactive</label>
+                                        <label class="form-check-label" for="mobileInactive">{{ __('message.inactive') }}</label>
                                     </div>
                                 </div>
                             </div>
@@ -81,41 +79,41 @@
                         <div class="col-md-3">
                             <SelectField
                                 name="role"
-                                label="Role"
+                                :label="__('message.role')"
                                 :elements="roleOptions"
                                 :value="form.role"
                                 :onChange="onRoleChange"
-                                placeholder="Choose"
+                                :placeholder="__('message.choose')"
                             />
                         </div>
                         <div class="col-md-3">
                             <SelectField
                                 name="position"
-                                label="Position"
+                                :label="__('message.position')"
                                 :elements="positionOptions"
                                 :value="form.position"
                                 :onChange="onChange"
-                                placeholder="Choose"
+                                :placeholder="__('message.choose')"
                             />
                         </div>
                         <div class="col-md-3">
                             <SelectField
                                 name="company_type"
-                                label="Company Type"
+                                :label="__('message.company_type')"
                                 :elements="companyTypeOptions"
                                 :value="form.company_type"
                                 :onChange="onChange"
-                                placeholder="Choose"
+                                :placeholder="__('message.choose')"
                             />
                         </div>
                         <div class="col-md-3">
                             <SelectField
                                 name="company_size"
-                                label="Company Size"
+                                :label="__('message.company_size')"
                                 :elements="companySizeOptions"
                                 :value="form.company_size"
                                 :onChange="onChange"
-                                placeholder="Choose"
+                                :placeholder="__('message.choose')"
                             />
                         </div>
                     </div>
@@ -123,40 +121,40 @@
                     <!-- Address -->
                     <div class="row">
                         <div class="col-md-12">
-                            <TextField name="address" label="Address" :value="form.address" :onChange="onChange" />
+                            <TextField name="address" :label="__('message.address')" :value="form.address" :onChange="onChange" />
                         </div>
                     </div>
 
                     <!-- Row 4: Town / Country / State / Zip -->
                     <div class="row">
                         <div class="col-md-3">
-                            <TextField name="town" label="Town/City" :value="form.town" :onChange="onChange" />
+                            <TextField name="town" :label="__('message.town')" :value="form.town" :onChange="onChange" />
                         </div>
                         <div class="col-md-3">
                             <DynamicSelect
                                 name="country"
-                                label="Country"
+                                :label="__('message.country')"
                                 :apiEndpoint="`${baseUrl}/dependency/countries`"
                                 dataKey="countries"
                                 :value="form.country"
                                 :onChange="onCountryChange"
-                                placeholder="Choose"
+                                :placeholder="__('message.choose')"
                             />
                         </div>
                         <div class="col-md-3">
                             <DynamicSelect
                                 name="state"
-                                label="State/County"
+                                :label="__('message.state')"
                                 :apiEndpoint="form.country ? `${baseUrl}/dependency/states` : null"
                                 :apiParams="stateParams"
                                 dataKey="states"
                                 :value="form.state"
                                 :onChange="onChange"
-                                placeholder="Choose a country first"
+                                :placeholder="__('message.choose_country_first')"
                             />
                         </div>
                         <div class="col-md-3">
-                            <TextField name="zip" label="Zip/Postal Code" :value="form.zip" :onChange="onChange" />
+                            <TextField name="zip" :label="__('message.zip_postal_code')" :value="form.zip" :onChange="onChange" />
                         </div>
                     </div>
 
@@ -165,18 +163,18 @@
                         <div class="col-md-3">
                             <DynamicSelect
                                 name="timezone_id"
-                                label="Timezone"
+                                :label="__('message.timezone')"
                                 :apiEndpoint="`${baseUrl}/dependency/time-zones`"
                                 dataKey="time_zones"
                                 :value="form.timezone_id"
                                 :onChange="onChange"
-                                placeholder="Choose"
+                                :placeholder="__('message.choose')"
                             />
                         </div>
                         <div class="col-md-3">
                             <PhoneField
                                 name="mobile"
-                                label="Mobile"
+                                :label="__('message.mobile')"
                                 :value="form.mobile"
                                 :initialCountry="form.mobile_country_iso"
                                 :onChange="onChange"
@@ -184,12 +182,12 @@
                             />
                         </div>
                         <div class="col-md-3">
-                            <TextField name="skype" label="Skype" :value="form.skype" :onChange="onChange" />
+                            <TextField name="skype" :label="__('message.skype')" :value="form.skype" :onChange="onChange" />
                         </div>
                         <div class="col-md-3">
                             <DynamicSelect
                                 name="manager"
-                                label="Sales Manager"
+                                :label="__('message.sales_manager')"
                                 :apiEndpoint="`${baseUrl}/dependency/managers`"
                                 :apiParams="{ role: 'manager' }"
                                 dataKey="managers"
@@ -209,7 +207,7 @@
                         <div class="col-md-3">
                             <DynamicSelect
                                 name="account_manager"
-                                label="Account Manager"
+                                :label="__('message.account_manager')"
                                 :apiEndpoint="`${baseUrl}/dependency/managers`"
                                 :apiParams="{ role: 'account_manager' }"
                                 dataKey="managers"
@@ -226,11 +224,7 @@
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn btn-primary" :disabled="saving" @click="submit">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                        <i v-else class="fas fa-floppy-disk me-1"></i>
-                        Update
-                    </button>
+                    <action-button action="update" :loading="saving" @click="submit" />
                 </div>
             </template>
         </div>
@@ -255,25 +249,25 @@ const loading = ref(true)
 const saving  = ref(false)
 
 const roleOptions = [
-    { id: 'user',  name: 'User' },
-    { id: 'admin', name: 'Admin' },
+    { id: 'user',  name: __('message.user') },
+    { id: 'admin', name: __('message.admin') },
 ]
 
 const positionOptions = [
-    { id: 'account_manager', name: 'Account Manager' },
-    { id: 'manager',         name: 'Sales Manager' },
+    { id: 'account_manager', name: __('message.account_manager') },
+    { id: 'manager',         name: __('message.sales_manager') },
 ]
 
 const companyTypeOptions = [
-    { id: 'public-company',  name: 'Public Company' },
-    { id: 'self-employed',   name: 'Self Employed' },
-    { id: 'non-profit',      name: 'Non Profit' },
-    { id: 'privately-held',  name: 'Privately Held' },
-    { id: 'partnership',     name: 'Partnership' },
+    { id: 'public-company',  name: __('message.public_company') },
+    { id: 'self-employed',   name: __('message.self_employed') },
+    { id: 'non-profit',      name: __('message.non_profit') },
+    { id: 'privately-held',  name: __('message.privately_held') },
+    { id: 'partnership',     name: __('message.partnership') },
 ]
 
 const companySizeOptions = [
-    { id: 'Myself-only', name: 'Myself only' },
+    { id: 'Myself-only', name: __('message.myself_only') },
     { id: '2-10',        name: '2-10' },
     { id: '11-50',       name: '11-50' },
     { id: '51-200',      name: '51-200' },

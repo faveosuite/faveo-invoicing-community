@@ -149,7 +149,7 @@
                         <thead><tr>
                             <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
                              <th>{{ __('message.tax-type') }}</th>
-                              <th>{{ __('message.name_page') }}</th>
+                              <th>{{ __('message.name') }}</th>
                                <th>{{ __('message.country') }}</th>
                               <th>{{ __('message.state') }}</th>
                                <th>{{ __('message.rate') }} (%)</th>
@@ -257,7 +257,7 @@ $('.btn-off-3').css("background-color", "#DA4F49","color", "white");
                     infoEmpty:      "{{ __('message.info_empty') }}",
                     infoFiltered:   "{{ __('message.info_filtered') }}",
                     lengthMenu:     "{{ __('message.sLengthMenu') }}",
-                    loadingRecords: "{{ __('message.loading_records') }}",
+                    loadingRecords: "{{ __('message.loading') }}",
                 },
 
 

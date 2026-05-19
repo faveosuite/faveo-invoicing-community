@@ -155,7 +155,7 @@
                                             <th>{{Lang::get('message.invoice_number')}}</th>
                                             <th>{{Lang::get('message.total')}}</th>
                                             <th>{{ __('message.invoice_due') }}</th>
-                                            <th>{{Lang::get('message.pay')}}</th>
+                                            <th>{{Lang::get('message.payment')}}</th>
                                             
                                            
                                         </tr>

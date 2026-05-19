@@ -1,0 +1,1 @@
+import{d as t,P as a,k as n,$ as o}from"./main-Cs4iTYcp.js";const s={},r={class:"pagination-wrapper"};function c(e,i){return a(),n("div",r,[o(e.$slots,"default")])}const d=t(s,[["render",c]]);export{d as default};

@@ -52,12 +52,6 @@
          data-website="{{ $set->website }}"
          data-company="{{ $set->company }}">
 
-        {{-- Loading spinner shown until Vue mounts --}}
-        <div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9999">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading…</span>
-            </div>
-        </div>
     </div>
 
     {{-- Layout JS — strict load order: bootstrap (includes popper) → overlayscrollbars → adminlte --}}

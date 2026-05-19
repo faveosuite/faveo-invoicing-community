@@ -139,7 +139,7 @@ class BaseProductController extends ExtendedBaseProductController
                     html()->label()
                         ->class('required')
                         ->text(__('message.subscription')), // Translated label
-                    html()->select('plan', ['' => __('message.select'), 'Plans' => $plans])
+                    html()->select('plan', ['' => __('message.Select'), 'Plans' => $plans])
                         ->class('form-control')
                         ->id('plan')
                         ->attribute('onchange', 'getPrice(this.value)'),

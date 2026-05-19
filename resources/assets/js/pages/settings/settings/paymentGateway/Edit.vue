@@ -6,13 +6,11 @@
                 <h4 class="card-title mb-0">{{ plugin?.name ?? pluginSlug }} Settings</h4>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else-if="!plugin">
                 <div class="card-body">
-                    <div class="alert alert-warning">Payment gateway not found.</div>
+                    <div class="alert alert-warning">{{ __('message.payment_gateway_not_found') }}</div>
                 </div>
             </template>
 
@@ -37,21 +35,17 @@
                     <template v-else>
                         <div v-if="plugin.settings" class="alert alert-info">
                             <i class="fas fa-circle-info me-2"></i>
-                            Configure detailed settings for this payment gateway at:
+                            {{ __('message.configure_gateway') }}
                             <a :href="`${baseUrl}/${plugin.settings}`" class="ms-2 fw-bold">
                                 {{ plugin.settings }} <i class="fas fa-arrow-up-right-from-square ms-1"></i>
                             </a>
                         </div>
-                        <div v-else class="text-muted">No additional settings available.</div>
+                        <div v-else class="text-muted">{{ __('message.no_additional_settings') }}</div>
                     </template>
                 </div>
 
                 <div v-if="gatewayConfig" class="card-footer">
-                    <button class="btn btn-primary" :disabled="saving" @click="save">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                        <i v-else class="fas fa-save me-1"></i>
-                        Save
-                    </button>
+                    <action-button action="save" :loading="saving" @click="save" />
                 </div>
             </template>
         </div>

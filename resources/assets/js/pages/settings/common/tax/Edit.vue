@@ -3,23 +3,21 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Edit Tax</h4>
+                <h4 class="card-title">{{ __('message.edit_tax') }}</h4>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <TextField name="name" label="Tax Name *" :value="form.name" :onChange="onChange" />
+                            <TextField name="name" :label="__('message.tax_name') + ' *'" :value="form.name" :onChange="onChange" />
                         </div>
                         <div class="col-md-4">
                             <SelectField
                                 name="tax_classes_id"
-                                label="Tax Class *"
+                                :label="__('message.tax_class') + ' *'"
                                 :elements="taxClassOptions"
                                 :value="taxClassOptions.find(o => o.id === form.tax_classes_id) ?? null"
                                 :onChange="onClassSelect"
@@ -29,12 +27,12 @@
                         </div>
                         <template v-if="form.tax_classes_id === 'Others'">
                             <div class="col-md-4">
-                                <TextField name="rate" label="Rate *" :value="form.rate" :onChange="onChange" />
+                                <TextField name="rate" :label="__('message.rate') + ' *'" :value="form.rate" :onChange="onChange" />
                             </div>
                             <div class="col-md-4">
                                 <SelectField
                                     name="country"
-                                    label="Country"
+                                    :label="__('message.country')"
                                     :elements="countries"
                                     :value="countries.find(c => c.id === form.country) ?? null"
                                     :onChange="onCountrySelect"
@@ -45,9 +43,9 @@
                             <div class="col-md-4">
                                 <SelectField
                                     name="state"
-                                    label="State"
-                                    :elements="[{ id: '', name: '— Any —' }, ...states]"
-                                    :value="states.find(s => s.id === form.state) ?? { id: '', name: '— Any —' }"
+                                    :label="__('message.state')"
+                                    :elements="[{ id: '', name: __('message.all_states') }, ...states]"
+                                    :value="states.find(s => s.id === form.state) ?? { id: '', name: __('message.all_states') }"
                                     :onChange="(val) => form.state = val?.id ?? ''"
                                     :clearable="false"
                                     :searchable="true"
@@ -58,11 +56,8 @@
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn btn-primary" @click="submit" :disabled="saving">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                        Update
-                    </button>
-                    <RouterLink to="/settings/common/tax" class="btn btn-secondary ms-2">Cancel</RouterLink>
+                    <action-button action="save" :loading="saving" @click="submit" />
+                    <action-button action="cancel" to="/settings/common/tax" class="ms-2" />
                 </div>
             </template>
         </div>
@@ -71,7 +66,7 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
-import { useRoute, RouterLink } from 'vue-router'
+import { useRoute } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 

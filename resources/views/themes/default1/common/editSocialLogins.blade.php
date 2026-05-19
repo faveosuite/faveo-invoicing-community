@@ -77,7 +77,7 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
                         <div class="input-group-append">
                         </div>
                         @else
-                        <label for="id" class="form-label required" id="id">{{ __('message.lic_client_id') }}</label>
+                        <label for="id" class="form-label required" id="id">{{ __('message.client_id') }}</label>
                         <input type="text" class="form-control {{$errors->has('client_id') ? ' is-invalid' : ''}}" id="client_id"  value="{{old('title', $socialLogins->client_id)}}" name="client_id">
                             @error('client_id')
                             <span class="error-message"> {{$message}}</span>
@@ -87,7 +87,7 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
                     </div>
                     <input type="hidden" name="type" value="{{old('title', $socialLogins->type)}}">
                     <div class="mb-3">
-                        <label for="pwd" class="form-label required">{{ __('message.lic_client_secret') }}</label>
+                        <label for="pwd" class="form-label required">{{ __('message.client_secret') }}</label>
                         <input type="password" class="form-control {{$errors->has('client_secret') ? ' is-invalid' : ''}}" id="pwd"  value="{{old('title', $socialLogins->client_secret)}}" name="client_secret">
                         @error('client_secret')
                         <span class="error-message"> {{$message}}</span>

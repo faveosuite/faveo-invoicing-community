@@ -3,7 +3,7 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Suspended Users</h4>
+                <h4 class="card-title">{{ __('message.suspended_users') }}</h4>
             </div>
 
             <div class="card-body">
@@ -21,18 +21,18 @@
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false"
                             >
-                                Bulk Action
+                                {{ __('message.bulk_action') }}
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
                                     <button class="dropdown-item" @click="bulkRestore">
-                                        Restore
+                                        {{ __('message.restore') }}
                                     </button>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <button class="dropdown-item" @click="bulkDelete">
-                                        Delete
+                                        {{ __('message.Delete') }}
                                     </button>
                                 </li>
                             </ul>
@@ -114,12 +114,12 @@ const tableOptions = reactive({
             checked: allSelected.value,
             onChange: toggleAll,
         }),
-        name:       'Name',
-        email:      'Email',
-        mobile:     'Mobile',
-        country:    'Country',
-        created_at: 'Registered On',
-        action:     'Actions',
+        name:       __('message.name'),
+        email:      __('message.email'),
+        mobile:     __('message.mobile'),
+        country:    __('message.country'),
+        created_at: __('message.registered_on'),
+        action:     __('message.actions'),
     },
 
     templates: {
@@ -141,7 +141,7 @@ const tableOptions = reactive({
         }),
     },
 
-    sortable:   ['email', 'created_at'],
+    sortable:   ['email', 'mobile', 'country', 'created_at'],
     filterable: true,
 
     requestAdapter(data) {

@@ -33,7 +33,7 @@
                  <table id="plugin" class="table display" cellspacing="0" width="100%" styleClass="borderless">
 
                     <thead><tr>
-                         <th>{{ __('message.category_name') }}</th>
+                         <th>{{ __('message.name') }}</th>
                           <th>{{ __('message.description') }}</th>
                           <th>{{ __('message.author') }}</th>
                           <th>{{ __('message.website') }}</th>

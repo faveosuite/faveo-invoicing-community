@@ -11,7 +11,7 @@
                         {{ message.text }}
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">New Date</label>
+                        <label class="form-label fw-bold">{{ __('message.new_date') }}</label>
                         <VueDatePicker
                             v-model:value="selectedDate"
                             type="date"
@@ -27,11 +27,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" :disabled="saving || !selectedDate" @click="save">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                        Save
-                    </button>
+                    <action-button action="close" type="button" data-bs-dismiss="modal" />
+                    <action-button action="save" type="button" :loading="saving" :disabled="!selectedDate" @click="save" />
                 </div>
             </div>
         </div>

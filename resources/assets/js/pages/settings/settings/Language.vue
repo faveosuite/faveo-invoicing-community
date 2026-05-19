@@ -3,7 +3,7 @@
         <AppAlert componentName="language-index" />
         <div class="card card-secondary card-outline">
             <div class="card-header">
-                <h4 class="card-title">Languages</h4>
+                <h4 class="card-title">{{ __('message.language') }}</h4>
             </div>
             <div class="card-body">
                 <DataTable
@@ -64,19 +64,19 @@ const columns = ['name', 'translation', 'locale', 'default', 'action']
 
 const tableOptions = reactive({
     headings: {
-        name:        'Language',
-        translation: 'Native Name',
-        locale:      'ISO Code',
-        default:     'System Default',
-        action:      'Action',
+        name:        __('message.language'),
+        translation: __('message.native_name'),
+        locale:      __('message.iso_code'),
+        default:     __('message.system_default'),
+        action:      __('message.action'),
     },
     templates: {
         name:        (f, row) => row.name        || '—',
         translation: (f, row) => row.translation || '—',
         locale:  (f, row) => row.locale || '—',
         default: (f, row) => row.is_default
-            ? h('span', { class: 'badge bg-success' }, 'Yes')
-            : h('span', { class: 'badge bg-secondary' }, 'No'),
+            ? h('span', { class: 'badge bg-success' }, __('message.yes'))
+            : h('span', { class: 'badge bg-secondary' }, __('message.no')),
         action: (f, row) => h(LanguageTableActions, {
             status:         row.status,
             isDefault:      Boolean(row.is_default),

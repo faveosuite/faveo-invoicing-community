@@ -182,7 +182,7 @@ class PaymentSettingsController extends Controller
             file_put_contents($app, implode("\n", $lines));
             $plugs->create(['name' => $slug, 'path' => $slug, 'status' => 1]);
 
-            return redirect()->back()->with('success', __('message.status_changed'));
+            return redirect()->back()->with('success', __('message.status_change'));
         }
         $status = $plug->status;
 
@@ -210,7 +210,7 @@ class PaymentSettingsController extends Controller
 
         $plug->save();
 
-        return redirect()->back()->with('success', __('message.status_changed'));
+        return redirect()->back()->with('success', __('message.status_change'));
     }
 
     public function postPlugins(Request $request)

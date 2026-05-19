@@ -45,6 +45,107 @@ http.interceptors.response.use(
  *   412  { message, errors: { field: [msg, ...] } }  (field validation)
  *   500  { success, message }
  */
+// ── Global progress-bar loader state ────────────────────────────────────────
+let totalAxiosRequests = 0
+let successfulResponses = 0
+let loaderStarted = false
+let setLoader = false
+let progressStatus = 0
+let stopClearAxiosCount = true
+let fromSetLoader = false
+
+/**
+ * Call this once after the Vue app is created and VueProgressBar is installed.
+ * Adds request/response interceptors to the shared `http` instance that drive
+ * the top progress bar automatically for every API call.
+ *
+ * Usage in main.js:
+ *   import { setupLoaderInterceptors } from './plugins/axios.js'
+ *   // after app.use(VueProgressBar, options):
+ *   setupLoaderInterceptors(app.config.globalProperties.$Progress)
+ */
+export function setupLoaderInterceptors(progress) {
+    const clearAxiosCount = () => {
+        stopClearAxiosCount = true
+        setTimeout(() => {
+            if (stopClearAxiosCount) {
+                progressStatus = progress.get()
+                if (progressStatus !== 0) {
+                    progress.finish()
+                    stopClearAxiosCount = false
+                    totalAxiosRequests = 0
+                    successfulResponses = 0
+                    loaderStarted = false
+                }
+            }
+        }, 90000)
+    }
+
+    const startProgress = () => {
+        if (!loaderStarted) {
+            progress.start()
+            if (!fromSetLoader) successfulResponses = 0
+            loaderStarted = true
+            setLoader = true
+            fromSetLoader = false
+            clearAxiosCount()
+        }
+    }
+
+    http.interceptors.request.use(config => {
+        totalAxiosRequests++
+        startProgress()
+        return config
+    })
+
+    http.interceptors.response.use(
+        response => {
+            if (totalAxiosRequests !== 0) successfulResponses++
+
+            if (successfulResponses === totalAxiosRequests && response.status === 200) {
+                if (successfulResponses === 1 && totalAxiosRequests === 1) {
+                    progress.finish()
+                } else {
+                    setTimeout(() => progress.finish(), 500)
+                }
+                if (stopClearAxiosCount) stopClearAxiosCount = false
+                successfulResponses = 0
+                totalAxiosRequests = 0
+                loaderStarted = false
+            } else if (setLoader) {
+                const progressValue = totalAxiosRequests <= 3 ? 60 : (totalAxiosRequests <= 6 ? 50 : 30)
+                progress.set(progressValue)
+                setLoader = false
+            } else if (successfulResponses > totalAxiosRequests) {
+                setTimeout(() => progress.finish(), 100)
+                if (stopClearAxiosCount) stopClearAxiosCount = false
+                successfulResponses = 0
+                totalAxiosRequests = 0
+                loaderStarted = false
+            } else {
+                progressStatus = progress.get()
+                if (progressStatus === 0) {
+                    loaderStarted = false
+                    fromSetLoader = true
+                    startProgress()
+                }
+                const increaseValue = totalAxiosRequests <= 3 ? 5 : (totalAxiosRequests <= 6 ? 4 : 3)
+                progress.increase(increaseValue)
+            }
+
+            return response
+        },
+        error => {
+            progress.finish()
+            if (stopClearAxiosCount) stopClearAxiosCount = false
+            successfulResponses = 0
+            totalAxiosRequests = 0
+            loaderStarted = false
+            return Promise.reject(error)
+        }
+    )
+}
+
 export function parseErrorMessage(err) {
     const res    = err.response?.data
     const status = err.response?.status

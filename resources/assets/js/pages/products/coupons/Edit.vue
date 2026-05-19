@@ -3,12 +3,10 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-secondary card-outline">
             <div class="card-header">
-                <h4 class="card-title">Edit Coupon</h4>
+                <h4 class="card-title">{{ __('message.edit_coupon') }}</h4>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
@@ -16,27 +14,24 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Code *</label>
+                                <label class="form-label fw-bold">{{ __('message.coupon-code') }} *</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" v-model="form.code" placeholder="Enter code" />
-                                    <button class="btn btn-secondary" type="button" @click="generateCode" :disabled="generating">
-                                        <span v-if="generating" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                        <span v-else><i class="fas fa-arrows-rotate"></i> Generate</span>
-                                    </button>
+                                    <input type="text" class="form-control" v-model="form.code" :placeholder="__('message.coupon-code')" />
+                                    <action-button action="refresh" variant="secondary" :loading="generating" :label="__('message.generate')" type="button" @click="generateCode" />
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Type *</label>
+                                <label class="form-label fw-bold">{{ __('message.type') }} *</label>
                                 <select class="form-select" v-model="form.type">
-                                    <option value="">Choose</option>
+                                    <option value="">{{ __('message.choose') }}</option>
                                     <option v-for="t in promotionTypes" :key="t.id" :value="t.id">{{ t.name }}</option>
                                 </select>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <TextField name="value" label="Value *" type="number" :value="form.value" :onChange="onChange" />
+                            <TextField name="value" :label="__('message.value') + ' *'" type="number" :value="form.value" :onChange="onChange" />
                         </div>
                     </div>
 
@@ -45,32 +40,29 @@
                         <div class="col-md-3">
                             <DynamicSelect
                                 name="applied"
-                                label="Applied To (Product) *"
+                                :label="__('message.applied') + ' *'"
                                 :apiEndpoint="`${baseUrl}/dependency/all-products`"
                                 dataKey="products"
                                 :value="form.productObj"
                                 :onChange="onChange"
-                                placeholder="Select product"
+                                :placeholder="__('message.choose')"
                             />
                         </div>
                         <div class="col-md-3">
-                            <TextField name="uses" label="Uses *" type="number" :value="form.uses" :onChange="onChange" />
+                            <TextField name="uses" :label="__('message.uses') + ' *'" type="number" :value="form.uses" :onChange="onChange" />
                         </div>
                         <div class="col-md-3">
-                            <DatePicker name="start" label="Start Date *" :value="form.start" :onChange="onChange" format="YYYY-MM-DD" />
+                            <DatePicker name="start" :label="__('message.start') + ' *'" :value="form.start" :onChange="onChange" format="YYYY-MM-DD" />
                         </div>
                         <div class="col-md-3">
-                            <DatePicker name="expiry" label="Expiry Date *" :value="form.expiry" :onChange="onChange" format="YYYY-MM-DD" />
+                            <DatePicker name="expiry" :label="__('message.expiry') + ' *'" :value="form.expiry" :onChange="onChange" format="YYYY-MM-DD" />
                         </div>
                     </div>
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn btn-primary" @click="submit" :disabled="saving">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                        Update
-                    </button>
-                    <router-link to="/products/coupons" class="btn btn-secondary ms-2">Cancel</router-link>
+                    <action-button action="update" :loading="saving" @click="submit" />
+                    <action-button action="cancel" to="/products/coupons" class="ms-2" />
                 </div>
             </template>
         </div>

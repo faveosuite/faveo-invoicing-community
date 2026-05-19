@@ -114,9 +114,9 @@
             <div class="modal-footer d-flex">
                 <button type="button" id="next_rec_code" class="btn btn-primary ms-auto">
                     @if(in_array(app()->getLocale(), ['ar', 'he']))
-                        <i class="fa fa-arrow-right"></i>&nbsp;&nbsp;{{ __('message.next') }}
+                        <i class="fa fa-arrow-right"></i>&nbsp;&nbsp;{{ __('message.paginate_next') }}
                     @else
-                        {{ __('message.next') }}&nbsp;&nbsp;<i class="fa fa-arrow-right"></i>
+                        {{ __('message.paginate_next') }}&nbsp;&nbsp;<i class="fa fa-arrow-right"></i>
                     @endif
                 </button>
             </div>
@@ -165,9 +165,9 @@
             <div class="modal-footer d-flex">
                 <button type="button" id="scan_complete" class="btn btn-primary ms-auto">
                     @if(in_array(app()->getLocale(), ['ar', 'he']))
-                        <i class="fa fa-arrow-right"></i>&nbsp;&nbsp;{{ __('message.next') }}
+                        <i class="fa fa-arrow-right"></i>&nbsp;&nbsp;{{ __('message.paginate_next') }}
                     @else
-                        {{ __('message.next') }}&nbsp;&nbsp;<i class="fa fa-arrow-right"></i>
+                        {{ __('message.paginate_next') }}&nbsp;&nbsp;<i class="fa fa-arrow-right"></i>
                     @endif
                 </button>
             </div>
@@ -194,7 +194,7 @@
             <div class="modal-footer justify-content-between">
                 <button type="button" id="prev_button" class="btn btn-default" dir="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr' }}">
                  <span class="button-content">
-                    <i class="fa {{ in_array(app()->getLocale(), ['ar', 'he']) ? 'fa-arrow-left' : 'fa-arrow-left' }}" style="margin-right: 8px;"></i>{{ __('message.previous') }}
+                    <i class="fa {{ in_array(app()->getLocale(), ['ar', 'he']) ? 'fa-arrow-left' : 'fa-arrow-left' }}" style="margin-right: 8px;"></i>{{ __('message.paginate_previous') }}
                  </span>
                 </button>
                 <button type="button" id="pass_btn" class="btn ms-auto btn-primary pull-right float-right">

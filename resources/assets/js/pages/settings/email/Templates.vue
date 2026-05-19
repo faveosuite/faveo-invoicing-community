@@ -3,7 +3,7 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Email Templates</h4>
+                <h4 class="card-title">{{ __('message.email_templates') }}</h4>
             </div>
 
             <div class="card-body">
@@ -31,14 +31,14 @@ const columns = ['name', 'type', 'action']
 
 const tableOptions = reactive({
     headings: {
-        name:   'Name',
-        type:   'Type',
-        action: 'Action',
+        name:   __('message.name'),
+        type:   __('message.type'),
+        action: __('message.action'),
     },
     templates: {
         action: (_, row) => h('button', {
             class:   'btn btn-light table_btn',
-            title:   'Edit',
+            title:   __('message.edit'),
             onClick: () => router.push(`/settings/email/templates/${row.id}/edit`),
         }, h('i', { class: 'fas fa-edit' })),
     },

@@ -142,7 +142,7 @@ input:checked + .slider:before {
 
                                 @foreach($newOrders as $newOrder)
                                     <div class="termination-message">
-                                        <p class="termination-notice"><b>{{ __('message.termination_notice') }}</b></p>
+                                        <p class="termination-notice"><b>{{ __('message.imp_termination_notice') }}</b></p>
                                         <p class="termination-description">
                                             {{ __('message.order_terminated') }}
                                         </p>
@@ -175,7 +175,7 @@ input:checked + .slider:before {
                               
                             <table class="table table-hover">
 
-                                <tbody><tr><td><b>{{ __('message.name_page') }}:</b></td><td><a href="{{url('clients/'.$user->id)}}">{{ucfirst($user->first_name)}}</a></td></tr>
+                                <tbody><tr><td><b>{{ __('message.name') }}:</b></td><td><a href="{{url('clients/'.$user->id)}}">{{ucfirst($user->first_name)}}</a></td></tr>
                                     <tr><td><b>{{ __('message.email') }}:</b></td><td>{{$user->email}}</td></tr>
                                     <tr><td><b>{{ __('message.mobile') }}:</b></td><td>@if($user->mobile_code)(<b>+</b>{{$user->mobile_code}})@endif&nbsp;{{$user->mobile}}</td></tr>
                                 @php
@@ -498,7 +498,7 @@ input:checked + .slider:before {
                       infoEmpty:      "{{ __('message.info_empty') }}",
                       infoFiltered:   "{{ __('message.info_filtered') }}",
                       lengthMenu:     "{{ __('message.sLengthMenu') }}",
-                      loadingRecords: "{{ __('message.loading_records') }}",
+                      loadingRecords: "{{ __('message.loading') }}",
                   },
                       columnDefs: [
                       { 
@@ -562,7 +562,7 @@ input:checked + .slider:before {
                 infoEmpty:      "{{ __('message.info_empty') }}",
                 infoFiltered:   "{{ __('message.info_filtered') }}",
                 lengthMenu:     "{{ __('message.sLengthMenu') }}",
-                loadingRecords: "{{ __('message.loading_records') }}",
+                loadingRecords: "{{ __('message.loading') }}",
             },
                 columnDefs: [
                 { 
@@ -808,7 +808,7 @@ input:checked + .slider:before {
                 infoEmpty:      "{{ __('message.info_empty') }}",
                 infoFiltered:   "{{ __('message.info_filtered') }}",
                 lengthMenu:     "{{ __('message.sLengthMenu') }}",
-                loadingRecords: "{{ __('message.loading_records') }}",
+                loadingRecords: "{{ __('message.loading') }}",
             },
                  columnDefs: [
                 { 
@@ -868,7 +868,7 @@ input:checked + .slider:before {
                  title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
                  html: "<div class='swal2-html-container custom-content'>" +
                      "<div class='section-sa'>" +
-                     "<p>{{Lang::get('message.sweet_payment')}}</p>" + "</div>" +
+                     "<p>{{Lang::get('message.sweet_payment_details')}}</p>" + "</div>" +
                      "</div>",
                  position: 'top',
                  confirmButtonText: "{{ __('message.ok') }}",

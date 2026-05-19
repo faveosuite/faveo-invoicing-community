@@ -3,11 +3,11 @@
         <AppAlert componentName="users-index" />
     <div class="card card-light">
         <div class="card-header">
-            <h4 class="card-title">Users</h4>
+            <h4 class="card-title">{{ __('message.users') }}</h4>
             <div class="card-tools">
                 <button
                     class="btn btn-tool"
-                    title="Filter"
+                    :title="__('message.filter')"
                     v-tooltip
                     @click="showFilter = !showFilter"
                 >
@@ -15,7 +15,7 @@
                 </button>
                 <button
                     class="btn btn-tool"
-                    title="Export"
+                    :title="__('message.export')"
                     v-tooltip
                     :disabled="exporting"
                     @click="exportAll"
@@ -25,7 +25,7 @@
                 <router-link
                     to="/users/create"
                     class="btn btn-tool"
-                    title="Add User"
+                    :title="__('message.create_new_user')"
                     v-tooltip
                 >
                     <i class="fas fa-plus fw-bold"></i>
@@ -55,18 +55,18 @@
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                         >
-                            Bulk Action
+                            {{ __('message.bulk_action') }}
                         </button>
                         <ul class="dropdown-menu">
                             <li>
                                 <button class="dropdown-item" @click="bulkExport">
-                                    Export Selected Records
+                                    {{ __('message.export_selected_records') }}
                                 </button>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <button class="dropdown-item" @click="bulkDelete">
-                                    Delete
+                                    {{ __('message.Delete') }}
                                 </button>
                             </li>
                         </ul>
@@ -185,13 +185,13 @@ const tableOptions = reactive({
             checked: allSelected.value,
             onChange: toggleAll,
         }),
-        name: 'Name',
-        email: 'Email',
-        mobile: 'Mobile',
-        country: 'Country',
-        created_at: 'Registered On',
-        account_info: 'Account Info',
-        action: 'Actions',
+        name: __('message.name'),
+        email: __('message.email'),
+        mobile: __('message.mobile'),
+        country: __('message.country'),
+        created_at: __('message.registered_on'),
+        account_info: __('message.account_info'),
+        action: __('message.actions'),
     },
 
     templates: {
@@ -216,7 +216,7 @@ const tableOptions = reactive({
         }),
     },
 
-    sortable: ['email', 'created_at'],
+    sortable: ['email', 'mobile', 'country', 'created_at'],
     filterable: true,
 
     requestAdapter(data) {

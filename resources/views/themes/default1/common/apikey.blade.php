@@ -175,7 +175,7 @@
                         <table id="custom-table" class="table display" cellspacing="0" width="100%">
                             <thead>
                             <tr>
-                                <th>{{ __('message.name_page') }}</th>
+                                <th>{{ __('message.name') }}</th>
                                 <th>{{ __('message.description') }}</th>
                                 <th>{{ __('message.status') }}</th>
                                 <th>{{ __('message.action') }}</th>
@@ -795,7 +795,7 @@
             infoEmpty:      "{{ __('message.info_empty') }}",
             infoFiltered:   "{{ __('message.info_filtered') }}",
             lengthMenu:     "{{ __('message.length_menu') }}",
-            loadingRecords: "{{ __('message.loading_records') }}",
+            loadingRecords: "{{ __('message.loading') }}",
             search:         "{{ __('message.table_search') }}",
 
         },
@@ -1724,7 +1724,7 @@
                     infoEmpty:      "{{ __('message.info_empty') }}",
                     infoFiltered:   "{{ __('message.info_filtered') }}",
                     lengthMenu:     "{{ __('message.length_menu') }}",
-                    loadingRecords: "{{ __('message.loading_records') }}",
+                    loadingRecords: "{{ __('message.loading') }}",
                     search:         "{{ __('message.table_search') }}",
                 },
 

@@ -46,21 +46,21 @@ const columns = ['file_name', 'order_number', 'action']
 
 const tableOptions = reactive({
     headings: {
-        file_name:    'License File Name',
-        order_number: 'Order No',
-        action:       'Action',
+        file_name:    __('message.license_file_name'),
+        order_number: __('message.order_no'),
+        action:       __('message.action'),
     },
     templates: {
         file_name:    (f, row) => h('code', {}, row.file_name    || '—'),
         order_number: (f, row) => row.order_number               || '—',
         action:       (f, row) => h('div', { class: 'd-flex gap-1' }, [
             h('a', { class: 'btn btn-sm btn-secondary', href: row.download_url },
-                [h('i', { class: 'fas fa-download me-1' }), 'License']),
+                [h('i', { class: 'fas fa-download me-1' }), __('message.download_license_file')]),
             h('a', { class: 'btn btn-sm btn-secondary', href: row.private_key_url },
-                [h('i', { class: 'fas fa-key me-1' }), 'Key']),
+                [h('i', { class: 'fas fa-key me-1' }), __('message.download_license_key')]),
             h('button', {
                 class:   'btn btn-light table_btn',
-                title:   'Delete',
+                title:   __('message.Delete'),
                 onClick: () => openDelete(row.file_name),
             }, [h('i', { class: 'fas fa-trash' })]),
         ]),

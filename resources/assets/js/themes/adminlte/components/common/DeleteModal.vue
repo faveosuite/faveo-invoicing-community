@@ -20,7 +20,7 @@
                             Cancel
                         </button>
                         <button type="button" class="btn btn-danger" :disabled="loading" @click="onSubmit">
-                            <span v-if="loading" class="spinner-border spinner-border-sm me-1"></span>
+                            <spinner-loader v-if="loading" :size="18" />
                             <i v-else class="fas fa-trash me-1"></i>
                             Delete
                         </button>

@@ -162,7 +162,7 @@
 
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! html()->label( __('message.company_name'), 'company') !!}
+                            {!! html()->label( __('message.company'), 'company') !!}
                             {!! html()->text('company', $request->company)->class('form-control')->id('company') !!}
 
                         </div>
@@ -283,7 +283,7 @@
 
                         <div class="col-md-3 form-group">
                             <!-- Mobile Status -->
-                            {!! html()->label( __('message.mobile_status_client'), 'mobile_verified') !!}
+                            {!! html()->label( __('message.mobile_status'), 'mobile_verified') !!}
                             {!! html()->select('mobile_verified', ['' => __('message.choose')] + ['1' => 'Active', '0' => 'Inactive'], $request->mobile_verified)
                                 ->class('form-control')
                                 ->id('mobile_verified') !!}
@@ -348,7 +348,7 @@
                     <div class="dropdown-menu user-column-dropdown" aria-labelledby="dropdownMenuButton">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" value="name" id="nameCheckbox">
-                            <label class="form-check-label" for="nameCheckbox">{{ __('message.name_page') }}</label>
+                            <label class="form-check-label" for="nameCheckbox">{{ __('message.name') }}</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" value="email" id="emailCheckbox">
@@ -386,7 +386,7 @@
             <thead>
                 <tr>
                     <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
-                    <th>{{ __('message.name_page') }}</th>
+                    <th>{{ __('message.name') }}</th>
                     <th>{{ __('message.email') }}</th>
                     <th>{{ __('message.mobile') }}</th>
                     <th>{{ __('message.country') }}</th>
@@ -453,7 +453,7 @@ $(document).ready(function() {
             infoEmpty:      "{{ __('message.info_empty') }}",
             infoFiltered:   "{{ __('message.info_filtered') }}",
             lengthMenu:     "{{ __('message.sLengthMenu') }}",
-            loadingRecords: "{{ __('message.loading_records') }}",
+            loadingRecords: "{{ __('message.loading') }}",
         },
 
         columnDefs: [

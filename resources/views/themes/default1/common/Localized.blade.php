@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    {{ __('message.localized_lic') }}
+    {{ __('message.localized_license') }}
 @stop
 @section('content-header')
 <div class="col-sm-6">
-    <h1>{{ __('message.localized_lic') }}</h1>
+    <h1>{{ __('message.localized_license') }}</h1>
 </div>
 <div class="col-sm-6">
     <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
         <li class="breadcrumb-item"><a href="{{url('settings')}}">{{ __('message.settings') }}</a></li>
-        <li class="breadcrumb-item active">{{ __('message.localized_lic') }}</li>
+        <li class="breadcrumb-item active">{{ __('message.localized_license') }}</li>
     </ol>
 </div><!-- /.col -->
 @stop
@@ -104,7 +104,7 @@
             infoEmpty:      "{{ __('message.info_empty') }}",
             infoFiltered:   "{{ __('message.info_filtered') }}",
             lengthMenu:     "{{ __('message.length_menu') }}",
-            loadingRecords: "{{ __('message.loading_records') }}",
+            loadingRecords: "{{ __('message.loading') }}",
             search:         "{{ __('message.table_search') }}",
         },
     } );

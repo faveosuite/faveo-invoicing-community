@@ -62,7 +62,7 @@
                             <div class="form-group">
                                 <label for="accountManagerCurrent">{{ __('message.current_account_manager') }}</label>
                                 <select class="form-control select2-manager" name="accountManagerCurrent" id="accountManagerCurrent">
-                                    <option value="">{{ __('message.select') }}</option>
+                                    <option value="">{{ __('message.Select') }}</option>
                                     @foreach($accountManagers as $key => $manager)
                                         <option value="{{ $key }}">{{ $manager }}</option>
                                     @endforeach
@@ -84,7 +84,7 @@
                             <div class="form-group">
                                 <label for="salesManagerCurrent">{{ __('message.current_sales_manager') }}</label>
                                 <select class="form-control select2-manager" name="salesManagerCurrent" id="salesManagerCurrent">
-                                    <option value="">{{ __('message.select') }}</option>
+                                    <option value="">{{ __('message.Select') }}</option>
                                     @foreach($salesManager as $key => $manager)
                                         <option value="{{ $key }}">{{ $manager }}</option>
                                     @endforeach

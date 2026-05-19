@@ -3,17 +3,15 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Payment Gateways</h4>
+                <h4 class="card-title">{{ __('message.payment_gateways') }}</h4>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
                     <div v-if="!plugins.length" class="text-center text-muted py-4">
-                        No payment gateways found.
+                        {{ __('message.no_payment_gateways') }}
                     </div>
 
                     <div class="row">

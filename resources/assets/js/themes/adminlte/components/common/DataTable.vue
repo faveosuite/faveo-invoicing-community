@@ -116,6 +116,12 @@ const computedOptions = computed(() => ({
     skin: 'table table-hover table-striped table-bordered',
     sortable: [],
     filterable: false,
+    sortIcon: {
+        base: 'fas',
+        is:   'fa-up-down',
+        up:   'fa-chevron-down',
+        down: 'fa-chevron-up',
+    },
     requestAdapter(data) {
         return {
             'sort-field': data.orderBy,
@@ -171,9 +177,10 @@ table                             { border-collapse: collapse; }
 .datatable .VuePagination         { display: none !important; }
 
 /* ── per-page selector ── */
-.VueTables__limit                 { float: left !important; margin-left: -10px; }
+.VueTables__limit                        { float: left !important; margin-left: 0; }
+.datatable .VueTables__limit-field       { display: flex; align-items: center; margin-bottom: 8px; }
 .datatable .VueTables__limit-field label { display: none !important; }
-.VueTables__limit-field .form-control    { cursor: pointer !important; appearance: auto !important; }
+.VueTables__limit-field .form-control    { cursor: pointer !important; appearance: auto !important; width: auto !important; min-width: 70px; }
 
 /* ── custom search input ── */
 .VueTables__search-field input,
@@ -184,7 +191,8 @@ table                             { border-collapse: collapse; }
 
 /* ── table links & sort ── */
 .VueTables__row a                 { text-decoration: none !important; }
-.VueTables__sort-icon             { padding-left: 10px !important; cursor: pointer !important; }
+.VueTables__sort-icon             { float: right !important; cursor: pointer !important; font-size: 0.85em !important; font-weight: 900 !important; }
+.VueTables__sortable              { cursor: pointer !important; }
 
 /* ── pagination footer ── */
 .pagination-container {

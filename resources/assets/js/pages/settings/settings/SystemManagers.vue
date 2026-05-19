@@ -3,12 +3,10 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-secondary card-outline">
             <div class="card-header">
-                <h3 class="card-title">System Manager Settings</h3>
+                <h3 class="card-title">{{ __('message.system_manager_settings') }}</h3>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
@@ -18,8 +16,8 @@
                             <div class="form-check form-switch">
                                 <input type="checkbox" class="form-check-input" id="autoAssignAccountSwitch" v-model="form.autoAssignAccount" />
                                 <label class="form-check-label" for="autoAssignAccountSwitch">
-                                    <strong>Enable Auto Assignment for Account Managers</strong>
-                                    <small class="text-muted d-block">Automatically assign an account manager to new clients upon creation.</small>
+                                    <strong>{{ __('message.enable_account_manager') }}</strong>
+                                    <small class="text-muted d-block">{{ __('message.account_upon_creation') }}</small>
                                 </label>
                             </div>
                         </div>
@@ -27,8 +25,8 @@
                             <div class="form-check form-switch">
                                 <input type="checkbox" class="form-check-input" id="autoAssignSalesSwitch" v-model="form.autoAssignSales" />
                                 <label class="form-check-label" for="autoAssignSalesSwitch">
-                                    <strong>Enable Auto Assignment for Sales Managers</strong>
-                                    <small class="text-muted d-block">Automatically assign a sales manager to new clients upon creation.</small>
+                                    <strong>{{ __('message.enable_sales_manager') }}</strong>
+                                    <small class="text-muted d-block">{{ __('message.auto_assign_sales_managers_desc') }}</small>
                                 </label>
                             </div>
                         </div>
@@ -38,21 +36,21 @@
                         <div class="col-md-6">
                             <DynamicSelect
                                 name="existingAccManager"
-                                label="Current Account Manager"
+                                :label="__('message.current_account_manager')"
                                 :elements="accountManagers"
                                 :value="form.existingAccManager"
                                 :onChange="(val) => form.existingAccManager = val"
-                                placeholder="Select an option"
+                                :placeholder="__('message.pipe_select_option')"
                             />
                         </div>
                         <div class="col-md-6">
                             <DynamicSelect
                                 name="newAccManager"
-                                label="Select Replacement Account Manager"
+                                :label="__('message.select_replacement_manager')"
                                 :apiEndpoint="`${baseUrl}/search-admins`"
                                 :value="form.newAccManager"
                                 :onChange="(val) => form.newAccManager = val"
-                                placeholder="Search..."
+                                :placeholder="__('message.search')"
                             />
                         </div>
                     </div>
@@ -61,21 +59,21 @@
                         <div class="col-md-6">
                             <DynamicSelect
                                 name="existingSaleManager"
-                                label="Current Sales Manager"
+                                :label="__('message.current_sales_manager')"
                                 :elements="salesManagers"
                                 :value="form.existingSaleManager"
                                 :onChange="(val) => form.existingSaleManager = val"
-                                placeholder="Select an option"
+                                :placeholder="__('message.pipe_select_option')"
                             />
                         </div>
                         <div class="col-md-6">
                             <DynamicSelect
                                 name="newSaleManager"
-                                label="Select Replacement Sales Manager"
+                                :label="__('message.select_replacement_sales_manager')"
                                 :apiEndpoint="`${baseUrl}/search-admins`"
                                 :value="form.newSaleManager"
                                 :onChange="(val) => form.newSaleManager = val"
-                                placeholder="Search..."
+                                :placeholder="__('message.search')"
                             />
                         </div>
                     </div>
@@ -83,11 +81,7 @@
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn btn-primary" @click="submit" :disabled="saving">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                        <i v-else class="fas fa-save me-1"></i>
-                        Save
-                    </button>
+                    <action-button action="save" :loading="saving" @click="submit" />
                 </div>
             </template>
         </div>

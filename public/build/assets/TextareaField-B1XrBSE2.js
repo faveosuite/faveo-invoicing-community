@@ -1,0 +1,1 @@
+import{d as t,P as r,k as a,$ as s}from"./main-Cs4iTYcp.js";const o={},c={class:"textareafield-wrapper"};function n(e,d){return r(),a("div",c,[s(e.$slots,"default")])}const _=t(o,[["render",n]]);export{_ as default};

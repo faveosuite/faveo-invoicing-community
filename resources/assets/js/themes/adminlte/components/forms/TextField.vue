@@ -1,7 +1,23 @@
 <template>
     <div class="mb-3">
         <label v-if="label" class="form-label fw-bold">{{ label }}</label>
+        <div v-if="type === 'password'" class="input-group">
+            <input
+                :type="showPassword ? 'text' : 'password'"
+                :name="name"
+                :value="value"
+                :placeholder="placeholder"
+                :disabled="disabled"
+                :readonly="readonly"
+                :class="['form-control', { 'is-invalid': fieldError }]"
+                @input="onChange($event.target.value, name)"
+            />
+            <button type="button" class="btn btn-light border" @click="showPassword = !showPassword" tabindex="-1">
+                <i class="fa" :class="showPassword ? 'fa-eye' : 'fa-eye-slash'"></i>
+            </button>
+        </div>
         <input
+            v-else
             :type="type"
             :name="name"
             :value="value"
@@ -16,7 +32,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useAlertStore } from '@/core/stores/alert'
 
 const props = defineProps({
@@ -31,4 +47,9 @@ const props = defineProps({
 })
 
 const fieldError = computed(() => useAlertStore().validation_errors[props.name] ?? '')
+const showPassword = ref(false)
 </script>
+
+<style scoped>
+input[type="password"]::-ms-reveal { display: none; }
+</style>

@@ -3,7 +3,7 @@
         <AppAlert componentName="reports-index" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Reports</h4>
+                <h4 class="card-title">{{ __('message.reports') }}</h4>
             </div>
 
             <div class="card-body">
@@ -21,12 +21,12 @@
                                 data-bs-toggle="dropdown"
                                 :disabled="deleting"
                             >
-                                <span v-if="deleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                <span v-else>Bulk Action</span>
+                                <spinner-loader v-if="deleting" :size="18" />
+                                <span v-else>{{ __('message.bulk_action') }}</span>
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <button class="dropdown-item" @click="bulkDelete">Delete</button>
+                                    <button class="dropdown-item" @click="bulkDelete">{{ __('message.Delete') }}</button>
                                 </li>
                             </ul>
                         </div>
@@ -73,7 +73,7 @@ function toggleAll(e) {
 
 async function bulkDelete() {
     if (!selected.value.length) return
-    if (!confirm(`Delete ${selected.value.length} selected report(s)? This cannot be undone.`)) return
+    if (!confirm(__('message.delete_selected_reports_confirm', { count: selected.value.length }))) return
     deleting.value = true
     try {
         await http.delete(`${baseUrl}/reports`, { data: { select: selected.value } })
@@ -91,12 +91,12 @@ const columns = ['select', 'file', 'format', 'type', 'contact', 'created_at', 'a
 const tableOptions = reactive({
     headings: {
         select:     () => h('input', { type: 'checkbox', checked: allSelected.value, onChange: toggleAll }),
-        file:       'File Name',
-        format:     'Format',
-        type:       'Type',
-        contact:    'Contact',
-        created_at: 'Created At',
-        action:     'Action',
+        file:       __('message.file_name'),
+        format:     __('message.format'),
+        type:       __('message.type'),
+        contact:    __('message.contact'),
+        created_at: __('message.created_at'),
+        action:     __('message.action'),
     },
     templates: {
         select:     (f, row) => h('input', { type: 'checkbox', checked: selected.value.includes(row.id), onChange: () => toggleRow(row.id) }),
@@ -108,7 +108,7 @@ const tableOptions = reactive({
         action:     (f, row) => h('a', {
             href: `${baseUrl}/download-exported-file/${row.id}`,
             class: 'btn btn-light table_btn',
-            title: 'Download',
+            title: __('message.download'),
             target: '_blank',
         }, h('i', { class: 'fas fa-download' })),
     },

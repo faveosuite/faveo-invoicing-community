@@ -3,9 +3,9 @@
         <AppAlert componentName="license-type-index" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">License Types</h4>
+                <h4 class="card-title">{{ __('message.license_types') }}</h4>
                 <div class="card-tools">
-                    <button class="btn btn-tool" title="Add License Type" v-tooltip @click="openCreate">
+                    <button class="btn btn-tool" :title="__('message.add_license_type_btn')" v-tooltip @click="openCreate">
                         <i class="fas fa-plus fw-bold"></i>
                     </button>
                 </div>
@@ -26,12 +26,12 @@
                                 data-bs-toggle="dropdown"
                                 :disabled="deleting"
                             >
-                                <span v-if="deleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                <span v-else>Bulk Action</span>
+                                <spinner-loader v-if="deleting" :size="18" />
+                                <span v-else>{{ __('message.bulk_action') }}</span>
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <button class="dropdown-item" @click="bulkDelete">Delete</button>
+                                    <button class="dropdown-item" @click="bulkDelete">{{ __('message.Delete') }}</button>
                                 </li>
                             </ul>
                         </div>
@@ -43,50 +43,40 @@
         <!-- Create Modal -->
         <modal :showModal="showCreate" :onClose="closeCreate" :showCloseBtn="false">
             <template #title>
-                <h4>Add License Type</h4>
+                <h4>{{ __('message.add_license_type_btn') }}</h4>
             </template>
             <template #fields>
                 <TextField
                     name="license_type_name"
-                    label="Name"
+                    :label="__('message.name')"
                     :value="newName"
                     :onChange="(val) => newName = val"
-                    placeholder="Enter license type name"
+                    :placeholder="__('message.name')"
                 />
             </template>
             <template #controls>
-                <button type="button" class="btn btn-primary" :disabled="creating" @click="create">
-                    <span v-if="creating" class="spinner-border spinner-border-sm me-1"></span>
-                    <i v-else class="fas fa-save me-1"></i>
-                    Save
-                </button>
+                <action-button action="create" type="button" :loading="creating" @click="create" />
             </template>
         </modal>
 
         <!-- Edit Modal -->
         <modal :showModal="showEdit" :onClose="closeEdit" :showCloseBtn="false">
             <template #title>
-                <h4>Edit License Type</h4>
+                <h4>{{ __('message.edit-license-type') }}</h4>
             </template>
             <template #fields>
-                <div v-if="editLoading" class="text-center py-3">
-                    <span class="spinner-border text-secondary"></span>
-                </div>
+                <inline-loader v-if="editLoading" />
                 <TextField
                     v-else
                     name="license_type_edit_name"
-                    label="Name"
+                    :label="__('message.name')"
                     :value="editName"
                     :onChange="(val) => editName = val"
-                    placeholder="Enter license type name"
+                    :placeholder="__('message.name')"
                 />
             </template>
             <template #controls>
-                <button type="button" class="btn btn-primary" :disabled="saving || editLoading" @click="update">
-                    <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                    <i v-else class="fas fa-save me-1"></i>
-                    Update
-                </button>
+                <action-button action="update" type="button" :loading="saving" :disabled="saving || editLoading" @click="update" />
             </template>
         </modal>
 
@@ -236,15 +226,15 @@ const columns = ['select', 'name', 'action']
 const tableOptions = reactive({
     headings: {
         select: () => h('input', { type: 'checkbox', checked: allSelected.value, onChange: toggleAll }),
-        name:   'Name',
-        action: 'Action',
+        name:   __('message.name'),
+        action: __('message.action'),
     },
     templates: {
         select: (f, row) => h('input', { type: 'checkbox', checked: selected.value.includes(row.id), onChange: () => toggleRow(row.id) }),
         name:   (f, row) => row.name || '—',
         action: (f, row) => h('div', { class: 'd-flex gap-1' }, [
-            h('button', { class: 'btn btn-light table_btn', title: 'Edit',   onClick: () => openEdit(row.id)   }, [h('i', { class: 'fas fa-edit' })]),
-            h('button', { class: 'btn btn-light table_btn', title: 'Delete', onClick: () => openDelete(row.id) }, [h('i', { class: 'fas fa-trash' })]),
+            h('button', { class: 'btn btn-light table_btn', title: __('message.edit'),   onClick: () => openEdit(row.id)   }, [h('i', { class: 'fas fa-edit' })]),
+            h('button', { class: 'btn btn-light table_btn', title: __('message.Delete'), onClick: () => openDelete(row.id) }, [h('i', { class: 'fas fa-trash' })]),
         ]),
     },
     sortable: ['name'],

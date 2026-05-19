@@ -3,19 +3,19 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-secondary card-outline">
             <div class="card-header">
-                <h4 class="card-title">Create Product</h4>
+                <h4 class="card-title">{{ __('message.create_product') }}</h4>
             </div>
 
             <div class="card-body p-0">
                 <ul class="nav nav-tabs px-3 pt-2" role="tablist">
                     <li class="nav-item">
                         <a class="nav-link" :class="{ active: tab === 'details' }" href="#" @click.prevent="tab = 'details'">
-                            <i class="fas fa-circle-info me-1"></i>Details
+                            <i class="fas fa-circle-info me-1"></i>{{ __('message.details') }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" :class="{ active: tab === 'tax' }" href="#" @click.prevent="tab = 'tax'">
-                            <i class="fas fa-receipt me-1"></i>Tax
+                            <i class="fas fa-receipt me-1"></i>{{ __('message.tax') }}
                         </a>
                     </li>
                 </ul>
@@ -26,28 +26,28 @@
                         <!-- Row 1: Name / License Type / Group -->
                         <div class="row">
                             <div class="col-md-4">
-                                <TextField name="name" label="Name *" :value="form.name" :onChange="onChange" />
+                                <TextField name="name" :label="__('message.name') + ' *'" :value="form.name" :onChange="onChange" />
                             </div>
                             <div class="col-md-4">
                                 <DynamicSelect
                                     name="type"
-                                    label="License Type *"
+                                    :label="__('message.license-type') + ' *'"
                                     :apiEndpoint="`${baseUrl}/dependency/license-types`"
                                     dataKey="license_types"
                                     :value="form.typeObj"
                                     :onChange="onChange"
-                                    placeholder="Select license type"
+                                    :placeholder="__('message.select_license_type')"
                                 />
                             </div>
                             <div class="col-md-4">
                                 <DynamicSelect
                                     name="group"
-                                    label="Group *"
+                                    :label="__('message.group') + ' *'"
                                     :apiEndpoint="`${baseUrl}/dependency/product-groups`"
                                     dataKey="product_groups"
                                     :value="form.groupObj"
                                     :onChange="onChange"
-                                    placeholder="Select group"
+                                    :placeholder="__('message.select_group')"
                                 />
                             </div>
                         </div>
@@ -56,109 +56,109 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Description *</label>
+                                    <label class="form-label fw-bold">{{ __('message.description') }} *</label>
                                     <TinyMCE name="description" id="editor-description" :value="form.description" :onChange="onChange" />
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Short Description *</label>
+                                    <label class="form-label fw-bold">{{ __('message.short_description') }} *</label>
                                     <TinyMCE name="short_description" id="editor-short-description" :value="form.short_description" :onChange="onChange" />
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <TextField name="product_sku" label="Product SKU *" :value="form.product_sku" :onChange="onChange" />
+                                <TextField name="product_sku" :label="__('message.product_sku') + ' *'" :value="form.product_sku" :onChange="onChange" />
                                 <DynamicSelect
                                     name="parent"
-                                    label="Parent"
+                                    :label="__('message.parent')"
                                     :apiEndpoint="`${baseUrl}/dependency/all-products`"
                                     dataKey="products"
                                     :value="form.parentObj"
                                     :onChange="onChange"
-                                    placeholder="Select parent"
+                                    :placeholder="__('message.select_parent')"
                                 />
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Product Image</label>
+                                    <label class="form-label fw-bold">{{ __('message.product_image') }}</label>
                                     <input type="file" class="form-control" accept="image/jpeg,image/png,image/jpg" @change="onImageChange" />
-                                    <small class="text-muted">JPEG, PNG, JPG — max 2MB</small>
+                                    <small class="text-muted">{{ __('message.image_help') }}</small>
                                 </div>
                                 <div class="row">
                                     <div class="col-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold d-block">Show Agent</label>
+                                            <label class="form-label fw-bold d-block">{{ __('message.show_agent') }}</label>
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" v-model="form.show_agent" id="showAgent" />
-                                                <label class="form-check-label" for="showAgent">{{ form.show_agent ? 'Yes' : 'No' }}</label>
+                                                <label class="form-check-label" for="showAgent">{{ form.show_agent ? __('message.yes') : __('message.no') }}</label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold d-block">Highlight</label>
+                                            <label class="form-label fw-bold d-block">{{ __('message.highlight') }}</label>
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" v-model="form.highlight" id="highlight" />
-                                                <label class="form-check-label" for="highlight">{{ form.highlight ? 'Yes' : 'No' }}</label>
+                                                <label class="form-check-label" for="highlight">{{ form.highlight ? __('message.yes') : __('message.no') }}</label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold d-block">Add to Contact</label>
+                                            <label class="form-label fw-bold d-block">{{ __('message.add_to_contact') }}</label>
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" v-model="form.add_to_contact" id="addToContact" />
-                                                <label class="form-check-label" for="addToContact">{{ form.add_to_contact ? 'Yes' : 'No' }}</label>
+                                                <label class="form-check-label" for="addToContact">{{ form.add_to_contact ? __('message.yes') : __('message.no') }}</label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold d-block">Can Modify Agent</label>
+                                            <label class="form-label fw-bold d-block">{{ __('message.can_modify_agent') }}</label>
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" v-model="form.can_modify_agent" id="canModifyAgent" />
-                                                <label class="form-check-label" for="canModifyAgent">{{ form.can_modify_agent ? 'Yes' : 'No' }}</label>
+                                                <label class="form-check-label" for="canModifyAgent">{{ form.can_modify_agent ? __('message.yes') : __('message.no') }}</label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold d-block">Can Modify Quantity</label>
+                                            <label class="form-label fw-bold d-block">{{ __('message.can_modify_quantity') }}</label>
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" v-model="form.can_modify_quantity" id="canModifyQty" />
-                                                <label class="form-check-label" for="canModifyQty">{{ form.can_modify_quantity ? 'Yes' : 'No' }}</label>
+                                                <label class="form-check-label" for="canModifyQty">{{ form.can_modify_quantity ? __('message.yes') : __('message.no') }}</label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold d-block">Require Domain</label>
+                                            <label class="form-label fw-bold d-block">{{ __('message.require_domain') }}</label>
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" v-model="form.require_domain" id="requireDomain" />
-                                                <label class="form-check-label" for="requireDomain">{{ form.require_domain ? 'Yes' : 'No' }}</label>
+                                                <label class="form-check-label" for="requireDomain">{{ form.require_domain ? __('message.yes') : __('message.no') }}</label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold d-block">Hidden (Pricing Page)</label>
+                                            <label class="form-label fw-bold d-block">{{ __('message.hidden_pricing_page') }}</label>
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" v-model="form.hidden" id="hidden" />
-                                                <label class="form-check-label" for="hidden">{{ form.hidden ? 'Yes' : 'No' }}</label>
+                                                <label class="form-check-label" for="hidden">{{ form.hidden ? __('message.yes') : __('message.no') }}</label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold d-block">Hidden (Admin Dropdown)</label>
+                                            <label class="form-label fw-bold d-block">{{ __('message.hidden_admin_dropdown') }}</label>
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" v-model="form.invoice_hidden" id="invoiceHidden" />
-                                                <label class="form-check-label" for="invoiceHidden">{{ form.invoice_hidden ? 'Yes' : 'No' }}</label>
+                                                <label class="form-check-label" for="invoiceHidden">{{ form.invoice_hidden ? __('message.yes') : __('message.no') }}</label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold d-block">WhatsApp Signup Flow</label>
+                                            <label class="form-label fw-bold d-block">{{ __('message.whatsapp_signup_flow') }}</label>
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" v-model="form.whatsapp_integration" id="whatsappIntegration" />
-                                                <label class="form-check-label" for="whatsappIntegration">{{ form.whatsapp_integration ? 'Yes' : 'No' }}</label>
+                                                <label class="form-check-label" for="whatsappIntegration">{{ form.whatsapp_integration ? __('message.yes') : __('message.no') }}</label>
                                             </div>
                                         </div>
                                     </div>
@@ -170,7 +170,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Product Description *</label>
+                                    <label class="form-label fw-bold">{{ __('message.product_description') }} *</label>
                                     <TinyMCE name="product_description" id="editor-product-description" :value="form.product_description" :onChange="onChange" />
                                 </div>
                             </div>
@@ -179,10 +179,8 @@
 
                     <!-- Tax Tab -->
                     <div v-show="tab === 'tax'">
-                        <p class="text-muted mb-3">Select the tax classes that apply to this product.</p>
-                        <div v-if="loadingTax" class="text-center py-4">
-                            <span class="spinner-border text-secondary"></span>
-                        </div>
+                        <p class="text-muted mb-3">{{ __('message.select_tax_classes_text') }}</p>
+                        <inline-loader v-if="loadingTax" />
                         <div v-else class="row">
                             <div v-for="tc in taxClasses" :key="tc.id" class="col-md-3 mb-2">
                                 <div class="form-check">
@@ -196,18 +194,15 @@
                                     <label class="form-check-label" :for="`tax-${tc.id}`">{{ tc.name }}</label>
                                 </div>
                             </div>
-                            <div v-if="!taxClasses.length" class="col-12 text-muted">No tax classes found.</div>
+                            <div v-if="!taxClasses.length" class="col-12 text-muted">{{ __('message.no_tax_classes') }}</div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="card-footer">
-                <button class="btn btn-primary" @click="submit" :disabled="saving">
-                    <span v-if="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                    Save
-                </button>
-                <router-link to="/products" class="btn btn-secondary ms-2">Cancel</router-link>
+                <action-button action="save" :loading="saving" @click="submit" />
+                <action-button action="cancel" to="/products" class="ms-2" />
             </div>
         </div>
     </div>

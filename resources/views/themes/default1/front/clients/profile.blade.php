@@ -380,7 +380,7 @@ input:checked + .slider:before {
                                     @if($is2faEnabled ==0)
                                     <img src="{{asset('common/images/authenticator.png')}}" alt="Authenticator" style="margin-top: -6px!important;height:26px;" class="img-responsive img-circle img-sm">&nbsp;{{ __('message.authenticator_app')}}
                                 @else
-                                    <img src="{{asset('common/images/authenticator.png')}}" alt="Authenticator" style="margin-top: -6px!important;height:26px;" class="img-responsive img-circle img-sm">&nbsp;{{ __('message.two_step_verfication')}} {{getTimeInLoggedInUserTimeZone($dateSinceEnabled)}}
+                                    <img src="{{asset('common/images/authenticator.png')}}" alt="Authenticator" style="margin-top: -6px!important;height:26px;" class="img-responsive img-circle img-sm">&nbsp;{{ __('message.authenticator_app')}} {{getTimeInLoggedInUserTimeZone($dateSinceEnabled)}}
                                     <br><br><br>
                                     <div class="row">
                                         <div class="col-md-4">
@@ -601,7 +601,7 @@ input:checked + .slider:before {
             // Allowed image types
             const allowedTypes = ["image/png", "image/jpg", "image/jpeg"];
             if (!allowedTypes.includes(file.type)) {
-                showAlert('error',"{{ __('message.image_allowed') }}");
+                showAlert('error',"{{ __('message.image_invalid_message') }}");
                 return;
             }
 

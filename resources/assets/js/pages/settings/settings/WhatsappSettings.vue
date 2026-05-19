@@ -6,9 +6,7 @@
                 <h4 class="card-title">{{ __('message.whatsapp_config') }}</h4>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
@@ -21,37 +19,37 @@
                         <div class="col-md-6 mb-3">
                             <TextField
                                 name="app_id"
-                                label="App ID"
+                                :label="__('message.app_id')"
                                 :value="form.app_id"
-                                placeholder="Enter your WhatsApp App ID"
+                                :placeholder="__('message.enter_whatsapp_app_id')"
                                 :onChange="(val, key) => form[key] = val"
                             />
                         </div>
                         <div class="col-md-6 mb-3">
                             <TextField
                                 name="app_secret"
-                                label="App Secret"
+                                :label="__('message.app_secret')"
                                 type="password"
                                 :value="form.app_secret"
-                                placeholder="Enter your WhatsApp App Secret"
+                                :placeholder="__('message.enter_whatsapp_app_secret')"
                                 :onChange="(val, key) => form[key] = val"
                             />
                         </div>
                         <div class="col-md-6 mb-3">
                             <TextField
                                 name="config_id"
-                                label="Config ID"
+                                :label="__('message.config_id')"
                                 :value="form.config_id"
-                                placeholder="Enter your WhatsApp Config ID"
+                                :placeholder="__('message.enter_whatsapp_config_id')"
                                 :onChange="(val, key) => form[key] = val"
                             />
                         </div>
                         <div class="col-md-6 mb-3">
                             <TextField
                                 name="verify_token"
-                                label="Verify Token"
+                                :label="__('message.verify_token')"
                                 :value="form.verify_token"
-                                placeholder="Enter your WhatsApp Verify Token"
+                                :placeholder="__('message.enter_whatsapp_verify_token')"
                                 :onChange="(val, key) => form[key] = val"
                             />
                         </div>
@@ -59,11 +57,7 @@
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn btn-primary" @click="save" :disabled="saving">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                        <i v-else class="fas fa-save me-1"></i>
-                        {{ __('message.save') }}
-                    </button>
+                    <action-button action="save" :loading="saving" @click="save" />
                 </div>
             </template>
         </div>

@@ -3,7 +3,7 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Country List</h4>
+                <h4 class="card-title">{{ __('message.country_list') }}</h4>
             </div>
             <div class="card-body">
                 <DataTable
@@ -28,8 +28,8 @@ const columns = ['country', 'count']
 
 const tableOptions = reactive({
     headings: {
-        country: 'Country',
-        count: 'Users',
+        country: __('message.country'),
+        count:   __('message.users'),
     },
     templates: {
         country: (f, row) => row.country || '—',

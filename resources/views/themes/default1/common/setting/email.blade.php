@@ -110,7 +110,7 @@
 
                     <tr>
                         <div class="form-group showWhenMailGunSelected">
-                            <td><b>{!! html()->label( __('message.domain2'))->class('required')->for('domain') !!}</b></td>
+                            <td><b>{!! html()->label( __('message.admin_domain'))->class('required')->for('domain') !!}</b></td>
                         <td>
                             {!! html()->text('domain', $set->domain)->class('form-control'. ($errors->has('domain') ? ' is-invalid' : ''))->id('domain') !!}
                             @error('domain')

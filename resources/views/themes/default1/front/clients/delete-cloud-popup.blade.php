@@ -18,7 +18,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-dismiss="modal">{{ __('message.cancel')}}</button>
-                <a href="{{ url('delete/domain/'.$orderNumber.'/1') }}" class="btn btn-primary">{{ __('message.delete')}}</a>
+                <a href="{{ url('delete/domain/'.$orderNumber.'/1') }}" class="btn btn-primary">{{ __('message.Delete')}}</a>
             </div>
         </div>
     </div>

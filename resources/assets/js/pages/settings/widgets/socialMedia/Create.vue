@@ -3,26 +3,23 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Add Social Media</h4>
+                <h4 class="card-title">{{ __('message.add_social_media') }}</h4>
             </div>
 
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4 mb-3">
-                        <TextField name="name" label="Name *" :value="form.name" :onChange="onChange" placeholder="e.g. Twitter" />
+                        <TextField name="name" :label="__('message.name') + ' *'" :value="form.name" :onChange="onChange" placeholder="e.g. Twitter" />
                     </div>
                     <div class="col-md-4 mb-3">
-                        <TextField name="link" label="Link *" :value="form.link" :onChange="onChange" placeholder="https://twitter.com/..." />
+                        <TextField name="link" :label="__('message.link') + ' *'" :value="form.link" :onChange="onChange" placeholder="https://twitter.com/..." />
                     </div>
                 </div>
             </div>
 
             <div class="card-footer">
-                <button class="btn btn-primary" @click="submit" :disabled="saving">
-                    <span v-if="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                    Create
-                </button>
-                <RouterLink to="/settings/widgets/social-media" class="btn btn-secondary ms-2">Cancel</RouterLink>
+                <action-button action="save" :loading="saving" @click="submit" />
+                <action-button action="cancel" to="/settings/widgets/social-media" class="ms-2" />
             </div>
         </div>
     </div>
@@ -30,7 +27,7 @@
 
 <script setup>
 import { reactive, ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 

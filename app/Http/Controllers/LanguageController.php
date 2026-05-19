@@ -28,7 +28,7 @@ class LanguageController extends Controller
         }
 
         header('Content-Type: text/javascript');
-        header('Cache-Control: max-age=2592000');
+        header('Cache-Control: no-store');
         echo 'translator = '.json_encode($languageArray).';';
         exit;
     }

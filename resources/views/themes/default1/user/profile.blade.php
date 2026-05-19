@@ -316,7 +316,7 @@
 
             <div class="card card-secondary card-outline">
                 <div class="card-header">
-                    <h3 class="card-title">{{Lang::get('message.change-password')}}</h3>
+                    <h3 class="card-title">{{Lang::get('message.change_password')}}</h3>
 
 
                 </div>

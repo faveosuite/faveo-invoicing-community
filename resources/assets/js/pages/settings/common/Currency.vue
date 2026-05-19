@@ -3,7 +3,7 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-secondary card-outline">
             <div class="card-header">
-                <h4 class="card-title">Currencies</h4>
+                <h4 class="card-title">{{ __('message.all_currency') }}</h4>
             </div>
             <div class="card-body">
                 <DataTable
@@ -79,12 +79,12 @@ const columns = ['name', 'code', 'symbol', 'is_default', 'dashboard', 'action']
 
 const tableOptions = reactive({
     headings: {
-        name:       'Name',
-        code:       'Code',
-        symbol:     'Symbol',
-        is_default: 'Default',
-        dashboard:  'Dashboard',
-        action:     'Action',
+        name:       __('message.name'),
+        code:       __('message.code'),
+        symbol:     __('message.symbol'),
+        is_default: __('message.default'),
+        dashboard:  __('message.dashboard_currency'),
+        action:     __('message.action'),
     },
     templates: {
         name:   (f, row) => row.name   || '—',
@@ -92,10 +92,10 @@ const tableOptions = reactive({
         symbol: (f, row) => row.symbol || '—',
         is_default: (f, row) => h('span', {
             class: row.is_default ? 'badge bg-success' : 'badge bg-danger',
-        }, row.is_default ? 'Yes' : 'No'),
+        }, row.is_default ? __('message.yes') : __('message.no')),
         dashboard: (f, row) => h('span', {
             class: row.dashboard_currency ? 'badge bg-success' : 'badge bg-danger',
-        }, row.dashboard_currency ? 'Yes' : 'No'),
+        }, row.dashboard_currency ? __('message.yes') : __('message.no')),
         action: (f, row) => h(CurrencyTableActions, {
             status:           row.status,
             isDefault:        Boolean(row.is_default),
@@ -108,7 +108,7 @@ const tableOptions = reactive({
             onSetDashboard:   () => setDashboard(row.id),
         }),
     },
-    sortable:   ['name', 'code'],
+    sortable:   ['name', 'code', 'symbol'],
     filterable: true,
     requestAdapter(data) {
         return {

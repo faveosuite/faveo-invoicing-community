@@ -179,7 +179,7 @@ class ExtendedBaseProductController extends Controller
     <div class="form-group">
         <label class="required">'./* @scrutinizer ignore-type */ \Lang::get('message.cloud_domain').'</label>
         <div class="input-group">
-            <input type="text" name="cloud_domain" class="form-control" id="cloud_domain" placeholder="'.__('message.extended_domain').'" required >
+            <input type="text" name="cloud_domain" class="form-control" id="cloud_domain" placeholder="'.__('message.admin_domain').'" required >
             <input type="text" class="form-control" value=".'.cloudSubDomain().'" disabled="true" style="background-color: #4081B5; color:white; border-color: #0088CC">
         </div>
             <span class="error-message" id="cloud-msg"></span>

@@ -22,14 +22,14 @@
                 <div class="form-group {{ $errors->has('plan') ? 'has-error' : '' }}">
                     <!-- Plan -->
                     {!! html()->label(__('message.plans'), 'plan')->class('required') !!}
-                    {!! html()->select('plan', ['' => __('message.select'), 'Plans' => $plans], null)->class('form-control')->attribute('onchange', 'getPrice(this.value)') !!}
+                    {!! html()->select('plan', ['' => __('message.Select'), 'Plans' => $plans], null)->class('form-control')->attribute('onchange', 'getPrice(this.value)') !!}
                     {!! html()->hidden('user', $userid) !!}
                 </div>
 
                 <div class="form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
                     <!-- Payment method -->
                     {!! html()->label(Lang::get('message.payment-method'), 'payment_method')->class('required') !!}
-                    {!! html()->select('payment_method', ['' =>  __('message.select'), 'cash' => 'Cash', 'check' => 'Check', 'online payment' => 'Online Payment', 'razorpay' => 'Razorpay'], null)->class('form-control') !!}
+                    {!! html()->select('payment_method', ['' =>  __('message.Select'), 'cash' => 'Cash', 'check' => 'Check', 'online payment' => 'Online Payment', 'razorpay' => 'Razorpay'], null)->class('form-control') !!}
                 </div>
 
                 <div class="form-group {{ $errors->has('cost') ? 'has-error' : '' }}">

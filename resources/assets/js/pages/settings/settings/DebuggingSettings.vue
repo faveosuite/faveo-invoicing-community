@@ -3,32 +3,27 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">Debugging Settings</h4>
+                <h4 class="card-title">{{ __('message.debugging_settings') }}</h4>
             </div>
 
-            <div v-if="loading" class="card-body text-center py-5">
-                <span class="spinner-border text-secondary"></span>
-            </div>
+            <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label fw-bold d-block">Debug Mode</label>
+                        <label class="form-label fw-bold d-block">{{ __('message.debug_mode') }}</label>
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" v-model="debugEnabled" id="debugMode" />
                             <label class="form-check-label" for="debugMode">
-                                {{ debugEnabled ? 'Enabled' : 'Disabled' }}
+                                {{ debugEnabled ? __('message.enabled') : __('message.disabled') }}
                             </label>
                         </div>
-                        <small class="text-muted">Enables APP_DEBUG, Pulse, and Clockwork.</small>
+                        <small class="text-muted">{{ __('message.debug_mode_description') }}</small>
                     </div>
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn btn-primary" @click="submit" :disabled="saving">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                        Save
-                    </button>
+                    <action-button action="save" :loading="saving" @click="submit" />
                 </div>
             </template>
         </div>

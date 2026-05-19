@@ -24,8 +24,8 @@ class QueueController extends Controller
     {
         try {
             $searchString = $request->input('search-query', '');
-            $sortField = $request->input('sort_field', 'updated_at');
-            $sortOrder = $request->input('sort_order', 'desc');
+            $sortField = $request->input('sort-field', 'name');
+            $sortOrder = $request->input('sort-order', 'asc');
             $limit = (int) $request->input('limit', 10);
 
             $cronPath = base_path('artisan');
@@ -190,7 +190,7 @@ class QueueController extends Controller
                 'beanstalkd' => [
                     $this->buildField($short, __('message.driver'), 'driver', __('message.placeholder_beanstalkd')),
                     $this->buildField($short, __('message.host'), 'host', __('message.placeholder_localhost')),
-                    $this->buildField($short, __('message.queue'), 'queue', __('message.placeholder_default')),
+                    $this->buildField($short, __('message.queue'), 'queue', __('message.default_place')),
                 ],
 
                 'sqs' => [

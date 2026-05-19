@@ -52,12 +52,7 @@
                     <Suspense>
                         <component :is="Component" />
                         <template #fallback>
-                            <div class="d-flex justify-content-center align-items-center"
-                                 style="min-height: 400px">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">{{ __('message.loading') }}</span>
-                                </div>
-                            </div>
+                            <inline-loader />
                         </template>
                     </Suspense>
                 </RouterView>

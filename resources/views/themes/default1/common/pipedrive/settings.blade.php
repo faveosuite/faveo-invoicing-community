@@ -117,7 +117,7 @@
                                                         <label>{{ __('message.pipedrive_fields') }}</label>
                                                         <select class="form-control pipedrive-select select_fields"
                                                                 name="select1[]">
-                                                            <option value="">-- {{ __('message.select') }} --</option>
+                                                            <option value="">-- {{ __('message.Select') }} --</option>
                                                             @foreach($pipedriveFields as $pipedriveField)
                                                                 <option value="{{ $pipedriveField['id'] }}"
                                                                         {{ $pipedriveField['id'] == $field['id'] ? 'selected' : '' }}>
@@ -134,7 +134,7 @@
                                                             $isLocalField = empty($field['pipedrive_options']);
                                                             ?>
                                                         <select class="form-control select_fields" name="select2[]" faveo-field="{{ !$isLocalField ? "false" : "true" }}">
-                                                            <option value="">-- {{ __('message.select') }} --</option>
+                                                            <option value="">-- {{ __('message.Select') }} --</option>
                                                             @if(!$isLocalField)
                                                                 @foreach($field['pipedrive_options'] as $pipedrive)
                                                                     <option value="{{ $pipedrive['id'] }}"
@@ -170,7 +170,7 @@
                                                     <label>{{ __('message.pipedrive_fields') }}</label>
                                                     <select class="form-control pipedrive-select select_fields"
                                                             name="select1[]">
-                                                        <option value="">-- {{ __('message.select') }} --</option>
+                                                        <option value="">-- {{ __('message.Select') }} --</option>
                                                         @foreach($pipedriveFields as $pipedriveField)
                                                             <option value="{{ $pipedriveField['id'] }}">
                                                                 {{ $pipedriveField['field_name'] }}
@@ -183,7 +183,7 @@
                                                 <div class="form-group">
                                                     <label>{{ __('message.faveo_invoicing_fields') }}</label>
                                                     <select class="form-control select_fields" name="select2[]" faveo-field="true">
-                                                        <option value="">-- {{ __('message.select') }} --</option>
+                                                        <option value="">-- {{ __('message.Select') }} --</option>
                                                         @foreach($localFields as $localField)
                                                             <option value="{{ $localField['id'] }}">
                                                                 {{ $localField['field_name'] }}
@@ -200,7 +200,7 @@
                                 </div>
                                 <div>
                                     <a class="text-primary" role="button" id="add-new">
-                                        <i class="fas fa-plus-circle"></i> {{ __('message.addnew') }}
+                                        <i class="fas fa-plus-circle"></i> {{ __('message.add-new') }}
                                     </a>
                                 </div>
                             </div>
@@ -328,7 +328,7 @@
                     },
                     success: function (response) {
                         // Clear existing options and add new ones
-                        $faveoSelect.empty().append('<option value="">-- {{ __('message.select') }} --</option>');
+                        $faveoSelect.empty().append('<option value="">-- {{ __('message.Select') }} --</option>');
 
                         if (response.data.options && response.data.options.length > 0) {
                             // Add new options from API response
@@ -366,7 +366,7 @@
             // Function to reset Faveo dropdown to default options
             function resetFaveoDropdown($select) {
                 $select.empty().append(`
-            <option value="">-- {{ __('message.select') }} --</option>
+            <option value="">-- {{ __('message.Select') }} --</option>
             @foreach($localFields as $localField)
                 <option value="{{ $localField['id'] }}">{{ $localField['field_name'] }}</option>
             @endforeach
@@ -390,13 +390,13 @@
 
                 // Create select options HTML for Pipedrive fields with available options only
                 const availableOptions = getAvailablePipedriveOptions();
-                let pipedriveOptionsHtml = '<option value="">-- {{ __('message.select') }} --</option>';
+                let pipedriveOptionsHtml = '<option value="">-- {{ __('message.Select') }} --</option>';
                 availableOptions.forEach(option => {
                     pipedriveOptionsHtml += `<option value="${option.id}">${option.text}</option>`;
                 });
 
                 const localOptionsHtml = `
-            <option value="">-- {{ __('message.select') }} --</option>
+            <option value="">-- {{ __('message.Select') }} --</option>
             @foreach($localFields as $localField)
                 <option value="{{ $localField['id'] }}">{{ $localField['field_name'] }}</option>
             @endforeach

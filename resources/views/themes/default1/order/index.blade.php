@@ -256,7 +256,7 @@
 
             </div>
               <div class="col-md-3 form-group">
-                  {!! html()->label( __('message.domain2'))->for('domain') !!}
+                  {!! html()->label( __('message.admin_domain'))->for('domain') !!}
                   {!! html()->text('domain', $request->domain)->class('form-control')->id('domain') !!}
               </div>
 
@@ -504,7 +504,7 @@
                     zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
                     infoFiltered:   "{{ __('message.info_filtered') }}",
                     lengthMenu:     "{{ __('message.sLengthMenu') }}",
-                    loadingRecords: "{{ __('message.loading_records') }}",
+                    loadingRecords: "{{ __('message.loading') }}",
                 },
             columns: [
                 {data: 'checkbox', name: 'checkbox'},

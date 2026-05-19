@@ -138,7 +138,7 @@ class ProfileRequest extends Request
             'password_confirmation.same' => __('validation.profile_form.password_confirmation.same'),
 
             'mobile.unique' => __('message.mobile_unique'),
-            'profile_pic.mimes' => __('message.image_allowed'),
+            'profile_pic.mimes' => __('message.image_invalid_message'),
             'profile_pic.max' => __('message.image_max'),
 
             'mobile_code.required' => __('validation.profile_form.mobile_code.required'),

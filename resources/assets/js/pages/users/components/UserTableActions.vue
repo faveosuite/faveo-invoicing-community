@@ -3,7 +3,7 @@
         <router-link
             :to="`/users/${userId}/edit`"
             class="btn btn-light table_btn"
-            title="Edit"
+            :title="__('message.edit')"
             v-tooltip
         >
             <i class="fas fa-edit"></i>
@@ -11,14 +11,14 @@
         <router-link
             :to="`/users/${userId}`"
             class="btn btn-default table_btn"
-            title="View"
+            :title="__('message.view')"
             v-tooltip
         >
             <i class="fas fa-eye"></i>
         </router-link>
         <button
             class="btn btn-light table_btn"
-            title="Delete"
+            :title="__('message.Delete')"
             v-tooltip
             @click="showModal = true"
         >

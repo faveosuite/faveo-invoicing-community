@@ -11,7 +11,7 @@
             <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
             <li class="breadcrumb-item"><a href="{{url('clients')}}"> {{ __('message.all-users') }}</a></li>
             <li class="breadcrumb-item"><a href="{{url('invoices')}}">{{ __('message.view_invoices') }}</a></li>
-            <li class="breadcrumb-item active">{{ __('message.generate_invoice') }}</li>
+            <li class="breadcrumb-item active">{{ __('message.generate-invoice') }}</li>
         </ol>
     </div><!-- /.col -->
 

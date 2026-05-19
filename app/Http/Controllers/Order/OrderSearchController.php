@@ -37,6 +37,9 @@ class OrderSearchController extends Controller
         $this->filterInstallation($query, $request->act_ins);
         $this->filterRenewal($query, $request->renewal);
         $this->filterVersion($query, $request->version, $request->product_id);
+        if ($request->filled('client')) {
+            $query->where('client', $request->client);
+        }
 
         if (in_array($request->renewal, ['expiring_subscription', 'expired_subscription'])) {
             $query->orderByDesc(
