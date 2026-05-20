@@ -14,6 +14,7 @@ class AutoUpdateController extends Controller
     {
         $this->versionService = $versionService;
     }
+
     /*
     *  Add New Version
     */

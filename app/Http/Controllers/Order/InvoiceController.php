@@ -162,7 +162,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $limit = $request->input('limit', 10);
 
             $allowedSorts = ['created_at', 'number', 'grand_total', 'status'];
-            if (!in_array($sortField, $allowedSorts, true)) {
+            if (! in_array($sortField, $allowedSorts, true)) {
                 $sortField = 'created_at';
             }
 

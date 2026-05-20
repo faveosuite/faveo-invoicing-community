@@ -2920,7 +2920,6 @@ return [
     'name_label' => 'Name',
     'country_label' => 'Country',
 
-
     // New keys for Vue i18n updates
     'no_of_agents' => 'No. of Agents',
     'design_template' => 'Design Template',
