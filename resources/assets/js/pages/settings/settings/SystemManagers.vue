@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-secondary card-outline">
+        <div class="card card-light">
             <div class="card-header">
                 <h3 class="card-title">{{ __('message.system_manager_settings') }}</h3>
             </div>
@@ -13,22 +13,14 @@
 
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <div class="form-check form-switch">
-                                <input type="checkbox" class="form-check-input" id="autoAssignAccountSwitch" v-model="form.autoAssignAccount" />
-                                <label class="form-check-label" for="autoAssignAccountSwitch">
-                                    <strong>{{ __('message.enable_account_manager') }}</strong>
-                                    <small class="text-muted d-block">{{ __('message.account_upon_creation') }}</small>
-                                </label>
-                            </div>
+                            <strong>{{ __('message.enable_account_manager') }}</strong>
+                            <small class="text-muted d-block mb-1">{{ __('message.account_upon_creation') }}</small>
+                            <Switch name="autoAssignAccount" :value="form.autoAssignAccount" :onChange="(val) => form.autoAssignAccount = val" />
                         </div>
                         <div class="col-md-6">
-                            <div class="form-check form-switch">
-                                <input type="checkbox" class="form-check-input" id="autoAssignSalesSwitch" v-model="form.autoAssignSales" />
-                                <label class="form-check-label" for="autoAssignSalesSwitch">
-                                    <strong>{{ __('message.enable_sales_manager') }}</strong>
-                                    <small class="text-muted d-block">{{ __('message.auto_assign_sales_managers_desc') }}</small>
-                                </label>
-                            </div>
+                            <strong>{{ __('message.enable_sales_manager') }}</strong>
+                            <small class="text-muted d-block mb-1">{{ __('message.auto_assign_sales_managers_desc') }}</small>
+                            <Switch name="autoAssignSales" :value="form.autoAssignSales" :onChange="(val) => form.autoAssignSales = val" />
                         </div>
                     </div>
 
@@ -90,6 +82,7 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
+import Switch from '@/components/Reusable/FormField/Switch.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 

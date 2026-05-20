@@ -1,1 +1,0 @@
-import{d as t,P as s,k as o,$ as c}from"./main-Cs4iTYcp.js";const r={},a={class:"toggleswitch-wrapper"};function n(e,l){return s(),o("div",a,[c(e.$slots,"default")])}const d=t(r,[["render",n]]);export{d as default};

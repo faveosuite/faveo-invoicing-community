@@ -26,16 +26,8 @@
                 <h4>{{ editLicense.name }}</h4>
             </template>
             <template #fields>
-                <div v-for="perm in editPerms" :key="perm.id" class="form-check mb-2">
-                    <input
-                        class="form-check-input"
-                        type="checkbox"
-                        :id="`perm-${perm.id}`"
-                        v-model="perm.assigned"
-                    />
-                    <label class="form-check-label" :for="`perm-${perm.id}`">
-                        {{ perm.permissions }}
-                    </label>
+                <div v-for="perm in editPerms" :key="perm.id" class="mb-1">
+                    <Checkbox :name="`perm-${perm.id}`" :label="perm.permissions" :value="!!perm.assigned" :onChange="(val) => perm.assigned = val" />
                 </div>
             </template>
             <template #controls>
@@ -47,6 +39,7 @@
 
 <script setup>
 import { h, ref, reactive } from 'vue'
+import Checkbox from '@/components/Reusable/FormField/Checkbox.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
@@ -94,6 +87,11 @@ const tableOptions = reactive({
         name:        __('message.license-type'),
         permissions: __('message.license_permission'),
         action:      __('message.action'),
+    },
+    columnsClasses: {
+        name: 'dt-name',
+        permissions: 'dt-text',
+        action: 'dt-action',
     },
     templates: {
         name: (f, row) => row.name || '—',

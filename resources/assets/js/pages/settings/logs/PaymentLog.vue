@@ -199,6 +199,17 @@ const tableOptions = reactive({
         status:         __('message.status'),
         action:         __('message.action'),
     },
+    columnsClasses: {
+        select: 'dt-select',
+        date: 'dt-date',
+        user: 'dt-name',
+        order: 'dt-number',
+        amount: 'dt-amount',
+        payment_type: 'dt-name',
+        payment_method: 'dt-name',
+        status: 'dt-status',
+        action: 'dt-action',
+    },
     templates: {
         select: (f, row) => h('input', {
             type: 'checkbox',

@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-secondary card-outline">
+        <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.all_currency') }}</h4>
             </div>
@@ -85,6 +85,14 @@ const tableOptions = reactive({
         is_default: __('message.default'),
         dashboard:  __('message.dashboard_currency'),
         action:     __('message.action'),
+    },
+    columnsClasses: {
+        name: 'dt-name',
+        code: 'dt-code',
+        symbol: 'dt-code',
+        is_default: 'dt-status',
+        dashboard: 'dt-status',
+        action: 'dt-action',
     },
     templates: {
         name:   (f, row) => row.name   || '—',

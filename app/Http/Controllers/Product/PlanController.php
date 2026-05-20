@@ -441,6 +441,7 @@ class PlanController extends ExtendedPlanController
             'id' => $plan->id,
             'name' => $plan->name,
             'product' => $plan->productRelation?->name,
+            'product_id' => $plan->product,
             'period' => formatDays((int) $plan->days),
             'currencies' => $plan->planPrice->pluck('currency')->toArray(),
             'created_at' => $plan->created_at,

@@ -229,6 +229,11 @@ const tableOptions = reactive({
         name:   __('message.name'),
         action: __('message.action'),
     },
+    columnsClasses: {
+        select: 'dt-select',
+        name: 'dt-name',
+        action: 'dt-action',
+    },
     templates: {
         select: (f, row) => h('input', { type: 'checkbox', checked: selected.value.includes(row.id), onChange: () => toggleRow(row.id) }),
         name:   (f, row) => row.name || '—',

@@ -198,6 +198,15 @@ const tableOptions = reactive({
         rate:           __('message.rate') + ' (%)',
         action:         __('message.action'),
     },
+    columnsClasses: {
+        select: 'dt-select',
+        tax_class_name: 'dt-name',
+        name: 'dt-name',
+        country: 'dt-country',
+        state: 'dt-name',
+        rate: 'dt-code',
+        action: 'dt-action',
+    },
     templates: {
         select: (f, row) => h('input', {
             type:     'checkbox',

@@ -103,6 +103,18 @@ const tableOptions = reactive({
         created_at:     __('message.sent_at'),
         delivery_date:  __('message.delivered_at'),
     },
+    columnsClasses: {
+        request_id: 'dt-number',
+        user_fullname: 'dt-name',
+        user_email: 'dt-email',
+        mobile_number: 'dt-mobile',
+        source: 'dt-code',
+        action: 'dt-code',
+        status: 'dt-status',
+        failure_reason: 'dt-text',
+        created_at: 'dt-date',
+        delivery_date: 'dt-date',
+    },
     templates: {
         request_id: (f, row) => row.request_id || '—',
         user_fullname: (f, row) => {

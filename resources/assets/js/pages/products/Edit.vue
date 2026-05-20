@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-secondary card-outline">
+        <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.edit_product') }}</h4>
             </div>
@@ -29,12 +29,13 @@
                             <!-- Row 1: Name / License Type / Group -->
                             <div class="row">
                                 <div class="col-md-4">
-                                    <TextField name="name" :label="__('message.name') + ' *'" :value="form.name" :onChange="onChange" />
+                                    <TextField name="name" :label="__('message.name')" :required="true" :value="form.name" :onChange="onChange" />
                                 </div>
                                 <div class="col-md-4">
                                     <DynamicSelect
                                         name="type"
-                                        :label="__('message.license-type') + ' *'"
+                                        :label="__('message.license-type')"
+                                        :required="true"
                                         :apiEndpoint="`${baseUrl}/dependency/license-types`"
                                         dataKey="license_types"
                                         :value="form.typeObj"
@@ -45,7 +46,8 @@
                                 <div class="col-md-4">
                                     <DynamicSelect
                                         name="group"
-                                        :label="__('message.group') + ' *'"
+                                        :label="__('message.group')"
+                                        :required="true"
                                         :apiEndpoint="`${baseUrl}/dependency/product-groups`"
                                         dataKey="product_groups"
                                         :value="form.groupObj"
@@ -58,17 +60,11 @@
                             <!-- Descriptions (left) + Fields & Toggles (right) -->
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">{{ __('message.description') }} *</label>
-                                        <TinyMCE name="description" id="editor-description" :value="form.description" :onChange="onChange" />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">{{ __('message.short_description') }} *</label>
-                                        <TinyMCE name="short_description" id="editor-short-description" :value="form.short_description" :onChange="onChange" />
-                                    </div>
+                                    <TinyMCE name="description" :label="__('message.description')" :required="true" id="editor-description" :value="form.description" :onChange="onChange" />
+                                    <TinyMCE name="short_description" :label="__('message.short_description')" :required="true" id="editor-short-description" :value="form.short_description" :onChange="onChange" />
                                 </div>
                                 <div class="col-md-6">
-                                    <TextField name="product_sku" :label="__('message.product_sku') + ' *'" :value="form.product_sku" :onChange="onChange" />
+                                    <TextField name="product_sku" :label="__('message.product_sku')" :required="true" :value="form.product_sku" :onChange="onChange" />
                                     <DynamicSelect
                                         name="parent"
                                         :label="__('message.parent')"
@@ -81,93 +77,96 @@
                                     <div class="mb-3">
                                         <label class="form-label fw-bold">{{ __('message.product_image') }}</label>
                                         <div v-if="form.currentImage" class="mb-2">
-                                            <img :src="`${baseUrl}/${form.currentImage}`" alt="Current image" height="60" class="img-thumbnail w-auto" />
+                                            <img :src="form.currentImage" alt="Current image" style="width:80px;height:80px;object-fit:cover;border-radius:4px;" class="img-thumbnail" />
                                         </div>
                                         <input type="file" class="form-control" accept="image/jpeg,image/png,image/jpg" @change="onImageChange" />
                                         <small class="text-muted">Leave empty to keep existing image.</small>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <div class="mb-3">
-                                                <label class="form-label fw-bold d-block">{{ __('message.show_agent') }}</label>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" v-model="form.show_agent" id="showAgent" />
-                                                    <label class="form-check-label" for="showAgent">{{ form.show_agent ? __('message.yes') : __('message.no') }}</label>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">{{ __('message.where_retrieve_files') }}</label>
+                                        <div>
+                                            <div v-if="githubEnabled" class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="file_source" id="file_source_github" value="github" v-model="form.file_source" />
+                                                <label class="form-check-label" for="file_source_github">{{ __('message.github_heading') }}</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="file_source" id="file_source_filesystem" value="filesystem" v-model="form.file_source" />
+                                                <label class="form-check-label" for="file_source_filesystem">{{ __('message.filesystem') }}</label>
+                                            </div>
+                                        </div>
+                                        <div v-if="form.file_source === 'github'" class="mt-2">
+                                            <div class="row g-2">
+                                                <div class="col-md-6">
+                                                    <TextField name="github_owner" :label="__('message.github-owner')" :value="form.github_owner" :onChange="onChange" />
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <TextField name="github_repository" :label="__('message.github-repository-name')" :value="form.github_repository" :onChange="onChange" />
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <TextField name="version" :label="__('message.version')" :value="form.version" :onChange="onChange" />
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-6">
-                                            <div class="mb-3">
-                                                <label class="form-label fw-bold d-block">{{ __('message.highlight') }}</label>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" v-model="form.highlight" id="highlight" />
-                                                    <label class="form-check-label" for="highlight">{{ form.highlight ? __('message.yes') : __('message.no') }}</label>
-                                                </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <RadioButton
+                                            name="show_agent"
+                                            :label="__('message.show_cart_page')"
+                                            :options="[{ name: __('message.agents'), value: 1 }, { name: __('message.product_quantity'), value: 0 }]"
+                                            :value="form.show_agent ? 1 : 0"
+                                            :onChange="(val) => form.show_agent = !!val"
+                                            classname="mb-2"
+                                        />
+                                        <div v-show="form.show_agent" class="ms-1 mt-1">
+                                            <Checkbox name="can_modify_agent" :label="__('message.allow_multiple_agents_quantity')" :value="form.can_modify_agent" :onChange="(val) => form.can_modify_agent = val" />
+                                        </div>
+                                        <div v-show="!form.show_agent" class="ms-1 mt-1">
+                                            <Checkbox name="can_modify_quantity" :label="__('message.allow_multiple_product_quantity')" :value="form.can_modify_quantity" :onChange="(val) => form.can_modify_quantity = val" />
+                                        </div>
+                                    </div>
+
+                                    <TextField
+                                        name="shoping_cart_link"
+                                        :label="__('message.shoping-cart-link')"
+                                        :value="`${baseUrl}/cart?id=${route.params.id}`"
+                                        :disabled="true"
+                                        :onChange="() => {}"
+                                    />
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">{{ __('message.hidden') }}</label>
+                                        <div class="d-flex flex-wrap gap-3">
+                                            <div class="d-flex align-items-center gap-1">
+                                                <Checkbox name="hidden" :label="__('message.hidden_pricing_page')" :value="form.hidden" :onChange="(val) => form.hidden = val" />
+                                                <Tooltip :message="__('message.tick-to-hide-from-order-form')" />
+                                            </div>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <Checkbox name="invoice_hidden" :label="__('message.hidden_admin_dropdown')" :value="form.invoice_hidden" :onChange="(val) => form.invoice_hidden = val" />
+                                                <Tooltip :message="__('message.tick-to-hide-from-invoice')" />
                                             </div>
                                         </div>
-                                        <div class="col-6">
-                                            <div class="mb-3">
-                                                <label class="form-label fw-bold d-block">{{ __('message.add_to_contact') }}</label>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" v-model="form.add_to_contact" id="addToContact" />
-                                                    <label class="form-check-label" for="addToContact">{{ form.add_to_contact ? __('message.yes') : __('message.no') }}</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="mb-3">
-                                                <label class="form-label fw-bold d-block">{{ __('message.can_modify_agent') }}</label>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" v-model="form.can_modify_agent" id="canModifyAgent" />
-                                                    <label class="form-check-label" for="canModifyAgent">{{ form.can_modify_agent ? __('message.yes') : __('message.no') }}</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="mb-3">
-                                                <label class="form-label fw-bold d-block">{{ __('message.can_modify_quantity') }}</label>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" v-model="form.can_modify_quantity" id="canModifyQty" />
-                                                    <label class="form-check-label" for="canModifyQty">{{ form.can_modify_quantity ? __('message.yes') : __('message.no') }}</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="mb-3">
-                                                <label class="form-label fw-bold d-block">{{ __('message.require_domain') }}</label>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" v-model="form.require_domain" id="requireDomain" />
-                                                    <label class="form-check-label" for="requireDomain">{{ form.require_domain ? __('message.yes') : __('message.no') }}</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="mb-3">
-                                                <label class="form-label fw-bold d-block">{{ __('message.hidden_pricing_page') }}</label>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" v-model="form.hidden" id="hidden" />
-                                                    <label class="form-check-label" for="hidden">{{ form.hidden ? __('message.yes') : __('message.no') }}</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="mb-3">
-                                                <label class="form-label fw-bold d-block">{{ __('message.hidden_admin_dropdown') }}</label>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" v-model="form.invoice_hidden" id="invoiceHidden" />
-                                                    <label class="form-check-label" for="invoiceHidden">{{ form.invoice_hidden ? __('message.yes') : __('message.no') }}</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="mb-3">
-                                                <label class="form-label fw-bold d-block">{{ __('message.whatsapp_signup_flow') }}</label>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" v-model="form.whatsapp_integration" id="whatsappIntegration" />
-                                                    <label class="form-check-label" for="whatsappIntegration">{{ form.whatsapp_integration ? __('message.yes') : __('message.no') }}</label>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    </div>
+
+                                    <div class="mb-2 d-flex align-items-center gap-1">
+                                        <Checkbox name="require_domain" :label="__('message.require_domain')" :value="form.require_domain" :onChange="(val) => form.require_domain = val" />
+                                        <Tooltip :message="__('message.tick-to-show-domain-registration-options')" />
+                                    </div>
+
+                                    <div class="mb-2 d-flex align-items-center gap-1">
+                                        <Checkbox name="highlight" :label="__('message.highlight')" :value="form.highlight" :onChange="(val) => form.highlight = val" />
+                                        <Tooltip :message="__('message.tick-to-highlight-product')" />
+                                    </div>
+
+                                    <div class="mb-2 d-flex align-items-center gap-1">
+                                        <Checkbox name="add_to_contact" :label="__('message.contact_to_sales')" :value="form.add_to_contact" :onChange="(val) => form.add_to_contact = val" />
+                                        <Tooltip :message="__('message.tick-to-add_to_contact-product')" />
+                                    </div>
+
+                                    <div class="mb-3 d-flex align-items-center gap-1">
+                                        <Checkbox name="whatsapp_integration" :label="__('message.whatsapp_product_heading')" :value="form.whatsapp_integration" :onChange="(val) => form.whatsapp_integration = val" />
+                                        <Tooltip :message="__('message.whatsapp_product_explanation')" />
                                     </div>
                                 </div>
                             </div>
@@ -175,10 +174,7 @@
                             <!-- Row 5: Product Description (full width) -->
                             <div class="row">
                                 <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">{{ __('message.product_description') }} *</label>
-                                        <TinyMCE name="product_description" id="editor-product-description" :value="form.product_description" :onChange="onChange" />
-                                    </div>
+                                    <TinyMCE name="product_description" :label="__('message.product_description')" :required="true" id="editor-product-description" :value="form.product_description" :onChange="onChange" />
                                 </div>
                             </div>
                         </div>
@@ -201,6 +197,29 @@
                                 </div>
                                 <div v-if="!taxClasses.length" class="col-12 text-muted">{{ __('message.no_tax_classes') }}</div>
                             </div>
+
+                            <div class="card card-light mt-4">
+                                <div class="card-header">
+                                    <h4 class="card-title">{{ __('message.plans') }}</h4>
+                                    <div class="card-tools">
+                                        <router-link
+                                            to="/products/plans/create"
+                                            class="btn btn-tool"
+                                            :title="__('message.create_product_plan')"
+                                            v-tooltip
+                                        >
+                                            <i class="fas fa-plus"></i>
+                                        </router-link>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <DataTable
+                                        :url="plansApiUrl"
+                                        :dataColumns="planColumns"
+                                        :option="planTableOptions"
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -215,10 +234,14 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { h, reactive, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { useFormValidation } from '@/composables/useFormValidation'
+import Checkbox from '@/components/Reusable/FormField/Checkbox.vue'
+import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
+import Tooltip from '@/components/Reusable/Tooltip.vue'
 
 const COMPONENT = 'products-edit'
 const el = document.getElementById('app-root')
@@ -226,10 +249,57 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const router = useRouter()
 
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+
 const loading = ref(true)
 const saving = ref(false)
 const taxClasses = ref([])
 const tab = ref('details')
+const githubEnabled = ref(false)
+
+const plansApiUrl = `${baseUrl}/dependency/product-plans?product_id=${route.params.id}`
+
+const planColumns = ['name', 'months', 'action']
+
+const planTableOptions = reactive({
+    headings: {
+        name:   __('message.name'),
+        months: __('message.months'),
+        action: __('message.action'),
+    },
+    columnsClasses: {
+        name:   'dt-name',
+        months: 'dt-number',
+        action: 'dt-action',
+    },
+    templates: {
+        months: (f, row) => row.days ? Math.round(row.days / 30) : '—',
+        action: (f, row) => h('a', {
+            href: `${baseUrl}/plans/${row.id}/edit`,
+            class: 'btn btn-secondary btn-sm',
+        }, [h('i', { class: 'fas fa-edit me-1' }), __('message.edit')]),
+    },
+    sortable: ['name'],
+    filterable: true,
+    requestAdapter(data) {
+        return {
+            'sort-field':   data.orderBy ?? 'name',
+            'sort-order':   data.ascending ? 'asc' : 'desc',
+            'search-query': (data.query ?? '').trim(),
+            page:           data.page,
+            limit:          data.limit,
+            paginate:       1,
+        }
+    },
+    responseAdapter({ data }) {
+        const res = data?.data
+        return {
+            data:  res?.data ?? [],
+            count: res?.total ?? 0,
+        }
+    },
+    orderBy: { column: 'name', ascending: true },
+})
 
 const form = reactive({
     name: '',
@@ -245,7 +315,7 @@ const form = reactive({
     product_sku: '',
     image: null,
     currentImage: null,
-    show_agent: false,
+    show_agent: true,
     highlight: false,
     add_to_contact: false,
     can_modify_agent: false,
@@ -255,9 +325,14 @@ const form = reactive({
     invoice_hidden: false,
     whatsapp_integration: false,
     tax: [],
+    file_source: 'filesystem',
+    github_owner: '',
+    github_repository: '',
+    version: '',
 })
 
 function onChange(val, name) {
+    clearFieldError(name)
     if (name === 'type') {
         form.typeObj = val
         form.type = val?.id ?? null
@@ -277,6 +352,7 @@ function onImageChange(e) {
 }
 
 onMounted(async () => {
+    clearAllErrors()
     try {
         const [taxRes, productRes] = await Promise.all([
             http.get(`${baseUrl}/dependency/tax-classes`, { params: { limit: 'all' } }),
@@ -284,7 +360,10 @@ onMounted(async () => {
         ])
         taxClasses.value = taxRes.data?.data?.tax_classes ?? []
 
-        const p = productRes.data?.data ?? productRes.data
+        const resData = productRes.data?.data ?? productRes.data
+        const p = resData?.product ?? resData
+        githubEnabled.value = resData?.github_status ?? false
+
         form.name                 = p.name ?? ''
         form.product_sku          = p.product_sku ?? ''
         form.description          = p.description ?? ''
@@ -304,6 +383,10 @@ onMounted(async () => {
         form.group                = p.group ?? null
         form.parent               = p.parent ?? null
         form.tax                  = (p.taxes ?? []).map(t => t.id)
+        form.github_owner         = p.github_owner ?? ''
+        form.github_repository    = p.github_repository ?? ''
+        form.version              = p.version ?? ''
+        form.file_source          = p.github_owner ? 'github' : 'filesystem'
 
         const lt = p.license_type ?? p.licenseType
         if (lt) form.typeObj = { id: p.type, name: lt.name }
@@ -321,6 +404,17 @@ onMounted(async () => {
 })
 
 async function submit() {
+    const isValid = validate({
+        name:                [form.name,                { isRequired: __('validation.product.name.required') }],
+        type:                [form.type,                { isRequired: __('validation.product.type.required') }],
+        group:               [form.group,               { isRequired: __('validation.product.group.required') }],
+        description:         [form.description,         { isRequired: __('validation.product_controller.description_required') }],
+        short_description:   [form.short_description,   'isRequired'],
+        product_sku:         [form.product_sku,         { isRequired: __('validation.product_controller.product_sku_required') }],
+        product_description: [form.product_description, { isRequired: __('validation.product_controller.product_description_required') }],
+    })
+    if (!isValid) return
+
     saving.value = true
     try {
         const fd = new FormData()
@@ -343,12 +437,21 @@ async function submit() {
         fd.append('whatsapp_integration', form.whatsapp_integration ? '1' : '0')
         form.tax.forEach(id => fd.append('tax[]', id))
         if (form.image) fd.append('image', form.image)
+        if (form.file_source === 'github') {
+            fd.append('github_owner', form.github_owner)
+            fd.append('github_repository', form.github_repository)
+            fd.append('version', form.version)
+        } else {
+            fd.append('github_owner', '')
+            fd.append('github_repository', '')
+        }
 
-        const res = await http.patch(`${baseUrl}/product/${route.params.id}`, fd, {
+        fd.append('_method', 'PATCH')
+        const res = await http.post(`${baseUrl}/product/${route.params.id}`, fd, {
             headers: { 'Content-Type': 'multipart/form-data' },
         })
         successHandler(res, COMPONENT)
-        router.push('/products')
+        setTimeout(() => router.push('/products'), 2000)
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {
@@ -356,3 +459,4 @@ async function submit() {
     }
 }
 </script>
+

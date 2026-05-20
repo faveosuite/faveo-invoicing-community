@@ -33,6 +33,9 @@
                         </RouterLink>
                     </li>
 
+                    <!-- ── Invoicing ──────────────────────────────────────────── -->
+                    <li class="nav-header">Invoicing</li>
+
                     <!-- ── Users ───────────────────────────────────────────── -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('users') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/users') }"
@@ -212,46 +215,19 @@
                         </ul>
                     </li>
 
-                    <!-- ── Log Reports ─────────────────────────────────────── -->
-                    <li class="nav-item" :class="{ 'menu-open': isOpen('log-reports') }">
-                        <a class="nav-link" :class="{ active: isGroupActive('/log-reports') }"
-                           @click.prevent="toggleSection('log-reports')">
-                            <i class="nav-icon fas fa-clipboard-list"></i>
-                            <p>Log Reports <i class="nav-arrow fas fa-chevron-right"></i></p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <RouterLink to="/log-reports/license" class="nav-link"
-                                            :class="{ active: isExact('/log-reports/license') }"
-                                            active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>License Reports</p>
-                                </RouterLink>
-                            </li>
-                            <li class="nav-item">
-                                <RouterLink to="/log-reports/system" class="nav-link"
-                                            :class="{ active: isExact('/log-reports/system') }"
-                                            active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>System Reports</p>
-                                </RouterLink>
-                            </li>
-                            <li class="nav-item">
-                                <RouterLink to="/log-reports/update" class="nav-link"
-                                            :class="{ active: isExact('/log-reports/update') }"
-                                            active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>Update Reports</p>
-                                </RouterLink>
-                            </li>
-                            <li class="nav-item">
-                                <RouterLink to="/log-reports/crack" class="nav-link"
-                                            :class="{ active: isExact('/log-reports/crack') }"
-                                            active-class="" exact-active-class="">
-                                    <i class="nav-icon far fa-circle"></i><p>Cracking Reports</p>
-                                </RouterLink>
-                            </li>
-                        </ul>
+                    <!-- ── Settings ────────────────────────────────────────── -->
+                    <li class="nav-item">
+                        <RouterLink to="/settings" class="nav-link"
+                                    :class="{ active: isGroupActive('/settings') }"
+                                    active-class="" exact-active-class="">
+                            <i class="nav-icon fas fa-gear"></i>
+                            <p>{{ __('message.settings') }}</p>
+                        </RouterLink>
                     </li>
 
                     <!-- ── License Module ──────────────────────────────────── -->
+                    <li class="nav-header">License Manager</li>
+
                     <!-- Versions -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('versions') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/versions') }"
@@ -331,6 +307,45 @@
                         </ul>
                     </li>
 
+                    <!-- Log Reports -->
+                    <li class="nav-item" :class="{ 'menu-open': isOpen('log-reports') }">
+                        <a class="nav-link" :class="{ active: isGroupActive('/log-reports') }"
+                           @click.prevent="toggleSection('log-reports')">
+                            <i class="nav-icon fas fa-clipboard-list"></i>
+                            <p>Log Reports <i class="nav-arrow fas fa-chevron-right"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <RouterLink to="/log-reports/license" class="nav-link"
+                                            :class="{ active: isExact('/log-reports/license') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>License Reports</p>
+                                </RouterLink>
+                            </li>
+                            <li class="nav-item">
+                                <RouterLink to="/log-reports/system" class="nav-link"
+                                            :class="{ active: isExact('/log-reports/system') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>System Reports</p>
+                                </RouterLink>
+                            </li>
+                            <li class="nav-item">
+                                <RouterLink to="/log-reports/update" class="nav-link"
+                                            :class="{ active: isExact('/log-reports/update') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>Update Reports</p>
+                                </RouterLink>
+                            </li>
+                            <li class="nav-item">
+                                <RouterLink to="/log-reports/crack" class="nav-link"
+                                            :class="{ active: isExact('/log-reports/crack') }"
+                                            active-class="" exact-active-class="">
+                                    <i class="nav-icon far fa-circle"></i><p>Cracking Reports</p>
+                                </RouterLink>
+                            </li>
+                        </ul>
+                    </li>
+
                     <!-- Banned Hosts -->
                     <li class="nav-item" :class="{ 'menu-open': isOpen('banned-hosts') }">
                         <a class="nav-link" :class="{ active: isGroupActive('/banned-hosts') }"
@@ -404,16 +419,6 @@
                                 </RouterLink>
                             </li>
                         </ul>
-                    </li>
-
-                    <!-- ── Settings ────────────────────────────────────────── -->
-                    <li class="nav-item">
-                        <RouterLink to="/settings" class="nav-link"
-                                    :class="{ active: isGroupActive('/settings') }"
-                                    active-class="" exact-active-class="">
-                            <i class="nav-icon fas fa-gear"></i>
-                            <p>{{ __('message.settings') }}</p>
-                        </RouterLink>
                     </li>
 
                 </ul>

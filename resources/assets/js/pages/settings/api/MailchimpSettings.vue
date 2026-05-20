@@ -34,17 +34,13 @@
                                 />
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">{{ __('message.subscribe_status') }}</label>
-                                <div class="d-flex gap-3 mt-1">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" id="sub_1" :value="1" v-model="form.subscribe_status" />
-                                        <label class="form-check-label" for="sub_1">{{ __('message.subscribe') }}</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" id="sub_0" :value="0" v-model="form.subscribe_status" />
-                                        <label class="form-check-label" for="sub_0">{{ __('message.unsubscribe') }}</label>
-                                    </div>
-                                </div>
+                                <RadioButton
+                                    name="subscribe_status"
+                                    :label="__('message.subscribe_status')"
+                                    :options="[{ name: __('message.subscribe'), value: 1 }, { name: __('message.unsubscribe'), value: 0 }]"
+                                    :value="form.subscribe_status"
+                                    :onChange="(val) => form.subscribe_status = val"
+                                />
                             </div>
                         </template>
                     </div>
@@ -64,6 +60,7 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import TextField from '@/themes/adminlte/components/forms/TextField.vue'
 import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
+import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 
 const COMPONENT = 'mailchimp-settings'
 const el      = document.getElementById('app-root')

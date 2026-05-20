@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-secondary card-outline">
+        <div class="card card-light">
             <div class="card-header">
                 <h3 class="card-title">{{ __('log.system_logs') }}</h3>
                 <div class="card-tools">
@@ -29,7 +29,7 @@
                 </div>
 
                 <!-- Filter card -->
-                <div class="card card-secondary card-outline">
+                <div class="card card-light">
                     <div class="card-header">
                         <h3 class="card-title">{{ filterTitle }}</h3>
                     </div>
@@ -127,7 +127,7 @@
                 </div>
 
                 <!-- Logs table card -->
-                <div v-if="showLogsCard" class="card card-secondary card-outline mt-3">
+                <div v-if="showLogsCard" class="card card-light mt-3">
                     <div class="card-header">
                         <h3 class="card-title">{{ __('log.logs') }}</h3>
                     </div>

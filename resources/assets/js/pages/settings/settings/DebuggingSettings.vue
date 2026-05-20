@@ -12,12 +12,7 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <label class="form-label fw-bold d-block">{{ __('message.debug_mode') }}</label>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" v-model="debugEnabled" id="debugMode" />
-                            <label class="form-check-label" for="debugMode">
-                                {{ debugEnabled ? __('message.enabled') : __('message.disabled') }}
-                            </label>
-                        </div>
+                        <Switch name="debugEnabled" :value="debugEnabled" :onChange="(val) => debugEnabled = val" />
                         <small class="text-muted">{{ __('message.debug_mode_description') }}</small>
                     </div>
                 </div>
@@ -32,6 +27,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import Switch from '@/components/Reusable/FormField/Switch.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 

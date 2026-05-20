@@ -102,6 +102,13 @@ const tableOptions = reactive({
         created_at: __('message.created_at'),
         action:     __('message.actions'),
     },
+    columnsClasses: {
+        select: 'dt-select',
+        name: 'dt-name',
+        url: 'dt-text',
+        created_at: 'dt-date',
+        action: 'dt-action',
+    },
     templates: {
         select:     (f, row) => h('input', { type: 'checkbox', checked: selected.value.includes(row.id), onChange: () => toggleRow(row.id) }),
         name:       (f, row) => row.name || '—',

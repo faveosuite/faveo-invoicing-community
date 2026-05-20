@@ -2,125 +2,129 @@
     <div>
         <AppAlert componentName="custom-note" />
 
-        <div class="card card-light" v-if="hasDataPopulated">
+        <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ lang('customize_notifications') }}</h4>
             </div>
 
-            <div class="card-body">
-                <div class="row">
-                    <text-field :label="lang('notification_product_not_found')" :value="notification_product_not_found"
-                        type="textarea" name="notification_product_not_found" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
+            <inline-loader v-if="loading" context="card-body" />
 
-                    <text-field :label="lang('notification_product_inactive')" :value="notification_product_inactive"
-                        type="textarea" name="notification_product_inactive" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
+            <template v-else>
+                <div class="card-body">
+                    <div class="row">
+                        <text-field :label="lang('notification_product_not_found')" :value="notification_product_not_found"
+                            type="textarea" name="notification_product_not_found" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+
+                        <text-field :label="lang('notification_product_inactive')" :value="notification_product_inactive"
+                            type="textarea" name="notification_product_inactive" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+                    </div>
+
+                    <div class="row">
+                        <text-field :label="lang('notification_license_ok')" :value="notification_license_ok"
+                            type="textarea" name="notification_license_ok" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+
+                        <text-field :label="lang('notification_license_not_found')" :value="notification_license_not_found"
+                            type="textarea" name="notification_license_not_found" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+                    </div>
+
+                    <div class="row">
+                        <text-field :label="lang('notification_invalid_ip')" :value="notification_invalid_ip"
+                            type="textarea" name="notification_invalid_ip" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+
+                        <text-field :label="lang('notification_invalid_domain')" :value="notification_invalid_domain"
+                            type="textarea" name="notification_invalid_domain" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+                    </div>
+
+                    <div class="row">
+                        <text-field :label="lang('notification_domain_required')" :value="notification_domain_required"
+                            type="textarea" name="notification_domain_required" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+
+                        <text-field :label="lang('notification_domain_in_use')" :value="notification_domain_in_use"
+                            type="textarea" name="notification_domain_in_use" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+                    </div>
+
+                    <div class="row">
+                        <text-field :label="lang('notification_license_suspended')" :value="notification_license_suspended"
+                            type="textarea" name="notification_license_suspended" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+
+                        <text-field :label="lang('notification_license_expired')" :value="notification_license_expired"
+                            type="textarea" name="notification_license_expired" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+                    </div>
+
+                    <div class="row">
+                        <text-field :label="lang('notification_updates_expired')" :value="notification_updates_expired"
+                            type="textarea" name="notification_updates_expired" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+
+                        <text-field :label="lang('notification_support_expired')" :value="notification_support_expired"
+                            type="textarea" name="notification_support_expired" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+                    </div>
+
+                    <div class="row">
+                        <text-field :label="lang('notification_license_cancelled')" :value="notification_license_cancelled"
+                            type="textarea" name="notification_license_cancelled" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+
+                        <text-field :label="lang('notification_license_limit')" :value="notification_license_limit"
+                            type="textarea" name="notification_license_limit" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+                    </div>
+
+                    <div class="row">
+                        <text-field :label="lang('notification_installation_not_found')"
+                            :value="notification_installation_not_found" type="textarea"
+                            name="notification_installation_not_found" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+
+                        <text-field :label="lang('notification_invalid_signature')" :value="notification_invalid_signature"
+                            type="textarea" name="notification_invalid_signature" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+                    </div>
+
+                    <div class="row">
+                        <text-field :label="lang('notification_host_banned')" :value="notification_host_banned"
+                            type="textarea" name="notification_host_banned" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+
+                        <text-field :label="lang('notification_unknown_error')" :value="notification_unknown_error"
+                            type="textarea" name="notification_unknown_error" :onChange="onChange" classname="col-sm-6"
+                            :required="true">
+                        </text-field>
+                    </div>
                 </div>
 
-                <div class="row">
-                    <text-field :label="lang('notification_license_ok')" :value="notification_license_ok"
-                        type="textarea" name="notification_license_ok" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
-
-                    <text-field :label="lang('notification_license_not_found')" :value="notification_license_not_found"
-                        type="textarea" name="notification_license_not_found" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
+                <div class="card-footer">
+                    <action-button action="update" :loading="saving" @click="onSubmit" />
                 </div>
-
-                <div class="row">
-                    <text-field :label="lang('notification_invalid_ip')" :value="notification_invalid_ip"
-                        type="textarea" name="notification_invalid_ip" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
-
-                    <text-field :label="lang('notification_invalid_domain')" :value="notification_invalid_domain"
-                        type="textarea" name="notification_invalid_domain" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
-                </div>
-
-                <div class="row">
-                    <text-field :label="lang('notification_domain_required')" :value="notification_domain_required"
-                        type="textarea" name="notification_domain_required" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
-
-                    <text-field :label="lang('notification_domain_in_use')" :value="notification_domain_in_use"
-                        type="textarea" name="notification_domain_in_use" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
-                </div>
-
-                <div class="row">
-                    <text-field :label="lang('notification_license_suspended')" :value="notification_license_suspended"
-                        type="textarea" name="notification_license_suspended" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
-
-                    <text-field :label="lang('notification_license_expired')" :value="notification_license_expired"
-                        type="textarea" name="notification_license_expired" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
-                </div>
-
-                <div class="row">
-                    <text-field :label="lang('notification_updates_expired')" :value="notification_updates_expired"
-                        type="textarea" name="notification_updates_expired" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
-
-                    <text-field :label="lang('notification_support_expired')" :value="notification_support_expired"
-                        type="textarea" name="notification_support_expired" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
-                </div>
-
-                <div class="row">
-                    <text-field :label="lang('notification_license_cancelled')" :value="notification_license_cancelled"
-                        type="textarea" name="notification_license_cancelled" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
-
-                    <text-field :label="lang('notification_license_limit')" :value="notification_license_limit"
-                        type="textarea" name="notification_license_limit" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
-                </div>
-
-                <div class="row">
-                    <text-field :label="lang('notification_installation_not_found')"
-                        :value="notification_installation_not_found" type="textarea"
-                        name="notification_installation_not_found" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
-
-                    <text-field :label="lang('notification_invalid_signature')" :value="notification_invalid_signature"
-                        type="textarea" name="notification_invalid_signature" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
-                </div>
-
-                <div class="row">
-                    <text-field :label="lang('notification_host_banned')" :value="notification_host_banned"
-                        type="textarea" name="notification_host_banned" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
-
-                    <text-field :label="lang('notification_unknown_error')" :value="notification_unknown_error"
-                        type="textarea" name="notification_unknown_error" :onChange="onChange" classname="col-sm-6"
-                        :required="true">
-                    </text-field>
-                </div>
-            </div>
-
-            <div class="card-footer">
-                <button class="btn btn-primary" @click="onSubmit()"><i class="fas fa-sync"></i>&nbsp;&nbsp;{{ lang('update') }}</button>
-            </div>
+            </template>
         </div>
     </div>
 </template>
@@ -129,14 +133,15 @@
 import { ref, onBeforeMount } from 'vue'
 import axios from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler'
-import { validateCustomNoteSettings } from '@/helpers/validator/customNoteValidation'
 import { lang } from '@/helpers/extraLogics'
+import { useFormValidation } from '@/composables/useFormValidation'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
-const hasDataPopulated = ref(false)
-const loading = ref(false)
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const loading = ref(true)
+const saving = ref(false)
 const notification_id = ref('')
 const notification_product_not_found = ref('')
 const notification_product_inactive = ref('')
@@ -167,6 +172,7 @@ const fieldRefs = {
 }
 
 function onChange(value, name) {
+    clearFieldError(name)
     if (fieldRefs[name] !== undefined) {
         fieldRefs[name].value = value ? value : ''
     }
@@ -179,42 +185,37 @@ function updateStatesWithData(data) {
     if (data.id) notification_id.value = data.id
 }
 
-function isValid() {
-    const data = {}
-    Object.keys(fieldRefs).forEach(key => { data[key] = fieldRefs[key].value })
-    const { isValid } = validateCustomNoteSettings(data)
-    return isValid
-}
-
 function getInitialValues() {
     loading.value = true
     axios.get(baseUrl + '/api/admin/viewNotifications').then(res => {
-        loading.value = false
-        hasDataPopulated.value = true
         updateStatesWithData(res.data.data)
-    }).catch(() => {
+    }).catch(() => {}).finally(() => {
         loading.value = false
     })
 }
 
 function onSubmit() {
-    if (isValid()) {
-        loading.value = true
-        const data = {}
-        Object.keys(fieldRefs).forEach(key => { data[key] = fieldRefs[key].value })
+    const rules = {}
+    Object.keys(fieldRefs).forEach(key => {
+        rules[key] = [fieldRefs[key].value, { isRequired: __('message.field_required') }, { 'max(250)': 'The word limit should be less than 250 characters.' }]
+    })
+    if (!validate(rules)) return
+    saving.value = true
+    const data = {}
+    Object.keys(fieldRefs).forEach(key => { data[key] = fieldRefs[key].value })
 
-        axios.post(baseUrl + '/api/admin/notifications/' + notification_id.value, data).then(res => {
-            loading.value = false
-            successHandler(res, 'custom-note')
-            getInitialValues()
-        }).catch(err => {
-            loading.value = false
-            errorHandler(err, 'custom-note')
-        })
-    }
+    axios.post(baseUrl + '/api/admin/notifications/' + notification_id.value, data).then(res => {
+        successHandler(res, 'custom-note')
+        getInitialValues()
+    }).catch(err => {
+        errorHandler(err, 'custom-note')
+    }).finally(() => {
+        saving.value = false
+    })
 }
 
 onBeforeMount(() => {
+    clearAllErrors()
     getInitialValues()
 })
 </script>

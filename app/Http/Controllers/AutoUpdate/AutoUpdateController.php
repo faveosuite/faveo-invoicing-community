@@ -14,16 +14,6 @@ class AutoUpdateController extends Controller
     {
         $this->versionService = $versionService;
     }
-
-    /*
-    *  Add New Product to Auto Update System
-    *  @deprecated - Products are now managed internally
-    */
-    public function addNewProductToAUS($product_id, $product_name, $product_sku)
-    {
-        // Product management is now handled internally - no remote API call needed
-    }
-
     /*
     *  Add New Version
     */

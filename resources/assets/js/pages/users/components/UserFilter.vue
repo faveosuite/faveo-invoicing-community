@@ -6,8 +6,13 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    <label class="form-label fw-bold">{{ __('message.company') }}</label>
-                    <input type="text" class="form-control mb-3" v-model="form.company" :placeholder="__('message.search_by_company')" />
+                    <TextField
+                        name="company"
+                        :label="__('message.company')"
+                        :value="form.company"
+                        :onChange="(val) => form.company = val"
+                        :placehold="__('message.search_by_company')"
+                    />
                 </div>
                 <div class="col-md-4">
                     <DynamicSelect
@@ -135,6 +140,7 @@
 
 <script setup>
 import { reactive } from 'vue'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const props = defineProps({
     show:    { type: Boolean, default: false },

@@ -20,15 +20,13 @@
             </template>
 
             <template #fields>
-                <div class="mb-0">
-                    <label class="form-label fw-semibold">{{ __('message.webhook_url') }}</label>
-                    <input
-                        v-model="editWebhookUrl"
-                        type="text"
-                        class="form-control"
-                        :placeholder="__('message.enter_webhook_url')"
-                    />
-                </div>
+                <TextField
+                    name="editWebhookUrl"
+                    :label="__('message.webhook_url')"
+                    :value="editWebhookUrl"
+                    :onChange="(val) => editWebhookUrl = val"
+                    :placehold="__('message.enter_webhook_url')"
+                />
             </template>
 
             <template #controls>
@@ -40,6 +38,7 @@
 
 <script setup>
 import { h, ref } from 'vue'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
 import DataTable from '@/themes/adminlte/components/common/DataTable.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
@@ -131,6 +130,15 @@ const options = {
         business_id:     __('message.business_id'),
         created_at:      __('message.created_at'),
         action:          __('message.action'),
+    },
+    columnsClasses: {
+        user_name: 'dt-name',
+        phone_number: 'dt-mobile',
+        waba_id: 'dt-code',
+        phone_number_id: 'dt-code',
+        business_id: 'dt-code',
+        created_at: 'dt-date',
+        action: 'dt-action',
     },
     templates: {
         user_name: (f, row) => row.user_id

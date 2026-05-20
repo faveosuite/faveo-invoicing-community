@@ -6,12 +6,12 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    <label class="form-label fw-bold">{{ __('message.order_no') }}</label>
-                    <input
-                        type="text"
-                        class="form-control mb-3"
-                        v-model="form.order_no"
-                        :placeholder="__('message.exact_order_number')"
+                    <TextField
+                        name="order_no"
+                        :label="__('message.order_no')"
+                        :value="form.order_no"
+                        :onChange="(val) => form.order_no = val"
+                        :placehold="__('message.exact_order_number')"
                     />
                 </div>
                 <div class="col-md-4">
@@ -45,12 +45,12 @@
                     />
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label fw-bold">{{ __('message.domain') }}</label>
-                    <input
-                        type="text"
-                        class="form-control mb-3"
-                        v-model="form.domain"
-                        placeholder="e.g. example.com"
+                    <TextField
+                        name="domain"
+                        :label="__('message.domain')"
+                        :value="form.domain"
+                        :onChange="(val) => form.domain = val"
+                        placehold="e.g. example.com"
                     />
                 </div>
                 <div class="col-md-4">
@@ -98,6 +98,7 @@
 
 <script setup>
 import { reactive } from 'vue'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const props = defineProps({
     show:    { type: Boolean, default: false },

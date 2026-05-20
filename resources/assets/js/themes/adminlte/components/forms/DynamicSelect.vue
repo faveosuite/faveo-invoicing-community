@@ -1,6 +1,8 @@
 <template>
     <div class="mb-3">
-        <label v-if="label" class="form-label fw-bold">{{ label }}</label>
+        <label v-if="label" class="form-label fw-bold">
+            {{ label }}<span v-if="required" class="text-danger ms-1">*</span>
+        </label>
         <v-select
             ref="vsRef"
             :inputId="name"
@@ -19,7 +21,7 @@
             :noDrop="noDrop"
             :loading="isLoading"
             :dropdownShouldOpen="dropdownShouldOpen"
-            class="faveo-dynamic-select"
+            :class="['faveo-dynamic-select', { 'is-invalid': fieldError }]"
             @update:modelValue="onValueChange"
             @search="onSearch"
             @search:blur="clearSearchQuery"
@@ -39,6 +41,7 @@
                 <span v-else-if="!isLoading">No options found</span>
             </template>
         </v-select>
+        <div v-if="fieldError" class="invalid-feedback d-block">{{ fieldError }}</div>
     </div>
 </template>
 
@@ -48,6 +51,7 @@ import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
 import http from '@/plugins/axios'
 import { debounce } from 'lodash'
+import { useAlertStore } from '@/core/stores/alert'
 
 const props = defineProps({
     name:          { type: String, required: true },
@@ -68,7 +72,10 @@ const props = defineProps({
     optionLabel:   { type: String, default: 'name' },
     apiParams:     { type: Object, default: () => ({}) },
     dataKey:       { type: String, default: null },
+    required:      { type: Boolean, default: false },
 })
+
+const fieldError = computed(() => useAlertStore().validation_errors[props.name] ?? '')
 
 const vsRef         = ref(null)
 const loaderRef     = ref(null)
@@ -229,8 +236,9 @@ watch(
     display: none;
 }
 
-.faveo-dynamic-select.field-danger .vs__dropdown-toggle {
-    border: 1px solid #d73925 !important;
+.faveo-dynamic-select.field-danger .vs__dropdown-toggle,
+.faveo-dynamic-select.is-invalid .vs__dropdown-toggle {
+    border: 1px solid #dc3545 !important;
 }
 
 .faveo-dynamic-select .vs__selected {

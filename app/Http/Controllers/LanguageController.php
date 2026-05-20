@@ -25,6 +25,7 @@ class LanguageController extends Controller
         foreach ($languages as $lang) {
             $this->appendCoreLanguage($lang, $languageArray);
             $this->appendPackageLanguage('BillingLog', $lang, 'log', $languageArray);
+            $this->appendLicenseLanguage($lang, $languageArray);
         }
 
         header('Content-Type: text/javascript');
@@ -37,6 +38,15 @@ class LanguageController extends Controller
     {
         $path = base_path('lang/'.$languageName);
         $this->updateLanguageArray($path, $languageArray);
+    }
+
+    private function appendLicenseLanguage(string $locale, array &$languageArray): void
+    {
+        $path = app_path("License/Lang/{$locale}");
+        foreach ($this->getLanguageFileArray($path) as $file) {
+            $content = require $file;
+            $languageArray['lang'] = array_merge($languageArray['lang'] ?? [], $content);
+        }
     }
 
     private function appendPackageLanguage(string $package, string $locale, string $namespace, array &$languageArray): void

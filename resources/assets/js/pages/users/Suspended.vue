@@ -122,6 +122,16 @@ const tableOptions = reactive({
         action:     __('message.actions'),
     },
 
+    columnsClasses: {
+        select: 'dt-select',
+        name: 'dt-name',
+        email: 'dt-email',
+        mobile: 'dt-mobile',
+        country: 'dt-country',
+        created_at: 'dt-date',
+        action: 'dt-action',
+    },
+
     templates: {
         select:     (f, row) => h('input', {
             type:     'checkbox',

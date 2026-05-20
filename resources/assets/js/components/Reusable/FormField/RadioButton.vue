@@ -1,17 +1,25 @@
 <template>
     <div :class="classname">
-        <label for="radio" :style="labelStyle">{{ label }}</label>
-        <ToolTip v-if="hint" :message="lang(hint)" size="small" />
+        <div class="d-flex align-items-center gap-1 mb-1">
+            <label class="form-label fw-bold mb-0" :style="labelStyle">{{ label }}</label>
+            <ToolTip v-if="hint" :message="lang(hint)" size="small" />
+        </div>
         <div>
-            <span style="display:inline">
-                <span v-for="(option, index) in options" :key="index">
-                    <input class="radio_align" :name="name" v-model="checked"
-                           type="radio" :value="option.value"
-                           :disabled="disabled" />
-                    {{ lang(option.name) }}&nbsp;
-                    <ToolTip v-if="option.hint" :message="lang(option.hint)" size="small" />&nbsp;
-                </span>
-            </span>
+            <div v-for="(option, index) in options" :key="index" class="form-check form-check-inline">
+                <input
+                    class="form-check-input"
+                    type="radio"
+                    :name="name"
+                    :id="`${name}-${index}`"
+                    :value="option.value"
+                    :disabled="disabled"
+                    v-model="checked"
+                />
+                <label class="form-check-label" :for="`${name}-${index}`">
+                    {{ lang(option.name) }}
+                </label>
+                <ToolTip v-if="option.hint" :message="lang(option.hint)" size="small" />
+            </div>
         </div>
     </div>
 </template>
@@ -26,7 +34,7 @@ const props = defineProps({
     value:       { type: [Number, String], default: 0 },
     name:        { type: String,           default: 'radio' },
     label:       { type: String,           default: 'label' },
-    classname:   { type: String,           default: 'col-sm-4' },
+    classname:   { type: String,           default: 'mb-3' },
     optionClass: { type: String,           default: 'col-sm-4' },
     onChange:    { type: Function,         required: true },
     labelStyle:  { type: Object,           default: () => ({}) },
@@ -45,15 +53,3 @@ watch(checked, (newVal) => {
 })
 </script>
 
-<style type="text/css">
-.radio_align {
-    width: 13px;
-    height: 13px;
-    padding: 0;
-    margin: 0;
-    vertical-align: bottom;
-    position: relative;
-    top: -5px;
-    overflow: hidden;
-}
-</style>

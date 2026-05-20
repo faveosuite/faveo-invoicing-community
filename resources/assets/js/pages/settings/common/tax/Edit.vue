@@ -12,12 +12,13 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <TextField name="name" :label="__('message.tax_name') + ' *'" :value="form.name" :onChange="onChange" />
+                            <TextField name="name" :label="__('message.tax_name')" :required="true" :value="form.name" :onChange="onChange" />
                         </div>
                         <div class="col-md-4">
                             <SelectField
                                 name="tax_classes_id"
-                                :label="__('message.tax_class') + ' *'"
+                                :label="__('message.tax_class')"
+                                :required="true"
                                 :elements="taxClassOptions"
                                 :value="taxClassOptions.find(o => o.id === form.tax_classes_id) ?? null"
                                 :onChange="onClassSelect"
@@ -27,7 +28,7 @@
                         </div>
                         <template v-if="form.tax_classes_id === 'Others'">
                             <div class="col-md-4">
-                                <TextField name="rate" :label="__('message.rate') + ' *'" :value="form.rate" :onChange="onChange" />
+                                <TextField name="rate" :label="__('message.rate')" :required="true" :value="form.rate" :onChange="onChange" />
                             </div>
                             <div class="col-md-4">
                                 <SelectField
@@ -69,12 +70,15 @@ import { reactive, ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { useFormValidation } from '@/composables/useFormValidation'
 
 const COMPONENT = 'tax-edit'
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const id = route.params.id
+
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
 
 const loading  = ref(true)
 const saving   = ref(false)
@@ -93,9 +97,13 @@ const form = reactive({
     name: '', tax_classes_id: '', rate: '', country: 'IN', state: '',
 })
 
-function onChange(val, name) { form[name] = val }
+function onChange(val, name) {
+    clearFieldError(name)
+    form[name] = val
+}
 
 function onClassSelect(val) {
+    clearFieldError('tax_classes_id')
     form.tax_classes_id = val?.id ?? ''
     form.rate    = ''
     form.country = 'IN'
@@ -120,6 +128,7 @@ async function loadStates() {
 }
 
 onMounted(async () => {
+    clearAllErrors()
     try {
         const [editRes, optRes] = await Promise.all([
             http.get(`${baseUrl}/tax/edit/${id}`),
@@ -142,6 +151,16 @@ onMounted(async () => {
 })
 
 async function submit() {
+    const rules = {
+        name:           [form.name,           { isRequired: __('validation.tax_form.name.required') }],
+        tax_classes_id: [form.tax_classes_id, { isRequired: __('validation.tax_form.name.required') }],
+    }
+    if (form.tax_classes_id === 'Others') {
+        rules.rate = [form.rate, { isRequired: __('validation.tax_form.rate.required') }]
+    }
+    const isValid = validate(rules)
+    if (!isValid) return
+
     saving.value = true
     try {
         const res = await http.put(`${baseUrl}/tax/${id}`, {

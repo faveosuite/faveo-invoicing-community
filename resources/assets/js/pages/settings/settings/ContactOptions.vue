@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-secondary card-outline">
+        <div class="card card-light">
             <div class="card-header">
                 <h3 class="card-title">{{ __('message.settings') }}</h3>
             </div>
@@ -16,33 +16,13 @@
                         <label class="col-sm-4 col-form-label fw-semibold">
                             {{ __('message.enable_verification') }}
                         </label>
-                        <div class="col-sm-4 d-flex align-items-center">
-                            <div class="form-check form-switch">
-                                <input
-                                    id="email_enabled"
-                                    v-model="form.email_enabled"
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    @change="syncPreference"
-                                />
-                                <label class="form-check-label" for="email_enabled">
-                                    {{ __('message.email') }}
-                                </label>
-                            </div>
+                        <div class="col-sm-4 d-flex align-items-center gap-2">
+                            <Switch name="email_enabled" :value="form.email_enabled" :onChange="(val) => { form.email_enabled = val; syncPreference() }" />
+                            <span>{{ __('message.email') }}</span>
                         </div>
-                        <div class="col-sm-4 d-flex align-items-center">
-                            <div class="form-check form-switch">
-                                <input
-                                    id="mobile_enabled"
-                                    v-model="form.mobile_enabled"
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    @change="syncPreference"
-                                />
-                                <label class="form-check-label" for="mobile_enabled">
-                                    {{ __('message.mobile') }}
-                                </label>
-                            </div>
+                        <div class="col-sm-4 d-flex align-items-center gap-2">
+                            <Switch name="mobile_enabled" :value="form.mobile_enabled" :onChange="(val) => { form.mobile_enabled = val; syncPreference() }" />
+                            <span>{{ __('message.mobile') }}</span>
                         </div>
                     </div>
 
@@ -76,6 +56,7 @@
 
 <script setup>
 import { reactive, ref, computed, onMounted } from 'vue'
+import Switch from '@/components/Reusable/FormField/Switch.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 

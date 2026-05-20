@@ -80,6 +80,7 @@
 
 <script setup>
 import { h, ref, computed, reactive } from 'vue'
+import { RouterLink } from 'vue-router'
 
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
@@ -194,13 +195,31 @@ const tableOptions = reactive({
         action: __('message.actions'),
     },
 
+    columnsClasses: {
+        select: 'dt-select',
+        name: 'dt-name',
+        email: 'dt-email',
+        mobile: 'dt-mobile',
+        country: 'dt-country',
+        created_at: 'dt-date',
+        action: 'dt-action',
+    },
+
     templates: {
         select: (f, row) => h('input', {
             type: 'checkbox',
             checked: selectedUsers.value.includes(row.id),
             onChange: () => toggleRow(row.id),
         }),
-        name: (f, row) => `${row.first_name ?? ''} ${row.last_name ?? ''}`.trim() || '—',
+        name: (f, row) => {
+            const fullName = `${row.first_name ?? ''} ${row.last_name ?? ''}`.trim()
+            if (fullName && row.id) return h(RouterLink, { to: '/users/' + row.id }, () => fullName)
+            return '—'
+        },
+        email: (f, row) => {
+            if (row.email && row.id) return h(RouterLink, { to: '/users/' + row.id }, () => row.email)
+            return '—'
+        },
         mobile: (f, row) => row.mobile?.trim() || '—',
         country: (f, row) => row.country?.trim() || '—',
         created_at: (f, row) => row.created_at ? new Date(row.created_at).toLocaleDateString() : '—',

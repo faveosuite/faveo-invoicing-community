@@ -57,6 +57,7 @@
 
 <script setup>
 import { h, ref, computed, reactive } from 'vue'
+import { RouterLink } from 'vue-router'
 
 import http from '@/plugins/axios'
 import { errorHandler } from '@/helpers/responseHandler.js'
@@ -139,17 +140,44 @@ const tableOptions = reactive({
         action:        __('message.actions'),
     },
 
+    columnsClasses: {
+        select: 'dt-select',
+        client: 'dt-name',
+        email: 'dt-email',
+        mobile: 'dt-mobile',
+        country: 'dt-country',
+        number: 'dt-number',
+        order_status: 'dt-status',
+        product_name: 'dt-name',
+        group: 'dt-name',
+        plan: 'dt-name',
+        version: 'dt-code',
+        agents: 'dt-code',
+        status: 'dt-status',
+        order_date: 'dt-date',
+        update_ends_at: 'dt-date',
+        action: 'dt-action',
+    },
+
     templates: {
         select:       (f, row) => h('input', { type: 'checkbox', checked: selectedOrders.value.includes(row.id), onChange: () => toggleRow(row.id) }),
-        client:       (f, row) => row.user ? `${row.user.first_name ?? ''} ${row.user.last_name ?? ''}`.trim() || '—' : '—',
-        email:        (f, row) => row.user?.email || '—',
+        client:       (f, row) => {
+            if (!row.user) return '—'
+            const fullName = `${row.user.first_name ?? ''} ${row.user.last_name ?? ''}`.trim()
+            if (fullName && row.user.id) return h(RouterLink, { to: '/users/' + row.user.id }, () => fullName)
+            return '—'
+        },
+        email:        (f, row) => {
+            if (row.user?.email && row.user?.id) return h(RouterLink, { to: '/users/' + row.user.id }, () => row.user.email)
+            return '—'
+        },
         mobile:       (f, row) => row.user?.mobile ? `${row.user.mobile_code ?? ''} ${row.user.mobile}`.trim() : '—',
         country:      (f, row) => row.user?.country || '—',
-        number:       (f, row) => row.number || '—',
+        number:       (f, row) => row.number && row.id ? h(RouterLink, { to: '/orders/' + row.id }, () => row.number) : '—',
         order_status: (f, row) => row.order_status || '—',
-        product_name: (f, row) => row.product_name || '—',
-        group:        (f, row) => row.group || '—',
-        plan:         (f, row) => row.plan || '—',
+        product_name: (f, row) => row.product_name && row.product_id ? h(RouterLink, { to: '/products/' + row.product_id + '/edit' }, () => row.product_name) : (row.product_name || '—'),
+        group:        (f, row) => row.group && row.group_id ? h(RouterLink, { to: '/products/groups/' + row.group_id + '/edit' }, () => row.group) : (row.group || '—'),
+        plan:         (f, row) => row.plan && row.plan_id ? h(RouterLink, { to: '/products/plans/' + row.plan_id + '/edit' }, () => row.plan) : (row.plan || '—'),
         version:      (f, row) => row.version || '—',
         agents:       (f, row) => row.agents ?? '—',
         status:       (f, row) => row.status || '—',

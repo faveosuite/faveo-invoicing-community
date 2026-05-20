@@ -16,6 +16,7 @@
 
 <script setup>
 import { reactive, h } from 'vue'
+import { RouterLink } from 'vue-router'
 import { lang } from '@/helpers/extraLogics'
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
@@ -25,12 +26,6 @@ const endPoint = baseUrl + '/api/admin/reportUpdate'
 const columns = ['report_text', 'product', 'report_date_time', 'report_status']
 
 const options = reactive({
-    sortIcon: {
-        base: 'glyphicon',
-        up: 'glyphicon-chevron-down',
-        down: 'glyphicon-chevron-up'
-    },
-    texts: { filter: '', limit: '' },
     sortable: ['report_text', 'report_date_time', 'report_status'],
     filterable: ['report_text'],
     requestAdapter(data) {
@@ -53,31 +48,24 @@ const options = reactive({
         }
     },
     columnsClasses: {
-        product: 'license_product_title',
-        report_date_time: 'report_date_time',
-        report_text: 'report_text',
-        report_status: 'status',
+        product: 'dt-name',
+        report_date_time: 'dt-date',
+        report_text: 'dt-text',
+        report_status: 'dt-status',
     },
     templates: {
-        report_date_time(h, row) {
-            return row.report_date_time
-        },
+        report_date_time: (f, row) => row.report_date_time || '—',
         product: (f, row) => {
             if (row.product_title && row.product_id) {
-                return h('a', {
-                    href: baseUrl + '/products/' + row.product_id + '/edit'
-                }, [row.product_title])
-            } else {
-                return '----'
+                return h(RouterLink, { to: '/products/' + row.product_id + '/edit' }, () => [row.product_title])
             }
+            return '—'
         },
         report_status: (f, row) => {
-            return h('span', {
-                'class': row.report_status ? 'text-success' : 'text-danger'
-            }, row.report_status ? lang('success') : lang('error'))
+            return h('span', { class: row.report_status ? 'badge bg-success' : 'badge bg-danger' },
+                row.report_status ? lang('success') : lang('error'))
         },
     },
-    pagination: { show: false },
     headings: {
         product: lang('product'),
         report_text: lang('report'),

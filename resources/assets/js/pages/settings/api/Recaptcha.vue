@@ -137,30 +137,22 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6 mb-3" v-show="isV2Checkbox">
-                                    <label class="form-label fw-bold">{{ __('message.theme') }}</label>
-                                    <div class="d-flex gap-3 mt-1">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" id="theme_light" value="light" v-model="form.theme" />
-                                            <label class="form-check-label" for="theme_light">{{ __('message.theme_light') }}</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" id="theme_dark" value="dark" v-model="form.theme" />
-                                            <label class="form-check-label" for="theme_dark">{{ __('message.theme_dark') }}</label>
-                                        </div>
-                                    </div>
+                                    <RadioButton
+                                        name="theme"
+                                        :label="__('message.theme')"
+                                        :options="[{ name: __('message.theme_light'), value: 'light' }, { name: __('message.theme_dark'), value: 'dark' }]"
+                                        :value="form.theme"
+                                        :onChange="(val) => form.theme = val"
+                                    />
                                 </div>
                                 <div class="col-md-6 mb-3" v-show="isV2Checkbox">
-                                    <label class="form-label fw-bold">{{ __('message.size') }}</label>
-                                    <div class="d-flex gap-3 mt-1">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" id="size_normal" value="normal" v-model="form.size" />
-                                            <label class="form-check-label" for="size_normal">{{ __('message.size_normal') }}</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" id="size_compact" value="compact" v-model="form.size" />
-                                            <label class="form-check-label" for="size_compact">{{ __('message.size_compact') }}</label>
-                                        </div>
-                                    </div>
+                                    <RadioButton
+                                        name="size"
+                                        :label="__('message.size')"
+                                        :options="[{ name: __('message.size_normal'), value: 'normal' }, { name: __('message.size_compact'), value: 'compact' }]"
+                                        :value="form.size"
+                                        :onChange="(val) => form.size = val"
+                                    />
                                 </div>
                                 <div class="col-md-6 mb-3" v-show="showBadge">
                                     <SelectField
@@ -223,6 +215,7 @@ import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
 import TextField from '@/themes/adminlte/components/forms/TextField.vue'
 import { Checkbox, ChallengeV2, ChallengeV3 } from 'vue-recaptcha/head'
 import RecaptchaPreviewProvider from './RecaptchaPreviewProvider.vue'
+import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 
 const COMPONENT = 'recaptcha-settings'
 const el = document.getElementById('app-root')

@@ -26,12 +26,6 @@ const endPoint = baseUrl + '/api/admin/reportLicense'
 const columns = ['report_text', 'user', 'license', 'report_date_time', 'report_status']
 
 const options = reactive({
-    sortIcon: {
-        base: 'glyphicon',
-        up: 'glyphicon-chevron-down',
-        down: 'glyphicon-chevron-up',
-    },
-    texts: { filter: '', limit: '' },
     sortable: ['product_title', 'report_text', 'report_date_time', 'report_status'],
     filterable: ['product_title', 'report_text'],
     requestAdapter(data) {
@@ -54,14 +48,33 @@ const options = reactive({
         }
     },
     columnsClasses: {
-        product_title: 'license_product_title',
-        license: 'license_code',
-        user: 'client_email',
-        report_date_time: 'report_date_time',
-        report_text: 'report_text',
-        report_status: 'status',
+        license: 'dt-code',
+        user: 'dt-email',
+        report_date_time: 'dt-date',
+        report_text: 'dt-text',
+        report_status: 'dt-status',
     },
-    pagination: { show: false },
+    templates: {
+        report_date_time: (f, row) => row.report_date_time || '—',
+        user: (f, row) => {
+            if (row.client_email) {
+                return h(RouterLink, { to: '/users/' + row.client_id },
+                    [row.client_email])
+            }
+            return '—'
+        },
+        license: (f, row) => {
+            if (row.license_code && row.license_id) {
+                return h(RouterLink, { to: '/licenses/' + row.license_id + '/view' },
+                    [row.license_code.match(/.{1,4}/g).join('-')])
+            }
+            return '—'
+        },
+        report_status: (f, row) => {
+            return h('span', { class: row.report_status ? 'badge bg-success' : 'badge bg-danger' },
+                row.report_status ? lang('success') : lang('error'))
+        },
+    },
     headings: {
         license: lang('license_code'),
         user: lang('email'),
@@ -69,33 +82,5 @@ const options = reactive({
         report_date_time: lang('report_date_time'),
         report_status: lang('status'),
     },
-    templates: {
-        user(f, row) {
-            if (row.client_email) {
-                return h('a', {
-                    href: (document.getElementById('app-root')?.dataset?.baseUrl ?? '') + '/clients/' + row.client_id
-                }, [row.client_email])
-            } else {
-                return '----'
-            }
-        },
-        report_date_time(h, row) {
-            return row.report_date_time
-        },
-        license: (f, row) => {
-            if (row.license_code && row.license_id) {
-                return h(RouterLink, {
-                    to: '/licenses/' + row.license_id + '/view'
-                }, [row.license_code.match(/.{1,4}/g).join('-')])
-            } else {
-                return '----'
-            }
-        },
-        report_status: (f, row) => {
-            return h('span', {
-                'class': row.report_status ? 'text-success' : 'text-danger'
-            }, row.report_status ? lang('success') : lang('error'))
-        },
-    }
 })
 </script>

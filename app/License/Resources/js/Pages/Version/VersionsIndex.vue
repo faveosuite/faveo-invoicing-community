@@ -26,12 +26,6 @@ const endPoint = baseUrl + '/api/admin/viewVersions'
 const columns = ['version_number', 'product_title', 'version_date', 'version_install_count', 'callback_count', 'version_status', 'actions']
 
 const options = reactive({
-    sortIcon: {
-        base: 'glyphicon',
-        up: 'glyphicon-chevron-down',
-        down: 'glyphicon-chevron-up'
-    },
-    texts: { filter: '', limit: '' },
     sortable: ['product_title', 'version_date', 'version_install_count', 'callback_count', 'version_status'],
     filterable: ['product_title'],
     requestAdapter(data) {
@@ -55,42 +49,32 @@ const options = reactive({
         }
     },
     columnsClasses: {
-        product_title: 'product_title',
-        version_number: 'version_number',
-        version_date: 'version_date',
-        version_install_count: 'version_install_count',
-        callback_count: 'callback_count',
-        version_status: 'version_status',
+        product_title: 'dt-name',
+        version_number: 'dt-code',
+        version_date: 'dt-date',
+        version_install_count: 'dt-number',
+        callback_count: 'dt-number',
+        version_status: 'dt-status',
+        actions: 'dt-action',
     },
     templates: {
-        version_date(h, row) {
-            return row.version_date
-        },
         product_title: (f, row) => {
             if (row.product_title && row.product_id) {
-                return h('a', {
-                    href: baseUrl + '/products/' + row.product_id + '/edit'
-                }, [row.product_title])
-            } else {
-                return '----'
+                return h(RouterLink, { to: '/products/' + row.product_id + '/edit' }, () => [row.product_title])
             }
+            return '—'
         },
         version_number: (f, row) => {
             if (row.version_number && row.id) {
-                return h(RouterLink, {
-                    to: '/versions/' + row.id + '/view'
-                }, [row.version_number])
-            } else {
-                return '----'
+                return h(RouterLink, { to: '/versions/' + row.id + '/view' }, [row.version_number])
             }
+            return '—'
         },
         version_status: (f, row) => {
-            return h('span', {
-                'class': row.version_status ? 'text-success' : 'text-danger'
-            }, row.version_status ? lang('active') : lang('inactive'))
+            return h('span', { class: row.version_status ? 'badge bg-success' : 'badge bg-danger' },
+                row.version_status ? lang('active') : lang('inactive'))
         },
     },
-    pagination: { show: false },
     headings: {
         product_title: lang('product'),
         version_number: lang('version'),

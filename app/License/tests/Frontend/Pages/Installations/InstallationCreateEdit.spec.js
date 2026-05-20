@@ -2,10 +2,17 @@ import { mount } from '@vue/test-utils';
 import InstallationCreateEdit from '../../../../../Resources/js/Pages/Installations/InstallationCreateEdit.vue';
 import axios from 'axios';
 import { createStore } from 'vuex';
-import { validateInstallationSettings } from "../../../../../Resources/js/helpers/validator/installationValidation";
 
 jest.mock('axios');
-jest.mock('../../../../../Resources/js/helpers/validator/installationValidation');
+
+const mockValidate = jest.fn(() => true);
+jest.mock('@/composables/useFormValidation', () => ({
+    useFormValidation: () => ({
+        validate: mockValidate,
+        clearFieldError: jest.fn(),
+        clearAllErrors: jest.fn(),
+    }),
+}));
 
 describe('InstallationCreateEdit.vue', () => {
     let globalConfig;
@@ -13,6 +20,7 @@ describe('InstallationCreateEdit.vue', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        mockValidate.mockReturnValue(true);
         delete window.location;
         window.location = { pathname: '/installations/1/edit' };
 
@@ -29,8 +37,6 @@ describe('InstallationCreateEdit.vue', () => {
                 }
             }
         });
-
-        validateInstallationSettings.mockReturnValue({ errors: {}, isValid: true });
 
         store = createStore({
             getters: {
@@ -65,7 +71,6 @@ describe('InstallationCreateEdit.vue', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.installation_domain).toBe('example.com');
-        expect(wrapper.vm.hasDataPopulated).toBe(true);
     });
 
     it('updates state when onChange is called', async () => {
@@ -98,7 +103,7 @@ describe('InstallationCreateEdit.vue', () => {
     });
 
     it('prevents submission if invalid', async () => {
-        validateInstallationSettings.mockReturnValue({ errors: { some: 'error' }, isValid: false });
+        mockValidate.mockReturnValue(false);
         const wrapper = mount(InstallationCreateEdit, {
             global: globalConfig,
         });

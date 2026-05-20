@@ -2,74 +2,78 @@
     <div>
         <AppAlert :componentName="COMPONENT" />
 
-        <inline-loader v-if="loading" />
+        <div class="card card-light">
+            <div class="card-header">
+                <h4 class="card-title">{{ __('message.order_details') }}</h4>
+            </div>
 
-        <div v-else class="card card-secondary card-outline">
-            <div class="card-body">
+            <inline-loader v-if="loading" context="card-body" />
 
-                <!-- ── Overview ────────────────────────────────────────── -->
-                <div class="card-header with-border mb-3">
-                    <h4 class="card-title">
-                        {{ __('message.order_details') }}
-                    </h4>
-                </div>
+            <template v-else>
+                <div class="card-body">
 
-                <div class="callout callout-info">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <b>{{ __('message.date') }}: </b>{{ order?.created_at || '—' }}
-                        </div>
-                        <div class="col-md-4">
-                            <b>{{ __('message.order_no') }}: </b>#{{ order?.number }}
-                        </div>
-                        <div class="col-md-4">
-                            <b>{{ __('message.status') }}: </b>{{ order?.order_status }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ── User Details ────────────────────────────────────── -->
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <div class="card card-secondary card-outline">
-                            <div class="card-header">
-                                <h5 class="card-title">{{ __('message.user_details') }}</h5>
-                            </div>
-                            <div class="card-body table-responsive">
-                                <table class="table table-hover">
-                                    <tbody>
-                                        <tr>
-                                            <td><b>{{ __('message.name') }}:</b></td>
-                                            <td>{{ userName }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td><b>{{ __('message.email') }}:</b></td>
-                                            <td>{{ order?.user?.email || '—' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td><b>{{ __('message.mobile') }}:</b></td>
-                                            <td>
-                                                <span v-if="order?.user?.mobile_code">
-                                                    (<b>+</b>{{ order.user.mobile_code }})&nbsp;
-                                                </span>
-                                                {{ order?.user?.mobile || '—' }}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><b>{{ __('message.country') }}:</b></td>
-                                            <td>{{ order?.user?.country || '—' }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                    <!-- ── Overview ──────────────────────────────────────── -->
+                    <div class="card card-light mb-3">
+                        <div class="card-body py-3">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="text-muted small mb-1">{{ __('message.date') }}</div>
+                                    <div class="fw-bold">{{ order?.created_at || '—' }}</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-muted small mb-1">{{ __('message.order_no') }}</div>
+                                    <div class="fw-bold">#{{ order?.number }}</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-muted small mb-1">{{ __('message.status') }}</div>
+                                    <div class="fw-bold">{{ order?.order_status || '—' }}</div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+
+                    <!-- ── User Details ──────────────────────────────────── -->
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <div class="card card-light">
+                                <div class="card-header">
+                                    <h5 class="card-title">{{ __('message.user_details') }}</h5>
+                                </div>
+                                <div class="card-body table-responsive">
+                                    <table class="table table-hover">
+                                        <tbody>
+                                            <tr>
+                                                <td><b>{{ __('message.name') }}:</b></td>
+                                                <td>{{ userName }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>{{ __('message.email') }}:</b></td>
+                                                <td>{{ order?.user?.email || '—' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>{{ __('message.mobile') }}:</b></td>
+                                                <td>
+                                                    <span v-if="order?.user?.mobile_code">
+                                                        (<b>+</b>{{ order.user.mobile_code }})&nbsp;
+                                                    </span>
+                                                    {{ order?.user?.mobile || '—' }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>{{ __('message.country') }}:</b></td>
+                                                <td>{{ order?.user?.country || '—' }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                 <!-- ── License Details ─────────────────────────────────── -->
                 <div class="row mt-3">
                     <div class="col-md-12">
-                        <div class="card card-secondary card-outline">
+                        <div class="card card-light">
                             <div class="card-header">
                                 <h4 class="card-title">{{ __('message.license_details') }}</h4>
                             </div>
@@ -81,14 +85,16 @@
                                             <td><b>{{ __('message.license_code') }}:</b></td>
                                             <td>{{ licenseDetails?.licence_code || '—' }}</td>
                                             <td>
-                                                <button
-                                                    class="btn btn-sm btn-secondary btn-xs"
+                                                <action-button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    class="btn-xs"
+                                                    :icon="copied ? 'fas fa-check' : 'fas fa-clipboard'"
+                                                    :icon-only="true"
                                                     :title="__('message.copy')"
                                                     v-tooltip
                                                     @click="copyLicenseCode"
-                                                >
-                                                    <i :class="copied ? 'fas fa-check' : 'fas fa-clipboard'"></i>
-                                                </button>
+                                                />
                                                 <action-button
                                                     variant="secondary"
                                                     size="sm"
@@ -115,17 +121,19 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <button
+                                                <action-button
                                                     v-if="expiryDate('update_end')"
-                                                    class="btn btn-sm btn-secondary btn-xs"
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    class="btn-xs"
+                                                    icon="fas fa-pen"
+                                                    :icon-only="true"
                                                     :title="__('message.edit')"
                                                     v-tooltip
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#updateExpiryModal"
                                                     @click="modal.date = expiryRaw('update_end')"
-                                                >
-                                                    <i class="fas fa-pen"></i>
-                                                </button>
+                                                />
                                             </td>
                                         </tr>
 
@@ -141,17 +149,19 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <button
+                                                <action-button
                                                     v-if="expiryDate('subscription_end')"
-                                                    class="btn btn-sm btn-secondary btn-xs"
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    class="btn-xs"
+                                                    icon="fas fa-pen"
+                                                    :icon-only="true"
                                                     :title="__('message.edit')"
                                                     v-tooltip
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#licenseExpiryModal"
                                                     @click="modal.date = expiryRaw('subscription_end')"
-                                                >
-                                                    <i class="fas fa-pen"></i>
-                                                </button>
+                                                />
                                             </td>
                                         </tr>
 
@@ -167,17 +177,19 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <button
+                                                <action-button
                                                     v-if="expiryDate('support_end')"
-                                                    class="btn btn-sm btn-secondary btn-xs"
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    class="btn-xs"
+                                                    icon="fas fa-pen"
+                                                    :icon-only="true"
                                                     :title="__('message.edit')"
                                                     v-tooltip
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#supportExpiryModal"
                                                     @click="modal.date = expiryRaw('support_end')"
-                                                >
-                                                    <i class="fas fa-pen"></i>
-                                                </button>
+                                                />
                                             </td>
                                         </tr>
 
@@ -185,15 +197,12 @@
                                         <tr>
                                             <td><b>{{ __('message.switch_localized_license') }}</b></td>
                                             <td>
-                                                <div class="form-check form-switch">
-                                                    <input
-                                                        class="form-check-input"
-                                                        type="checkbox"
-                                                        :checked="order?.license_mode === 'File'"
-                                                        :disabled="saving.licenseMode"
-                                                        @change="toggleLicenseMode"
-                                                    />
-                                                </div>
+                                                <Switch
+                                                    name="license_mode"
+                                                    :value="order?.license_mode === 'File'"
+                                                    :disabled="saving.licenseMode"
+                                                    :onChange="toggleLicenseMode"
+                                                />
                                             </td>
                                             <td></td>
                                         </tr>
@@ -207,8 +216,8 @@
                 <!-- ── Installation Details ────────────────────────────── -->
                 <div class="row mt-3">
                     <div class="col-md-12">
-                        <div class="card card-secondary card-outline">
-                            <div class="card-header with-border">
+                        <div class="card card-light">
+                            <div class="card-header">
                                 <h4 class="card-title">
                                     {{ __('message.installation_details') }}
                                 </h4>
@@ -227,8 +236,8 @@
                 <!-- ── Invoice List ────────────────────────────────────── -->
                 <div class="row mt-3">
                     <div class="col-md-12">
-                        <div class="card card-secondary card-outline">
-                            <div class="card-header with-border">
+                        <div class="card card-light">
+                            <div class="card-header">
                                 <h4 class="card-title">
                                     {{ __('message.invoice_list') }}
                                 </h4>
@@ -247,8 +256,8 @@
                 <!-- ── Payment Receipts ────────────────────────────────── -->
                 <div class="row mt-3">
                     <div class="col-md-12">
-                        <div class="card card-secondary card-outline">
-                            <div class="card-header with-border">
+                        <div class="card card-light">
+                            <div class="card-header">
                                 <h4 class="card-title">
                                     {{ __('message.payment_receipts') }}
                                 </h4>
@@ -267,8 +276,8 @@
                 <!-- ── Auto Renewal ────────────────────────────────────── -->
                 <div class="row mt-3">
                     <div class="col-md-12">
-                        <div class="card card-secondary card-outline">
-                            <div class="card-header with-border">
+                        <div class="card card-light">
+                            <div class="card-header">
                                 <h4 class="card-title">
                                     {{ __('message.auto_renewal') }}
                                 </h4>
@@ -279,15 +288,12 @@
                                         <tr>
                                             <td><b>{{ __('message.auto_renewal_subscription') }}</b></td>
                                             <td>
-                                                <div class="form-check form-switch">
-                                                    <input
-                                                        class="form-check-input"
-                                                        type="checkbox"
-                                                        :checked="autorenewal == 1"
-                                                        :disabled="autorenewal != 1 || saving.renewal"
-                                                        @change="disableRenewal"
-                                                    />
-                                                </div>
+                                                <Switch
+                                                    name="auto_renewal"
+                                                    :value="autorenewal == 1"
+                                                    :disabled="autorenewal != 1 || saving.renewal"
+                                                    :onChange="disableRenewal"
+                                                />
                                             </td>
                                         </tr>
                                         <tr>
@@ -314,7 +320,8 @@
                     </div>
                 </div>
 
-            </div><!-- /card-body -->
+                </div><!-- /card-body -->
+            </template>
         </div><!-- /card -->
 
         <!-- ── Modals ──────────────────────────────────────────────────── -->
@@ -350,10 +357,11 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, h } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { errorHandler } from '@/helpers/responseHandler.js'
 import ExpiryModal from './components/ExpiryModal.vue'
+import Switch from '@/components/Reusable/FormField/Switch.vue'
 
 const COMPONENT = 'orders-show'
 
@@ -451,10 +459,10 @@ async function disableRenewal() {
     }
 }
 
-async function toggleLicenseMode(e) {
+async function toggleLicenseMode(checked) {
     saving.licenseMode = true
     try {
-        const choose = e.target.checked ? 1 : 0
+        const choose = checked ? 1 : 0
         await http.post(`${baseUrl}/switch-license-mode`, { choose, orderNo: order.value?.number })
         await reload()
     } catch (e) {
@@ -495,6 +503,13 @@ const installTableOptions = reactive({
         status:           __('message.status'),
         last_active_date: __('message.last_active'),
     },
+    columnsClasses: {
+        path: 'dt-text',
+        ip: 'dt-code',
+        version: 'dt-code',
+        status: 'dt-status',
+        last_active_date: 'dt-date',
+    },
     templates: {
         path:             (f, row) => row.path || '—',
         ip:               (f, row) => row.ip || '—',
@@ -523,7 +538,15 @@ const invoiceTableOptions = reactive({
         amount:   __('message.total'),
         status:   __('message.status'),
     },
+    columnsClasses: {
+        number: 'dt-number',
+        products: 'dt-name',
+        date: 'dt-date',
+        amount: 'dt-amount',
+        status: 'dt-status',
+    },
     templates: {
+        number:   (f, row) => row.number && row.id ? h(RouterLink, { to: '/invoices/' + row.id }, () => row.number) : (row.number || '—'),
         products: (f, row) => (row.products ?? []).join(', ') || '—',
         status: (f, row) => h('span', {
             class: row.status === 'Success' ? 'badge bg-success' : 'badge bg-secondary',
@@ -553,6 +576,13 @@ const paymentTableOptions = reactive({
         payment_method: __('message.method'),
         payment_status: __('message.status'),
         created_at:     __('message.payment_date'),
+    },
+    columnsClasses: {
+        invoice_number: 'dt-number',
+        amount: 'dt-amount',
+        payment_method: 'dt-name',
+        payment_status: 'dt-status',
+        created_at: 'dt-date',
     },
     templates: {
         payment_status: (f, row) => h('span', {

@@ -115,6 +115,14 @@ const tableOptions = reactive({
         role:         __('message.role'),
         created_at:   __('message.created_at'),
     },
+    columnsClasses: {
+        module: 'dt-name',
+        event: 'dt-name',
+        role: 'dt-name',
+        performed_by: 'dt-name',
+        description: 'dt-text',
+        created_at: 'dt-date',
+    },
     sortable: ['module', 'event', 'created_at', 'role', 'performed_by'],
     filterable: true,
     requestAdapter(data) {

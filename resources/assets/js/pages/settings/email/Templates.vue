@@ -35,6 +35,11 @@ const tableOptions = reactive({
         type:   __('message.type'),
         action: __('message.action'),
     },
+    columnsClasses: {
+        name: 'dt-name',
+        type: 'dt-code',
+        action: 'dt-action',
+    },
     templates: {
         action: (_, row) => h('button', {
             class:   'btn btn-light table_btn',

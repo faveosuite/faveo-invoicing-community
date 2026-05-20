@@ -132,7 +132,7 @@ class ClientController extends AdvanceSearchController
                             return $model->mobile;
                         })
                         ->addColumn('country', function ($model) {
-                            return ucfirst(strtolower($model->country));
+                            return $model->country ? (getCountryByCode($model->country) ?? $model->country) : '';
                         })
                         ->addColumn('company', function ($model) {
                             return $model->company;
@@ -776,6 +776,14 @@ class ClientController extends AdvanceSearchController
         $users = $query
             ->orderBy($sortField, $sortOrder)
             ->simplePaginate($limit);
+
+        $users->getCollection()->transform(function ($user) {
+            if ($user->country) {
+                $name = getCountryByCode($user->country) ?? $user->country;
+                $user->setRawAttributes(array_merge($user->getAttributes(), ['country' => $name]), true);
+            }
+            return $user;
+        });
 
         return $this->paginateResponse($users, $total);
     }

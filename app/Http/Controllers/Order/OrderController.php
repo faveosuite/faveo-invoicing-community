@@ -142,6 +142,10 @@ class OrderController extends BaseOrderController
 
             $paginated->getCollection()->transform(function ($order) {
                 $user = $order->user;
+                if ($user && $user->country) {
+                    $name = getCountryByCode($user->country) ?? $user->country;
+                    $user->setRawAttributes(array_merge($user->getAttributes(), ['country' => $name]), true);
+                }
                 $installedVersions = $order->installationDetail ? $order->installationDetail->pluck('version')->toArray() : [];
                 $latestVersion = count($installedVersions) ? max($installedVersions) : null;
 
@@ -154,8 +158,11 @@ class OrderController extends BaseOrderController
                     'number' => $order->number,
                     'order_status' => ucfirst($order->order_status),
                     'product_name' => $order->productRelation?->name,
+                    'product_id' => $order->product,
                     'group' => $order->productRelation?->groupRelation?->name,
+                    'group_id' => $order->productRelation?->group,
                     'plan' => $order->subscription->plan?->name,
+                    'plan_id' => $order->subscription->plan?->id,
                     'version' => $latestVersion ? getVersionAndLabel($latestVersion, $order->product) : null,
                     'agents' => $licenseAgents,
                     'status' => ! empty($order->installationDetail) ? 'Active' : 'Inactive',

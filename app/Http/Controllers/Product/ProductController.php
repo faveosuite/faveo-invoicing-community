@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Product;
 
 // use Illuminate\Http\Request;
 use App\Facades\Attach;
+use App\Http\Controllers\AutoUpdate\AutoUpdateController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
@@ -730,17 +731,24 @@ class ProductController extends BaseProductController
     public function getAllProducts(Request $request)
     {
         $searchQuery = $request->input('search-query', '');
-        $sortOrder = $request->input('sort-order', 'asc');
-        $sortField = $request->input('sort-field', 'created_at');
+        $sortOrder = in_array($request->input('sort-order'), ['asc', 'desc']) ? $request->input('sort-order') : 'asc';
         $limit = $request->input('limit', 10);
 
-        $products = Product::select('id', 'name', 'image', 'group', 'type', 'created_at')
+        $sortFieldMap = [
+            'name'         => 'products.name',
+            'license_type' => 'products.type',
+            'group'        => 'products.group',
+            'created_at'   => 'products.created_at',
+        ];
+        $sortField = $sortFieldMap[$request->input('sort-field')] ?? 'products.created_at';
+
+        $products = Product::select('products.id', 'products.name', 'products.image', 'products.group', 'products.type', 'products.created_at')
             ->with([
                 'groupRelation',
                 'licenseType',
             ])
             ->when($searchQuery, function ($query, $searchQuery) {
-                $query->where('name', 'like', "%{$searchQuery}%")
+                $query->where('products.name', 'like', "%{$searchQuery}%")
                       ->orWhereHas('groupRelation', function ($q) use ($searchQuery) {
                           $q->where('name', 'like', "%{$searchQuery}%");
                       });
@@ -782,14 +790,6 @@ class ProductController extends BaseProductController
         try {
             \DB::transaction(function () use ($ids) {
                 $products = Product::whereIn('id', $ids)->get();
-                $licenseStatus = StatusSetting::value('license_status');
-
-                // Delete from licensing if enabled
-                if ($licenseStatus == 1) {
-                    foreach ($products as $product) {
-                        $this->licensing->deleteProductFromAPL($product);
-                    }
-                }
 
                 foreach ($products as $product) {
                     $product->delete();
@@ -812,7 +812,12 @@ class ProductController extends BaseProductController
                 'planRelation',
             ])->findOrFail($productId);
 
-            return successResponse('', $product);
+            $githubStatus = StatusSetting::value('github_status');
+
+            return successResponse('', [
+                'product'       => $product,
+                'github_status' => (bool) $githubStatus,
+            ]);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
@@ -856,15 +861,13 @@ class ProductController extends BaseProductController
                 // Update the product version
                 $product->update(['version' => $validated['version']]);
 
-                if (StatusSetting::value('license_status') == 1) {
-                    (new AutoUpdateController())
-                        ->addNewVersion(
-                            $product->id,
-                            $validated['version'],
-                            $validated['filename'],
-                            '1'
-                        );
-                }
+                (new AutoUpdateController())
+                    ->addNewVersion(
+                        $product->id,
+                        $validated['version'],
+                        $validated['filename'],
+                        '1'
+                    );
             });
 
             return successResponse(__('message.product_uploaded_successfully'));
@@ -916,17 +919,6 @@ class ProductController extends BaseProductController
                         'tax_class_id' => $taxId,
                     ])
                     ->whenNotEmpty(fn ($taxData) => TaxProductRelation::insert($taxData));
-
-                // Handle Licensing
-                if (StatusSetting::value('license_status')) {
-                    $this->licensing->addNewProduct($validated['name'], $validated['product_sku']);
-                    $licenseProductId = $this->licensing->searchProductId($validated['product_sku']);
-                    (new AutoUpdateController())->addNewProductToAUS(
-                        $licenseProductId,
-                        $validated['name'],
-                        $validated['product_sku']
-                    );
-                }
             });
 
             return successResponse(__('message.saved-successfully'));
@@ -997,11 +989,6 @@ class ProductController extends BaseProductController
                         $request->input('github_owner'),
                         $request->input('github_repository')
                     );
-                }
-
-                // Handle licensing if enabled
-                if (StatusSetting::value('license_status')) {
-                    $this->licensing->editProduct($validated['name'], $validated['product_sku']);
                 }
             });
 

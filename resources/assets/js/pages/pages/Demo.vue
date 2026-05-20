@@ -1,9 +1,9 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-secondary card-outline">
+        <div class="card card-light">
             <div class="card-header">
-                <h5 class="card-title">{{ __('message.configuring_demo') }}</h5>
+                <h4 class="card-title">{{ __('message.configuring_demo') }}</h4>
             </div>
 
             <inline-loader v-if="loading" context="card-body" />
@@ -11,17 +11,14 @@
             <template v-else>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-12 col-sm-3 mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" :value="true" v-model="status" id="enableStatus" />
-                                <label class="form-check-label" for="enableStatus">{{ __('message.enable') }}</label>
-                            </div>
-                        </div>
-                        <div class="col-12 col-sm-3 mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" :value="false" v-model="status" id="disableStatus" />
-                                <label class="form-check-label" for="disableStatus">{{ __('message.disable') }}</label>
-                            </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold d-block">{{ __('message.status') }}</label>
+                            <Checkbox
+                                name="status"
+                                :label="__('message.enable')"
+                                :value="status"
+                                :onChange="(val) => status = val"
+                            />
                         </div>
                     </div>
                 </div>
@@ -36,6 +33,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import Checkbox from '@/components/Reusable/FormField/Checkbox.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 

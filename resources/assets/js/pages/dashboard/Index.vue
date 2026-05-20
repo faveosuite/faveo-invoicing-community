@@ -3,9 +3,9 @@
         <inline-loader v-if="loading" />
         <div v-else>
           <div class="row">
-            <div class="col-lg-4 col-6">
-              <div class="small-box text-bg-info">
-                <div class="inner">
+            <div class="col-lg-4 col-6 d-flex">
+              <div class="small-box text-bg-info flex-fill d-flex flex-column">
+                <div class="inner flex-grow-1">
                   <h4>{{ __('message.total_sales') }}</h4>
                   <template v-for="(amount, currency) in data.totalSales" :key="currency">
                     <span>{{ currency }}: &nbsp; {{ formatCurrency(amount, currency) }}</span><br/>
@@ -16,9 +16,9 @@
               </div>
             </div>
 
-            <div class="col-lg-4 col-6">
-              <div class="small-box text-bg-success">
-                <div class="inner">
+            <div class="col-lg-4 col-6 d-flex">
+              <div class="small-box text-bg-success flex-fill d-flex flex-column">
+                <div class="inner flex-grow-1">
                   <h4>{{ __('message.yearly_sales') }}</h4>
                   <template v-for="(amount, currency) in data.yearlySales" :key="currency">
                     <span>{{ currency }}: &nbsp; {{ formatCurrency(amount, currency) }}</span><br/>
@@ -29,9 +29,9 @@
               </div>
             </div>
 
-            <div class="col-lg-4 col-6">
-              <div class="small-box text-bg-warning">
-                <div class="inner">
+            <div class="col-lg-4 col-6 d-flex">
+              <div class="small-box text-bg-warning flex-fill d-flex flex-column">
+                <div class="inner flex-grow-1">
                   <h4>{{ __('message.monthly_sales') }}</h4>
                   <template v-for="(amount, currency) in data.monthlySales" :key="currency">
                     <span>{{ currency }}: &nbsp; {{ formatCurrency(amount, currency) }}</span><br/>
@@ -42,9 +42,9 @@
               </div>
             </div>
 
-            <div class="col-lg-4 col-6">
-              <div class="small-box text-bg-danger">
-                <div class="inner">
+            <div class="col-lg-4 col-6 d-flex">
+              <div class="small-box text-bg-danger flex-fill d-flex flex-column">
+                <div class="inner flex-grow-1">
                   <h4>{{ __('message.pending_payments') }}</h4>
                   <template v-for="(amount, currency) in data.pendingPayments" :key="currency">
                     <span>{{ currency }}: &nbsp; {{ formatCurrency(amount, currency) }}</span><br/>
@@ -55,9 +55,9 @@
               </div>
             </div>
 
-            <div class="col-lg-4 col-6">
-              <div class="small-box text-bg-warning">
-                <div class="inner">
+            <div class="col-lg-4 col-6 d-flex">
+              <div class="small-box text-bg-warning flex-fill d-flex flex-column">
+                <div class="inner flex-grow-1">
                   <h4>{{ __('message.products_installed_rate') }}&nbsp;{{ formatRate(data.productInstalledRate?.rate) }}%</h4>
                   <span>{{ __('message.total_subscription') }} &nbsp; {{ data.productInstalledRate?.total_subscription || 0 }}</span><br/>
                   <span>{{ __('message.not_installed') }} &nbsp; {{ data.productInstalledRate?.inactive_subscription || 0 }}</span>
@@ -67,9 +67,9 @@
               </div>
             </div>
 
-            <div class="col-lg-4 col-6">
-              <div class="small-box text-bg-info">
-                <div class="inner">
+            <div class="col-lg-4 col-6 d-flex">
+              <div class="small-box text-bg-info flex-fill d-flex flex-column">
+                <div class="inner flex-grow-1">
                   <h4>{{ __('message.paid_orders_rate') }}&nbsp;{{ formatRate(data.paidOrderRate?.rate) }}%</h4>
                   <span>{{ __('message.total_orders_rate') }} &nbsp; {{ data.paidOrderRate?.all_orders || 0 }}</span><br/>
                   <span>{{ __('message.paid_orders') }} &nbsp; {{ data.paidOrderRate?.paid_orders || 0 }}</span>
@@ -97,16 +97,16 @@
                 <div class="card-body direct-chat-messages p-0">
                   <ul class="users-list clearfix">
                     <li v-for="user in data.clientWithMobileAndEmailActivation" :key="user.id">
-                      <router-link :to="`/clients/${user.id}`" class="text-decoration-none">
+                      <router-link :to="`/users/${user.id}`" class="text-decoration-none">
                         <img loading="lazy" :src="user.profile_pic" class="img-size-50 rounded-circle" alt="User Image">
                       </router-link>
-                      <router-link :to="`/clients/${user.id}`" class="text-decoration-none users-list-name">{{ user.first_name }} {{ user.last_name }}</router-link>
+                      <router-link :to="`/users/${user.id}`" class="text-decoration-none users-list-name">{{ user.first_name }} {{ user.last_name }}</router-link>
                       <span class="users-list-date">{{ formatDateForUser(user.created_at) }}</span>
                     </li>
                   </ul>
                 </div>
                 <div class="card-footer clearfix">
-                  <router-link to="/clients" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
+                  <router-link to="/users" class="btn btn-sm btn-secondary float-end">{{ __('message.view_all') }}</router-link>
                 </div>
               </div>
             </div>
@@ -142,7 +142,7 @@
                         <td><router-link :to="`/invoices/show?invoiceid=${invoice.id}`" class="text-decoration-none">{{ invoice.number }}</router-link></td>
                         <td>{{ invoice.grand_total }}</td>
                         <td>
-                          <router-link v-if="invoice.user" :to="`/clients/${invoice.user.id}`" class="text-decoration-none">
+                          <router-link v-if="invoice.user" :to="`/users/${invoice.user.id}`" class="text-decoration-none">
                             {{ invoice.user.first_name }} {{ invoice.user.last_name }}
                           </router-link>
                         </td>
@@ -189,7 +189,7 @@
                       <tbody>
                       <tr v-for="sub in data.expiredOrders" :key="sub.id">
                         <td>
-                          <router-link v-if="sub.user" :to="`/clients/${sub.user.id}`" class="text-decoration-none">
+                          <router-link v-if="sub.user" :to="`/users/${sub.user.id}`" class="text-decoration-none">
                             {{ sub.user.first_name }} {{ sub.user.last_name }}
                           </router-link>
                         </td>
@@ -238,7 +238,7 @@
                       <tbody>
                       <tr v-for="sub in data.expiringOrders" :key="sub.id">
                         <td>
-                          <router-link v-if="sub.user" :to="`/clients/${sub.user.id}`" class="text-decoration-none">
+                          <router-link v-if="sub.user" :to="`/users/${sub.user.id}`" class="text-decoration-none">
                             {{ sub.user.first_name }} {{ sub.user.last_name }}
                           </router-link>
                         </td>
@@ -336,7 +336,7 @@
                         <td>{{ order.product_relation?.name }}</td>
                         <td>{{ formatDate(order.created_at) }}</td>
                         <td>
-                          <router-link v-if="order.user" :to="`/clients/${order.user.id}`" class="text-decoration-none">
+                          <router-link v-if="order.user" :to="`/users/${order.user.id}`" class="text-decoration-none">
                             {{ order.user.first_name }} {{ order.user.last_name }}
                           </router-link>
                         </td>

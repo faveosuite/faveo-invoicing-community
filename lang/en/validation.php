@@ -699,6 +699,28 @@ return [
         ],
     ],
 
+    //License form
+    'licenses' => [
+        'product' => [
+            'required' => 'The product field is required.',
+        ],
+        'client' => [
+            'required' => 'The client field is required.',
+        ],
+        'license_code' => [
+            'required' => 'The license code field is required.',
+        ],
+        'license_expire_date' => [
+            'required' => 'The license expire date field is required.',
+        ],
+        'license_updates_date' => [
+            'required' => 'The license updates date field is required.',
+        ],
+        'license_support_date' => [
+            'required' => 'The license support date field is required.',
+        ],
+    ],
+
     //LocalizedLicense form
     'domain_form' => [
         'domain' => [
@@ -728,6 +750,7 @@ return [
             'string' => 'The disk must be a string.',
         ],
         'path' => [
+            'required' => 'The storage path field is required.',
             'string' => 'The path must be a string.',
             'nullable' => 'The path field is optional.',
         ],

@@ -18,16 +18,23 @@
         </div>
 
         <div :class="[isInlineForm ? 'col-md-10 flex' : '']">
-            <div class="slot-container">
+            <div v-if="inputGroupBtn" class="input-group">
                 <slot></slot>
-                <template v-if="hint !== '' && tipRule">
-                    <div class="text-small">
-                        <i class="fas fa-question-circle text-primary"></i>
-                        <em v-html="getHint(hint)"></em>
-                    </div>
-                </template>
-                <div v-if="name in errors" class="error-block is-danger">{{ errors[name] }}</div>
+                <button class="btn btn-secondary" type="button"
+                        @click="() => inputGroupBtn.action()">
+                    <i class="fas fa-sync-alt me-1"></i>{{ lang(inputGroupBtn.text) }}
+                </button>
             </div>
+            <div v-else class="slot-container">
+                <slot></slot>
+            </div>
+            <template v-if="hint !== '' && tipRule">
+                <div class="text-small">
+                    <i class="fas fa-question-circle text-primary"></i>
+                    <em v-html="getHint(hint)"></em>
+                </div>
+            </template>
+            <div v-if="name in errors" class="error-block is-danger">{{ errors[name] }}</div>
             <button v-if="actionBtn" class="btn btn-light form-field-action-button"
                     @click="() => actionBtn.action()">
                 <span>{{ lang(actionBtn.text) }}</span>
@@ -56,6 +63,7 @@ const props = defineProps({
     onClickEvent:  { type: Function,                             default: () => {} },
     isInlineForm:  { type: Boolean,                              default: false },
     actionBtn:     { type: Object,                               default: () => null },
+    inputGroupBtn: { type: Object,                               default: () => null },
     showPreview:   { type: [String, Object],                     default: '' },
     tipRule:       { type: [Number, Boolean],                    default: false },
     newBtnName:    { type: String,                               default: '' },

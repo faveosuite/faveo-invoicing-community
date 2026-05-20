@@ -9,7 +9,23 @@ export const errorHandler = (err, componentName = '') => {
     const status = err?.response?.status
     const data   = err?.response?.data
 
-    if ([400, 422, 401, 429, 500].includes(status) && data?.message !== undefined) {
+    // 422: Laravel validation errors — map to individual fields via the alert store
+    if (status === 422) {
+        if (data?.errors && typeof data.errors === 'object') {
+            const fieldErrors = {}
+            Object.entries(data.errors).forEach(([field, messages]) => {
+                fieldErrors[field] = Array.isArray(messages) ? messages[0] : messages
+            })
+            store.setValidationError(fieldErrors)
+        }
+        // Also surface the top-level message as a global alert when present
+        if (data?.message) {
+            store.setAlert({ type: 'danger', message: data.message, component_name: componentName })
+        }
+        return
+    }
+
+    if ([400, 401, 429, 500].includes(status) && data?.message !== undefined) {
         store.setAlert({ type: 'danger', message: data.message, component_name: componentName })
     }
 

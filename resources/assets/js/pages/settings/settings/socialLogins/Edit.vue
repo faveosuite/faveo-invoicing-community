@@ -12,30 +12,33 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">{{ form.type === 'Twitter' ? __('message.api_key') : __('message.client_id') }}</label>
-                                <input type="text" class="form-control" v-model="form.client_id" />
-                            </div>
+                            <TextField
+                                name="client_id"
+                                :label="form.type === 'Twitter' ? __('message.api_key') : __('message.client_id')"
+                                :value="form.client_id"
+                                :onChange="(val) => form.client_id = val"
+                            />
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">{{ form.type === 'Twitter' ? __('message.lic_api_secret') : __('message.client_secret') }}</label>
-                                <input type="text" class="form-control" v-model="form.client_secret" />
-                            </div>
+                            <TextField
+                                name="client_secret"
+                                :label="form.type === 'Twitter' ? __('message.lic_api_secret') : __('message.client_secret')"
+                                :value="form.client_secret"
+                                :onChange="(val) => form.client_secret = val"
+                            />
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">{{ __('message.redirect_url') }}</label>
-                                <input type="text" class="form-control" v-model="form.redirect_url" />
-                            </div>
+                            <TextField
+                                name="redirect_url"
+                                :label="__('message.redirect_url')"
+                                :value="form.redirect_url"
+                                :onChange="(val) => form.redirect_url = val"
+                            />
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label fw-bold d-block">{{ __('message.status') }}</label>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" v-model="form.status" id="status" />
-                                    <label class="form-check-label" for="status">{{ form.status ? __('message.active') : __('message.inactive') }}</label>
-                                </div>
+                                <Switch name="status" :value="form.status" :onChange="(val) => form.status = val" />
                             </div>
                         </div>
                     </div>
@@ -52,6 +55,8 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
+import Switch from '@/components/Reusable/FormField/Switch.vue'
 import { useRoute, useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
@@ -106,7 +111,7 @@ async function submit() {
         }
         const res = await http.post(`${baseUrl}/update-social-login`, payload)
         successHandler(res, COMPONENT)
-        router.push('/settings/social-logins')
+        setTimeout(() => router.push('/settings/social-logins'), 2000)
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {

@@ -2,26 +2,30 @@
     <div>
         <AppAlert componentName="whitelist" />
 
-        <div class="card card-light" v-if="hasDataPopulated">
+        <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ lang(title) }}</h4>
             </div>
 
-            <div class="card-body">
-                <div class="row">
-                    <text-field :label="lang('ip_address')" :value="whitelist_host_ip" :onChange="onChange" name="whitelist_host_ip"
-                                type="text" classname="col-sm-6" :required="true">
-                    </text-field>
+            <inline-loader v-if="loading" context="card-body" />
 
-                    <text-field :label="lang('comments')" type="text" :value="whitelist_host_comments" :onChange="onChange"
-                                name="whitelist_host_comments" classname="col-sm-6">
-                    </text-field>
+            <template v-else>
+                <div class="card-body">
+                    <div class="row">
+                        <text-field :label="lang('ip_address')" :value="whitelist_host_ip" :onChange="onChange" name="whitelist_host_ip"
+                                    type="text" classname="col-sm-6" :required="true">
+                        </text-field>
+
+                        <text-field :label="lang('comments')" type="text" :value="whitelist_host_comments" :onChange="onChange"
+                                    name="whitelist_host_comments" classname="col-sm-6">
+                        </text-field>
+                    </div>
                 </div>
-            </div>
 
-            <div class="card-footer">
-                <button class="btn btn-primary" @click="onSubmit"><i :class="iconClass"></i>&nbsp;&nbsp;{{ lang(btnName) }}</button>
-            </div>
+                <div class="card-footer">
+                    <action-button :action="isEdit ? 'update' : 'save'" :loading="saving" @click="onSubmit" />
+                </div>
+            </template>
         </div>
     </div>
 </template>
@@ -32,22 +36,25 @@ import { useRouter } from 'vue-router'
 import axios from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler'
 import { getIdFromUrl, lang } from '@/helpers/extraLogics'
+import { useFormValidation } from '@/composables/useFormValidation'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const router = useRouter()
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+
 const title = ref('add_new_whitelist_ip')
-const iconClass = ref('fas fa-save')
-const btnName = ref('save')
-const hasDataPopulated = ref(false)
+const isEdit = ref(false)
 const loading = ref(false)
+const saving = ref(false)
 const apiEndpoint = ref('')
 const whitelist_host_comments = ref(null)
 const whitelist_host_ip = ref(null)
 const hostId = ref(null)
 
 function onChange(value, name) {
+    clearFieldError(name)
     const propertyMap = {
         'whitelist_host_ip': whitelist_host_ip,
         'whitelist_host_comments': whitelist_host_comments,
@@ -65,16 +72,15 @@ function updateStatesWithData(data) {
 function getInitialValues(id) {
     loading.value = true
     axios.get(baseUrl + '/api/admin/whitelist-edit/' + id).then(res => {
-        loading.value = false
-        hasDataPopulated.value = true
         updateStatesWithData(res.data.data.host_data)
-    }).catch(() => {
+    }).catch(() => {}).finally(() => {
         loading.value = false
     })
 }
 
 function onSubmit() {
-    loading.value = true
+    if (!validate({ whitelist_host_ip: [whitelist_host_ip.value, { isRequired: __('message.field_required') }] })) return
+    saving.value = true
     const formData = {
         whitelist_host_ip: whitelist_host_ip.value,
         whitelist_host_comments: whitelist_host_comments.value,
@@ -82,7 +88,6 @@ function onSubmit() {
     if (hostId.value) formData['id'] = hostId.value
 
     axios.post(apiEndpoint.value, formData).then(res => {
-        loading.value = false
         successHandler(res, 'whitelist')
         if (!hostId.value) {
             setTimeout(() => { router.push('/whitelist/list') }, 2000)
@@ -90,24 +95,21 @@ function onSubmit() {
             getInitialValues(hostId.value)
         }
     }).catch(err => {
-        loading.value = false
         errorHandler(err, 'whitelist')
+    }).finally(() => {
+        saving.value = false
     })
 }
 
 onBeforeMount(() => {
+    clearAllErrors()
     const path = window.location.pathname
     const id = getIdFromUrl(path)
     if (path.includes('edit')) {
         title.value = 'edit_whitelist'
-        iconClass.value = 'fas fa-sync'
-        btnName.value = 'update'
-        hasDataPopulated.value = false
+        isEdit.value = true
         getInitialValues(id)
         hostId.value = id
-    } else {
-        loading.value = false
-        hasDataPopulated.value = true
     }
     apiEndpoint.value = baseUrl + '/api/admin/whitelist/updateOrCreate'
 })

@@ -133,12 +133,15 @@ Route::middleware('installAgora')->group(function () {
  * 2FA Routes
  */
 
-    Route::post('/2fa/enable', [Google2FAController::class, 'enableTwoFactor']);
+    Route::middleware(['password.confirm'])->group(function () {
+        Route::get('show/verify-password', [Google2FAController::class, 'showVerifyPassword']);
+        Route::post('/2fa/enable', [Google2FAController::class, 'enableTwoFactor']);
+        Route::post('2fa-recovery-code', [Google2FAController::class, 'generateRecoveryCode']);
+        Route::post('2fa/setupValidate', [Google2FAController::class, 'postSetupValidateToken']);
+    });
     Route::post('2fa/disable/{userId?}', [Google2FAController::class, 'disableTwoFactor']);
 
-    Route::post('2fa/setupValidate', [Google2FAController::class, 'postSetupValidateToken']);
-    Route::get('verify-password', [Google2FAController::class, 'verifyPassword']);
-    Route::post('2fa-recovery-code', [Google2FAController::class, 'generateRecoveryCode']);
+    Route::post('verify-password', [Google2FAController::class, 'verifyPassword']);
     Route::get('get-recovery-code', [Google2FAController::class, 'getRecoveryCode']);
     Route::get('recovery-code', [Google2FAController::class, 'showRecoveryCode']);
     Route::post('verify-2fa-admin', [Google2FAController::class, 'postSetupValidateToken'])->name('verify.2fa.admin');

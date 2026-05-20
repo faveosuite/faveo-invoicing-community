@@ -12,18 +12,15 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">{{ __('message.records_per_export') }}</label>
-                                <input
-                                    type="number"
-                                    class="form-control"
-                                    v-model.number="form.records"
-                                    min="1"
-                                    max="3000"
-                                    placeholder="e.g. 3000"
-                                />
-                                <small class="text-muted">{{ __('message.records_per_export_desc') }}</small>
-                            </div>
+                            <NumberField
+                                name="records"
+                                :label="__('message.records_per_export')"
+                                :value="form.records"
+                                :onChange="(val) => form.records = Number(val)"
+                                :max="3000"
+                                placeholder="e.g. 3000"
+                            />
+                            <small class="text-muted">{{ __('message.records_per_export_desc') }}</small>
                         </div>
                     </div>
                 </div>
@@ -40,6 +37,7 @@
 import { reactive, ref, onMounted } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import NumberField from '@/components/Reusable/FormField/NumberField.vue'
 
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''

@@ -172,6 +172,20 @@ table                             { border-collapse: collapse; }
 .VueTables__table th,
 .VueTables__table td              { padding: 0.75rem; vertical-align: middle; }
 
+/* ── column width utilities ── */
+.dt-select{width:40px!important;min-width:40px;max-width:40px;}
+.dt-action{min-width:200px;max-width:200px;}
+.dt-email{min-width:220px;max-width:220px;}
+.dt-name{min-width:180px;max-width:180px;}
+.dt-mobile{min-width:140px;max-width:140px;}
+.dt-country{min-width:120px;max-width:120px;}
+.dt-status{min-width:130px;max-width:130px;}
+.dt-date{min-width:160px;max-width:160px;}
+.dt-amount{min-width:130px;max-width:130px;}
+.dt-number{min-width:130px;max-width:130px;}
+.dt-code{min-width:120px;max-width:120px;}
+.dt-text{min-width:250px;max-width:250px;}
+
 /* ── hide built-in search, v-tables pagination ── */
 .datatable .VueTables__search     { display: none !important; }
 .datatable .VuePagination         { display: none !important; }
@@ -191,7 +205,7 @@ table                             { border-collapse: collapse; }
 
 /* ── table links & sort ── */
 .VueTables__row a                 { text-decoration: none !important; }
-.VueTables__sort-icon             { float: right !important; cursor: pointer !important; font-size: 0.85em !important; font-weight: 900 !important; }
+.VueTables__sort-icon             { float: right !important; cursor: pointer !important; font-size: 0.85em !important; font-weight: 900 !important; transform: translateY(25%) !important; }
 .VueTables__sortable              { cursor: pointer !important; }
 
 /* ── pagination footer ── */

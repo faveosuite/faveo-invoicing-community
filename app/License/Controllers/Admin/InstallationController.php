@@ -23,7 +23,7 @@ class InstallationController extends Controller
         $installation = Installation::with('product:id,name')->find($id);
 
         if (! $installation || ! LicenseHelper::validateIntegerValue($id)) {
-            return errorResponse(Lang::get('lang.invalid'), 400);
+            return errorResponse(Lang::get('license::lang.invalid'), 400);
         }
 
         if ($request->get('delete_record') == 1) {
@@ -123,14 +123,14 @@ class InstallationController extends Controller
             ];
         });
 
-        return successResponse(Lang::get('lang.Install_show'), $installations);
+        return successResponse(Lang::get('license::lang.Install_show'), $installations);
     }
 
     public function installationAdd(Request $request)
     {
         $license = License::where('license_code', $request->get('license_code'))->first();
         if (! $license) {
-            return errorResponse(Lang::get('lang.invalid_licnese'), 404);
+            return errorResponse(Lang::get('license::lang.invalid_licnese'), 404);
         }
 
         $installation = Installation::create([
@@ -144,7 +144,7 @@ class InstallationController extends Controller
             'installation_hash' => $request->get('installation_hash'),
         ]);
 
-        return successResponse(Lang::get('lang.install_added'), $installation, 200);
+        return successResponse(Lang::get('license::lang.install_added'), $installation, 200);
     }
 
     public function edit($id)
@@ -169,6 +169,6 @@ class InstallationController extends Controller
         $id = $request->input('id');
         $removed = LicenseHelper::validateIntegerValue($id) ? Installation::where('id', $id)->delete() : 0;
 
-        return successResponse(Lang::get('lang.installation_delete'), $removed);
+        return successResponse(Lang::get('license::lang.installation_delete'), $removed);
     }
 }

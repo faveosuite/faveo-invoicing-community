@@ -31,6 +31,10 @@ const tableOptions = reactive({
         country: __('message.country'),
         count:   __('message.users'),
     },
+    columnsClasses: {
+        country: 'dt-name',
+        count: 'dt-code',
+    },
     templates: {
         country: (f, row) => row.country || '—',
         count: (f, row) => row.count ?? 0,

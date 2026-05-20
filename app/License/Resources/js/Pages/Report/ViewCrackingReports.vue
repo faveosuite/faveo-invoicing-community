@@ -26,12 +26,6 @@ const endPoint = baseUrl + '/api/admin/reportCracking'
 const columns = ['report_text', 'license_code', 'report_date_time', 'report_status']
 
 const options = reactive({
-    sortIcon: {
-        base: 'glyphicon',
-        up: 'glyphicon-chevron-down',
-        down: 'glyphicon-chevron-up'
-    },
-    texts: { filter: '', limit: '' },
     sortable: ['report_text', 'license_code', 'report_date_time', 'report_status'],
     filterable: ['report_text'],
     requestAdapter(data) {
@@ -54,39 +48,27 @@ const options = reactive({
         }
     },
     columnsClasses: {
-        license_code: 'license_code',
-        report_date_time: 'report_date_time',
-        report_status: 'report_status',
-        report_text: 'report_text',
+        license_code: 'dt-code',
+        report_date_time: 'dt-date',
+        report_status: 'dt-status',
+        report_text: 'dt-text',
     },
     templates: {
-        license_date(h, row) {
-            return row.license_date
-        },
-        latest_callback_date_time(h, row) {
-            return row.latest_callback_date_time
-        },
-        report_date_time(h, row) {
-            return row.report_date_time
-        },
+        report_date_time: (f, row) => row.report_date_time || '—',
         license_code: (f, row) => {
             if (row.license_code && row.license_id) {
-                return h(RouterLink, {
-                    to: '/licenses/' + row.license_id + '/view'
-                }, [row.license_code.match(/.{1,4}/g).join('-')])
+                return h(RouterLink, { to: '/licenses/' + row.license_id + '/view' },
+                    [row.license_code.match(/.{1,4}/g).join('-')])
             } else if (row.license_code) {
                 return row.license_code.match(/.{1,4}/g).join('-')
-            } else {
-                return '----'
             }
+            return '—'
         },
         report_status: (f, row) => {
-            return h('span', {
-                'class': row.report_status ? 'text-success' : 'text-danger'
-            }, row.report_status ? lang('success') : lang('error'))
+            return h('span', { class: row.report_status ? 'badge bg-success' : 'badge bg-danger' },
+                row.report_status ? lang('success') : lang('error'))
         },
     },
-    pagination: { show: false },
     headings: {
         report_status: lang('status'),
         license_code: lang('license_code'),

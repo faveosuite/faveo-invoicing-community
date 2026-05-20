@@ -1,0 +1,1 @@
+import{d as t,P as r,k as a,Z as s}from"./main-D0WhVF-s.js";const o={},c={class:"textareafield-wrapper"};function n(e,d){return r(),a("div",c,[s(e.$slots,"default")])}const _=t(o,[["render",n]]);export{_ as default};

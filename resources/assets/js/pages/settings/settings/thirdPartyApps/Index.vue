@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-secondary card-outline">
+        <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.third_party_apps') }}</h4>
                 <div class="card-tools">
@@ -53,21 +53,14 @@
                     :onChange="(val) => form.app_name = val"
                     :placeholder="__('message.app_name')"
                 />
-                <div class="mb-3">
-                    <label class="form-label fw-bold">{{ __('message.app_key') }}</label>
-                    <div class="input-group">
-                        <input
-                            type="text"
-                            name="app_key"
-                            :value="form.app_key"
-                            @input="form.app_key = $event.target.value"
-                            :placeholder="__('message.app_key')"
-                            :class="['form-control', { 'is-invalid': appKeyError }]"
-                        />
-                        <action-button action="refresh" variant="secondary" type="button" :loading="generatingKey" :label="__('message.generate_key')" @click="generateKey" />
-                        <div v-if="appKeyError" class="invalid-feedback">{{ appKeyError }}</div>
-                    </div>
-                </div>
+                <TextField
+                    name="app_key"
+                    :label="__('message.app_key')"
+                    :value="form.app_key"
+                    :onChange="(val) => form.app_key = val"
+                    :placehold="__('message.app_key')"
+                    :inputGroupBtn="{ text: 'generate_key', action: generateKey }"
+                />
                 <TextField
                     name="app_secret"
                     :label="__('message.app_secret')"
@@ -95,21 +88,14 @@
                     :onChange="(val) => form.app_name = val"
                     :placeholder="__('message.app_name')"
                 />
-                <div class="mb-3">
-                    <label class="form-label fw-bold">{{ __('message.app_key') }}</label>
-                    <div class="input-group">
-                        <input
-                            type="text"
-                            name="app_key"
-                            :value="form.app_key"
-                            @input="form.app_key = $event.target.value"
-                            :placeholder="__('message.app_key')"
-                            :class="['form-control', { 'is-invalid': appKeyError }]"
-                        />
-                        <action-button action="refresh" variant="secondary" type="button" :loading="generatingKey" :label="__('message.generate_key')" @click="generateKey" />
-                        <div v-if="appKeyError" class="invalid-feedback">{{ appKeyError }}</div>
-                    </div>
-                </div>
+                <TextField
+                    name="app_key"
+                    :label="__('message.app_key')"
+                    :value="form.app_key"
+                    :onChange="(val) => form.app_key = val"
+                    :placehold="__('message.app_key')"
+                    :inputGroupBtn="{ text: 'generate_key', action: generateKey }"
+                />
                 <TextField
                     name="app_secret"
                     :label="__('message.app_secret')"
@@ -243,6 +229,13 @@ const tableOptions = reactive({
         app_key:    __('message.app_key'),
         app_secret: __('message.app_secret'),
         action:     __('message.action'),
+    },
+    columnsClasses: {
+        select: 'dt-select',
+        app_name: 'dt-name',
+        app_key: 'dt-text',
+        app_secret: 'dt-text',
+        action: 'dt-action',
     },
     templates: {
         select:     (f, row) => h('input', { type: 'checkbox', checked: selected.value.includes(row.id), onChange: () => toggleRow(row.id) }),

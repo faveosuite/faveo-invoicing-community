@@ -2,49 +2,58 @@
     <div>
         <AppAlert componentName="version-view" />
 
-        <div class="card card-header-tabs card-outline">
-            <div class="card-header card-header-dark card-light border-bottom">
+        <div class="card card-light">
+            <div class="card-header">
                 <h4 class="card-title">{{ product_heading }}</h4>
-                <div class="card-tools"></div>
             </div>
 
-            <div class="row card-body col-md-12">
-                <div class="row pt-2 pb-2 border-bottom col-sm-6 ms-2 ps-0">
-                    <label class="col-sm-6 fs-7 fw-bold">{{ lang('product_name') }}:</label>
-                    <a :href="baseUrl + '/products/' + product_id + '/edit'" v-if="product_title" class="col-sm-6 fs-7">{{ product_title }}</a>
-                    <span class="col-sm-6" v-else>----</span>
-                </div>
+            <inline-loader v-if="loading" context="card-body" />
 
-                <div class="row pt-2 pb-2 border-bottom col-sm-6 ms-2 ps-0">
-                    <label class="col-sm-6 fs-7 fw-bold">{{ lang('version_date') }}:</label>
-                    <div v-if="version_date" class="col-sm-6 fs-7">{{ version_date }}</div>
-                    <span class="col-sm-6" v-else>----</span>
+            <template v-else>
+                <div class="card-body">
+                    <div class="row g-0">
+                        <div class="col-sm-6 mb-3">
+                            <div class="d-flex">
+                                <span class="fw-bold me-2">{{ lang('product_name') }}:</span>
+                                <router-link v-if="product_title && product_id" :to="'/products/' + product_id + '/edit'">{{ product_title }}</router-link>
+                                <span v-else class="text-muted">—</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <div class="d-flex">
+                                <span class="fw-bold me-2">{{ lang('version_date') }}:</span>
+                                <span>{{ version_date || '—' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <div class="d-flex">
+                                <span class="fw-bold me-2">{{ lang('installs_count') }}:</span>
+                                <span>{{ version_install_count || '—' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <span class="fw-bold me-2">{{ lang('version_status') }}:</span>
+                                <span :class="version_status ? 'badge bg-success' : 'badge bg-danger'">
+                                    {{ version_status ? lang('active') : lang('inactive') }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="row pt-2 pb-2 col-sm-6 ms-2 ps-0">
-                    <label class="col-sm-6 fs-7 fw-bold">{{ lang('installs_count') }}:</label>
-                    <div v-if="version_install_count" class="col-sm-6 fs-7">{{ version_install_count }}</div>
-                    <span class="col-sm-6" v-else>----</span>
-                </div>
-
-                <div class="row pt-2 pb-2 col-sm-6 ms-2 ps-0">
-                    <label class="col-sm-6 fs-7 fw-bold">{{ lang('version_status') }}:</label>
-                    <div v-if="version_status" class="col-sm-6 text-sm text-success">{{ lang('active') }}</div>
-                    <div v-else class="col-sm-6 text-sm text-danger">{{ lang('inactive') }}</div>
-                </div>
-            </div>
+            </template>
         </div>
 
-        <div class="card card-header-tabs">
-            <div class="card-header data-table-header p-0 pt-1">
-                <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
+        <div class="card card-light">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" role="tablist">
                     <li class="nav-item">
-                        <span class="nav-link active" data-bs-toggle="pill" role="tab">{{ lang('callbacks') }}</span>
+                        <span class="nav-link active" role="tab">{{ lang('callbacks') }}</span>
                     </li>
                 </ul>
             </div>
             <div class="card-body">
-                <DataTable :url="endPoint" ref="dataTable" :dataColumns="columns" :option="tableOptions">
+                <DataTable v-if="endPoint" :url="endPoint" ref="dataTable" :dataColumns="columns" :option="tableOptions">
                     <template #actions="props"><table-actions :data="props.row" /></template>
                 </DataTable>
             </div>
@@ -59,6 +68,7 @@ import axios from '@/plugins/axios'
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
+const loading = ref(true)
 const endPoint = ref('')
 const product_heading = ref('')
 const product_title = ref('')
@@ -80,9 +90,12 @@ function updateStatesWithData(data) {
 }
 
 function getInitialValues(verId) {
+    loading.value = true
     axios.get(baseUrl + '/api/admin/versionView/' + verId).then(res => {
         updateStatesWithData(res.data.data)
-    }).catch(() => {})
+    }).catch(() => {}).finally(() => {
+        loading.value = false
+    })
 }
 
 function updateData(versionId) {
@@ -91,8 +104,6 @@ function updateData(versionId) {
     endPoint.value = baseUrl + '/api/admin/versionCallbacks/' + id.value
     columns.value = ['callback_ip', 'callback_type', 'callback_date_time', 'callback_status']
     tableOptions.value = {
-        sortIcon: { base: 'glyphicon', up: 'glyphicon-chevron-down', down: 'glyphicon-chevron-up' },
-        texts: { filter: '', limit: '' },
         sortable: ['callback_type', 'callback_date_time', 'callback_status'],
         filterable: ['callback_date_time'],
         requestAdapter(data) {
@@ -114,22 +125,18 @@ function updateData(versionId) {
             }
         },
         columnsClasses: {
-            callback_ip: 'callback_ip',
-            callback_type: 'type',
-            callback_date_time: 'callback_date_time',
-            callback_status: 'callback_status',
+            callback_ip: 'dt-code',
+            callback_type: 'dt-name',
+            callback_date_time: 'dt-date',
+            callback_status: 'dt-status',
         },
         templates: {
-            callback_date_time(h, row) {
-                return row.callback_date_time
-            },
+            callback_date_time: (f, row) => row.callback_date_time || '—',
             callback_status: (f, row) => {
-                return h('span', {
-                    'class': row.callback_status ? 'text-success' : 'text-danger'
-                }, row.callback_status ? lang('active') : lang('inactive'))
+                return h('span', { class: row.callback_status ? 'badge bg-success' : 'badge bg-danger' },
+                    row.callback_status ? lang('active') : lang('inactive'))
             },
         },
-        pagination: { show: false },
         headings: {
             callback_ip: lang('ip_address'),
             callback_type: lang('type'),

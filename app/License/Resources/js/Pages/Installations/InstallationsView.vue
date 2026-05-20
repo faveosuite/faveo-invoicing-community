@@ -2,75 +2,89 @@
     <div>
         <AppAlert componentName="installations-view" />
 
-        <div class="card card-header-tabs card-outline">
-            <div class="card-header card-header-dark card-light">
+        <div class="card card-light">
+            <div class="card-header">
                 <h4 class="card-title">{{ product_title }}</h4>
                 <div class="card-tools">
-                    <router-link :to="'/installations/' + id + '/edit'" v-tooltip="lang('edit')" class="btn btn-tool action-btn">
+                    <router-link :to="'/installations/' + id + '/edit'" v-tooltip="lang('edit')" class="btn btn-tool">
                         <i class="fas fa-edit"></i>
                     </router-link>
-                    <button class="btn btn-tool action-btn" v-tooltip="lang('delete_btn')" @click="showDeleteModal()">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <action-button action="delete" icon-only class="btn-tool" v-tooltip="lang('delete_btn')" @click="showDeleteModal()" />
                 </div>
             </div>
 
-            <div class="row card-body col-md-12 ms-2 ps-0">
-                <div class="row pt-2 pb-2 border-bottom col-sm-6 ms-2 ps-0">
-                    <label class="col-sm-6 fs-7 fw-bold ps-1">{{ lang('license_code') }}:</label>
-                    <router-link v-if="license_code" :to="'/licenses/' + license_id + '/view'" class="col-sm-6 fs-7">{{ license_code.match(/.{1,4}/g).join('-') }}</router-link>
-                    <span class="col-sm-6" v-else>----</span>
-                </div>
+            <inline-loader v-if="loading" context="card-body" />
 
-                <div class="row pt-2 pb-2 border-bottom col-sm-6 ms-2 ps-0">
-                    <label class="col-sm-6 fs-7 fw-bold ps-1">{{ lang('installation_date') }}:</label>
-                    <div v-if="installation_date" class="col-sm-6 fs-7">{{ installation_date }}</div>
-                    <span class="col-sm-6" v-else>----</span>
+            <template v-else>
+                <div class="card-body">
+                    <div class="row g-0">
+                        <div class="col-sm-6 mb-3">
+                            <div class="d-flex">
+                                <span class="fw-bold me-2">{{ lang('license_code') }}:</span>
+                                <router-link v-if="license_code" :to="'/licenses/' + license_id + '/view'">
+                                    {{ license_code.match(/.{1,4}/g).join('-') }}
+                                </router-link>
+                                <span v-else class="text-muted">—</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <div class="d-flex">
+                                <span class="fw-bold me-2">{{ lang('installation_date') }}:</span>
+                                <span>{{ installation_date || '—' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <div class="d-flex">
+                                <span class="fw-bold me-2">{{ lang('installation_domain') }}:</span>
+                                <a v-if="installation_domain" :href="'https://' + installation_domain" target="_blank">{{ installation_domain }}</a>
+                                <span v-else class="text-muted">—</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <div class="d-flex">
+                                <span class="fw-bold me-2">{{ lang('installation_ip') }}:</span>
+                                <span>{{ installation_ip || '—' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <span class="fw-bold me-2">{{ lang('ip_address_verification') }}:</span>
+                                <span :class="installation_disable_ip_verification ? 'badge bg-success' : 'badge bg-danger'">
+                                    {{ installation_disable_ip_verification ? lang('enabled') : lang('disabled') }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <span class="fw-bold me-2">{{ lang('status') }}:</span>
+                                <span :class="installation_status ? 'badge bg-success' : 'badge bg-danger'">
+                                    {{ installation_status ? lang('active') : lang('inactive') }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="row pt-2 pb-2 border-bottom col-sm-6 ms-2 ps-0">
-                    <label class="col-sm-6 fs-7 fw-bold ps-1">{{ lang('installation_domain') }}:</label>
-                    <a :href="'https://' + installation_domain" target="_blank" v-if="installation_domain" class="col-sm-6 fs-7">{{ installation_domain }}</a>
-                    <span class="col-sm-6" v-else>----</span>
-                </div>
-
-                <div class="row pt-2 pb-2 border-bottom col-sm-6 ms-2 ps-0">
-                    <label class="col-sm-6 fs-7 fw-bold ps-1">{{ lang('installation_ip') }}:</label>
-                    <div v-if="installation_ip" class="col-sm-6 fs-7">{{ installation_ip }}</div>
-                    <span class="col-sm-6" v-else>----</span>
-                </div>
-
-                <div class="row pt-2 pb-2 col-sm-6 ms-2 ps-0">
-                    <label class="col-sm-6 fs-7 fw-bold ps-1">{{ lang('ip_address_verification') }}</label>
-                    <div v-if="installation_disable_ip_verification" class="col-sm-6 text-sm text-success">{{ lang('enabled') }}</div>
-                    <div v-else class="col-sm-6 text-sm text-danger">{{ lang('disabled') }}</div>
-                </div>
-
-                <div class="row pt-2 pb-2 col-sm-6 ms-2 ps-0">
-                    <label class="col-sm-6 fs-7 fw-bold ps-1">{{ lang('status') }}:</label>
-                    <div v-if="installation_status" class="col-sm-6 text-sm text-success">{{ lang('active') }}</div>
-                    <div v-else class="col-sm-6 text-sm text-danger">{{ lang('inactive') }}</div>
-                </div>
-            </div>
+            </template>
         </div>
 
-        <div class="card card-header-tabs">
-            <div class="card-header data-table-header border-0 p-0 pt-1">
-                <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
+        <div class="card card-light">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" role="tablist">
                     <li class="nav-item">
-                        <span class="nav-link active" data-bs-toggle="pill" role="tab">{{ lang('callbacks') }}</span>
+                        <span class="nav-link active" role="tab">{{ lang('callbacks') }}</span>
                     </li>
                 </ul>
             </div>
             <div class="card-body">
-                <DataTable :url="endPoint" ref="dataTable" :dataColumns="columns" :option="tableOptions">
+                <DataTable v-if="endPoint" :url="endPoint" ref="dataTable" :dataColumns="columns" :option="tableOptions">
                     <template #actions="props"><table-actions :data="props.row" /></template>
                 </DataTable>
             </div>
         </div>
 
         <transition name="modal">
-            <delete-modal v-if="showModal" :onClose="onClose" :showModal="showModal" alertComponentName="installations-view" deleteUrl="/api/admin/installations/delete" redirectUrl="/installations/list" keyVal="id" :idVal="id">
+            <delete-modal v-if="showModal" :onClose="onClose" :showModal="showModal" alertComponentName="installations-view"
+                :deleteUrl="'/api/admin/installations/delete'" redirectUrl="/installations/list" keyVal="id" :idVal="id">
             </delete-modal>
         </transition>
     </div>
@@ -84,6 +98,7 @@ import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
+const loading = ref(true)
 const showModal = ref(false)
 const endPoint = ref('')
 const product_title = ref('')
@@ -119,9 +134,12 @@ function updateStatesWithData(data) {
 }
 
 function getInitialValues(instId) {
+    loading.value = true
     axios.get(baseUrl + '/api/admin/installationView/' + instId).then(res => {
         updateStatesWithData(res.data.data)
-    }).catch(() => {})
+    }).catch(() => {}).finally(() => {
+        loading.value = false
+    })
 }
 
 function updateData(value, productId) {
@@ -130,8 +148,6 @@ function updateData(value, productId) {
     endPoint.value = baseUrl + '/api/admin/installationCallbacks/' + id.value
     columns.value = ['callback_domain', 'callback_ip', 'callback_date_time', 'callback_status']
     tableOptions.value = {
-        sortIcon: { base: 'glyphicon', up: 'glyphicon-chevron-down', down: 'glyphicon-chevron-up' },
-        texts: { filter: '', limit: '' },
         sortable: ['callback_date_time', 'callback_status'],
         filterable: ['callback_date_time'],
         requestAdapter(data) {
@@ -153,37 +169,28 @@ function updateData(value, productId) {
             }
         },
         columnsClasses: {
-            callback_ip: 'ip_address',
-            callback_domain: 'callback_domain',
-            order_number: 'order_number',
-            callback_date_time: 'callback_date_time',
-            callback_status: 'status',
+            callback_ip: 'dt-code',
+            callback_domain: 'dt-text',
+            callback_date_time: 'dt-date',
+            callback_status: 'dt-status',
         },
         templates: {
-            callback_ip(h, row) {
-                return row.callback_ip ? row.callback_ip : '----'
-            },
-            callback_date_time(h, row) {
-                return row.callback_date_time
-            },
+            callback_ip: (f, row) => row.callback_ip || '—',
+            callback_date_time: (f, row) => row.callback_date_time || '—',
             callback_status: (f, row) => {
-                return h('span', {
-                    'class': row.callback_status ? 'text-success' : 'text-danger'
-                }, row.callback_status ? lang('active') : lang('inactive'))
+                return h('span', { class: row.callback_status ? 'badge bg-success' : 'badge bg-danger' },
+                    row.callback_status ? lang('active') : lang('inactive'))
             },
             callback_domain: (f, row) => {
                 if (row.callback_domain) {
                     return h('a', { href: 'https://' + row.callback_domain, target: '_blank' }, [row.callback_domain])
-                } else {
-                    return '----'
                 }
+                return '—'
             },
         },
-        pagination: { show: false },
         headings: {
             callback_ip: lang('ip'),
             callback_domain: lang('domain'),
-            order_number: lang('order_number'),
             callback_date_time: lang('date'),
             callback_status: lang('status')
         },

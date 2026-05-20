@@ -1,7 +1,8 @@
 <template>
     <FormFieldTemplate :label="label" :labelStyle="labelStyle" :name="name" :classname="classname"
                        :hint="hint" :required="required" :showNewButton="showNewButton"
-                       :newBtnName="newBtnName" :onClickEvent="getActionEvent">
+                       :newBtnName="newBtnName" :onClickEvent="getActionEvent"
+                       :inputGroupBtn="inputGroupBtn">
         <div v-if="type === 'textarea'">
             <textarea :id="id ? id : 'text-field-' + name" :name="name"
                       :class="['form-control', inputClass]"
@@ -12,7 +13,7 @@
             </textarea>
         </div>
         <div v-else-if="type === 'password'">
-            <div class="password-input">
+            <div class="input-group">
                 <input :id="id ? id : 'text-field-' + name" :name="name"
                        :class="['form-control', inputClass]"
                        :type="showPassword ? 'text' : 'password'"
@@ -21,19 +22,18 @@
                        @keyup="keyupListener($event, name)" @keydown="keydownListener($event, name)"
                        @keypress="keypressEvt($event, name)" @paste="pasteEvt($event, name)"
                        :placeholder="placehold" :maxlength="max || undefined" />
-                <i class="eye-icon fa" :class="!showPassword ? 'fa-eye-slash' : 'fa-eye'"
-                   @click="togglePasswordVisibility"></i>
+                <button type="button" class="btn btn-secondary" @click="togglePasswordVisibility" tabindex="-1">
+                    <i class="fa" :class="showPassword ? 'fa-eye' : 'fa-eye-slash'"></i>
+                </button>
             </div>
         </div>
-        <div v-else>
-            <input :id="id ? id : 'text-field-' + name" :name="name"
-                   :class="['form-control', inputClass]"
-                   :type="type" :disabled="disabled" :style="inputStyle"
-                   v-model="changedValue" @input="onChange(changedValue, name)"
-                   @keyup="keyupListener($event, name)" @keydown="keydownListener($event, name)"
-                   @keypress="keypressEvt($event, name)" @paste="pasteEvt($event, name)"
-                   :placeholder="placehold" :maxlength="max || undefined" />
-        </div>
+        <input v-else :id="id ? id : 'text-field-' + name" :name="name"
+               :class="['form-control', inputClass]"
+               :type="type" :disabled="disabled" :style="inputStyle"
+               v-model="changedValue" @input="onChange(changedValue, name)"
+               @keyup="keyupListener($event, name)" @keydown="keydownListener($event, name)"
+               @keypress="keypressEvt($event, name)" @paste="pasteEvt($event, name)"
+               :placeholder="placehold" :maxlength="max || undefined" />
     </FormFieldTemplate>
 </template>
 
@@ -69,6 +69,7 @@ const props = defineProps({
     showNewButton:   { type: Boolean,          default: false },
     newBtnName:      { type: String,           default: '' },
     onNewButtonClick: { type: Function,        default: () => {} },
+    inputGroupBtn:   { type: Object,           default: () => null },
 })
 
 const changedValue = ref(props.value)
@@ -92,14 +93,5 @@ function togglePasswordVisibility() {
 </script>
 
 <style>
-.eye-icon {
-    position: absolute;
-    top: 50%;
-    right: 10px;
-    transform: translateY(-50%);
-    cursor: pointer;
-    z-index: 2;
-}
-.password-input { position: relative; }
 input[type="password"]::-ms-reveal { display: none; }
 </style>

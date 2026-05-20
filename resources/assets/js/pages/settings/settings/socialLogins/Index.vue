@@ -34,6 +34,11 @@ const tableOptions = reactive({
         status: __('message.status'),
         action: __('message.action'),
     },
+    columnsClasses: {
+        type: 'dt-name',
+        status: 'dt-status',
+        action: 'dt-action',
+    },
     templates: {
         type:   (f, row) => row.type || '—',
         status:    (f, row) => h('span', {

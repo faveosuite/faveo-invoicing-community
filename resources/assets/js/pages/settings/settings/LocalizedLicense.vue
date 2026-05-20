@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-secondary card-outline">
+        <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.localized_license') }}</h4>
             </div>
@@ -49,6 +49,11 @@ const tableOptions = reactive({
         file_name:    __('message.license_file_name'),
         order_number: __('message.order_no'),
         action:       __('message.action'),
+    },
+    columnsClasses: {
+        file_name: 'dt-name',
+        order_number: 'dt-number',
+        action: 'dt-action',
     },
     templates: {
         file_name:    (f, row) => h('code', {}, row.file_name    || '—'),

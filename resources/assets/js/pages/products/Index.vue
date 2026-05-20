@@ -110,10 +110,19 @@ const tableOptions = reactive({
         action:        __('message.actions'),
     },
 
+    columnsClasses: {
+        select: 'dt-select',
+        name: 'dt-name',
+        image: 'dt-code',
+        license_type: 'dt-name',
+        group: 'dt-name',
+        action: 'dt-action',
+    },
+
     templates: {
         select:       (f, row) => h('input', { type: 'checkbox', checked: selectedProducts.value.includes(row.id), onChange: () => toggleRow(row.id) }),
         name:         (f, row) => row.name || '—',
-        image:        (f, row) => row.image ? h('img', { src: `${baseUrl}/${row.image}`, alt: row.name, width: 40, height: 40 }) : '—',
+        image:        (f, row) => row.image ? h('img', { src: row.image, alt: row.name, style: 'width:50px;height:50px;object-fit:cover;border-radius:4px;' }) : '—',
         license_type: (f, row) => row.license_type || '—',
         group:        (f, row) => row.group || '—',
         action:       (f, row) => h(ProductTableActions, { productId: row.id, downloadUrl: row.action?.download_url }),

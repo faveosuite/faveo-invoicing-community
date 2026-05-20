@@ -6,19 +6,19 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-3">
-                    <label class="form-label fw-bold">{{ __('message.first_name') }} / {{ __('message.last_name') }}</label>
-                    <input
-                        type="text"
-                        class="form-control mb-3"
-                        v-model="form.name"
+                    <TextField
+                        name="name"
+                        :label="`${__('message.first_name')} / ${__('message.last_name')}`"
+                        :value="form.name"
+                        :onChange="(val) => form.name = val"
                     />
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label fw-bold">{{ __('message.invoice_no') }}</label>
-                    <input
-                        type="text"
-                        class="form-control mb-3"
-                        v-model="form.invoice_no"
+                    <TextField
+                        name="invoice_no"
+                        :label="__('message.invoice_no')"
+                        :value="form.invoice_no"
+                        :onChange="(val) => form.invoice_no = val"
                     />
                 </div>
                 <div class="col-md-3">
@@ -65,21 +65,16 @@
             </div>
         </div>
         <div class="card-footer d-flex gap-2">
-            <button class="btn btn-secondary" type="button" @click="apply">
-                <i class="fas fa-magnifying-glass"></i>&nbsp; {{ __('message.search') }}
-            </button>
-            <button class="btn btn-secondary" type="button" @click="reset">
-                <i class="fas fa-rotate-left"></i>&nbsp; {{ __('message.reset') }}
-            </button>
-            <button class="btn btn-secondary" type="button" @click="$emit('close')">
-                <i class="fas fa-xmark"></i>&nbsp; {{ __('message.cancel') }}
-            </button>
+            <action-button action="search" type="button" @click="apply" />
+            <action-button action="reset" type="button" @click="reset" />
+            <action-button action="cancel" type="button" @click="$emit('close')" />
         </div>
     </div>
 </template>
 
 <script setup>
 import { reactive } from 'vue'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const props = defineProps({
     show:    { type: Boolean, default: false },

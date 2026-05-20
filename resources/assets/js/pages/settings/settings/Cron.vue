@@ -73,12 +73,8 @@
                                     <div class="row align-items-center">
 
                                         <div class="col-md-7">
-                                            <div class="form-group mb-0">
-                                                <label>
-                                                    <input class="checkbox-align" type="checkbox"
-                                                           v-model="statuses[job.status]" />
-                                                    &nbsp;{{ job.label }}
-                                                </label>
+                                            <div class="form-group mb-0 d-flex align-items-center gap-2">
+                                                <Checkbox :name="job.status" :value="!!statuses[job.status]" :label="job.label" :onChange="(val) => statuses[job.status] = val" />
                                                 <Tooltip :message="job.info" />
                                             </div>
                                         </div>
@@ -191,9 +187,10 @@
 <script setup>
 import { reactive, ref, computed, onMounted } from 'vue'
 import Tooltip from '@/components/Reusable/Tooltip.vue'
+import Checkbox from '@/components/Reusable/FormField/Checkbox.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { lang as __ } from '@/helpers/extraLogics'
+import { __ } from '@/plugins/i18n'
 
 const COMPONENT = 'cron-settings'
 const el = document.getElementById('app-root')
@@ -235,21 +232,21 @@ const commandOptions = [
 ]
 
 const jobs = [
-    { key: 'expiryMail',                  status: 'expiry_cron',            label: 'Expiry Mail',                    icon: 'fas fa-envelope',      info: 'Sends expiry notification emails to customers' },
-    { key: 'deleteLogs',                  status: 'activity',                label: 'Activity Log Cleanup',           icon: 'fas fa-trash-alt',     info: 'Deletes old activity logs from the system' },
-    { key: 'subsExpirymail',              status: 'subs_expirymail',         label: 'Subscription Expiry Mail',       icon: 'fas fa-bell',          info: 'Sends subscription expiry notifications' },
-    { key: 'postExpirymail',              status: 'postsubs_expirymail',     label: 'Post Expiry Mail',               icon: 'fas fa-paper-plane',   info: 'Sends post-expiry notification emails' },
-    { key: 'cloud',                       status: 'cloud_cron',              label: 'Cloud Mail',                     icon: 'fas fa-cloud',         info: 'Handles cloud email operations' },
-    { key: 'invoice',                     status: 'invoice_cron',            label: 'Invoice Deletion',               icon: 'fas fa-file-invoice',  info: 'Removes old pending invoices automatically' },
-    { key: 'msg91Reports',                status: 'msg91_cron',              label: 'MSG91 Report Cleanup',           icon: 'fas fa-comments',      info: 'Deletes old MSG91 delivery reports' },
-    { key: 'reoon',                       status: 'reoon_cron',              label: 'Reoon Log Cleanup',              icon: 'fas fa-shield-alt',    info: 'Removes old Reoon email validation logs' },
-    { key: 'systemLogs',                  status: 'systemlogs_cron',         label: 'System Log Cleanup',             icon: 'fas fa-cog',           info: 'Clears old system logs periodically' },
-    { key: 'installationLogs',            status: 'installationlogs_cron',   label: 'Installation Log Cleanup',       icon: 'fas fa-download',      info: 'Removes old installation logs' },
-    { key: 'licenseReportsCleanup',       status: 'licensereports_cron',     label: 'License Reports Cleanup',        icon: 'fas fa-key',           info: 'Cleans up old license report records' },
-    { key: 'licenseCallbacksCleanup',     status: 'licensecallbacks_cron',   label: 'License Callbacks Cleanup',      icon: 'fas fa-exchange-alt',  info: 'Removes old license callback records' },
-    { key: 'licenseCrackReportsCleanup',  status: 'licensecrack_cron',       label: 'License Crack Reports Cleanup',  icon: 'fas fa-bug',           info: 'Clears old license crack attempt reports' },
-    { key: 'licenseSystemReportsCleanup', status: 'licensesystem_cron',      label: 'License System Reports Cleanup', icon: 'fas fa-server',        info: 'Removes old license system reports' },
-    { key: 'licenseVersionsCleanup',      status: 'licenseversions_cron',    label: 'License Versions Cleanup',       icon: 'fas fa-code-branch',   info: 'Cleans up old license version records' },
+    { key: 'expiryMail',                  status: 'expiry_cron',            label: __('message.expiry_mail'),                              icon: 'fas fa-envelope',      info: __('message.expiry_mail_tooltip') },
+    { key: 'deleteLogs',                  status: 'activity',                label: __('message.delete_activity'),                          icon: 'fas fa-trash-alt',     info: __('message.cron_trigger_deletion_activity_logs') },
+    { key: 'subsExpirymail',              status: 'subs_expirymail',         label: __('message.subscription_renewal_reminder_autopayment'), icon: 'fas fa-bell',          info: __('message.auto_renewal_reminder_tooltip') },
+    { key: 'postExpirymail',              status: 'postsubs_expirymail',     label: __('message.subscription_expired'),                     icon: 'fas fa-paper-plane',   info: __('message.auto_renewal_reminder_tooltip') },
+    { key: 'cloud',                       status: 'cloud_cron',              label: __('message.cloud_subscription_deletion'),              icon: 'fas fa-cloud',         info: __('message.cron_trigger_cloud_new') },
+    { key: 'invoice',                     status: 'invoice_cron',            label: __('message.invoice_deletion'),                         icon: 'fas fa-file-invoice',  info: __('message.cron_trigger_deletion_old') },
+    { key: 'msg91Reports',                status: 'msg91_cron',              label: __('message.msg91_reports_deletion'),                   icon: 'fas fa-comments',      info: __('message.cron_trigger_deletion_msg91_reports') },
+    { key: 'reoon',                       status: 'reoon_cron',              label: __('message.reoon_logs_deletion'),                      icon: 'fas fa-shield-alt',    info: __('message.cron_trigger_deletion_reoon_logs') },
+    { key: 'systemLogs',                  status: 'systemlogs_cron',         label: __('message.system_logs_deletion'),                     icon: 'fas fa-cog',           info: __('message.cron_trigger_deletion_system_logs') },
+    { key: 'installationLogs',            status: 'installationlogs_cron',   label: __('message.installation_logs_cleanup'),                icon: 'fas fa-download',      info: __('message.cron_trigger_deletion_installation_logs') },
+    { key: 'licenseReportsCleanup',       status: 'licensereports_cron',     label: __('message.license_reports_cleanup'),                  icon: 'fas fa-key',           info: __('message.cron_trigger_deletion_license_reports') },
+    { key: 'licenseCallbacksCleanup',     status: 'licensecallbacks_cron',   label: __('message.license_callbacks_cleanup'),                icon: 'fas fa-exchange-alt',  info: __('message.cron_trigger_deletion_license_callbacks') },
+    { key: 'licenseCrackReportsCleanup',  status: 'licensecrack_cron',       label: __('message.license_crack_reports_cleanup'),            icon: 'fas fa-bug',           info: __('message.cron_trigger_deletion_license_crack') },
+    { key: 'licenseSystemReportsCleanup', status: 'licensesystem_cron',      label: __('message.license_system_reports_cleanup'),           icon: 'fas fa-server',        info: __('message.cron_trigger_deletion_license_system') },
+    { key: 'licenseVersionsCleanup',      status: 'licenseversions_cron',    label: __('message.license_versions_cleanup'),                 icon: 'fas fa-code-branch',   info: __('message.cron_trigger_deletion_license_versions') },
 ]
 
 const statuses       = reactive({})
@@ -388,16 +385,6 @@ async function saveDays() {
 </script>
 
 <style scoped>
-.checkbox-align {
-    width: 13px;
-    height: 14px;
-    padding: 0;
-    margin: 0;
-    vertical-align: bottom;
-    position: relative;
-    top: -5px;
-    overflow: hidden;
-}
 .mt-13 { margin-top: 13px; }
 .info-box-icon { color: #ffffff !important; }
 </style>

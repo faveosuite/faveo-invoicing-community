@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-secondary card-outline">
+        <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.google_analytics_javascript') }}</h4>
                 <div class="card-tools">
@@ -116,6 +116,11 @@ const tableOptions = reactive({
         }),
         name:   __('message.name'),
         action: __('message.action'),
+    },
+    columnsClasses: {
+        select: 'dt-select',
+        name: 'dt-name',
+        action: 'dt-action',
     },
     templates: {
         select: (f, row) => h('input', {

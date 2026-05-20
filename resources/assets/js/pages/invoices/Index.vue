@@ -73,9 +73,10 @@
 
 <script setup>
 import { h, ref, computed, reactive } from 'vue'
+import { RouterLink } from 'vue-router'
 
 import http from '@/plugins/axios'
-import { errorHandler } from '@/helpers/responseHandler.js'
+import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
 import InvoiceTableActions from './components/InvoiceTableActions.vue'
 import InvoiceFilter from './components/InvoiceFilter.vue'
 
@@ -148,9 +149,7 @@ async function exportInvoices() {
         })
         
         const res = await http.get(`${baseUrl}/export-invoices?${params.toString()}`)
-        if (res.data?.message) {
-            alert(res.data.message)
-        }
+        successHandler(res, 'invoices-index')
     } catch (e) {
         errorHandler(e, 'invoices-index')
     } finally {
@@ -175,10 +174,32 @@ const tableOptions = reactive({
         action:        __('message.actions'),
     },
 
+    columnsClasses: {
+        select: 'dt-select',
+        user: 'dt-name',
+        email: 'dt-email',
+        mobile: 'dt-mobile',
+        country: 'dt-country',
+        number: 'dt-number',
+        product: 'dt-name',
+        date: 'dt-date',
+        grand_total: 'dt-amount',
+        status: 'dt-status',
+        action: 'dt-action',
+    },
+
     templates: {
         select:       (f, row) => h('input', { type: 'checkbox', checked: selectedInvoices.value.includes(row.id), onChange: () => toggleRow(row.id) }),
-        user:         (f, row) => row.user ? `${row.user.first_name ?? ''} ${row.user.last_name ?? ''}`.trim() || '—' : '—',
-        email:        (f, row) => row.user?.email || '—',
+        user:         (f, row) => {
+            if (!row.user) return '—'
+            const fullName = `${row.user.first_name ?? ''} ${row.user.last_name ?? ''}`.trim()
+            if (fullName && row.user.id) return h(RouterLink, { to: '/users/' + row.user.id }, () => fullName)
+            return '—'
+        },
+        email:        (f, row) => {
+            if (row.user?.email && row.user?.id) return h(RouterLink, { to: '/users/' + row.user.id }, () => row.user.email)
+            return '—'
+        },
         mobile:       (f, row) => row.user?.mobile ? `${row.user.mobile_code ? '+' + row.user.mobile_code + ' ' : ''}${row.user.mobile}`.trim() : '—',
         country:      (f, row) => row.user?.country || '—',
         number:       (f, row) => row.number || '—',

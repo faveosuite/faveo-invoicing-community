@@ -47,7 +47,7 @@ export const findObjectByKey = (array, key, value) => {
  */
 export const lang = (string) => {
     if (typeof translator !== 'undefined' && translator.lang) {
-        return (translator.lang[string] ? translator.lang[string] : string);
+        return translator.lang[string] || string;
     }
     return string;
 };

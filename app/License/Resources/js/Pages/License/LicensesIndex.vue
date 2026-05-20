@@ -35,12 +35,6 @@ const dataColumns = [
 ]
 
 const options = reactive({
-    sortIcon: {
-        base: 'glyphicon',
-        up: 'glyphicon-chevron-down',
-        down: 'glyphicon-chevron-up'
-    },
-    texts: { filter: '', limit: '' },
     sortable: ['product_title', 'client_email', 'license_code', 'license_limit', 'license_order_number', 'license_expire_date', 'license_support_date', 'license_updates_date', 'license_status'],
     filterable: ['product_title'],
     requestAdapter(data) {
@@ -66,95 +60,67 @@ const options = reactive({
         }
     },
     columnsClasses: {
-        product_title: 'product_title',
-        license_ip: 'license_ip',
-        license_domain: 'license_domain',
-        license_code: 'license_code',
-        client_email: 'client_email',
-        license_order_number: 'license_order_number',
-        installation_counts: 'installation_counts',
-        call_backs_count: 'license_callbacks',
-        latest_call_backs: 'latest_call_backs',
-        license_limit: 'license_limit',
-        license_expire_date: 'license_expire_date',
-        license_updates_date: 'license_updates_date',
-        license_support_date: 'license_support_date',
-        license_status: 'license_status',
-        actions: 'actions',
+        product_title: 'dt-name',
+        license_ip: 'dt-code',
+        license_domain: 'dt-text',
+        license_code: 'dt-code',
+        client_email: 'dt-email',
+        license_order_number: 'dt-number',
+        installation_counts: 'dt-number',
+        call_backs_count: 'dt-number',
+        latest_call_backs: 'dt-date',
+        license_limit: 'dt-number',
+        license_expire_date: 'dt-date',
+        license_updates_date: 'dt-date',
+        license_support_date: 'dt-date',
+        license_date: 'dt-date',
+        license_status: 'dt-status',
+        actions: 'dt-action',
     },
     templates: {
-        license_ip(h, row) {
-            return row.license_ip ? row.license_ip : '----'
-        },
-        license_updates_date(h, row) {
-            return row.license_updates_date ? row.license_updates_date : '----'
-        },
-        latest_call_backs(h, row) {
-            return row.latest_call_backs ? row.latest_call_backs : '----'
-        },
-        license_support_date(h, row) {
-            return row.license_support_date ? row.license_support_date : '----'
-        },
-        license_date(h, row) {
-            return row.license_date ? row.license_date : '----'
-        },
-        license_expire_date(h, row) {
-            return row.license_expire_date ? row.license_expire_date : '----'
-        },
+        license_ip: (f, row) => row.license_ip || '—',
+        license_updates_date: (f, row) => row.license_updates_date || '—',
+        latest_call_backs: (f, row) => row.latest_call_backs || '—',
+        license_support_date: (f, row) => row.license_support_date || '—',
+        license_date: (f, row) => row.license_date || '—',
+        license_expire_date: (f, row) => row.license_expire_date || '—',
         license_code: (f, row) => {
             if (row.license_code && row.id) {
-                return h(RouterLink, {
-                    to: '/licenses/' + row.id + '/view'
-                }, [row.license_code.match(/.{1,4}/g).join('-')])
-            } else {
-                return '----'
+                return h(RouterLink, { to: '/licenses/' + row.id + '/view' },
+                    [row.license_code.match(/.{1,4}/g).join('-')])
             }
+            return '—'
         },
         product_title: (f, row) => {
             if (row.product_title && row.product_id) {
-                return h('a', {
-                    href: baseUrl + '/products/' + row.product_id + '/edit'
-                }, [row.product_title])
-            } else {
-                return '----'
+                return h(RouterLink, { to: '/products/' + row.product_id + '/edit' }, () => [row.product_title])
             }
+            return '—'
         },
         client_email: (f, row) => {
             if (row.client_email) {
-                return h('a', {
-                    href: baseUrl + '/clients/' + row.client_id
-                }, [row.client_email])
-            } else {
-                return '----'
+                return h(RouterLink, { to: '/users/' + row.client_id }, () => [row.client_email])
             }
+            return '—'
         },
         license_domain: (f, row) => {
             if (row.license_domain) {
-                return h('a', {
-                    href: 'https://' + row.license_domain,
-                    target: '_blank'
-                }, [row.license_domain])
-            } else {
-                return '----'
+                return h('a', { href: 'https://' + row.license_domain, target: '_blank' }, [row.license_domain])
             }
+            return '—'
         },
         license_status: (f, row) => {
-            return h('span', {
-                'class': row.license_status ? 'text-success' : 'text-danger'
-            }, row.license_status ? lang('active') : lang('inactive'))
+            return h('span', { class: row.license_status ? 'badge bg-success' : 'badge bg-danger' },
+                row.license_status ? lang('active') : lang('inactive'))
         },
         license_order_number: (f, row) => {
             if (row.license_order_number) {
-                return h('a', {
-                    href: baseUrl + '/orders/license/' + row.license_order_number,
-                    target: '_blank'
-                }, [row.license_order_number])
-            } else {
-                return '----'
+                return h('a', { href: baseUrl + '/admin/orders/license/' + row.license_order_number, target: '_blank' },
+                    [row.license_order_number])
             }
+            return '—'
         }
     },
-    pagination: { show: false },
     headings: {
         product_title: lang('product'),
         license_ip: lang('license_ip'),

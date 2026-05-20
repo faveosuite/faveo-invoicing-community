@@ -16,6 +16,7 @@
 
 <script setup>
 import { reactive, h } from 'vue'
+import { RouterLink } from 'vue-router'
 import { lang } from '@/helpers/extraLogics'
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
@@ -25,12 +26,6 @@ const endPoint = baseUrl + '/api/admin/reportSystem'
 const columns = ['report_text', 'user_formatted', 'report_date_time', 'report_status']
 
 const options = reactive({
-    sortIcon: {
-        base: 'glyphicon',
-        up: 'glyphicon-chevron-down',
-        down: 'glyphicon-chevron-up'
-    },
-    texts: { filter: '', limit: '' },
     sortable: ['report_text', 'user_formatted', 'report_date_time', 'report_status'],
     filterable: ['report_text'],
     requestAdapter(data) {
@@ -53,42 +48,26 @@ const options = reactive({
         }
     },
     columnsClasses: {
-        report_date_time: 'report_date_time',
-        report_text: 'report_text',
-        report_status: 'status',
-        user_formatted: 'format'
+        report_date_time: 'dt-date',
+        report_text: 'dt-text',
+        report_status: 'dt-status',
+        user_formatted: 'dt-name',
     },
     templates: {
-        license_code(h, row) {
-            return row.license_code ? row.license_code : '---'
-        },
-        report_date_time(h, row) {
-            return row.report_date_time
-        },
-        license_date(h, row) {
-            return row.license_date
-        },
-        latest_callback_date_time(h, row) {
-            return row.latest_callback_date_time
-        },
+        report_date_time: (f, row) => row.report_date_time || '—',
         user_formatted: (f, row) => {
             if (row.user_formatted && row.user_formatted !== 'System') {
-                return h('a', {
-                    href: baseUrl + '/clients/' + row.account_id
-                }, [row.user_formatted])
-            } else if (row.user_formatted && row.user_formatted === 'System') {
+                return h(RouterLink, { to: '/users/' + row.account_id }, () => [row.user_formatted])
+            } else if (row.user_formatted) {
                 return row.user_formatted
-            } else {
-                return '----'
             }
+            return '—'
         },
         report_status: (f, row) => {
-            return h('span', {
-                'class': row.report_status ? 'text-success' : 'text-danger'
-            }, row.report_status ? lang('success') : lang('error'))
+            return h('span', { class: row.report_status ? 'badge bg-success' : 'badge bg-danger' },
+                row.report_status ? lang('success') : lang('error'))
         },
     },
-    pagination: { show: false },
     headings: {
         report_text: lang('report'),
         report_date_time: lang('report_date_time'),

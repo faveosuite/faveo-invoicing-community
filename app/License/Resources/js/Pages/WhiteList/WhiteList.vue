@@ -30,20 +30,14 @@ const endPoint = baseUrl + '/api/admin/view-Whitelist'
 const columns = ['whitelist_host_ip', 'whitelist_host_comments', 'whitelist_host_date', 'actions']
 
 const options = reactive({
-    sortIcon: {
-        base: 'glyphicon',
-        up: 'glyphicon-chevron-down',
-        down: 'glyphicon-chevron-up'
-    },
-    texts: { filter: '', limit: '' },
     sortable: ['whitelist_host_comments', 'whitelist_host_date'],
     filterable: ['whitelist_host_ip'],
     columnsClasses: {
-        whitelist_host_ip: 'whitelist_host_ip',
-        whitelist_host_comments: 'whitelist_host_comments',
-        whitelist_host_date: 'whitelist_host_date',
+        whitelist_host_ip: 'dt-code',
+        whitelist_host_comments: 'dt-text',
+        whitelist_host_date: 'dt-date',
+        actions: 'dt-action',
     },
-    pagination: { show: false },
     requestAdapter(data) {
         return {
             'sort_field': data.orderBy ? data.orderBy : 'id',
@@ -66,21 +60,15 @@ const options = reactive({
         }
     },
     templates: {
-        whitelist_host_ip(h, row) {
-            return row.whitelist_host_ip ? row.whitelist_host_ip : '---'
-        },
-        whitelist_host_comments(h, row) {
-            return row.whitelist_host_comments ? row.whitelist_host_comments : '---'
-        },
-        whitelist_host_date(h, row) {
-            return row.whitelist_host_date
-        },
+        whitelist_host_ip: (f, row) => row.whitelist_host_ip || '—',
+        whitelist_host_comments: (f, row) => row.whitelist_host_comments || '—',
+        whitelist_host_date: (f, row) => row.whitelist_host_date || '—',
     },
     headings: {
-        whitelist_host_ip: 'IP Address',
-        whitelist_host_comments: 'Comments',
-        whitelist_host_date: 'Date',
-        actions: 'Actions'
+        whitelist_host_ip: lang('ip_address'),
+        whitelist_host_comments: lang('comments'),
+        whitelist_host_date: lang('date'),
+        actions: lang('actions')
     },
 })
 </script>

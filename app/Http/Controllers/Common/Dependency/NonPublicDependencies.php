@@ -45,6 +45,8 @@ class NonPublicDependencies extends BaseDependencyController
                 return $this->pricingTemplates();
             case 'all-products':
                 return $this->allProducts();
+            case 'users':
+                return $this->allSystemUsers();
         }
     }
 
@@ -150,7 +152,7 @@ class NonPublicDependencies extends BaseDependencyController
             });
 
         return $this->get('plans', $baseQuery, function ($item) {
-            return ['id' => $item->id, 'name' => $item->name];
+            return ['id' => $item->id, 'name' => $item->name, 'days' => $item->days];
         });
     }
 
@@ -225,6 +227,27 @@ class NonPublicDependencies extends BaseDependencyController
             });
 
         return $this->get('pricing_templates', $baseQuery);
+    }
+
+    private function allSystemUsers()
+    {
+        $this->sortField = 'first_name';
+        $this->sortOrder = 'asc';
+
+        $baseQuery = $this->baseQuery(new User)
+            ->select('id', 'first_name', 'last_name', 'email')
+            ->when($this->searchQuery, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('email', 'like', "%{$search}%")
+                      ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                });
+            });
+
+        return $this->get('managers', $baseQuery, fn ($u) => [
+            'id'    => $u->id,
+            'name'  => trim($u->first_name.' '.$u->last_name),
+            'email' => $u->email,
+        ]);
     }
 
     private function allProducts()

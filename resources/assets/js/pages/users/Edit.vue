@@ -13,13 +13,13 @@
                     <!-- Row 1: First Name / Last Name / Email / User Name -->
                     <div class="row">
                         <div class="col-md-3">
-                            <TextField name="first_name" :label="__('message.first_name')" :value="form.first_name" :onChange="onChange" />
+                            <TextField name="first_name" :label="__('message.first_name')" :required="true" :value="form.first_name" :onChange="onChange" />
                         </div>
                         <div class="col-md-3">
-                            <TextField name="last_name" :label="__('message.last_name')" :value="form.last_name" :onChange="onChange" />
+                            <TextField name="last_name" :label="__('message.last_name')" :required="true" :value="form.last_name" :onChange="onChange" />
                         </div>
                         <div class="col-md-3">
-                            <TextField name="email" :label="__('message.email')" type="email" :value="form.email" :onChange="onChange" />
+                            <TextField name="email" :label="__('message.email')" :required="true" type="email" :value="form.email" :onChange="onChange" />
                         </div>
                         <div class="col-md-3">
                             <TextField name="user_name" :label="__('message.user_name')" :value="form.user_name" :onChange="onChange" />
@@ -29,7 +29,7 @@
                     <!-- Row 2: Company / Industry / Email Status / Mobile Status -->
                     <div class="row">
                         <div class="col-md-3">
-                            <TextField name="company" :label="__('message.company')" :value="form.company" :onChange="onChange" />
+                            <TextField name="company" :label="__('message.company')" :required="true" :value="form.company" :onChange="onChange" />
                         </div>
                         <div class="col-md-3">
                             <DynamicSelect
@@ -43,34 +43,22 @@
                             />
                         </div>
                         <div class="col-md-3">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">{{ __('message.email_status') }}</label>
-                                <div class="d-flex gap-3 mt-1">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" :value="1" v-model="form.active" id="emailActive" />
-                                        <label class="form-check-label" for="emailActive">{{ __('message.active') }}</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" :value="0" v-model="form.active" id="emailInactive" />
-                                        <label class="form-check-label" for="emailInactive">{{ __('message.inactive') }}</label>
-                                    </div>
-                                </div>
-                            </div>
+                            <RadioButton
+                                name="active"
+                                :label="__('message.email_status')"
+                                :options="[{ name: __('message.active'), value: 1 }, { name: __('message.inactive'), value: 0 }]"
+                                :value="form.active"
+                                :onChange="(val) => form.active = val"
+                            />
                         </div>
                         <div class="col-md-3">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">{{ __('message.mobile_status') }}</label>
-                                <div class="d-flex gap-3 mt-1">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" :value="1" v-model="form.mobile_verified" id="mobileActive" />
-                                        <label class="form-check-label" for="mobileActive">{{ __('message.active') }}</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" :value="0" v-model="form.mobile_verified" id="mobileInactive" />
-                                        <label class="form-check-label" for="mobileInactive">{{ __('message.inactive') }}</label>
-                                    </div>
-                                </div>
-                            </div>
+                            <RadioButton
+                                name="mobile_verified"
+                                :label="__('message.mobile_status')"
+                                :options="[{ name: __('message.active'), value: 1 }, { name: __('message.inactive'), value: 0 }]"
+                                :value="form.mobile_verified"
+                                :onChange="(val) => form.mobile_verified = val"
+                            />
                         </div>
                     </div>
 
@@ -121,7 +109,7 @@
                     <!-- Address -->
                     <div class="row">
                         <div class="col-md-12">
-                            <TextField name="address" :label="__('message.address')" :value="form.address" :onChange="onChange" />
+                            <TextField name="address" :label="__('message.address')" :required="true" :value="form.address" :onChange="onChange" />
                         </div>
                     </div>
 
@@ -164,6 +152,7 @@
                             <DynamicSelect
                                 name="timezone_id"
                                 :label="__('message.timezone')"
+                                :required="true"
                                 :apiEndpoint="`${baseUrl}/dependency/time-zones`"
                                 dataKey="time_zones"
                                 :value="form.timezone_id"
@@ -236,6 +225,8 @@ import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { useFormValidation } from '@/composables/useFormValidation'
+import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 
 const COMPONENT = 'users-edit'
 
@@ -244,6 +235,8 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const router  = useRouter()
 const route   = useRoute()
 const userId  = route.params.id
+
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -308,6 +301,7 @@ const form = reactive({
 const stateParams = computed(() => ({ country: form.country?.code ?? '' }))
 
 onMounted(async () => {
+    clearAllErrors()
     try {
         const res = await http.get(`${baseUrl}/user/${userId}`)
         const u   = res.data?.data ?? res.data
@@ -344,6 +338,7 @@ onMounted(async () => {
 })
 
 function onChange(val, name) {
+    clearFieldError(name)
     form[name] = val
 }
 
@@ -368,6 +363,17 @@ function extractId(val) {
 }
 
 async function submit() {
+    const isValid = validate({
+        first_name:  [form.first_name,  { isRequired: __('validation.users.first_name.required') }],
+        last_name:   [form.last_name,   { isRequired: __('validation.users.last_name.required') }],
+        email:       [form.email,       { isRequired: __('validation.users.email.required') }, { isEmail: __('validation.users.email.email') }],
+        company:     [form.company,     { isRequired: __('validation.users.company.required') }],
+        address:     [form.address,     { isRequired: __('validation.users.address.required') }],
+        mobile:      [form.mobile,      { isRequired: __('validation.users.mobile.required') }],
+        timezone_id: [form.timezone_id, { isRequired: __('validation.users.timezone_id.required') }],
+    })
+    if (!isValid) return
+
     saving.value = true
     try {
         const res = await http.patch(`${baseUrl}/user/${userId}`, {
@@ -397,7 +403,7 @@ async function submit() {
             account_manager:    extractId(form.account_manager),
         })
         successHandler(res, COMPONENT)
-        setTimeout(() => router.push('/users'), 1500)
+        setTimeout(() => router.push('/users'), 2000)
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {

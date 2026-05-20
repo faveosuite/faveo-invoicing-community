@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Requests\ValidateSecretRequest;
 use App\Rules\Honeypot;
 use App\User;
+use App\UserBackupCodes;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -93,13 +94,22 @@ class Google2FAController extends Controller
         }
     }
 
+    public function showVerifyPassword()
+    {
+        return successResponse('password_confirmation_not_required');
+    }
+
     public function verifyPassword(Request $request)
     {
         if (! $request->user_password && $request->login_type == 'social') {
+            \Session::put('auth.password_confirmed_at', time());
+
             return successResponse('password_verified');
         } else {
             $user = \Auth::user();
             if (\Hash::check($request->input('user_password'), $user->getAuthPassword())) {
+                \Session::put('auth.password_confirmed_at', time());
+
                 return successResponse('password_verified');
             } else {
                 return errorResponse('password_incorrect');
@@ -138,30 +148,52 @@ class Google2FAController extends Controller
         if (\Auth::user()->role != 'admin' && $user->id != \Auth::user()->id) {
             return errorResponse(__('message.cannot_disable_2fa'));
         }
-        //make secret column blank
         $user->google2fa_secret = null;
         $user->google2fa_activation_date = null;
         $user->is_2fa_enabled = 0;
-        $user->backup_code = null;
-        $user->code_usage_count = 0;
         $user->save();
+
+        UserBackupCodes::where('user_id', $user->id)->delete();
 
         return successResponse(\Lang::get('message.2fa_disabled'));
     }
 
     public function generateRecoveryCode()
     {
-        $code = str_random(20);
-        User::where('id', \Auth::user()->id)->update(['backup_code' => $code, 'code_usage_count' => 0]);
+        $codes = $this->createCodes();
+        $userId = \Auth::user()->id;
 
-        return successResponse(['code' => $code]);
+        UserBackupCodes::where('user_id', $userId)->delete();
+        foreach ($codes as $code) {
+            UserBackupCodes::create(['user_id' => $userId, 'backup_codes' => $code]);
+        }
+
+        return successResponse('', ['code' => $codes]);
     }
 
     public function getRecoveryCode()
     {
-        $code = User::find(\Auth::user()->id)->backup_code;
+        $userId = \Auth::user()->id;
+        $codes = UserBackupCodes::where('user_id', $userId)->pluck('backup_codes')->toArray();
 
-        return successResponse(['code' => $code]);
+        if (empty($codes)) {
+            $codes = $this->createCodes();
+            foreach ($codes as $code) {
+                UserBackupCodes::create(['user_id' => $userId, 'backup_codes' => $code]);
+            }
+        }
+
+        return successResponse('', ['code' => $codes]);
+    }
+
+    private function createCodes(): array
+    {
+        $codes = [];
+        for ($i = 0; $i < 10; $i++) {
+            $codes[] = substr(str_shuffle(str_repeat('0123456789abcdefghijklmnopqrstuvwxyz', 2)), 0, 20);
+        }
+
+        return $codes;
     }
 
     public function showRecoveryCode()

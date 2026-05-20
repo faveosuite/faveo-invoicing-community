@@ -235,15 +235,13 @@
                             <RouterLink :to="`/users/${userId}/edit`" class="btn btn-xs btn-light">
                                 <i class="fas fa-edit">&nbsp;</i>{{ __('message.edit') }}
                             </RouterLink>
-                            <a :href="`${baseUrl}/invoice/generate?clientid=${userId}`" class="btn btn-xs btn-light">
+                            <RouterLink :to="`/invoices/create?clientid=${userId}`" class="btn btn-xs btn-light">
                                 <i class="fas fa-file-invoice">&nbsp;</i>{{ __('message.create_invoice') || 'Create Invoice' }}
-                            </a>
+                            </RouterLink>
                             <a :href="`${baseUrl}/newPayment/receive?clientid=${userId}`" class="btn btn-xs btn-light">
                                 <i class="fas fa-money-bill">&nbsp;</i>{{ __('message.create-payment') }}
                             </a>
-                            <button v-if="user.is_2fa_enabled" type="button" class="btn btn-xs btn-light" @click="disable2fa">
-                                <i class="fas fa-ban">&nbsp;</i>{{ __('message.disable_2fa') || 'Disable 2FA' }}
-                            </button>
+                            <action-button v-if="user.is_2fa_enabled" variant="light" class="btn-xs" icon="fas fa-ban" :label="__('message.disable_2fa') || 'Disable 2FA'" type="button" @click="disable2fa" />
                         </div>
                     </div>
 
@@ -304,12 +302,15 @@
                                     <!-- Comments -->
                                     <div v-show="activeTab === 'comments'">
                                         <div class="mb-3">
-                                            <textarea
-                                                v-model="newComment"
-                                                class="form-control form-control-sm"
-                                                rows="2"
-                                                :placeholder="__('message.add_comment') || 'Add a comment…'"
-                                            ></textarea>
+                                            <TextField
+                                                name="newComment"
+                                                type="textarea"
+                                                :value="newComment"
+                                                :onChange="(val) => newComment = val"
+                                                :placehold="__('message.add_comment') || 'Add a comment…'"
+                                                :rows="2"
+                                                inputClass="form-control-sm"
+                                            />
                                             <div class="d-flex justify-content-end mt-1">
                                                 <action-button action="save" class="btn-xs" :disabled="!newComment.trim()" :loading="savingComment" @click="addComment" />
                                             </div>
@@ -343,7 +344,7 @@
                                                         </div>
                                                     </div>
                                                     <div v-if="editingComment?.id === comment.id" class="mt-1">
-                                                        <textarea v-model="editingComment.description" class="form-control form-control-sm" rows="2"></textarea>
+                                                        <TextField name="editDescription" type="textarea" :value="editingComment.description" :onChange="(val) => editingComment.description = val" :rows="2" inputClass="form-control-sm" />
                                                         <div class="d-flex gap-1 justify-content-end mt-1">
                                                             <action-button action="cancel" class="btn-xs" @click="editingComment = null" />
                                                             <action-button action="save" class="btn-xs" @click="saveEdit(comment)" />
@@ -373,6 +374,7 @@ import { h }                        from 'vue'
 import { useRoute, RouterLink }     from 'vue-router'
 import http                         from '@/plugins/axios'
 import { errorHandler }             from '@/helpers/responseHandler.js'
+import TextField                    from '@/components/Reusable/FormField/TextField.vue'
 import { asset }                    from '@/core/utils/asset.js'
 import { useNotification }          from '@/core/composables/useNotification.js'
 
@@ -406,12 +408,12 @@ const editingComment = ref(null)
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 const tabs = [
-    { key: 'invoices', label: __('message.invoices') || 'Invoices', countKey: 'invoice_count' },
+    { key: 'orders',   label: __('message.orders')           || 'Orders',   countKey: 'order_count'   },
+    { key: 'invoices', label: __('message.invoices')         || 'Invoices', countKey: 'invoice_count' },
     { key: 'payments', label: __('message.payments_section') || 'Payments', countKey: 'payment_count' },
-    { key: 'orders',   label: __('message.orders')   || 'Orders',   countKey: 'order_count'   },
-    { key: 'comments', label: __('message.comments') || 'Comments', countKey: null             },
+    { key: 'comments', label: __('message.comments')         || 'Comments', countKey: null             },
 ]
-const activeTab  = ref('invoices')
+const activeTab  = ref('orders')
 const tabMounted = reactive({ invoices: false, payments: false, orders: false })
 
 function activateTab(key) {
@@ -427,7 +429,7 @@ function activateTab(key) {
 // ── Mount ─────────────────────────────────────────────────────────────────────
 onMounted(async () => {
     await loadUser()
-    tabMounted.invoices = true
+    tabMounted.orders = true
     await Promise.all([loadSummary(), loadComments()])
 })
 
@@ -564,7 +566,17 @@ const invoiceOptions = {
         status:      __('message.status')     || 'Status',
         action:      '',
     },
+    columnsClasses: {
+        date: 'dt-date',
+        number: 'dt-number',
+        grand_total: 'dt-amount',
+        paid: 'dt-amount',
+        balance: 'dt-amount',
+        status: 'dt-status',
+        action: 'dt-action',
+    },
     templates: {
+        number:      (_, row) => row.number && row.id ? h(RouterLink, { to: '/invoices/' + row.id }, () => row.number) : (row.number || '—'),
         date:        (_, row) => fmtDate(row.date),
         grand_total: (_, row) => formatMoney(row.grand_total, row.currency),
         paid:        (_, row) => formatMoney(row.paid, row.currency),
@@ -600,8 +612,16 @@ const paymentOptions = {
         status:         __('message.status')         || 'Status',
         action:         '',
     },
+    columnsClasses: {
+        invoice_number: 'dt-number',
+        date: 'dt-date',
+        payment_method: 'dt-name',
+        amount: 'dt-amount',
+        status: 'dt-status',
+        action: 'dt-action',
+    },
     templates: {
-        invoice_number: (_, row) => row.invoice_number || '—',
+        invoice_number: (_, row) => row.invoice_number && row.invoice_id ? h(RouterLink, { to: '/invoices/' + row.invoice_id }, () => row.invoice_number) : (row.invoice_number || '—'),
         date:           (_, row) => fmtDate(row.date),
         amount:         (_, row) => formatMoney(row.amount, row.currency),
         status:         (_, row) => statusBadge(row.status, { success: 'bg-success', pending: 'bg-warning text-dark', failed: 'bg-danger' }),
@@ -634,10 +654,18 @@ const orderOptions = {
         order_status: __('message.status')   || 'Status',
         action:       '',
     },
+    columnsClasses: {
+        order_date: 'dt-date',
+        product_name: 'dt-name',
+        number: 'dt-number',
+        version: 'dt-code',
+        order_status: 'dt-status',
+        action: 'dt-action',
+    },
     templates: {
         order_date:   (_, row) => fmtDate(row.order_date),
-        product_name: (_, row) => row.product_name || '—',
-        number:       (_, row) => row.number ? `#${row.number}` : '—',
+        product_name: (_, row) => row.product_name && row.product_id ? h(RouterLink, { to: '/products/' + row.product_id + '/edit' }, () => row.product_name) : (row.product_name || '—'),
+        number:       (_, row) => row.number && row.id ? h(RouterLink, { to: `/orders/${row.id}` }, () => `#${row.number}`) : (row.number ? `#${row.number}` : '—'),
         version:      (_, row) => row.version || '—',
         order_status: (_, row) => statusBadge(row.order_status, { active: 'bg-success', pending: 'bg-warning text-dark', cancelled: 'bg-danger', expired: 'bg-secondary', terminated: 'bg-dark' }),
         action:       (_, row) => h(RouterLink, { to: `/orders/${row.id}`, class: 'btn btn-xs btn-light' }, () => h('i', { class: 'fas fa-eye' })),

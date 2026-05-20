@@ -49,18 +49,20 @@
                         <div class="col-md-4">
                             <TextField
                                 name="name"
-                                :label="__('message.name') + ' *'"
+                                :label="__('message.name')"
+                                :required="true"
                                 :value="form.name"
-                                :onChange="(val, key) => form[key] = val"
+                                :onChange="onChange"
                             />
                         </div>
                         <div class="col-md-4">
                             <SelectField
                                 name="type"
-                                :label="__('message.type') + ' *'"
+                                :label="__('message.type')"
+                                :required="true"
                                 :elements="typeOptions"
                                 :value="selectedType"
-                                :onChange="(val) => form.type = val?.id ?? ''"
+                                :onChange="onTypeChange"
                                 :searchable="true"
                                 :clearable="false"
                                 placeholder="Select a type"
@@ -71,18 +73,18 @@
                                 name="reply_to"
                                 :label="__('message.reply_email')"
                                 :value="form.reply_to"
-                                :onChange="(val, key) => form[key] = val"
+                                :onChange="onChange"
                             />
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">{{ __('message.content') }} *</label>
+                        <label class="form-label fw-bold">{{ __('message.content') }} <span class="text-danger ms-1">*</span></label>
                         <TinyMCE
                             name="data"
                             id="editor-template"
                             :value="form.data"
-                            :onChange="(val, key) => form[key] = val"
+                            :onChange="onContentChange"
                         />
                     </div>
                 </div>
@@ -102,6 +104,7 @@ import { useRoute, useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
+import { useFormValidation } from '@/composables/useFormValidation'
 
 const COMPONENT = 'template-edit'
 const el = document.getElementById('app-root')
@@ -110,6 +113,7 @@ const route  = useRoute()
 const router = useRouter()
 const id = route.params.id
 
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
 const loading  = ref(true)
 const saving   = ref(false)
 const shortcodesCollapsed = ref(false)
@@ -148,7 +152,23 @@ const selectedType = computed(() =>
     typeOptions.value.find(t => t.id === String(form.type)) ?? null
 )
 
+function onChange(val, key) {
+    clearFieldError(key)
+    form[key] = val
+}
+
+function onTypeChange(val) {
+    clearFieldError('type')
+    form.type = val?.id ?? ''
+}
+
+function onContentChange(val, key) {
+    clearFieldError('data')
+    form[key] = val
+}
+
 onMounted(async () => {
+    clearAllErrors()
     try {
         const res = await http.get(`${baseUrl}/template/edit/${id}`)
         const d = res.data?.data ?? {}
@@ -171,6 +191,12 @@ onMounted(async () => {
 })
 
 async function save() {
+    if (!validate({
+        name: [form.name, { isRequired: __('message.field_required') }],
+        type: [form.type, { isRequired: __('message.field_required') }],
+        data: [form.data, { isRequired: __('message.field_required') }],
+    })) return
+
     saving.value = true
     try {
         const res = await http.put(`${baseUrl}/template/update/${id}`, {
@@ -180,7 +206,7 @@ async function save() {
             data:     form.data,
         })
         successHandler(res, COMPONENT)
-        router.push('/settings/email/templates')
+        setTimeout(() => router.push('/settings/email/templates'), 2000)
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {

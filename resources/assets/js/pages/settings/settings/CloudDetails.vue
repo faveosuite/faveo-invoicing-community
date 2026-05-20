@@ -33,13 +33,22 @@
                             <div class="card-body">
                                 <p class="text-muted fw-bold mb-2">{{ __('message.cloud_server') }}</p>
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">{{ __('message.cloud_central_domain') }}</label>
-                                        <input class="form-control" v-model="form.cloud_central_domain" placeholder="https://example.com" />
+                                    <div class="col-md-6">
+                                        <TextField
+                                            name="cloud_central_domain"
+                                            :label="__('message.cloud_central_domain')"
+                                            :value="form.cloud_central_domain"
+                                            :onChange="(val) => form.cloud_central_domain = val"
+                                            :placehold="'https://example.com'"
+                                        />
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">{{ __('message.cloud_cname') }}</label>
-                                        <input class="form-control" v-model="form.cloud_cname" />
+                                    <div class="col-md-6">
+                                        <TextField
+                                            name="cloud_cname"
+                                            :label="__('message.cloud_cname')"
+                                            :value="form.cloud_cname"
+                                            :onChange="(val) => form.cloud_cname = val"
+                                        />
                                     </div>
                                 </div>
                                 <hr />
@@ -72,13 +81,8 @@
                                 </div>
                                 <hr />
                                 <p class="text-muted fw-bold mb-2">{{ __('message.set_cloud_free_trial') }}</p>
-                                <label class="form-label fw-bold">{{ __('message.cloud_free_trial') }}</label>
-                                <div class="form-check form-switch mt-1">
-                                    <input id="cloudButton" class="form-check-input" type="checkbox" v-model="form.cloud_button" />
-                                    <label class="form-check-label" for="cloudButton">
-                                        {{ form.cloud_button ? __('message.enable') : __('message.disable') }}
-                                    </label>
-                                </div>
+                                <label class="form-label fw-bold d-block">{{ __('message.cloud_free_trial') }}</label>
+                                <Switch name="cloud_button" :value="form.cloud_button" :onChange="(val) => form.cloud_button = val" />
                             </div>
                             <div class="card-footer">
                                 <action-button action="save" :loading="saving" @click="saveSettings" />
@@ -91,40 +95,13 @@
                         <div class="card card-light">
                             <div class="card-header">
                                 <h4 class="card-title">{{ __('message.cloud_product_configuration') }}</h4>
+                                <div class="card-tools">
+                                    <button class="btn btn-tool" :title="__('message.add')" v-tooltip @click="openProductModal">
+                                        <i class="fas fa-plus fw-bold"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <SelectField
-                                            name="cloud_product"
-                                            :label="__('message.cloud_product')"
-                                            :elements="products"
-                                            :value="productForm.cloud_product"
-                                            :onChange="v => productForm.cloud_product = v"
-                                            :searchable="true"
-                                        />
-                                    </div>
-                                    <div class="col-md-4">
-                                        <SelectField
-                                            name="cloud_free_plan"
-                                            :label="__('message.cloud_free_plan')"
-                                            :elements="plans"
-                                            :value="productForm.cloud_free_plan"
-                                            :onChange="v => productForm.cloud_free_plan = v"
-                                            :searchable="true"
-                                        />
-                                    </div>
-                                    <div class="col-md-4">
-                                        <TextField
-                                            name="cloud_product_key"
-                                            :label="__('message.cloud_product_key')"
-                                            :value="productForm.cloud_product_key"
-                                            :onChange="v => productForm.cloud_product_key = v"
-                                        />
-                                    </div>
-                                </div>
-                                <action-button action="save" class="mb-3" :loading="savingProduct" @click="saveProduct" />
-                                <hr />
                                 <DataTable
                                     ref="productDtRef"
                                     :url="`${baseUrl}/fetch-data`"
@@ -140,41 +117,13 @@
                         <div class="card card-light">
                             <div class="card-header">
                                 <h4 class="card-title">{{ __('message.cloud_data_centers') }}</h4>
+                                <div class="card-tools">
+                                    <button class="btn btn-tool" :title="__('message.add')" v-tooltip @click="openDCModal">
+                                        <i class="fas fa-plus fw-bold"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <SelectField
-                                            name="cloud_countries"
-                                            :label="__('message.country')"
-                                            :elements="countries"
-                                            :value="dcForm.cloud_countries"
-                                            :onChange="v => { dcForm.cloud_countries = v; fetchStates() }"
-                                            :searchable="true"
-                                        />
-                                    </div>
-                                    <div class="col-md-4">
-                                        <SelectField
-                                            name="cloud_state"
-                                            :label="__('message.state')"
-                                            :elements="states"
-                                            :value="dcForm.cloud_state"
-                                            :onChange="v => dcForm.cloud_state = v"
-                                            optionLabel="state_subdivision_name"
-                                            :searchable="true"
-                                        />
-                                    </div>
-                                    <div class="col-md-4">
-                                        <TextField
-                                            name="cloud_city"
-                                            :label="__('message.city')"
-                                            :value="dcForm.cloud_city"
-                                            :onChange="v => dcForm.cloud_city = v"
-                                        />
-                                    </div>
-                                </div>
-                                <action-button action="save" class="mb-3" :loading="savingDC" @click="saveDataCenter" />
-                                <hr />
                                 <div id="cloud-map" style="height: 450px;"></div>
                             </div>
                         </div>
@@ -200,6 +149,75 @@
             </template>
         </div>
     </div>
+
+    <!-- Product Config Modal -->
+    <modal :showModal="showProductModal" :onClose="closeProductModal" :showCloseBtn="false">
+        <template #title>
+            <h4>{{ __('message.cloud_product_configuration') }}</h4>
+        </template>
+        <template #fields>
+            <SelectField
+                name="cloud_product"
+                :label="__('message.cloud_product')"
+                :elements="products"
+                :value="productForm.cloud_product"
+                :onChange="v => productForm.cloud_product = v"
+                :searchable="true"
+            />
+            <SelectField
+                name="cloud_free_plan"
+                :label="__('message.cloud_free_plan')"
+                :elements="plans"
+                :value="productForm.cloud_free_plan"
+                :onChange="v => productForm.cloud_free_plan = v"
+                :searchable="true"
+            />
+            <TextField
+                name="cloud_product_key"
+                :label="__('message.cloud_product_key')"
+                :value="productForm.cloud_product_key"
+                :onChange="v => productForm.cloud_product_key = v"
+            />
+        </template>
+        <template #controls>
+            <action-button action="save" type="button" :loading="savingProduct" @click="saveProduct" />
+        </template>
+    </modal>
+
+    <!-- Data Center Config Modal -->
+    <modal :showModal="showDCModal" :onClose="closeDCModal" :showCloseBtn="false">
+        <template #title>
+            <h4>{{ __('message.cloud_data_centers') }}</h4>
+        </template>
+        <template #fields>
+            <SelectField
+                name="cloud_countries"
+                :label="__('message.country')"
+                :elements="countries"
+                :value="dcForm.cloud_countries"
+                :onChange="v => { dcForm.cloud_countries = v; fetchStates() }"
+                :searchable="true"
+            />
+            <SelectField
+                name="cloud_state"
+                :label="__('message.state')"
+                :elements="states"
+                :value="dcForm.cloud_state"
+                :onChange="v => dcForm.cloud_state = v"
+                optionLabel="state_subdivision_name"
+                :searchable="true"
+            />
+            <TextField
+                name="cloud_city"
+                :label="__('message.city')"
+                :value="dcForm.cloud_city"
+                :onChange="v => dcForm.cloud_city = v"
+            />
+        </template>
+        <template #controls>
+            <action-button action="save" type="button" :loading="savingDC" @click="saveDataCenter" />
+        </template>
+    </modal>
 </template>
 
 <script setup>
@@ -207,6 +225,8 @@ import { h, ref, reactive, onMounted, nextTick, watch } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
+import Switch from '@/components/Reusable/FormField/Switch.vue'
 
 const COMPONENT = 'cloud-details'
 const el        = document.getElementById('app-root')
@@ -217,6 +237,14 @@ const saving        = ref(false)
 const savingProduct = ref(false)
 const savingDC      = ref(false)
 const activeTab     = ref('settings')
+
+const showProductModal = ref(false)
+const showDCModal      = ref(false)
+
+function openProductModal()  { showProductModal.value = true }
+function closeProductModal() { showProductModal.value = false; productForm.cloud_product = null; productForm.cloud_free_plan = null; productForm.cloud_product_key = '' }
+function openDCModal()  { showDCModal.value = true }
+function closeDCModal() { showDCModal.value = false; dcForm.cloud_countries = null; dcForm.cloud_state = null; dcForm.cloud_city = ''; states.value = [] }
 
 const form        = reactive({ cloud_central_domain: '', cloud_cname: '', cloud_button: false })
 const popup       = reactive({ cloud_top_message: '', cloud_label_field: '', cloud_label_radio: '' })
@@ -352,8 +380,7 @@ async function saveProduct() {
             cloud_product_key: productForm.cloud_product_key,
         })
         successHandler(res, COMPONENT)
-        productForm.cloud_product = productForm.cloud_free_plan = null
-        productForm.cloud_product_key = ''
+        closeProductModal()
         productDtRef.value?.refresh()
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { savingProduct.value = false }
@@ -374,9 +401,7 @@ async function saveDataCenter() {
             leafletMap.eachLayer(l => { if (l instanceof window.L.Marker) leafletMap.removeLayer(l) })
             addMapMarkers()
         }
-        dcForm.cloud_countries = dcForm.cloud_state = null
-        dcForm.cloud_city = ''
-        states.value = []
+        closeDCModal()
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { savingDC.value = false }
 }
@@ -415,6 +440,13 @@ const productTableOptions = reactive({
         cloud_product_key: __('message.cloud_product_key'),
         trial_status:      __('message.trial_status_heading'),
         action:            __('message.action'),
+    },
+    columnsClasses: {
+        cloud_product: 'dt-name',
+        cloud_free_plan: 'dt-name',
+        cloud_product_key: 'dt-code',
+        trial_status: 'dt-status',
+        action: 'dt-action',
     },
     templates: {
         cloud_product:     (f, row) => row.cloud_product     || '—',
@@ -482,6 +514,21 @@ const tenantTableOptions = reactive({
         db_name:     __('message.db_name'),
         db_username: __('message.db_username'),
         action:      __('message.action'),
+    },
+    columnsClasses: {
+        order: 'dt-number',
+        user: 'dt-name',
+        email: 'dt-email',
+        mobile: 'dt-mobile',
+        country: 'dt-country',
+        expiry: 'dt-date',
+        deletion: 'dt-date',
+        plan: 'dt-name',
+        tenant: 'dt-name',
+        domain: 'dt-text',
+        db_name: 'dt-text',
+        db_username: 'dt-name',
+        action: 'dt-action',
     },
     templates: {
         order:       (f, row) => row.order?.order_number        || '—',

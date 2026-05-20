@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-secondary card-outline">
+        <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.footer_widget') }}</h4>
             </div>
@@ -26,42 +26,23 @@
                                 <div class="col-md-4 mb-3">
                                     <TextField
                                         name="name"
-                                        :label="__('message.name') + ' *'"
+                                        :label="__('message.name')"
+                                        :required="true"
                                         :value="forms[ft.key].name"
-                                        :onChange="(val) => forms[ft.key].name = val"
+                                        :onChange="(val) => { clearFieldError('name'); forms[ft.key].name = val }"
                                     />
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label fw-bold">{{ __('message.publish') }}</label>
-                                    <div class="form-check form-switch mt-1">
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            v-model="forms[ft.key].publish"
-                                        />
-                                    </div>
+                                    <label class="form-label fw-bold d-block">{{ __('message.publish') }}</label>
+                                    <Switch :name="`publish-${ft.key}`" :value="forms[ft.key].publish" :onChange="(val) => forms[ft.key].publish = val" />
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label fw-bold">{{ __('message.allow_mailchimp') }}</label>
-                                    <div class="form-check form-switch mt-1">
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            v-model="forms[ft.key].allow_mailchimp"
-                                            :disabled="!mailchimpStatus"
-                                            :title="!mailchimpStatus ? __('message.configure_mailchimp') : ''"
-                                        />
-                                    </div>
+                                    <label class="form-label fw-bold d-block">{{ __('message.allow_mailchimp') }}</label>
+                                    <Switch :name="`allow_mailchimp-${ft.key}`" :value="forms[ft.key].allow_mailchimp" :disabled="!mailchimpStatus" :onChange="(val) => forms[ft.key].allow_mailchimp = val" />
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label fw-bold">{{ __('message.allow_social_media_icons') }}</label>
-                                    <div class="form-check form-switch mt-1">
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            v-model="forms[ft.key].allow_social_media"
-                                        />
-                                    </div>
+                                    <label class="form-label fw-bold d-block">{{ __('message.allow_social_media_icons') }}</label>
+                                    <Switch :name="`allow_social_media-${ft.key}`" :value="forms[ft.key].allow_social_media" :onChange="(val) => forms[ft.key].allow_social_media = val" />
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -88,6 +69,8 @@
 import { reactive, ref, onMounted } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { useFormValidation } from '@/composables/useFormValidation'
+import Switch from '@/components/Reusable/FormField/Switch.vue'
 
 const COMPONENT = 'footer-widget'
 const el = document.getElementById('app-root')
@@ -99,6 +82,7 @@ const footerTypes = [
     { key: 'footer3', label: 'Footer 3' },
 ]
 
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
 const loading         = ref(true)
 const activeTab       = ref('footer1')
 const mailchimpStatus = ref(false)
@@ -114,6 +98,7 @@ const forms = reactive({
 const saving = reactive({ footer1: false, footer2: false, footer3: false })
 
 onMounted(async () => {
+    clearAllErrors()
     try {
         const res = await http.get(`${baseUrl}/widgets/list`, { params: { limit: 200 } })
         const pages = res.data?.data?.pages?.data ?? []
@@ -142,6 +127,7 @@ onMounted(async () => {
 })
 
 async function save(type) {
+    if (!validate({ name: [forms[type].name, { isRequired: __('message.field_required') }] })) return
     saving[type] = true
     try {
         const payload = {

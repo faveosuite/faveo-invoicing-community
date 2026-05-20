@@ -75,10 +75,6 @@ Route::get('/license-manager-lang', [LanguageController::class, 'getLanguageFile
 
 Route::prefix('api/admin')->middleware(['web', 'auth', 'admin'])->group(function () {
     // ========================================================================
-    // DASHBOARD
-    // ========================================================================
-    Route::get('/dashboarddropdown', [\App\License\Controllers\Admin\DashboardController::class, 'dashboard']);
-
     // ========================================================================
     // CLIENTS
     // ========================================================================

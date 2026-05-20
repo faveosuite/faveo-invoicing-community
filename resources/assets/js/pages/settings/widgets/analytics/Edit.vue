@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-secondary card-outline">
+        <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.edit_script_code') }}</h4>
             </div>
@@ -14,15 +14,17 @@
                         <div class="col-md-4 mb-3">
                             <TextField
                                 name="name"
-                                :label="__('message.name') + ' *'"
+                                :label="__('message.name')"
+                                :required="true"
                                 :value="form.name"
-                                :onChange="(val) => form.name = val"
+                                :onChange="onChange"
                             />
                         </div>
                         <div class="col-md-4 mb-3">
                             <SelectField
                                 name="on_registration"
-                                :label="__('message.show_script') + ' *'"
+                                :label="__('message.show_script')"
+                                :required="true"
                                 :elements="showScriptOptions"
                                 :value="showScriptOptions.find(o => o.id === form.on_registration) ?? null"
                                 :onChange="(val) => form.on_registration = val?.id ?? 1"
@@ -44,20 +46,23 @@
                         <div v-if="form.google_analytics" class="col-md-4 mb-3">
                             <TextField
                                 name="google_analytics_tag"
-                                :label="__('message.chat_google_analytics_tag') + ' *'"
+                                :label="__('message.chat_google_analytics_tag')"
+                                :required="true"
                                 :value="form.google_analytics_tag"
-                                :onChange="(val) => form.google_analytics_tag = val"
+                                :onChange="onChange"
                             />
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">{{ __('message.content') }} *</label>
-                        <textarea
-                            class="form-control font-monospace"
-                            rows="10"
-                            v-model="form.script"
-                        ></textarea>
-                    </div>
+                    <TextField
+                        name="script"
+                        :label="__('message.content')"
+                        :required="true"
+                        type="textarea"
+                        :value="form.script"
+                        :onChange="onChange"
+                        :rows="10"
+                        inputClass="font-monospace"
+                    />
                 </div>
                 <div class="card-footer">
                     <action-button action="save" :loading="saving" @click="submit" />
@@ -73,6 +78,8 @@ import { reactive, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { useFormValidation } from '@/composables/useFormValidation'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const COMPONENT = 'analytics-edit'
 const el      = document.getElementById('app-root')
@@ -80,6 +87,8 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const route   = useRoute()
 const router  = useRouter()
 const id      = route.params.id
+
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
 
 const showScriptOptions = [
     { id: 1, name: __('message.on_registration') },
@@ -101,7 +110,13 @@ const form = reactive({
     script:               '',
 })
 
+function onChange(val, name) {
+    clearFieldError(name)
+    form[name] = val
+}
+
 onMounted(async () => {
+    clearAllErrors()
     try {
         const res = await http.get(`${baseUrl}/chat/show/${id}`)
         const d   = res.data?.data ?? {}
@@ -120,6 +135,16 @@ onMounted(async () => {
 })
 
 async function submit() {
+    const rules = {
+        name:   [form.name,   'isRequired'],
+        script: [form.script, 'isRequired'],
+    }
+    if (form.google_analytics) {
+        rules.google_analytics_tag = [form.google_analytics_tag, 'isRequired']
+    }
+    const isValid = validate(rules)
+    if (!isValid) return
+
     saving.value = true
     try {
         const res = await http.put(`${baseUrl}/chat/update/${id}`, {
@@ -130,7 +155,7 @@ async function submit() {
             script:               form.script,
         })
         successHandler(res, COMPONENT)
-        router.push('/settings/widgets/analytics')
+        setTimeout(() => router.push('/settings/widgets/analytics'), 2000)
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {

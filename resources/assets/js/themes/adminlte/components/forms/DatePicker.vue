@@ -1,6 +1,8 @@
 <template>
     <div class="mb-3 position-relative">
-        <label v-if="label" class="form-label fw-bold">{{ label }}</label>
+        <label v-if="label" class="form-label fw-bold">
+            {{ label }}<span v-if="required" class="text-danger ms-1">*</span>
+        </label>
         <VueDatePicker
             v-model:value="selectedValue"
             :type="type"
@@ -15,17 +17,19 @@
             :append-to-body="false"
             :popup-style="{ top: '100%', left: 0 }"
             v-bind="disabledDate ? { 'disabled-date': disabledDate } : {}"
-            input-class="form-control mx-input"
+            :input-class="['form-control mx-input', { 'is-invalid': fieldError }]"
             @change="onDateChange"
             @confirm="onDateChange"
         />
+        <div v-if="fieldError" class="invalid-feedback d-block">{{ fieldError }}</div>
     </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import VueDatePicker from 'vue-datepicker-next'
 import 'vue-datepicker-next/index.css'
+import { useAlertStore } from '@/core/stores/alert'
 
 const props = defineProps({
     name:         { type: String, required: true },
@@ -41,7 +45,10 @@ const props = defineProps({
     editable:     { type: Boolean, default: true },
     confirm:      { type: Boolean, default: false },
     disabledDate: { type: Function, default: null },
+    required:     { type: Boolean, default: false },
 })
+
+const fieldError = computed(() => useAlertStore().validation_errors[props.name] ?? '')
 
 const selectedValue = ref(props.value ?? null)
 

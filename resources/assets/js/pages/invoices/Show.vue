@@ -2,163 +2,168 @@
     <div>
         <AppAlert componentName="invoices-show" />
 
-        <inline-loader v-if="loading" />
-
-        <div v-else class="card card-light">
+        <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.invoice') }} #{{ invoice?.number }}</h4>
-                <div class="card-tools d-flex gap-2">
-                    <router-link to="/invoices" class="btn btn-tool" :title="__('message.back_to_invoices')" v-tooltip>
-                        <i class="fas fa-arrow-left"></i> {{ __('message.back') }}
-                    </router-link>
+                <div class="card-tools">
                     <a :href="`${baseUrl}/pdf?invoiceid=${invoiceId}`" class="btn btn-tool" :title="__('message.download_pdf')" v-tooltip>
                         <i class="fas fa-download"></i>
                     </a>
                 </div>
             </div>
 
-            <div class="card-body">
-                <!-- Header -->
-                <div class="row mb-4">
-                    <div class="col-sm-6">
-                        <img v-if="from?.logo" :src="from.logo" alt="Logo" width="150" height="100" class="mb-3">
-                        <h2 class="mb-0 text-secondary">{{ __('message.invoice') }} <span class="text-dark">#{{ invoice?.number }}</span></h2>
-                    </div>
-                    <div class="col-sm-6 text-end">
-                        <h4 class="mb-1">{{ __('message.date') }}: {{ formatDate(invoice?.date) }}</h4>
-                        <h2 :class="statusClass"><strong>{{ capitalize(invoice?.status) }}</strong></h2>
-                    </div>
-                </div>
+            <inline-loader v-if="loading" context="card-body" />
 
-                <!-- Addresses -->
-                <div class="row mb-4">
-                    <!-- From -->
-                    <div class="col-sm-6">
-                        <h5 class="fw-bold mb-2">{{ __('message.from') }}</h5>
-                        <address v-if="from" class="text-muted">
-                            <strong>{{ from.company }}</strong><br>
-                            {{ from.address }}<br>
-                            {{ from.city }}<br>
-                            {{ from.state }} {{ from.zip }}<br>
-                            {{ from.country }}<br>
-                            <strong>{{ __('message.mobile') }}:</strong> +{{ from.phone_code }} {{ from.phone }}<br>
-                            <strong>{{ __('message.email') }}:</strong> {{ from.company_email }}<br>
-                            <template v-if="from.gstin"><strong>{{ __('message.gstin') }}:</strong> {{ from.gstin }}<br></template>
-                            <template v-if="from.cin_no"><strong>{{ __('message.cin') }}:</strong> {{ from.cin_no }}<br></template>
-                        </address>
-                    </div>
-                    <!-- To -->
-                    <div class="col-sm-6">
-                        <h5 class="fw-bold mb-2">{{ __('message.to') }}</h5>
-                        <address v-if="to" class="text-muted">
-                            <strong>{{ to.first_name }} {{ to.last_name }}</strong><br>
-                            {{ to.address }}<br>
-                            {{ to.town }}<br>
-                            {{ to.state }} {{ to.zip }}<br>
-                            {{ to.country }}<br>
-                            <strong>{{ __('message.mobile') }}:</strong> +{{ to.mobile_code }} {{ to.mobile }}<br>
-                            <strong>{{ __('message.email') }}:</strong> {{ to.email }}<br>
-                            <template v-if="to.gstin"><strong>{{ __('message.gstin') }}:</strong> {{ to.gstin }}<br></template>
-                        </address>
-                    </div>
-                </div>
+            <template v-else>
+                <div class="card-body">
 
-                <!-- Items Table -->
-                <div class="table-responsive mb-4">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>{{ __('message.order_no') }}</th>
-                                <th>{{ __('message.product') }}</th>
-                                <th>{{ __('message.price') }}</th>
-                                <th>{{ __('message.agents') }}</th>
-                                <th>{{ __('message.qty') }}</th>
-                                <th>{{ __('message.sub_total') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="item in items" :key="item.id">
-                                <td>
-                                    <router-link v-if="item.order" :to="`/orders/${item.order.id}`">#{{ item.order.number }}</router-link>
-                                    <span v-else>—</span>
-                                </td>
-                                <td>{{ item.product_name }}</td>
-                                <td>{{ formatCurrency(item.regular_price) }}</td>
-                                <td>{{ item.agents || __('message.unlimited') }}</td>
-                                <td>{{ item.quantity }}</td>
-                                <td>{{ formatCurrency(item.subtotal) }}</td>
-                            </tr>
-                            <tr v-if="!items?.length">
-                                <td colspan="6" class="text-center text-muted">{{ __('message.no_items_found') }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                    <!-- Invoice header: logo (left) | number + date + status (right) -->
+                    <div class="row align-items-start mb-4">
+                        <div class="col-sm-6">
+                            <img v-if="from?.logo" :src="from.logo" alt="Logo" class="mb-3 d-block" style="max-height:70px;max-width:180px;">
+                            <h3 class="mb-0">
+                                {{ __('message.invoice') }}
+                                <span class="text-muted">#{{ invoice?.number }}</span>
+                            </h3>
+                        </div>
+                        <div class="col-sm-6 text-end">
+                            <p class="mb-1 text-muted">{{ __('message.date') }}: <strong class="text-dark">{{ formatDate(invoice?.date) }}</strong></p>
+                            <span class="badge" :class="statusBadgeClass">{{ capitalize(invoice?.status) }}</span>
+                        </div>
+                    </div>
 
-                <!-- Summary -->
-                <div class="row">
-                    <div class="col-lg-6"></div>
-                    <div class="col-lg-6">
-                        <table class="table table-borderless">
-                            <tbody>
+                    <!-- From / To -->
+                    <div class="row mb-4 mt-2">
+                        <div class="col-sm-6">
+                            <p class="text-muted text-uppercase fw-bold small mb-2">{{ __('message.from') }}</p>
+                            <address v-if="from" class="mb-0">
+                                <strong>{{ from.company }}</strong><br>
+                                <span v-if="from.address">{{ from.address }}<br></span>
+                                <span v-if="from.city">{{ from.city }}<br></span>
+                                <span v-if="from.state || from.zip">{{ from.state }} {{ from.zip }}<br></span>
+                                <span v-if="from.country">{{ from.country }}<br></span>
+                                <span v-if="from.phone"><i class="fas fa-phone fa-xs me-1 text-muted"></i>+{{ from.phone_code }} {{ from.phone }}<br></span>
+                                <span v-if="from.company_email"><i class="fas fa-envelope fa-xs me-1 text-muted"></i>{{ from.company_email }}<br></span>
+                                <span v-if="from.gstin">{{ __('message.gstin') }}: {{ from.gstin }}<br></span>
+                                <span v-if="from.cin_no">{{ __('message.cin') }}: {{ from.cin_no }}<br></span>
+                            </address>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="text-muted text-uppercase fw-bold small mb-2">{{ __('message.to') }}</p>
+                            <address v-if="to" class="mb-0">
+                                <strong>{{ to.first_name }} {{ to.last_name }}</strong><br>
+                                <span v-if="to.address">{{ to.address }}<br></span>
+                                <span v-if="to.town">{{ to.town }}<br></span>
+                                <span v-if="to.state || to.zip">{{ to.state }} {{ to.zip }}<br></span>
+                                <span v-if="to.country">{{ to.country }}<br></span>
+                                <span v-if="to.mobile"><i class="fas fa-phone fa-xs me-1 text-muted"></i>+{{ to.mobile_code }} {{ to.mobile }}<br></span>
+                                <span v-if="to.email"><i class="fas fa-envelope fa-xs me-1 text-muted"></i>{{ to.email }}<br></span>
+                                <span v-if="to.gstin">{{ __('message.gstin') }}: {{ to.gstin }}<br></span>
+                            </address>
+                        </div>
+                    </div>
+
+                    <!-- Line items -->
+                    <div class="table-responsive mb-4">
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-light">
                                 <tr>
-                                    <th class="text-start">{{ __('message.sub_total') }}</th>
-                                    <td class="text-end">{{ totals?.subtotal }}</td>
-                                </tr>
-                                <tr v-if="totals?.credits">
-                                    <th class="text-start">{{ __('message.discount') }} (Credits)</th>
-                                    <td class="text-end">{{ totals.credits }}</td>
-                                </tr>
-                                <tr v-if="totals?.discount">
-                                    <th class="text-start">{{ __('message.discount') }} ({{ invoice?.coupon_code }})</th>
-                                    <td class="text-end">{{ totals.discount }}</td>
-                                </tr>
-                                <tr v-for="(value, name) in totals?.tax" :key="name">
-                                    <th class="text-start">{{ name }}</th>
-                                    <td class="text-end">{{ value }}</td>
-                                </tr>
-                                <tr v-if="totals?.processing_fee && invoice?.processing_fee_label">
-                                    <th class="text-start">{{ __('message.processing_fee') }} ({{ invoice.processing_fee_label }})</th>
-                                    <td class="text-end">{{ totals.processing_fee }}</td>
-                                </tr>
-                                <tr class="border-top">
-                                    <th class="text-start fs-5">{{ __('message.total') }}</th>
-                                    <td class="text-end fs-5 fw-bold">{{ totals?.total }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Payments Table -->
-                <div class="mt-4" v-if="payments?.length">
-                    <h5 class="fw-bold mb-3">{{ __('message.payments_section') }}</h5>
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>{{ __('message.transaction_date') }}</th>
-                                    <th>{{ __('message.method') }}</th>
-                                    <th>{{ __('message.total') }}</th>
-                                    <th>{{ __('message.status') }}</th>
+                                    <th>{{ __('message.order_no') }}</th>
+                                    <th>{{ __('message.product') }}</th>
+                                    <th class="text-end">{{ __('message.price') }}</th>
+                                    <th class="text-center">{{ __('message.agents') }}</th>
+                                    <th class="text-center">{{ __('message.qty') }}</th>
+                                    <th class="text-end">{{ __('message.sub_total') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="pay in payments" :key="pay.id">
-                                    <td>{{ formatDate(pay.created_at) }}</td>
-                                    <td>{{ capitalize(pay.payment_method) }}</td>
-                                    <td>{{ formatCurrency(pay.amount) }}</td>
+                                <tr v-for="item in items" :key="item.id">
                                     <td>
-                                        <span class="badge" :class="pay.payment_status === 'success' ? 'bg-success' : 'bg-secondary'">
-                                            {{ capitalize(pay.payment_status) }}
-                                        </span>
+                                        <router-link v-if="item.order" :to="`/orders/${item.order.id}`">#{{ item.order.number }}</router-link>
+                                        <span v-else>—</span>
                                     </td>
+                                    <td>{{ item.product_name }}</td>
+                                    <td class="text-end">{{ formatCurrency(item.regular_price) }}</td>
+                                    <td class="text-center">{{ item.agents || __('message.unlimited') }}</td>
+                                    <td class="text-center">{{ item.quantity }}</td>
+                                    <td class="text-end">{{ formatCurrency(item.subtotal) }}</td>
+                                </tr>
+                                <tr v-if="!items?.length">
+                                    <td colspan="6" class="text-center text-muted">{{ __('message.no_items_found') }}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Totals -->
+                    <div class="row">
+                        <div class="col-lg-5 ms-auto">
+                            <table class="table table-sm table-borderless w-100">
+                                <colgroup>
+                                    <col>
+                                    <col style="width:140px;">
+                                </colgroup>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-muted">{{ __('message.sub_total') }}</td>
+                                        <td class="text-end">{{ totals?.subtotal }}</td>
+                                    </tr>
+                                    <tr v-if="totals?.credits">
+                                        <td class="text-muted">{{ __('message.discount') }} (Credits)</td>
+                                        <td class="text-end">{{ totals.credits }}</td>
+                                    </tr>
+                                    <tr v-if="totals?.discount">
+                                        <td class="text-muted">{{ __('message.discount') }} ({{ invoice?.coupon_code }})</td>
+                                        <td class="text-end">{{ totals.discount }}</td>
+                                    </tr>
+                                    <tr v-for="(value, name) in totals?.tax" :key="name">
+                                        <td class="text-muted">{{ name }}</td>
+                                        <td class="text-end">{{ value }}</td>
+                                    </tr>
+                                    <tr v-if="totals?.processing_fee && invoice?.processing_fee_label">
+                                        <td class="text-muted">{{ __('message.processing_fee') }} ({{ invoice.processing_fee_label }})</td>
+                                        <td class="text-end">{{ totals.processing_fee }}</td>
+                                    </tr>
+                                    <tr class="border-top">
+                                        <td class="fw-bold">{{ __('message.total') }}</td>
+                                        <td class="text-end fw-bold fs-5">{{ totals?.total }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Payment history -->
+                    <template v-if="payments?.length">
+                        <p class="text-muted text-uppercase fw-bold small mb-3">{{ __('message.payments_section') }}</p>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>{{ __('message.transaction_date') }}</th>
+                                        <th>{{ __('message.method') }}</th>
+                                        <th class="text-end">{{ __('message.total') }}</th>
+                                        <th class="text-center">{{ __('message.status') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="pay in payments" :key="pay.id">
+                                        <td>{{ formatDate(pay.created_at) }}</td>
+                                        <td>{{ capitalize(pay.payment_method) }}</td>
+                                        <td class="text-end">{{ formatCurrency(pay.amount) }}</td>
+                                        <td class="text-center">
+                                            <span class="badge" :class="pay.payment_status === 'success' ? 'bg-success' : 'bg-secondary'">
+                                                {{ capitalize(pay.payment_status) }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </template>
+
                 </div>
-            </div>
+            </template>
         </div>
     </div>
 </template>
@@ -185,11 +190,12 @@ const items = ref([])
 const totals = ref(null)
 const payments = ref([])
 
-const statusClass = computed(() => {
+const statusBadgeClass = computed(() => {
     const s = invoice.value?.status?.toLowerCase()
-    if (s === 'success' || s === 'paid') return 'text-success'
-    if (s === 'pending' || s === 'unpaid') return 'text-warning text-dark'
-    return 'text-secondary'
+    if (s === 'success' || s === 'paid') return 'bg-success'
+    if (s === 'pending') return 'bg-warning text-dark'
+    if (s === 'partially paid') return 'bg-info text-dark'
+    return 'bg-secondary'
 })
 
 function capitalize(str) {

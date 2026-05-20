@@ -1,12 +1,6 @@
 <template>
     <div>
-        <div class="alert alert-info">
-            <span>View existing banned hosts. If any banned host needs to be modified, click the IP address. If any banned
-                host needs to be deleted, check the IP address and click the 'Submit' button.</span>
-        </div>
-
         <AppAlert componentName="dataTableModal" />
-
         <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ lang('view_banned_hosts') }}</h4>
@@ -36,12 +30,6 @@ const endPoint = baseUrl + '/api/admin/viewBannedHost'
 const columns = ['banned_host_ip', 'comments', 'banned_host_date', 'actions']
 
 const options = reactive({
-    sortIcon: {
-        base: 'glyphicon',
-        up: 'glyphicon-chevron-down',
-        down: 'glyphicon-chevron-up'
-    },
-    texts: { filter: '', limit: '' },
     sortable: ['banned_host_ip', 'comments', 'banned_host_date', 'banned_host_blocks', 'banned_host_last_block_date'],
     filterable: ['banned_host_ip'],
     requestAdapter(data) {
@@ -66,22 +54,16 @@ const options = reactive({
         }
     },
     columnsClasses: {
-        banned_host_ip: 'banned_host_ip',
-        comments: 'comments',
-        banned_host_date: 'banned_host_date',
+        banned_host_ip: 'dt-code',
+        comments: 'dt-text',
+        banned_host_date: 'dt-date',
+        actions: 'dt-action',
     },
     templates: {
-        banned_host_ip(h, row) {
-            return row.banned_host_ip ? row.banned_host_ip : '---'
-        },
-        comments(h, row) {
-            return row.comments ? row.comments : '---'
-        },
-        banned_host_date(h, row) {
-            return row.banned_host_date
-        },
+        banned_host_ip: (f, row) => row.banned_host_ip || '—',
+        comments: (f, row) => row.comments || '—',
+        banned_host_date: (f, row) => row.banned_host_date || '—',
     },
-    pagination: { show: false },
     headings: {
         banned_host_ip: lang('ip_address'),
         comments: lang('comments'),

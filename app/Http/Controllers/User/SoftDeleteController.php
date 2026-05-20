@@ -39,6 +39,14 @@ class SoftDeleteController extends ClientController
             ->onlyTrashed()
             ->simplePaginate($limit);
 
+        $users->getCollection()->transform(function ($user) {
+            if ($user->country) {
+                $name = getCountryByCode($user->country) ?? $user->country;
+                $user->setRawAttributes(array_merge($user->getAttributes(), ['country' => $name]), true);
+            }
+            return $user;
+        });
+
         return successResponse('', $users);
     }
 

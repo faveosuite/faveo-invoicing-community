@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-secondary card-outline">
+        <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.edit_coupon') }}</h4>
             </div>
@@ -13,25 +13,28 @@
                     <!-- Row 1: Code / Type / Value -->
                     <div class="row">
                         <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">{{ __('message.coupon-code') }} *</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" v-model="form.code" :placeholder="__('message.coupon-code')" />
-                                    <action-button action="refresh" variant="secondary" :loading="generating" :label="__('message.generate')" type="button" @click="generateCode" />
-                                </div>
-                            </div>
+                            <TextField
+                                name="code"
+                                :label="__('message.coupon-code')"
+                                :required="true"
+                                :value="form.code"
+                                :onChange="onChange"
+                                :placehold="__('message.coupon-code')"
+                                :inputGroupBtn="{ text: 'generate', action: generateCode }"
+                            />
                         </div>
                         <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">{{ __('message.type') }} *</label>
-                                <select class="form-select" v-model="form.type">
-                                    <option value="">{{ __('message.choose') }}</option>
-                                    <option v-for="t in promotionTypes" :key="t.id" :value="t.id">{{ t.name }}</option>
-                                </select>
-                            </div>
+                            <StaticSelect
+                                name="type"
+                                :label="__('message.type')"
+                                :required="true"
+                                :elements="promotionTypes"
+                                :value="form.type"
+                                :onChange="onChange"
+                            />
                         </div>
                         <div class="col-md-4">
-                            <TextField name="value" :label="__('message.value') + ' *'" type="number" :value="form.value" :onChange="onChange" />
+                            <TextField name="value" :label="__('message.value')" :required="true" type="number" :value="form.value" :onChange="onChange" />
                         </div>
                     </div>
 
@@ -40,7 +43,8 @@
                         <div class="col-md-3">
                             <DynamicSelect
                                 name="applied"
-                                :label="__('message.applied') + ' *'"
+                                :label="__('message.applied')"
+                                :required="true"
                                 :apiEndpoint="`${baseUrl}/dependency/all-products`"
                                 dataKey="products"
                                 :value="form.productObj"
@@ -49,13 +53,13 @@
                             />
                         </div>
                         <div class="col-md-3">
-                            <TextField name="uses" :label="__('message.uses') + ' *'" type="number" :value="form.uses" :onChange="onChange" />
+                            <TextField name="uses" :label="__('message.uses')" :required="true" type="number" :value="form.uses" :onChange="onChange" />
                         </div>
                         <div class="col-md-3">
-                            <DatePicker name="start" :label="__('message.start') + ' *'" :value="form.start" :onChange="onChange" format="YYYY-MM-DD" />
+                            <DatePicker name="start" :label="__('message.start')" :required="true" :value="form.start" :onChange="onChange" format="YYYY-MM-DD" />
                         </div>
                         <div class="col-md-3">
-                            <DatePicker name="expiry" :label="__('message.expiry') + ' *'" :value="form.expiry" :onChange="onChange" format="YYYY-MM-DD" />
+                            <DatePicker name="expiry" :label="__('message.expiry')" :required="true" :value="form.expiry" :onChange="onChange" format="YYYY-MM-DD" />
                         </div>
                     </div>
                 </div>
@@ -74,12 +78,17 @@ import { reactive, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { useFormValidation } from '@/composables/useFormValidation'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
+import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
 
 const COMPONENT = 'coupons-edit'
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const router = useRouter()
+
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
 
 const loading = ref(true)
 const saving = ref(false)
@@ -98,6 +107,7 @@ const form = reactive({
 })
 
 function onChange(val, name) {
+    clearFieldError(name)
     if (name === 'applied') {
         form.productObj = val
         form.applied = val?.id ?? null
@@ -111,6 +121,7 @@ async function generateCode() {
     try {
         const res = await http.get(`${baseUrl}/getPromotionCode`)
         form.code = res.data?.data ?? res.data ?? ''
+        clearFieldError('code')
     } catch (e) {
         // ignore
     } finally {
@@ -119,6 +130,7 @@ async function generateCode() {
 }
 
 onMounted(async () => {
+    clearAllErrors()
     try {
         const [typesRes, promoRes] = await Promise.all([
             http.get(`${baseUrl}/dependency/promotion-types`),
@@ -147,6 +159,17 @@ onMounted(async () => {
 })
 
 async function submit() {
+    const isValid = validate({
+        code:    [form.code,    { isRequired: __('validation.coupon_form.code.required') }],
+        type:    [form.type,    { isRequired: __('validation.coupon_form.type.required') }],
+        value:   [form.value,   { isRequired: __('validation.coupon_form.value.required') }],
+        applied: [form.applied, { isRequired: __('validation.coupon_form.applied.required') }],
+        uses:    [form.uses,    { isRequired: __('validation.coupon_form.uses.required') }],
+        start:   [form.start,   { isRequired: __('validation.coupon_form.start.required') }],
+        expiry:  [form.expiry,  { isRequired: __('validation.coupon_form.expiry.required') }],
+    })
+    if (!isValid) return
+
     saving.value = true
     try {
         const res = await http.patch(`${baseUrl}/updatePromotion/${route.params.id}`, {
@@ -159,7 +182,7 @@ async function submit() {
             expiry: form.expiry,
         })
         successHandler(res, COMPONENT)
-        router.push('/products/coupons')
+        setTimeout(() => router.push('/products/coupons'), 2000)
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {

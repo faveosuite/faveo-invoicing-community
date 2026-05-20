@@ -25,20 +25,22 @@
 
                         <TextField
                             name="first_name"
-                            :label="__('message.first_name') + ' *'"
+                            :label="__('message.first_name')"
+                            :required="true"
                             :value="form.first_name"
                             :onChange="onChange"
-                            :required="true"
                         />
                         <TextField
                             name="last_name"
-                            :label="__('message.last_name') + ' *'"
+                            :label="__('message.last_name')"
+                            :required="true"
                             :value="form.last_name"
                             :onChange="onChange"
                         />
                         <TextField
                             name="user_name"
-                            :label="__('message.user_name') + ' *'"
+                            :label="__('message.user_name')"
+                            :required="true"
                             :value="form.user_name"
                             :onChange="onChange"
                         />
@@ -51,14 +53,16 @@
                         />
                         <TextField
                             name="company"
-                            :label="__('message.company') + ' *'"
+                            :label="__('message.company')"
+                            :required="true"
                             :value="form.company"
                             :onChange="onChange"
                         />
 
                         <PhoneField
                             name="mobile"
-                            :label="__('message.mobile') + ' *'"
+                            :label="__('message.mobile')"
+                            :required="true"
                             :value="form.mobile"
                             :initialCountry="form.mobile_country_iso"
                             :onChange="onChange"
@@ -67,7 +71,8 @@
 
                         <TextField
                             name="address"
-                            :label="__('message.address') + ' *'"
+                            :label="__('message.address')"
+                            :required="true"
                             :value="form.address"
                             :onChange="onChange"
                         />
@@ -80,15 +85,17 @@
 
                         <SelectField
                             name="timezone_id"
-                            :label="__('message.timezone') + ' *'"
+                            :label="__('message.timezone')"
+                            :required="true"
                             :elements="timezones"
                             :value="timezones.find(t => t.id === form.timezone_id) ?? null"
-                            :onChange="(val) => form.timezone_id = val?.id ?? null"
+                            :onChange="onTimezoneChange"
                             :clearable="false"
                         />
                         <SelectField
                             name="country"
-                            :label="__('message.country') + ' *'"
+                            :label="__('message.country')"
+                            :required="true"
                             :elements="countries"
                             :value="countries.find(c => c.id === form.country) ?? null"
                             :onChange="onCountryChange"
@@ -131,19 +138,19 @@
                     <div class="card-body">
                         <TextField
                             name="old_password"
-                            :label="__('message.old_password') + ' *'"
+                            :label="__('message.old_password')"
+                            :required="true"
                             :value="pwForm.old_password"
                             type="password"
                             :onChange="onPwChange"
-                            :required="true"
                         />
                         <TextField
                             name="new_password"
-                            :label="__('message.new_password') + ' *'"
+                            :label="__('message.new_password')"
+                            :required="true"
                             :value="pwForm.new_password"
                             type="password"
                             :onChange="onPwChange"
-                            :required="true"
                         />
 
                         <div v-if="pwForm.new_password.length > 0" class="mb-3">
@@ -161,11 +168,11 @@
 
                         <TextField
                             name="confirm_password"
-                            :label="__('message.confirm_password') + ' *'"
+                            :label="__('message.confirm_password')"
+                            :required="true"
                             :value="pwForm.confirm_password"
                             type="password"
                             :onChange="onPwChange"
-                            :required="true"
                         />
                     </div>
                     <div class="card-footer">
@@ -197,7 +204,7 @@
                                     size="sm"
                                     icon="fas fa-toggle-on"
                                     :label="__('message.enable')"
-                                    @click="showSetup = true"
+                                    @click="openEnableModal"
                                 />
                                 <action-button
                                     v-else
@@ -205,45 +212,8 @@
                                     size="sm"
                                     icon="fas fa-toggle-off"
                                     :label="__('message.disable')"
-                                    :loading="disabling2fa"
-                                    @click="disable2fa"
+                                    @click="openDisableModal"
                                 />
-                            </div>
-                        </div>
-
-                        <!-- 2FA Setup inline section -->
-                        <div v-if="showSetup && !is2faEnabled" class="mt-3">
-                            <div v-if="!qrLoaded" class="text-center">
-                                <action-button variant="success" size="sm" :label="__('message.enable') + ' 2FA'" :loading="enabling2fa" @click="load2faQr" />
-                            </div>
-                            <div v-else>
-                                <p class="mb-2">{{ __('message.scan_barcode') }}</p>
-                                <div class="text-center mb-3">
-                                    <img :src="qrImage" alt="QR Code" style="max-width:180px" />
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">{{ __('message.secret_key_label') }}:</label>
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        :value="qrSecret"
-                                        readonly
-                                        disabled
-                                    />
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">{{ __('message.enter_otp_code') }} *</label>
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        style="max-width: 200px"
-                                        v-model="totp"
-                                        placeholder="000000"
-                                        maxlength="6"
-                                    />
-                                </div>
-                                <action-button action="confirm" size="sm" :label="__('message.verify')" :loading="verifying2fa" @click="verify2fa" />
-                                <action-button action="cancel" size="sm" class="ms-2" @click="cancelSetup" />
                             </div>
                         </div>
                     </div>
@@ -251,6 +221,171 @@
             </div>
         </div>
     </div>
+
+    <!-- Enable 2FA Modal -->
+    <modal :showModal="showEnableModal" :onClose="closeEnableModal" :showCloseBtn="false">
+        <template #title>
+            <h4>{{ __('message.setup_authenticator') }}</h4>
+        </template>
+        <template #fields>
+            <div v-if="twoFaLoading" class="text-center py-3">
+                <inline-loader context="card-body" />
+            </div>
+            <template v-else>
+
+                <!-- Step: Password Verify -->
+                <template v-if="twoFaStep === 'password'">
+                    <TextField
+                        name="user_password"
+                        :label="__('message.to_continue_first_verify')"
+                        type="password"
+                        :required="true"
+                        :value="userPassword"
+                        :onChange="(val) => userPassword = val"
+                        :placehold="__('message.enter_password')"
+                    />
+                </template>
+
+                <!-- Step: Recovery Codes -->
+                <template v-if="twoFaStep === 'recovery'">
+                    <p>{{ __('message.recovery_codes_are_used') }}</p>
+                    <div class="card card-light px-0">
+                        <div class="card-header">
+                            <h3 class="card-title">{{ __('message.recovery_codes') }}</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" @click="copyRecovery" v-tooltip :title="__('message.copy')">
+                                    <i :class="recoveryCopied ? 'fas fa-check' : 'fas fa-clipboard'"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div v-for="code in recoveryCodes" :key="code" class="col-sm-6 text-center">
+                                    <p>{{ code }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-muted small">{{ __('message.treat_recovery_codes') }}</p>
+                </template>
+
+                <!-- Step: QR Code -->
+                <template v-if="twoFaStep === 'qr'">
+                    <template v-if="!showSecretKey">
+                        <ul class="text-center list-unstyled">
+                            <li>{{ __('message.get_authenticator_app') }}</li>
+                            <li>{{ __('message.choose') }} <b>{{ __('message.scan_a_barcode') }}</b></li>
+                        </ul>
+                        <div class="text-center mb-3" v-html="qrImage"></div>
+                        <div class="text-center">
+                            <a href="#" class="text-decoration-underline" @click.prevent="showSecretKey = true">{{ __('message.cant_scan') }}</a>
+                        </div>
+                    </template>
+                    <template v-else>
+                        <TextField
+                            name="qrSecret"
+                            :label="__('message.secret_key_label')"
+                            :value="qrSecret"
+                            :onChange="() => {}"
+                            :disabled="true"
+                        />
+                        <div class="text-center">
+                            <a href="#" class="text-decoration-underline" @click.prevent="showSecretKey = false">{{ __('message.scan_barcode') }}</a>
+                        </div>
+                    </template>
+                </template>
+
+                <!-- Step: TOTP Verify -->
+                <template v-if="twoFaStep === 'totp'">
+                    <p class="mb-3">{{ __('message.enter_the_code_you_see_in_the_app') }}</p>
+                    <TextField
+                        name="totp"
+                        label=""
+                        :labelStyle="{ display: 'none' }"
+                        :value="totp"
+                        :onChange="(val) => totp = val"
+                        placehold="Enter Passcode..."
+                        :max="6"
+                    />
+                </template>
+
+                <!-- Step: Done -->
+                <template v-if="twoFaStep === 'done'">
+                    <div class="text-center py-3">
+                        <i class="fas fa-check-circle text-success" style="font-size:3rem;"></i>
+                        <p class="mt-3 mb-0 fw-bold">{{ __('message.you_are_all_set') }}</p>
+                    </div>
+                </template>
+
+            </template>
+        </template>
+        <template #controls>
+            <template v-if="twoFaStep === 'password'">
+                <action-button
+                    variant="primary"
+                    icon="fas fa-check"
+                    :label="__('message.validate')"
+                    :loading="verifyingPassword"
+                    :disabled="!userPassword"
+                    @click="validatePassword"
+                />
+            </template>
+            <template v-if="twoFaStep === 'recovery'">
+                <action-button
+                    variant="primary"
+                    :label="__('message.next')"
+                    icon="fas fa-arrow-right"
+                    :disabled="!recoveryCopied"
+                    :loading="enabling2fa"
+                    @click="goToQr"
+                />
+            </template>
+            <template v-if="twoFaStep === 'qr'">
+                <div class="d-flex w-100 justify-content-between">
+                    <button type="button" class="btn btn-light" @click="twoFaStep = 'recovery'">
+                        <i class="fas fa-arrow-left me-1"></i>{{ __('message.previous') }}
+                    </button>
+                    <action-button variant="primary" :label="__('message.next')" icon="fas fa-arrow-right" @click="twoFaStep = 'totp'" />
+                </div>
+            </template>
+            <template v-if="twoFaStep === 'totp'">
+                <div class="d-flex w-100 justify-content-between">
+                    <button type="button" class="btn btn-light" @click="twoFaStep = 'qr'">
+                        <i class="fas fa-arrow-left me-1"></i>{{ __('message.previous') }}
+                    </button>
+                    <action-button
+                        variant="primary"
+                        :label="__('message.verify')"
+                        :loading="verifying2fa"
+                        :disabled="!totp"
+                        @click="verify2fa"
+                    />
+                </div>
+            </template>
+            <template v-if="twoFaStep === 'done'">
+                <action-button variant="primary" :label="__('message.done')" @click="onEnableDone" />
+            </template>
+        </template>
+    </modal>
+
+    <!-- Disable 2FA Modal -->
+    <modal :showModal="showDisableModal" :onClose="closeDisableModal" :showCloseBtn="false">
+        <template #title>
+            <h4>{{ __('message.turn_off_authenticator') }}</h4>
+        </template>
+        <template #fields>
+            <span>{{ __('message.turn_off_authenticator_setup') }}</span>
+        </template>
+        <template #controls>
+            <action-button
+                variant="secondary"
+                icon="fas fa-power-off"
+                :label="__('message.disable')"
+                :loading="disabling2fa"
+                @click="disable2fa"
+            />
+        </template>
+    </modal>
 </template>
 
 <script setup>
@@ -258,10 +393,14 @@ import { reactive, ref, computed, onMounted } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import ImageUpload from '@/components/Reusable/FormField/ImageUpload.vue'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
+import { useFormValidation } from '@/composables/useFormValidation'
 
 const COMPONENT = 'profile-index'
 const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
+
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
 
 const hasDataPopulated = ref(false)
 const savingProfile    = ref(false)
@@ -271,11 +410,22 @@ const disabling2fa     = ref(false)
 const verifying2fa     = ref(false)
 const is2faEnabled     = ref(false)
 const dateSinceEnabled = ref(null)
-const showSetup        = ref(false)
-const qrLoaded         = ref(false)
 const qrImage          = ref('')
 const qrSecret         = ref('')
 const totp             = ref('')
+
+// Enable 2FA modal state
+const showEnableModal    = ref(false)
+const twoFaStep          = ref('password')
+const twoFaLoading       = ref(false)
+const recoveryCodes      = ref([])
+const recoveryCopied     = ref(false)
+const showSecretKey      = ref(false)
+const userPassword       = ref('')
+const verifyingPassword  = ref(false)
+
+// Disable 2FA modal state
+const showDisableModal = ref(false)
 const profilePicUrl    = ref('')
 const selectedImage    = ref(null)
 const userId           = ref(null)
@@ -317,6 +467,7 @@ const passwordRules = computed(() => [
 ])
 
 onMounted(async () => {
+    clearAllErrors()
     try {
         const [profileRes, countriesRes] = await Promise.all([
             http.get(`${baseUrl}/profile`),
@@ -378,11 +529,18 @@ async function loadStates(countryCode) {
 
 function onChange(value, name) {
     if (name === 'profile_pic') return
+    clearFieldError(name)
     form[name] = value ?? ''
 }
 
 function onPwChange(value, name) {
+    clearFieldError(name)
     pwForm[name] = value ?? ''
+}
+
+function onTimezoneChange(val) {
+    clearFieldError('timezone_id')
+    form.timezone_id = val?.id ?? null
 }
 
 function onImageChange(value, _name) {
@@ -396,6 +554,7 @@ function onMobileCountryChange({ iso, dialCode }) {
 }
 
 async function onCountryChange(val) {
+    clearFieldError('country')
     form.country = val?.id ?? ''
     form.state   = ''
     states.value = []
@@ -405,6 +564,18 @@ async function onCountryChange(val) {
 }
 
 async function submitProfile() {
+    const isValid = validate({
+        first_name:  [form.first_name,  { isRequired: __('validation.users.first_name.required') }],
+        last_name:   [form.last_name,   { isRequired: __('validation.users.last_name.required') }],
+        user_name:   [form.user_name,   { isRequired: __('validation.users.user_name.required') }],
+        company:     [form.company,     { isRequired: __('validation.users.company.required') }],
+        mobile:      [form.mobile,      { isRequired: __('validation.users.mobile.required') }],
+        address:     [form.address,     { isRequired: __('validation.users.address.required') }],
+        timezone_id: [form.timezone_id, { isRequired: __('validation.users.timezone_id.required') }],
+        country:     [form.country,     { isRequired: __('validation.users.country.required') }],
+    })
+    if (!isValid) return
+
     savingProfile.value = true
     try {
         const data = new FormData()
@@ -428,6 +599,13 @@ async function submitProfile() {
 }
 
 async function submitPassword() {
+    const isValid = validate({
+        old_password:     [pwForm.old_password,     { isRequired: __('message.field_required') }],
+        new_password:     [pwForm.new_password,     { isRequired: __('message.field_required') }],
+        confirm_password: [pwForm.confirm_password, { isRequired: __('message.field_required') }],
+    })
+    if (!isValid) return
+
     savingPassword.value = true
     try {
         const res = await http.patch(`${baseUrl}/password`, {
@@ -444,13 +622,76 @@ async function submitPassword() {
     }
 }
 
-async function load2faQr() {
+// ── Enable 2FA modal ──────────────────────────────────────────────────────────
+
+async function openEnableModal() {
+    showEnableModal.value = true
+    twoFaStep.value       = 'password'
+    userPassword.value    = ''
+    recoveryCopied.value  = false
+    recoveryCodes.value   = []
+    totp.value            = ''
+    qrImage.value         = ''
+    qrSecret.value        = ''
+    showSecretKey.value   = false
+
+    // Check if password was already confirmed in this session
+    try {
+        await http.get(`${baseUrl}/show/verify-password`)
+        // Password already confirmed — skip straight to recovery codes
+        twoFaLoading.value = true
+        twoFaStep.value    = 'recovery'
+        const res = await http.post(`${baseUrl}/2fa-recovery-code`)
+        recoveryCodes.value = res.data?.data?.code ?? []
+    } catch {
+        // Not yet confirmed — stay on password step
+    } finally {
+        twoFaLoading.value = false
+    }
+}
+
+function closeEnableModal() {
+    showEnableModal.value = false
+    twoFaStep.value       = 'password'
+    userPassword.value    = ''
+    recoveryCopied.value  = false
+    recoveryCodes.value   = []
+    totp.value            = ''
+    qrImage.value         = ''
+    qrSecret.value        = ''
+    showSecretKey.value   = false
+}
+
+async function validatePassword() {
+    verifyingPassword.value = true
+    try {
+        await http.post(`${baseUrl}/verify-password`, { user_password: userPassword.value })
+        // Password verified — load recovery codes
+        twoFaLoading.value = true
+        twoFaStep.value    = 'recovery'
+        const res = await http.post(`${baseUrl}/2fa-recovery-code`)
+        recoveryCodes.value = res.data?.data?.code ?? []
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+    } finally {
+        verifyingPassword.value = false
+        twoFaLoading.value      = false
+    }
+}
+
+function copyRecovery() {
+    navigator.clipboard?.writeText(recoveryCodes.value.join('\n'))
+    recoveryCopied.value = true
+    setTimeout(() => { recoveryCopied.value = false }, 5000)
+}
+
+async function goToQr() {
     enabling2fa.value = true
     try {
-        const res  = await http.post(`${baseUrl}/2fa/enable`)
+        const res      = await http.post(`${baseUrl}/2fa/enable`)
         qrImage.value  = res.data?.data?.image  ?? ''
         qrSecret.value = res.data?.data?.secret ?? ''
-        qrLoaded.value = true
+        twoFaStep.value = 'qr'
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {
@@ -464,10 +705,7 @@ async function verify2fa() {
     try {
         const res = await http.post(`${baseUrl}/2fa/setupValidate`, { totp: totp.value })
         successHandler(res, COMPONENT)
-        is2faEnabled.value = true
-        showSetup.value    = false
-        qrLoaded.value     = false
-        totp.value         = ''
+        twoFaStep.value = 'done'
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {
@@ -475,13 +713,15 @@ async function verify2fa() {
     }
 }
 
-function cancelSetup() {
-    showSetup.value  = false
-    qrLoaded.value   = false
-    qrImage.value    = ''
-    qrSecret.value   = ''
-    totp.value       = ''
+function onEnableDone() {
+    is2faEnabled.value = true
+    closeEnableModal()
 }
+
+// ── Disable 2FA modal ─────────────────────────────────────────────────────────
+
+function openDisableModal()  { showDisableModal.value = true }
+function closeDisableModal() { showDisableModal.value = false }
 
 async function disable2fa() {
     disabling2fa.value = true
@@ -490,6 +730,7 @@ async function disable2fa() {
         successHandler(res, COMPONENT)
         is2faEnabled.value     = false
         dateSinceEnabled.value = null
+        closeDisableModal()
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {

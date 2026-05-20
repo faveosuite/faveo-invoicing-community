@@ -1,6 +1,8 @@
 <template>
     <div class="mb-3">
-        <label v-if="label" class="form-label fw-bold">{{ label }}</label>
+        <label v-if="label" class="form-label fw-bold">
+            {{ label }}<span v-if="required" class="text-danger ms-1">*</span>
+        </label>
         <div v-if="type === 'password'" class="input-group">
             <input
                 :type="showPassword ? 'text' : 'password'"
@@ -43,6 +45,7 @@ const props = defineProps({
     placeholder: { type: String, default: '' },
     disabled:    { type: Boolean, default: false },
     readonly:    { type: Boolean, default: false },
+    required:    { type: Boolean, default: false },
     onChange:    { type: Function, default: () => {} },
 })
 

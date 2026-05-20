@@ -3,7 +3,7 @@
         <AppAlert :componentName="COMPONENT" />
 
         <!-- Queue list -->
-        <div class="card card-secondary card-outline">
+        <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.queue') }}</h4>
             </div>
@@ -138,6 +138,11 @@ const tableOptions = reactive({
         name:   __('message.name'),
         status: __('message.status'),
         action: __('message.action'),
+    },
+    columnsClasses: {
+        name: 'dt-name',
+        status: 'dt-status',
+        action: 'dt-action',
     },
     templates: {
         name: (f, row) => {

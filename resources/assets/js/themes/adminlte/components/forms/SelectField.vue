@@ -1,6 +1,8 @@
 <template>
     <div class="mb-3">
-        <label v-if="label" class="form-label fw-bold">{{ label }}</label>
+        <label v-if="label" class="form-label fw-bold">
+            {{ label }}<span v-if="required" class="text-danger ms-1">*</span>
+        </label>
         <v-select
             :inputId="name"
             :options="elements"
@@ -22,7 +24,7 @@
                 <span v-else>No options found</span>
             </template>
         </v-select>
-        <div v-if="fieldError" class="invalid-feedback">{{ fieldError }}</div>
+        <div v-if="fieldError" class="invalid-feedback d-block">{{ fieldError }}</div>
     </div>
 </template>
 
@@ -47,6 +49,7 @@ const props = defineProps({
     taggable:      { type: Boolean, default: false },
     noDrop:        { type: Boolean, default: false },
     optionLabel:   { type: String, default: 'name' },
+    required:      { type: Boolean, default: false },
 })
 
 const fieldError = computed(() => useAlertStore().validation_errors[props.name] ?? '')

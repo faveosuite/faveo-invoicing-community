@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppAlert componentName="language-index" />
-        <div class="card card-secondary card-outline">
+        <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.language') }}</h4>
             </div>
@@ -69,6 +69,13 @@ const tableOptions = reactive({
         locale:      __('message.iso_code'),
         default:     __('message.system_default'),
         action:      __('message.action'),
+    },
+    columnsClasses: {
+        name: 'dt-name',
+        translation: 'dt-text',
+        locale: 'dt-code',
+        default: 'dt-status',
+        action: 'dt-action',
     },
     templates: {
         name:        (f, row) => row.name        || '—',

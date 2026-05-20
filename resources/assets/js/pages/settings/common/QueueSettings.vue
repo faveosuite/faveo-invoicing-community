@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-secondary card-outline">
+        <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.queue') }}</h4>
             </div>
@@ -9,16 +9,15 @@
                 <inline-loader v-if="loading" />
                 <template v-else-if="fields.length">
                     <div class="row">
-                        <div v-for="field in fields" :key="field.name" class="col-sm-6 mb-3">
-                            <label class="form-label">
-                                {{ field.label }}
-                                <span v-if="field.required" class="text-danger">*</span>
-                            </label>
-                            <input
+                        <div v-for="field in fields" :key="field.name" class="col-sm-6">
+                            <TextField
+                                :name="field.name"
+                                :label="field.label"
+                                :required="field.required"
                                 :type="field.type ?? 'text'"
-                                class="form-control"
-                                :placeholder="field.placeholder ?? ''"
-                                v-model="field.value"
+                                :value="field.value"
+                                :onChange="(val) => field.value = val"
+                                :placehold="field.placeholder ?? ''"
                             />
                         </div>
                     </div>
@@ -35,6 +34,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
 import { useRoute } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'

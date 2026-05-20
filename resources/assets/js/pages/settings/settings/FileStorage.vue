@@ -24,7 +24,7 @@
                         </div>
 
                         <div v-if="form.disk === 'system'" class="col-md-4">
-                            <TextField name="path" :label="__('message.storage_path') + ' *'" :value="form.path" :onChange="onChange" />
+                            <TextField name="path" :label="__('message.storage_path')" :required="true" :value="form.path" :onChange="onChange" />
                         </div>
 
                         <template v-if="form.disk === 's3'">
@@ -40,21 +40,21 @@
                                 />
                             </div>
                             <div class="col-md-4">
-                                <TextField name="s3_bucket" :label="__('message.s3_bucket') + ' *'" :value="form.s3_bucket" :onChange="onChange" />
+                                <TextField name="s3_bucket" :label="__('message.s3_bucket')" :required="true" :value="form.s3_bucket" :onChange="onChange" />
                             </div>
                             <div class="col-md-4">
-                                <TextField name="s3_region" :label="__('message.s3_region') + ' *'" :value="form.s3_region" :onChange="onChange" />
+                                <TextField name="s3_region" :label="__('message.s3_region')" :required="true" :value="form.s3_region" :onChange="onChange" />
                             </div>
                             <div class="col-md-4">
-                                <TextField name="s3_access_key" :label="__('message.s3_access_key') + ' *'" type="password"
+                                <TextField name="s3_access_key" :label="__('message.s3_access_key')" :required="true" type="password"
                                     :value="form.s3_access_key" :onChange="onChange" />
                             </div>
                             <div class="col-md-4">
-                                <TextField name="s3_secret_key" :label="__('message.s3_secret_key') + ' *'" type="password"
+                                <TextField name="s3_secret_key" :label="__('message.s3_secret_key')" :required="true" type="password"
                                     :value="form.s3_secret_key" :onChange="onChange" />
                             </div>
                             <div class="col-md-4">
-                                <TextField name="s3_endpoint_url" :label="__('message.s3_endpoint_url') + ' *'" :value="form.s3_endpoint_url" :onChange="onChange" />
+                                <TextField name="s3_endpoint_url" :label="__('message.s3_endpoint_url')" :required="true" :value="form.s3_endpoint_url" :onChange="onChange" />
                             </div>
                             <div class="col-md-4">
                                 <TextField name="s3_url" :label="__('message.s3_url')" :value="form.s3_url" :onChange="onChange" />
@@ -75,14 +75,13 @@
 import { reactive, ref, onMounted } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { validateFileStorage } from '@/helpers/validator/fileStorageValidation.js'
-import { useAlertStore } from '@/core/stores/alert'
+import { useFormValidation } from '@/composables/useFormValidation'
 
 const COMPONENT = 'file-storage'
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
-const alertStore = useAlertStore()
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
 const loading = ref(true)
 const saving  = ref(false)
 
@@ -108,14 +107,18 @@ const form = reactive({
     s3_url: '',
 })
 
-function onChange(val, name) { form[name] = val }
+function onChange(val, name) {
+    clearFieldError(name)
+    form[name] = val
+}
 
 function onDiskSelect(val) {
     form.disk = val?.id ?? 'system'
-    alertStore.unsetValidationError()
+    clearAllErrors()
 }
 
 onMounted(async () => {
+    clearAllErrors()
     try {
         const res = await http.get(`${baseUrl}/file-storage`)
         const d = res.data?.data ?? {}
@@ -135,8 +138,17 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const { isValid } = validateFileStorage(form)
-    if (!isValid) return
+    const rules = {}
+    if (form.disk === 'system') {
+        rules.path = [form.path, { isRequired: __('validation.storage_path.path.required') }]
+    } else {
+        rules.s3_bucket       = [form.s3_bucket,       { isRequired: __('message.field_required') }]
+        rules.s3_region       = [form.s3_region,       { isRequired: __('message.field_required') }]
+        rules.s3_access_key   = [form.s3_access_key,   { isRequired: __('message.field_required') }]
+        rules.s3_secret_key   = [form.s3_secret_key,   { isRequired: __('message.field_required') }]
+        rules.s3_endpoint_url = [form.s3_endpoint_url, { isRequired: __('message.field_required') }]
+    }
+    if (!validate(rules)) return
 
     saving.value = true
     try {
@@ -155,7 +167,7 @@ async function submit() {
             })
         }
         const res = await http.post(`${baseUrl}/file-storage-path`, payload)
-        alertStore.unsetValidationError()
+        clearAllErrors()
         successHandler(res, COMPONENT)
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { saving.value = false }

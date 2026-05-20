@@ -107,12 +107,30 @@ const tableOptions = reactive({
         expiry:   __('message.expiry'),
         action:   __('message.actions'),
     },
+    columnsClasses: {
+        select: 'dt-select',
+        code: 'dt-code',
+        type: 'dt-code',
+        value: 'dt-amount',
+        products: 'dt-name',
+        uses: 'dt-code',
+        start: 'dt-date',
+        expiry: 'dt-date',
+        action: 'dt-action',
+    },
     templates: {
         select:   (f, row) => h('input', { type: 'checkbox', checked: selectedCoupons.value.includes(row.id), onChange: () => toggleRow(row.id) }),
         code:     (f, row) => row.code || '—',
         type:     (f, row) => row.promotion_type?.name || '—',
         value:    (f, row) => row.value || '—',
-        products: (f, row) => row.products?.name || '—',
+        products: (f, row) => {
+            const items = row.products ?? []
+            if (!items.length) return '—'
+            return h('span', {}, items.flatMap((p, i) => {
+                const link = p.id ? h(RouterLink, { to: '/products/' + p.id + '/edit' }, () => p.name) : p.name
+                return i < items.length - 1 ? [link, ', '] : [link]
+            }))
+        },
         uses:     (f, row) => row.uses ?? '—',
         start:    (f, row) => row.start ? row.start.substring(0, 10) : '—',
         expiry:   (f, row) => row.expiry ? row.expiry.substring(0, 10) : '—',

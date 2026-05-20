@@ -16,26 +16,29 @@
                         <div class="col-md-4">
                             <TextField
                                 name="company"
-                                :label="__('message.company') + ' *'"
+                                :label="__('message.company')"
+                                :required="true"
                                 :value="form.company"
-                                :onChange="(val, name) => form[name] = val"
+                                :onChange="onChange"
                             />
                         </div>
                         <div class="col-md-4">
                             <TextField
                                 name="company_email"
                                 type="email"
-                                :label="__('message.company-email') + ' *'"
+                                :label="__('message.company-email')"
+                                :required="true"
                                 :value="form.company_email"
-                                :onChange="(val, name) => form[name] = val"
+                                :onChange="onChange"
                             />
                         </div>
                         <div class="col-md-4">
                             <TextField
                                 name="website"
-                                :label="__('message.website') + ' *'"
+                                :label="__('message.website')"
+                                :required="true"
                                 :value="form.website"
-                                :onChange="(val, name) => form[name] = val"
+                                :onChange="onChange"
                                 placeholder="https://example.com"
                             />
                         </div>
@@ -48,7 +51,7 @@
                                 name="title"
                                 :label="__('message.title')"
                                 :value="form.title"
-                                :onChange="(val, name) => form[name] = val"
+                                :onChange="onChange"
                             />
                         </div>
                         <div class="col-md-4">
@@ -56,7 +59,7 @@
                                 name="favicon_title"
                                 :label="__('message.meta_title_admin')"
                                 :value="form.favicon_title"
-                                :onChange="(val, name) => form[name] = val"
+                                :onChange="onChange"
                             />
                         </div>
                         <div class="col-md-4">
@@ -64,7 +67,7 @@
                                 name="favicon_title_client"
                                 :label="__('message.meta_title_client')"
                                 :value="form.favicon_title_client"
-                                :onChange="(val, name) => form[name] = val"
+                                :onChange="onChange"
                             />
                         </div>
                     </div>
@@ -74,9 +77,10 @@
                         <div class="col-md-4">
                             <PhoneField
                                 name="phone"
-                                :label="__('message.phone') + ' *'"
+                                :label="__('message.phone')"
+                                :required="true"
                                 :value="form.phone"
-                                :onChange="(val) => form.phone = val"
+                                :onChange="onChange"
                                 :initialCountry="form.phone_country_iso ? form.phone_country_iso.toLowerCase() : 'auto'"
                                 @countryChange="onPhoneCountryChange"
                             />
@@ -87,7 +91,7 @@
                                 :label="__('message.language')"
                                 :elements="languageOptions"
                                 :value="form.language"
-                                :onChange="(val) => form.language = val"
+                                :onChange="onChange"
                                 :searchable="true"
                                 :placeholder="__('message.choose')"
                             />
@@ -97,7 +101,7 @@
                                 name="knowledge_base_url"
                                 :label="__('message.knowledge_base_url')"
                                 :value="form.knowledge_base_url"
-                                :onChange="(val, name) => form[name] = val"
+                                :onChange="onChange"
                             />
                         </div>
                     </div>
@@ -107,10 +111,11 @@
                         <div class="col-md-4">
                             <SelectField
                                 name="default_currency"
-                                :label="__('message.default-currency') + ' *'"
+                                :label="__('message.default-currency')"
+                                :required="true"
                                 :elements="currencyOptions"
                                 :value="form.default_currency"
-                                :onChange="(val) => form.default_currency = val"
+                                :onChange="onChange"
                                 :searchable="true"
                                 :placeholder="__('message.choose')"
                             />
@@ -120,7 +125,7 @@
                                 name="cin_no"
                                 :label="__('message.cin')"
                                 :value="form.cin_no"
-                                :onChange="(val, name) => form[name] = val"
+                                :onChange="onChange"
                             />
                         </div>
                         <div class="col-md-4">
@@ -128,23 +133,15 @@
                                 name="gstin"
                                 :label="__('message.gstin')"
                                 :value="form.gstin"
-                                :onChange="(val, name) => form[name] = val"
+                                :onChange="onChange"
                             />
                         </div>
                     </div>
 
                     <!-- Row 5: Address (full-width textarea) -->
                     <div class="row">
-                        <div class="col-12 mb-3">
-                            <label class="form-label fw-bold">{{ __('message.address') }} *</label>
-                            <textarea
-                                :class="['form-control', { 'is-invalid': alertStore.validation_errors.address }]"
-                                v-model="form.address"
-                                rows="3"
-                            ></textarea>
-                            <div v-if="alertStore.validation_errors.address" class="invalid-feedback">
-                                {{ alertStore.validation_errors.address }}
-                            </div>
+                        <div class="col-12">
+                            <TextField name="address" :label="__('message.address')" :required="true" type="textarea" :value="form.address" :rows="3" :onChange="onChange" />
                         </div>
                     </div>
 
@@ -155,13 +152,14 @@
                                 name="city"
                                 :label="__('message.city')"
                                 :value="form.city"
-                                :onChange="(val, name) => form[name] = val"
+                                :onChange="onChange"
                             />
                         </div>
                         <div class="col-md-4">
                             <SelectField
                                 name="country"
-                                :label="__('message.country') + ' *'"
+                                :label="__('message.country')"
+                                :required="true"
                                 :elements="countryOptions"
                                 :value="form.country"
                                 :onChange="onCountryChange"
@@ -172,10 +170,11 @@
                         <div class="col-md-4">
                             <SelectField
                                 name="state"
-                                :label="__('message.state') + ' *'"
+                                :label="__('message.state')"
+                                :required="true"
                                 :elements="stateOptions"
                                 :value="form.state"
-                                :onChange="(val) => form.state = val"
+                                :onChange="onChange"
                                 :searchable="true"
                                 :placeholder="__('message.choose')"
                             />
@@ -189,17 +188,12 @@
                                 name="zip"
                                 :label="__('message.zip')"
                                 :value="form.zip"
-                                :onChange="(val, name) => form[name] = val"
+                                :onChange="onChange"
                             />
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold d-block">{{ __('message.auto_renewal') }}</label>
-                            <div class="form-check form-switch mt-2">
-                                <input id="autorenewalStatus" class="form-check-input" type="checkbox" v-model="form.autorenewal_status" />
-                                <label class="form-check-label" for="autorenewalStatus">
-                                    {{ form.autorenewal_status ? __('message.enable') : __('message.disable') }}
-                                </label>
-                            </div>
+                            <Switch name="autorenewal_status" :value="form.autorenewal_status" :onChange="(val) => form.autorenewal_status = val" />
                         </div>
                     </div>
 
@@ -215,21 +209,21 @@
                             <div class="card-body">
                                 <div class="row mb-2">
                                     <div class="col-md-4 text-center">
-                                        <div class="form-check d-inline-flex align-items-center gap-1">
-                                            <input class="form-check-input" type="checkbox" id="defaulticon" v-model="defaulticon" />
-                                            <label class="form-check-label fw-normal" for="defaulticon">{{ __('message.use_default') }}</label>
+                                        <div class="d-inline-flex align-items-center gap-2">
+                                            <Switch name="defaulticon" :value="defaulticon" :onChange="(val) => defaulticon = val" />
+                                            <span class="fw-normal">{{ __('message.use_default') }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-4 text-center">
-                                        <div class="form-check d-inline-flex align-items-center gap-1">
-                                            <input class="form-check-input" type="checkbox" id="defaultlogo" v-model="defaultlogo" />
-                                            <label class="form-check-label fw-normal" for="defaultlogo">{{ __('message.use_default') }}</label>
+                                        <div class="d-inline-flex align-items-center gap-2">
+                                            <Switch name="defaultlogo" :value="defaultlogo" :onChange="(val) => defaultlogo = val" />
+                                            <span class="fw-normal">{{ __('message.use_default') }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-4 text-center">
-                                        <div class="form-check d-inline-flex align-items-center gap-1">
-                                            <input class="form-check-input" type="checkbox" id="uselogo" v-model="uselogo" />
-                                            <label class="form-check-label fw-normal" for="uselogo">{{ __('message.use_logo') }}</label>
+                                        <div class="d-inline-flex align-items-center gap-2">
+                                            <Switch name="uselogo" :value="uselogo" :onChange="(val) => uselogo = val" />
+                                            <span class="fw-normal">{{ __('message.use_logo') }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -286,14 +280,15 @@ import { reactive, ref, onMounted } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import ImageUpload from '@/components/Reusable/FormField/ImageUpload.vue'
-import { validateSystemSettings } from '@/helpers/validator/systemSettingsValidation.js'
-import { useAlertStore } from '@/core/stores/alert'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
+import Switch from '@/components/Reusable/FormField/Switch.vue'
+import { useFormValidation } from '@/composables/useFormValidation'
 
 const COMPONENT = 'system-settings'
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
-const alertStore = useAlertStore()
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -347,6 +342,7 @@ const form = reactive({
 })
 
 onMounted(async () => {
+    clearAllErrors()
     try {
         const res  = await http.get(`${baseUrl}/settings/system-data`)
         const data = res.data?.data ?? {}
@@ -411,7 +407,13 @@ function stateLabel(s) {
     return s.state_subdivision_name ?? s.primary_level_name ?? s.name
 }
 
+function onChange(val, name) {
+    clearFieldError(name)
+    form[name] = val
+}
+
 function onCountryChange(val) {
+    clearFieldError('country')
     form.country = val
     loadStates()
 }
@@ -457,7 +459,16 @@ function onImageChange(value, name) {
 }
 
 async function save() {
-    const { isValid } = validateSystemSettings(form)
+    const isValid = validate({
+        company:          [form.company,          { isRequired: __('validation.users.company.required') }, 'max(50)'],
+        company_email:    [form.company_email,    { isRequired: __('validation.users.email.required') },   { isEmail: __('message.invalid_email') }],
+        website:          [form.website,          { isRequired: __('message.field_required') },            { isUrl: __('message.invalid_url') }],
+        phone:            [form.phone,            { isRequired: __('message.field_required') }],
+        address:          [form.address,          { isRequired: __('validation.users.address.required') }],
+        country:          [form.country,          { isRequired: __('validation.users.country.required') }],
+        state:            [form.state,            { isRequired: __('message.field_required') }],
+        default_currency: [form.default_currency, { isRequired: __('message.field_required') }],
+    })
     if (!isValid) return
 
     saving.value = true
@@ -504,7 +515,7 @@ async function save() {
         const res = await http.post(`${baseUrl}/settings/system-data`, fd, {
             headers: { 'Content-Type': 'multipart/form-data' },
         })
-        alertStore.unsetValidationError()
+        clearAllErrors()
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)

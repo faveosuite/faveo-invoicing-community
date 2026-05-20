@@ -14,7 +14,8 @@
                         <div class="col-md-4">
                             <SelectField
                                 name="name"
-                                :label="__('message.tax-type') + ' *'"
+                                :label="__('message.tax-type')"
+                                :required="true"
                                 :elements="taxTypeOptions"
                                 :value="taxTypeOptions.find(o => o.id === form.name) ?? null"
                                 :onChange="onTaxTypeSelect"
@@ -23,18 +24,27 @@
                             />
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">{{ __('message.tax_name') }} *</label>
-                            <input
-                                class="form-control"
-                                v-model="form['tax-name']"
-                                :readonly="form.name && form.name !== 'Others'"
-                                placeholder="Tax name"
+                            <TextField
+                                name="tax-name"
+                                :label="__('message.tax_name')"
+                                :required="true"
+                                :value="form['tax-name']"
+                                :onChange="(val) => { form['tax-name'] = val; clearFieldError('tax-name') }"
+                                :disabled="!!(form.name && form.name !== 'Others')"
+                                placehold="Tax name"
                             />
                         </div>
                         <template v-if="form.name === 'Others'">
                             <div class="col-md-4">
-                                <label class="form-label fw-bold">{{ __('message.rate') }} (%) *</label>
-                                <input class="form-control" v-model="form.rate" type="number" step="0.01" placeholder="0.00" />
+                                <TextField
+                                    name="rate"
+                                    :label="`${__('message.rate')} (%)`"
+                                    :required="true"
+                                    type="number"
+                                    :value="form.rate"
+                                    :onChange="(val) => { form.rate = val; clearFieldError('rate') }"
+                                    placehold="0.00"
+                                />
                             </div>
                             <div class="col-md-4">
                                 <SelectField
@@ -76,11 +86,15 @@ import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { useFormValidation } from '@/composables/useFormValidation'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const COMPONENT = 'tax-create'
 const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const router  = useRouter()
+
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
 
 const loadingCountries = ref(true)
 const saving           = ref(false)
@@ -99,6 +113,7 @@ const form = reactive({
 })
 
 function onTaxTypeSelect(val) {
+    clearFieldError('name')
     form.name = val?.id ?? ''
     form.rate    = ''
     form.country = ''
@@ -124,6 +139,7 @@ async function onCountrySelect(val) {
 }
 
 onMounted(async () => {
+    clearAllErrors()
     try {
         const res   = await http.get(`${baseUrl}/tax-options`)
         countries.value = Object.entries(res.data?.data?.countries ?? {}).map(([id, name]) => ({ id, name }))
@@ -135,11 +151,21 @@ onMounted(async () => {
 })
 
 async function submit() {
+    const rules = {
+        name:       [form.name,           { isRequired: __('validation.tax_form.name.required') }],
+        'tax-name': [form['tax-name'],     { isRequired: __('validation.tax_form.name.required') }],
+    }
+    if (form.name === 'Others') {
+        rules.rate = [form.rate, { isRequired: __('validation.tax_form.rate.required') }]
+    }
+    const isValid = validate(rules)
+    if (!isValid) return
+
     saving.value = true
     try {
         const res = await http.post(`${baseUrl}/create/tax-class`, form)
         successHandler(res, COMPONENT)
-        router.push('/settings/common/tax')
+        setTimeout(() => router.push('/settings/common/tax'), 2000)
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {

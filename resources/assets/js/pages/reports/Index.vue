@@ -39,6 +39,7 @@
 
 <script setup>
 import { h, ref, computed, reactive } from 'vue'
+import { RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { errorHandler } from '@/helpers/responseHandler.js'
 
@@ -98,12 +99,26 @@ const tableOptions = reactive({
         created_at: __('message.created_at'),
         action:     __('message.action'),
     },
+    columnsClasses: {
+        select: 'dt-select',
+        file: 'dt-name',
+        format: 'dt-code',
+        type: 'dt-code',
+        contact: 'dt-name',
+        created_at: 'dt-date',
+        action: 'dt-action',
+    },
     templates: {
         select:     (f, row) => h('input', { type: 'checkbox', checked: selected.value.includes(row.id), onChange: () => toggleRow(row.id) }),
         file:       (f, row) => row.file || '—',
         format:     (f, row) => row.format || '—',
         type:       (f, row) => row.type || '—',
-        contact:    (f, row) => row.user ? `${row.user.first_name ?? ''} ${row.user.last_name ?? ''}`.trim() : '—',
+        contact:    (f, row) => {
+            if (!row.user) return '—'
+            const fullName = `${row.user.first_name ?? ''} ${row.user.last_name ?? ''}`.trim()
+            if (fullName && row.user.id) return h(RouterLink, { to: '/users/' + row.user.id }, () => fullName)
+            return '—'
+        },
         created_at: (f, row) => row.created_at ? row.created_at.substring(0, 10) : '—',
         action:     (f, row) => h('a', {
             href: `${baseUrl}/download-exported-file/${row.id}`,

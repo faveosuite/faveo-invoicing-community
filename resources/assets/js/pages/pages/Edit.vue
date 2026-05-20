@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <div class="card card-secondary card-outline">
+        <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.edit_page') }}</h4>
             </div>
@@ -12,25 +12,26 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <TextField name="name" :label="__('message.name') + ' *'" :value="form.name" :onChange="onChange" />
+                            <TextField name="name" :label="__('message.name')" :required="true" :value="form.name" :onChange="onChange" />
                         </div>
                         <div class="col-md-6">
-                            <TextField name="slug" :label="__('message.slug') + ' *'" :value="form.slug" :onChange="onChange" />
+                            <TextField name="slug" :label="__('message.slug')" :required="true" :value="form.slug" :onChange="onChange" />
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">{{ __('message.type') }}</label>
-                                <select class="form-select" v-model="form.type" @change="onTypeChange">
-                                    <option value="">{{ __('message.custom') }}</option>
-                                    <option value="contactus">{{ __('message.contact_us') }}</option>
-                                </select>
-                            </div>
+                            <StaticSelect
+                                name="type"
+                                :label="__('message.type')"
+                                :elements="[{ id: '', name: __('message.custom') }, { id: 'contactus', name: __('message.contact_us') }]"
+                                :value="form.type"
+                                :onChange="onChange"
+                                :hideEmptySelect="true"
+                            />
                         </div>
                         <div class="col-md-6">
-                            <TextField name="url" :label="__('message.page_url') + ' *'" :value="form.url" :onChange="onChange" :disabled="form.type === 'contactus'" />
+                            <TextField name="url" :label="__('message.page_url')" :required="form.type !== 'contactus'" :value="form.url" :onChange="onChange" :disabled="form.type === 'contactus'" />
                         </div>
                     </div>
 
@@ -47,18 +48,19 @@
                             />
                         </div>
                         <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">{{ __('message.publish-date') }} *</label>
-                                <input type="date" class="form-control" v-model="form.created_at_date" />
-                            </div>
+                            <DatePicker
+                                name="created_at_date"
+                                :label="__('message.publish-date')"
+                                :required="true"
+                                :value="form.created_at_date"
+                                :onChange="onChange"
+                                format="YYYY-MM-DD"
+                            />
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label fw-bold d-block">{{ __('message.publish') }}</label>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" v-model="form.publish" id="publish" />
-                                    <label class="form-check-label" for="publish">{{ form.publish ? __('message.active') : __('message.inactive') }}</label>
-                                </div>
+                                <Switch name="publish" :value="form.publish" :onChange="(val) => form.publish = val" />
                             </div>
                         </div>
                     </div>
@@ -67,17 +69,13 @@
                         <div class="col-md-12">
                             <div class="mb-3">
                                 <label class="form-label fw-bold d-block">{{ __('message.set_as_default_page') }}</label>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" v-model="form.is_default" id="isDefault" />
-                                    <label class="form-check-label" for="isDefault">{{ form.is_default ? __('message.yes') : __('message.no') }}</label>
-                                </div>
+                                <Switch name="is_default" :value="form.is_default" :onChange="(val) => form.is_default = val" />
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">{{ __('message.content') }} *</label>
-                        <TinyMCE name="content" id="editor-content" :value="form.content" :onChange="onChange" />
+                        <TinyMCE name="content" :label="__('message.content')" :required="true" id="editor-content" :value="form.content" :onChange="onChange" />
                     </div>
                 </div>
 
@@ -95,12 +93,17 @@ import { reactive, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { useFormValidation } from '@/composables/useFormValidation'
+import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
+import Switch from '@/components/Reusable/FormField/Switch.vue'
 
 const COMPONENT = 'pages-edit'
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const router = useRouter()
+
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
 
 const loading = ref(true)
 const saving = ref(false)
@@ -119,21 +122,20 @@ const form = reactive({
 })
 
 function onChange(val, name) {
+    clearFieldError(name)
     if (name === 'parent_page_id') {
         form.parentObj = val
         form.parent_page_id = val?.id ?? null
     } else {
         form[name] = val
-    }
-}
-
-function onTypeChange() {
-    if (form.type === 'contactus') {
-        form.url = `${baseUrl}/contact-us`
+        if (name === 'type' && val === 'contactus') {
+            form.url = `${baseUrl}/contact-us`
+        }
     }
 }
 
 onMounted(async () => {
+    clearAllErrors()
     try {
         const res = await http.get(`${baseUrl}/page/${route.params.id}`)
         const p = res.data?.data ?? res.data
@@ -163,6 +165,18 @@ onMounted(async () => {
 })
 
 async function submit() {
+    const rules = {
+        name:            [form.name,            { isRequired: __('validation.frontend_pages.name.required') }],
+        slug:            [form.slug,            { isRequired: __('validation.frontend_pages.slug.required') }],
+        created_at_date: [form.created_at_date, { isRequired: __('validation.publish_date_required') }],
+        content:         [form.content,         { isRequired: __('validation.frontend_pages.content.required') }],
+    }
+    if (form.type !== 'contactus') {
+        rules.url = [form.url, { isRequired: __('validation.frontend_pages.url.required') }]
+    }
+    const isValid = validate(rules)
+    if (!isValid) return
+
     saving.value = true
     try {
         let created_at = ''
@@ -183,7 +197,7 @@ async function submit() {
             default_page_id: form.is_default ? route.params.id : null,
         })
         successHandler(res, COMPONENT)
-        router.push('/pages')
+        setTimeout(() => router.push('/pages'), 2000)
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {
