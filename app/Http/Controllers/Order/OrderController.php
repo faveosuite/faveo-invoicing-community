@@ -129,7 +129,7 @@ class OrderController extends BaseOrderController
             $limit = $request->input('limit', 10);
 
             $allowedSorts = ['created_at', 'number', 'order_status', 'update_ends_at'];
-            if (!in_array($sortField, $allowedSorts, true)) {
+            if (! in_array($sortField, $allowedSorts, true)) {
                 $sortField = 'created_at';
             }
 

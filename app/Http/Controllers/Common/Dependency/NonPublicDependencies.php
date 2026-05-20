@@ -244,8 +244,8 @@ class NonPublicDependencies extends BaseDependencyController
             });
 
         return $this->get('managers', $baseQuery, fn ($u) => [
-            'id'    => $u->id,
-            'name'  => trim($u->first_name.' '.$u->last_name),
+            'id' => $u->id,
+            'name' => trim($u->first_name.' '.$u->last_name),
             'email' => $u->email,
         ]);
     }

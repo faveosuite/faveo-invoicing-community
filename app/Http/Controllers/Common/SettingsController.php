@@ -1108,13 +1108,13 @@ class SettingsController extends BaseSettingsController
             }
 
             $allowedActivitySorts = ['created_at', 'module', 'event', 'performed_by', 'role'];
-            if (!in_array($sortField, $allowedActivitySorts, true)) {
+            if (! in_array($sortField, $allowedActivitySorts, true)) {
                 $sortField = 'created_at';
             }
             $activitySortMap = [
                 'performed_by' => 'users.first_name',
-                'role'         => 'users.role',
-                'module'       => 'activity_log.log_name',
+                'role' => 'users.role',
+                'module' => 'activity_log.log_name',
             ];
             $activitySortColumn = $activitySortMap[$sortField] ?? 'activity_log.'.$sortField;
             $logs = $query->orderBy($activitySortColumn, $sortOrder)->simplePaginate($limit);
@@ -1205,7 +1205,7 @@ class SettingsController extends BaseSettingsController
             }
 
             $allowedPaymentSorts = ['date', 'amount', 'status', 'order', 'payment_method', 'payment_type', 'user'];
-            if (!in_array($sortField, $allowedPaymentSorts, true)) {
+            if (! in_array($sortField, $allowedPaymentSorts, true)) {
                 $sortField = 'date';
             }
             $paymentSortMap = ['user' => 'users.first_name'];

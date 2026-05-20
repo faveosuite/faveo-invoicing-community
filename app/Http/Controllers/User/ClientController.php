@@ -782,6 +782,7 @@ class ClientController extends AdvanceSearchController
                 $name = getCountryByCode($user->country) ?? $user->country;
                 $user->setRawAttributes(array_merge($user->getAttributes(), ['country' => $name]), true);
             }
+
             return $user;
         });
 
@@ -904,15 +905,15 @@ class ClientController extends AdvanceSearchController
 
         $mgr = $user->manager instanceof \App\User ? $user->manager : null;
         $managerObj = $mgr ? [
-            'id'    => $mgr->id,
-            'name'  => trim($mgr->first_name.' '.$mgr->last_name),
+            'id' => $mgr->id,
+            'name' => trim($mgr->first_name.' '.$mgr->last_name),
             'email' => $mgr->email,
         ] : null;
 
         $acm = $user->accountManager instanceof \App\User ? $user->accountManager : null;
         $accountManagerObj = $acm ? [
-            'id'    => $acm->id,
-            'name'  => trim($acm->first_name.' '.$acm->last_name),
+            'id' => $acm->id,
+            'name' => trim($acm->first_name.' '.$acm->last_name),
             'email' => $acm->email,
         ] : null;
 
@@ -976,20 +977,20 @@ class ClientController extends AdvanceSearchController
                 return errorResponse(__('message.user_not_found'), 404);
             }
 
-            $invoices    = Invoice::where('user_id', $id)->get();
-            $invoiceSum  = $this->getTotalInvoice($invoices);
-            $amountPaid  = $this->getAmountPaid($id);
-            $balance     = $invoiceSum - $amountPaid;
-            $currency    = getCurrencyForClient($user->country);
+            $invoices = Invoice::where('user_id', $id)->get();
+            $invoiceSum = $this->getTotalInvoice($invoices);
+            $amountPaid = $this->getAmountPaid($id);
+            $balance = $invoiceSum - $amountPaid;
+            $currency = getCurrencyForClient($user->country);
 
             return successResponse('', [
-                'invoice_total'  => $invoiceSum,
-                'amount_paid'    => $amountPaid,
-                'balance'        => $balance,
-                'currency'       => $currency,
-                'invoice_count'  => $invoices->count(),
-                'payment_count'  => \App\Model\Order\Payment::where('user_id', $id)->count(),
-                'order_count'    => \App\Model\Order\Order::where('client', $id)->count(),
+                'invoice_total' => $invoiceSum,
+                'amount_paid' => $amountPaid,
+                'balance' => $balance,
+                'currency' => $currency,
+                'invoice_count' => $invoices->count(),
+                'payment_count' => \App\Model\Order\Payment::where('user_id', $id)->count(),
+                'order_count' => \App\Model\Order\Order::where('client', $id)->count(),
             ]);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
@@ -999,8 +1000,8 @@ class ClientController extends AdvanceSearchController
     public function getUserInvoices($id, Request $request)
     {
         try {
-            $limit     = $request->input('limit', 15);
-            $page      = $request->input('page', 1);
+            $limit = $request->input('limit', 15);
+            $page = $request->input('page', 1);
             $sortField = $request->input('sort-field', 'date');
             $sortOrder = $request->input('sort-order', 'desc');
 
@@ -1018,14 +1019,14 @@ class ClientController extends AdvanceSearchController
                 $balance = max(0, $invoice->grand_total - $paid);
 
                 return [
-                    'id'          => $invoice->id,
-                    'number'      => $invoice->number,
-                    'date'        => $invoice->date,
+                    'id' => $invoice->id,
+                    'number' => $invoice->number,
+                    'date' => $invoice->date,
                     'grand_total' => $invoice->grand_total,
-                    'paid'        => $paid,
-                    'balance'     => $balance,
-                    'currency'    => $invoice->currency,
-                    'status'      => $invoice->status,
+                    'paid' => $paid,
+                    'balance' => $balance,
+                    'currency' => $invoice->currency,
+                    'status' => $invoice->status,
                 ];
             });
 
@@ -1038,8 +1039,8 @@ class ClientController extends AdvanceSearchController
     public function getUserPayments($id, Request $request)
     {
         try {
-            $limit     = $request->input('limit', 15);
-            $page      = $request->input('page', 1);
+            $limit = $request->input('limit', 15);
+            $page = $request->input('page', 1);
             $sortField = $request->input('sort-field', 'created_at');
             $sortOrder = $request->input('sort-order', 'desc');
 
@@ -1056,14 +1057,14 @@ class ClientController extends AdvanceSearchController
                 $invoice = $payment->invoice_id ? Invoice::find($payment->invoice_id) : null;
 
                 return [
-                    'id'             => $payment->id,
-                    'invoice_id'     => $payment->invoice_id,
+                    'id' => $payment->id,
+                    'invoice_id' => $payment->invoice_id,
                     'invoice_number' => $invoice?->number,
-                    'date'           => $payment->created_at,
+                    'date' => $payment->created_at,
                     'payment_method' => $payment->payment_method,
-                    'amount'         => $payment->amount,
-                    'currency'       => $invoice?->currency,
-                    'status'         => $payment->payment_status,
+                    'amount' => $payment->amount,
+                    'currency' => $invoice?->currency,
+                    'status' => $payment->payment_status,
                 ];
             });
 
@@ -1082,11 +1083,11 @@ class ClientController extends AdvanceSearchController
                 ->get()
                 ->map(function ($c) {
                     return [
-                        'id'          => $c->id,
+                        'id' => $c->id,
                         'description' => $c->description,
-                        'created_at'  => $c->created_at,
-                        'updated_at'  => $c->updated_at,
-                        'author'      => $c->user
+                        'created_at' => $c->created_at,
+                        'updated_at' => $c->updated_at,
+                        'author' => $c->user
                             ? trim($c->user->first_name.' '.$c->user->last_name)
                             : null,
                     ];
@@ -1107,17 +1108,17 @@ class ClientController extends AdvanceSearchController
             }
 
             $comment = Comment::create([
-                'user_id'             => $id,
-                'updated_by_user_id'  => auth()->id(),
-                'description'         => $request->input('description'),
+                'user_id' => $id,
+                'updated_by_user_id' => auth()->id(),
+                'description' => $request->input('description'),
             ]);
 
             return successResponse(__('message.saved-successfully'), [
-                'id'          => $comment->id,
+                'id' => $comment->id,
                 'description' => $comment->description,
-                'created_at'  => $comment->created_at,
-                'updated_at'  => $comment->updated_at,
-                'author'      => trim(auth()->user()->first_name.' '.auth()->user()->last_name),
+                'created_at' => $comment->created_at,
+                'updated_at' => $comment->updated_at,
+                'author' => trim(auth()->user()->first_name.' '.auth()->user()->last_name),
             ]);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
@@ -1128,7 +1129,7 @@ class ClientController extends AdvanceSearchController
     {
         try {
             $comment = Comment::where('id', $commentId)->where('user_id', $id)->firstOrFail();
-            $comment->description        = $request->input('description');
+            $comment->description = $request->input('description');
             $comment->updated_by_user_id = auth()->id();
             $comment->save();
 

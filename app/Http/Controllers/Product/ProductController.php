@@ -735,10 +735,10 @@ class ProductController extends BaseProductController
         $limit = $request->input('limit', 10);
 
         $sortFieldMap = [
-            'name'         => 'products.name',
+            'name' => 'products.name',
             'license_type' => 'products.type',
-            'group'        => 'products.group',
-            'created_at'   => 'products.created_at',
+            'group' => 'products.group',
+            'created_at' => 'products.created_at',
         ];
         $sortField = $sortFieldMap[$request->input('sort-field')] ?? 'products.created_at';
 
@@ -815,7 +815,7 @@ class ProductController extends BaseProductController
             $githubStatus = StatusSetting::value('github_status');
 
             return successResponse('', [
-                'product'       => $product,
+                'product' => $product,
                 'github_status' => (bool) $githubStatus,
             ]);
         } catch (\Exception $e) {

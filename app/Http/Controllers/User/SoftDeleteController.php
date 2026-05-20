@@ -44,6 +44,7 @@ class SoftDeleteController extends ClientController
                 $name = getCountryByCode($user->country) ?? $user->country;
                 $user->setRawAttributes(array_merge($user->getAttributes(), ['country' => $name]), true);
             }
+
             return $user;
         });
 
