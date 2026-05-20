@@ -395,6 +395,7 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import ImageUpload from '@/components/Reusable/FormField/ImageUpload.vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import { useFormValidation } from '@/composables/useFormValidation'
+import { profileRules, passwordChangeRules } from './profileValidation.js'
 
 const COMPONENT = 'profile-index'
 const el      = document.getElementById('app-root')
@@ -564,16 +565,7 @@ async function onCountryChange(val) {
 }
 
 async function submitProfile() {
-    const isValid = validate({
-        first_name:  [form.first_name,  { isRequired: __('validation.users.first_name.required') }],
-        last_name:   [form.last_name,   { isRequired: __('validation.users.last_name.required') }],
-        user_name:   [form.user_name,   { isRequired: __('validation.users.user_name.required') }],
-        company:     [form.company,     { isRequired: __('validation.users.company.required') }],
-        mobile:      [form.mobile,      { isRequired: __('validation.users.mobile.required') }],
-        address:     [form.address,     { isRequired: __('validation.users.address.required') }],
-        timezone_id: [form.timezone_id, { isRequired: __('validation.users.timezone_id.required') }],
-        country:     [form.country,     { isRequired: __('validation.users.country.required') }],
-    })
+    const isValid = validate(profileRules(form, __))
     if (!isValid) return
 
     savingProfile.value = true
@@ -599,11 +591,7 @@ async function submitProfile() {
 }
 
 async function submitPassword() {
-    const isValid = validate({
-        old_password:     [pwForm.old_password,     { isRequired: __('message.field_required') }],
-        new_password:     [pwForm.new_password,     { isRequired: __('message.field_required') }],
-        confirm_password: [pwForm.confirm_password, { isRequired: __('message.field_required') }],
-    })
+    const isValid = validate(passwordChangeRules(pwForm, __))
     if (!isValid) return
 
     savingPassword.value = true

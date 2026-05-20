@@ -66,6 +66,7 @@ import { useRoute, useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
 import { useFormValidation } from '@/composables/useFormValidation'
+import { invoiceEditRules } from './invoiceValidation.js'
 import { useAlertStore } from '@/core/stores/alert'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
@@ -124,9 +125,7 @@ async function fetchInvoice() {
 }
 
 async function submit() {
-    const isValid = validate({
-        date: [form.date, { isRequired: __('validation.invoice.date.required') }],
-    })
+    const isValid = validate(invoiceEditRules(form, __))
     if (!isValid) return
 
     saving.value = true

@@ -50,7 +50,7 @@
                     name="license_type_name"
                     :label="__('message.name')"
                     :value="newName"
-                    :onChange="(val) => newName = val"
+                    :onChange="(val) => { newName = val; clearFieldError('license_type_name') }"
                     :placeholder="__('message.name')"
                 />
             </template>
@@ -71,7 +71,7 @@
                     name="license_type_edit_name"
                     :label="__('message.name')"
                     :value="editName"
-                    :onChange="(val) => editName = val"
+                    :onChange="(val) => { editName = val; clearFieldError('license_type_edit_name') }"
                     :placeholder="__('message.name')"
                 />
             </template>
@@ -110,6 +110,10 @@ import { h, ref, computed, reactive } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import { useFormValidation } from '@/composables/useFormValidation'
+import { licenseTypeCreateRules, licenseTypeEditRules } from './licenseTypeValidation.js'
+
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
 
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
@@ -124,7 +128,7 @@ const showCreate = ref(false)
 const newName = ref('')
 const creating = ref(false)
 
-function openCreate() { showCreate.value = true }
+function openCreate() { clearAllErrors(); showCreate.value = true }
 function closeCreate() { showCreate.value = false; newName.value = '' }
 
 // Edit
@@ -135,6 +139,7 @@ const editLoading = ref(false)
 const saving = ref(false)
 
 async function openEdit(id) {
+    clearAllErrors()
     editId.value = id
     editName.value = ''
     showEdit.value = true
@@ -187,7 +192,8 @@ function toggleAll(e) {
 }
 
 async function create() {
-    if (!newName.value.trim()) return
+    const isValid = validate(licenseTypeCreateRules(newName.value, __))
+    if (!isValid) return
     creating.value = true
     try {
         const res = await http.post(`${baseUrl}/create-license-type`, { name: newName.value })
@@ -202,7 +208,8 @@ async function create() {
 }
 
 async function update() {
-    if (!editName.value.trim()) return
+    const isValid = validate(licenseTypeEditRules(editName.value, __))
+    if (!isValid) return
     saving.value = true
     try {
         const res = await http.put(`${baseUrl}/update-license-type/${editId.value}`, { name: editName.value })

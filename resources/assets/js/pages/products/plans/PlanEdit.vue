@@ -115,6 +115,7 @@ import { useRoute, useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { useFormValidation } from '@/composables/useFormValidation'
+import { planRules } from './planValidation.js'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
 
 const COMPONENT = 'plans-edit'
@@ -201,10 +202,7 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const isValid = validate({
-        name:    [form.name,    { isRequired: __('validation.plan_request.name_required') }],
-        product: [form.product, { isRequired: __('validation.plan_request.pro_req') }],
-    })
+    const isValid = validate(planRules(form, __))
 
     const invalidRow = form.prices.find(p => !p.currency || p.add_price === '' || p.renew_price === '')
     if (invalidRow) {

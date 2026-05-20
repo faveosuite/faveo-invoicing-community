@@ -87,6 +87,7 @@ import { useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { useFormValidation } from '@/composables/useFormValidation'
+import { taxCreateRules } from './taxValidation.js'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const COMPONENT = 'tax-create'
@@ -151,14 +152,7 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const rules = {
-        name:       [form.name,           { isRequired: __('validation.tax_form.name.required') }],
-        'tax-name': [form['tax-name'],     { isRequired: __('validation.tax_form.name.required') }],
-    }
-    if (form.name === 'Others') {
-        rules.rate = [form.rate, { isRequired: __('validation.tax_form.rate.required') }]
-    }
-    const isValid = validate(rules)
+    const isValid = validate(taxCreateRules(form, __))
     if (!isValid) return
 
     saving.value = true

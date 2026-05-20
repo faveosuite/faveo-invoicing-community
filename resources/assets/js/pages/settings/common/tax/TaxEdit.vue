@@ -71,6 +71,7 @@ import { useRoute } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { useFormValidation } from '@/composables/useFormValidation'
+import { taxEditRules } from './taxValidation.js'
 
 const COMPONENT = 'tax-edit'
 const el = document.getElementById('app-root')
@@ -151,14 +152,7 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const rules = {
-        name:           [form.name,           { isRequired: __('validation.tax_form.name.required') }],
-        tax_classes_id: [form.tax_classes_id, { isRequired: __('validation.tax_form.name.required') }],
-    }
-    if (form.tax_classes_id === 'Others') {
-        rules.rate = [form.rate, { isRequired: __('validation.tax_form.rate.required') }]
-    }
-    const isValid = validate(rules)
+    const isValid = validate(taxEditRules(form, __))
     if (!isValid) return
 
     saving.value = true

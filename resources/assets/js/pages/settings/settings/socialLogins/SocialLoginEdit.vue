@@ -16,7 +16,7 @@
                                 name="client_id"
                                 :label="form.type === 'Twitter' ? __('message.api_key') : __('message.client_id')"
                                 :value="form.client_id"
-                                :onChange="(val) => form.client_id = val"
+                                :onChange="(val) => { clearFieldError('client_id'); form.client_id = val }"
                             />
                         </div>
                         <div class="col-md-6">
@@ -24,7 +24,7 @@
                                 name="client_secret"
                                 :label="form.type === 'Twitter' ? __('message.lic_api_secret') : __('message.client_secret')"
                                 :value="form.client_secret"
-                                :onChange="(val) => form.client_secret = val"
+                                :onChange="(val) => { clearFieldError('client_secret'); form.client_secret = val }"
                             />
                         </div>
                         <div class="col-md-6">
@@ -32,7 +32,7 @@
                                 name="redirect_url"
                                 :label="__('message.redirect_url')"
                                 :value="form.redirect_url"
-                                :onChange="(val) => form.redirect_url = val"
+                                :onChange="(val) => { clearFieldError('redirect_url'); form.redirect_url = val }"
                             />
                         </div>
                         <div class="col-md-6">
@@ -60,12 +60,16 @@ import Switch from '@/components/Reusable/FormField/Switch.vue'
 import { useRoute, useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { useFormValidation } from '@/composables/useFormValidation'
+import { socialLoginRules } from './socialLoginValidation.js'
 
 const COMPONENT = 'social-logins-edit'
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const router = useRouter()
+
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
 
 const loading = ref(true)
 const saving = ref(false)
@@ -79,6 +83,7 @@ const form = reactive({
 })
 
 onMounted(async () => {
+    clearAllErrors()
     try {
         const res = await http.get(`${baseUrl}/edit/SocialLogins/${route.params.id}`)
         const d = res.data?.data ?? res.data
@@ -95,6 +100,8 @@ onMounted(async () => {
 })
 
 async function submit() {
+    const isValid = validate(socialLoginRules(form, __))
+    if (!isValid) return
     saving.value = true
     try {
         const payload = {

@@ -71,6 +71,7 @@ import { useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { useFormValidation } from '@/composables/useFormValidation'
+import { frontendPageCreateRules } from './frontendPageValidation.js'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 
@@ -114,15 +115,7 @@ function onChange(val, name) {
 }
 
 async function submit() {
-    const rules = {
-        name:    [form.name,    { isRequired: __('validation.frontend_pages.name.required') }],
-        slug:    [form.slug,    { isRequired: __('validation.frontend_pages.slug.required') }],
-        content: [form.content, { isRequired: __('validation.frontend_pages.content.required') }],
-    }
-    if (form.type !== 'contactus') {
-        rules.url = [form.url, { isRequired: __('validation.frontend_pages.url.required') }]
-    }
-    const isValid = validate(rules)
+    const isValid = validate(frontendPageCreateRules(form, __))
     if (!isValid) return
 
     saving.value = true

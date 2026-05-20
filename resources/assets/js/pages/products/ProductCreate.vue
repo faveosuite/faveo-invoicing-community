@@ -175,6 +175,7 @@ import { useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { useFormValidation } from '@/composables/useFormValidation'
+import { productRules } from './productValidation.js'
 import Checkbox from '@/components/Reusable/FormField/Checkbox.vue'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 import Tooltip from '@/components/Reusable/Tooltip.vue'
@@ -249,15 +250,7 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const isValid = validate({
-        name:                [form.name,                { isRequired: __('validation.product.name.required') }],
-        type:                [form.type,                { isRequired: __('validation.product.type.required') }],
-        group:               [form.group,               { isRequired: __('validation.product.group.required') }],
-        description:         [form.description,         { isRequired: __('validation.product_controller.description_required') }],
-        short_description:   [form.short_description,   'isRequired'],
-        product_sku:         [form.product_sku,         { isRequired: __('validation.product_controller.product_sku_required') }],
-        product_description: [form.product_description, { isRequired: __('validation.product_controller.product_description_required') }],
-    })
+    const isValid = validate(productRules(form, __))
     if (!isValid) return
 
     saving.value = true

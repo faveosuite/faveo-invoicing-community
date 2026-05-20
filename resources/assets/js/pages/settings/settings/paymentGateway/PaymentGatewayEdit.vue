@@ -25,7 +25,7 @@
                                     :label="field.label"
                                     :type="field.type ?? 'text'"
                                     :value="form[field.name]"
-                                    :onChange="(val, name) => form[name] = val"
+                                    :onChange="(val, name) => { clearFieldError(name); form[name] = val }"
                                 />
                             </div>
                         </div>
@@ -57,12 +57,17 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { __ } from '@/plugins/i18n'
+import { useFormValidation } from '@/composables/useFormValidation'
+import { gatewayFieldRules } from './paymentGatewayValidation.js'
 
 const COMPONENT = 'payment-gateway-edit'
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const pluginSlug = route.params.id
+
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -75,7 +80,7 @@ const GATEWAY_CONFIGS = {
         fields: [
             { name: 'rzp_key',      label: 'Razorpay Key',                                       type: 'text'     },
             { name: 'rzp_secret',   label: 'Razorpay Secret',                                    type: 'password' },
-            { name: 'apilayer_key', label: 'ApiLayer Access Key (For Exchange Rate Conversion)',  type: 'text'     },
+            { name: 'apilayer_key', label: 'ApiLayer Access Key (For Exchange Rate Conversion)',  type: 'text', required: false },
         ],
         fetchUrl: `${baseUrl}/get-razorpay-settings`,
         saveUrl:  `${baseUrl}/update-api-key/payment-gateway/razorpay`,
@@ -96,6 +101,7 @@ const gatewayConfig = computed(() => {
 })
 
 onMounted(async () => {
+    clearAllErrors()
     try {
         const listRes = await http.get(`${baseUrl}/payment-gateway-list`)
         const list    = listRes.data?.data ?? []
@@ -115,6 +121,8 @@ onMounted(async () => {
 
 async function save() {
     if (!gatewayConfig.value) return
+    const isValid = validate(gatewayFieldRules(gatewayConfig.value.fields, form, __))
+    if (!isValid) return
     saving.value = true
     try {
         const res = await http.get(gatewayConfig.value.saveUrl, { params: form })

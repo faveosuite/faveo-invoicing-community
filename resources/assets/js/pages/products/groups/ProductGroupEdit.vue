@@ -68,6 +68,7 @@ import { useRoute, useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { useFormValidation } from '@/composables/useFormValidation'
+import { productGroupRules } from './productGroupValidation.js'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 
@@ -124,10 +125,7 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const isValid = validate({
-        name:                 [form.name,                 { isRequired: __('validation.group.name.required') }],
-        pricing_templates_id: [form.pricing_templates_id, 'isRequired'],
-    })
+    const isValid = validate(productGroupRules(form, __))
     if (!isValid) return
 
     saving.value = true

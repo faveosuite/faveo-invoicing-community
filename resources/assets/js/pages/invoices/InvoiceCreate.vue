@@ -145,6 +145,7 @@ import { useRouter, useRoute } from 'vue-router'
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
 import { useFormValidation } from '@/composables/useFormValidation'
+import { invoiceCreateRules } from './invoiceValidation.js'
 import { useAlertStore } from '@/core/stores/alert'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import NumberField from '@/components/Reusable/FormField/NumberField.vue'
@@ -270,13 +271,7 @@ async function fetchPrice() {
 }
 
 async function submit() {
-    const rules = {
-        user:    [form.user,    { isRequired: __('validation.invoice.user.required') }],
-        date:    [form.date,    { isRequired: __('validation.invoice.date.required') }],
-        product: [form.product, { isRequired: __('validation.invoice.product.required') }],
-        price:   [form.price,   { isRequired: __('validation.invoice.price.required') }],
-    }
-    const isValid = validate(rules)
+    const isValid = validate(invoiceCreateRules(form, __))
     if (!isValid) return
 
     const planId = typeof form.plan === 'object' ? form.plan?.id : form.plan

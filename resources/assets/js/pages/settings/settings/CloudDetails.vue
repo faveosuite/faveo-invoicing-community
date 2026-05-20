@@ -38,7 +38,7 @@
                                             name="cloud_central_domain"
                                             :label="__('message.cloud_central_domain')"
                                             :value="form.cloud_central_domain"
-                                            :onChange="(val) => form.cloud_central_domain = val"
+                                            :onChange="(val) => { clearFieldError('cloud_central_domain'); form.cloud_central_domain = val }"
                                             :placehold="'https://example.com'"
                                         />
                                     </div>
@@ -47,7 +47,7 @@
                                             name="cloud_cname"
                                             :label="__('message.cloud_cname')"
                                             :value="form.cloud_cname"
-                                            :onChange="(val) => form.cloud_cname = val"
+                                            :onChange="(val) => { clearFieldError('cloud_cname'); form.cloud_cname = val }"
                                         />
                                     </div>
                                 </div>
@@ -59,7 +59,7 @@
                                             name="cloud_top_message"
                                             :label="__('message.cloud_top_message')"
                                             :value="popup.cloud_top_message"
-                                            :onChange="v => popup.cloud_top_message = v"
+                                            :onChange="v => { clearFieldError('cloud_top_message'); popup.cloud_top_message = v }"
                                         />
                                     </div>
                                     <div class="col-md-4">
@@ -67,7 +67,7 @@
                                             name="cloud_label_field"
                                             :label="__('message.cloud_label_field')"
                                             :value="popup.cloud_label_field"
-                                            :onChange="v => popup.cloud_label_field = v"
+                                            :onChange="v => { clearFieldError('cloud_label_field'); popup.cloud_label_field = v }"
                                         />
                                     </div>
                                     <div class="col-md-4">
@@ -75,7 +75,7 @@
                                             name="cloud_label_radio"
                                             :label="__('message.cloud_label_radio')"
                                             :value="popup.cloud_label_radio"
-                                            :onChange="v => popup.cloud_label_radio = v"
+                                            :onChange="v => { clearFieldError('cloud_label_radio'); popup.cloud_label_radio = v }"
                                         />
                                     </div>
                                 </div>
@@ -161,7 +161,7 @@
                 :label="__('message.cloud_product')"
                 :elements="products"
                 :value="productForm.cloud_product"
-                :onChange="v => productForm.cloud_product = v"
+                :onChange="v => { clearFieldError('cloud_product'); productForm.cloud_product = v }"
                 :searchable="true"
             />
             <SelectField
@@ -169,14 +169,14 @@
                 :label="__('message.cloud_free_plan')"
                 :elements="plans"
                 :value="productForm.cloud_free_plan"
-                :onChange="v => productForm.cloud_free_plan = v"
+                :onChange="v => { clearFieldError('cloud_free_plan'); productForm.cloud_free_plan = v }"
                 :searchable="true"
             />
             <TextField
                 name="cloud_product_key"
                 :label="__('message.cloud_product_key')"
                 :value="productForm.cloud_product_key"
-                :onChange="v => productForm.cloud_product_key = v"
+                :onChange="v => { clearFieldError('cloud_product_key'); productForm.cloud_product_key = v }"
             />
         </template>
         <template #controls>
@@ -227,10 +227,14 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
+import { useFormValidation } from '@/composables/useFormValidation'
+import { cloudSettingsRules, cloudProductRules } from './cloudDetailsValidation.js'
 
 const COMPONENT = 'cloud-details'
 const el        = document.getElementById('app-root')
 const baseUrl   = el?.dataset?.baseUrl ?? ''
+
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
 
 const loading       = ref(true)
 const saving        = ref(false)
@@ -241,7 +245,7 @@ const activeTab     = ref('settings')
 const showProductModal = ref(false)
 const showDCModal      = ref(false)
 
-function openProductModal()  { showProductModal.value = true }
+function openProductModal()  { clearAllErrors(); showProductModal.value = true }
 function closeProductModal() { showProductModal.value = false; productForm.cloud_product = null; productForm.cloud_free_plan = null; productForm.cloud_product_key = '' }
 function openDCModal()  { showDCModal.value = true }
 function closeDCModal() { showDCModal.value = false; dcForm.cloud_countries = null; dcForm.cloud_state = null; dcForm.cloud_city = ''; states.value = [] }
@@ -278,6 +282,7 @@ watch(activeTab, async (val) => {
 })
 
 onMounted(async () => {
+    clearAllErrors()
     try {
         const res  = await http.get(`${baseUrl}/settings/cloud-details`)
         const data = res.data?.data ?? {}
@@ -356,6 +361,8 @@ async function removeRegion(name, marker) {
 // ── Save handlers ─────────────────────────────────────────────────────────────
 
 async function saveSettings() {
+    const isValid = validate(cloudSettingsRules(form, popup, __))
+    if (!isValid) return
     saving.value = true
     try {
         const [res] = await Promise.all([
@@ -372,6 +379,8 @@ async function saveSettings() {
 }
 
 async function saveProduct() {
+    const isValid = validate(cloudProductRules(productForm, __))
+    if (!isValid) return
     savingProduct.value = true
     try {
         const res = await http.post(`${baseUrl}/cloud-product-store`, {

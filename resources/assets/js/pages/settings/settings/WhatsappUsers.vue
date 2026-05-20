@@ -24,7 +24,7 @@
                     name="editWebhookUrl"
                     :label="__('message.webhook_url')"
                     :value="editWebhookUrl"
-                    :onChange="(val) => editWebhookUrl = val"
+                    :onChange="(val) => { clearFieldError('editWebhookUrl'); editWebhookUrl = val }"
                     :placehold="__('message.enter_webhook_url')"
                 />
             </template>
@@ -42,6 +42,8 @@ import TextField from '@/components/Reusable/FormField/TextField.vue'
 import DataTable from '@/themes/adminlte/components/common/DataTable.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { useFormValidation } from '@/composables/useFormValidation'
+import { webhookUrlRules } from './whatsappUsersValidation.js'
 
 const COMPONENT = 'whatsapp-users'
 const el      = document.getElementById('app-root')
@@ -49,12 +51,15 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const apiUrl  = `${baseUrl}/whatsapp-users-api`
 const tableRef = ref(null)
 
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+
 const editRow        = ref(null)
 const editWebhookUrl = ref('')
 const saving         = ref(false)
 const copiedId       = ref(null)
 
 function openEdit(row) {
+    clearAllErrors()
     editRow.value        = row
     editWebhookUrl.value = row.callback_url ?? ''
 }
@@ -65,6 +70,8 @@ function closeEdit() {
 }
 
 async function saveWebhook() {
+    const isValid = validate(webhookUrlRules(editWebhookUrl.value, __))
+    if (!isValid) return
     saving.value = true
     try {
         const res = await http.post(`${baseUrl}/webhook-url-edit`, {

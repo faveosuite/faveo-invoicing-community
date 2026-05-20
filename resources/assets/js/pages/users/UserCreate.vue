@@ -222,6 +222,7 @@ import { useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
 import { useFormValidation } from '@/composables/useFormValidation'
+import { userCreateRules } from './userValidation.js'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 
 const COMPONENT = 'users-create'
@@ -320,16 +321,7 @@ function extractId(val) {
 }
 
 async function submit() {
-    const isValid = validate({
-        first_name:  [form.first_name,  { isRequired: __('validation.users.first_name.required') }],
-        last_name:   [form.last_name,   { isRequired: __('validation.users.last_name.required') }],
-        email:       [form.email,       { isRequired: __('validation.users.email.required') }, { isEmail: __('validation.users.email.email') }],
-        company:     [form.company,     { isRequired: __('validation.users.company.required') }],
-        address:     [form.address,     { isRequired: __('validation.users.address.required') }],
-        mobile:      [form.mobile,      { isRequired: __('validation.users.mobile.required') }],
-        country:     [form.country,     { isRequired: __('validation.users.country.required') }],
-        timezone_id: [form.timezone_id, { isRequired: __('validation.users.timezone_id.required') }],
-    })
+    const isValid = validate(userCreateRules(form, __))
     if (!isValid) return
 
     saving.value = true

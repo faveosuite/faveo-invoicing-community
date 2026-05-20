@@ -283,6 +283,7 @@ import ImageUpload from '@/components/Reusable/FormField/ImageUpload.vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 import { useFormValidation } from '@/composables/useFormValidation'
+import { systemSettingsRules } from './systemSettingsValidation.js'
 
 const COMPONENT = 'system-settings'
 const el = document.getElementById('app-root')
@@ -459,16 +460,7 @@ function onImageChange(value, name) {
 }
 
 async function save() {
-    const isValid = validate({
-        company:          [form.company,          { isRequired: __('validation.users.company.required') }, 'max(50)'],
-        company_email:    [form.company_email,    { isRequired: __('validation.users.email.required') },   { isEmail: __('message.invalid_email') }],
-        website:          [form.website,          { isRequired: __('message.field_required') },            { isUrl: __('message.invalid_url') }],
-        phone:            [form.phone,            { isRequired: __('message.field_required') }],
-        address:          [form.address,          { isRequired: __('validation.users.address.required') }],
-        country:          [form.country,          { isRequired: __('validation.users.country.required') }],
-        state:            [form.state,            { isRequired: __('message.field_required') }],
-        default_currency: [form.default_currency, { isRequired: __('message.field_required') }],
-    })
+    const isValid = validate(systemSettingsRules(form, __))
     if (!isValid) return
 
     saving.value = true

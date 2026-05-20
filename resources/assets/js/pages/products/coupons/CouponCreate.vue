@@ -75,6 +75,7 @@ import { useRouter } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { useFormValidation } from '@/composables/useFormValidation'
+import { couponRules } from './couponValidation.js'
 import { useAlertStore } from '@/core/stores/alert'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
@@ -136,15 +137,7 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const isValid = validate({
-        code:    [form.code,    { isRequired: __('validation.coupon_form.code.required') }],
-        type:    [form.type,    { isRequired: __('validation.coupon_form.type.required') }],
-        value:   [form.value,   { isRequired: __('validation.coupon_form.value.required') }],
-        applied: [form.applied, { isRequired: __('validation.coupon_form.applied.required') }],
-        uses:    [form.uses,    { isRequired: __('validation.coupon_form.uses.required') }],
-        start:   [form.start,   { isRequired: __('validation.coupon_form.start.required') }],
-        expiry:  [form.expiry,  { isRequired: __('validation.coupon_form.expiry.required') }],
-    })
+    const isValid = validate(couponRules(form, __))
     if (!isValid) return
 
     saving.value = true

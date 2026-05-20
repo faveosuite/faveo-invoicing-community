@@ -50,14 +50,14 @@
                     name="app_name"
                     :label="__('message.app_name')"
                     :value="form.app_name"
-                    :onChange="(val) => form.app_name = val"
+                    :onChange="(val) => { clearFieldError('app_name'); form.app_name = val }"
                     :placeholder="__('message.app_name')"
                 />
                 <TextField
                     name="app_key"
                     :label="__('message.app_key')"
                     :value="form.app_key"
-                    :onChange="(val) => form.app_key = val"
+                    :onChange="(val) => { clearFieldError('app_key'); form.app_key = val }"
                     :placehold="__('message.app_key')"
                     :inputGroupBtn="{ text: 'generate_key', action: generateKey }"
                 />
@@ -66,7 +66,7 @@
                     :label="__('message.app_secret')"
                     type="password"
                     :value="form.app_secret"
-                    :onChange="(val) => form.app_secret = val"
+                    :onChange="(val) => { clearFieldError('app_secret'); form.app_secret = val }"
                     :placeholder="__('message.app_secret')"
                 />
             </template>
@@ -85,14 +85,14 @@
                     name="app_name"
                     :label="__('message.app_name')"
                     :value="form.app_name"
-                    :onChange="(val) => form.app_name = val"
+                    :onChange="(val) => { clearFieldError('app_name'); form.app_name = val }"
                     :placeholder="__('message.app_name')"
                 />
                 <TextField
                     name="app_key"
                     :label="__('message.app_key')"
                     :value="form.app_key"
-                    :onChange="(val) => form.app_key = val"
+                    :onChange="(val) => { clearFieldError('app_key'); form.app_key = val }"
                     :placehold="__('message.app_key')"
                     :inputGroupBtn="{ text: 'generate_key', action: generateKey }"
                 />
@@ -100,7 +100,7 @@
                     name="app_secret"
                     :label="__('message.app_secret')"
                     :value="form.app_secret"
-                    :onChange="(val) => form.app_secret = val"
+                    :onChange="(val) => { clearFieldError('app_secret'); form.app_secret = val }"
                     :placeholder="__('message.app_secret')"
                 />
             </template>
@@ -139,6 +139,8 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
 import { useAlertStore } from '@/core/stores/alert'
+import { useFormValidation } from '@/composables/useFormValidation'
+import { thirdPartyAppRules } from './thirdPartyAppsValidation.js'
 
 const COMPONENT = 'third-party-apps'
 const el = document.getElementById('app-root')
@@ -154,6 +156,8 @@ const selected = ref([])
 const form = reactive({ app_name: '', app_key: '', app_secret: '' })
 function resetForm() { Object.assign(form, { app_name: '', app_key: '', app_secret: '' }) }
 
+const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+
 const appKeyError = computed(() => useAlertStore().validation_errors['app_key'] ?? '')
 
 const generatingKey = ref(false)
@@ -168,7 +172,7 @@ async function generateKey() {
 
 // Create
 const showCreate = ref(false)
-function openCreate() { resetForm(); showCreate.value = true }
+function openCreate() { resetForm(); clearAllErrors(); showCreate.value = true }
 function closeCreate() { showCreate.value = false; resetForm() }
 
 // Edit
@@ -176,6 +180,7 @@ const showEdit = ref(false)
 function openEdit(row) {
     editId.value = row.id
     Object.assign(form, { app_name: row.app_name, app_key: row.app_key, app_secret: row.app_secret })
+    clearAllErrors()
     showEdit.value = true
 }
 function closeEdit() { showEdit.value = false; editId.value = null; resetForm() }
@@ -208,6 +213,8 @@ function toggleAll(e) {
 }
 
 async function saveApp() {
+    const isValid = validate(thirdPartyAppRules(form, __))
+    if (!isValid) return
     saving.value = true
     try {
         const res = editId.value
