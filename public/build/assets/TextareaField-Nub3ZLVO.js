@@ -1,0 +1,1 @@
+import{_ as t,o as r,e as a,A as s}from"./main-C0tm74op.js";const o={},c={class:"textareafield-wrapper"};function n(e,l){return r(),a("div",c,[s(e.$slots,"default")])}const d=t(o,[["render",n]]);export{d as default};

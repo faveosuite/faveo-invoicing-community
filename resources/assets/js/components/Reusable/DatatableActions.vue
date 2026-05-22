@@ -113,7 +113,6 @@ function showRestoreModalMethod() {
 function onClose() {
     showModal.value = false
     showRestoreModal.value = false
-    alertStore.unsetValidationError()
 }
 
 /* ── Dropdown positioning (favMer pattern) ── */

@@ -31,10 +31,10 @@
                     <template v-if="form.driver?.id === 'smtp'">
                         <div class="row">
                             <div class="col-md-4">
-                                <TextField name="host" :label="__('message.smtp_host')" :required="true" :value="form.host" :onChange="onChange" />
+                                <TextField name="host" :label="__('message.smtp_host')" :required="true" :value="form.host" :onChange="onChange" :error="errors.host" />
                             </div>
                             <div class="col-md-4">
-                                <TextField name="port" :label="__('message.smtp_port')" :required="true" :value="form.port" :onChange="onChange" />
+                                <TextField name="port" :label="__('message.smtp_port')" :required="true" :value="form.port" :onChange="onChange" :error="errors.port" />
                             </div>
                             <div class="col-md-4">
                                 <SelectField
@@ -56,16 +56,16 @@
                     <template v-if="['mailgun', 'mandrill', 'ses', 'sparkpost'].includes(form.driver?.id)">
                         <div class="row">
                             <div class="col-md-4">
-                                <TextField name="secret" :label="__('message.secret')" :required="true" :value="form.secret" :onChange="onChange" />
+                                <TextField name="secret" :label="__('message.secret')" :required="true" :value="form.secret" :onChange="onChange" :error="errors.secret" />
                             </div>
                             <div v-if="form.driver?.id === 'mailgun'" class="col-md-4">
-                                <TextField name="domain" :label="__('message.admin_domain')" :required="true" :value="form.domain" :onChange="onChange" />
+                                <TextField name="domain" :label="__('message.admin_domain')" :required="true" :value="form.domain" :onChange="onChange" :error="errors.domain" />
                             </div>
                             <div v-if="form.driver?.id === 'ses'" class="col-md-4">
-                                <TextField name="key" :label="__('message.db_key')" :required="true" :value="form.key" :onChange="onChange" />
+                                <TextField name="key" :label="__('message.db_key')" :required="true" :value="form.key" :onChange="onChange" :error="errors.key" />
                             </div>
                             <div v-if="form.driver?.id === 'ses'" class="col-md-4">
-                                <TextField name="region" :label="__('message.region')" :required="true" :value="form.region" :onChange="onChange" />
+                                <TextField name="region" :label="__('message.region')" :required="true" :value="form.region" :onChange="onChange" :error="errors.region" />
                             </div>
                         </div>
                     </template>
@@ -81,15 +81,16 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { useFormValidation } from '@/composables/useFormValidation'
+import { buildEmailSettingsSchema } from '@/validations/emailValidations'
 
 const COMPONENT = 'email-settings'
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError, resetForm } = useForm()
 const loading = ref(true)
 const saving  = ref(false)
 
@@ -114,17 +115,16 @@ const form = reactive({
 })
 
 function onDriverChange(val) {
-    clearAllErrors()
+    resetForm()
     form.driver = val
 }
 
 function onChange(val, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     form[name] = val
 }
 
 onMounted(async () => {
-    clearAllErrors()
     try {
         const res = await http.get(`${baseUrl}/settings/email`)
         const d = res.data?.data ?? {}
@@ -147,22 +147,14 @@ onMounted(async () => {
 
 async function submit() {
     const driverId = form.driver?.id
-    const rules = {}
-    if (driverId === 'smtp') {
-        rules.host = [form.host, { isRequired: __('message.field_required') }]
-        rules.port = [form.port, { isRequired: __('message.field_required') }]
+    try {
+        buildEmailSettingsSchema(driverId).validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
     }
-    if (['mailgun', 'mandrill', 'ses', 'sparkpost'].includes(driverId)) {
-        rules.secret = [form.secret, { isRequired: __('message.field_required') }]
-    }
-    if (driverId === 'mailgun') {
-        rules.domain = [form.domain, { isRequired: __('message.field_required') }]
-    }
-    if (driverId === 'ses') {
-        rules.key    = [form.key,    { isRequired: __('message.field_required') }]
-        rules.region = [form.region, { isRequired: __('message.field_required') }]
-    }
-    if (!validate(rules)) return
 
     saving.value = true
     try {

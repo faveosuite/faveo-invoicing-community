@@ -2,12 +2,12 @@
     <FormFieldTemplate :classname="classname" :label="lang(labelName)" :name="name">
         <div class="intl-tel-input allow-dropdown separate-dial-code iti-sdc-3 telephone-input">
             <input class="form-control telephone-input-field" ref="phoneInput"
-                   :class="{ 'has-error': showError }"
+                   :class="{ 'is-invalid': showError }"
                    type="tel" v-model="changedValue"
                    @input="onChange(changedValue, name)"
                    @keypress="isNumber"
                    :style="inputStyle" id="id" />
-            <div v-if="showError" class="error-block is-danger">{{ lang(errorMsg) }}</div>
+            <div v-if="showError" class="invalid-feedback d-block">{{ lang(errorMsg) }}</div>
         </div>
     </FormFieldTemplate>
 </template>

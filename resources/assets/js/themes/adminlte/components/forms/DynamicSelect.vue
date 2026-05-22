@@ -51,7 +51,6 @@ import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
 import http from '@/plugins/axios'
 import { debounce } from 'lodash'
-import { useAlertStore } from '@/core/stores/alert'
 
 const props = defineProps({
     name:          { type: String, required: true },
@@ -73,9 +72,10 @@ const props = defineProps({
     apiParams:     { type: Object, default: () => ({}) },
     dataKey:       { type: String, default: null },
     required:      { type: Boolean, default: false },
+    error:         { type: String, default: undefined },
 })
 
-const fieldError = computed(() => useAlertStore().validation_errors[props.name] ?? '')
+const fieldError = computed(() => props.error ?? '')
 
 const vsRef         = ref(null)
 const loaderRef     = ref(null)
@@ -236,7 +236,6 @@ watch(
     display: none;
 }
 
-.faveo-dynamic-select.field-danger .vs__dropdown-toggle,
 .faveo-dynamic-select.is-invalid .vs__dropdown-toggle {
     border: 1px solid #dc3545 !important;
 }

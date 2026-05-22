@@ -20,6 +20,7 @@
                                 :value="form.user"
                                 :onChange="onChange"
                                 :placeholder="__('message.select_user')"
+                                :error="errors.user"
                             >
                                 <template #option="option">
                                     {{ option.name }} &lt;{{ option.email }}&gt;
@@ -36,6 +37,7 @@
                                 :value="form.date"
                                 :onChange="onChange"
                                 placeholder="MM/DD/YYYY"
+                                :error="errors.date"
                             />
                         </div>
 
@@ -50,6 +52,7 @@
                                 :value="form.product"
                                 :onChange="onProductChange"
                                 :placeholder="__('message.select_product')"
+                                :error="errors.product"
                             />
                         </div>
 
@@ -75,6 +78,7 @@
                                 :value="form.price"
                                 :onChange="onChange"
                                 placehold="0.00"
+                                :error="errors.price"
                             />
                         </div>
 
@@ -93,8 +97,10 @@
                             <TextField
                                 name="domain"
                                 :label="__('message.domain')"
+                                :required="true"
                                 :value="form.domain"
                                 :onChange="onChange"
+                                :error="errors.domain"
                             />
                         </div>
 
@@ -103,8 +109,10 @@
                             <TextField
                                 name="cloud_domain"
                                 :label="__('message.cloud_domain_label')"
+                                :required="true"
                                 :value="form.cloud_domain"
                                 :onChange="onChange"
+                                :error="errors.cloud_domain"
                             />
                         </div>
 
@@ -142,11 +150,10 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { invoiceCreateRules } from './invoiceValidation.js'
-import { useAlertStore } from '@/core/stores/alert'
+import { buildInvoiceCreateSchema } from '@/validations/invoiceValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import NumberField from '@/components/Reusable/FormField/NumberField.vue'
 
@@ -156,8 +163,7 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const router = useRouter()
 const route  = useRoute()
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
-const validationErrors = computed(() => useAlertStore().validation_errors)
+const { errors, setErrors, setFieldError } = useForm()
 
 const saving = ref(false)
 
@@ -187,7 +193,6 @@ const productId = computed(() => {
 })
 
 onMounted(async () => {
-    clearAllErrors()
     const clientid = route.query.clientid
     if (clientid) {
         try {
@@ -205,21 +210,21 @@ onMounted(async () => {
 })
 
 function onChange(val, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     form[name] = val
 }
 
 function onProductChange(val) {
+    setFieldError('product', undefined)
     form.product = val
     form.plan = null
     form.price = ''
-    clearFieldError('product')
     resetDynamicFields()
 }
 
 function onPlanChange(val, name) {
+    setFieldError('plan', undefined)
     form.plan = val
-    clearFieldError('plan')
     if (val) {
         fetchPrice()
     } else {
@@ -271,8 +276,14 @@ async function fetchPrice() {
 }
 
 async function submit() {
-    const isValid = validate(invoiceCreateRules(form, __))
-    if (!isValid) return
+    try {
+        buildInvoiceCreateSchema(dynamic).validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
 
     const planId = typeof form.plan === 'object' ? form.plan?.id : form.plan
 

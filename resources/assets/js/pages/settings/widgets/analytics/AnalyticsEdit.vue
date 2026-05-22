@@ -18,6 +18,7 @@
                                 :required="true"
                                 :value="form.name"
                                 :onChange="onChange"
+                                :error="errors.name"
                             />
                         </div>
                         <div class="col-md-4 mb-3">
@@ -50,6 +51,7 @@
                                 :required="true"
                                 :value="form.google_analytics_tag"
                                 :onChange="onChange"
+                                :error="errors.google_analytics_tag"
                             />
                         </div>
                     </div>
@@ -62,6 +64,7 @@
                         :onChange="onChange"
                         :rows="10"
                         inputClass="font-monospace"
+                        :error="errors.script"
                     />
                 </div>
                 <div class="card-footer">
@@ -76,9 +79,10 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { useFormValidation } from '@/composables/useFormValidation'
+import { buildAnalyticsSchema } from '@/validations/widgetValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const COMPONENT = 'analytics-edit'
@@ -88,7 +92,7 @@ const route   = useRoute()
 const router  = useRouter()
 const id      = route.params.id
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 
 const showScriptOptions = [
     { id: 1, name: __('message.on_registration') },
@@ -111,12 +115,11 @@ const form = reactive({
 })
 
 function onChange(val, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     form[name] = val
 }
 
 onMounted(async () => {
-    clearAllErrors()
     try {
         const res = await http.get(`${baseUrl}/chat/show/${id}`)
         const d   = res.data?.data ?? {}
@@ -135,15 +138,14 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const rules = {
-        name:   [form.name,   'isRequired'],
-        script: [form.script, 'isRequired'],
+    try {
+        buildAnalyticsSchema(!!form.google_analytics).validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
     }
-    if (form.google_analytics) {
-        rules.google_analytics_tag = [form.google_analytics_tag, 'isRequired']
-    }
-    const isValid = validate(rules)
-    if (!isValid) return
 
     saving.value = true
     try {

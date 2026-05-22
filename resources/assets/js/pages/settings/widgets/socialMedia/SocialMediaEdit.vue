@@ -12,10 +12,10 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <TextField name="name" :label="__('message.name')" :required="true" :value="form.name" :onChange="onChange" />
+                            <TextField name="name" :label="__('message.name')" :required="true" :value="form.name" :onChange="onChange" :error="errors.name" />
                         </div>
                         <div class="col-md-4 mb-3">
-                            <TextField name="link" :label="__('message.link')" :required="true" :value="form.link" :onChange="onChange" />
+                            <TextField name="link" :label="__('message.link')" :required="true" :value="form.link" :onChange="onChange" :error="errors.link" />
                         </div>
                     </div>
                 </div>
@@ -32,9 +32,10 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { useFormValidation } from '@/composables/useFormValidation'
+import { socialMediaSchema } from '@/validations/widgetValidations'
 
 const COMPONENT = 'social-media-edit'
 const el = document.getElementById('app-root')
@@ -43,19 +44,18 @@ const route = useRoute()
 const router = useRouter()
 const mediaId = route.params.id
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 
 const loading = ref(true)
 const saving = ref(false)
 const form = reactive({ name: '', link: '' })
 
 function onChange(val, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     form[name] = val
 }
 
 onMounted(async () => {
-    clearAllErrors()
     try {
         const res = await http.get(`${baseUrl}/social-media/show/${mediaId}`)
         const d = res.data?.data ?? {}
@@ -66,11 +66,14 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const isValid = validate({
-        name: [form.name, { isRequired: __('validation.social_media_form.name.required') }],
-        link: [form.link, { isRequired: __('validation.social_media_form.link.required') }, { isUrl: __('validation.social_media_form.link.url') }],
-    })
-    if (!isValid) return
+    try {
+        socialMediaSchema.validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
 
     saving.value = true
     try {

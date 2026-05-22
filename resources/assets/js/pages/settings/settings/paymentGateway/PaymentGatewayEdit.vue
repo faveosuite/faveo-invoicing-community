@@ -25,7 +25,8 @@
                                     :label="field.label"
                                     :type="field.type ?? 'text'"
                                     :value="form[field.name]"
-                                    :onChange="(val, name) => { clearFieldError(name); form[name] = val }"
+                                    :onChange="(val, name) => { setFieldError(name, undefined); form[name] = val }"
+                                    :error="errors[field.name]"
                                 />
                             </div>
                         </div>
@@ -55,11 +56,11 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { __ } from '@/plugins/i18n'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { gatewayFieldRules } from './paymentGatewayValidation.js'
+import { buildGatewaySchema } from '@/validations/gatewayValidations'
 
 const COMPONENT = 'payment-gateway-edit'
 const el = document.getElementById('app-root')
@@ -67,7 +68,7 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const pluginSlug = route.params.id
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -101,7 +102,6 @@ const gatewayConfig = computed(() => {
 })
 
 onMounted(async () => {
-    clearAllErrors()
     try {
         const listRes = await http.get(`${baseUrl}/payment-gateway-list`)
         const list    = listRes.data?.data ?? []
@@ -121,8 +121,14 @@ onMounted(async () => {
 
 async function save() {
     if (!gatewayConfig.value) return
-    const isValid = validate(gatewayFieldRules(gatewayConfig.value.fields, form, __))
-    if (!isValid) return
+    try {
+        buildGatewaySchema(gatewayConfig.value.fields).validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
     saving.value = true
     try {
         const res = await http.get(gatewayConfig.value.saveUrl, { params: form })

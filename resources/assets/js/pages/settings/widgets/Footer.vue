@@ -29,7 +29,8 @@
                                         :label="__('message.name')"
                                         :required="true"
                                         :value="forms[ft.key].name"
-                                        :onChange="(val) => { clearFieldError('name'); forms[ft.key].name = val }"
+                                        :onChange="(val) => { setFieldError('name', undefined); forms[ft.key].name = val }"
+                                        :error="errors.name"
                                     />
                                 </div>
                                 <div class="col-md-4 mb-3">
@@ -67,9 +68,10 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { useFormValidation } from '@/composables/useFormValidation'
+import { footerWidgetSchema } from '@/validations/widgetValidations'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 
 const COMPONENT = 'footer-widget'
@@ -82,7 +84,7 @@ const footerTypes = [
     { key: 'footer3', label: 'Footer 3' },
 ]
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 const loading         = ref(true)
 const activeTab       = ref('footer1')
 const mailchimpStatus = ref(false)
@@ -98,7 +100,6 @@ const forms = reactive({
 const saving = reactive({ footer1: false, footer2: false, footer3: false })
 
 onMounted(async () => {
-    clearAllErrors()
     try {
         const res = await http.get(`${baseUrl}/widgets/list`, { params: { limit: 200 } })
         const pages = res.data?.data?.pages?.data ?? []
@@ -127,7 +128,14 @@ onMounted(async () => {
 })
 
 async function save(type) {
-    if (!validate({ name: [forms[type].name, { isRequired: __('message.field_required') }] })) return
+    try {
+        footerWidgetSchema.validateSync({ name: forms[type].name }, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
     saving[type] = true
     try {
         const payload = {

@@ -9,7 +9,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4">
-                        <TextField name="name" :label="__('message.name')" :required="true" :value="form.name" :onChange="onChange" />
+                        <TextField name="name" :label="__('message.name')" :required="true" :value="form.name" :onChange="onChange" :error="errors.name" />
                     </div>
                     <div class="col-md-4">
                         <TextField name="headline" :label="__('message.headline')" :value="form.headline" :onChange="onChange" />
@@ -30,6 +30,7 @@
                             :value="form.templateObj"
                             :onChange="onChange"
                             :placeholder="__('message.choose')"
+                            :error="errors.pricing_templates_id"
                         />
                     </div>
                     <div class="col-md-4">
@@ -59,12 +60,12 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { productGroupRules } from './productGroupValidation.js'
+import { productGroupSchema } from '@/validations/productGroupValidations'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 
@@ -73,7 +74,7 @@ const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const router = useRouter()
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 
 const saving = ref(false)
 const form = reactive({
@@ -86,10 +87,8 @@ const form = reactive({
     status: 0,
 })
 
-onMounted(() => { clearAllErrors() })
-
 function onChange(val, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     if (name === 'pricing_templates_id') {
         form.templateObj = val
         form.pricing_templates_id = val?.id ?? null
@@ -99,8 +98,14 @@ function onChange(val, name) {
 }
 
 async function submit() {
-    const isValid = validate(productGroupRules(form, __))
-    if (!isValid) return
+    try {
+        productGroupSchema.validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
 
     saving.value = true
     try {

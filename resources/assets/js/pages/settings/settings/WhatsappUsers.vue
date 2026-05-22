@@ -24,8 +24,9 @@
                     name="editWebhookUrl"
                     :label="__('message.webhook_url')"
                     :value="editWebhookUrl"
-                    :onChange="(val) => { clearFieldError('editWebhookUrl'); editWebhookUrl = val }"
+                    :onChange="(val) => { setFieldError('editWebhookUrl', undefined); editWebhookUrl = val }"
                     :placehold="__('message.enter_webhook_url')"
+                    :error="errors.editWebhookUrl"
                 />
             </template>
 
@@ -38,12 +39,12 @@
 
 <script setup>
 import { h, ref } from 'vue'
+import { useForm } from 'vee-validate'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import DataTable from '@/themes/adminlte/components/common/DataTable.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { webhookUrlRules } from './whatsappUsersValidation.js'
+import { webhookUrlSchema } from '@/validations/systemSettingsValidations'
 
 const COMPONENT = 'whatsapp-users'
 const el      = document.getElementById('app-root')
@@ -51,7 +52,7 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const apiUrl  = `${baseUrl}/whatsapp-users-api`
 const tableRef = ref(null)
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError, resetForm } = useForm()
 
 const editRow        = ref(null)
 const editWebhookUrl = ref('')
@@ -59,7 +60,7 @@ const saving         = ref(false)
 const copiedId       = ref(null)
 
 function openEdit(row) {
-    clearAllErrors()
+    resetForm()
     editRow.value        = row
     editWebhookUrl.value = row.callback_url ?? ''
 }
@@ -70,8 +71,14 @@ function closeEdit() {
 }
 
 async function saveWebhook() {
-    const isValid = validate(webhookUrlRules(editWebhookUrl.value, __))
-    if (!isValid) return
+    try {
+        webhookUrlSchema.validateSync({ editWebhookUrl: editWebhookUrl.value }, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
     saving.value = true
     try {
         const res = await http.post(`${baseUrl}/webhook-url-edit`, {

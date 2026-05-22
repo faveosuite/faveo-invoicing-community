@@ -21,6 +21,7 @@
                                 :onChange="onChange"
                                 :placehold="__('message.coupon-code')"
                                 :inputGroupBtn="{ text: 'generate', action: generateCode }"
+                                :error="errors.code"
                             />
                         </div>
                         <div class="col-md-4">
@@ -31,10 +32,11 @@
                                 :elements="promotionTypes"
                                 :value="form.type"
                                 :onChange="onChange"
+                                :error="errors.type"
                             />
                         </div>
                         <div class="col-md-4">
-                            <TextField name="value" :label="__('message.value')" :required="true" type="number" :value="form.value" :onChange="onChange" />
+                            <TextField name="value" :label="__('message.value')" :required="true" type="number" :value="form.value" :onChange="onChange" :error="errors.value" />
                         </div>
                     </div>
 
@@ -50,16 +52,17 @@
                                 :value="form.productObj"
                                 :onChange="onChange"
                                 :placeholder="__('message.choose')"
+                                :error="errors.applied"
                             />
                         </div>
                         <div class="col-md-3">
-                            <TextField name="uses" :label="__('message.uses')" :required="true" type="number" :value="form.uses" :onChange="onChange" />
+                            <TextField name="uses" :label="__('message.uses')" :required="true" type="number" :value="form.uses" :onChange="onChange" :error="errors.uses" />
                         </div>
                         <div class="col-md-3">
-                            <DatePicker name="start" :label="__('message.start')" :required="true" :value="form.start" :onChange="onChange" format="YYYY-MM-DD" />
+                            <DatePicker name="start" :label="__('message.start')" :required="true" :value="form.start" :onChange="onChange" format="YYYY-MM-DD" :error="errors.start" />
                         </div>
                         <div class="col-md-3">
-                            <DatePicker name="expiry" :label="__('message.expiry')" :required="true" :value="form.expiry" :onChange="onChange" format="YYYY-MM-DD" />
+                            <DatePicker name="expiry" :label="__('message.expiry')" :required="true" :value="form.expiry" :onChange="onChange" format="YYYY-MM-DD" :error="errors.expiry" />
                         </div>
                     </div>
                 </div>
@@ -76,10 +79,10 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { couponRules } from './couponValidation.js'
+import { couponSchema } from '@/validations/couponValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
 
@@ -89,7 +92,7 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const router = useRouter()
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 
 const loading = ref(true)
 const saving = ref(false)
@@ -108,7 +111,7 @@ const form = reactive({
 })
 
 function onChange(val, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     if (name === 'applied') {
         form.productObj = val
         form.applied = val?.id ?? null
@@ -122,7 +125,7 @@ async function generateCode() {
     try {
         const res = await http.get(`${baseUrl}/getPromotionCode`)
         form.code = res.data?.data ?? res.data ?? ''
-        clearFieldError('code')
+        setFieldError('code', undefined)
     } catch (e) {
         // ignore
     } finally {
@@ -131,7 +134,6 @@ async function generateCode() {
 }
 
 onMounted(async () => {
-    clearAllErrors()
     try {
         const [typesRes, promoRes] = await Promise.all([
             http.get(`${baseUrl}/dependency/promotion-types`),
@@ -160,8 +162,14 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const isValid = validate(couponRules(form, __))
-    if (!isValid) return
+    try {
+        couponSchema.validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
 
     saving.value = true
     try {

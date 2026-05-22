@@ -2,10 +2,10 @@
     <FormFieldTemplate :label="label" :labelStyle="labelStyle" :name="name" :classname="classname"
                        :hint="hint" :required="required" :showNewButton="showNewButton"
                        :newBtnName="newBtnName" :onClickEvent="getActionEvent"
-                       :inputGroupBtn="inputGroupBtn">
+                       :inputGroupBtn="inputGroupBtn" :error="error">
         <div v-if="type === 'textarea'">
             <textarea :id="id ? id : 'text-field-' + name" :name="name"
-                      :class="['form-control', inputClass]"
+                      :class="['form-control', inputClass, { 'is-invalid': error }]"
                       :maxlength="length" :type="type"
                       v-model="changedValue" @input="onChange(changedValue, name)"
                       :cols="columns" :rows="rows" :style="inputStyle"
@@ -15,7 +15,7 @@
         <div v-else-if="type === 'password'">
             <div class="input-group">
                 <input :id="id ? id : 'text-field-' + name" :name="name"
-                       :class="['form-control', inputClass]"
+                       :class="['form-control', inputClass, { 'is-invalid': error }]"
                        :type="showPassword ? 'text' : 'password'"
                        :disabled="disabled" :style="inputStyle"
                        v-model="changedValue" @input="onChange(changedValue, name)"
@@ -28,7 +28,7 @@
             </div>
         </div>
         <input v-else :id="id ? id : 'text-field-' + name" :name="name"
-               :class="['form-control', inputClass]"
+               :class="['form-control', inputClass, { 'is-invalid': error }]"
                :type="type" :disabled="disabled" :style="inputStyle"
                v-model="changedValue" @input="onChange(changedValue, name)"
                @keyup="keyupListener($event, name)" @keydown="keydownListener($event, name)"
@@ -70,6 +70,7 @@ const props = defineProps({
     newBtnName:      { type: String,           default: '' },
     onNewButtonClick: { type: Function,        default: () => {} },
     inputGroupBtn:   { type: Object,           default: () => null },
+    error:           { type: String,           default: undefined },
 })
 
 const changedValue = ref(props.value)

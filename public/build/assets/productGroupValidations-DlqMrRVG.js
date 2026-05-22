@@ -1,0 +1,1 @@
+import{G as e,H as r}from"./main-C0tm74op.js";import{r as a}from"./helpers-C0dgzYC0.js";const o=e({name:r().required(()=>__("validation.group.name.required")),pricing_templates_id:a(()=>__("validation.group.pricing_templates_id.required"))});export{o as p};

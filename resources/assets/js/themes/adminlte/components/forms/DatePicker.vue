@@ -29,7 +29,6 @@
 import { ref, computed, watch } from 'vue'
 import VueDatePicker from 'vue-datepicker-next'
 import 'vue-datepicker-next/index.css'
-import { useAlertStore } from '@/core/stores/alert'
 
 const props = defineProps({
     name:         { type: String, required: true },
@@ -46,9 +45,10 @@ const props = defineProps({
     confirm:      { type: Boolean, default: false },
     disabledDate: { type: Function, default: null },
     required:     { type: Boolean, default: false },
+    error:        { type: String, default: undefined },
 })
 
-const fieldError = computed(() => useAlertStore().validation_errors[props.name] ?? '')
+const fieldError = computed(() => props.error ?? '')
 
 const selectedValue = ref(props.value ?? null)
 

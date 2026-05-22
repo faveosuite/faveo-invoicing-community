@@ -29,13 +29,12 @@
             :class="['form-control', { 'is-invalid': fieldError }]"
             @input="onChange($event.target.value, name)"
         />
-        <div v-if="fieldError" class="invalid-feedback">{{ fieldError }}</div>
+        <div v-if="fieldError" class="invalid-feedback d-block">{{ fieldError }}</div>
     </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useAlertStore } from '@/core/stores/alert'
 
 const props = defineProps({
     name:        { type: String, required: true },
@@ -47,9 +46,10 @@ const props = defineProps({
     readonly:    { type: Boolean, default: false },
     required:    { type: Boolean, default: false },
     onChange:    { type: Function, default: () => {} },
+    error:       { type: String, default: undefined },
 })
 
-const fieldError = computed(() => useAlertStore().validation_errors[props.name] ?? '')
+const fieldError = computed(() => props.error ?? '')
 const showPassword = ref(false)
 </script>
 

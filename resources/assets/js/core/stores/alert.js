@@ -5,7 +5,6 @@ export const useAlertStore = defineStore('alert', {
         message: '',
         type: '',
         component_name: '',
-        validation_errors: {},
         duration: '',
     }),
     actions: {
@@ -20,12 +19,6 @@ export const useAlertStore = defineStore('alert', {
             this.type = ''
             this.component_name = ''
             this.duration = ''
-        },
-        setValidationError(errors) {
-            this.validation_errors = errors
-        },
-        unsetValidationError() {
-            this.validation_errors = {}
         },
     },
 })

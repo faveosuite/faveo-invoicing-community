@@ -36,13 +36,14 @@ import { useRouter } from 'vue-router'
 import axios from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler'
 import { getIdFromUrl, lang } from '@/helpers/extraLogics'
-import { useFormValidation } from '@/composables/useFormValidation'
+import { useForm } from 'vee-validate'
+import { bannedHostSchema } from '@/validations/licenseValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const router = useRouter()
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 
 const title = ref('add_new_banned_host')
 const isEdit = ref(false)
@@ -54,7 +55,7 @@ const banned_host_ip = ref(null)
 const hostId = ref(null)
 
 function onChange(value, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     if (name === 'banned_host_ip') {
         banned_host_ip.value = value
     } else if (name === 'banned_host_comments') {
@@ -77,10 +78,14 @@ function getInitialValues(id) {
 }
 
 function onSubmit() {
-    if (!validate({
-        banned_host_ip: [banned_host_ip.value, { isRequired: __('message.field_required') }],
-        banned_host_comments: [banned_host_comments.value, { 'max(250)': 'The description should be less than 250 characters.' }],
-    })) return
+    try {
+        bannedHostSchema.validateSync({ banned_host_ip: banned_host_ip.value }, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
     saving.value = true
     const formData = {
         banned_host_ip: banned_host_ip.value,
@@ -103,7 +108,6 @@ function onSubmit() {
 }
 
 onBeforeMount(() => {
-    clearAllErrors()
     const path = window.location.pathname
     const id = getIdFromUrl(path)
     if (path.indexOf('edit') >= 0) {

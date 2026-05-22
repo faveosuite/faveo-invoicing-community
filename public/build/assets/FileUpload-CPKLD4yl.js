@@ -1,1 +1,0 @@
-import{d as o,P as s,k as r,Z as t}from"./main-D0WhVF-s.js";const a={},c={class:"fileupload-wrapper"};function l(e,n){return s(),r("div",c,[t(e.$slots,"default")])}const _=o(a,[["render",l]]);export{_ as default};

@@ -1,0 +1,1 @@
+import{_ as s,o as t,e as o,A as r}from"./main-C0tm74op.js";const a={},c={class:"table-wrapper"};function n(e,l){return t(),o("div",c,[r(e.$slots,"default")])}const d=s(a,[["render",n]]);export{d as default};

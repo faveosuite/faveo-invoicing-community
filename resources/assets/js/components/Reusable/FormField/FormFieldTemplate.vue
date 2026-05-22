@@ -1,6 +1,6 @@
 <template>
     <div class="mb-3"
-         :class="[classname, 'form-group', 'form-field-template', { 'has-error': name in errors }, { 'row': isInlineForm }]"
+         :class="[classname, 'form-group', 'form-field-template', { 'row': isInlineForm }]"
          :id="label">
 
         <div :class="{ 'col-md-2 flex break': isInlineForm }">
@@ -34,7 +34,7 @@
                     <em v-html="getHint(hint)"></em>
                 </div>
             </template>
-            <div v-if="name in errors" class="error-block is-danger">{{ errors[name] }}</div>
+            <div v-if="error" class="invalid-feedback d-block">{{ error }}</div>
             <button v-if="actionBtn" class="btn btn-light form-field-action-button"
                     @click="() => actionBtn.action()">
                 <span>{{ lang(actionBtn.text) }}</span>
@@ -44,8 +44,6 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue'
-import { useAlertStore } from '@/core/stores/alert'
 import { lang } from '@/helpers/extraLogics'
 import ToolTip from '../Tooltip.vue'
 
@@ -67,17 +65,7 @@ const props = defineProps({
     showPreview:   { type: [String, Object],                     default: '' },
     tipRule:       { type: [Number, Boolean],                    default: false },
     newBtnName:    { type: String,                               default: '' },
-})
-
-const alertStore = useAlertStore()
-
-const errors = computed(() => alertStore.validation_errors)
-
-watch(errors, () => {
-    setTimeout(() => {
-        const errorBlock = document.querySelectorAll('.error-block:not([style*="display: none"])')[0]
-        errorBlock?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }, 1)
+    error:         { type: String,                               default: undefined },
 })
 
 function clickEvent(name) {

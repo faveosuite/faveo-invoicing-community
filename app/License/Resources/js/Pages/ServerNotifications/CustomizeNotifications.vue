@@ -134,12 +134,13 @@ import { ref, onBeforeMount } from 'vue'
 import axios from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler'
 import { lang } from '@/helpers/extraLogics'
-import { useFormValidation } from '@/composables/useFormValidation'
+import { useForm } from 'vee-validate'
+import { buildNotificationsSchema } from '@/validations/licenseValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 const loading = ref(true)
 const saving = ref(false)
 const notification_id = ref('')
@@ -172,7 +173,7 @@ const fieldRefs = {
 }
 
 function onChange(value, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     if (fieldRefs[name] !== undefined) {
         fieldRefs[name].value = value ? value : ''
     }
@@ -195,14 +196,17 @@ function getInitialValues() {
 }
 
 function onSubmit() {
-    const rules = {}
-    Object.keys(fieldRefs).forEach(key => {
-        rules[key] = [fieldRefs[key].value, { isRequired: __('message.field_required') }, { 'max(250)': 'The word limit should be less than 250 characters.' }]
-    })
-    if (!validate(rules)) return
-    saving.value = true
     const data = {}
     Object.keys(fieldRefs).forEach(key => { data[key] = fieldRefs[key].value })
+    try {
+        buildNotificationsSchema(Object.keys(fieldRefs)).validateSync(data, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
+    saving.value = true
 
     axios.post(baseUrl + '/api/admin/notifications/' + notification_id.value, data).then(res => {
         successHandler(res, 'custom-note')
@@ -215,7 +219,6 @@ function onSubmit() {
 }
 
 onBeforeMount(() => {
-    clearAllErrors()
     getInitialValues()
 })
 </script>

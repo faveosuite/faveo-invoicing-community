@@ -50,8 +50,9 @@
                     name="license_type_name"
                     :label="__('message.name')"
                     :value="newName"
-                    :onChange="(val) => { newName = val; clearFieldError('license_type_name') }"
+                    :onChange="(val) => { newName = val; setFieldError('license_type_name', undefined) }"
                     :placeholder="__('message.name')"
+                    :error="errors.license_type_name"
                 />
             </template>
             <template #controls>
@@ -71,8 +72,9 @@
                     name="license_type_edit_name"
                     :label="__('message.name')"
                     :value="editName"
-                    :onChange="(val) => { editName = val; clearFieldError('license_type_edit_name') }"
+                    :onChange="(val) => { editName = val; setFieldError('license_type_edit_name', undefined) }"
                     :placeholder="__('message.name')"
+                    :error="errors.license_type_edit_name"
                 />
             </template>
             <template #controls>
@@ -107,13 +109,13 @@
 
 <script setup>
 import { h, ref, computed, reactive } from 'vue'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { licenseTypeCreateRules, licenseTypeEditRules } from './licenseTypeValidation.js'
+import { licenseTypeCreateSchema, licenseTypeEditSchema } from '@/validations/licenseTypeValidations'
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError, resetForm } = useForm()
 
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
@@ -128,7 +130,7 @@ const showCreate = ref(false)
 const newName = ref('')
 const creating = ref(false)
 
-function openCreate() { clearAllErrors(); showCreate.value = true }
+function openCreate() { resetForm(); showCreate.value = true }
 function closeCreate() { showCreate.value = false; newName.value = '' }
 
 // Edit
@@ -139,7 +141,7 @@ const editLoading = ref(false)
 const saving = ref(false)
 
 async function openEdit(id) {
-    clearAllErrors()
+    resetForm()
     editId.value = id
     editName.value = ''
     showEdit.value = true
@@ -192,8 +194,14 @@ function toggleAll(e) {
 }
 
 async function create() {
-    const isValid = validate(licenseTypeCreateRules(newName.value, __))
-    if (!isValid) return
+    try {
+        licenseTypeCreateSchema.validateSync({ license_type_name: newName.value }, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
     creating.value = true
     try {
         const res = await http.post(`${baseUrl}/create-license-type`, { name: newName.value })
@@ -208,8 +216,14 @@ async function create() {
 }
 
 async function update() {
-    const isValid = validate(licenseTypeEditRules(editName.value, __))
-    if (!isValid) return
+    try {
+        licenseTypeEditSchema.validateSync({ license_type_edit_name: editName.value }, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
     saving.value = true
     try {
         const res = await http.put(`${baseUrl}/update-license-type/${editId.value}`, { name: editName.value })

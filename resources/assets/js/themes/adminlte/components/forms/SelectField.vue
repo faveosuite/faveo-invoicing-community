@@ -32,7 +32,6 @@
 import { ref, watch, computed } from 'vue'
 import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
-import { useAlertStore } from '@/core/stores/alert'
 
 const props = defineProps({
     name:          { type: String, required: true },
@@ -50,9 +49,10 @@ const props = defineProps({
     noDrop:        { type: Boolean, default: false },
     optionLabel:   { type: String, default: 'name' },
     required:      { type: Boolean, default: false },
+    error:         { type: String, default: undefined },
 })
 
-const fieldError = computed(() => useAlertStore().validation_errors[props.name] ?? '')
+const fieldError = computed(() => props.error ?? '')
 
 const selectedValue = ref(props.value)
 

@@ -21,6 +21,7 @@
                                 :onChange="onTaxTypeSelect"
                                 :clearable="false"
                                 :searchable="false"
+                                :error="errors.name"
                             />
                         </div>
                         <div class="col-md-4">
@@ -29,9 +30,10 @@
                                 :label="__('message.tax_name')"
                                 :required="true"
                                 :value="form['tax-name']"
-                                :onChange="(val) => { form['tax-name'] = val; clearFieldError('tax-name') }"
+                                :onChange="(val) => { form['tax-name'] = val; setFieldError('tax-name', undefined) }"
                                 :disabled="!!(form.name && form.name !== 'Others')"
                                 placehold="Tax name"
+                                :error="errors['tax-name']"
                             />
                         </div>
                         <template v-if="form.name === 'Others'">
@@ -42,8 +44,9 @@
                                     :required="true"
                                     type="number"
                                     :value="form.rate"
-                                    :onChange="(val) => { form.rate = val; clearFieldError('rate') }"
+                                    :onChange="(val) => { form.rate = val; setFieldError('rate', undefined) }"
                                     placehold="0.00"
+                                    :error="errors.rate"
                                 />
                             </div>
                             <div class="col-md-4">
@@ -84,10 +87,10 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { taxCreateRules } from './taxValidation.js'
+import { buildTaxCreateSchema } from '@/validations/taxValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const COMPONENT = 'tax-create'
@@ -95,7 +98,7 @@ const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const router  = useRouter()
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 
 const loadingCountries = ref(true)
 const saving           = ref(false)
@@ -114,7 +117,7 @@ const form = reactive({
 })
 
 function onTaxTypeSelect(val) {
-    clearFieldError('name')
+    setFieldError('name', undefined)
     form.name = val?.id ?? ''
     form.rate    = ''
     form.country = ''
@@ -140,7 +143,6 @@ async function onCountrySelect(val) {
 }
 
 onMounted(async () => {
-    clearAllErrors()
     try {
         const res   = await http.get(`${baseUrl}/tax-options`)
         countries.value = Object.entries(res.data?.data?.countries ?? {}).map(([id, name]) => ({ id, name }))
@@ -152,8 +154,14 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const isValid = validate(taxCreateRules(form, __))
-    if (!isValid) return
+    try {
+        buildTaxCreateSchema(form).validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
 
     saving.value = true
     try {

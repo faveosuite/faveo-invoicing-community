@@ -10,13 +10,13 @@
                 <!-- Row 1: First Name / Last Name / Email / User Name -->
                 <div class="row">
                     <div class="col-md-3">
-                        <TextField name="first_name" :label="__('message.first_name')" :required="true" :value="form.first_name" :onChange="onChange" />
+                        <TextField name="first_name" :label="__('message.first_name')" :required="true" :value="form.first_name" :onChange="onChange" :error="errors.first_name" />
                     </div>
                     <div class="col-md-3">
-                        <TextField name="last_name" :label="__('message.last_name')" :required="true" :value="form.last_name" :onChange="onChange" />
+                        <TextField name="last_name" :label="__('message.last_name')" :required="true" :value="form.last_name" :onChange="onChange" :error="errors.last_name" />
                     </div>
                     <div class="col-md-3">
-                        <TextField name="email" :label="__('message.email')" :required="true" type="email" :value="form.email" :onChange="onChange" />
+                        <TextField name="email" :label="__('message.email')" :required="true" type="email" :value="form.email" :onChange="onChange" :error="errors.email" />
                     </div>
                     <div class="col-md-3">
                         <TextField name="user_name" :label="__('message.user_name')" :value="form.user_name" :onChange="onChange" />
@@ -26,7 +26,7 @@
                 <!-- Row 2: Company / Industry / Email Status / Mobile Status -->
                 <div class="row">
                     <div class="col-md-3">
-                        <TextField name="company" :label="__('message.company')" :required="true" :value="form.company" :onChange="onChange" />
+                        <TextField name="company" :label="__('message.company')" :required="true" :value="form.company" :onChange="onChange" :error="errors.company" />
                     </div>
                     <div class="col-md-3">
                         <DynamicSelect
@@ -106,7 +106,7 @@
                 <!-- Address: full width -->
                 <div class="row">
                     <div class="col-md-12">
-                        <TextField name="address" :label="__('message.address')" :required="true" :value="form.address" :onChange="onChange" />
+                        <TextField name="address" :label="__('message.address')" :required="true" :value="form.address" :onChange="onChange" :error="errors.address" />
                     </div>
                 </div>
 
@@ -125,6 +125,7 @@
                             :value="form.country"
                             :onChange="onCountryChange"
                             :placeholder="__('message.choose')"
+                            :error="errors.country"
                         />
                     </div>
                     <div class="col-md-3">
@@ -156,6 +157,7 @@
                             :value="form.timezone_id"
                             :onChange="onChange"
                             :placeholder="__('message.choose')"
+                            :error="errors.timezone_id"
                         />
                     </div>
                     <div class="col-md-3">
@@ -164,6 +166,7 @@
                             :label="__('message.mobile')"
                             :value="form.mobile"
                             :onChange="onChange"
+                            :error="errors.mobile"
                             @countryChange="onMobileCountryChange"
                         />
                     </div>
@@ -217,12 +220,12 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { userCreateRules } from './userValidation.js'
+import { userCreateSchema } from '@/validations/userValidations'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 
 const COMPONENT = 'users-create'
@@ -232,7 +235,7 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const router  = useRouter()
 const saving  = ref(false)
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 
 const form = reactive({
     first_name:      '',
@@ -293,14 +296,13 @@ const companySizeOptions = computed(() => [
     { id: '10001',       name: '10001+' },
 ])
 
-onMounted(() => { clearAllErrors() })
-
 function onChange(val, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     form[name] = val
 }
 
 function onCountryChange(val) {
+    setFieldError('country', undefined)
     form.country = val
     form.state   = null
 }
@@ -321,8 +323,14 @@ function extractId(val) {
 }
 
 async function submit() {
-    const isValid = validate(userCreateRules(form, __))
-    if (!isValid) return
+    try {
+        userCreateSchema.validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
 
     saving.value = true
     try {

@@ -1,1 +1,0 @@
-import{d as s,P as t,k as r,Z as a}from"./main-D0WhVF-s.js";const o={},c={class:"table-wrapper"};function n(e,l){return t(),r("div",c,[a(e.$slots,"default")])}const d=s(o,[["render",n]]);export{d as default};

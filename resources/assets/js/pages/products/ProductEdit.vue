@@ -29,7 +29,7 @@
                             <!-- Row 1: Name / License Type / Group -->
                             <div class="row">
                                 <div class="col-md-4">
-                                    <TextField name="name" :label="__('message.name')" :required="true" :value="form.name" :onChange="onChange" />
+                                    <TextField name="name" :label="__('message.name')" :required="true" :value="form.name" :onChange="onChange" :error="errors.name" />
                                 </div>
                                 <div class="col-md-4">
                                     <DynamicSelect
@@ -41,6 +41,7 @@
                                         :value="form.typeObj"
                                         :onChange="onChange"
                                         :placeholder="__('message.select_license_type')"
+                                        :error="errors.type"
                                     />
                                 </div>
                                 <div class="col-md-4">
@@ -53,6 +54,7 @@
                                         :value="form.groupObj"
                                         :onChange="onChange"
                                         :placeholder="__('message.select_group')"
+                                        :error="errors.group"
                                     />
                                 </div>
                             </div>
@@ -60,11 +62,11 @@
                             <!-- Descriptions (left) + Fields & Toggles (right) -->
                             <div class="row">
                                 <div class="col-md-6">
-                                    <TinyMCE name="description" :label="__('message.description')" :required="true" id="editor-description" :value="form.description" :onChange="onChange" />
-                                    <TinyMCE name="short_description" :label="__('message.short_description')" :required="true" id="editor-short-description" :value="form.short_description" :onChange="onChange" />
+                                    <TinyMCE name="description" :label="__('message.description')" :required="true" id="editor-description" :value="form.description" :onChange="onChange" :error="errors.description" />
+                                    <TinyMCE name="short_description" :label="__('message.short_description')" :required="true" id="editor-short-description" :value="form.short_description" :onChange="onChange" :error="errors.short_description" />
                                 </div>
                                 <div class="col-md-6">
-                                    <TextField name="product_sku" :label="__('message.product_sku')" :required="true" :value="form.product_sku" :onChange="onChange" />
+                                    <TextField name="product_sku" :label="__('message.product_sku')" :required="true" :value="form.product_sku" :onChange="onChange" :error="errors.product_sku" />
                                     <DynamicSelect
                                         name="parent"
                                         :label="__('message.parent')"
@@ -174,7 +176,7 @@
                             <!-- Row 5: Product Description (full width) -->
                             <div class="row">
                                 <div class="col-md-12">
-                                    <TinyMCE name="product_description" :label="__('message.product_description')" :required="true" id="editor-product-description" :value="form.product_description" :onChange="onChange" />
+                                    <TinyMCE name="product_description" :label="__('message.product_description')" :required="true" id="editor-product-description" :value="form.product_description" :onChange="onChange" :error="errors.product_description" />
                                 </div>
                             </div>
                         </div>
@@ -236,10 +238,10 @@
 <script setup>
 import { h, reactive, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { productRules } from './productValidation.js'
+import { productSchema } from '@/validations/productValidations'
 import Checkbox from '@/components/Reusable/FormField/Checkbox.vue'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 import Tooltip from '@/components/Reusable/Tooltip.vue'
@@ -250,7 +252,7 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const router = useRouter()
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 
 const loading = ref(true)
 const saving = ref(false)
@@ -333,7 +335,7 @@ const form = reactive({
 })
 
 function onChange(val, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     if (name === 'type') {
         form.typeObj = val
         form.type = val?.id ?? null
@@ -353,7 +355,6 @@ function onImageChange(e) {
 }
 
 onMounted(async () => {
-    clearAllErrors()
     try {
         const [taxRes, productRes] = await Promise.all([
             http.get(`${baseUrl}/dependency/tax-classes`, { params: { limit: 'all' } }),
@@ -405,8 +406,14 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const isValid = validate(productRules(form, __))
-    if (!isValid) return
+    try {
+        productSchema.validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
 
     saving.value = true
     try {

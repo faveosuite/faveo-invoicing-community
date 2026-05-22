@@ -1,1 +1,0 @@
-import{d as r,P as s,k as t,Z as a}from"./main-D0WhVF-s.js";const c={},o={class:"card-wrapper"};function n(e,d){return s(),t("div",o,[a(e.$slots,"default")])}const l=r(c,[["render",n]]);export{l as default};

@@ -60,10 +60,6 @@ $faveo-white: #fff;
   color:$faveo-red;
 }
 
-.has-error .form-control, .has-error .dropdown-toggle, .is-danger > .dropdown-toggle, .field-danger > .dropdown-toggle,  .field-danger, .has-error{
-  border-color: $faveo-red !important;
-}
-
 .form-field-template .form-control {
   margin-bottom: 0!important;
 }
@@ -267,10 +263,6 @@ input .form-control{
 .tooltip-inner {
   // it looks ugly when tooltip has more content but less width
   max-width: 600px;
-}
-
-.form-group.has-error label {
-    color: #dd4b39;
 }
 
 select.form-control, input.form-control {

@@ -22,6 +22,7 @@
                                     :value="form.date"
                                     :onChange="onChange"
                                     placeholder="MM/DD/YYYY"
+                                    :error="errors.date"
                                 />
                             </div>
 
@@ -42,7 +43,7 @@
                                     :label="__('message.status')"
                                     :elements="statusOptions"
                                     :value="statusOptions.find(o => o.id === form.status) ?? null"
-                                    :onChange="(val) => { clearFieldError('status'); form.status = val?.id ?? '' }"
+                                    :onChange="(val) => { setFieldError('status', undefined); form.status = val?.id ?? '' }"
                                     :placeholder="__('message.choose')"
                                     :clearable="false"
                                     :searchable="false"
@@ -61,13 +62,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { invoiceEditRules } from './invoiceValidation.js'
-import { useAlertStore } from '@/core/stores/alert'
+import { invoiceEditSchema } from '@/validations/invoiceValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const COMPONENT = 'invoices-edit'
@@ -78,8 +78,7 @@ const route = useRoute()
 const router = useRouter()
 const invoiceId = route.params.id
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
-const validationErrors = computed(() => useAlertStore().validation_errors)
+const { errors, setErrors, setFieldError } = useForm()
 
 const statusOptions = [
     { id: 'success',        name: __('message.success') },
@@ -98,7 +97,7 @@ const form = reactive({
 })
 
 function onChange(val, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     form[name] = val
 }
 
@@ -125,8 +124,14 @@ async function fetchInvoice() {
 }
 
 async function submit() {
-    const isValid = validate(invoiceEditRules(form, __))
-    if (!isValid) return
+    try {
+        invoiceEditSchema.validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
 
     saving.value = true
     try {
@@ -141,7 +146,6 @@ async function submit() {
 }
 
 onMounted(() => {
-    clearAllErrors()
     fetchInvoice()
 })
 </script>

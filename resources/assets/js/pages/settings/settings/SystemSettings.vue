@@ -20,6 +20,7 @@
                                 :required="true"
                                 :value="form.company"
                                 :onChange="onChange"
+                                :error="errors.company"
                             />
                         </div>
                         <div class="col-md-4">
@@ -30,6 +31,7 @@
                                 :required="true"
                                 :value="form.company_email"
                                 :onChange="onChange"
+                                :error="errors.company_email"
                             />
                         </div>
                         <div class="col-md-4">
@@ -40,6 +42,7 @@
                                 :value="form.website"
                                 :onChange="onChange"
                                 placeholder="https://example.com"
+                                :error="errors.website"
                             />
                         </div>
                     </div>
@@ -82,6 +85,7 @@
                                 :value="form.phone"
                                 :onChange="onChange"
                                 :initialCountry="form.phone_country_iso ? form.phone_country_iso.toLowerCase() : 'auto'"
+                                :error="errors.phone"
                                 @countryChange="onPhoneCountryChange"
                             />
                         </div>
@@ -118,6 +122,7 @@
                                 :onChange="onChange"
                                 :searchable="true"
                                 :placeholder="__('message.choose')"
+                                :error="errors.default_currency"
                             />
                         </div>
                         <div class="col-md-4">
@@ -141,7 +146,7 @@
                     <!-- Row 5: Address (full-width textarea) -->
                     <div class="row">
                         <div class="col-12">
-                            <TextField name="address" :label="__('message.address')" :required="true" type="textarea" :value="form.address" :rows="3" :onChange="onChange" />
+                            <TextField name="address" :label="__('message.address')" :required="true" type="textarea" :value="form.address" :rows="3" :onChange="onChange" :error="errors.address" />
                         </div>
                     </div>
 
@@ -165,6 +170,7 @@
                                 :onChange="onCountryChange"
                                 :searchable="true"
                                 :placeholder="__('message.choose')"
+                                :error="errors.country"
                             />
                         </div>
                         <div class="col-md-4">
@@ -177,6 +183,7 @@
                                 :onChange="onChange"
                                 :searchable="true"
                                 :placeholder="__('message.choose')"
+                                :error="errors.state"
                             />
                         </div>
                     </div>
@@ -277,19 +284,19 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import ImageUpload from '@/components/Reusable/FormField/ImageUpload.vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { systemSettingsRules } from './systemSettingsValidation.js'
+import { systemSettingsSchema } from '@/validations/systemSettingsValidations'
 
 const COMPONENT = 'system-settings'
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -343,7 +350,6 @@ const form = reactive({
 })
 
 onMounted(async () => {
-    clearAllErrors()
     try {
         const res  = await http.get(`${baseUrl}/settings/system-data`)
         const data = res.data?.data ?? {}
@@ -409,12 +415,12 @@ function stateLabel(s) {
 }
 
 function onChange(val, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     form[name] = val
 }
 
 function onCountryChange(val) {
-    clearFieldError('country')
+    setFieldError('country', undefined)
     form.country = val
     loadStates()
 }
@@ -460,8 +466,14 @@ function onImageChange(value, name) {
 }
 
 async function save() {
-    const isValid = validate(systemSettingsRules(form, __))
-    if (!isValid) return
+    try {
+        systemSettingsSchema.validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
 
     saving.value = true
     try {
@@ -507,7 +519,6 @@ async function save() {
         const res = await http.post(`${baseUrl}/settings/system-data`, fd, {
             headers: { 'Content-Type': 'multipart/form-data' },
         })
-        clearAllErrors()
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)

@@ -29,6 +29,7 @@
                             :required="true"
                             :value="form.first_name"
                             :onChange="onChange"
+                            :error="errors.first_name"
                         />
                         <TextField
                             name="last_name"
@@ -36,6 +37,7 @@
                             :required="true"
                             :value="form.last_name"
                             :onChange="onChange"
+                            :error="errors.last_name"
                         />
                         <TextField
                             name="user_name"
@@ -43,6 +45,7 @@
                             :required="true"
                             :value="form.user_name"
                             :onChange="onChange"
+                            :error="errors.user_name"
                         />
                         <TextField
                             name="email"
@@ -57,6 +60,7 @@
                             :required="true"
                             :value="form.company"
                             :onChange="onChange"
+                            :error="errors.company"
                         />
 
                         <PhoneField
@@ -66,6 +70,7 @@
                             :value="form.mobile"
                             :initialCountry="form.mobile_country_iso"
                             :onChange="onChange"
+                            :error="errors.mobile"
                             @countryChange="onMobileCountryChange"
                         />
 
@@ -75,6 +80,7 @@
                             :required="true"
                             :value="form.address"
                             :onChange="onChange"
+                            :error="errors.address"
                         />
                         <TextField
                             name="town"
@@ -91,6 +97,7 @@
                             :value="timezones.find(t => t.id === form.timezone_id) ?? null"
                             :onChange="onTimezoneChange"
                             :clearable="false"
+                            :error="errors.timezone_id"
                         />
                         <SelectField
                             name="country"
@@ -100,6 +107,7 @@
                             :value="countries.find(c => c.id === form.country) ?? null"
                             :onChange="onCountryChange"
                             :clearable="false"
+                            :error="errors.country"
                         />
                         <SelectField
                             name="state"
@@ -143,6 +151,7 @@
                             :value="pwForm.old_password"
                             type="password"
                             :onChange="onPwChange"
+                            :error="errors.old_password"
                         />
                         <TextField
                             name="new_password"
@@ -151,6 +160,7 @@
                             :value="pwForm.new_password"
                             type="password"
                             :onChange="onPwChange"
+                            :error="errors.new_password"
                         />
 
                         <div v-if="pwForm.new_password.length > 0" class="mb-3">
@@ -173,6 +183,7 @@
                             :value="pwForm.confirm_password"
                             type="password"
                             :onChange="onPwChange"
+                            :error="errors.confirm_password"
                         />
                     </div>
                     <div class="card-footer">
@@ -390,18 +401,18 @@
 
 <script setup>
 import { reactive, ref, computed, onMounted } from 'vue'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import ImageUpload from '@/components/Reusable/FormField/ImageUpload.vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { profileRules, passwordChangeRules } from './profileValidation.js'
+import { profileSchema, passwordChangeSchema } from '@/validations/profileValidations'
 
 const COMPONENT = 'profile-index'
 const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 
 const hasDataPopulated = ref(false)
 const savingProfile    = ref(false)
@@ -468,7 +479,6 @@ const passwordRules = computed(() => [
 ])
 
 onMounted(async () => {
-    clearAllErrors()
     try {
         const [profileRes, countriesRes] = await Promise.all([
             http.get(`${baseUrl}/profile`),
@@ -530,17 +540,17 @@ async function loadStates(countryCode) {
 
 function onChange(value, name) {
     if (name === 'profile_pic') return
-    clearFieldError(name)
+    setFieldError(name, undefined)
     form[name] = value ?? ''
 }
 
 function onPwChange(value, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     pwForm[name] = value ?? ''
 }
 
 function onTimezoneChange(val) {
-    clearFieldError('timezone_id')
+    setFieldError('timezone_id', undefined)
     form.timezone_id = val?.id ?? null
 }
 
@@ -555,7 +565,7 @@ function onMobileCountryChange({ iso, dialCode }) {
 }
 
 async function onCountryChange(val) {
-    clearFieldError('country')
+    setFieldError('country', undefined)
     form.country = val?.id ?? ''
     form.state   = ''
     states.value = []
@@ -565,8 +575,14 @@ async function onCountryChange(val) {
 }
 
 async function submitProfile() {
-    const isValid = validate(profileRules(form, __))
-    if (!isValid) return
+    try {
+        profileSchema.validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
 
     savingProfile.value = true
     try {
@@ -591,8 +607,14 @@ async function submitProfile() {
 }
 
 async function submitPassword() {
-    const isValid = validate(passwordChangeRules(pwForm, __))
-    if (!isValid) return
+    try {
+        passwordChangeSchema.validateSync(pwForm, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
 
     savingPassword.value = true
     try {

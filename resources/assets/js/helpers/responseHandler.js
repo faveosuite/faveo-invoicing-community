@@ -9,16 +9,9 @@ export const errorHandler = (err, componentName = '') => {
     const status = err?.response?.status
     const data   = err?.response?.data
 
-    // 422: Laravel validation errors — map to individual fields via the alert store
+    // 422: Laravel validation errors — surface the top-level message via the global alert.
+    // Field-level errors live in each form's vee-validate `useForm()` instance now.
     if (status === 422) {
-        if (data?.errors && typeof data.errors === 'object') {
-            const fieldErrors = {}
-            Object.entries(data.errors).forEach(([field, messages]) => {
-                fieldErrors[field] = Array.isArray(messages) ? messages[0] : messages
-            })
-            store.setValidationError(fieldErrors)
-        }
-        // Also surface the top-level message as a global alert when present
         if (data?.message) {
             store.setAlert({ type: 'danger', message: data.message, component_name: componentName })
         }

@@ -16,7 +16,8 @@
                                 name="client_id"
                                 :label="form.type === 'Twitter' ? __('message.api_key') : __('message.client_id')"
                                 :value="form.client_id"
-                                :onChange="(val) => { clearFieldError('client_id'); form.client_id = val }"
+                                :onChange="(val) => { setFieldError('client_id', undefined); form.client_id = val }"
+                                :error="errors.client_id"
                             />
                         </div>
                         <div class="col-md-6">
@@ -24,7 +25,8 @@
                                 name="client_secret"
                                 :label="form.type === 'Twitter' ? __('message.lic_api_secret') : __('message.client_secret')"
                                 :value="form.client_secret"
-                                :onChange="(val) => { clearFieldError('client_secret'); form.client_secret = val }"
+                                :onChange="(val) => { setFieldError('client_secret', undefined); form.client_secret = val }"
+                                :error="errors.client_secret"
                             />
                         </div>
                         <div class="col-md-6">
@@ -32,7 +34,8 @@
                                 name="redirect_url"
                                 :label="__('message.redirect_url')"
                                 :value="form.redirect_url"
-                                :onChange="(val) => { clearFieldError('redirect_url'); form.redirect_url = val }"
+                                :onChange="(val) => { setFieldError('redirect_url', undefined); form.redirect_url = val }"
+                                :error="errors.redirect_url"
                             />
                         </div>
                         <div class="col-md-6">
@@ -58,10 +61,10 @@ import { reactive, ref, onMounted } from 'vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { socialLoginRules } from './socialLoginValidation.js'
+import { socialLoginSchema } from '@/validations/socialLoginValidations'
 
 const COMPONENT = 'social-logins-edit'
 const el = document.getElementById('app-root')
@@ -69,7 +72,7 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const router = useRouter()
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 
 const loading = ref(true)
 const saving = ref(false)
@@ -83,7 +86,6 @@ const form = reactive({
 })
 
 onMounted(async () => {
-    clearAllErrors()
     try {
         const res = await http.get(`${baseUrl}/edit/SocialLogins/${route.params.id}`)
         const d = res.data?.data ?? res.data
@@ -100,8 +102,14 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const isValid = validate(socialLoginRules(form, __))
-    if (!isValid) return
+    try {
+        socialLoginSchema.validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
     saving.value = true
     try {
         const payload = {

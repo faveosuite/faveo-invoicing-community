@@ -45,13 +45,14 @@ import { useRouter } from 'vue-router'
 import axios from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler'
 import { getIdFromUrl, lang } from '@/helpers/extraLogics'
-import { useFormValidation } from '@/composables/useFormValidation'
+import { useForm } from 'vee-validate'
+import { installationSchema } from '@/validations/licenseValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 import { useAlertStore } from '@/core/stores/alert'
 
 const alertStore = useAlertStore()
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 const router = useRouter()
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
@@ -66,7 +67,7 @@ const installation_status = ref(1)
 const installation_disable_ip_verification = ref(0)
 
 function onChange(value, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     if (name === 'installation_disable_ip_verification') {
         installation_disable_ip_verification.value = value
     } else if (name === 'installation_status') {
@@ -86,9 +87,14 @@ function updateStatesWithData(data) {
 }
 
 function onSubmit() {
-    if (!validate({
-        installation_ip: [installation_ip.value, { isRequired: __('message.field_required') }],
-    })) return
+    try {
+        installationSchema.validateSync({ installation_ip: installation_ip.value }, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
     saving.value = true
     const data = {}
     data['id'] = installation_id.value
@@ -111,7 +117,6 @@ function onSubmit() {
 }
 
 onBeforeMount(() => {
-    clearAllErrors()
     const path = window.location.pathname
     const installationId = getIdFromUrl(path)
     installation_id.value = installationId

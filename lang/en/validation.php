@@ -507,6 +507,9 @@ return [
         'name' => [
             'required' => 'The name is required',
         ],
+        'pricing_templates_id' => [
+            'required' => 'The design template is required.',
+        ],
         'features' => [
             'name' => [
                 'required' => 'All Features Field Required',
@@ -686,7 +689,11 @@ return [
             'date' => 'The date must be a valid date.',
         ],
         'domain' => [
+            'required' => 'The domain field is required.',
             'regex' => 'The domain format is invalid.',
+        ],
+        'cloud_domain' => [
+            'required' => 'The cloud domain field is required.',
         ],
         'plan' => [
             'required_if' => 'The subscription field is required.',
@@ -894,6 +901,7 @@ return [
         'type_required' => 'The product type is required.',
         'description_required' => 'The product description is required.',
         'product_description_required' => 'The detailed product description is required.',
+        'short_description_required' => 'The short description is required.',
         'image_mimes' => 'The image must be a file of type: jpeg, png, jpg.',
         'image_max' => 'The image may not be greater than 2048 kilobytes.',
         'product_sku_required' => 'The product SKU is required.',

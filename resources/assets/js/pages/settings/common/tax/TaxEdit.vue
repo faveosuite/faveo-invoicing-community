@@ -12,7 +12,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <TextField name="name" :label="__('message.tax_name')" :required="true" :value="form.name" :onChange="onChange" />
+                            <TextField name="name" :label="__('message.tax_name')" :required="true" :value="form.name" :onChange="onChange" :error="errors.name" />
                         </div>
                         <div class="col-md-4">
                             <SelectField
@@ -24,11 +24,12 @@
                                 :onChange="onClassSelect"
                                 :clearable="false"
                                 :searchable="false"
+                                :error="errors.tax_classes_id"
                             />
                         </div>
                         <template v-if="form.tax_classes_id === 'Others'">
                             <div class="col-md-4">
-                                <TextField name="rate" :label="__('message.rate')" :required="true" :value="form.rate" :onChange="onChange" />
+                                <TextField name="rate" :label="__('message.rate')" :required="true" :value="form.rate" :onChange="onChange" :error="errors.rate" />
                             </div>
                             <div class="col-md-4">
                                 <SelectField
@@ -68,10 +69,10 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { taxEditRules } from './taxValidation.js'
+import { buildTaxEditSchema } from '@/validations/taxValidations'
 
 const COMPONENT = 'tax-edit'
 const el = document.getElementById('app-root')
@@ -79,7 +80,7 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const id = route.params.id
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 
 const loading  = ref(true)
 const saving   = ref(false)
@@ -99,12 +100,12 @@ const form = reactive({
 })
 
 function onChange(val, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     form[name] = val
 }
 
 function onClassSelect(val) {
-    clearFieldError('tax_classes_id')
+    setFieldError('tax_classes_id', undefined)
     form.tax_classes_id = val?.id ?? ''
     form.rate    = ''
     form.country = 'IN'
@@ -129,7 +130,6 @@ async function loadStates() {
 }
 
 onMounted(async () => {
-    clearAllErrors()
     try {
         const [editRes, optRes] = await Promise.all([
             http.get(`${baseUrl}/tax/edit/${id}`),
@@ -152,8 +152,14 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const isValid = validate(taxEditRules(form, __))
-    if (!isValid) return
+    try {
+        buildTaxEditSchema(form).validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
 
     saving.value = true
     try {

@@ -38,8 +38,9 @@
                                             name="cloud_central_domain"
                                             :label="__('message.cloud_central_domain')"
                                             :value="form.cloud_central_domain"
-                                            :onChange="(val) => { clearFieldError('cloud_central_domain'); form.cloud_central_domain = val }"
+                                            :onChange="(val) => { setFieldError('cloud_central_domain', undefined); form.cloud_central_domain = val }"
                                             :placehold="'https://example.com'"
+                                            :error="errors.cloud_central_domain"
                                         />
                                     </div>
                                     <div class="col-md-6">
@@ -47,7 +48,8 @@
                                             name="cloud_cname"
                                             :label="__('message.cloud_cname')"
                                             :value="form.cloud_cname"
-                                            :onChange="(val) => { clearFieldError('cloud_cname'); form.cloud_cname = val }"
+                                            :onChange="(val) => { setFieldError('cloud_cname', undefined); form.cloud_cname = val }"
+                                            :error="errors.cloud_cname"
                                         />
                                     </div>
                                 </div>
@@ -59,7 +61,8 @@
                                             name="cloud_top_message"
                                             :label="__('message.cloud_top_message')"
                                             :value="popup.cloud_top_message"
-                                            :onChange="v => { clearFieldError('cloud_top_message'); popup.cloud_top_message = v }"
+                                            :onChange="v => { setFieldError('cloud_top_message', undefined); popup.cloud_top_message = v }"
+                                            :error="errors.cloud_top_message"
                                         />
                                     </div>
                                     <div class="col-md-4">
@@ -67,7 +70,8 @@
                                             name="cloud_label_field"
                                             :label="__('message.cloud_label_field')"
                                             :value="popup.cloud_label_field"
-                                            :onChange="v => { clearFieldError('cloud_label_field'); popup.cloud_label_field = v }"
+                                            :onChange="v => { setFieldError('cloud_label_field', undefined); popup.cloud_label_field = v }"
+                                            :error="errors.cloud_label_field"
                                         />
                                     </div>
                                     <div class="col-md-4">
@@ -75,7 +79,8 @@
                                             name="cloud_label_radio"
                                             :label="__('message.cloud_label_radio')"
                                             :value="popup.cloud_label_radio"
-                                            :onChange="v => { clearFieldError('cloud_label_radio'); popup.cloud_label_radio = v }"
+                                            :onChange="v => { setFieldError('cloud_label_radio', undefined); popup.cloud_label_radio = v }"
+                                            :error="errors.cloud_label_radio"
                                         />
                                     </div>
                                 </div>
@@ -161,22 +166,25 @@
                 :label="__('message.cloud_product')"
                 :elements="products"
                 :value="productForm.cloud_product"
-                :onChange="v => { clearFieldError('cloud_product'); productForm.cloud_product = v }"
+                :onChange="v => { setFieldError('cloud_product', undefined); productForm.cloud_product = v }"
                 :searchable="true"
+                :error="errors.cloud_product"
             />
             <SelectField
                 name="cloud_free_plan"
                 :label="__('message.cloud_free_plan')"
                 :elements="plans"
                 :value="productForm.cloud_free_plan"
-                :onChange="v => { clearFieldError('cloud_free_plan'); productForm.cloud_free_plan = v }"
+                :onChange="v => { setFieldError('cloud_free_plan', undefined); productForm.cloud_free_plan = v }"
                 :searchable="true"
+                :error="errors.cloud_free_plan"
             />
             <TextField
                 name="cloud_product_key"
                 :label="__('message.cloud_product_key')"
                 :value="productForm.cloud_product_key"
-                :onChange="v => { clearFieldError('cloud_product_key'); productForm.cloud_product_key = v }"
+                :onChange="v => { setFieldError('cloud_product_key', undefined); productForm.cloud_product_key = v }"
+                :error="errors.cloud_product_key"
             />
         </template>
         <template #controls>
@@ -222,19 +230,19 @@
 
 <script setup>
 import { h, ref, reactive, onMounted, nextTick, watch } from 'vue'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { cloudSettingsRules, cloudProductRules } from './cloudDetailsValidation.js'
+import { cloudSettingsSchema, cloudProductSchema } from '@/validations/cloudValidations'
 
 const COMPONENT = 'cloud-details'
 const el        = document.getElementById('app-root')
 const baseUrl   = el?.dataset?.baseUrl ?? ''
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError, resetForm } = useForm()
 
 const loading       = ref(true)
 const saving        = ref(false)
@@ -245,7 +253,7 @@ const activeTab     = ref('settings')
 const showProductModal = ref(false)
 const showDCModal      = ref(false)
 
-function openProductModal()  { clearAllErrors(); showProductModal.value = true }
+function openProductModal()  { resetForm(); showProductModal.value = true }
 function closeProductModal() { showProductModal.value = false; productForm.cloud_product = null; productForm.cloud_free_plan = null; productForm.cloud_product_key = '' }
 function openDCModal()  { showDCModal.value = true }
 function closeDCModal() { showDCModal.value = false; dcForm.cloud_countries = null; dcForm.cloud_state = null; dcForm.cloud_city = ''; states.value = [] }
@@ -282,7 +290,6 @@ watch(activeTab, async (val) => {
 })
 
 onMounted(async () => {
-    clearAllErrors()
     try {
         const res  = await http.get(`${baseUrl}/settings/cloud-details`)
         const data = res.data?.data ?? {}
@@ -361,8 +368,14 @@ async function removeRegion(name, marker) {
 // ── Save handlers ─────────────────────────────────────────────────────────────
 
 async function saveSettings() {
-    const isValid = validate(cloudSettingsRules(form, popup, __))
-    if (!isValid) return
+    try {
+        cloudSettingsSchema.validateSync({ ...form, ...popup }, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
     saving.value = true
     try {
         const [res] = await Promise.all([
@@ -379,8 +392,14 @@ async function saveSettings() {
 }
 
 async function saveProduct() {
-    const isValid = validate(cloudProductRules(productForm, __))
-    if (!isValid) return
+    try {
+        cloudProductSchema.validateSync(productForm, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
     savingProduct.value = true
     try {
         const res = await http.post(`${baseUrl}/cloud-product-store`, {

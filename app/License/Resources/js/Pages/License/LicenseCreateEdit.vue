@@ -114,10 +114,11 @@
 <script setup>
 import { ref, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
 import axios from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler'
 import { getIdFromUrl, generateRandomString, lang } from '@/helpers/extraLogics'
-import { useFormValidation } from '@/composables/useFormValidation'
+import { licenseSchema } from '@/validations/licenseValidations'
 import moment from 'moment'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import NumberField from '@/components/Reusable/FormField/NumberField.vue'
@@ -129,7 +130,7 @@ import DateTimePicker from '@/components/Reusable/FormField/DateTimePicker.vue'
 const router = useRouter()
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 
 const title = ref('create_new_license')
 const isEdit = ref(false)
@@ -157,15 +158,15 @@ const license_support_date = ref('')
 const license_comments = ref('')
 
 function onChange(value, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     if (name === 'product') {
         product_id.value = value.product_id
         product_title.value = value.product_title
-        clearFieldError('product')
+        setFieldError('product', undefined)
     } else if (name === 'client') {
         client_id.value = value ? value.client_id : client_id.value
         client_name.value = value ? value.full_name : ''
-        clearFieldError('client')
+        setFieldError('client', undefined)
     } else {
         const map = {
             license_code, license_order_number, license_ip, license_domain, license_limit,
@@ -180,19 +181,26 @@ function onChange(value, name) {
 
 function generateCode() {
     license_code.value = generateRandomString(16)
-    clearFieldError('license_code')
+    setFieldError('license_code', undefined)
 }
 
 function isValid() {
-    const rules = {
-        product: [product_title.value, { isRequired: __('validation.licenses.product.required') }],
-        client: [client_name.value, { isRequired: __('validation.licenses.client.required') }],
-        license_code: [license_code.value, { isRequired: __('validation.licenses.license_code.required') }],
-        license_expire_date: [license_expire_date.value, { isRequired: __('validation.licenses.license_expire_date.required') }],
-        license_updates_date: [license_updates_date.value, { isRequired: __('validation.licenses.license_updates_date.required') }],
-        license_support_date: [license_support_date.value, { isRequired: __('validation.licenses.license_support_date.required') }],
+    try {
+        licenseSchema.validateSync({
+            product:              product_title.value,
+            client:               client_name.value,
+            license_code:         license_code.value,
+            license_expire_date:  license_expire_date.value,
+            license_updates_date: license_updates_date.value,
+            license_support_date: license_support_date.value,
+        }, { abortEarly: false })
+        return true
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return false
     }
-    return validate(rules)
 }
 
 function getInitialValues(id) {
@@ -260,7 +268,6 @@ function onSubmit() {
 }
 
 onBeforeMount(() => {
-    clearAllErrors()
     const path = window.location.pathname
     const licId = getIdFromUrl(path)
     if (path.indexOf('edit') >= 0) {

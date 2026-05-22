@@ -1,7 +1,7 @@
 <template>
     <FormFieldTemplate :label="label" :name="name" :classname="classname" :hint="hint"
-                       :required="required" :labelStyle="labelStyle">
-        <select class="form-control" v-model="selectedValue" :name="name"
+                       :required="required" :labelStyle="labelStyle" :error="error">
+        <select :class="['form-control', { 'is-invalid': error }]" v-model="selectedValue" :name="name"
                 @change="onChange(selectedValue, name)" :id="id"
                 :style="inputStyle" :disabled="disabled">
             <option value="" v-if="!hideEmptySelect">Select</option>
@@ -32,6 +32,7 @@ const props = defineProps({
     labelStyle:      { type: Object,           default: () => ({}) },
     strlength:       { type: [String, Number], default: 100 },
     disabled:        { type: Boolean,          default: false },
+    error:           { type: String,           default: undefined },
 })
 
 const selectedValue = ref('')

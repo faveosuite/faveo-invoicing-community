@@ -145,12 +145,13 @@ import { ref, onBeforeMount } from 'vue'
 import axios from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler'
 import { lang } from '@/helpers/extraLogics'
-import { useFormValidation } from '@/composables/useFormValidation'
+import { useForm } from 'vee-validate'
+import { buildNotificationsSchema } from '@/validations/licenseValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 const loading = ref(true)
 const saving = ref(false)
 const notification_id = ref('')
@@ -198,7 +199,7 @@ const fieldRefs = {
 }
 
 function onChange(value, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     if (fieldRefs[name] !== undefined) {
         fieldRefs[name].value = value ? value : ''
     }
@@ -221,14 +222,17 @@ function getInitialValues() {
 }
 
 function onSubmit() {
-    const rules = {}
-    fields.forEach(field => {
-        rules[field] = [fieldRefs[field].value, { isRequired: __('message.field_required') }, { 'max(250)': 'The word limit should be less than 250 characters.' }]
-    })
-    if (!validate(rules)) return
-    saving.value = true
     const data = {}
     fields.forEach(field => { data[field] = fieldRefs[field].value })
+    try {
+        buildNotificationsSchema(fields).validateSync(data, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
+    saving.value = true
 
     axios.post(baseUrl + '/api/admin/updateNotifications/' + notification_id.value, data).then(res => {
         successHandler(res, 'custom-update-note')
@@ -241,7 +245,6 @@ function onSubmit() {
 }
 
 onBeforeMount(() => {
-    clearAllErrors()
     getInitialValues()
 })
 </script>

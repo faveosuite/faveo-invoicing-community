@@ -13,7 +13,7 @@
                     <!-- Row 1: Name / Product / Period / Status -->
                     <div class="row">
                         <div class="col-md-3">
-                            <TextField name="name" :label="__('message.name')" :required="true" :value="form.name" :onChange="onChange" />
+                            <TextField name="name" :label="__('message.name')" :required="true" :value="form.name" :onChange="onChange" :error="errors.name" />
                         </div>
                         <div class="col-md-3">
                             <DynamicSelect
@@ -25,6 +25,7 @@
                                 :value="form.productObj"
                                 :onChange="onChange"
                                 :placeholder="__('message.choose')"
+                                :error="errors.product"
                             />
                         </div>
                         <div class="col-md-3">
@@ -112,10 +113,10 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { planRules } from './planValidation.js'
+import { planSchema } from '@/validations/planValidations'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
 
 const COMPONENT = 'plans-edit'
@@ -124,7 +125,7 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const router = useRouter()
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 
 const loading = ref(true)
 const saving = ref(false)
@@ -144,7 +145,7 @@ const form = reactive({
 })
 
 function onChange(val, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     if (name === 'product') {
         form.productObj = val
         form.product = val?.id ?? null
@@ -162,7 +163,6 @@ function removeRow(idx) {
 }
 
 onMounted(async () => {
-    clearAllErrors()
     try {
         const [pRes, cRes, planRes] = await Promise.all([
             http.get(`${baseUrl}/dependency/periods`),
@@ -202,7 +202,15 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const isValid = validate(planRules(form, __))
+    let schemaValid = true
+    try {
+        planSchema.validateSync(form, { abortEarly: false })
+    } catch (err) {
+        schemaValid = false
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+    }
 
     const invalidRow = form.prices.find(p => !p.currency || p.add_price === '' || p.renew_price === '')
     if (invalidRow) {
@@ -211,7 +219,7 @@ async function submit() {
         pricingError.value = ''
     }
 
-    if (!isValid || invalidRow) return
+    if (!schemaValid || invalidRow) return
 
     saving.value = true
     try {

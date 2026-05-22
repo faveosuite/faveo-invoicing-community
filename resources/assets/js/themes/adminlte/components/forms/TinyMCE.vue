@@ -19,7 +19,6 @@
 import { ref, computed, watch } from 'vue'
 import Editor from '@tinymce/tinymce-vue'
 import { editorInit } from './tinyMceDefaults.js'
-import { useAlertStore } from '@/core/stores/alert'
 
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
@@ -32,9 +31,10 @@ const props = defineProps({
     id:       { type: String, default: 'tiny_editor' },
     label:    { type: String, default: '' },
     required: { type: Boolean, default: false },
+    error:    { type: String, default: undefined },
 })
 
-const fieldError = computed(() => useAlertStore().validation_errors[props.name] ?? '')
+const fieldError = computed(() => props.error ?? '')
 
 const editorValue = ref(props.value)
 

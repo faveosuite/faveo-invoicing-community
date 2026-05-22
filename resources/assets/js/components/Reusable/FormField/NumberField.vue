@@ -1,8 +1,8 @@
 <template>
     <FormFieldTemplate :label="label" :labelStyle="labelStyle" :name="name"
-                       :classname="classname" :hint="hint" :required="required">
+                       :classname="classname" :hint="hint" :required="required" :error="error">
         <span class="inline">
-            <input class="form-control" :style="formStyle"
+            <input :class="['form-control', { 'is-invalid': error }]" :style="formStyle"
                    :type="type"
                    id="number"
                    v-model="changedValue"
@@ -34,6 +34,7 @@ const props = defineProps({
     max:         { type: [String, Number], default: '' },
     placeholder: { type: String,           default: 'Enter a value' },
     pattern:     { type: String,           default: null },
+    error:       { type: String,           default: undefined },
 })
 
 const changedValue = ref(props.value)

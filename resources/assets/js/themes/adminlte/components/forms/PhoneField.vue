@@ -16,7 +16,6 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import intlTelInput from 'intl-tel-input/intlTelInputWithUtils'
-import { useAlertStore } from '@/core/stores/alert'
 
 const props = defineProps({
     name:           { type: String, required: true },
@@ -24,11 +23,12 @@ const props = defineProps({
     value:          { type: [String, Number], default: '' },
     onChange:       { type: Function, default: () => {} },
     initialCountry: { type: String, default: 'auto' },
+    error:          { type: String, default: undefined },
 })
 
 const emit = defineEmits(['countryChange'])
 
-const fieldError = computed(() => useAlertStore().validation_errors[props.name] ?? '')
+const fieldError = computed(() => props.error ?? '')
 
 const phoneRef = ref(null)
 let iti = null

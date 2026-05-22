@@ -53,6 +53,7 @@
                                 :required="true"
                                 :value="form.name"
                                 :onChange="onChange"
+                                :error="errors.name"
                             />
                         </div>
                         <div class="col-md-4">
@@ -66,6 +67,7 @@
                                 :searchable="true"
                                 :clearable="false"
                                 placeholder="Select a type"
+                                :error="errors.type"
                             />
                         </div>
                         <div class="col-md-4">
@@ -85,6 +87,7 @@
                             id="editor-template"
                             :value="form.data"
                             :onChange="onContentChange"
+                            :error="errors.data"
                         />
                     </div>
                 </div>
@@ -101,10 +104,11 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
-import { useFormValidation } from '@/composables/useFormValidation'
+import { templateEditSchema } from '@/validations/emailValidations'
 
 const COMPONENT = 'template-edit'
 const el = document.getElementById('app-root')
@@ -113,7 +117,7 @@ const route  = useRoute()
 const router = useRouter()
 const id = route.params.id
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 const loading  = ref(true)
 const saving   = ref(false)
 const shortcodesCollapsed = ref(false)
@@ -153,22 +157,21 @@ const selectedType = computed(() =>
 )
 
 function onChange(val, key) {
-    clearFieldError(key)
+    setFieldError(key, undefined)
     form[key] = val
 }
 
 function onTypeChange(val) {
-    clearFieldError('type')
+    setFieldError('type', undefined)
     form.type = val?.id ?? ''
 }
 
 function onContentChange(val, key) {
-    clearFieldError('data')
+    setFieldError('data', undefined)
     form[key] = val
 }
 
 onMounted(async () => {
-    clearAllErrors()
     try {
         const res = await http.get(`${baseUrl}/template/edit/${id}`)
         const d = res.data?.data ?? {}
@@ -191,11 +194,14 @@ onMounted(async () => {
 })
 
 async function save() {
-    if (!validate({
-        name: [form.name, { isRequired: __('message.field_required') }],
-        type: [form.type, { isRequired: __('message.field_required') }],
-        data: [form.data, { isRequired: __('message.field_required') }],
-    })) return
+    try {
+        templateEditSchema.validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
 
     saving.value = true
     try {

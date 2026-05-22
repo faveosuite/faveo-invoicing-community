@@ -12,10 +12,10 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <TextField name="name" :label="__('message.name')" :required="true" :value="form.name" :onChange="onChange" />
+                            <TextField name="name" :label="__('message.name')" :required="true" :value="form.name" :onChange="onChange" :error="errors.name" />
                         </div>
                         <div class="col-md-6">
-                            <TextField name="slug" :label="__('message.slug')" :required="true" :value="form.slug" :onChange="onChange" />
+                            <TextField name="slug" :label="__('message.slug')" :required="true" :value="form.slug" :onChange="onChange" :error="errors.slug" />
                         </div>
                     </div>
 
@@ -31,7 +31,7 @@
                             />
                         </div>
                         <div class="col-md-6">
-                            <TextField name="url" :label="__('message.page_url')" :required="form.type !== 'contactus'" :value="form.url" :onChange="onChange" :disabled="form.type === 'contactus'" />
+                            <TextField name="url" :label="__('message.page_url')" :required="form.type !== 'contactus'" :value="form.url" :onChange="onChange" :disabled="form.type === 'contactus'" :error="errors.url" />
                         </div>
                     </div>
 
@@ -55,6 +55,7 @@
                                 :value="form.created_at_date"
                                 :onChange="onChange"
                                 format="YYYY-MM-DD"
+                                :error="errors.created_at_date"
                             />
                         </div>
                         <div class="col-md-4">
@@ -75,7 +76,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <TinyMCE name="content" :label="__('message.content')" :required="true" id="editor-content" :value="form.content" :onChange="onChange" />
+                        <TinyMCE name="content" :label="__('message.content')" :required="true" id="editor-content" :value="form.content" :onChange="onChange" :error="errors.content" />
                     </div>
                 </div>
 
@@ -91,10 +92,10 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { frontendPageEditRules } from './frontendPageValidation.js'
+import { buildFrontendPageEditSchema } from '@/validations/pageValidations'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 
@@ -104,7 +105,7 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const route = useRoute()
 const router = useRouter()
 
-const { validate, clearFieldError, clearAllErrors } = useFormValidation()
+const { errors, setErrors, setFieldError } = useForm()
 
 const loading = ref(true)
 const saving = ref(false)
@@ -123,7 +124,7 @@ const form = reactive({
 })
 
 function onChange(val, name) {
-    clearFieldError(name)
+    setFieldError(name, undefined)
     if (name === 'parent_page_id') {
         form.parentObj = val
         form.parent_page_id = val?.id ?? null
@@ -136,7 +137,6 @@ function onChange(val, name) {
 }
 
 onMounted(async () => {
-    clearAllErrors()
     try {
         const res = await http.get(`${baseUrl}/page/${route.params.id}`)
         const p = res.data?.data ?? res.data
@@ -166,8 +166,14 @@ onMounted(async () => {
 })
 
 async function submit() {
-    const isValid = validate(frontendPageEditRules(form, __))
-    if (!isValid) return
+    try {
+        buildFrontendPageEditSchema(form.type).validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
 
     saving.value = true
     try {
