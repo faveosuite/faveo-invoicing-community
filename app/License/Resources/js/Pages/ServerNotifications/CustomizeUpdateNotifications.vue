@@ -14,120 +14,120 @@
                     <div class="row">
                         <text-field :label="lang('notification_operation_ok')" :value="notification_operation_ok"
                             type="textarea" name="notification_operation_ok" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_operation_ok">
                         </text-field>
 
                         <text-field :label="lang('notification_product_not_found')" :value="notification_product_not_found"
                             type="textarea" name="notification_product_not_found" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_product_not_found">
                         </text-field>
                     </div>
 
                     <div class="row">
                         <text-field :label="lang('notification_product_inactive')" :value="notification_product_inactive"
                             type="textarea" name="notification_product_inactive" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_product_inactive">
                         </text-field>
 
                         <text-field :label="lang('notification_product_no_versions')" :value="notification_product_no_versions"
                             type="textarea" name="notification_product_no_versions" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_product_no_versions">
                         </text-field>
                     </div>
 
                     <div class="row">
                         <text-field :label="lang('notification_version_not_found')" :value="notification_version_not_found"
                             type="textarea" name="notification_version_not_found" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_version_not_found">
                         </text-field>
 
                         <text-field :label="lang('notification_version_inactive')" :value="notification_version_inactive"
                             type="textarea" name="notification_version_inactive" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_version_inactive">
                         </text-field>
                     </div>
 
                     <div class="row">
                         <text-field :label="lang('notification_version_expired')" :value="notification_version_expired"
                             type="textarea" name="notification_version_expired" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_version_expired">
                         </text-field>
 
                         <text-field :label="lang('notification_install_limit_reached')" :value="notification_install_limit_reached"
                             type="textarea" name="notification_install_limit_reached" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_install_limit_reached">
                         </text-field>
                     </div>
 
                     <div class="row">
                         <text-field :label="lang('notification_upgrade_limit_reached')" :value="notification_upgrade_limit_reached"
                             type="textarea" name="notification_upgrade_limit_reached" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_upgrade_limit_reached">
                         </text-field>
 
                         <text-field :label="lang('notification_install_archive_not_found')" :value="notification_install_archive_not_found"
                             type="textarea" name="notification_install_archive_not_found" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_install_archive_not_found">
                         </text-field>
                     </div>
 
                     <div class="row">
                         <text-field :label="lang('notification_install_query_not_found')" :value="notification_install_query_not_found"
                             type="textarea" name="notification_install_query_not_found" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_install_query_not_found">
                         </text-field>
 
                         <text-field :label="lang('notification_upgrade_archive_not_found')" :value="notification_upgrade_archive_not_found"
                             type="textarea" name="notification_upgrade_archive_not_found" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_upgrade_archive_not_found">
                         </text-field>
                     </div>
 
                     <div class="row">
                         <text-field :label="lang('notification_upgrade_query_not_found')" :value="notification_upgrade_query_not_found"
                             type="textarea" name="notification_upgrade_query_not_found" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_upgrade_query_not_found">
                         </text-field>
 
                         <text-field :label="lang('notification_raw_install_query_not_found')" :value="notification_raw_install_query_not_found"
                             type="textarea" name="notification_raw_install_query_not_found" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_raw_install_query_not_found">
                         </text-field>
                     </div>
 
                     <div class="row">
                         <text-field :label="lang('notification_raw_upgrade_query_not_found')" :value="notification_raw_upgrade_query_not_found"
                             type="textarea" name="notification_raw_upgrade_query_not_found" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_raw_upgrade_query_not_found">
                         </text-field>
 
                         <text-field :label="lang('notification_installation_not_verified')" :value="notification_installation_not_verified"
                             type="textarea" name="notification_installation_not_verified" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_installation_not_verified">
                         </text-field>
                     </div>
 
                     <div class="row">
                         <text-field :label="lang('notification_invalid_parameter')" :value="notification_invalid_parameter"
                             type="textarea" name="notification_invalid_parameter" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_invalid_parameter">
                         </text-field>
 
                         <text-field :label="lang('notification_invalid_signature')" :value="notification_invalid_signature"
                             type="textarea" name="notification_invalid_signature" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_invalid_signature">
                         </text-field>
                     </div>
 
                     <div class="row">
                         <text-field :label="lang('notification_host_banned')" :value="notification_host_banned"
                             type="textarea" name="notification_host_banned" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_host_banned">
                         </text-field>
 
                         <text-field :label="lang('notification_unknown_error')" :value="notification_unknown_error"
                             type="textarea" name="notification_unknown_error" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_unknown_error">
                         </text-field>
                     </div>
                 </div>

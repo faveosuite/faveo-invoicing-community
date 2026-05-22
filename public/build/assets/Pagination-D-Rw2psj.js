@@ -1,1 +1,0 @@
-import{_ as o,o as t,e as a,A as n}from"./main-C0tm74op.js";const s={},r={class:"pagination-wrapper"};function c(e,_){return t(),a("div",r,[n(e.$slots,"default")])}const l=o(s,[["render",c]]);export{l as default};

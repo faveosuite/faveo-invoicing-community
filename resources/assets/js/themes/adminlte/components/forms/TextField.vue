@@ -12,6 +12,7 @@
                 :disabled="disabled"
                 :readonly="readonly"
                 :class="['form-control', { 'is-invalid': fieldError }]"
+                :required="required"
                 @input="onChange($event.target.value, name)"
             />
             <button type="button" class="btn btn-light border" @click="showPassword = !showPassword" tabindex="-1">
@@ -27,6 +28,7 @@
             :disabled="disabled"
             :readonly="readonly"
             :class="['form-control', { 'is-invalid': fieldError }]"
+            :required="required"
             @input="onChange($event.target.value, name)"
         />
         <div v-if="fieldError" class="invalid-feedback d-block">{{ fieldError }}</div>

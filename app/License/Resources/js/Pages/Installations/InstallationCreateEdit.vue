@@ -17,7 +17,7 @@
                         </text-field>
 
                         <text-field :label="lang('ip_address')" required :value="installation_ip" type="text" name="installation_ip"
-                                    :onChange="onChange" classname="col-sm-3">
+                                    :onChange="onChange" classname="col-sm-3" :error="errors.installation_ip">
                         </text-field>
 
                         <radio-button :options="statusOptions" :label="lang('status')" name="installation_status"

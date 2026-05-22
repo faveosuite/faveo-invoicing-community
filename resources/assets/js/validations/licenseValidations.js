@@ -4,9 +4,9 @@ export const licenseSchema = yup.object({
     product:              yup.string().required(() => __('validation.licenses.product.required')),
     client:               yup.string().required(() => __('validation.licenses.client.required')),
     license_code:         yup.string().required(() => __('validation.licenses.license_code.required')),
-    license_expire_date:  yup.mixed().required(() => __('validation.licenses.license_expire_date.required')),
-    license_updates_date: yup.mixed().required(() => __('validation.licenses.license_updates_date.required')),
-    license_support_date: yup.mixed().required(() => __('validation.licenses.license_support_date.required')),
+    license_expire_date:  yup.mixed().nullable().test('required', () => __('validation.licenses.license_expire_date.required'), (v) => v != null && v !== ''),
+    license_updates_date: yup.mixed().nullable().test('required', () => __('validation.licenses.license_updates_date.required'), (v) => v != null && v !== ''),
+    license_support_date: yup.mixed().nullable().test('required', () => __('validation.licenses.license_support_date.required'), (v) => v != null && v !== ''),
 })
 
 export const bannedHostSchema = yup.object({

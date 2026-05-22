@@ -18,6 +18,7 @@
             :popup-style="{ top: '100%', left: 0 }"
             v-bind="disabledDate ? { 'disabled-date': disabledDate } : {}"
             :input-class="['form-control mx-input', { 'is-invalid': fieldError }]"
+            :input-attr="{ required: required }"
             @change="onDateChange"
             @confirm="onDateChange"
         />

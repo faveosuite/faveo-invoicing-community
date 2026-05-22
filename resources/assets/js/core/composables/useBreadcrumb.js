@@ -27,7 +27,7 @@ export function useBreadcrumb() {
         const segments = route.path.split('/').filter(Boolean)
 
         for (let i = 1; i <= segments.length; i++) {
-            if (/^\d+$/.test(segments[i - 1])) continue
+            if (/^\d+$/.test(segments[i - 1]) && i !== segments.length) continue
 
             const partialPath = '/' + segments.slice(0, i).join('/')
             const resolved    = router.resolve(partialPath)
@@ -35,11 +35,11 @@ export function useBreadcrumb() {
             if (!resolved.matched.length || !resolved.meta?.title) continue
 
             const isLast = i === segments.length
-            crumbs.push({
-                title:    translateTitle(resolved.meta),
-                to:       partialPath,
-                isActive: isLast,
-            })
+            const title  = translateTitle(resolved.meta)
+
+            if (crumbs.length && crumbs[crumbs.length - 1].title === title) continue
+
+            crumbs.push({ title, to: partialPath, isActive: isLast })
         }
 
         return crumbs

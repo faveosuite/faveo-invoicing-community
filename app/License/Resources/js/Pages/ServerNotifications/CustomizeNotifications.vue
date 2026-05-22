@@ -14,84 +14,84 @@
                     <div class="row">
                         <text-field :label="lang('notification_product_not_found')" :value="notification_product_not_found"
                             type="textarea" name="notification_product_not_found" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_product_not_found">
                         </text-field>
 
                         <text-field :label="lang('notification_product_inactive')" :value="notification_product_inactive"
                             type="textarea" name="notification_product_inactive" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_product_inactive">
                         </text-field>
                     </div>
 
                     <div class="row">
                         <text-field :label="lang('notification_license_ok')" :value="notification_license_ok"
                             type="textarea" name="notification_license_ok" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_license_ok">
                         </text-field>
 
                         <text-field :label="lang('notification_license_not_found')" :value="notification_license_not_found"
                             type="textarea" name="notification_license_not_found" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_license_not_found">
                         </text-field>
                     </div>
 
                     <div class="row">
                         <text-field :label="lang('notification_invalid_ip')" :value="notification_invalid_ip"
                             type="textarea" name="notification_invalid_ip" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_invalid_ip">
                         </text-field>
 
                         <text-field :label="lang('notification_invalid_domain')" :value="notification_invalid_domain"
                             type="textarea" name="notification_invalid_domain" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_invalid_domain">
                         </text-field>
                     </div>
 
                     <div class="row">
                         <text-field :label="lang('notification_domain_required')" :value="notification_domain_required"
                             type="textarea" name="notification_domain_required" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_domain_required">
                         </text-field>
 
                         <text-field :label="lang('notification_domain_in_use')" :value="notification_domain_in_use"
                             type="textarea" name="notification_domain_in_use" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_domain_in_use">
                         </text-field>
                     </div>
 
                     <div class="row">
                         <text-field :label="lang('notification_license_suspended')" :value="notification_license_suspended"
                             type="textarea" name="notification_license_suspended" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_license_suspended">
                         </text-field>
 
                         <text-field :label="lang('notification_license_expired')" :value="notification_license_expired"
                             type="textarea" name="notification_license_expired" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_license_expired">
                         </text-field>
                     </div>
 
                     <div class="row">
                         <text-field :label="lang('notification_updates_expired')" :value="notification_updates_expired"
                             type="textarea" name="notification_updates_expired" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_updates_expired">
                         </text-field>
 
                         <text-field :label="lang('notification_support_expired')" :value="notification_support_expired"
                             type="textarea" name="notification_support_expired" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_support_expired">
                         </text-field>
                     </div>
 
                     <div class="row">
                         <text-field :label="lang('notification_license_cancelled')" :value="notification_license_cancelled"
                             type="textarea" name="notification_license_cancelled" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_license_cancelled">
                         </text-field>
 
                         <text-field :label="lang('notification_license_limit')" :value="notification_license_limit"
                             type="textarea" name="notification_license_limit" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_license_limit">
                         </text-field>
                     </div>
 
@@ -99,24 +99,24 @@
                         <text-field :label="lang('notification_installation_not_found')"
                             :value="notification_installation_not_found" type="textarea"
                             name="notification_installation_not_found" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_installation_not_found">
                         </text-field>
 
                         <text-field :label="lang('notification_invalid_signature')" :value="notification_invalid_signature"
                             type="textarea" name="notification_invalid_signature" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_invalid_signature">
                         </text-field>
                     </div>
 
                     <div class="row">
                         <text-field :label="lang('notification_host_banned')" :value="notification_host_banned"
                             type="textarea" name="notification_host_banned" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_host_banned">
                         </text-field>
 
                         <text-field :label="lang('notification_unknown_error')" :value="notification_unknown_error"
                             type="textarea" name="notification_unknown_error" :onChange="onChange" classname="col-sm-6"
-                            :required="true">
+                            :required="true" :error="errors.notification_unknown_error">
                         </text-field>
                     </div>
                 </div>

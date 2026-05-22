@@ -11,6 +11,7 @@
                    @paste="onPaste"
                    min="0"
                    :placeholder="placeholder"
+                   :required="required"
             />
         </span>
     </FormFieldTemplate>

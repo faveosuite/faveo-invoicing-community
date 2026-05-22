@@ -685,6 +685,11 @@ class SettingsController extends BaseSettingsController
                 ['key' => 'whatsapp_status',        'slug' => 'whatsapp',          'name' => \Lang::get('message.whatsapp_config'),                  'description' => \Lang::get('message.whatsapp_thirdParty_explanation'), 'enabled' => (bool) optional($status)->whatsapp_status,         'route' => '/settings/whatsapp-integration'],
             ];
 
+            foreach ($all as $index => &$item) {
+                $item['id'] = $index + 1;
+            }
+            unset($item);
+
             $search = trim((string) $request->input('search-query', ''));
             if ($search !== '') {
                 $all = array_values(array_filter($all, fn ($m) => stripos($m['name'], $search) !== false ||

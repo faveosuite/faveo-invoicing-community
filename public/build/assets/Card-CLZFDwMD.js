@@ -1,1 +1,0 @@
-import{_ as r,o as s,e as o,A as t}from"./main-C0tm74op.js";const a={},c={class:"card-wrapper"};function n(e,_){return s(),o("div",c,[t(e.$slots,"default")])}const l=r(a,[["render",n]]);export{l as default};

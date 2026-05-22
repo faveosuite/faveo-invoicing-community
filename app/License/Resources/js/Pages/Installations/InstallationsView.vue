@@ -69,11 +69,9 @@
 
         <div class="card card-light">
             <div class="card-header">
-                <ul class="nav nav-tabs card-header-tabs" role="tablist">
-                    <li class="nav-item">
-                        <span class="nav-link active" role="tab">{{ lang('callbacks') }}</span>
-                    </li>
-                </ul>
+                <h4 class="card-title">
+                    {{ lang('callbacks') }}
+                </h4>
             </div>
             <div class="card-body">
                 <DataTable v-if="endPoint" :url="endPoint" ref="dataTable" :dataColumns="columns" :option="tableOptions">

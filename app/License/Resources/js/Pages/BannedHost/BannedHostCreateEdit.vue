@@ -13,7 +13,7 @@
                 <div class="card-body">
                     <div class="row">
                         <text-field :label="lang('ip_address')" :value="banned_host_ip" :onChange="onChange" name="banned_host_ip"
-                            type="text" classname="col-sm-6" :required="true">
+                            type="text" classname="col-sm-6" :required="true" :error="errors.banned_host_ip">
                         </text-field>
 
                         <text-field :label="lang('comments')" type="text" :value="banned_host_comments" :onChange="onChange"

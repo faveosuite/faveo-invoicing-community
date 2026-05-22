@@ -14,12 +14,12 @@
                     <div class="row">
                         <div class="col-sm-6">
                             <dynamic-select name="product" apiEndpoint="/api/admin/viewproducts" :multiple="false" :label="lang('product')" :onChange="onChange"
-                                            :value="product_title" optionLabel="product_title" :required="true">
+                                            :value="product_title" optionLabel="product_title" :required="true" :error="errors.product">
                             </dynamic-select>
                         </div>
                         <div class="col-sm-6">
                             <text-field :label="lang('license_code')" :value="license_code" type="text" name="license_code"
-                                        :onChange="onChange" :required="true"
+                                        :onChange="onChange" :required="true" :error="errors.license_code"
                                         :inputGroupBtn="{ text: 'generate', action: generateCode }">
                             </text-field>
                         </div>
@@ -28,7 +28,7 @@
                     <div class="row">
                         <div class="col-sm-6">
                             <dynamic-select name="client" apiEndpoint="/api/admin/viewClients/0" :multiple="false" :label="lang('client')" :onChange="onChange"
-                                            :value="client_name" optionLabel="full_name" :required="true">
+                                            :value="client_name" optionLabel="full_name" :required="true" :error="errors.client">
                             </dynamic-select>
                         </div>
                         <div class="col-sm-6">
@@ -56,13 +56,13 @@
                         <div class="col-sm-6">
                             <date-picker :label="lang('license_expire_date')" :value="license_expire_date" type="date"
                                          name="license_expire_date" :onChange="onChange" :required="true" format="DD-MM-YYYY"
-                                         :clearable="true" :disabled="false" :confirm="false">
+                                         :clearable="true" :disabled="false" :confirm="false" :error="errors.license_expire_date">
                             </date-picker>
                         </div>
                         <div class="col-sm-6">
                             <date-picker :label="lang('license_updates_date')" :value="license_updates_date" type="date"
                                          name="license_updates_date" :onChange="onChange" :required="true" format="DD-MM-YYYY"
-                                         :clearable="true" :disabled="false" :confirm="false">
+                                         :clearable="true" :disabled="false" :confirm="false" :error="errors.license_updates_date">
                             </date-picker>
                         </div>
                     </div>
@@ -71,7 +71,7 @@
                         <div class="col-sm-6">
                             <date-picker :label="lang('license_support_date')" :value="license_support_date" type="date"
                                          name="license_support_date" :onChange="onChange" :required="true" format="DD-MM-YYYY"
-                                         :clearable="true" :disabled="false" :confirm="false">
+                                         :clearable="true" :disabled="false" :confirm="false" :error="errors.license_support_date">
                             </date-picker>
                         </div>
                         <div class="col-sm-6">

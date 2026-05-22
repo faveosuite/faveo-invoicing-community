@@ -126,26 +126,32 @@
         </div>
 
         <div class="card card-light">
-            <div class="card-header">
-                <ul class="nav nav-tabs card-header-tabs" id="license-tabs" role="tablist">
+            <div class="card-body p-0">
+                <ul class="nav nav-tabs px-3 pt-2" role="tablist">
                     <li class="nav-item">
-                        <span class="nav-link cursor-pointer" :class="{ active: activeTab === 'installations' }"
-                            role="tab" @click="updateData('installations')">{{ lang('installations') }}</span>
+                        <a class="nav-link" :class="{ active: activeTab === 'installations' }"
+                            href="#" @click.prevent="updateData('installations')">
+                            <i class="fas fa-server me-1"></i>{{ lang('installations') }}
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <span class="nav-link cursor-pointer" :class="{ active: activeTab === 'callbacks' }"
-                            role="tab" @click="updateData('callbacks')">{{ lang('callbacks') }}</span>
+                        <a class="nav-link" :class="{ active: activeTab === 'callbacks' }"
+                            href="#" @click.prevent="updateData('callbacks')">
+                            <i class="fas fa-phone-alt me-1"></i>{{ lang('callbacks') }}
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <span class="nav-link cursor-pointer" :class="{ active: activeTab === 'logs' }"
-                            role="tab" @click="updateData('logs')">{{ lang('installation_logs') }}</span>
+                        <a class="nav-link" :class="{ active: activeTab === 'logs' }"
+                            href="#" @click.prevent="updateData('logs')">
+                            <i class="fas fa-clipboard-list me-1"></i>{{ lang('installation_logs') }}
+                        </a>
                     </li>
                 </ul>
-            </div>
-            <div class="card-body">
-                <DataTable v-if="endPoint" :url="endPoint" ref="dataTable" :dataColumns="columns" :option="tableOptions">
-                    <template #actions="props"><table-actions :data="props.row" /></template>
-                </DataTable>
+                <div class="p-3">
+                    <DataTable v-if="endPoint" :url="endPoint" ref="dataTable" :dataColumns="columns" :option="tableOptions">
+                        <template #actions="props"><table-actions :data="props.row" /></template>
+                    </DataTable>
+                </div>
             </div>
         </div>
 

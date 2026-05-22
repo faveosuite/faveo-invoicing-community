@@ -1,1 +1,0 @@
-import{_ as t,o,e as s,A as c}from"./main-C0tm74op.js";const r={},a={class:"toggleswitch-wrapper"};function n(e,l){return o(),s("div",a,[c(e.$slots,"default")])}const d=t(r,[["render",n]]);export{d as default};

@@ -13,7 +13,7 @@
                 <div class="card-body">
                     <div class="row">
                         <text-field :label="lang('ip_address')" :value="whitelist_host_ip" :onChange="onChange" name="whitelist_host_ip"
-                                    type="text" classname="col-sm-6" :required="true">
+                                    type="text" classname="col-sm-6" :required="true" :error="errors.whitelist_host_ip">
                         </text-field>
 
                         <text-field :label="lang('comments')" type="text" :value="whitelist_host_comments" :onChange="onChange"

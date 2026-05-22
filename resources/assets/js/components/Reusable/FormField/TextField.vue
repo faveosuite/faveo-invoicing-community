@@ -9,7 +9,8 @@
                       :maxlength="length" :type="type"
                       v-model="changedValue" @input="onChange(changedValue, name)"
                       :cols="columns" :rows="rows" :style="inputStyle"
-                      :placeholder="placehold">
+                      :placeholder="placehold"
+                      :required="required">
             </textarea>
         </div>
         <div v-else-if="type === 'password'">
@@ -21,7 +22,8 @@
                        v-model="changedValue" @input="onChange(changedValue, name)"
                        @keyup="keyupListener($event, name)" @keydown="keydownListener($event, name)"
                        @keypress="keypressEvt($event, name)" @paste="pasteEvt($event, name)"
-                       :placeholder="placehold" :maxlength="max || undefined" />
+                       :placeholder="placehold" :maxlength="max || undefined"
+                       :required="required" />
                 <button type="button" class="btn btn-secondary" @click="togglePasswordVisibility" tabindex="-1">
                     <i class="fa" :class="showPassword ? 'fa-eye' : 'fa-eye-slash'"></i>
                 </button>
@@ -33,7 +35,8 @@
                v-model="changedValue" @input="onChange(changedValue, name)"
                @keyup="keyupListener($event, name)" @keydown="keydownListener($event, name)"
                @keypress="keypressEvt($event, name)" @paste="pasteEvt($event, name)"
-               :placeholder="placehold" :maxlength="max || undefined" />
+               :placeholder="placehold" :maxlength="max || undefined"
+               :required="required" />
     </FormFieldTemplate>
 </template>
 
