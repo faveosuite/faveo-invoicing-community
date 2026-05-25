@@ -81,19 +81,24 @@
         </div>
 
         <transition name="modal">
-            <delete-modal v-if="showModal" :onClose="onClose" :showModal="showModal" alertComponentName="installations-view"
-                :deleteUrl="'/api/admin/installations/delete'" redirectUrl="/installations/list" keyVal="id" :idVal="id">
-            </delete-modal>
+            <DeleteModal v-if="showModal" :onClose="onClose" :showModal="showModal"
+                :deleteUrl="`${baseUrl}/api/admin/installations/delete`"
+                :deleteData="{ id: id }"
+                componentName="installations-view"
+                method="post"
+                @deleted="onDeleted" />
         </transition>
     </div>
 </template>
 
 <script setup>
 import { ref, h, onBeforeMount } from 'vue'
+import { useRouter } from 'vue-router'
 import { getIdFromUrl, lang } from '@/helpers/extraLogics'
 import axios from '@/plugins/axios'
-import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
 
+const router = useRouter()
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
@@ -117,6 +122,10 @@ function showDeleteModal() {
 
 function onClose() {
     showModal.value = false
+}
+
+function onDeleted() {
+    setTimeout(() => router.push('/installations/list'), 2000)
 }
 
 function updateStatesWithData(data) {

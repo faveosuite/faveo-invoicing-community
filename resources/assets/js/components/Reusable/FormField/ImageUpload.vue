@@ -19,7 +19,7 @@
             <label class="is-danger" v-if="required">*</label>
         </span>
 
-        <modal v-if="showModal" :showModal="showModal" :onClose="onClose">
+        <AppModal v-if="showModal" :showModal="showModal" :onClose="onClose">
             <template #title>
                 <div><h4>Crop Profile</h4></div>
             </template>
@@ -54,7 +54,7 @@
                     <i class="fa fa-check"></i> {{ lang('proceed') }}
                 </button>
             </template>
-        </modal>
+        </AppModal>
     </FormFieldTemplate>
 </template>
 

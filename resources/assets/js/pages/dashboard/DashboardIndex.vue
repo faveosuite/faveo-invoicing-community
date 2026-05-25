@@ -458,7 +458,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import http from '../../core/services/http'
+import http from '@/plugins/axios'
 import { __ } from '../../plugins/i18n'
 
 const loading = ref(true)

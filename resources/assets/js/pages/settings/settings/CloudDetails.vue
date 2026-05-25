@@ -156,7 +156,7 @@
     </div>
 
     <!-- Product Config Modal -->
-    <modal :showModal="showProductModal" :onClose="closeProductModal" :showCloseBtn="false">
+    <AppModal :showModal="showProductModal" :onClose="closeProductModal" :showCloseBtn="false">
         <template #title>
             <h4>{{ __('message.cloud_product_configuration') }}</h4>
         </template>
@@ -190,10 +190,10 @@
         <template #controls>
             <action-button action="save" type="button" :loading="savingProduct" @click="saveProduct" />
         </template>
-    </modal>
+    </AppModal>
 
     <!-- Data Center Config Modal -->
-    <modal :showModal="showDCModal" :onClose="closeDCModal" :showCloseBtn="false">
+    <AppModal :showModal="showDCModal" :onClose="closeDCModal" :showCloseBtn="false">
         <template #title>
             <h4>{{ __('message.cloud_data_centers') }}</h4>
         </template>
@@ -225,7 +225,7 @@
         <template #controls>
             <action-button action="save" type="button" :loading="savingDC" @click="saveDataCenter" />
         </template>
-    </modal>
+    </AppModal>
 </template>
 
 <script setup>

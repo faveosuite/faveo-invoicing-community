@@ -65,19 +65,25 @@
         </span>
 
         <transition name="modal">
-            <DeleteModal v-if="showModal" :onClose="onClose" :showModal="showModal"
-                         :deleteUrl="data.delete_url" :alertComponentName="alert"
-                         :keyVal="data.keyVal" :idVal="data.idVal"
-                         :modalMessage="data.modalMessage" :btnTitle="data.btnTitle"
-                         :softDelete="data.softDelete" :modalTitle="data.modalTitle" />
+            <DeleteModal v-if="showModal"
+                         :onClose="onClose" :showModal="showModal"
+                         :deleteUrl="data.delete_url"
+                         :deleteData="computedDeleteData"
+                         :title="data.modalTitle ? trans(data.modalTitle) : trans('delete')"
+                         :message="data.modalMessage ? trans(data.modalMessage) : trans('are_you_sure')"
+                         :componentName="alert" />
         </transition>
 
         <transition name="modal">
-            <DeleteModal v-if="showRestoreModal" :onClose="onClose" :showModal="showRestoreModal"
-                         :deleteUrl="data.restore_url" :alertComponentName="alert"
-                         :keyVal="data.keyVal" :idVal="data.idVal"
-                         :modalMessage="data.restoreModalMessage" :btnTitle="data.restoreBtnTitle"
-                         :modalTitle="data.restoreModalTitle" />
+            <DeleteModal v-if="showRestoreModal"
+                         :onClose="onClose" :showModal="showRestoreModal"
+                         :deleteUrl="data.restore_url"
+                         :deleteData="computedDeleteData"
+                         :title="data.restoreModalTitle ? trans(data.restoreModalTitle) : trans('restore')"
+                         :message="data.restoreModalMessage ? trans(data.restoreModalMessage) : trans('are_you_sure')"
+                         :componentName="alert"
+                         btnVariant="success" btnIcon="fa-sync-alt"
+                         :btnLabel="trans('restore')" />
         </transition>
     </div>
 </template>
@@ -86,7 +92,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { boolean, lang } from '@/helpers/extraLogics'
 import { useAlertStore } from '@/core/stores/alert'
-import DeleteModal from './DeleteModal.vue'
+import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
 
 const props = defineProps({
     data: { type: Object, required: true },
@@ -99,6 +105,12 @@ const showRestoreModal = ref(false)
 const alert = ref(props.data.alertComponentName ?? 'dataTableModal')
 
 const disabled = computed(() => boolean(props.data.is_default))
+
+const computedDeleteData = computed(() => {
+    const d = props.data.keyVal ? { [props.data.keyVal]: props.data.idVal } : {}
+    if (props.data.softDelete) d.soft_delete = 0
+    return d
+})
 
 const trans = (string) => lang(string)
 

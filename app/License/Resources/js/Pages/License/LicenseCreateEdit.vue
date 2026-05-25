@@ -122,10 +122,7 @@ import { licenseSchema } from '@/validations/licenseValidations'
 import moment from 'moment'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import NumberField from '@/components/Reusable/FormField/NumberField.vue'
-import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
-import DatatableDynamicSelect from '@/components/Reusable/FormField/DatatableDynamicSelect.vue'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
-import DateTimePicker from '@/components/Reusable/FormField/DateTimePicker.vue'
 
 const router = useRouter()
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''

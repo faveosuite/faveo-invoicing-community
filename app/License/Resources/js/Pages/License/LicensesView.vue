@@ -156,9 +156,12 @@
         </div>
 
         <transition name="modal">
-            <delete-modal v-if="showModal" :onClose="onClose" :showModal="showModal" alertComponentName="license-view"
-                :deleteUrl="'/api/admin/license/delete'" redirectUrl="/licenses/list" keyVal="id" :idVal="license_id">
-            </delete-modal>
+            <DeleteModal v-if="showModal" :onClose="onClose" :showModal="showModal"
+                :deleteUrl="`${baseUrl}/api/admin/license/delete`"
+                :deleteData="{ id: license_id }"
+                componentName="license-view"
+                method="post"
+                @deleted="onDeleted" />
         </transition>
     </div>
 </template>
@@ -168,8 +171,10 @@ import { ref, reactive, h, onBeforeMount } from 'vue'
 import { getIdFromUrl, lang } from '@/helpers/extraLogics'
 import axios from '@/plugins/axios'
 import copy from 'clipboard-copy'
-import DeleteModal from '@/components/Reusable/DeleteModal.vue'
+import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
@@ -207,6 +212,10 @@ function copyCommand() {
 
 function onClose() {
     showModal.value = false
+}
+
+function onDeleted() {
+    setTimeout(() => router.push('/licenses/list'), 2000)
 }
 
 function showDeleteModal() {

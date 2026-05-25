@@ -16,7 +16,7 @@
         </div>
 
         <!-- Add/Edit Permissions Modal -->
-        <modal
+        <AppModal
             v-if="editLicense"
             :showModal="!!editLicense"
             :onClose="closeModal"
@@ -33,7 +33,7 @@
             <template #controls>
                 <action-button action="save" type="button" :loading="saving" @click="savePerms" />
             </template>
-        </modal>
+        </AppModal>
     </div>
 </template>
 

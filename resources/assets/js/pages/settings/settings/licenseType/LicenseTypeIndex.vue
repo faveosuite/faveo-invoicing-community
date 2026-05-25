@@ -41,7 +41,7 @@
         </div>
 
         <!-- Create Modal -->
-        <modal :showModal="showCreate" :onClose="closeCreate" :showCloseBtn="false">
+        <AppModal :showModal="showCreate" :onClose="closeCreate" :showCloseBtn="false">
             <template #title>
                 <h4>{{ __('message.add_license_type_btn') }}</h4>
             </template>
@@ -58,10 +58,10 @@
             <template #controls>
                 <action-button action="create" type="button" :loading="creating" @click="create" />
             </template>
-        </modal>
+        </AppModal>
 
         <!-- Edit Modal -->
-        <modal :showModal="showEdit" :onClose="closeEdit" :showCloseBtn="false">
+        <AppModal :showModal="showEdit" :onClose="closeEdit" :showCloseBtn="false">
             <template #title>
                 <h4>{{ __('message.edit-license-type') }}</h4>
             </template>
@@ -80,7 +80,7 @@
             <template #controls>
                 <action-button action="update" type="button" :loading="saving" :disabled="saving || editLoading" @click="update" />
             </template>
-        </modal>
+        </AppModal>
 
         <!-- Delete Modal -->
         <DeleteModal

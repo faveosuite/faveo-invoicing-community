@@ -41,7 +41,7 @@
         </div>
 
         <!-- Create Modal -->
-        <modal :showModal="showCreate" :onClose="closeCreate" :showCloseBtn="false">
+        <AppModal :showModal="showCreate" :onClose="closeCreate" :showCloseBtn="false">
             <template #title>
                 <h4>{{ __('message.add_app') }}</h4>
             </template>
@@ -76,10 +76,10 @@
             <template #controls>
                 <action-button action="save" type="button" :loading="saving" @click="saveApp" />
             </template>
-        </modal>
+        </AppModal>
 
         <!-- Edit Modal -->
-        <modal :showModal="showEdit" :onClose="closeEdit" :showCloseBtn="false">
+        <AppModal :showModal="showEdit" :onClose="closeEdit" :showCloseBtn="false">
             <template #title>
                 <h4>{{ __('message.edit_app') }}</h4>
             </template>
@@ -113,7 +113,7 @@
             <template #controls>
                 <action-button action="save" type="button" :loading="saving" @click="saveApp" />
             </template>
-        </modal>
+        </AppModal>
 
         <!-- Single Delete Modal -->
         <DeleteModal

@@ -91,7 +91,7 @@ import { ref, onMounted }    from 'vue'
 import { asset }             from '@/core/utils/asset.js'
 import { useSidebar }        from '@/core/composables/useSidebar.js'
 import { useNotification }   from '@/core/composables/useNotification.js'
-import http, { parseErrorMessage } from '@/core/services/http.js'
+import http, { parseErrorMessage } from '@/plugins/axios.js'
 
 const { isOpen, toggle } = useSidebar()
 const { notify }         = useNotification()

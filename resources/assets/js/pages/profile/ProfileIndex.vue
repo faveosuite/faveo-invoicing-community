@@ -234,7 +234,7 @@
     </div>
 
     <!-- Enable 2FA Modal -->
-    <modal :showModal="showEnableModal" :onClose="closeEnableModal" :showCloseBtn="false">
+    <AppModal :showModal="showEnableModal" :onClose="closeEnableModal" :showCloseBtn="false">
         <template #title>
             <h4>{{ __('message.setup_authenticator') }}</h4>
         </template>
@@ -377,10 +377,10 @@
                 <action-button variant="primary" :label="__('message.done')" @click="onEnableDone" />
             </template>
         </template>
-    </modal>
+    </AppModal>
 
     <!-- Disable 2FA Modal -->
-    <modal :showModal="showDisableModal" :onClose="closeDisableModal" :showCloseBtn="false">
+    <AppModal :showModal="showDisableModal" :onClose="closeDisableModal" :showCloseBtn="false">
         <template #title>
             <h4>{{ __('message.turn_off_authenticator') }}</h4>
         </template>
@@ -396,7 +396,7 @@
                 @click="disable2fa"
             />
         </template>
-    </modal>
+    </AppModal>
 </template>
 
 <script setup>
