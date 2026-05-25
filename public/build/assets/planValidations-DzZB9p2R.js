@@ -1,1 +1,0 @@
-import{G as e,H as r}from"./main-BVFdtG1e.js";import{r as a}from"./helpers-Zr_U9FfO.js";const p=e({name:r().required(()=>__("validation.plan_request.name_required")),product:a(()=>__("validation.plan_request.pro_req"))});export{p};

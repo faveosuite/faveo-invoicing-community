@@ -135,7 +135,7 @@ import axios from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler'
 import { lang } from '@/helpers/extraLogics'
 import { useForm } from 'vee-validate'
-import { buildNotificationsSchema } from '@/validations/licenseValidations'
+import { buildNotificationsSchema } from '@/validations/admin/licenseValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''

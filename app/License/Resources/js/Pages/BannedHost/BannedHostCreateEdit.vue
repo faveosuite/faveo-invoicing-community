@@ -37,7 +37,7 @@ import axios from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler'
 import { getIdFromUrl, lang } from '@/helpers/extraLogics'
 import { useForm } from 'vee-validate'
-import { bannedHostSchema } from '@/validations/licenseValidations'
+import { bannedHostSchema } from '@/validations/admin/licenseValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const router = useRouter()

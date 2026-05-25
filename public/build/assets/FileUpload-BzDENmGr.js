@@ -1,1 +1,0 @@
-import{_ as o,o as s,e as r,A as t}from"./main-BVFdtG1e.js";const a={},c={class:"fileupload-wrapper"};function l(e,n){return s(),r("div",c,[t(e.$slots,"default")])}const d=o(a,[["render",l]]);export{d as default};

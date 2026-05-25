@@ -1012,3 +1012,12 @@ Route::get('/admin/{any?}', function () {
 
     return view('admin');
 })->where('any', '.*');
+
+// Client Vue Panel — same guard pattern as admin.
+Route::get('/client/{any?}', function () {
+    if (! auth()->check()) {
+        return redirect(url('/login'));
+    }
+
+    return view('client');
+})->where('any', '.*');

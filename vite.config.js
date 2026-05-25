@@ -8,7 +8,8 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
-                'resources/assets/js/main.js'
+                'resources/assets/js/admin.js',
+                'resources/assets/js/client.js',
             ],
             refresh: true,
         }),
