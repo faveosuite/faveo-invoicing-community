@@ -1,1 +1,0 @@
-import{_ as o,o as s,c as r,G as t}from"./mitt-DxGj0s01.js";const a={},c={class:"fileupload-wrapper"};function l(e,n){return s(),r("div",c,[t(e.$slots,"default")])}const d=o(a,[["render",l]]);export{d as default};

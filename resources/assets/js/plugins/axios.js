@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const el = document.getElementById('app-root')
+// Pick whichever app mount is present: admin (#app-root) or client (#app-client).
+const el = document.getElementById('app-root') ?? document.getElementById('app-client')
 
 // Base URL is the Laravel app root (e.g. https://domain/faveo/public)
 // so all route paths can be used as-is without a /api prefix.

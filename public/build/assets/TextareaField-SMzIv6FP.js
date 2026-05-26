@@ -1,1 +1,0 @@
-import{_ as t,o as r,c as a,G as s}from"./mitt-DxGj0s01.js";const o={},c={class:"textareafield-wrapper"};function n(e,l){return r(),a("div",c,[s(e.$slots,"default")])}const d=t(o,[["render",n]]);export{d as default};

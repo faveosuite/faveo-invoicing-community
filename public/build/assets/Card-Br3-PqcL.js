@@ -1,1 +1,0 @@
-import{_ as r,o as s,c,G as o}from"./mitt-DxGj0s01.js";const t={},a={class:"card-wrapper"};function n(e,_){return s(),c("div",a,[o(e.$slots,"default")])}const l=r(t,[["render",n]]);export{l as default};

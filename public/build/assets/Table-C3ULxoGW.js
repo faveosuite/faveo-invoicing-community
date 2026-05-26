@@ -1,1 +1,0 @@
-import{_ as s,o as t,c as o,G as r}from"./mitt-DxGj0s01.js";const a={},c={class:"table-wrapper"};function n(e,l){return t(),o("div",c,[r(e.$slots,"default")])}const d=s(a,[["render",n]]);export{d as default};

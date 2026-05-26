@@ -8,7 +8,10 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 function translateTitle(meta) {
-    if (!meta?.title) return 'Admin Panel'
+    if (!meta?.title) {
+        const el = document.getElementById('app-client') || document.getElementById('app-root')
+        return el?.dataset?.pageTitle || 'Billing'
+    }
     if (meta.titleKey) {
         const translated = __(meta.titleKey)
         if (translated !== meta.titleKey) return translated

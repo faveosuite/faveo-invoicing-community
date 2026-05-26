@@ -3,57 +3,36 @@
         <aside class="sidebar mt-2" id="sidebar">
             <ul class="nav nav-list flex-column mb-5">
 
-                <li class="nav-item">
-                    <RouterLink class="nav-link text-3" to="/dashboard"
-                                :class="{ active: route.path === '/dashboard' }">
-                        {{ __('message.dashboard') }}
-                    </RouterLink>
-                </li>
+                <li v-for="item in sidebarItems" :key="item.key" class="nav-item">
 
-                <li class="nav-item">
-                    <RouterLink class="nav-link text-3" to="/orders"
-                                :class="{ active: route.path.startsWith('/orders') }">
-                        {{ __('message.my_orders') }}
-                    </RouterLink>
-                </li>
+                    <!-- Collapsible parent with children -->
+                    <template v-if="item.children?.length">
+                        <a class="nav-link text-3" href="javascript:;"
+                           @click="toggleItem(item.key)"
+                           :class="{ active: isActive(item) }">
+                            {{ getLabel(item) }}
+                        </a>
+                        <ul v-show="openKeys.has(item.key)">
+                            <li v-for="child in item.children" :key="child.key" class="nav-item">
+                                <RouterLink class="nav-link text-3" :to="child.route"
+                                            :class="{ active: isActive(child) }">
+                                    {{ getLabel(child) }}
+                                </RouterLink>
+                            </li>
+                        </ul>
+                    </template>
 
-                <li class="nav-item">
-                    <RouterLink class="nav-link text-3" to="/invoices"
-                                :class="{ active: route.path.startsWith('/invoices') }">
-                        {{ __('message.my_invoices') }}
-                    </RouterLink>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link text-3" href="javascript:;" @click="profileOpen = !profileOpen">
-                        {{ __('message.my_profile') }}
+                    <!-- External URL (e.g. logout) -->
+                    <a v-else-if="item.url" class="nav-link text-3" :href="resolveUrl(item.url)">
+                        {{ getLabel(item) }}
                     </a>
-                    <ul v-show="profileOpen">
-                        <li class="nav-item">
-                            <RouterLink class="nav-link text-3" to="/profile"
-                                        :class="{ active: route.path === '/profile' }">
-                                {{ __('message.profile_information') }}
-                            </RouterLink>
-                        </li>
-                        <li class="nav-item">
-                            <RouterLink class="nav-link text-3" to="/profile/change-password"
-                                        :class="{ active: route.path === '/profile/change-password' }">
-                                {{ __('message.change_password') }}
-                            </RouterLink>
-                        </li>
-                        <li class="nav-item">
-                            <RouterLink class="nav-link text-3" to="/profile/2fa"
-                                        :class="{ active: route.path === '/profile/2fa' }">
-                                {{ __('message.two_factor_auth') }}
-                            </RouterLink>
-                        </li>
-                    </ul>
-                </li>
 
-                <li class="nav-item">
-                    <a class="nav-link text-3" :href="logoutUrl">
-                        {{ __('message.logout') }}
-                    </a>
+                    <!-- Router link -->
+                    <RouterLink v-else class="nav-link text-3" :to="item.route"
+                                :class="{ active: isActive(item) }">
+                        {{ getLabel(item) }}
+                    </RouterLink>
+
                 </li>
 
             </ul>
@@ -62,13 +41,57 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { __ } from '@/plugins/i18n'
 
-const route     = useRoute()
-const el        = document.getElementById('app-client')
-const baseUrl   = computed(() => el?.dataset?.baseUrl ?? '')
-const logoutUrl = computed(() => `${baseUrl.value}/auth/logout`)
+const route   = useRoute()
+const el      = document.getElementById('app-client')
+const baseUrl = el?.dataset?.baseUrl ?? ''
 
-const profileOpen = ref(route.path.startsWith('/profile'))
+const defaultItems = [
+    { key: 'dashboard', label_key: 'dashboard',         route: '/dashboard',              active: 'exact' },
+    { key: 'orders',    label_key: 'my_orders',          route: '/orders',                 active: 'prefix' },
+    { key: 'invoices',  label_key: 'my_invoices',        route: '/invoices',               active: 'prefix' },
+    { key: 'profile',   label_key: 'my_profile',         route: '/profile',                active: 'prefix',
+        children: [
+            { key: 'profile_info',    label_key: 'profile_information', route: '/profile',                 active: 'exact' },
+            { key: 'change_password', label_key: 'change_password',     route: '/profile/change-password', active: 'exact' },
+            { key: 'two_fa',          label_key: 'two_factor_auth',     route: '/profile/2fa',             active: 'exact' },
+        ],
+    },
+    { key: 'logout', label_key: 'logout', url: '__LOGOUT__' },
+]
+
+const sidebarItems = defaultItems
+
+const openKeys = ref(new Set(
+    sidebarItems
+        .filter(item => item.children?.length && route.path.startsWith(item.route ?? ''))
+        .map(item => item.key)
+))
+
+function toggleItem(key) {
+    if (openKeys.value.has(key)) {
+        openKeys.value.delete(key)
+    } else {
+        openKeys.value.add(key)
+    }
+    openKeys.value = new Set(openKeys.value)
+}
+
+function isActive(item) {
+    if (!item.route) return false
+    return item.active === 'exact'
+        ? route.path === item.route
+        : route.path.startsWith(item.route)
+}
+
+function resolveUrl(url) {
+    return url === '__LOGOUT__' ? `${baseUrl}/auth/logout` : url
+}
+
+function getLabel(item) {
+    return item.label_key ? __(`message.${item.label_key}`) : (item.label ?? '')
+}
 </script>

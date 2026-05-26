@@ -82,8 +82,10 @@ function onPaginate(direction) {
     if (page) tableRef.value?.setPage(page)
 }
 
-function defaultResponseAdapter({ data }) {
-    const res         = data?.data
+function defaultResponseAdapter(response) {
+    // requestFunction's catch returns undefined on HTTP errors — handle that
+    // safely so pagination doesn't end up with NaN (→ "Invalid array length").
+    const res         = response?.data?.data
     const pp          = parseInt(res?.per_page) || 10
     const currentPage = res?.current_page ?? 1
     const toVal       = res?.to ?? 0
@@ -146,7 +148,7 @@ const computedOptions = computed(() => ({
         const result = callerAdapter ? callerAdapter(response) : defaultResponseAdapter(response)
         if (callerAdapter) {
             // Caller's adapter doesn't manage pagination state — extract it here
-            const res = response.data?.data
+            const res = response?.data?.data
             if (res) {
                 const pp          = parseInt(res.per_page) || 10
                 perPage.value     = pp

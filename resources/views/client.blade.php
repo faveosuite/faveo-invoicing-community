@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
-<?php $set = \App\Model\Common\Setting::findOrFail(1); ?>
+<?php
+    $set        = \App\Model\Common\Setting::findOrFail(1);
+    $cloudBtn   = \App\Model\Common\StatusSetting::where('id', 1)->value('cloud_button');
+    $demoPage   = App\Demo_page::first();
+    $cartFacade = new App\Facades\Cart();
+    $social     = App\Model\Common\SocialMedia::get(['name', 'link']);
+
+    $widgets = \App\Model\Front\Widgets::where('publish', 1)->get(['id', 'name', 'type', 'content', 'allow_mailchimp', 'allow_social_media', 'allow_tweets']);
+?>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, shrink-to-fit=no">
@@ -31,9 +39,6 @@
     <link rel="stylesheet" href="{{ assetLink('css', 'porto-skin') }}">
     <link rel="stylesheet" href="{{ assetLink('css', 'porto-custom') }}">
 
-    {{-- Porto modernizr (must be in <head>) --}}
-    <script src="{{ assetLink('js', 'porto-modernizr') }}"></script>
-
     <script src="{{ url('js/lang') }}"></script>
 
     {{-- Vue client SPA — Vite injects its CSS at build time --}}
@@ -57,19 +62,19 @@
          data-user-id="{{ auth()->user()?->id ?? '' }}"
          data-user-name="{{ auth()->user() ? auth()->user()->first_name . ' ' . auth()->user()->last_name : '' }}"
          data-user-email="{{ auth()->user()?->email ?? '' }}"
-         data-user-avatar="{{ auth()->user()?->profile_pic ?? '' }}">
+         data-user-avatar="{{ auth()->user()?->profile_pic ?? '' }}"
+         data-phone="{{ $set->phone ?? '' }}"
+         data-phone-code="{{ $set->phone_code ?? '' }}"
+         data-company-email="{{ $set->company_email ?? '' }}"
+         data-cloud="{{ ($cloudBtn == 1) ? 'true' : 'false' }}"
+         data-demo="{{ ($demoPage && $demoPage->status) ? 'true' : 'false' }}"
+         data-cart-count="{{ $cartFacade->getTotalQuantity() }}"
+         data-social="{{ $social->toJson() }}"
+         data-widgets="{{ $widgets->toJson() }}">
     </div>
 
-    {{-- jQuery (required by Porto theme.js) --}}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-    {{-- Bootstrap 5 bundle JS (includes Popper) --}}
-    <script src="{{ assetLink('js', 'bootstrap') }}"></script>
-
-    {{-- Porto core JS --}}
-    <script src="{{ assetLink('js', 'porto-plugins') }}"></script>
-    <script src="{{ assetLink('js', 'porto-theme') }}"></script>
-    <script src="{{ assetLink('js', 'porto-theme-init') }}"></script>
+    {{-- Bootstrap 5 bundle JS (includes Popper) — used for dropdowns, collapse, tooltips. --}}
+    <script src="{{ assetLink('js', 'bootstrap') }}" defer></script>
 
 </body>
 </html>

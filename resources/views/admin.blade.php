@@ -30,7 +30,7 @@
     <script src="{{ url('js/lang') }}"></script>
 
     {{-- Vue app — type="module" defers automatically; Vite injects CSS link at build time --}}
-    @vite(['resources/assets/js/main.js'])
+    @vite(['resources/assets/js/admin.js'])
 </head>
 
 <body class="layout-fixed fixed-header bg-body-tertiary sidebar-expand-lg sidebar-mini app-loaded fs-7">
