@@ -1,1 +1,0 @@
-import{ai as o}from"./mitt-C3CwnBIX.js";const i=o("alert",{state:()=>({message:"",type:"",component_name:"",duration:""}),actions:{setAlert({message:t,type:e,component_name:s,duration:n=""}){this.message=t,this.type=e,this.component_name=s,this.duration=n},unsetAlert(){this.message="",this.type="",this.component_name="",this.duration=""}}});export{i as u};

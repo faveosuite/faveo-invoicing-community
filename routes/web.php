@@ -178,11 +178,12 @@ Route::middleware('installAgora')->group(function () {
 
     //order api's
     Route::get('my-orders', [Front\ClientController::class, 'orders']);
-    Route::get('get-my-orders', [Front\ClientController::class, 'getClientOrderVue'])->name('get-my-orders');
+    Route::get('get-my-orders', [Front\ClientController::class, 'getClientOrder'])->name('get-my-orders');
     Route::get('my-order/{id}', [Front\ClientController::class, 'getOrder']);
     Route::get('renew-popup-details/{productid}', [Front\ClientController::class, 'renewPopupVue']);
     Route::get('get-my-invoices/{orderid}/{userid}/{admin?}', [Front\ClientController::class, 'getInvoicesByOrderId']);
     Route::get('get-my-payment-client/{orderid}/{userid}', [Front\ClientController::class, 'getPaymentByOrderIdClient'])->name('get-my-payment-client');
+    Route::get('get-my-installations/{orderid}', [Front\ClientController::class, 'getOrderInstallations']);
     // Route::get('autoPayment-client/{orderid}', [Front\ClientController::class, 'getAutoPaymentStatus']);
     Route::get('get-versions/{productid}/{clientid}/{invoiceid}/', [Front\ClientController::class, 'getVersionList'])->name('get-versions');
     Route::get('get-github-versions/{productid}/{clientid}/{invoiceid}/', [Front\ClientController::class, 'getGithubVersionList'])->name('get-github-versions');

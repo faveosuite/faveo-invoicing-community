@@ -28,6 +28,9 @@ return [
         // bootstrap + fontawesome reuse common/ keys (no duplication)
         'porto-theme' => 'themes/default/client/porto/css/theme.css',
         'porto-elements' => 'themes/default/client/porto/css/theme-elements.css',
+        'porto-blog' => 'themes/default/client/porto/css/theme-blog.css',
+        'porto-shop' => 'themes/default/client/porto/css/theme-shop.css',
+        'porto-skin' => 'themes/default/client/porto/css/skins/default.css',
         'porto-custom' => 'themes/default/client/porto/css/custom.css',
     ],
     'js' => [
@@ -41,6 +44,7 @@ return [
 
         // Porto client theme — paths match original Porto folder structure
         'porto-modernizr' => 'themes/default/client/porto/vendor/animated-headline/js/modernizr.js',
+        'porto-plugins' => 'themes/default/client/porto/js/plugins.min.js',
         'porto-theme' => 'themes/default/client/porto/js/theme.js',
         'porto-theme-init' => 'themes/default/client/porto/js/theme.init.js',
     ],

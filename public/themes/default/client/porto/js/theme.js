@@ -1,7 +1,7 @@
 /*
 Name: 			Theme Base
 Written by: 	Okler Themes - (http://www.okler.net)
-Theme Version:	13.0.0
+Theme Version:	13.1.0
 */
 
 // Theme

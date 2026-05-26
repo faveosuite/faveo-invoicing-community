@@ -1,1 +1,0 @@
-import{c as e,a as r}from"./admin-ByQpatHN.js";import{r as a}from"./helpers-BT1JoWHu.js";const o=e({name:r().required(()=>__("validation.group.name.required")),pricing_templates_id:a(()=>__("validation.group.pricing_templates_id.required"))});export{o as p};

@@ -6,9 +6,16 @@ const base       = clientUrl ? new URL(clientUrl).pathname : '/client'
 
 const isAuthenticated = () => el?.dataset?.authenticated === 'true'
 
-// Routes added here as client pages are built
 const routes = [
     { path: '/', redirect: '/dashboard' },
+    { path: '/dashboard',    meta: { title: 'Dashboard' },       component: () => import('@/pages/client/dashboard/DashboardIndex.vue') },
+    { path: '/orders',       meta: { title: 'My Orders' },       component: () => import('@/pages/client/orders/OrderIndex.vue') },
+    { path: '/orders/:id',   meta: { title: 'Order Details',   sidebar: false }, component: () => import('@/pages/client/orders/OrderShow.vue') },
+    { path: '/invoices',     meta: { title: 'My Invoices' },     component: () => import('@/pages/client/invoices/InvoiceIndex.vue') },
+    { path: '/invoices/:id', meta: { title: 'Invoice Details', sidebar: false }, component: () => import('@/pages/client/invoices/InvoiceShow.vue') },
+    { path: '/profile',                  meta: { title: 'My Profile' },       component: () => import('@/pages/client/profile/ProfileIndex.vue') },
+    { path: '/profile/change-password', meta: { title: 'Change Password' },  component: () => import('@/pages/client/profile/ChangePassword.vue') },
+    { path: '/profile/2fa',             meta: { title: 'Two-Factor Auth' },  component: () => import('@/pages/client/profile/TwoFactor.vue') },
 ]
 
 const router = createRouter({

@@ -310,138 +310,136 @@ class ClientController extends BaseClientController
      */
     public function getInvoices(Request $request)
     {
-        $status = $request->input('status');
-        $invoices = Invoice::leftJoin('order_invoice_relations', 'invoices.id', '=', 'order_invoice_relations.invoice_id')
-        ->leftJoin('orders', 'order_invoice_relations.order_id', '=', 'orders.id')
-        ->select('orders.number')
-        ->select('invoices.id', 'invoices.user_id', 'invoices.date', 'invoices.number', 'invoices.grand_total', 'order_invoice_relations.order_id as orderNo', 'invoices.is_renewed', 'invoices.status', 'invoices.currency')
-        ->groupBy('invoices.number')
-        ->where('invoices.user_id', '=', \Auth::user()->id);
+        $query = Invoice::leftJoin('order_invoice_relations', 'invoices.id', '=', 'order_invoice_relations.invoice_id')
+            ->select('invoices.id', 'invoices.date', 'invoices.number', 'invoices.grand_total', 'invoices.status', 'invoices.currency')
+            ->where('invoices.user_id', \Auth::id())
+            ->groupBy('invoices.id', 'invoices.date', 'invoices.number', 'invoices.grand_total', 'invoices.status', 'invoices.currency');
 
-        if ($status == 'pending') {
-            $invoices->where('invoices.status', '=', 'pending');
+        if ($search = trim($request->input('search-query', ''))) {
+            $query->where(function ($q) use ($search) {
+                $q->where('invoices.number', 'like', "%{$search}%")
+                  ->orWhere('invoices.status', 'like', "%{$search}%");
+            });
         }
 
-        return \DataTables::of($invoices)
-                    ->orderColumn('number', '-invoices.date $1')
-                    ->orderColumn('orderNo', '-invoices.date $1')
-                    ->orderColumn('date', '-invoices.date $1')
-                    ->orderColumn('total', '-invoices.date $1')
-                    ->orderColumn('paid', '-invoices.date $1')
-                    ->orderColumn('balance', '-invoices.date $1')
-                    ->orderColumn('status', '-invoices.date $1')
-                    ->orderColumn('date', '-invoices.date $1')
+        $allowed = ['number' => 'invoices.number', 'date' => 'invoices.date', 'grand_total' => 'invoices.grand_total'];
+        $sortCol = $allowed[$request->input('sort-field', 'date')] ?? 'invoices.date';
+        $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+        $query->orderBy($sortCol, $sortDir);
 
-                    ->addColumn('number', function ($model) {
-                        if ($model->is_renewed) {
-                            return '<a href='.url('my-invoice/'.$model->id).'>'.$model->number.'</a>&nbsp;'.getStatusLabel('renewed', 'badge');
-                        } else {
-                            return '<a href='.url('my-invoice/'.$model->id).'>'.$model->number.'</a>';
-                        }
-                    })
-                        ->addColumn('orderNo', function ($model) {
-                            if ($model->is_renewed) {
-                                $orderLinks = $model->orderRelation
-                                    ->map(function ($relation) {
-                                        $order = Order::find($relation->order_id);
+        $paginated = $query->paginate((int) $request->input('limit', 10));
 
-                                        return $order?->getOrderLink($order->id, 'my-order');
-                                    })
-                                    ->filter()
-                                    ->implode(', ');
+        $paginated->getCollection()->transform(function ($row) {
+            return [
+                'id'          => $row->id,
+                'number'      => $row->number,
+                'date'        => $row->date,
+                'grand_total' => currencyFormat($row->grand_total, $row->currency),
+                'status'      => $row->status,
+            ];
+        });
 
-                                return $orderLinks ?: '--';
-                            }
+        return successResponse('', $paginated);
+    }
 
-                            $orderLinks = $model->order
-                                ->map(fn ($order) => $order->getOrderLink($order->id, 'my-order'))
-                                ->implode(', ');
+    public function getClientOrder(Request $request)
+    {
+        $query = $this->getClientPanelOrdersData();
 
-                            return $orderLinks ?: '--';
-                        })
-                    ->addColumn('date', function ($model) {
-                        return getDateHtml($model->date);
-                    })
-                    ->addColumn('total', function ($model) {
-                        return  currencyFormat($model->grand_total, $code = $model->currency);
-                    })
-                    ->addColumn('paid', function ($model) {
-                        $payment = \App\Model\Order\Payment::where('invoice_id', $model->id)->select('amount')->get();
-                        $c = count($payment);
-                        $sum = 0;
+        if ($id = $request->input('id')) {
+            $order = (clone $query)->where('orders.id', $id)->first();
+            if (! $order) {
+                return errorResponse(__('message.no_records_found'), 404);
+            }
 
-                        for ($i = 0; $i <= $c - 1; $i++) {
-                            $sum = $sum + $payment[$i]->amount;
-                        }
+            $subscription = Subscription::where('order_id', $order->id)->first();
 
-                        return currencyFormat($sum, $code = $model->currency);
-                    })
-                     ->addColumn('balance', function ($model) {
-                         $payment = \App\Model\Order\Payment::where('invoice_id', $model->id)->select('amount')->get();
-                         $c = count($payment);
-                         $sum = 0;
+            $user = \Auth::user();
 
-                         for ($i = 0; $i <= $c - 1; $i++) {
-                             $sum = $sum + $payment[$i]->amount;
-                         }
-                         $pendingAmount = $model->grand_total - $sum;
+            return successResponse('', [
+                'id'              => $order->id,
+                'number'          => $order->number,
+                'product_name'    => $order->product_name,
+                'product_id'      => $order->product_id,
+                'version'         => $order->version,
+                'status'          => $order->order_status,
+                'order_date'      => $order->date,
+                'update_ends_at'  => $subscription?->update_ends_at ?? $order->update_ends_at,
+                'license_ends_at' => $subscription?->ends_at,
+                'serial_key'      => $order->serial_key,
+                'invoice_id'      => $order->invoice_id,
+                'invoice_number'  => $order->invoice_number,
+                'user'            => [
+                    'name'    => ucfirst($user->first_name ?? '') . ' ' . ucfirst($user->last_name ?? ''),
+                    'email'   => $user->email,
+                    'mobile'  => ($user->mobile_code ? '(+' . $user->mobile_code . ') ' : '') . ($user->mobile ?? ''),
+                    'address' => $user->address ?? '',
+                ],
+            ]);
+        }
 
-                         if ($pendingAmount < 0) {
-                             $pendingAmount = 0;
-                         }
+        if ($search = trim($request->input('search-query', ''))) {
+            $query->where(function ($q) use ($search) {
+                $q->where('orders.number', 'like', "%{$search}%")
+                  ->orWhere('products.name', 'like', "%{$search}%");
+            });
+        }
 
-                         return currencyFormat($pendingAmount, $code = $model->currency);
-                     })
-                     ->addColumn('status', function ($model) {
-                         return  getStatusLabel($model->status, 'badge');
-                     })
-                    ->addColumn('Action', function ($model) {
-                        $status = $model->status;
-                        $deleteButton = '';
-                        $payNowButton = '';
-                        $payment = '';
-                        $viewButton = '<a href="'.url('my-invoice/'.$model->id).'" class="btn btn-light-scale-2 btn-sm text-dark" id="iconStyle" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"><i class="fa fa-eye"></i></a>';
+        $allowed = ['number' => 'orders.number', 'order_date' => 'orders.created_at', 'update_ends_at' => 'subscriptions.update_ends_at'];
+        $sortCol = $allowed[$request->input('sort-field', 'order_date')] ?? 'orders.created_at';
+        $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+        $query->orderBy($sortCol, $sortDir);
 
-                        if ($status != 'Success' && $model->grand_total > 0) {
-                            $payNowButton = '<a href="'.url('paynow/'.$model->id).'" class="btn btn-light-scale-2 btn-sm text-dark" id="iconStyle" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_pay').'"><i class="fa fa-credit-card"></i></a>';
+        $paginated = $query->paginate((int) $request->input('limit', 10));
 
-                            if (! $model->orderRelation()->exists()) {
-                                $deleteButton = '<a class="btn btn-light-scale-2 btn-sm text-dark delete-btn" id="iconStyle" data-id="'.$model->id.'" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_delete').'"><i class="fa fa-trash"></i></a>';
-                            }
+        $paginated->getCollection()->transform(function ($row) {
+            return [
+                'id'             => $row->id,
+                'number'         => $row->number,
+                'product_name'   => $row->product_name,
+                'version'        => $row->version,
+                'status'         => $row->order_status,
+                'order_date'     => $row->date,
+                'update_ends_at' => $row->update_ends_at,
+            ];
+        });
 
-                            return $payNowButton.' '.$deleteButton.' '.$viewButton;
-                        }
+        return successResponse('', $paginated);
+    }
 
-                        return $viewButton.$payment;
-                    })
+    public function getInvoicesByOrderId($orderid, $userid, $admin = null)
+    {
+        try {
+            if (! authorizeOwnership((int) $userid, true)) {
+                return errorResponse(__('message.unauthorized_action'), 403);
+            }
 
-                     ->filterColumn('number', function ($query, $keyword) {
-                         $sql = 'invoices.number like ?';
-                         $query->whereRaw($sql, ["%{$keyword}%"]);
-                     })
-                    ->filterColumn('status', function ($query, $keyword) {
-                        if ($keyword == 'Paid' || $keyword == 'paid') {
-                            $sql = 'status like ?';
-                            $sql2 = 'success';
-                            $query->whereRaw($sql, ["%{$sql2}%"]);
-                        } elseif ($keyword == 'Unpaid' || $keyword == 'unpaid') {
-                            $sql = 'status like ?';
-                            $sql2 = 'pending';
-                            $query->whereRaw($sql, ["%{$sql2}%"]);
-                        } elseif ($keyword == 'Partiallypaid' || $keyword == 'Partially' || $keyword == 'partially') {
-                            $sql = 'status like ?';
-                            $sql2 = 'partially paid';
-                            $query->whereRaw($sql, ["%{$sql2}%"]);
-                        }
-                    })
-                    ->filterColumn('orderNo', function ($query, $keyword) {
-                        $sql = 'orders.number like ?';
-                        $query->whereRaw($sql, ["%{$keyword}%"]);
-                    })
+            $order = Order::where('id', $orderid)->where('client', $userid)->firstOrFail();
 
-                    ->rawColumns(['number', 'orderNo', 'date', 'total', 'status', 'Action'])
-                    // ->orderColumns('number', 'created_at', 'total')
-                    ->make(true);
+            $invoiceIds = $order->invoiceRelation()->pluck('invoice_id');
+            if ($invoiceIds->isEmpty()) {
+                $invoiceIds = $order->invoice()->pluck('id');
+            }
+
+            $paginated = Invoice::whereIn('id', $invoiceIds)
+                ->select('id', 'number', 'date', 'grand_total', 'currency', 'status')
+                ->orderBy('date', 'desc')
+                ->paginate(10);
+
+            $paginated->getCollection()->transform(function ($model) {
+                return [
+                    'id'          => $model->id,
+                    'number'      => $model->number,
+                    'date'        => $model->date,
+                    'grand_total' => currencyFormat($model->grand_total, $model->currency),
+                    'status'      => $model->status,
+                ];
+            });
+
+            return successResponse('', $paginated);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
 
     /**
@@ -1275,63 +1273,83 @@ class ClientController extends BaseClientController
     {
         try {
             if (! authorizeOwnership($userid, true)) {
-                return redirect()->back()->with('fails', __('messages.unauthorized_action'));
+                return errorResponse(__('message.unauthorized_action'), 403);
             }
 
             $order = $this->order->where('id', $orderid)->where('client', $userid)->firstOrFail();
-            // dd($order);
+
             $relation = $order->invoiceRelation()->pluck('invoice_id')->toArray();
-            if (count($relation) > 0) {
-                $invoices = $relation;
-            } else {
-                $invoices = $order->invoice()->pluck('id')->toArray();
-            }
-//             $payments = Payment::leftJoin('invoices', 'payments.invoice_id', '=', 'invoices.id')
-//             ->select('payments.id', 'payments.invoice_id', 'payments.user_id', 'payments.payment_method', 'payments.payment_status', 'payments.created_at', 'payments.amount', 'invoices.id as invoice_id', 'invoices.number as invoice_number','invoices.currency as invoice_currency')
-//             ->where('invoices.id', $invoices)
-//             ->get();
-            // $payments = $this->payment->whereIn('invoice_id', $invoices)->with('invoice:id,number')
-            //         ->select('id', 'invoice_id', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at');
+            $invoiceIds = count($relation) > 0 ? $relation : $order->invoice()->pluck('id')->toArray();
 
-            $payments = $this->payment::query()
-                    ->with(['invoice' => function ($query) {
-                        $query->select('id', 'number');
-                    }])->whereIn('invoice_id', $invoices);
+            $paginated = $this->payment::query()
+                ->with(['invoice:id,number,currency'])
+                ->whereIn('invoice_id', $invoiceIds)
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
 
-            return \DataTables::of($payments)
-                        ->orderColumn('number', '-created_at $1')
-                        ->orderColumn('total', '-created_at $1')
-                        ->orderColumn('payment_method', '-created_at $1')
-                        ->orderColumn('payment_status', '-created_at $1')
-                        ->orderColumn('created_at', '-created_at $1')
+            $paginated->getCollection()->transform(function ($payment) {
+                return [
+                    'id'             => $payment->id,
+                    'invoice_number' => $payment->invoice?->number ?? '—',
+                    'amount'         => currencyFormat($payment->amount, $payment->invoice?->currency ?? ''),
+                    'payment_method' => $payment->payment_method,
+                    'payment_status' => $payment->payment_status,
+                    'created_at'     => $payment->created_at,
+                ];
+            });
 
-                            ->addColumn('number', function ($payments) {
-                                return '<a href='.url('my-invoice/'.$payments->invoice()->first()->id).'>'.$payments->invoice()->first()->number.'</a>';
-                            })
-                              ->addColumn('total', function ($payments) {
-                                  // return $payments->amount;
-                                  return currencyFormat($payments->amount, $code = $payments->currency);
-                              })
-                               ->addColumn('payment_method', function ($payments) {
-                                   return $payments->payment_method;
-                               })
-                                ->addColumn('payment_status', function ($payments) {
-                                    return $payments->payment_status;
-                                })
-                               ->addColumn('created_at', function ($payments) {
-                                   return  getDateHtml($payments->created_at);
-                               })
-
-                            ->filterColumn('number', function ($query, $keyword) {
-                                $sql = 'number like ?';
-                                $query->whereRaw($sql, ["%{$keyword}%"]);
-                            })
-
-                            ->rawColumns(['number', 'total', 'payment_method', 'payment_status', 'created_at'])
-                            ->make(true);
+            return successResponse('', $paginated);
         } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
+    }
+
+    public function getOrderInstallations(Request $request, $orderid)
+    {
+        try {
+            $order = Order::where('id', $orderid)->where('client', \Auth::id())->firstOrFail();
+
+            $query = \App\License\Models\Installation::where('license_code', $order->serial_key)
+                ->where('product_id', $order->product);
+
+            if ($search = trim($request->input('search-query', ''))) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('installation_domain', 'like', "%{$search}%")
+                      ->orWhere('installation_ip', 'like', "%{$search}%");
+                });
+            }
+
+            $allowed  = ['installation_path' => 'installation_domain', 'installation_ip' => 'installation_ip', 'last_active' => 'installation_date'];
+            $sortCol  = $allowed[$request->input('sort-field', 'last_active')] ?? 'installation_date';
+            $sortDir  = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+            $query->orderBy($sortCol, $sortDir);
+
+            $paginated = $query->paginate((int) $request->input('limit', 10));
+
+            $paginated->getCollection()->transform(fn ($inst) => [
+                'installation_path' => $inst->installation_domain,
+                'installation_ip'   => $inst->installation_ip,
+                'version'           => $inst->version,
+                'last_active'       => $inst->installation_date,
+            ]);
+
+            return successResponse('', $paginated);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    public function clientDetails()
+    {
+        $user = auth()->user();
+
+        return successResponse('', [
+            'pending_invoices_count' => $user->invoice()->where('status', 'pending')->count(),
+            'total_orders_count'     => $user->order()->count(),
+            'order_renewals_count'   => $user->order()
+                ->whereHas('subscription', fn ($q) => $q->where('update_ends_at', '<', now()))
+                ->count(),
+        ]);
     }
 
     /**
@@ -1474,4 +1492,5 @@ class ClientController extends BaseClientController
 
         return ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
     }
+
 }

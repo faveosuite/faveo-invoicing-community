@@ -80,6 +80,7 @@ return [
     'zip' => 'Zip/Postal code',
     'profile-picture' => 'Profile Picture',
     'old_password' => 'Old Password',
+    'current_password' => 'Current Password',
     'new_password' => 'New Password',
     'confirm_password' => 'Confirm Password',
     'email' => 'Email',
@@ -3135,4 +3136,18 @@ return [
     'turn_off_authenticator_setup' => 'Turning off 2-Step Verification will remove the extra security on your account, and you\'ll only use your password to sign in.',
     'next' => 'Next',
     'previous' => 'Previous',
+
+    // Client profile sections
+    'personal_information' => 'Personal Information',
+    'account_settings'     => 'Account Settings',
+    'profile_information'  => 'Profile Information',
+    'scan_qr_code'         => 'Scan QR Code',
+    'verification_code'    => 'Verification Code',
+    'verify_enable'        => 'Verify & Enable',
+    'enable_2fa'           => 'Enable 2FA',
+    'two_factor_auth'      => 'Two-Factor Auth',
+    'send_otp'             => 'Send OTP',
+    'enter_otp'            => 'Enter OTP',
+    'unverified'           => 'Unverified',
+    'select'               => 'Select',
 ];

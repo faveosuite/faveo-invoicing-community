@@ -1,0 +1,1 @@
+import{k as t}from"./mitt-DxGj0s01.js";const u=t(""),i=t("success"),e=t(!1);let s=null;function f(){function o(l,c="success"){u.value=l,i.value=c,e.value=!0,clearTimeout(s),s=setTimeout(()=>{e.value=!1},4e4)}function a(){clearTimeout(s),e.value=!1}return{message:u,type:i,visible:e,notify:o,dismiss:a}}export{f as u};

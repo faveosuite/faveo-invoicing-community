@@ -1,101 +1,94 @@
 <template>
-    <div class="header-body border-0 border-bottom-light">
-        <div class="header-container container-fluid p-0">
+    <div class="header-body border-top-0 box-shadow-none">
+        <div class="header-container header-container-md container">
             <div class="header-row">
 
-                <!-- Logo column -->
-                <div class="header-column header-column-border-right flex-grow-0 d-sticky-header-active-none">
+                <!-- Logo -->
+                <div class="header-column">
                     <div class="header-row">
-                        <div id="main-logo" class="header-logo p-relative top-sm-40 top-30 m-0" style="width:250px;height:150px;text-align:center">
+                        <div class="header-logo">
                             <RouterLink :to="isAuthenticated ? '/dashboard' : '/'">
-                                <img v-if="logoUrl" :src="logoUrl" alt="Logo" width="130" height="75">
+                                <img v-if="logoUrl" :src="logoUrl" alt="Logo" width="100" height="48"
+                                     data-sticky-width="82" data-sticky-height="40" data-sticky-top="0">
                                 <span v-else class="brand-text fw-bold">{{ appCompany }}</span>
                             </RouterLink>
                         </div>
                     </div>
                 </div>
 
-                <!-- Nav column -->
-                <div class="header-column">
+                <!-- Nav -->
+                <div class="header-column justify-content-end">
+                    <div class="header-row">
+                        <div class="header-nav header-nav-line header-nav-bottom-line header-nav-bottom-line-no-transform header-nav-bottom-line-active-text-dark header-nav-bottom-line-effect-1 order-2 order-lg-1">
+                            <div class="header-nav-main header-nav-main-square header-nav-main-dropdown-no-borders header-nav-main-effect-2 header-nav-main-sub-effect-1">
+                                <nav class="collapse">
+                                    <ul class="nav nav-pills" id="mainNav">
 
-                    <!-- Top info bar -->
-                    <div class="border-bottom-light w-100">
-                        <div class="hstack gap-4 px-4 py-2 font-weight-semi-bold d-none d-lg-flex">
-                            <div class="ms-auto"></div>
-                            <div class="vr opacity-2 d-none d-lg-inline-block"></div>
-                        </div>
-                    </div>
-
-                    <!-- Main navigation -->
-                    <div class="header-row h-100">
-                        <div class="hstack h-100 w-100">
-                            <div class="h-100 w-100 w-xl-auto">
-                                <div class="header-nav header-nav-links h-100 justify-content-end justify-content-lg-start me-4 me-lg-0 ms-lg-3">
-                                    <div class="header-nav-main header-nav-main-square header-nav-main-dropdown-no-borders header-nav-main-text-capitalize header-nav-main-text-size-4 header-nav-main-arrows header-nav-main-effect-5">
-                                        <nav class="collapse">
-                                            <ul class="nav nav-pills" id="mainNav">
-
-                                                <!-- Sticky logo (shown only when header shrinks) -->
-                                                <li class="d-sticky-header-negative-none" style="display:none">
-                                                    <RouterLink class="nav-link" :to="isAuthenticated ? '/dashboard' : '/'">
-                                                        <img v-if="logoUrl" :src="logoUrl" alt="Logo" width="75" height="50">
+                                        <!-- My Account dropdown (authenticated) -->
+                                        <li v-if="isAuthenticated" class="dropdown">
+                                            <a class="dropdown-item dropdown-toggle" href="javascript:;">
+                                                {{ __('message.my_account') }}
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <RouterLink to="/dashboard" class="dropdown-item">
+                                                        {{ __('message.dashboard') }}
                                                     </RouterLink>
                                                 </li>
-
-                                                <!-- My Account dropdown -->
-                                                <li v-if="isAuthenticated" class="dropdown">
-                                                    <a class="nav-link dropdown-toggle" href="javascript:;">
-                                                        &nbsp;{{ __('message.my_account') }}&nbsp;
-                                                    </a>
-                                                    <ul class="dropdown-menu border-light mt-n1">
-                                                        <li>
-                                                            <RouterLink to="/dashboard" class="dropdown-item">
-                                                                {{ __('message.dashboard') }}
-                                                            </RouterLink>
-                                                        </li>
-                                                        <li>
-                                                            <RouterLink to="/orders" class="dropdown-item">
-                                                                {{ __('message.my_orders') }}
-                                                            </RouterLink>
-                                                        </li>
-                                                        <li>
-                                                            <RouterLink to="/invoices" class="dropdown-item">
-                                                                {{ __('message.my_invoices') }}
-                                                            </RouterLink>
-                                                        </li>
-                                                        <li>
-                                                            <RouterLink to="/profile" class="dropdown-item">
-                                                                {{ __('message.my_profile') }}
-                                                            </RouterLink>
-                                                        </li>
-                                                        <li>
-                                                            <a :href="logoutUrl" class="dropdown-item">
-                                                                {{ __('message.logout') }}
-                                                            </a>
-                                                        </li>
-                                                    </ul>
+                                                <li>
+                                                    <RouterLink to="/orders" class="dropdown-item">
+                                                        {{ __('message.my_orders') }}
+                                                    </RouterLink>
                                                 </li>
-
-                                                <li v-else>
-                                                    <a class="nav-link" :href="loginUrl">
-                                                        {{ __('message.sign-up') }}
+                                                <li>
+                                                    <RouterLink to="/invoices" class="dropdown-item">
+                                                        {{ __('message.my_invoices') }}
+                                                    </RouterLink>
+                                                </li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <RouterLink to="/profile" class="dropdown-item">
+                                                        {{ __('message.my_profile') }}
+                                                    </RouterLink>
+                                                </li>
+                                                <li>
+                                                    <RouterLink to="/profile/change-password" class="dropdown-item">
+                                                        {{ __('message.change_password') }}
+                                                    </RouterLink>
+                                                </li>
+                                                <li>
+                                                    <RouterLink to="/profile/2fa" class="dropdown-item">
+                                                        {{ __('message.two_factor_auth') }}
+                                                    </RouterLink>
+                                                </li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <a :href="logoutUrl" class="dropdown-item">
+                                                        {{ __('message.logout') }}
                                                     </a>
                                                 </li>
-
                                             </ul>
-                                        </nav>
-                                    </div>
+                                        </li>
 
-                                    <!-- Mobile toggle -->
-                                    <button class="btn header-btn-collapse-nav" data-bs-toggle="collapse" data-bs-target=".header-nav-main nav">
-                                        <i class="fas fa-bars"></i>
-                                    </button>
-                                </div>
+                                        <li v-else>
+                                            <a class="dropdown-item" :href="loginUrl">
+                                                {{ __('message.sign-up') }}
+                                            </a>
+                                        </li>
+
+                                    </ul>
+                                </nav>
                             </div>
+
+                            <button class="btn header-btn-collapse-nav"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target=".header-nav-main nav">
+                                <i class="fas fa-bars"></i>
+                            </button>
                         </div>
                     </div>
-
                 </div>
+
             </div>
         </div>
     </div>

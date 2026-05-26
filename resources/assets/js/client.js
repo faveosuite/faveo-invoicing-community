@@ -4,6 +4,7 @@ import clientRouter from './routes/clientRouter'
 import pinia from './plugins/pinia.js'
 import i18n from './plugins/i18n.js'
 import VueProgressBar from '@aacassandra/vue3-progressbar'
+import { ServerTable } from 'v-tables-3'
 
 import CustomLoader  from './components/Reusable/CustomLoader.vue'
 import GlobalLoader  from './components/Reusable/GlobalLoader.vue'
@@ -51,6 +52,7 @@ import(`./themes/${theme}/index.js`).then(themeModule => {
     app.component('spinner-loader', SpinnerLoader)
 
     app.use(pinia)
+    app.use(ServerTable, {}, 'bootstrap4', {})
     app.use(clientRouter)
     app.use(i18n)
     app.use(VueProgressBar, progressBarOptions)

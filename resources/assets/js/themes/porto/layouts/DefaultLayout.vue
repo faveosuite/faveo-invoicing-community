@@ -1,39 +1,59 @@
 <template>
-    <div class="body p-relative bottom-1">
+    <div class="body">
 
-        <header id="header" class="header-effect-reveal"
-                data-plugin-options="{'stickyEnabled': true, 'stickyEffect': 'reveal', 'stickyEnableOnBoxed': true, 'stickyEnableOnMobile': false, 'stickyChangeLogo': false, 'stickyStartAt': 200, 'stickySetTop': '-44px'}">
+        <header id="header" class="header-effect-shrink"
+                data-plugin-options="{'stickyEnabled': true, 'stickyEffect': 'shrink', 'stickyEnableOnBoxed': false, 'stickyEnableOnMobile': false, 'stickyStartAt': 70, 'stickyChangeLogo': false, 'stickyHeaderContainerHeight': 70}">
             <Navbar />
         </header>
 
-        <div class="container-fluid py-4">
-            <div class="row pt-2">
+        <div role="main" class="main">
 
-                <Sidebar />
-
-                <div class="col-lg-9">
-
-                    <Transition name="alert-slide">
-                        <div v-if="notification.visible"
-                             :class="`alert alert-${notification.type} alert-dismissible`"
-                             role="alert">
-                            {{ notification.message }}
-                            <button type="button" class="btn-close" aria-label="Close"
-                                    @click="notification.dismiss" />
+            <!-- Page header with title + breadcrumb -->
+            <section v-if="pageTitle" class="page-header page-header-modern bg-color-grey page-header-sm">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12 align-self-center p-static order-2 text-center">
+                            <h1 class="font-weight-bold text-dark text-8">{{ pageTitle }}</h1>
                         </div>
-                    </Transition>
+                        <div class="col-md-12 align-self-center order-1">
+                            <ul class="breadcrumb d-block text-center">
+                                <li><RouterLink to="/dashboard">{{ __('message.dashboard') }}</RouterLink></li>
+                                <li class="active">{{ pageTitle }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                    <RouterView v-slot="{ Component }">
-                        <Suspense>
-                            <component :is="Component" />
-                            <template #fallback>
-                                <inline-loader />
-                            </template>
-                        </Suspense>
-                    </RouterView>
+            <!-- Notification toast -->
+            <div v-if="notification.visible" class="container mt-3">
+                <div :class="`alert alert-${notification.type} alert-dismissible`" role="alert">
+                    {{ notification.message }}
+                    <button type="button" class="btn-close" aria-label="Close"
+                            @click="notification.dismiss" />
+                </div>
+            </div>
+
+            <!-- Sidebar + content -->
+            <div class="container pt-3 pb-2">
+                <div class="row pt-2">
+
+                    <Sidebar v-if="showSidebar" />
+
+                    <div :class="showSidebar ? 'col-lg-9 order-1 order-lg-2' : 'col-12'">
+                        <RouterView v-slot="{ Component }">
+                            <Suspense>
+                                <component :is="Component" />
+                                <template #fallback>
+                                    <inline-loader />
+                                </template>
+                            </Suspense>
+                        </RouterView>
+                    </div>
 
                 </div>
             </div>
+
         </div>
 
         <AppFooter />
@@ -42,35 +62,22 @@
 </template>
 
 <script setup>
-import { onMounted, reactive } from 'vue'
-import { useRoute }            from 'vue-router'
-import { useNotification }     from '@/core/composables/useNotification.js'
-import { useAlertStore }       from '@/core/stores/alert.js'
+import { computed, onMounted, reactive, watch } from 'vue'
+import { useRoute }                             from 'vue-router'
+import { useNotification }                      from '@/core/composables/useNotification.js'
+import { useAlertStore }                        from '@/core/stores/alert.js'
 
-const route       = useRoute()
-const alertStore  = useAlertStore()
+const route        = useRoute()
+const alertStore   = useAlertStore()
 const notification = reactive(useNotification())
 
-// Clear alerts on navigation
-import { watch } from 'vue'
+const pageTitle  = computed(() => route.meta?.title ?? '')
+const showSidebar = computed(() => route.meta?.sidebar !== false)
+
 watch(() => route.path, () => alertStore.unsetAlert())
 
-// Re-init Porto sticky header after Vue mounts the DOM
 onMounted(() => {
-    if (window.Theme?.init) {
-        window.Theme.init()
-    }
+    window.theme?.StickyHeader?.initialize()
+    window.theme?.Nav?.initialize()
 })
 </script>
-
-<style scoped>
-.alert-slide-enter-active,
-.alert-slide-leave-active {
-    transition: all 0.3s ease;
-}
-.alert-slide-enter-from,
-.alert-slide-leave-to {
-    opacity: 0;
-    transform: translateY(-8px);
-}
-</style>

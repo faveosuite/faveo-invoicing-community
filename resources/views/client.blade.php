@@ -26,6 +26,9 @@
     <link rel="stylesheet" href="{{ assetLink('css', 'fontawesome') }}">
     <link rel="stylesheet" href="{{ assetLink('css', 'porto-theme') }}">
     <link rel="stylesheet" href="{{ assetLink('css', 'porto-elements') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', 'porto-blog') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', 'porto-shop') }}">
+    <link rel="stylesheet" href="{{ assetLink('css', 'porto-skin') }}">
     <link rel="stylesheet" href="{{ assetLink('css', 'porto-custom') }}">
 
     {{-- Porto modernizr (must be in <head>) --}}
@@ -51,6 +54,7 @@
          data-app-logo="{{ $set->logo }}"
          data-company="{{ $set->company }}"
          data-website="{{ $set->website }}"
+         data-user-id="{{ auth()->user()?->id ?? '' }}"
          data-user-name="{{ auth()->user() ? auth()->user()->first_name . ' ' . auth()->user()->last_name : '' }}"
          data-user-email="{{ auth()->user()?->email ?? '' }}"
          data-user-avatar="{{ auth()->user()?->profile_pic ?? '' }}">
@@ -59,11 +63,11 @@
     {{-- jQuery (required by Porto theme.js) --}}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    {{-- Bootstrap 4 JS (Porto uses BS4) --}}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {{-- Bootstrap 5 bundle JS (includes Popper) --}}
+    <script src="{{ assetLink('js', 'bootstrap') }}"></script>
 
     {{-- Porto core JS --}}
+    <script src="{{ assetLink('js', 'porto-plugins') }}"></script>
     <script src="{{ assetLink('js', 'porto-theme') }}"></script>
     <script src="{{ assetLink('js', 'porto-theme-init') }}"></script>
 
