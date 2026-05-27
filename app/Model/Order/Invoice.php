@@ -65,9 +65,15 @@ class Invoice extends BaseModel
         return $this->hasMany(\App\Model\Order\InvoiceItem::class, 'invoice_id');
     }
 
-    public function order()
+    // Many-to-many: one invoice covers multiple orders; one order appears on multiple invoices (renewals)
+    public function orders()
     {
-        return $this->hasMany(\App\Model\Order\Order::class);
+        return $this->belongsToMany(
+            \App\Model\Order\Order::class,
+            'order_invoice_relations',
+            'invoice_id',
+            'order_id'
+        );
     }
 
     public function user()
@@ -75,22 +81,25 @@ class Invoice extends BaseModel
         return $this->belongsTo(\App\User::class);
     }
 
-    public function subscription()
+    // Subscriptions reached through the pivot: Invoice → order_invoice_relations → subscriptions
+    public function subscriptions()
     {
-        return $this->hasManyThrough(\App\Model\Product\Subscription::class, \App\Model\Order\Order::class);
+        return $this->hasManyThrough(
+            \App\Model\Product\Subscription::class,
+            \App\Model\Order\OrderInvoiceRelation::class,
+            'invoice_id',
+            'order_id',
+            'id',
+            'order_id'
+        );
     }
 
     public function installationDetail()
     {
-        $orderIds = $this->orderRelation()->pluck('order_id');
+        $orderIds = $this->orders()->pluck('orders.id');
         $licenseCodes = Order::whereIn('id', $orderIds)->get()->map->serial_key;
 
         return \App\License\Models\Installation::whereIn('license_code', $licenseCodes);
-    }
-
-    public function orderRelation()
-    {
-        return $this->hasMany('App\Model\Order\OrderInvoiceRelation');
     }
 
     public function payment()
@@ -113,11 +122,8 @@ class Invoice extends BaseModel
 
     public function delete()
     {
-        $this->orderRelation()->delete();
-        $this->subscription()->delete();
+        $this->orders()->detach();
         $this->installationDetail()->delete();
-        $this->order()->delete();
-
         $this->invoiceItem()->delete();
         $this->payment()->delete();
 

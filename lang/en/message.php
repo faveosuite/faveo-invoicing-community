@@ -3150,4 +3150,6 @@ return [
     'enter_otp'            => 'Enter OTP',
     'unverified'           => 'Unverified',
     'select'               => 'Select',
+
+    'initial' => 'Initial',
 ];

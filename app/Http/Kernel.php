@@ -87,5 +87,6 @@ class Kernel extends HttpKernel
         'blockFailedVerifications' => \App\Http\Middleware\BlockFailedVerifications::class,
         'session.timeout' => \App\Http\Middleware\SessionTimeout::class,
         'force.json' => \App\Http\Middleware\AddJsonAcceptHeader::class,
+        'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
     ];
 }

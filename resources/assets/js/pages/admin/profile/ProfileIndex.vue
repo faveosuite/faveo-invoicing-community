@@ -244,6 +244,8 @@
             </div>
             <template v-else>
 
+                <div v-if="modalError" class="alert alert-danger py-2 mb-3">{{ modalError }}</div>
+
                 <!-- Step: Password Verify -->
                 <template v-if="twoFaStep === 'password'">
                     <TextField
@@ -353,15 +355,15 @@
             </template>
             <template v-if="twoFaStep === 'qr'">
                 <div class="d-flex w-100 justify-content-between">
-                    <button type="button" class="btn btn-light" @click="twoFaStep = 'recovery'">
+                    <button type="button" class="btn btn-light" @click="twoFaStep = 'recovery'; modalError = ''">
                         <i class="fas fa-arrow-left me-1"></i>{{ __('message.previous') }}
                     </button>
-                    <action-button variant="primary" :label="__('message.next')" icon="fas fa-arrow-right" @click="twoFaStep = 'totp'" />
+                    <action-button variant="primary" :label="__('message.next')" icon="fas fa-arrow-right" @click="twoFaStep = 'totp'; modalError = ''" />
                 </div>
             </template>
             <template v-if="twoFaStep === 'totp'">
                 <div class="d-flex w-100 justify-content-between">
-                    <button type="button" class="btn btn-light" @click="twoFaStep = 'qr'">
+                    <button type="button" class="btn btn-light" @click="twoFaStep = 'qr'; modalError = ''">
                         <i class="fas fa-arrow-left me-1"></i>{{ __('message.previous') }}
                     </button>
                     <action-button
@@ -430,6 +432,7 @@ const totp             = ref('')
 const showEnableModal    = ref(false)
 const twoFaStep          = ref('password')
 const twoFaLoading       = ref(false)
+const modalError         = ref('')
 const recoveryCodes      = ref([])
 const recoveryCopied     = ref(false)
 const showSecretKey      = ref(false)
@@ -632,10 +635,13 @@ async function submitPassword() {
     }
 }
 
+function setModalError(e) {
+    modalError.value = e?.response?.data?.message ?? e?.message ?? ''
+}
+
 // ── Enable 2FA modal ──────────────────────────────────────────────────────────
 
 async function openEnableModal() {
-    showEnableModal.value = true
     twoFaStep.value       = 'password'
     userPassword.value    = ''
     recoveryCopied.value  = false
@@ -644,12 +650,13 @@ async function openEnableModal() {
     qrImage.value         = ''
     qrSecret.value        = ''
     showSecretKey.value   = false
+    modalError.value      = ''
+    twoFaLoading.value    = true
+    showEnableModal.value = true
 
-    // Check if password was already confirmed in this session
     try {
         await http.get(`${baseUrl}/show/verify-password`)
         // Password already confirmed — skip straight to recovery codes
-        twoFaLoading.value = true
         twoFaStep.value    = 'recovery'
         const res = await http.post(`${baseUrl}/2fa-recovery-code`)
         recoveryCodes.value = res.data?.data?.code ?? []
@@ -673,6 +680,7 @@ function closeEnableModal() {
 }
 
 async function validatePassword() {
+    modalError.value        = ''
     verifyingPassword.value = true
     try {
         await http.post(`${baseUrl}/verify-password`, { user_password: userPassword.value })
@@ -682,7 +690,7 @@ async function validatePassword() {
         const res = await http.post(`${baseUrl}/2fa-recovery-code`)
         recoveryCodes.value = res.data?.data?.code ?? []
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        setModalError(e)
     } finally {
         verifyingPassword.value = false
         twoFaLoading.value      = false
@@ -711,13 +719,14 @@ async function goToQr() {
 
 async function verify2fa() {
     if (!totp.value) return
+    modalError.value   = ''
     verifying2fa.value = true
     try {
         const res = await http.post(`${baseUrl}/2fa/setupValidate`, { totp: totp.value })
         successHandler(res, COMPONENT)
         twoFaStep.value = 'done'
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        setModalError(e)
     } finally {
         verifying2fa.value = false
     }

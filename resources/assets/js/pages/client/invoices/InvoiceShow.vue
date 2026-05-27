@@ -3,29 +3,6 @@
         <AppAlert componentName="client-invoices-show" />
 
         <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-                <h4 class="card-title mb-0">
-                    {{ __('message.invoice') }}
-                    <span v-if="invoice?.number" class="text-muted">#{{ invoice.number }}</span>
-                </h4>
-                <div class="d-flex gap-2 align-items-center">
-                    <a
-                        v-if="invoice?.status?.toLowerCase() === 'pending'"
-                        :href="`${baseUrl}/invoice/${invoiceId}/pay`"
-                        class="btn btn-success btn-sm me-2"
-                    >
-                        <i class="fas fa-credit-card me-1"></i>{{ __('message.pay_now') }}
-                    </a>
-                    <a
-                        :href="`${baseUrl}/pdf?invoiceid=${invoiceId}`"
-                        class="btn btn-outline-secondary btn-sm"
-                        :title="__('message.download_pdf')"
-                    >
-                        <i class="fas fa-download me-1"></i>{{ __('message.download_pdf') }}
-                    </a>
-                </div>
-            </div>
-
             <inline-loader v-if="loading" context="card-body" />
 
             <template v-else>
@@ -45,6 +22,22 @@
                                 {{ __('message.date') }}: <strong class="text-dark">{{ formatDate(invoice?.date) }}</strong>
                             </p>
                             <span class="badge" :class="statusBadgeClass">{{ capitalize(invoice?.status) }}</span>
+                            <div class="d-flex gap-2 justify-content-end mt-2">
+                                <a
+                                    v-if="invoice?.status?.toLowerCase() === 'pending'"
+                                    :href="`${baseUrl}/invoice/${invoiceId}/pay`"
+                                    class="btn btn-success btn-sm"
+                                >
+                                    <i class="fas fa-credit-card me-1"></i>{{ __('message.pay_now') }}
+                                </a>
+                                <a
+                                    :href="`${baseUrl}/pdf?invoiceid=${invoiceId}`"
+                                    class="btn btn-outline-secondary btn-sm"
+                                    :title="__('message.download_pdf')"
+                                >
+                                    <i class="fas fa-download me-1"></i>{{ __('message.download_pdf') }}
+                                </a>
+                            </div>
                         </div>
                     </div>
 

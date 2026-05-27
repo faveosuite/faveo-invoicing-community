@@ -205,7 +205,7 @@ class BaseClientController extends Controller
             $user->town = strip_tags($request->input('town'));
             $user->timezone_id = strip_tags($request->input('timezone_id'));
             $user->state = $request->input('state');
-            $user->zip = strip_tags($request->input('zip'));
+            $user->zip = strip_tags($request->input('zipcode') ?? $request->input('zip'));
             $user->company_size = $request->input('company_size');
             $user->company_type = $request->input('company_type');
             $user->bussiness = $request->input('bussiness');
@@ -563,4 +563,5 @@ class BaseClientController extends Controller
 
         return successResponse('success', $deliverable);
     }
+
 }

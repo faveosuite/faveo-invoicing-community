@@ -1,16 +1,15 @@
 <template>
-    <div class="header-body border-0 border-bottom-light">
+    <div class="header-body border-0 border-bottom-light" :class="{ 'navbar-scrolled': isScrolled }">
         <div class="header-container container-fluid p-0">
             <div class="header-row">
 
                 <!-- Logo column -->
                 <div class="header-column header-column-border-right flex-grow-0">
                     <div class="header-row">
-                        <div id="main-logo" class="header-logo p-relative m-0 h-150px d-flex align-items-center justify-content-center" style="width: 250px;">
+                        <div id="main-logo" class="header-logo p-relative m-0 d-flex align-items-center justify-content-center navbar-logo-wrapper">
                             <RouterLink :to="isAuthenticated ? '/dashboard' : '/'">
                                 <img v-if="logoUrl" :src="logoUrl" alt="Logo"
-                                     class="img-fluid"
-                                     style="max-height: 80px; width: auto;">
+                                     class="img-fluid navbar-logo-img">
                                 <span v-else class="brand-text fw-bold">{{ appCompany }}</span>
                             </RouterLink>
                         </div>
@@ -21,7 +20,7 @@
                 <div class="header-column">
 
                     <!-- Top info bar: phone, email, social -->
-                    <div class="border-bottom-light w-100">
+                    <div class="border-bottom-light w-100 navbar-info-bar">
                         <div class="hstack gap-4 px-4 py-2 font-weight-semi-bold d-none d-lg-flex">
                             <div v-if="phone" class="d-none d-lg-inline-block ps-1">
                                 <a class="text-color-default text-color-hover-primary text-2"
@@ -196,8 +195,11 @@
 import { computed, onMounted, ref } from 'vue'
 import http from '@/plugins/axios'
 import { useNavFeatureToggle } from '../../composables/useNavFeatureToggle.js'
+import { isStickyActive } from '../../composables/useStickyHeader.js'
 
 const { toggle: toggleLanguage } = useNavFeatureToggle()
+
+const isScrolled = isStickyActive
 
 const el = document.getElementById('app-client')
 
@@ -238,3 +240,39 @@ onMounted(async () => {
     } catch {}
 })
 </script>
+
+<style scoped>
+.navbar-logo-wrapper {
+    width: 250px;
+    height: 150px;
+    padding: 18px 24px;
+    overflow: hidden;
+    transition: width 0.3s ease, height 0.3s ease;
+}
+
+.navbar-scrolled .navbar-logo-wrapper {
+    width: 150px;
+    height: 70px;
+    padding: 10px 16px;
+}
+
+.navbar-logo-img {
+    max-height: 90px;
+    transition: max-height 0.3s ease;
+}
+
+.navbar-scrolled .navbar-logo-img {
+    max-height: 44px;
+}
+
+.navbar-info-bar {
+    max-height: 60px;
+    opacity: 1;
+    transition: max-height 0.3s ease, opacity 0.2s ease;
+}
+
+.navbar-scrolled .navbar-info-bar {
+    max-height: 0;
+    opacity: 0;
+}
+</style>

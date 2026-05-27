@@ -1,7 +1,8 @@
 <template>
     <div class="col-lg-3 order-2 order-lg-1 mt-4 mt-lg-0">
         <aside class="sidebar mt-2" id="sidebar">
-            <ul class="nav nav-list flex-column mb-5">
+
+<ul class="nav nav-list flex-column mb-5">
 
                 <li v-for="item in sidebarItems" :key="item.key" class="nav-item">
 
@@ -95,3 +96,4 @@ function getLabel(item) {
     return item.label_key ? __(`message.${item.label_key}`) : (item.label ?? '')
 }
 </script>
+

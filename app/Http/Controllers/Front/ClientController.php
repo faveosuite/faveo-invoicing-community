@@ -310,32 +310,44 @@ class ClientController extends BaseClientController
      */
     public function getInvoices(Request $request)
     {
-        $query = Invoice::leftJoin('order_invoice_relations', 'invoices.id', '=', 'order_invoice_relations.invoice_id')
-            ->select('invoices.id', 'invoices.date', 'invoices.number', 'invoices.grand_total', 'invoices.status', 'invoices.currency')
-            ->where('invoices.user_id', \Auth::id())
-            ->groupBy('invoices.id', 'invoices.date', 'invoices.number', 'invoices.grand_total', 'invoices.status', 'invoices.currency');
+        $query = Invoice::with([
+            'orders:id,number',
+            'payment' => fn ($q) => $q->where('payment_status', 'success')->select('invoice_id', 'amount'),
+        ])
+            ->select('id', 'number', 'date', 'grand_total', 'billing_pay', 'status', 'currency', 'is_renewed')
+            ->where('user_id', \Auth::id());
 
         if ($search = trim($request->input('search-query', ''))) {
             $query->where(function ($q) use ($search) {
-                $q->where('invoices.number', 'like', "%{$search}%")
-                  ->orWhere('invoices.status', 'like', "%{$search}%");
+                $q->where('number', 'like', "%{$search}%")
+                  ->orWhere('status', 'like', "%{$search}%");
             });
         }
 
-        $allowed = ['number' => 'invoices.number', 'date' => 'invoices.date', 'grand_total' => 'invoices.grand_total'];
-        $sortCol = $allowed[$request->input('sort-field', 'date')] ?? 'invoices.date';
+        $allowed = ['number' => 'number', 'date' => 'date', 'grand_total' => 'grand_total'];
+        $sortCol = $allowed[$request->input('sort-field', 'date')] ?? 'date';
         $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
         $query->orderBy($sortCol, $sortDir);
 
         $paginated = $query->paginate((int) $request->input('limit', 10));
 
-        $paginated->getCollection()->transform(function ($row) {
+        $paginated->getCollection()->transform(function ($invoice) {
+            $paymentTotal = $invoice->payment->sum('amount');
+            $paid         = floatval($invoice->billing_pay ?? 0) + floatval($paymentTotal);
+            $balance      = max(0, floatval($invoice->grand_total) - $paid);
+            $isPaid       = strtolower($invoice->status ?? '') === 'success';
+
             return [
-                'id'          => $row->id,
-                'number'      => $row->number,
-                'date'        => $row->date,
-                'grand_total' => currencyFormat($row->grand_total, $row->currency),
-                'status'      => $row->status,
+                'id'          => $invoice->id,
+                'number'      => $invoice->number,
+                'date'        => $invoice->date,
+                'is_renewed'  => (bool) $invoice->is_renewed,
+                'orders'      => $invoice->orders->map(fn ($o) => ['id' => $o->id, 'number' => $o->number])->values(),
+                'grand_total' => currencyFormat($invoice->grand_total, $invoice->currency),
+                'paid'        => currencyFormat($paid, $invoice->currency),
+                'balance'     => currencyFormat($balance, $invoice->currency),
+                'status'      => $isPaid ? 'Paid' : 'Unpaid',
+                'show_pay'    => ! $isPaid && floatval($invoice->grand_total) > 0,
             ];
         });
 
@@ -347,30 +359,29 @@ class ClientController extends BaseClientController
         $query = $this->getClientPanelOrdersData();
 
         if ($id = $request->input('id')) {
-            $order = (clone $query)->where('orders.id', $id)->first();
+            $order = (clone $query)->where('id', $id)->first();
             if (! $order) {
                 return errorResponse(__('message.no_records_found'), 404);
             }
 
-            $subscription = Subscription::where('order_id', $order->id)->first();
-
-            $user = \Auth::user();
+            $latestInvoice = $order->invoices->first();
+            $user          = \Auth::user();
 
             return successResponse('', [
                 'id'              => $order->id,
                 'number'          => $order->number,
-                'product_name'    => $order->product_name,
-                'product_id'      => $order->product_id,
-                'version'         => $order->version,
+                'product_name'    => $order->productRelation?->name,
+                'product_id'      => $order->productRelation?->id,
+                'version'         => $order->subscription?->version,
                 'status'          => $order->order_status,
-                'order_date'      => $order->date,
-                'update_ends_at'  => $subscription?->update_ends_at ?? $order->update_ends_at,
-                'license_ends_at' => $subscription?->ends_at,
+                'order_date'      => $order->created_at,
+                'update_ends_at'  => $order->subscription?->update_ends_at,
+                'license_ends_at' => $order->subscription?->ends_at,
                 'serial_key'      => $order->serial_key,
-                'invoice_id'      => $order->invoice_id,
-                'invoice_number'  => $order->invoice_number,
+                'invoice_id'      => $latestInvoice?->id,
+                'invoice_number'  => $latestInvoice?->number,
                 'user'            => [
-                    'name'    => ucfirst($user->first_name ?? '') . ' ' . ucfirst($user->last_name ?? ''),
+                    'name'    => ucfirst($user->first_name ?? '').' '.ucfirst($user->last_name ?? ''),
                     'email'   => $user->email,
                     'mobile'  => ($user->mobile_code ? '(+' . $user->mobile_code . ') ' : '') . ($user->mobile ?? ''),
                     'address' => $user->address ?? '',
@@ -380,31 +391,98 @@ class ClientController extends BaseClientController
 
         if ($search = trim($request->input('search-query', ''))) {
             $query->where(function ($q) use ($search) {
-                $q->where('orders.number', 'like', "%{$search}%")
-                  ->orWhere('products.name', 'like', "%{$search}%");
+                $q->where('number', 'like', "%{$search}%")
+                  ->orWhereHas('productRelation', fn ($pq) => $pq->where('name', 'like', "%{$search}%"));
             });
         }
 
-        $allowed = ['number' => 'orders.number', 'order_date' => 'orders.created_at', 'update_ends_at' => 'subscriptions.update_ends_at'];
-        $sortCol = $allowed[$request->input('sort-field', 'order_date')] ?? 'orders.created_at';
-        $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
-        $query->orderBy($sortCol, $sortDir);
+        $sortField = $request->input('sort-field', 'order_date');
+        $sortDir   = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+
+        match ($sortField) {
+            'number'         => $query->orderBy('number', $sortDir),
+            'update_ends_at' => $query->orderBy(
+                Subscription::select('update_ends_at')->whereColumn('order_id', 'orders.id')->limit(1),
+                $sortDir
+            ),
+            default => $query->orderBy('created_at', $sortDir),
+        };
 
         $paginated = $query->paginate((int) $request->input('limit', 10));
 
-        $paginated->getCollection()->transform(function ($row) {
+        $productIds = $paginated->getCollection()->pluck('productRelation.id')->unique()->filter()->values()->toArray();
+        $downloadPerms = [];
+        foreach ($productIds as $pid) {
+            $perms = LicensePermissionsController::getPermissionsForProduct((int) $pid);
+            $downloadPerms[$pid] = $perms['downloadPermission'] == 1;
+        }
+
+        $paginated->getCollection()->transform(function ($order) use ($downloadPerms) {
+            $hasDownload   = $downloadPerms[$order->productRelation?->id] ?? false;
+            $latestInvoice = $order->invoices->first();
+
             return [
-                'id'             => $row->id,
-                'number'         => $row->number,
-                'product_name'   => $row->product_name,
-                'version'        => $row->version,
-                'status'         => $row->order_status,
-                'order_date'     => $row->date,
-                'update_ends_at' => $row->update_ends_at,
+                'id'               => $order->id,
+                'number'           => $order->number,
+                'product_name'     => $order->productRelation?->name,
+                'version'          => $order->subscription?->version,
+                'status'           => $order->order_status,
+                'order_date'       => $order->created_at,
+                'update_ends_at'   => $order->subscription?->update_ends_at,
+                'agents'           => $order->invoiceItem?->agents,
+                'product_id'       => $order->productRelation?->id,
+                'client_id'        => $order->client,
+                'invoice_number'   => $latestInvoice?->number,
+                'sub_id'           => $order->subscription?->id,
+                'show_download'    => $hasDownload,
+                'show_cloud_delete' => ! $hasDownload,
+                'is_terminated'    => $order->order_status === 'Terminated',
             ];
         });
 
         return successResponse('', $paginated);
+    }
+
+    public function renewPopupVue(Request $request, int $productid)
+    {
+        try {
+            $user = \Auth::user();
+            $currency = getCurrencyForClient($user->country);
+            $isCloud = in_array($productid, cloudPopupProducts());
+
+            $plans = Plan::join('products', 'plans.product', '=', 'products.id')
+                ->leftJoin('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
+                ->where('plans.product', $productid)
+                ->where('plans.status', 1)
+                ->where('plan_prices.currency', $currency)
+                ->where('plan_prices.renew_price', '!=', '0')
+                ->where('plans.days', '!=', 14)
+                ->select('plans.id', 'plans.name', 'plan_prices.renew_price')
+                ->get();
+
+            $planOptions = $plans->map(function ($plan) use ($isCloud, $currency) {
+                $label = $plan->name;
+                if ($isCloud) {
+                    $label .= ' (Plan price-per agent: '.currencyFormat($plan->renew_price, $currency, true).')';
+                } else {
+                    $label .= ' (Renewal price: '.currencyFormat($plan->renew_price, $currency, true).')';
+                }
+
+                return ['id' => $plan->id, 'name' => $label];
+            })->values();
+
+            if ($isCloud) {
+                $planOptions = $planOptions->filter(fn ($p) => stripos($p['name'], 'free') === false)->values();
+            }
+
+            return successResponse('', [
+                'plans'    => $planOptions,
+                'user_id'  => $user->id,
+                'is_cloud' => $isCloud,
+            ]);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
 
     public function getInvoicesByOrderId($orderid, $userid, $admin = null)
@@ -416,10 +494,7 @@ class ClientController extends BaseClientController
 
             $order = Order::where('id', $orderid)->where('client', $userid)->firstOrFail();
 
-            $invoiceIds = $order->invoiceRelation()->pluck('invoice_id');
-            if ($invoiceIds->isEmpty()) {
-                $invoiceIds = $order->invoice()->pluck('id');
-            }
+            $invoiceIds = $order->invoices()->pluck('invoices.id');
 
             $paginated = Invoice::whereIn('id', $invoiceIds)
                 ->select('id', 'number', 'date', 'grand_total', 'currency', 'status')
@@ -748,129 +823,6 @@ class ClientController extends BaseClientController
     }
 
     /**
-     *  Get all the orders in data table.
-     *
-     * @param  request  $request
-     * @return \Yajra\DataTables\DataTableAbstract
-     *
-     * @throws Exception
-     */
-    public function getOrders(Request $request)
-    {
-        try {
-            $updated_ends_at = $request->input('updated_ends_at');
-            $orders = $this->getClientPanelOrdersData();
-            if ($updated_ends_at == 'expired') {
-                $orders = $this->getClientPanelOrdersData()->where('update_ends_at', '<', now());
-            }
-
-            return \DataTables::of($orders)
-                        ->orderColumn('product_name', 'products.name $1')
-                        ->orderColumn('date', 'orders.created_at $1')
-                        ->orderColumn('number', 'orders.number $1')
-                        ->orderColumn('agents', '-orders.id $1')
-                        ->orderColumn('expiry', 'subscriptions.update_ends_at $1')
-                        ->orderColumn('id', 'orders.id $1')
-
-                            ->addColumn('id', function ($model) {
-                                return $model->id;
-                            })
-                            ->addColumn('date', function ($model) {
-                                return getDateHtml($model->date);
-                            })
-                            ->addColumn('product_name', function ($model) {
-                                return $model->product_name;
-                            })
-                            ->addColumn('number', function ($model) {
-                                if ($model->order_status != 'Terminated') {
-                                    return '<a href='.url('my-order/'.$model->id).'>'.$model->number.'</a>';
-                                } else {
-                                    $badge = 'badge';
-
-                                    return '<a href='.url('my-order/'.$model->id).'>'.$model->number.'</a>'.'&nbsp;<span class="'.$badge.' '.$badge.'-danger"  <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('message.order_has_been_terminated').'">
-
-                         </label>
-            Terminated</span>';
-                                }
-                            })
-
-                            ->addColumn('agents', function ($model) {
-                                $license = substr($model->serial_key, 12, 16);
-                                if ($license == '0000') {
-                                    return 'Unlimited';
-                                }
-
-                                return intval($license, 10);
-                            })
-                            ->addColumn('expiry', function ($model) {
-                                return getExpiryLabel($model->update_ends_at, 'badge');
-                            })
-
-                            ->addColumn('Action', function ($model) {
-                                if ($model->order_status == 'Terminated') {
-                                    return '<a href="'.url('my-order/'.$model->id).'" 
-                                     class="btn btn-light-scale-2 btn-sm text-dark" style="margin-right:5px;">
-                                     <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"></i>
-                                     </a>';
-                                }
-                                $plan = Plan::where('product', $model->product_id)
-                                    ->where('days', '!=', 14) // here we exclude the free plan but this is not an right approach to define free trial, we need select the free trial based on the cloud product free trial section
-                                    ->whereHas('planPrice', function ($query) {
-                                        $query->where('currency', getCurrencyForClient(\Auth::user()->country));
-                                    })
-                                    ->value('id');
-                                $whatIsSub = Subscription::where('order_id', $model->id)->value('plan_id');
-                                $planName = Plan::where('id', $whatIsSub)->value('name');
-                                $price = PlanPrice::where('plan_id', $plan)->where('currency', getCurrencyForClient(\Auth::user()->country))->value('renew_price');
-                                $order_cont = new \App\Http\Controllers\Order\OrderController();
-                                $status = $order_cont->checkInvoiceStatusByOrderId($model->id);
-                                $url = '';
-                                $deleteCloud = '';
-                                $listUrl = '';
-                                if ($status == 'success' && $model->price != '0' && $model->type == '4') {
-                                    $deleteCloud = $this->getCloudDeletePopup($model, $model->product_id);
-                                    $listUrl = $this->getPopup($model, $model->product_id);
-                                } elseif ($status == 'success' && $model->price == '0' && $model->type != '4') {
-                                    $listUrl = $this->getPopup($model, $model->product_id);
-                                }
-                                if (! in_array($model->product_id, cloudPopupProducts())) {
-                                    $listUrl = $this->getPopup($model, $model->product_id);
-                                }
-                                $deleteCloud = $this->getCloudDeletePopup($model, $model->product_id);
-
-                                $agents = substr($model->serial_key, 12, 16);
-                                if ($agents == '0000') {
-                                    $agents = 'Unlimited';
-                                } else {
-                                    $agents = intval($agents, 10);
-                                }
-
-                                $url = $this->renewPopup($model->sub_id, $model->product_id, $agents, $planName, $price);
-
-                                $changeDomain = $this->changeDomain($model, $model->product_id); // Need to add this if the client requirement intensifies.
-
-                                return '<a href="'.url('my-order/'.$model->id).'" 
-                                class="btn btn-light-scale-2 btn-sm text-dark" style="margin-right:5px;">
-                                <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"></i>&nbsp; '
-                                    .$listUrl.' '.$url.' '.$deleteCloud.' </a>';
-                            })
-                            ->filterColumn('product_name', function ($query, $keyword) {
-                                $sql = 'product.name like ?';
-                                $query->whereRaw($sql, ["%{$keyword}%"]);
-                            })
-                             ->filterColumn('number', function ($query, $keyword) {
-                                 $sql = 'orders.number like ?';
-                                 $query->whereRaw($sql, ["%{$keyword}%"]);
-                             })
-                            ->rawColumns(['id', 'product_name', 'date', 'number', 'agents', 'expiry', 'Action'])
-                            ->make(true);
-        } catch (Exception $ex) {
-            \Logger::exception($ex);
-            echo $ex->getMessage();
-        }
-    }
-
-    /**
      *  Gets all the order details for a particular user.
      *
      * @param
@@ -880,14 +832,13 @@ class ClientController extends BaseClientController
      */
     public function getClientPanelOrdersData()
     {
-        return Order::leftJoin('products', 'products.id', '=', 'orders.product')
-            ->leftJoin('subscriptions', 'orders.id', '=', 'subscriptions.order_id')
-            ->leftJoin('invoices', 'orders.invoice_id', 'invoices.id')
-            ->select('products.name as product_name', 'products.github_owner', 'products.github_repository', 'products.type', 'products.id as product_id',
-                'orders.id', 'orders.number', 'orders.client', 'subscriptions.id as sub_id', 'subscriptions.version', 'subscriptions.update_ends_at', 'products.name',
-                'orders.client', 'invoices.id as invoice_id', 'invoices.number as invoice_number', 'orders.created_at as date', 'orders.price_override as price',
-                'orders.serial_key', 'orders.order_status')
-            ->where('orders.client', \Auth::user()->id);
+        return Order::with([
+            'productRelation:id,name,github_owner,github_repository,type',
+            'subscription:id,order_id,version,update_ends_at,ends_at',
+            'invoiceItem:id,agents',
+            'invoices' => fn ($q) => $q->select('invoices.id', 'invoices.number')->latest('invoices.id'),
+        ])
+        ->where('client', \Auth::id());
     }
 
     /**
@@ -898,10 +849,15 @@ class ClientController extends BaseClientController
      *
      * @throws Exception
      */
-    public function profile()
+    public function profile(Request $request)
     {
         try {
             $user = $this->user->where('id', \Auth::user()->id)->first();
+
+            if ($request->expectsJson()) {
+                return successResponse('', ['user' => $user]);
+            }
+
             $is2faEnabled = $user->is_2fa_enabled;
             $dateSinceEnabled = $user->google2fa_activation_date;
             $timezonesList = \App\Model\Common\Timezone::get();
@@ -935,6 +891,10 @@ class ClientController extends BaseClientController
                 compact('user', 'timezones', 'state', 'states', 'bussinesses', 'is2faEnabled', 'dateSinceEnabled', 'selectedIndustry', 'selectedCompany', 'selectedCompanySize', 'selectedCountry')
             );
         } catch (Exception $ex) {
+            if ($request->expectsJson()) {
+                return errorResponse($ex->getMessage());
+            }
+
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
@@ -1278,8 +1238,7 @@ class ClientController extends BaseClientController
 
             $order = $this->order->where('id', $orderid)->where('client', $userid)->firstOrFail();
 
-            $relation = $order->invoiceRelation()->pluck('invoice_id')->toArray();
-            $invoiceIds = count($relation) > 0 ? $relation : $order->invoice()->pluck('id')->toArray();
+            $invoiceIds = $order->invoices()->pluck('invoices.id')->toArray();
 
             $paginated = $this->payment::query()
                 ->with(['invoice:id,number,currency'])

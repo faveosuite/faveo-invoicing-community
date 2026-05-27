@@ -7,6 +7,7 @@ import Sidebar       from './components/common/Sidebar.vue'
 import Navbar        from './components/common/Navbar.vue'
 import AppFooter     from './components/common/Footer.vue'
 
+const ActionButton = defineAsyncComponent(() => import('./components/common/ClientActionButton.vue'))
 // Heavy / page-specific components — loaded on demand
 const AppCard          = defineAsyncComponent(() => import('./components/common/Card.vue'))
 const AppModal         = defineAsyncComponent(() => import('./components/common/Modal.vue'))
@@ -31,6 +32,7 @@ const DynamicSelect = defineAsyncComponent(() => import('./components/forms/Dyna
 const PhoneField    = defineAsyncComponent(() => import('./components/forms/PhoneField.vue'))
 
 export const components = {
+    ActionButton,
     ClientField,
     DefaultLayout,
     Sidebar,

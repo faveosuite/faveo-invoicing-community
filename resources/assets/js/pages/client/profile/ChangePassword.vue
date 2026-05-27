@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppAlert componentName="client-change-password" />
-
+        <AppCard :title="__('message.change_password')">
         <form @submit.prevent="submitPassword" class="needs-validation">
 
             <ClientField type="password" name="current_password"
@@ -35,6 +35,7 @@
             </div>
 
         </form>
+        </AppCard>
     </div>
 </template>
 

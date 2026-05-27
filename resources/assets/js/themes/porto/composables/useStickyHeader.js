@@ -1,6 +1,8 @@
-import { onBeforeUnmount, onMounted } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 const MOBILE_BREAKPOINT = 992
+
+export const isStickyActive = ref(false)
 
 function parseOptions(raw) {
     if (!raw) return {}
@@ -41,11 +43,11 @@ export function useStickyHeader(headerSelector = '#header') {
         }
 
         const updateSticky = () => {
-            if (!enableOnMobile && window.innerWidth < MOBILE_BREAKPOINT) {
-                html.classList.remove('sticky-header-active')
-                return
-            }
-            html.classList.toggle('sticky-header-active', window.scrollY >= startAt)
+            const active = enableOnMobile || window.innerWidth >= MOBILE_BREAKPOINT
+                ? window.scrollY >= startAt
+                : false
+            html.classList.toggle('sticky-header-active', active)
+            isStickyActive.value = active
         }
 
         setSpacerHeight()
@@ -67,5 +69,6 @@ export function useStickyHeader(headerSelector = '#header') {
         const html = document.documentElement
         html.classList.remove('sticky-header-enabled', 'sticky-header-active')
         if (effectClass) html.classList.remove(effectClass)
+        isStickyActive.value = false
     })
 }

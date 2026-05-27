@@ -14,10 +14,10 @@
                        :value="modelValue"
                        :autocomplete="autocomplete"
                        @input="$emit('update:modelValue', $event.target.value)">
-                <button type="button" class="btn btn-outline-secondary"
-                        @click="showPassword = !showPassword" tabindex="-1">
+                <span class="input-group-text text-3" style="cursor:pointer"
+                      @click="showPassword = !showPassword">
                     <i class="fa" :class="showPassword ? 'fa-eye' : 'fa-eye-slash'"></i>
-                </button>
+                </span>
                 <div v-if="error" class="invalid-feedback">{{ error }}</div>
             </div>
 

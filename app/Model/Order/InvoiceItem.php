@@ -37,7 +37,7 @@ class InvoiceItem extends BaseModel
 
     public function order()
     {
-        return $this->hasOne(\App\Model\Order\Order::class);
+        return $this->hasOne(\App\Model\Order\Order::class, 'invoice_item_id');
     }
 
     public function invoice()

@@ -218,7 +218,12 @@ table                             { border-collapse: collapse; }
 }
 
 /* ── Custom Button & Action Classes ── */
-.btn-light { border-color: #c6c7c8; box-shadow: none; }
+
+.btn-light {
+  color: #333 !important;
+  background-color: #dcdcdc !important;
+  border-color: #c6c7c8 !important;
+}
 .table_btn { background: #dcdcdc !important; }
 .user-table-actions .btn { margin-right: 4px; }
 .dt-success { color: #017701 !important; }

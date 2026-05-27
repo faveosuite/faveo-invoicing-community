@@ -18,12 +18,12 @@ class Order extends BaseModel
     protected static $logName = 'order';
 
     protected $fillable = ['client', 'order_status', 'invoice_item_id',
-        'serial_key', 'product', 'domain', 'subscription', 'price_override', 'qty', 'invoice_id', 'number', 'license_mode',
+        'serial_key', 'product', 'domain', 'price_override', 'qty', 'number', 'license_mode',
         'is_downloadable',
     ];
 
     protected $logAttributes = ['client', 'order_status', 'invoice_item_id',
-        'serial_key', 'product', 'domain', 'subscription', 'price_override', 'qty', 'invoice_id', 'number', ];
+        'serial_key', 'product', 'domain', 'price_override', 'qty', 'number', ];
 
     protected $logNameColumn = 'number';
 
@@ -40,18 +40,11 @@ class Order extends BaseModel
             'serial_key' => ['Serial Key', fn ($value) => $value],
             'product' => ['Product', fn ($value) => \App\Model\Product\Product::find($value)?->name],
             'domain' => ['Domain', fn ($value) => $value],
-            'subscription' => ['Subscription', fn ($value) => \App\Model\Product\Subscription::find($value)?->name],
             'price_override' => ['Price Override', fn ($value) => $value],
             'qty' => ['Quantity', fn ($value) => $value],
-            'invoice_id' => ['Invoice ID', fn ($value) => $value],
             'number' => ['Order Number', fn ($value) => $value],
         ];
     }
-
-//    public function invoice()
-//    {
-//        return $this->belongsTo(\App\Model\Order\Invoice::class, 'invoice_id');
-//    }
 
     public function user()
     {
@@ -60,12 +53,7 @@ class Order extends BaseModel
 
     public function subscription()
     {
-        return $this->hasOne(\App\Model\Product\Subscription::class);
-    }
-
-    public function productUpload()
-    {
-        return $this->hasMany(\App\Model\Product\ProductUpload::class);
+        return $this->hasOne(\App\Model\Product\Subscription::class, 'order_id');
     }
 
     public function productRelation()
@@ -73,26 +61,21 @@ class Order extends BaseModel
         return $this->belongsTo(\App\Model\Product\Product::class, 'product');
     }
 
+    // Many-to-many: one order can appear on multiple invoices (original + renewals)
     public function invoices()
     {
-        return $this->hasManyThrough(
-            Invoice::class, // Final model
-            OrderInvoiceRelation::class, // Pivot model
-            'order_id', // Foreign key on pivot table
-            'id', // Foreign key on Invoice table
-            'id', // Local key on Order table
-            'invoice_id' // Local key on pivot table
+        return $this->belongsToMany(
+            Invoice::class,
+            'order_invoice_relations',
+            'order_id',
+            'invoice_id'
         );
     }
 
+    // The invoice item that generated this order
     public function invoiceItem()
     {
-        return $this->hasManyThrough(\App\Model\Order\InvoiceItem::class, \App\Model\Order\Invoice::class);
-    }
-
-    public function item()
-    {
-        return $this->belongsTo(\App\Model\Order\InvoiceItem::class);
+        return $this->belongsTo(\App\Model\Order\InvoiceItem::class, 'invoice_item_id');
     }
 
     public function installationDetail()
@@ -102,7 +85,7 @@ class Order extends BaseModel
 
     public function delete()
     {
-        $this->invoiceRelation()->delete();
+        $this->invoices()->detach();
         $this->subscription()->delete();
         parent::delete();
     }
@@ -133,15 +116,11 @@ class Order extends BaseModel
 
     public function getDomainAttribute($value)
     {
-        try {
-            if (ends_with($value, '/')) {
-                $value = substr_replace($value, '', -1, 0);
-            }
-
-            return $value;
-        } catch (DecryptException $ex) {
-            return $value;
+        if (ends_with($value, '/')) {
+            $value = substr_replace($value, '', -1, 0);
         }
+
+        return $value;
     }
 
     public function setDomainAttribute($value)
