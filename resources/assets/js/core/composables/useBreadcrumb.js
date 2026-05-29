@@ -4,8 +4,15 @@
  * Titles are translated via __() using meta.titleKey.
  * Falls back to meta.title (English string) if no translation is found.
  */
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+
+// Module-level ref so any component can override the page header title
+const _titleOverride = ref(null)
+
+export function setPageTitle(title) {
+    _titleOverride.value = title || null
+}
 
 function translateTitle(meta) {
     if (!meta?.title) {
@@ -23,7 +30,7 @@ export function useBreadcrumb() {
     const route  = useRoute()
     const router = useRouter()
 
-    const pageTitle = computed(() => translateTitle(route.meta))
+    const pageTitle = computed(() => _titleOverride.value || translateTitle(route.meta))
 
     const breadcrumbs = computed(() => {
         const crumbs   = []
@@ -40,7 +47,12 @@ export function useBreadcrumb() {
             const isLast = i === segments.length
             const title  = translateTitle(resolved.meta)
 
-            if (crumbs.length && crumbs[crumbs.length - 1].title === title) continue
+            if (crumbs.length && crumbs[crumbs.length - 1].title === title) {
+                // Same title as previous crumb — if this is the last segment promote
+                // the existing crumb to active so it renders as a disabled span
+                if (isLast) crumbs[crumbs.length - 1].isActive = true
+                continue
+            }
 
             crumbs.push({ title, to: partialPath, isActive: isLast })
         }

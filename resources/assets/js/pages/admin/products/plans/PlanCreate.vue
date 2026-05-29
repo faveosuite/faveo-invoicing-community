@@ -47,13 +47,16 @@
                     </div>
                 </div>
 
-                <!-- Agents / Quantity -->
+                <!-- Agents / Quantity / Price Description -->
                 <div class="row">
                     <div class="col-md-3">
                         <TextField name="no_of_agents" :label="__('message.agent')" type="number" :value="form.no_of_agents" :onChange="onChange" />
                     </div>
                     <div class="col-md-3">
                         <TextField name="product_quantity" :label="__('message.product_quantity')" type="number" :value="form.product_quantity" :onChange="onChange" />
+                    </div>
+                    <div class="col-md-3">
+                        <TextField name="price_description" :label="__('message.price_description')" type="textarea" :rows="3" :value="form.price_description" :onChange="onChange" />
                     </div>
                 </div>
 
@@ -135,6 +138,7 @@ const form = reactive({
     status: 1,
     no_of_agents: '',
     product_quantity: '',
+    price_description: '',
     prices: [{ currency: '', add_price: '', offer_price: '', renew_price: '' }],
 })
 
@@ -192,16 +196,17 @@ async function submit() {
     saving.value = true
     try {
         const payload = {
-            name:             form.name,
-            product:          form.product,
-            days:             form.days || null,
-            status:           form.status,
-            no_of_agents:     form.no_of_agents !== '' ? form.no_of_agents : null,
-            product_quantity: form.product_quantity !== '' ? form.product_quantity : null,
-            currency:         form.prices.map(p => p.currency),
-            add_price:        form.prices.map(p => p.add_price),
-            renew_price:      form.prices.map(p => p.renew_price),
-            offer_price:      form.prices.map(p => p.offer_price !== '' ? p.offer_price : null),
+            name:              form.name,
+            product:           form.product,
+            days:              form.days || null,
+            status:            form.status,
+            no_of_agents:      form.no_of_agents !== '' ? form.no_of_agents : null,
+            product_quantity:  form.product_quantity !== '' ? form.product_quantity : null,
+            price_description: form.price_description || null,
+            currency:          form.prices.map(p => p.currency),
+            add_price:         form.prices.map(p => p.add_price),
+            renew_price:       form.prices.map(p => p.renew_price),
+            offer_price:       form.prices.map(p => p.offer_price !== '' ? p.offer_price : null),
         }
         const res = await http.put(`${baseUrl}/plans`, payload)
         successHandler(res, COMPONENT)

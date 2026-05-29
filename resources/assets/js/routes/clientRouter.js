@@ -16,6 +16,8 @@ const routes = [
     { path: '/profile',                  meta: { title: 'My Profile' },       component: () => import('@/pages/client/profile/ProfileIndex.vue') },
     { path: '/profile/change-password', meta: { title: 'Change Password' },  component: () => import('@/pages/client/profile/ChangePassword.vue') },
     { path: '/profile/2fa',             meta: { title: 'Two-Factor Auth' },  component: () => import('@/pages/client/profile/TwoFactor.vue') },
+    { path: '/store',          meta: { title: 'Store', sidebar: false }, component: () => import('@/pages/client/store/StoreIndex.vue') },
+    { path: '/store/:groupId', meta: { title: 'Store', sidebar: false }, component: () => import('@/pages/client/store/StoreIndex.vue') },
 ]
 
 const router = createRouter({

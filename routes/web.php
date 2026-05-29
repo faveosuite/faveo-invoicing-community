@@ -915,6 +915,10 @@ Route::post('renewurl', [HomeController::class, 'renewurl']);
 
 Route::get('pricing/data', [HomeController::class, 'getPricingData']);
 Route::get('group/data', [HomeController::class, 'getGroupDatails']);
+Route::get('store/groups', [Front\StoreController::class, 'getGroups'])->name('store.groups');
+Route::get('store/{groupId}/products', [Front\StoreController::class, 'getProducts'])
+    ->where('groupId', '[0-9]+')
+    ->name('store.group.products');
 Route::get('404', function () {
     return view('errors.404');
 })->name('error404');

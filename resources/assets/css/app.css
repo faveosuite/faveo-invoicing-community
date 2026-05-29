@@ -87,6 +87,12 @@
     padding-right: 0.75rem;
 }
 
+/* ── Tooltip indicator (matches TinyMCE content_style preview) ─────────────── */
+.has-tooltip {
+    text-decoration: underline dotted #aaa;
+    cursor: pointer;
+}
+
 /* ── Alert slide transition ────────────────────────────────────────────────── */
 .alert-slide-enter-active,
 .alert-slide-leave-active {

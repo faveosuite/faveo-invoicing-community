@@ -54,7 +54,7 @@ const defaultItems = [
     { key: 'dashboard', label_key: 'dashboard',         route: '/dashboard',              active: 'exact' },
     { key: 'orders',    label_key: 'my_orders',          route: '/orders',                 active: 'prefix' },
     { key: 'invoices',  label_key: 'my_invoices',        route: '/invoices',               active: 'prefix' },
-    { key: 'profile',   label_key: 'my_profile',         route: '/profile',                active: 'prefix',
+{ key: 'profile',   label_key: 'my_profile',         route: '/profile',                active: 'prefix',
         children: [
             { key: 'profile_info',    label_key: 'profile_information', route: '/profile',                 active: 'exact' },
             { key: 'change_password', label_key: 'change_password',     route: '/profile/change-password', active: 'exact' },

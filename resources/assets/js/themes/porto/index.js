@@ -31,6 +31,9 @@ const ToggleSwitch  = defineAsyncComponent(() => import('./components/forms/Togg
 const DynamicSelect = defineAsyncComponent(() => import('./components/forms/DynamicSelect.vue'))
 const PhoneField    = defineAsyncComponent(() => import('./components/forms/PhoneField.vue'))
 
+const PricingTable = defineAsyncComponent(() => import('./components/store/PricingTable.vue'))
+const PlanCard     = defineAsyncComponent(() => import('./components/store/PlanCard.vue'))
+
 export const components = {
     ActionButton,
     ClientField,
@@ -57,4 +60,6 @@ export const components = {
     ToggleSwitch,
     DynamicSelect,
     PhoneField,
+    PricingTable,
+    PlanCard,
 }

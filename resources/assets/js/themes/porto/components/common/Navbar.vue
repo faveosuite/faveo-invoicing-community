@@ -68,7 +68,7 @@
                                                     </a>
                                                     <ul class="dropdown-menu border-light mt-n1">
                                                         <li v-for="group in productGroups" :key="group.id">
-                                                            <a :href="group.url" class="dropdown-item">{{ group.name }}</a>
+                                                            <RouterLink :to="'/store/' + group.id" class="dropdown-item">{{ group.name }}</RouterLink>
                                                         </li>
                                                     </ul>
                                                 </li>
@@ -236,7 +236,7 @@ const productGroups = ref([])
 onMounted(async () => {
     try {
         const { data } = await http.post('available-groups')
-        productGroups.value = Object.values(data.data ?? {})
+        productGroups.value = Object.entries(data.data ?? {}).map(([id, g]) => ({ id: parseInt(id), ...g }))
     } catch {}
 })
 </script>

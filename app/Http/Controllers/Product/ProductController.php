@@ -979,7 +979,7 @@ class ProductController extends BaseProductController
                     ])
                     ->whenNotEmpty(function ($taxData) use ($product) {
                         TaxProductRelation::where('product_id', $product->id)->delete();
-                        TaxProductRelation::insert($taxData);
+                        TaxProductRelation::insert($taxData->toArray());
                     });
 
                 // Update version from GitHub if provided

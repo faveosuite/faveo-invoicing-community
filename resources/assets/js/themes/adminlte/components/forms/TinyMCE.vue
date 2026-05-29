@@ -25,13 +25,13 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const tinymceSrc = `${baseUrl}/themes/default/common/tinymce/js/tinymce/tinymce.min.js`
 
 const props = defineProps({
-    name:     { type: String, required: true },
-    value:    { type: String, default: '' },
+    name:     { type: String,   required: true },
+    value:    { type: String,   default: '' },
     onChange: { type: Function, required: true },
-    id:       { type: String, default: 'tiny_editor' },
-    label:    { type: String, default: '' },
-    required: { type: Boolean, default: false },
-    error:    { type: String, default: undefined },
+    id:       { type: String,   default: 'tiny_editor' },
+    label:    { type: String,   default: '' },
+    required: { type: Boolean,  default: false },
+    error:    { type: String,   default: undefined },
 })
 
 const fieldError = computed(() => props.error ?? '')
