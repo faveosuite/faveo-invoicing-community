@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 
 class CartApiController extends Controller
 {
-
     public function __construct(private readonly CartService $cartService)
     {
     }
@@ -98,14 +97,14 @@ class CartApiController extends Controller
         // entirely by this invoice id from here on (pay page → charge endpoint),
         // so no payment state is stashed in the session. The cart is left intact
         // and is only emptied once payment succeeds.
-        $invoice  = $this->cartService->placeOrder($cart, $user);
+        $invoice = $this->cartService->placeOrder($cart, $user);
         $currency = $cart->currency ?? 'USD';
 
         return successResponse('', [
-            'invoice_id'  => $invoice->id,
-            'gateway'     => $request->input('gateway'),
+            'invoice_id' => $invoice->id,
+            'gateway' => $request->input('gateway'),
             'grand_total' => (float) $invoice->grand_total,
-            'currency'    => $currency,
+            'currency' => $currency,
         ]);
     }
 

@@ -16,9 +16,7 @@ use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
-use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
-use App\Model\Payment\PlanPrice;
 use App\Model\Plugin;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
@@ -333,21 +331,21 @@ class ClientController extends BaseClientController
 
         $paginated->getCollection()->transform(function ($invoice) {
             $paymentTotal = $invoice->payment->sum('amount');
-            $paid         = floatval($invoice->billing_pay ?? 0) + floatval($paymentTotal);
-            $balance      = max(0, floatval($invoice->grand_total) - $paid);
-            $isPaid       = strtolower($invoice->status ?? '') === 'success';
+            $paid = floatval($invoice->billing_pay ?? 0) + floatval($paymentTotal);
+            $balance = max(0, floatval($invoice->grand_total) - $paid);
+            $isPaid = strtolower($invoice->status ?? '') === 'success';
 
             return [
-                'id'          => $invoice->id,
-                'number'      => $invoice->number,
-                'date'        => $invoice->date,
-                'is_renewed'  => (bool) $invoice->is_renewed,
-                'orders'      => $invoice->orders->map(fn ($o) => ['id' => $o->id, 'number' => $o->number])->values(),
+                'id' => $invoice->id,
+                'number' => $invoice->number,
+                'date' => $invoice->date,
+                'is_renewed' => (bool) $invoice->is_renewed,
+                'orders' => $invoice->orders->map(fn ($o) => ['id' => $o->id, 'number' => $o->number])->values(),
                 'grand_total' => currencyFormat($invoice->grand_total, $invoice->currency),
-                'paid'        => currencyFormat($paid, $invoice->currency),
-                'balance'     => currencyFormat($balance, $invoice->currency),
-                'status'      => $isPaid ? 'Paid' : 'Unpaid',
-                'show_pay'    => ! $isPaid && floatval($invoice->grand_total) > 0,
+                'paid' => currencyFormat($paid, $invoice->currency),
+                'balance' => currencyFormat($balance, $invoice->currency),
+                'status' => $isPaid ? 'Paid' : 'Unpaid',
+                'show_pay' => ! $isPaid && floatval($invoice->grand_total) > 0,
             ];
         });
 
@@ -365,25 +363,25 @@ class ClientController extends BaseClientController
             }
 
             $latestInvoice = $order->invoices->first();
-            $user          = \Auth::user();
+            $user = \Auth::user();
 
             return successResponse('', [
-                'id'              => $order->id,
-                'number'          => $order->number,
-                'product_name'    => $order->productRelation?->name,
-                'product_id'      => $order->productRelation?->id,
-                'version'         => $order->subscription?->version,
-                'status'          => $order->order_status,
-                'order_date'      => $order->created_at,
-                'update_ends_at'  => $order->subscription?->update_ends_at,
+                'id' => $order->id,
+                'number' => $order->number,
+                'product_name' => $order->productRelation?->name,
+                'product_id' => $order->productRelation?->id,
+                'version' => $order->subscription?->version,
+                'status' => $order->order_status,
+                'order_date' => $order->created_at,
+                'update_ends_at' => $order->subscription?->update_ends_at,
                 'license_ends_at' => $order->subscription?->ends_at,
-                'serial_key'      => $order->serial_key,
-                'invoice_id'      => $latestInvoice?->id,
-                'invoice_number'  => $latestInvoice?->number,
-                'user'            => [
-                    'name'    => ucfirst($user->first_name ?? '').' '.ucfirst($user->last_name ?? ''),
-                    'email'   => $user->email,
-                    'mobile'  => ($user->mobile_code ? '(+' . $user->mobile_code . ') ' : '') . ($user->mobile ?? ''),
+                'serial_key' => $order->serial_key,
+                'invoice_id' => $latestInvoice?->id,
+                'invoice_number' => $latestInvoice?->number,
+                'user' => [
+                    'name' => ucfirst($user->first_name ?? '').' '.ucfirst($user->last_name ?? ''),
+                    'email' => $user->email,
+                    'mobile' => ($user->mobile_code ? '(+'.$user->mobile_code.') ' : '').($user->mobile ?? ''),
                     'address' => $user->address ?? '',
                 ],
             ]);
@@ -397,10 +395,10 @@ class ClientController extends BaseClientController
         }
 
         $sortField = $request->input('sort-field', 'order_date');
-        $sortDir   = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+        $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
 
         match ($sortField) {
-            'number'         => $query->orderBy('number', $sortDir),
+            'number' => $query->orderBy('number', $sortDir),
             'update_ends_at' => $query->orderBy(
                 Subscription::select('update_ends_at')->whereColumn('order_id', 'orders.id')->limit(1),
                 $sortDir
@@ -418,25 +416,25 @@ class ClientController extends BaseClientController
         }
 
         $paginated->getCollection()->transform(function ($order) use ($downloadPerms) {
-            $hasDownload   = $downloadPerms[$order->productRelation?->id] ?? false;
+            $hasDownload = $downloadPerms[$order->productRelation?->id] ?? false;
             $latestInvoice = $order->invoices->first();
 
             return [
-                'id'               => $order->id,
-                'number'           => $order->number,
-                'product_name'     => $order->productRelation?->name,
-                'version'          => $order->subscription?->version,
-                'status'           => $order->order_status,
-                'order_date'       => $order->created_at,
-                'update_ends_at'   => $order->subscription?->update_ends_at,
-                'agents'           => $order->invoiceItem?->agents,
-                'product_id'       => $order->productRelation?->id,
-                'client_id'        => $order->client,
-                'invoice_number'   => $latestInvoice?->number,
-                'sub_id'           => $order->subscription?->id,
-                'show_download'    => $hasDownload,
+                'id' => $order->id,
+                'number' => $order->number,
+                'product_name' => $order->productRelation?->name,
+                'version' => $order->subscription?->version,
+                'status' => $order->order_status,
+                'order_date' => $order->created_at,
+                'update_ends_at' => $order->subscription?->update_ends_at,
+                'agents' => $order->invoiceItem?->agents,
+                'product_id' => $order->productRelation?->id,
+                'client_id' => $order->client,
+                'invoice_number' => $latestInvoice?->number,
+                'sub_id' => $order->subscription?->id,
+                'show_download' => $hasDownload,
                 'show_cloud_delete' => ! $hasDownload,
-                'is_terminated'    => $order->order_status === 'Terminated',
+                'is_terminated' => $order->order_status === 'Terminated',
             ];
         });
 
@@ -476,8 +474,8 @@ class ClientController extends BaseClientController
             }
 
             return successResponse('', [
-                'plans'    => $planOptions,
-                'user_id'  => $user->id,
+                'plans' => $planOptions,
+                'user_id' => $user->id,
                 'is_cloud' => $isCloud,
             ]);
         } catch (\Exception $e) {
@@ -503,11 +501,11 @@ class ClientController extends BaseClientController
 
             $paginated->getCollection()->transform(function ($model) {
                 return [
-                    'id'          => $model->id,
-                    'number'      => $model->number,
-                    'date'        => $model->date,
+                    'id' => $model->id,
+                    'number' => $model->number,
+                    'date' => $model->date,
                     'grand_total' => currencyFormat($model->grand_total, $model->currency),
-                    'status'      => $model->status,
+                    'status' => $model->status,
                 ];
             });
 
@@ -1248,12 +1246,12 @@ class ClientController extends BaseClientController
 
             $paginated->getCollection()->transform(function ($payment) {
                 return [
-                    'id'             => $payment->id,
+                    'id' => $payment->id,
                     'invoice_number' => $payment->invoice?->number ?? '—',
-                    'amount'         => currencyFormat($payment->amount, $payment->invoice?->currency ?? ''),
+                    'amount' => currencyFormat($payment->amount, $payment->invoice?->currency ?? ''),
                     'payment_method' => $payment->payment_method,
                     'payment_status' => $payment->payment_status,
-                    'created_at'     => $payment->created_at,
+                    'created_at' => $payment->created_at,
                 ];
             });
 
@@ -1278,18 +1276,18 @@ class ClientController extends BaseClientController
                 });
             }
 
-            $allowed  = ['installation_path' => 'installation_domain', 'installation_ip' => 'installation_ip', 'last_active' => 'installation_date'];
-            $sortCol  = $allowed[$request->input('sort-field', 'last_active')] ?? 'installation_date';
-            $sortDir  = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+            $allowed = ['installation_path' => 'installation_domain', 'installation_ip' => 'installation_ip', 'last_active' => 'installation_date'];
+            $sortCol = $allowed[$request->input('sort-field', 'last_active')] ?? 'installation_date';
+            $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
             $query->orderBy($sortCol, $sortDir);
 
             $paginated = $query->paginate((int) $request->input('limit', 10));
 
             $paginated->getCollection()->transform(fn ($inst) => [
                 'installation_path' => $inst->installation_domain,
-                'installation_ip'   => $inst->installation_ip,
-                'version'           => $inst->version,
-                'last_active'       => $inst->installation_date,
+                'installation_ip' => $inst->installation_ip,
+                'version' => $inst->version,
+                'last_active' => $inst->installation_date,
             ]);
 
             return successResponse('', $paginated);
@@ -1304,8 +1302,8 @@ class ClientController extends BaseClientController
 
         return successResponse('', [
             'pending_invoices_count' => $user->invoice()->where('status', 'pending')->count(),
-            'total_orders_count'     => $user->order()->count(),
-            'order_renewals_count'   => $user->order()
+            'total_orders_count' => $user->order()->count(),
+            'order_renewals_count' => $user->order()
                 ->whereHas('subscription', fn ($q) => $q->where('update_ends_at', '<', now()))
                 ->count(),
         ]);
@@ -1451,5 +1449,4 @@ class ClientController extends BaseClientController
 
         return ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
     }
-
 }

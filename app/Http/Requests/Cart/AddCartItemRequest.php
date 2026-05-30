@@ -24,11 +24,11 @@ class AddCartItemRequest extends FormRequest
     public function rules()
     {
         return [
-            'product_id'    => ['required', 'integer', 'exists:products,id'],
-            'plan_id'       => ['nullable', 'integer'],
-            'quantity'      => ['sometimes', 'integer', 'min:1'],
-            'agents'        => ['sometimes', 'integer', 'min:1'],
-            'domain'        => ['nullable', 'string', 'max:255'],
+            'product_id' => ['required', 'integer', 'exists:products,id'],
+            'plan_id' => ['nullable', 'integer'],
+            'quantity' => ['sometimes', 'integer', 'min:1'],
+            'agents' => ['sometimes', 'integer', 'min:1'],
+            'domain' => ['nullable', 'string', 'max:255'],
             'billing_cycle' => ['sometimes', 'in:monthly,yearly,onetime'],
         ];
     }

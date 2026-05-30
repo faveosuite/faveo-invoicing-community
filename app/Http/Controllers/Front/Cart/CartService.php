@@ -29,6 +29,7 @@ class CartService
         if ($user = $request->user()) {
             $cart = $this->dbCart($user)->load('items.product', 'items.plan.planPrice');
             $cart->items->each(fn ($item) => $item->setRelation('cart', $cart));
+
             return $cart;
         }
 
@@ -41,6 +42,7 @@ class CartService
     {
         if ($user = $request->user()) {
             $this->addToDbCart($this->dbCart($user), $data);
+
             return;
         }
 
@@ -49,8 +51,9 @@ class CartService
 
     private function resolveGuestCurrency(Request $request): string
     {
-        $ip  = $request->ip();
+        $ip = $request->ip();
         $iso = cache()->remember("user_location_{$ip}", 60, fn () => getLocation($ip)['iso_code'] ?? null);
+
         return getCurrencyForClient($iso ? findCountryByGeoip($iso) : null);
     }
 
@@ -60,8 +63,8 @@ class CartService
             $item = CartItem::findOrFail($itemId);
             $item->update(array_filter([
                 'quantity' => $data['quantity'] ?? null,
-                'agents'   => $data['agents'] ?? null,
-                'domain'   => $data['domain'] ?? null,
+                'agents' => $data['agents'] ?? null,
+                'domain' => $data['domain'] ?? null,
             ], fn ($v) => $v !== null));
             $this->recalculateCoupon($item->cart);
 
@@ -113,11 +116,11 @@ class CartService
 
     public function applyCoupon(Request $request, string $code): void
     {
-        $cart  = $this->dbCart($request->user());
+        $cart = $this->dbCart($request->user());
         $promo = $this->validatedPromotion($code);
 
         $cart->update([
-            'coupon_code'     => $code,
+            'coupon_code' => $code,
             'coupon_discount' => $this->discountFor($cart->subtotal(), $promo),
         ]);
     }
@@ -139,9 +142,9 @@ class CartService
         $summary = $this->summary($cart, $user);
 
         return [
-            'taxes'       => $summary['taxes'],
-            'tax_total'   => $summary['tax_total'],
-            'gateways'    => $this->activeGateways($cart->currency ?? 'USD'),
+            'taxes' => $summary['taxes'],
+            'tax_total' => $summary['tax_total'],
+            'gateways' => $this->activeGateways($cart->currency ?? 'USD'),
             'grand_total' => $summary['grand_total'],
         ];
     }
@@ -169,15 +172,15 @@ class CartService
             $invoice = $this->reusablePendingInvoice($cart);
 
             $attributes = [
-                'user_id'       => $user->getAuthIdentifier(),
-                'date'          => Carbon::now(),
-                'grand_total'   => $summary['grand_total'],
-                'status'        => 'pending',
-                'currency'      => $cart->currency ?? 'USD',
-                'coupon_code'   => $cart->coupon_code,
-                'discount'      => $summary['discount'],
+                'user_id' => $user->getAuthIdentifier(),
+                'date' => Carbon::now(),
+                'grand_total' => $summary['grand_total'],
+                'status' => 'pending',
+                'currency' => $cart->currency ?? 'USD',
+                'coupon_code' => $cart->coupon_code,
+                'discount' => $summary['discount'],
                 'discount_mode' => 'coupon',
-                'is_renewed'    => 0,
+                'is_renewed' => 0,
             ];
 
             if ($invoice) {
@@ -260,11 +263,11 @@ class CartService
             $existing->increment('quantity', $data['quantity'] ?? 1);
         } else {
             $cart->items()->create([
-                'product_id'    => $data['product_id'],
-                'plan_id'       => $data['plan_id'] ?? null,
-                'quantity'      => $data['quantity'] ?? 1,
-                'agents'        => $data['agents'] ?? 1,
-                'domain'        => $data['domain'] ?? null,
+                'product_id' => $data['product_id'],
+                'plan_id' => $data['plan_id'] ?? null,
+                'quantity' => $data['quantity'] ?? 1,
+                'agents' => $data['agents'] ?? 1,
+                'domain' => $data['domain'] ?? null,
                 'billing_cycle' => $data['billing_cycle'] ?? 'monthly',
             ]);
         }
@@ -282,30 +285,30 @@ class CartService
     private function summary(Cart $cart, Authenticatable $user): array
     {
         $currency = $cart->currency ?? 'USD';
-        $items    = [];
-        $grouped  = [];
+        $items = [];
+        $grouped = [];
         $taxTotal = 0.0;
 
         foreach ($this->lineTaxes($cart, $user) as $tax) {
-            $line      = $tax['line'];
+            $line = $tax['line'];
             $lineTotal = $line->priceFor($currency) * $line->quantity * $line->agents;
 
             $items[] = [
-                'product_name'   => $line->product?->name,
-                'product_id'     => $line->product_id,
-                'regular_price'  => $line->priceFor($currency),
-                'quantity'       => $line->quantity,
-                'tax_name'       => $tax['name'],
+                'product_name' => $line->product?->name,
+                'product_id' => $line->product_id,
+                'regular_price' => $line->priceFor($currency),
+                'quantity' => $line->quantity,
+                'tax_name' => $tax['name'],
                 'tax_percentage' => $tax['percent_label'],
-                'subtotal'       => $lineTotal,
-                'domain'         => $line->domain ?: '',
-                'plan_id'        => $line->plan_id ?? 0,
-                'agents'         => $line->agents,
+                'subtotal' => $lineTotal,
+                'domain' => $line->domain ?: '',
+                'plan_id' => $line->plan_id ?? 0,
+                'agents' => $line->agents,
             ];
 
             if ($tax['amount'] > 0) {
                 $grouped[$tax['name']] = ($grouped[$tax['name']] ?? 0) + $tax['amount'];
-                $taxTotal            += $tax['amount'];
+                $taxTotal += $tax['amount'];
             }
         }
 
@@ -318,11 +321,11 @@ class CartService
         $discount = (float) $cart->coupon_discount;
 
         return [
-            'items'       => $items,
-            'subtotal'    => $subtotal,
-            'discount'    => $discount,
-            'taxes'       => $taxes,
-            'tax_total'   => round($taxTotal, 2),
+            'items' => $items,
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'taxes' => $taxes,
+            'tax_total' => round($taxTotal, 2),
             'grand_total' => rounding(max(0, $subtotal - $discount + $taxTotal)),
         ];
     }
@@ -339,15 +342,15 @@ class CartService
 
         return $cart->items->map(function (CartItem $line) use ($user, $currency) {
             $condition = $this->safeTaxCondition($line->product_id, $user);
-            $percent   = $condition ? $this->percentValue($condition['value'] ?? '0') : 0.0;
+            $percent = $condition ? $this->percentValue($condition['value'] ?? '0') : 0.0;
             $lineTotal = $line->priceFor($currency) * $line->quantity * $line->agents;
 
             return [
-                'line'          => $line,
-                'name'          => $condition['name'] ?? '',
-                'percent'       => $percent,
+                'line' => $line,
+                'name' => $condition['name'] ?? '',
+                'percent' => $percent,
                 'percent_label' => $condition['value'] ?? '',
-                'amount'        => $percent > 0 ? $lineTotal * $percent / 100 : 0.0,
+                'amount' => $percent > 0 ? $lineTotal * $percent / 100 : 0.0,
             ];
         })->all();
     }
@@ -423,9 +426,9 @@ class CartService
 
     private function discountFor(float $subtotal, Promotion $promo): float
     {
-        $raw          = (string) $promo->value;
+        $raw = (string) $promo->value;
         $isPercentage = str_contains($raw, '%') || (int) $promo->type === 1;
-        $numeric      = (float) preg_replace('/[^0-9.]/', '', $raw);
+        $numeric = (float) preg_replace('/[^0-9.]/', '', $raw);
 
         return $isPercentage
             ? round($subtotal * ($numeric / 100), 2)

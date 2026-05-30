@@ -924,17 +924,17 @@ Route::get('store/{groupId}/products', [Front\StoreController::class, 'getProduc
 // Guests get a session-scoped cart; checkout/place-order still require auth.
 Route::prefix('cart')->name('cart.')->group(function () {
     // Guest-allowed: build a cart without logging in.
-    Route::get('/',                [Front\Cart\CartApiController::class, 'show'])->name('show');
-    Route::post('items',           [Front\Cart\CartApiController::class, 'addItem'])->name('items.add');
-    Route::put('items/{item}',     [Front\Cart\CartApiController::class, 'updateItem'])->name('items.update');
-    Route::delete('items/{item}',  [Front\Cart\CartApiController::class, 'removeItem'])->name('items.remove');
-    Route::delete('/',             [Front\Cart\CartApiController::class, 'clear'])->name('clear');
+    Route::get('/', [Front\Cart\CartApiController::class, 'show'])->name('show');
+    Route::post('items', [Front\Cart\CartApiController::class, 'addItem'])->name('items.add');
+    Route::put('items/{item}', [Front\Cart\CartApiController::class, 'updateItem'])->name('items.update');
+    Route::delete('items/{item}', [Front\Cart\CartApiController::class, 'removeItem'])->name('items.remove');
+    Route::delete('/', [Front\Cart\CartApiController::class, 'clear'])->name('clear');
 
     // Coupons + checkout require login (you must sign in to proceed).
     Route::middleware('auth')->group(function () {
-        Route::post('coupon',      [Front\Cart\CartApiController::class, 'applyCoupon'])->name('coupon.apply');
-        Route::delete('coupon',    [Front\Cart\CartApiController::class, 'removeCoupon'])->name('coupon.remove');
-        Route::get('checkout',     [Front\Cart\CartApiController::class, 'checkout'])->name('checkout');
+        Route::post('coupon', [Front\Cart\CartApiController::class, 'applyCoupon'])->name('coupon.apply');
+        Route::delete('coupon', [Front\Cart\CartApiController::class, 'removeCoupon'])->name('coupon.remove');
+        Route::get('checkout', [Front\Cart\CartApiController::class, 'checkout'])->name('checkout');
         Route::post('place-order', [Front\Cart\CartApiController::class, 'placeOrder'])->name('place-order');
     });
 });
@@ -943,10 +943,10 @@ Route::prefix('cart')->name('cart.')->group(function () {
 // lives in its own plugin (App\Plugins\{Stripe,Razorpay}\Controllers\ProcessController).
 // Razorpay verification posts to POST /payment/{invoice} (RazorpayController@payment).
 Route::middleware('auth')->group(function () {
-    Route::get('invoice/{invoice}/pay-init',         [Front\PaymentController::class, 'payInit'])->name('invoice.pay.init');
-    Route::post('invoice/{invoice}/stripe/session',  [Front\PaymentController::class, 'stripeSession'])->name('invoice.pay.stripe.session');
-    Route::post('invoice/{invoice}/stripe/confirm',  [Front\PaymentController::class, 'stripeConfirm'])->name('invoice.pay.stripe.confirm');
-    Route::post('invoice/{invoice}/razorpay/order',  [Front\PaymentController::class, 'razorpayOrder'])->name('invoice.pay.razorpay.order');
+    Route::get('invoice/{invoice}/pay-init', [Front\PaymentController::class, 'payInit'])->name('invoice.pay.init');
+    Route::post('invoice/{invoice}/stripe/session', [Front\PaymentController::class, 'stripeSession'])->name('invoice.pay.stripe.session');
+    Route::post('invoice/{invoice}/stripe/confirm', [Front\PaymentController::class, 'stripeConfirm'])->name('invoice.pay.stripe.confirm');
+    Route::post('invoice/{invoice}/razorpay/order', [Front\PaymentController::class, 'razorpayOrder'])->name('invoice.pay.razorpay.order');
 });
 Route::get('404', function () {
     return view('errors.404');

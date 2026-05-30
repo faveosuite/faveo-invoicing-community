@@ -41,7 +41,7 @@ class CartItem extends Model
         // Mirror the storefront pricing (StoreController::getProductPlans):
         // offer_price is a percentage discount off add_price. Charging add_price
         // here would bill the original price instead of the discounted one shown.
-        $base  = (float) ($planPrice->add_price ?? 0);
+        $base = (float) ($planPrice->add_price ?? 0);
         $offer = (float) ($planPrice->offer_price ?? 0);
 
         return $offer > 0 ? $base * (1 - $offer / 100) : $base;
