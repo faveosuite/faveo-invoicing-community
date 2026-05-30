@@ -1,6 +1,5 @@
 <template>
   <div>
-    <AppAlert componentName="client-invoices-index"/>
     <AppCard :title="__('message.my_invoices')">
       <DataTable :url="apiUrl" :dataColumns="columns" :option="tableOptions">
         <template #number="{ row }">
@@ -44,9 +43,10 @@
 
 <script setup>
 import {reactive} from 'vue'
-import {RouterLink} from 'vue-router'
+import {RouterLink, useRouter} from 'vue-router'
 import {__} from '@/plugins/i18n'
 
+const router = useRouter()
 const el = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const apiUrl = `${baseUrl}/get-my-invoices`
@@ -74,6 +74,8 @@ function formatDate(d) {
 }
 
 function goToPay(invoiceId) {
-  window.location.href = `${baseUrl}/autopaynow/${invoiceId}`
+  // Send to the checkout/gateway-selection step (page 2), not straight to the
+  // pay page — the user picks a gateway there before paying.
+  router.push({ path: '/checkout', query: { invoice: invoiceId } })
 }
 </script>

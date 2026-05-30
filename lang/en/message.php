@@ -2543,6 +2543,9 @@ return [
     'place_order' => 'Place Order',
     'place_your_order_pay' => 'Place Your Order And Pay',
     'card_cvc' => 'CVC',
+    'card_number_required' => 'Card number is required.',
+    'expiry_required' => 'Expiry date is required.',
+    'cvc_required' => 'CVC is required.',
     'stripe_publishable_key' => 'Stripe Publishable Key',
     'enter_stripe_key' => 'Enter Stripe Key',
     'stripe_secret_key' => 'Stripe Secret Key',
@@ -2550,6 +2553,8 @@ return [
     'order_transaction_declined' => 'Thank you for your order. However,the transaction has been declined. Try again.',
     'base_currency_updated' => 'Base Currency Updated',
     'razorpay_settings_updated_successfully' => 'Razorpay Settings updated successfully',
+    'razorpay_key_required' => 'The Razorpay Key is required.',
+    'razorpay_secret_required' => 'The Razorpay Secret is required.',
     'stripe_token_not_generated_correctly' => 'The Stripe Token was not generated correctly',
     'payment_declined_try_other_gateway' => 'Your Payment was declined. Please try making payment with other gateway',
     'payment_declined_error' => 'Your Payment was declined. :error. Please try again or try the other gateway.',
@@ -3153,4 +3158,19 @@ return [
     'select'               => 'Select',
 
     'initial' => 'Initial',
+
+    // DB-backed shopping cart
+    'subtotal'         => 'Subtotal',
+    'coupon_code'      => 'Coupon code',
+    'shopping_cart'    => 'Shopping Cart',
+    'browse_products'  => 'Browse Products',
+    'order_summary'    => 'Order Summary',
+    'have_a_coupon'    => 'Have a coupon?',
+    'cart_empty'       => 'Your cart is empty.',
+    'order_complete'   => 'Order Complete',
+    'no_payment_gateway'  => 'No payment gateway is available for this currency.',
+    'processing_fee_note' => 'An extra processing fee of :fee% will be charged on your Order Total during the time of payment.',
+    'place_order_and_pay' => 'Place Your Order and Pay',
+    'amount_due'          => 'Amount Due',
+    'card_details'        => 'Card Details',
 ];

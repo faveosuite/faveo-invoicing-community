@@ -48,6 +48,7 @@
                     <Sidebar v-if="showSidebar" />
 
                     <div :class="showSidebar ? 'col-lg-9 order-1 order-lg-2' : 'col-12'">
+                        <AppAlert componentName="client-page" />
                         <RouterView v-slot="{ Component }">
                             <Suspense>
                                 <template #default>

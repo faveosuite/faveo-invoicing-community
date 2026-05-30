@@ -1,6 +1,5 @@
 <template>
     <div>
-        <AppAlert componentName="client-orders-index" />
         <AppCard :title="__('message.my_orders')">
             <DataTable :url="apiUrl" :dataColumns="columns" :option="tableOptions">
                 <template #number="{ row }">
@@ -259,7 +258,7 @@ async function submitRenew() {
         if (redirectUrl) window.location.href = redirectUrl
         else closeRenewModal()
     } catch (e) {
-        errorHandler(e, 'client-orders-index')
+        errorHandler(e, 'client-page')
     } finally {
         renewSubmitting.value = false
     }

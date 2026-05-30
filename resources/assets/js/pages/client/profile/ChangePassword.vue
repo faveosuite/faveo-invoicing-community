@@ -1,6 +1,5 @@
 <template>
     <div>
-        <AppAlert componentName="client-change-password" />
         <AppCard :title="__('message.change_password')">
         <form @submit.prevent="submitPassword" class="needs-validation">
 
@@ -49,7 +48,7 @@ import { passwordChangeSchema } from '@/validations/client/profile.js'
 const el      = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
-const COMPONENT = 'client-change-password'
+const COMPONENT = 'client-page'
 
 const saving = ref(false)
 

@@ -1,6 +1,5 @@
 <template>
     <div>
-        <AppAlert componentName="client-dashboard" />
         <inline-loader v-if="loading" />
         <div v-else class="row">
 
@@ -74,7 +73,7 @@ onMounted(async () => {
         const res = await http.get(`${baseUrl}/client-dashboard-details`)
         data.value = res.data?.data ?? res.data
     } catch (e) {
-        errorHandler(e, 'client-dashboard')
+        errorHandler(e, 'client-page')
     } finally {
         loading.value = false
     }

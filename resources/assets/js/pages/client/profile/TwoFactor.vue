@@ -1,6 +1,5 @@
 <template>
     <div>
-        <AppAlert componentName="client-2fa" />
         <AppCard :title="__('message.two_factor_authentication')">
             <inline-loader v-if="loading" />
 
@@ -217,7 +216,7 @@ const el      = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const userId  = el?.dataset?.userId ?? ''
 
-const COMPONENT = 'client-2fa'
+const COMPONENT = 'client-page'
 
 const loading        = ref(true)
 const is2faEnabled   = ref(false)

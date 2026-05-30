@@ -1,6 +1,5 @@
 <template>
     <div>
-        <AppAlert componentName="client-invoices-show" />
 
         <div class="card">
             <inline-loader v-if="loading" context="card-body" />
@@ -23,13 +22,13 @@
                             </p>
                             <span class="badge" :class="statusBadgeClass">{{ capitalize(invoice?.status) }}</span>
                             <div class="d-flex gap-2 justify-content-end mt-2">
-                                <a
+                                <RouterLink
                                     v-if="invoice?.status?.toLowerCase() === 'pending'"
-                                    :href="`${baseUrl}/invoice/${invoiceId}/pay`"
+                                    :to="{ path: '/checkout', query: { invoice: invoiceId } }"
                                     class="btn btn-success btn-sm"
                                 >
                                     <i class="fas fa-credit-card me-1"></i>{{ __('message.pay_now') }}
-                                </a>
+                                </RouterLink>
                                 <a
                                     :href="`${baseUrl}/pdf?invoiceid=${invoiceId}`"
                                     class="btn btn-outline-secondary btn-sm"
@@ -196,7 +195,7 @@ import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { errorHandler } from '@/helpers/responseHandler.js'
 
-const COMPONENT = 'client-invoices-show'
+const COMPONENT = 'client-page'
 const el = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const userId = el?.dataset?.userId ?? ''

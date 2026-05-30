@@ -1,6 +1,5 @@
 <template>
     <div>
-        <AppAlert componentName="client-orders-show" />
 
         <inline-loader v-if="loading" />
 
@@ -316,7 +315,7 @@ onMounted(async () => {
         const res = await http.get(`${baseUrl}/get-my-orders`, { params: { id: orderId } })
         order.value = res.data?.data ?? null
     } catch (e) {
-        errorHandler(e, 'client-orders-show')
+        errorHandler(e, 'client-page')
     } finally {
         loading.value = false
     }

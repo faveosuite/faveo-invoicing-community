@@ -15,6 +15,9 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\Event::class => [
             'App\Listeners\EventListener',
         ],
+        \Illuminate\Auth\Events\Login::class => [
+            \App\Listeners\MergeGuestCartOnLogin::class,
+        ],
     ];
 
     /**

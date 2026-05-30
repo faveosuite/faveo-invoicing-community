@@ -1,6 +1,5 @@
 <template>
     <div>
-        <AppAlert componentName="client-profile" />
         <AppCard :title="__('message.profile_information')">
         <inline-loader v-if="!hasDataPopulated" />
 
@@ -127,7 +126,7 @@ const baseUrl      = el?.dataset?.baseUrl ?? ''
 const avatarPreview = ref(el?.dataset?.userAvatar ?? '')
 const selectedImage = ref(null)
 
-const COMPONENT = 'client-profile'
+const COMPONENT = 'client-page'
 
 const hasDataPopulated = ref(false)
 const savingProfile    = ref(false)

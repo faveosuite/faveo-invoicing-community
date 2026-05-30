@@ -38,45 +38,40 @@ class RazorpayController extends Controller
     }
 
     /*
-    * Create Order And Payment for invoice paid with Razorpay
+     * Verify a Razorpay Checkout handler response for an invoice and fulfil it.
+     * The signature is verified server-side; nothing is recorded unless authentic.
      */
     public function payment($invoice, Request $request)
     {
-        $userId = Invoice::find($invoice)->user_id;
-        if (\Auth::user()->role != 'admin' && $userId != \Auth::user()->id) {
-            return errorResponse('Payment cannot be initiated. Invalid modification of data');
+        $request->validate([
+            'razorpay_payment_id' => 'required|string',
+            'razorpay_order_id'   => 'required|string',
+            'razorpay_signature'  => 'required|string',
+        ]);
+
+        $model = Invoice::find($invoice);
+        abort_if(! $model, 404, 'Invoice not found.');
+        if (\Auth::user()->role != 'admin' && (int) $model->user_id !== (int) \Auth::id()) {
+            return errorResponse(__('message.invalid_modification'));
         }
-        //Input items of form
-        $input = $request->all();
-        $error = 'Payment Failed';
-        $rzp_key = ApiKey::where('id', 1)->value('rzp_key');
-        $rzp_secret = ApiKey::where('id', 1)->value('rzp_secret');
-        $invoice = Invoice::where('id', $invoice)->first();
-        if (count($input) && ! empty($input['razorpay_payment_id'])) { //Verify Razorpay Payment Id and Signature
-            //Fetch payment information by razorpay_payment_id
-            try {
-                $api = new Api($rzp_key, $rzp_secret);
-                $payment = $api->payment->fetch($input['razorpay_payment_id']);
-                $response = $api->payment->fetch($input['razorpay_payment_id']);
 
-                $stateCode = \Auth::user()->state;
-                $state = $this->getState(\Auth::user()->country, $stateCode);
-                $currency = $this->getCurrency();
+        try {
+            $paid = app(\App\Services\Payment\InvoicePaymentService::class)
+                ->confirm($model, 'Razorpay', $request->only([
+                    'razorpay_payment_id', 'razorpay_order_id', 'razorpay_signature',
+                ]));
 
-                $result = $this->processPaymentSuccess($invoice, $currency);
-                $this->cart->removeCartCondition('Processing fee');
-                \Session::forget(['items', 'code', 'codevalue', 'totalToBePaid', 'invoice', 'cart_currency']);
-
-                return redirect('checkout')->with($result['status'], $result['message']);
-            } catch (\Razorpay\Api\Errors\SignatureVerificationError|\Razorpay\Api\Errors\BadRequestError|\Razorpay\Api\Errors\GatewayError|\Razorpay\Api\Errors\ServerError $e) {
-                SettingsController::sendFailedPaymenttoAdmin($invoice, $invoice->grand_total, $invoice->invoiceItem()->first()->product_name, $e->getMessage(), \Auth::user());
-
-                return errorResponse('Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
-//                return redirect('checkout')->with('fails', 'Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
-            } catch (\Exception $e) {
-                return errorResponse('Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
-                //  return redirect('checkout')->with('fails', 'Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
+            return $paid
+                ? successResponse('success', [])
+                : errorResponse(__('message.payment_declined_try_other_gateway'));
+        } catch (\App\Plugins\Payment\Exceptions\SignatureVerificationException $e) {
+            if (emailSendingStatus()) {
+                $this->sendFailedPaymenttoAdmin($model, $model->grand_total, optional($model->invoiceItem()->first())->product_name, $e->getMessage(), \Auth::user());
             }
+
+            return errorResponse(__('message.payment_declined_try_other_gateway'));
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
         }
     }
 
@@ -103,7 +98,11 @@ class RazorpayController extends Controller
         try {
             $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
             $stripe = new \Stripe\StripeClient($stripeSecretKey);
-            $invoice = \Session::get('invoice');
+            // SPA flow carries the invoice id on the return URL (stateless);
+            // legacy flow still falls back to the session-stored invoice.
+            $invoice = $request->query('invoice')
+                ? Invoice::find($request->query('invoice'))
+                : \Session::get('invoice');
             $paymentIntent = $stripe->paymentIntents->retrieve($request->input('payment_intent'));
             if ($paymentIntent->status === 'succeeded') {
                 $currency = strtolower($invoice->currency);

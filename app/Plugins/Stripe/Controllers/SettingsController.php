@@ -3,26 +3,32 @@
 namespace App\Plugins\Stripe\Controllers;
 
 use App\ApiKey;
-use App\Facades\Cart;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\SyncBillingToLatestVersion;
-use App\Plugins\Stripe\Model\StripePayment;
 use App\Traits\Payment\PostPaymentHandle;
 use App\User;
 use Cartalyst\Stripe\Laravel\Facades\Stripe;
 use Illuminate\Http\Request;
 use Stripe\StripeClient;
 
+/**
+ * Stripe admin settings + shared Stripe helpers.
+ *
+ * The SPA invoice-payment flow lives in the standalone payment package
+ * (App\Plugins\Payment, via App\Services\Payment\InvoicePaymentService). This
+ * controller keeps:
+ *  - admin settings: read (getSettings) and update (updateApiKey) the API keys;
+ *  - handlePayment(): a server-confirmed PaymentIntent used by the auto-renew
+ *    (Front\ClientController) and open-payment (OpenPaymentController) flows;
+ *  - handleStripeAutoPay(): subscription creation used by SubscriptionController.
+ */
 class SettingsController extends Controller
 {
     use PostPaymentHandle;
-    public $cart;
 
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('admin', ['except' => ['postPaymentWithStripe']]);
-        $this->cart = new Cart();
+        $this->middleware('admin', ['except' => []]);
     }
 
     public function getSettings()
@@ -39,72 +45,6 @@ class SettingsController extends Controller
         }
     }
 
-    public function Settings()
-    {
-        try {
-            $stripe1 = new StripePayment();
-            // //dd($ccavanue);
-            $stripe = $stripe1->where('id', '1')->first();
-
-            if (! $stripe) {
-                (new SyncBillingToLatestVersion)->sync();
-            }
-            $allCurrencies = StripePayment::pluck('currencies', 'id')->toArray();
-            $apikey = new ApiKey();
-            $stripeKeys = $apikey->select('stripe_key', 'stripe_secret')->first();
-            $baseCurrency = StripePayment::pluck('base_currency')->toArray();
-            $path = app_path().'/Plugins/Stripe/views';
-            \View::addNamespace('plugins', $path);
-
-            return view('plugins::settings', compact('stripe', 'baseCurrency', 'allCurrencies', 'stripeKeys'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function postSettings(Request $request)
-    {
-        $this->validate($request, [
-            'business' => 'required',
-            'cmd' => 'required',
-            'paypal_url' => 'required|url',
-            'success_url' => 'url',
-            'cancel_url' => 'url',
-            'notify_url' => 'url',
-            'currencies' => 'required',
-        ], [
-            'business.required' => __('validation.razorpay_val.business_required'),
-            'cmd.required' => __('validation.razorpay_val.cmd_required'),
-            'paypal_url.required' => __('validation.razorpay_val.paypal_url_required'),
-            'paypal_url.url' => __('validation.razorpay_val.paypal_url_invalid'),
-            'success_url.url' => __('validation.razorpay_val.success_url_invalid'),
-            'cancel_url.url' => __('validation.razorpay_val.cancel_url_invalid'),
-            'notify_url.url' => __('validation.razorpay_val.notify_url_invalid'),
-            'currencies.required' => __('validation.razorpay_val.currencies_required'),
-        ]);
-
-        try {
-            $ccavanue1 = new Paypal();
-            $ccavanue = $ccavanue1->where('id', '1')->first();
-            $ccavanue->fill($request->input())->save();
-
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function changeBaseCurrency(Request $request)
-    {
-        $baseCurrency = Stripe::where('id', $request->input('b_currency'))->pluck('currencies')->first();
-        $allCurrencies = Stripe::select('base_currency', 'id')->get();
-        foreach ($allCurrencies as $currencies) {
-            Stripe::where('id', $currencies->id)->update(['base_currency' => $baseCurrency]);
-        }
-
-        return ['message' => 'success', 'update' => 'Base Currency Updated'];
-    }
-
     public function updateApiKey(Request $request)
     {
         $request->validate([
@@ -116,16 +56,17 @@ class SettingsController extends Controller
         ]);
 
         try {
+            // Validate the secret key against Stripe before storing it.
             $stripe = Stripe::make($request->input('stripe_secret'));
-            $response = $stripe->customers()->create(['description' => 'Test Customer to Validate Secret Key']);
-            $stripe_secret = $request->input('stripe_secret');
+            $stripe->customers()->create(['description' => 'Test Customer to Validate Secret Key']);
+
             ApiKey::find(1)->update([
                 'stripe_secret' => $request->input('stripe_secret'),
                 'stripe_key' => $request->input('stripe_key'),
             ]);
 
             return successResponse(__('message.stripe_settings_updated_successfully'));
-        } catch (\Cartalyst\Stripe\Exception\UnauthorizedException  $e) {
+        } catch (\Cartalyst\Stripe\Exception\UnauthorizedException $e) {
             return errorResponse($e->getMessage());
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
@@ -133,59 +74,12 @@ class SettingsController extends Controller
     }
 
     /**
-     * success response method.
+     * Create and confirm a PaymentIntent from a card token in a single call.
      *
-     * @return
+     * Shared by the auto-renew (Front\ClientController) and open-payment
+     * (OpenPaymentController) flows, which collect a card token client-side and
+     * need a server-confirmed charge with 3-D Secure support via $url.
      */
-    public function postPaymentWithStripe(Request $request)
-    {
-        try {
-            $invoice = \Session::get('invoice');
-            $amount = rounding($this->cart->getTotal()) ?: rounding(\Session::get('totalToBePaid'));
-            $currency = strtolower($invoice->currency);
-            $url = url('/confirm/payment');
-            $confirm = $this->handlePayment($request, $amount, $currency, $url);
-
-            // Check if payment was successful
-            if (isset($confirm->status) && $confirm->status === 'succeeded') {
-                $result = $this->processPaymentSuccess($invoice, $currency);
-                \Session::forget(['items', 'code', 'codevalue', 'totalToBePaid', 'invoice', 'cart_currency']);
-                \Cart::removeCartCondition('Processing fee');
-                $data = ['status' => $result['status'], 'message' => $result['message']];
-
-                return successResponse('success', []);
-//                return redirect('checkout')->with($result['status'], $result['message']);
-            } else {
-                $paymentIntent = \Stripe\PaymentIntent::retrieve($confirm['id']);
-                $redirectUrl = $paymentIntent->next_action->redirect_to_url->url;
-
-                return errorResponse('fail', ['redirectUrl' => $redirectUrl]);
-//                return redirect()->away($redirectUrl);
-            }
-        } catch (\Cartalyst\Stripe\Exception\ApiLimitExceededException|\Cartalyst\Stripe\Exception\BadRequestException|\Cartalyst\Stripe\Exception\MissingParameterException|\Cartalyst\Stripe\Exception\NotFoundException|\Cartalyst\Stripe\Exception\ServerErrorException|\Cartalyst\Stripe\Exception\StripeException|\Cartalyst\Stripe\Exception\UnauthorizedException $e) {
-            $control = new \App\Http\Controllers\Order\RenewController();
-            if ($control->checkRenew($invoice->is_renewed) != true) {
-                return errorResponse($e->getMessage(), ['redirectTo' => 'checkout']);
-//                return redirect('checkout')->with('fails', __('message.stripe_payment_declined', ['error' => $e->getMessage()]));
-            } else {
-                return errorResponse($e->getMessage(), ['redirectTo' => 'paynow']);
-//                return redirect('paynow/'.$invoice->id)->with('fails', __('message.stripe_payment_declined', ['error' => $e->getMessage()]));
-            }
-        } catch (\Cartalyst\Stripe\Exception\CardErrorException $e) {
-            if (emailSendingStatus()) {
-                $user = auth()->user();
-                $this->sendFailedPaymenttoAdmin($invoice, $invoice->grand_total, $invoice->invoiceItem()->first()->product_name, $e->getMessage(), $user);
-            }
-            \Session::put('amount', $amount);
-            \Session::put('error', $e->getMessage());
-
-//            return redirect()->route('checkout');
-        } catch (\Exception $e) {
-            return errorResponse($e->getMessage(), ['redirectTo' => 'checkout']);
-//            return redirect('checkout')->with('fails', __('message.stripe_payment_declined', ['error' => $e->getMessage()]));
-        }
-    }
-
     public function handlePayment(Request $request, $amount, $currency, $url, $user = null)
     {
         $request->validate([
@@ -197,18 +91,14 @@ class SettingsController extends Controller
         $user = $user ?? auth()->user();
 
         $stripeSecretKey = ApiKey::value('stripe_secret');
-
         $stripe = new StripeClient($stripeSecretKey);
 
         $cost = calculateUnitCost($currency, $amount);
 
-        // Extract customer data
         $customerData = $this->extractCustomerData($user);
-
-        // Create customer
         $customer = $stripe->customers->create($customerData);
 
-        // Build shipping details for Indian export compliance
+        // Shipping details for Indian export compliance.
         $addressData = $customerData['address'] ?? [];
         $shippingDetails = [
             'name' => $customerData['name'] ?: 'Customer',
@@ -221,7 +111,6 @@ class SettingsController extends Controller
             ],
         ];
 
-        // Create and confirm PaymentIntent in ONE call
         $paymentIntent = $stripe->paymentIntents->create([
             'amount' => $cost,
             'currency' => $currency,
@@ -246,7 +135,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * Extract customer data from User model, array, or object.
+     * Extract Stripe customer data from a User model, array, or object.
      */
     public function extractCustomerData($user): array
     {
@@ -276,18 +165,15 @@ class SettingsController extends Controller
     {
         try {
             $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
-            $stripe = new \Stripe\StripeClient($stripeSecretKey);
+            $stripe = new StripeClient($stripeSecretKey);
             \Stripe\Stripe::setApiKey($stripeSecretKey);
 
             $paymentMethod = \Stripe\PaymentMethod::retrieve($stripe_payment_details->payment_intent_id);
 
-            //create product
             $product = $stripe->products->create([
                 'name' => $product_details->name,
             ]);
             $product_id = $product['id'];
-
-            //define product price and recurring interval
 
             $price = $stripe->prices->create([
                 'unit_amount' => $unit_cost,
@@ -296,8 +182,6 @@ class SettingsController extends Controller
                 'product' => $product_id,
             ]);
             $price_id = $price['id'];
-
-            //CREATE SUBSCRIPTION
 
             $stripe_subscription = $stripe->subscriptions->create([
                 'customer' => $paymentMethod->customer,
@@ -308,11 +192,8 @@ class SettingsController extends Controller
             ]);
 
             return $stripe_subscription;
-        } catch (ApiErrorException $e) {
-            $errorCode = $e->getStripeCode();
-            $errorMessage = $e->getMessage();
-            $exception = new \Exception("Stripe Error ({$errorCode}): {$errorMessage}");
-            \Logger::exception($exception);
+        } catch (\Exception $e) {
+            \Logger::exception($e);
         }
     }
 }

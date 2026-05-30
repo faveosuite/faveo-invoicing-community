@@ -1,0 +1,449 @@
+<?php
+
+namespace App\Http\Controllers\Front\Cart;
+
+use App\Http\Controllers\Common\SettingsController;
+use App\Model\Cart\Cart;
+use App\Model\Cart\CartItem;
+use App\Model\Order\Invoice;
+use App\Model\Order\InvoiceItem;
+use App\Model\Payment\Promotion;
+use App\Traits\TaxCalculation;
+use Carbon\Carbon;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class CartService
+{
+    use TaxCalculation;
+
+    public function __construct(private readonly GuestCart $guest)
+    {
+    }
+
+    // --- Cart resolution ---
+
+    public function resolveCart(Request $request): Cart
+    {
+        if ($user = $request->user()) {
+            $cart = $this->dbCart($user)->load('items.product', 'items.plan.planPrice');
+            $cart->items->each(fn ($item) => $item->setRelation('cart', $cart));
+            return $cart;
+        }
+
+        return $this->guest->toCart();
+    }
+
+    // --- Item operations ---
+
+    public function addItem(Request $request, array $data): void
+    {
+        if ($user = $request->user()) {
+            $this->addToDbCart($this->dbCart($user), $data);
+            return;
+        }
+
+        $this->guest->add($data, $this->resolveGuestCurrency($request));
+    }
+
+    private function resolveGuestCurrency(Request $request): string
+    {
+        $ip  = $request->ip();
+        $iso = cache()->remember("user_location_{$ip}", 60, fn () => getLocation($ip)['iso_code'] ?? null);
+        return getCurrencyForClient($iso ? findCountryByGeoip($iso) : null);
+    }
+
+    public function updateItem(Request $request, int|string $itemId, array $data): void
+    {
+        if ($request->user()) {
+            $item = CartItem::findOrFail($itemId);
+            $item->update(array_filter([
+                'quantity' => $data['quantity'] ?? null,
+                'agents'   => $data['agents'] ?? null,
+                'domain'   => $data['domain'] ?? null,
+            ], fn ($v) => $v !== null));
+            $this->recalculateCoupon($item->cart);
+
+            return;
+        }
+
+        $this->guest->update((int) $itemId, $data);
+    }
+
+    public function removeItem(Request $request, int|string $itemId): void
+    {
+        if ($request->user()) {
+            $item = CartItem::findOrFail($itemId);
+            $cart = $item->cart;
+            $item->delete();
+            $this->recalculateCoupon($cart);
+
+            return;
+        }
+
+        $this->guest->remove((int) $itemId);
+    }
+
+    public function clear(Request $request): void
+    {
+        if ($user = $request->user()) {
+            $cart = $this->dbCart($user);
+            $cart->items()->delete();
+            $cart->update(['coupon_code' => null, 'coupon_discount' => 0]);
+
+            return;
+        }
+
+        $this->guest->clear();
+    }
+
+    public function ownsItem(Request $request, int|string $itemId): bool
+    {
+        if ($user = $request->user()) {
+            return CartItem::where('id', $itemId)
+                ->whereHas('cart', fn ($q) => $q->where('user_id', $user->getAuthIdentifier()))
+                ->exists();
+        }
+
+        return $this->guest->has((int) $itemId);
+    }
+
+    // --- Coupons (auth only) ---
+
+    public function applyCoupon(Request $request, string $code): void
+    {
+        $cart  = $this->dbCart($request->user());
+        $promo = $this->validatedPromotion($code);
+
+        $cart->update([
+            'coupon_code'     => $code,
+            'coupon_discount' => $this->discountFor($cart->subtotal(), $promo),
+        ]);
+    }
+
+    public function removeCoupon(Request $request): void
+    {
+        $this->dbCart($request->user())->update(['coupon_code' => null, 'coupon_discount' => 0]);
+    }
+
+    // --- Checkout summary ---
+
+    /**
+     * Money summary for the checkout page. Uses the exact same per-line tax and
+     * `rounding()` rules as invoice creation so the "Total" shown here always
+     * equals the invoice's grand_total (and therefore the pay page's amount due).
+     */
+    public function checkoutExtras(Cart $cart, Authenticatable $user): array
+    {
+        $summary = $this->summary($cart, $user);
+
+        return [
+            'taxes'       => $summary['taxes'],
+            'tax_total'   => $summary['tax_total'],
+            'gateways'    => $this->activeGateways($cart->currency ?? 'USD'),
+            'grand_total' => $summary['grand_total'],
+        ];
+    }
+
+    // --- Place order (invoice creation / reuse) ---
+
+    /**
+     * Turn the cart into a payable invoice and return it.
+     *
+     * A cart is linked to its invoice (carts.invoice_id). If that invoice is
+     * still pending and unpaid we rebuild it in place — so editing the cart and
+     * checking out again updates the same invoice instead of spawning a new one.
+     * Only once payment succeeds (PostPaymentHandle::processPaymentSuccess) is
+     * the cart emptied and the link cleared. Payment always charges the invoice,
+     * never the cart.
+     */
+    public function placeOrder(Cart $cart, Authenticatable $user): Invoice
+    {
+        $cart->loadMissing('items.plan.planPrice', 'items.product');
+        $this->recalculateCoupon($cart);   // drop a coupon that expired since it was applied
+        $cart->refresh()->loadMissing('items.plan.planPrice', 'items.product');
+
+        return DB::transaction(function () use ($cart, $user) {
+            $summary = $this->summary($cart, $user);
+            $invoice = $this->reusablePendingInvoice($cart);
+
+            $attributes = [
+                'user_id'       => $user->getAuthIdentifier(),
+                'date'          => Carbon::now(),
+                'grand_total'   => $summary['grand_total'],
+                'status'        => 'pending',
+                'currency'      => $cart->currency ?? 'USD',
+                'coupon_code'   => $cart->coupon_code,
+                'discount'      => $summary['discount'],
+                'discount_mode' => 'coupon',
+                'is_renewed'    => 0,
+            ];
+
+            if ($invoice) {
+                $invoice->update($attributes);
+                $invoice->invoiceItem()->delete();
+            } else {
+                $invoice = Invoice::create($attributes + ['number' => random_int(11111111, 99999999)]);
+            }
+
+            foreach ($summary['items'] as $item) {
+                InvoiceItem::create(['invoice_id' => $invoice->id] + $item);
+            }
+
+            $cart->update(['invoice_id' => $invoice->id]);
+
+            return $invoice;
+        });
+    }
+
+    /**
+     * The cart's linked invoice, but only if it is safe to rebuild — i.e. still
+     * pending and with no payment recorded against it. A paid or part-paid
+     * invoice is left untouched and a fresh one is created instead.
+     */
+    private function reusablePendingInvoice(Cart $cart): ?Invoice
+    {
+        $invoice = $cart->invoice_id ? Invoice::find($cart->invoice_id) : null;
+
+        if ($invoice && $invoice->status === 'pending' && (float) $invoice->payment()->sum('amount') === 0.0) {
+            return $invoice;
+        }
+
+        return null;
+    }
+
+    // --- Merge guest cart on login ---
+
+    public function mergeGuestCart(Authenticatable $user): void
+    {
+        if ($this->guest->isEmpty()) {
+            $this->guest->clear();
+
+            return;
+        }
+
+        $cart = $this->dbCart($user);
+
+        foreach ($this->guest->all() as $data) {
+            $this->addToDbCart($cart, $data);
+        }
+
+        $this->guest->clear();
+    }
+
+    // --- Private helpers ---
+
+    private function dbCart(Authenticatable $user): Cart
+    {
+        $cart = Cart::firstOrCreate(
+            ['user_id' => $user->getAuthIdentifier()],
+            ['currency' => getCurrencyForClient($user->country)]
+        );
+
+        if (empty($cart->currency)) {
+            $cart->update(['currency' => getCurrencyForClient($user->country)]);
+        }
+
+        return $cart;
+    }
+
+    private function addToDbCart(Cart $cart, array $data): void
+    {
+        $existing = $cart->items()
+            ->where('product_id', $data['product_id'])
+            ->where('plan_id', $data['plan_id'] ?? null)
+            ->where('billing_cycle', $data['billing_cycle'] ?? 'monthly')
+            ->first();
+
+        if ($existing) {
+            $existing->increment('quantity', $data['quantity'] ?? 1);
+        } else {
+            $cart->items()->create([
+                'product_id'    => $data['product_id'],
+                'plan_id'       => $data['plan_id'] ?? null,
+                'quantity'      => $data['quantity'] ?? 1,
+                'agents'        => $data['agents'] ?? 1,
+                'domain'        => $data['domain'] ?? null,
+                'billing_cycle' => $data['billing_cycle'] ?? 'monthly',
+            ]);
+        }
+
+        $this->recalculateCoupon($cart);
+    }
+
+    /**
+     * Single source of truth for cart money: per-line invoice items, grouped
+     * taxes for display, and the totals. Both the checkout summary and invoice
+     * creation read from here so the numbers can never drift apart.
+     *
+     * @return array{items: array, subtotal: float, discount: float, taxes: array, tax_total: float, grand_total: float}
+     */
+    private function summary(Cart $cart, Authenticatable $user): array
+    {
+        $currency = $cart->currency ?? 'USD';
+        $items    = [];
+        $grouped  = [];
+        $taxTotal = 0.0;
+
+        foreach ($this->lineTaxes($cart, $user) as $tax) {
+            $line      = $tax['line'];
+            $lineTotal = $line->priceFor($currency) * $line->quantity * $line->agents;
+
+            $items[] = [
+                'product_name'   => $line->product?->name,
+                'product_id'     => $line->product_id,
+                'regular_price'  => $line->priceFor($currency),
+                'quantity'       => $line->quantity,
+                'tax_name'       => $tax['name'],
+                'tax_percentage' => $tax['percent_label'],
+                'subtotal'       => $lineTotal,
+                'domain'         => $line->domain ?: '',
+                'plan_id'        => $line->plan_id ?? 0,
+                'agents'         => $line->agents,
+            ];
+
+            if ($tax['amount'] > 0) {
+                $grouped[$tax['name']] = ($grouped[$tax['name']] ?? 0) + $tax['amount'];
+                $taxTotal            += $tax['amount'];
+            }
+        }
+
+        $taxes = [];
+        foreach ($grouped as $label => $amount) {
+            $taxes[] = ['label' => $label, 'amount' => round($amount, 2)];
+        }
+
+        $subtotal = (float) $cart->subtotal();
+        $discount = (float) $cart->coupon_discount;
+
+        return [
+            'items'       => $items,
+            'subtotal'    => $subtotal,
+            'discount'    => $discount,
+            'taxes'       => $taxes,
+            'tax_total'   => round($taxTotal, 2),
+            'grand_total' => rounding(max(0, $subtotal - $discount + $taxTotal)),
+        ];
+    }
+
+    /**
+     * Resolve the tax for every cart line once. Returns one entry per line so
+     * callers can either group them (display) or attach them per-item (invoice).
+     *
+     * @return array<int, array{line: CartItem, name: string, percent: float, percent_label: string, amount: float}>
+     */
+    private function lineTaxes(Cart $cart, Authenticatable $user): array
+    {
+        $currency = $cart->currency ?? 'USD';
+
+        return $cart->items->map(function (CartItem $line) use ($user, $currency) {
+            $condition = $this->safeTaxCondition($line->product_id, $user);
+            $percent   = $condition ? $this->percentValue($condition['value'] ?? '0') : 0.0;
+            $lineTotal = $line->priceFor($currency) * $line->quantity * $line->agents;
+
+            return [
+                'line'          => $line,
+                'name'          => $condition['name'] ?? '',
+                'percent'       => $percent,
+                'percent_label' => $condition['value'] ?? '',
+                'amount'        => $percent > 0 ? $lineTotal * $percent / 100 : 0.0,
+            ];
+        })->all();
+    }
+
+    private function safeTaxCondition(int $productId, Authenticatable $user): ?array
+    {
+        try {
+            $condition = $this->calculateTax($productId, $user->state, $user->country);
+            if (! is_array($condition) || ($condition['name'] ?? 'null') === 'null') {
+                return null;
+            }
+
+            return $condition;
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    private function percentValue(string $value): float
+    {
+        return (float) str_replace('%', '', $value);
+    }
+
+    private function activeGateways(string $currency): array
+    {
+        try {
+            $names = SettingsController::checkPaymentGateway($currency);
+            if (! is_array($names)) {
+                return [];
+            }
+
+            return array_map(function ($name) use ($currency) {
+                $fee = DB::table(strtolower($name))
+                    ->where('currencies', $currency)
+                    ->value('processing_fee');
+
+                return ['name' => $name, 'processing_fee' => $fee !== null ? (float) $fee : null];
+            }, $names);
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    private function recalculateCoupon(Cart $cart): void
+    {
+        $cart = $cart->fresh(['items']);
+
+        if (empty($cart->coupon_code)) {
+            return;
+        }
+
+        try {
+            $promo = $this->validatedPromotion($cart->coupon_code);
+        } catch (\Exception) {
+            $cart->update(['coupon_code' => null, 'coupon_discount' => 0]);
+
+            return;
+        }
+
+        $cart->update(['coupon_discount' => $this->discountFor($cart->subtotal(), $promo)]);
+    }
+
+    private function validatedPromotion(string $code): Promotion
+    {
+        $promo = Promotion::where('code', $code)->first();
+
+        if (! $promo || ! $this->withinValidityWindow($promo)) {
+            throw new \Exception(__('message.invalid_coupon_code'));
+        }
+
+        return $promo;
+    }
+
+    private function discountFor(float $subtotal, Promotion $promo): float
+    {
+        $raw          = (string) $promo->value;
+        $isPercentage = str_contains($raw, '%') || (int) $promo->type === 1;
+        $numeric      = (float) preg_replace('/[^0-9.]/', '', $raw);
+
+        return $isPercentage
+            ? round($subtotal * ($numeric / 100), 2)
+            : min($numeric, $subtotal);
+    }
+
+    private function withinValidityWindow(Promotion $promo): bool
+    {
+        $now = Carbon::now();
+
+        if (! empty($promo->start) && $now->lt(Carbon::parse($promo->start))) {
+            return false;
+        }
+
+        if (! empty($promo->expiry) && $now->gt(Carbon::parse($promo->expiry))) {
+            return false;
+        }
+
+        return true;
+    }
+}

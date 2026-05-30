@@ -1,6 +1,5 @@
 <template>
     <div>
-        <AppAlert componentName="client-store" />
         <inline-loader v-if="loadingGroups" />
 
         <template v-else>
@@ -60,7 +59,7 @@ async function loadGroups() {
 
         await selectGroup(target)
     } catch (e) {
-        errorHandler(e, 'client-store')
+        errorHandler(e, 'client-page')
     } finally {
         loadingGroups.value = false
     }
@@ -84,7 +83,7 @@ async function selectGroup(groupId) {
             router.replace({ path: `/store/${groupId}` })
         }
     } catch (e) {
-        errorHandler(e, 'client-store')
+        errorHandler(e, 'client-page')
     } finally {
         loadingProducts.value = false
     }

@@ -18,6 +18,9 @@ const routes = [
     { path: '/profile/2fa',             meta: { title: 'Two-Factor Auth' },  component: () => import('@/pages/client/profile/TwoFactor.vue') },
     { path: '/store',          meta: { title: 'Store', sidebar: false }, component: () => import('@/pages/client/store/StoreIndex.vue') },
     { path: '/store/:groupId', meta: { title: 'Store', sidebar: false }, component: () => import('@/pages/client/store/StoreIndex.vue') },
+    { path: '/cart',           meta: { title: 'Shopping Cart', sidebar: false }, component: () => import('@/pages/client/cart/CartPage.vue') },
+    { path: '/checkout',       meta: { title: 'Checkout', sidebar: false }, component: () => import('@/pages/client/checkout/CheckoutPage.vue') },
+    { path: '/place-order',    meta: { title: 'Place Order', sidebar: false }, component: () => import('@/pages/client/checkout/PlaceOrderPage.vue') },
 ]
 
 const router = createRouter({

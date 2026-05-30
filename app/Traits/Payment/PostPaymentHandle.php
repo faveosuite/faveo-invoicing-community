@@ -70,6 +70,15 @@ trait PostPaymentHandle
     {
         try {
             $user = User::find($invoice->user_id);
+
+            // Empty the user's DB-backed cart on successful payment.
+            // No-op for legacy session-cart users (their DB cart is empty).
+            $dbCart = \App\Model\Cart\Cart::where('user_id', $invoice->user_id)->first();
+            if ($dbCart) {
+                $dbCart->items()->delete();
+                $dbCart->update(['coupon_code' => null, 'coupon_discount' => 0, 'invoice_id' => null]);
+            }
+
             $stateCode = \Auth::user()->state;
             $cont = new \App\Http\Controllers\RazorpayController();
             $state = $cont->getState(\Auth::user()->country, $stateCode);

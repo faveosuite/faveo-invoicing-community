@@ -52,6 +52,7 @@
         <div class="text-center mt-4 pt-2 mb-4">
           <button
               :class="['btn px-4 py-2', product.button.class]"
+              :disabled="cartStore.loading && product.button.type !== 'contact'"
               @click="handleOrder"
           >
             {{ product.button.label }}
@@ -72,7 +73,9 @@
 
 <script setup>
 import {ref, computed, watch, onMounted, onBeforeUnmount, nextTick} from 'vue'
+import { useRouter } from 'vue-router'
 import { __ } from '@/plugins/i18n'
+import { useCartStore } from '@/core/stores/cart'
 
 const props = defineProps({
   product: {type: Object, required: true},
@@ -80,8 +83,8 @@ const props = defineProps({
   billingCycle: {type: String, default: null},
 })
 
-const el = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const cartStore = useCartStore()
+const router = useRouter()
 
 const descriptionEl = ref(null)
 
@@ -161,7 +164,16 @@ const currentLabel = computed(() => {
   return (p.description ?? '').toUpperCase()
 })
 
-function handleOrder() {
+// Map a plan's billing period to the cart's allowed cycle values.
+function resolveCycle(plan) {
+  if (props.billingCycle) return props.billingCycle
+  const period = (plan?.period ?? '').toLowerCase()
+  if (period.includes('year') || period.includes('annual')) return 'yearly'
+  if (period.includes('month')) return 'monthly'
+  return 'onetime'
+}
+
+async function handleOrder() {
   const btn = props.product.button
 
   if (btn.type === 'contact') {
@@ -169,12 +181,21 @@ function handleOrder() {
     return
   }
 
+  const plan = currentPlan.value
   const productId = btn.product_id ?? props.product.id
-  const url = selectedPlanId.value
-      ? `${baseUrl}/pricing?id=${productId}&subscription=${selectedPlanId.value}`
-      : `${baseUrl}/pricing?id=${productId}`
 
-  window.location.href = url
+  try {
+    await cartStore.addItem({
+      product_id:    productId,
+      plan_id:       plan?.id ?? null,
+      quantity:      1,
+      agents:        1,
+      billing_cycle: resolveCycle(plan),
+    })
+    router.push('/cart')
+  } catch {
+    // cartStore.error holds the failure message for display.
+  }
 }
 </script>
 

@@ -133,15 +133,17 @@
                                     <!-- Cart -->
                                     <div class="header-nav-features header-nav-features-no-border header-nav-features-lg-show-border order-1 order-lg-2 me-2 me-lg-0">
                                         <div class="header-nav-feature header-nav-features-cart d-inline-flex ms-2 mx-3">
-                                            <a :href="`${baseUrl}/show/cart`"
-                                               class="header-nav-features-toggle text-decoration-none">
+                                            <a href="javascript:;"
+                                               class="header-nav-features-toggle text-decoration-none"
+                                               @click="onCartClick">
                                                 <span class="text-dark opacity-8 font-weight-bold text-color-hover-primary">
                                                     {{ __('message.cart') }}
                                                 </span>
                                                 <img :src="`${assetUrl}client/porto/fonts/icon-cart.svg`"
                                                      width="14" alt="" class="header-nav-top-icon-img">
-                                                <span class="position-absolute top-0 start-100 translate-end badge rounded-pill custom-pills">
-                                                    {{ cartCount }}
+                                                <span v-if="badgeCount > 0"
+                                                      class="position-absolute top-0 start-100 translate-end badge rounded-pill custom-pills">
+                                                    {{ badgeCount }}
                                                 </span>
                                             </a>
                                         </div>
@@ -193,11 +195,16 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import http from '@/plugins/axios'
+import { useCartStore } from '@/core/stores/cart'
 import { useNavFeatureToggle } from '../../composables/useNavFeatureToggle.js'
 import { isStickyActive } from '../../composables/useStickyHeader.js'
 
 const { toggle: toggleLanguage } = useNavFeatureToggle()
+
+const router = useRouter()
+const cartStore = useCartStore()
 
 const isScrolled = isStickyActive
 
@@ -218,6 +225,18 @@ const cloudEnabled = computed(() => el?.dataset?.cloud === 'true')
 const demoEnabled  = computed(() => el?.dataset?.demo === 'true')
 const cartCount    = ref(parseInt(el?.dataset?.cartCount ?? '0', 10))
 
+// Authenticated users get the live DB-backed cart count; guests fall back to
+// the server-rendered count attribute.
+const badgeCount = computed(() => isAuthenticated.value ? cartStore.itemCount : cartCount.value)
+
+function onCartClick() {
+    if (isAuthenticated.value) {
+        router.push('/cart')
+    } else {
+        window.location.href = loginUrl.value
+    }
+}
+
 const socialMedia = computed(() => {
     try { return JSON.parse(el?.dataset?.social ?? '[]') } catch { return [] }
 })
@@ -234,6 +253,9 @@ const flagCode = computed(() => localeMap[locale.value] ?? 'us')
 const productGroups = ref([])
 
 onMounted(async () => {
+    if (isAuthenticated.value) {
+        cartStore.fetchCart()
+    }
     try {
         const { data } = await http.post('available-groups')
         productGroups.value = Object.entries(data.data ?? {}).map(([id, g]) => ({ id: parseInt(id), ...g }))
