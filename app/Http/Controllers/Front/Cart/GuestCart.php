@@ -39,18 +39,19 @@ class GuestCart
                 && ($item['billing_cycle'] ?? 'monthly') === ($data['billing_cycle'] ?? 'monthly')) {
                 $cart['items'][$id]['quantity'] += (int) ($data['quantity'] ?? 1);
                 $this->write($cart);
+
                 return;
             }
         }
 
         $id = $cart['next_id']++;
         $cart['items'][$id] = [
-            'id'            => $id,
-            'product_id'    => (int) $data['product_id'],
-            'plan_id'       => $data['plan_id'] ?? null,
-            'quantity'      => (int) ($data['quantity'] ?? 1),
-            'agents'        => (int) ($data['agents'] ?? 1),
-            'domain'        => $data['domain'] ?? null,
+            'id' => $id,
+            'product_id' => (int) $data['product_id'],
+            'plan_id' => $data['plan_id'] ?? null,
+            'quantity' => (int) ($data['quantity'] ?? 1),
+            'agents' => (int) ($data['agents'] ?? 1),
+            'domain' => $data['domain'] ?? null,
             'billing_cycle' => $data['billing_cycle'] ?? 'monthly',
         ];
 
@@ -112,13 +113,13 @@ class GuestCart
      */
     public function toCart(): Cart
     {
-        $data       = $this->read();
-        $currency   = $data['currency'] ?? 'USD';
+        $data = $this->read();
+        $currency = $data['currency'] ?? 'USD';
         $productIds = array_column($data['items'], 'product_id');
-        $planIds    = array_filter(array_column($data['items'], 'plan_id'));
+        $planIds = array_filter(array_column($data['items'], 'plan_id'));
 
         $products = $productIds ? Product::whereIn('id', $productIds)->get()->keyBy('id') : collect();
-        $plans    = $planIds ? Plan::with('planPrice')->whereIn('id', $planIds)->get()->keyBy('id') : collect();
+        $plans = $planIds ? Plan::with('planPrice')->whereIn('id', $planIds)->get()->keyBy('id') : collect();
 
         $cart = new Cart(['coupon_discount' => 0, 'currency' => $currency]);
 
@@ -128,6 +129,7 @@ class GuestCart
             $item->setRelation('product', $products->get($row['product_id']));
             $item->setRelation('plan', $plans->get($row['plan_id']));
             $item->setRelation('cart', $cart);
+
             return $item;
         })->values();
 

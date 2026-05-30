@@ -19,15 +19,15 @@ class CartResource extends JsonResource
         $this->items?->each(fn ($item) => $item->setRelation('cart', $this->resource));
 
         return [
-            'id'              => $this->id,
-            'currency'        => $this->currency,
+            'id' => $this->id,
+            'currency' => $this->currency,
             'currency_symbol' => Currency::where('code', $this->currency)->value('symbol'),
-            'items'           => CartItemResource::collection($this->whenLoaded('items')),
-            'item_count'      => $this->itemCount(),
-            'subtotal'        => $this->subtotal(),
-            'coupon_code'     => $this->coupon_code,
+            'items' => CartItemResource::collection($this->whenLoaded('items')),
+            'item_count' => $this->itemCount(),
+            'subtotal' => $this->subtotal(),
+            'coupon_code' => $this->coupon_code,
             'coupon_discount' => (float) $this->coupon_discount,
-            'total'           => $this->total(),
+            'total' => $this->total(),
         ];
     }
 }

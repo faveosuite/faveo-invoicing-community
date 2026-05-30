@@ -7,14 +7,11 @@ use App\Facades\Cart;
 use App\Model\Common\State;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
-use App\Model\Order\Order;
-use App\Model\Order\Payment;
 use App\Model\Payment\TaxByState;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\Traits\Payment\PostPaymentHandle;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
 use Razorpay\Api\Api;
 
 class RazorpayController extends Controller
@@ -45,8 +42,8 @@ class RazorpayController extends Controller
     {
         $request->validate([
             'razorpay_payment_id' => 'required|string',
-            'razorpay_order_id'   => 'required|string',
-            'razorpay_signature'  => 'required|string',
+            'razorpay_order_id' => 'required|string',
+            'razorpay_signature' => 'required|string',
         ]);
 
         $model = Invoice::find($invoice);

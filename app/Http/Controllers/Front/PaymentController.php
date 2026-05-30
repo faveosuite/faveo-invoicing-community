@@ -43,24 +43,24 @@ class PaymentController extends Controller
 
         return successResponse('', [
             'invoice' => [
-                'id'          => $model->id,
-                'number'      => $model->number,
+                'id' => $model->id,
+                'number' => $model->number,
                 'grand_total' => (float) $model->grand_total,
-                'currency'    => $model->currency,
-                'status'      => $model->status,
+                'currency' => $model->currency,
+                'status' => $model->status,
             ],
-            'items'      => $model->invoiceItem()->get()->map(function ($item) {
+            'items' => $model->invoiceItem()->get()->map(function ($item) {
                 $data = $item->toArray();
                 $data['image'] = \App\Model\Product\Product::find($item->product_id)?->image;
 
                 return $data;
             }),
-            'paid'            => $paid,
-            'amount'          => $due,
-            'currency'        => $model->currency,
+            'paid' => $paid,
+            'amount' => $due,
+            'currency' => $model->currency,
             'currency_symbol' => Currency::where('code', $model->currency)->value('symbol'),
-            'gateways'        => $this->gateways($model->currency),
-            'stripe_key'      => $this->stripePublishableKey(),
+            'gateways' => $this->gateways($model->currency),
+            'stripe_key' => $this->stripePublishableKey(),
         ]);
     }
 
@@ -127,8 +127,8 @@ class PaymentController extends Controller
     private function amountDue(Invoice $model, string $gateway): float
     {
         $paid = (float) $model->payment()->sum('amount');
-        $due  = max(0, (float) $model->grand_total - $paid);
-        $fee  = (float) ($this->processingFee($gateway, $model->currency) ?? 0);
+        $due = max(0, (float) $model->grand_total - $paid);
+        $fee = (float) ($this->processingFee($gateway, $model->currency) ?? 0);
 
         return (float) rounding($due * (1 + $fee / 100));
     }
@@ -154,7 +154,7 @@ class PaymentController extends Controller
             }
 
             return array_map(fn ($name) => [
-                'name'           => $name,
+                'name' => $name,
                 'processing_fee' => $this->processingFee($name, $currency),
             ], $names);
         } catch (\Throwable $e) {

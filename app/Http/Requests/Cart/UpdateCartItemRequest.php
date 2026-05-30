@@ -25,8 +25,8 @@ class UpdateCartItemRequest extends FormRequest
     {
         return [
             'quantity' => ['sometimes', 'integer', 'min:1'],
-            'agents'   => ['sometimes', 'integer', 'min:1'],
-            'domain'   => ['nullable', 'string', 'max:255'],
+            'agents' => ['sometimes', 'integer', 'min:1'],
+            'domain' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

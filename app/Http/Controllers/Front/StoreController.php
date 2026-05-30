@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Model\Payment\Currency;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
-use Illuminate\Http\JsonResponse;
 
 class StoreController extends Controller
 {
@@ -29,7 +28,7 @@ class StoreController extends Controller
         $group = ProductGroup::findOrFail($groupId);
 
         $currency = $this->resolveCurrency();
-        $symbol   = $this->getCurrencySymbol($currency);
+        $symbol = $this->getCurrencySymbol($currency);
 
         $products = Product::with([
             'planRelation' => fn ($q) => $q
@@ -56,13 +55,13 @@ class StoreController extends Controller
             ->values();
 
         return successResponse('', [
-            'group'           => array_merge(
+            'group' => array_merge(
                 $group->only(['id', 'name', 'headline', 'tagline']),
                 ['status' => (bool) $group->status]
             ),
-            'currency'        => $currency,
+            'currency' => $currency,
             'currency_symbol' => $symbol,
-            'products'        => $products->map(fn ($p) => $this->transformProduct($p, $currency))->values(),
+            'products' => $products->map(fn ($p) => $this->transformProduct($p, $currency))->values(),
         ]);
     }
 
@@ -72,7 +71,7 @@ class StoreController extends Controller
             return getCurrencyForClient(\Auth::user()->country);
         }
 
-        $ip  = request()->ip();
+        $ip = request()->ip();
         $iso = cache()->remember("user_location_{$ip}", 60, fn () => getLocation($ip)['iso_code'] ?? null);
 
         return getCurrencyForClient($iso ? findCountryByGeoip($iso) : null);
@@ -86,33 +85,33 @@ class StoreController extends Controller
     private function transformProduct(Product $product, string $currency): array
     {
         $highlighted = (bool) $product->highlight;
-        $btnClass    = $highlighted ? 'btn-primary' : 'btn-dark';
+        $btnClass = $highlighted ? 'btn-primary' : 'btn-dark';
 
-        $plans   = $this->getProductPlans($product, $currency);
+        $plans = $this->getProductPlans($product, $currency);
         $default = collect($plans)->firstWhere('is_default', true);
-        $isFree  = ($default['price_raw'] ?? 0) == 0;
+        $isFree = ($default['price_raw'] ?? 0) == 0;
 
         return [
-            'id'                => $product->id,
-            'name'              => $product->name,
+            'id' => $product->id,
+            'name' => $product->name,
             'short_description' => $product->short_description,
-            'description'       => $product->description,
-            'highlighted'       => $highlighted,
-            'display_price'     => $default
+            'description' => $product->description,
+            'highlighted' => $highlighted,
+            'display_price' => $default
                 ? ($isFree ? __('message.free') : currencyFormat($default['price_raw'], $currency))
                 : __('message.free'),
-            'display_label'     => $default
+            'display_label' => $default
                 ? ($isFree ? strtoupper(__('message.free')) : strtoupper((string) ($default['description'] ?? '')))
                 : strtoupper(__('message.free')),
-            'plans'             => $plans,
-            'button'            => $this->buildButton($product, $btnClass),
+            'plans' => $plans,
+            'button' => $this->buildButton($product, $btnClass),
         ];
     }
 
     private function getProductPlans(Product $product, string $currency): array
     {
-        $result    = [];
-        $minCost   = PHP_INT_MAX;
+        $result = [];
+        $minCost = PHP_INT_MAX;
         $defaultId = null;
 
         foreach ($product->planRelation->sortByDesc('id') as $plan) {
@@ -121,36 +120,36 @@ class StoreController extends Controller
                 continue;
             }
 
-            $rawCost   = (float) ($planPrice->add_price ?? 0);
-            $offerPct  = (float) ($planPrice->offer_price ?? 0);
+            $rawCost = (float) ($planPrice->add_price ?? 0);
+            $offerPct = (float) ($planPrice->offer_price ?? 0);
             $finalCost = $offerPct > 0 ? $rawCost * (1 - $offerPct / 100) : $rawCost;
 
-            $period      = $plan->periods->first();
-            $periodName  = $period?->name ?? '';
+            $period = $plan->periods->first();
+            $periodName = $period?->name ?? '';
             $description = $planPrice->price_description ?? $periodName;
 
-            $months       = max(1, (int) round(($period?->days ?? 30) / 30));
+            $months = max(1, (int) round(($period?->days ?? 30) / 30));
             $perMonthCost = $finalCost / $months;
 
             $formattedFinal = $finalCost == 0 ? __('message.free') : currencyFormat($finalCost, $currency);
-            $optionLabel    = trim($formattedFinal.($description ? ' '.$description : ''));
+            $optionLabel = trim($formattedFinal.($description ? ' '.$description : ''));
 
             $result[] = [
-                'id'                 => $plan->id,
-                'option_label'       => $optionLabel,
-                'price_raw'          => $finalCost,
-                'price_display'      => $finalCost == 0 ? null : currencyFormat($finalCost, $currency, false),
-                'price_per_month'         => $finalCost == 0 ? null : currencyFormat($perMonthCost, $currency, false),
-                'original_price_raw'      => $offerPct > 0 ? $rawCost : null,
-                'original_display'        => $offerPct > 0 ? currencyFormat($rawCost, $currency, false) : null,
-                'original_price_per_month'=> $offerPct > 0 ? currencyFormat($rawCost / $months, $currency, false) : null,
-                'description'        => $description,
-                'period'             => $periodName,
-                'is_default'         => false,
+                'id' => $plan->id,
+                'option_label' => $optionLabel,
+                'price_raw' => $finalCost,
+                'price_display' => $finalCost == 0 ? null : currencyFormat($finalCost, $currency, false),
+                'price_per_month' => $finalCost == 0 ? null : currencyFormat($perMonthCost, $currency, false),
+                'original_price_raw' => $offerPct > 0 ? $rawCost : null,
+                'original_display' => $offerPct > 0 ? currencyFormat($rawCost, $currency, false) : null,
+                'original_price_per_month' => $offerPct > 0 ? currencyFormat($rawCost / $months, $currency, false) : null,
+                'description' => $description,
+                'period' => $periodName,
+                'is_default' => false,
             ];
 
             if ($finalCost < $minCost) {
-                $minCost   = $finalCost;
+                $minCost = $finalCost;
                 $defaultId = $plan->id;
             }
         }
@@ -166,20 +165,20 @@ class StoreController extends Controller
     {
         if ($product->add_to_contact == 1) {
             return [
-                'label'      => __('message.contact_sales'),
-                'class'      => $btnClass,
-                'type'       => 'contact',
+                'label' => __('message.contact_sales'),
+                'class' => $btnClass,
+                'type' => 'contact',
                 'product_id' => null,
-                'url'        => url('contact-us'),
+                'url' => url('contact-us'),
             ];
         }
 
         return [
-            'label'      => __('message.order_now'),
-            'class'      => $btnClass,
-            'type'       => 'order',
+            'label' => __('message.order_now'),
+            'class' => $btnClass,
+            'type' => 'order',
             'product_id' => $product->id,
-            'url'        => null,
+            'url' => null,
         ];
     }
 }
