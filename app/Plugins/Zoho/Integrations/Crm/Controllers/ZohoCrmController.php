@@ -49,7 +49,7 @@ class ZohoCrmController extends ZohoBaseController
 
     public function getCrmMappedFields($module)
     {
-        return $this->getMappedFields('crm', strtolower($module));
+        return $this->getMappedFields('crm', ucfirst(strtolower($module)));
     }
 
     public function getCrmContactsFields()

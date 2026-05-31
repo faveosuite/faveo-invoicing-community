@@ -8,4 +8,6 @@ export default [
     { path: '/settings/api/terms',              component: () => import('../../../pages/admin/settings/api/TermsSettings.vue'),            meta: { title: 'Terms & Conditions',          titleKey: 'message.terms_heading' } },
     { path: '/settings/api/email-validation',   component: () => import('../../../pages/admin/settings/api/EmailValidationSettings.vue'), meta: { title: 'Email Validation',            titleKey: 'message.email_provider' } },
     { path: '/settings/api/mobile-validation',  component: () => import('../../../pages/admin/settings/api/MobileValidationSettings.vue'),meta: { title: 'Mobile Validation',           titleKey: 'message.mobile_provider' } },
+    { path: '/settings/api/zoho',               component: () => import('../../../pages/admin/settings/api/ZohoSettings.vue'),             meta: { title: 'Zoho',                        titleKey: 'message.zoho_integration' } },
+    { path: '/settings/api/zoho/:platform/:module/mapping', component: () => import('../../../pages/admin/settings/api/ZohoMapping.vue'),      meta: { title: 'Zoho Mapping',                titleKey: 'message.field_mapping' } },
 ]

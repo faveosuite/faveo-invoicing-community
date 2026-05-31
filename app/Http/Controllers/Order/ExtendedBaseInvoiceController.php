@@ -99,7 +99,7 @@ class ExtendedBaseInvoiceController extends Controller
             $paid = $request->input('paid');
             $invoice = Invoice::where('id', $invoiceid)->update(['grand_total' => $total, 'status' => $status,
                 'date' => \Carbon\Carbon::parse($request->input('date')), ]);
-            $order = Order::where('invoice_id', $invoiceid)->update(['price_override' => $total]);
+            $order = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'))->update(['price_override' => $total]);
 
             return successResponse(__('message.updated-successfully'));
         } catch (\Exception $ex) {

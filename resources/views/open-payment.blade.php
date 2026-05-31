@@ -430,10 +430,7 @@
                             <button id="payBtn" class="btn" style="margin-top: 2rem;">Pay Now</button>
                             <button id="backBtn" class="btn" style="margin-top: 0.5rem; background: #9ca3af;">Back</button>
                         </div>
-                        <div id="stripe-element-container" style="padding: 1rem; display: none;">
-                            <div id="payment-element"></div>
-                            <button id="submitStripe" class="btn" style="margin-top: 1rem;">Process Payment</button>
-                        </div>
+                        <div id="stripe-embedded" style="padding: 1rem; display: none;"></div>
                     </div>
                 `;
                     $('#payment-app').html(html);
@@ -444,38 +441,32 @@
                         btn.prop('disabled', true).html('<div class="loader"></div>');
 
                         if (order.gateway === 'Razorpay') {
-                            initRazorpay(orderId, rzpKey);
+                            initRazorpay(orderId);
                         } else if (order.gateway === 'Stripe') {
-                            initStripe(orderId, stripeKey);
+                            initStripe(orderId);
                         }
                     });
                 });
         };
 
-        const initRazorpay = (orderId, key) => {
+        const initRazorpay = (orderId) => {
             $.post(API_BASE + '/prepare', { order_id: orderId })
                 .done(function (res) {
-                    if (!res.success || !res.data) { alert(res.message || 'Failed to prepare payment'); return; }
-                    const data = res.data;
+                    if (!res.success || !res.data) {
+                        alert(res.message || 'Failed to prepare payment');
+                        $('#payBtn').prop('disabled', false).text('Pay Now');
+                        return;
+                    }
 
-                    var options = {
-                        "key": key,
-                        "amount": data.amount,
-                        "currency": data.currency,
-                        "name": "Open Payment",
-                        "description": data.description,
-                        "image": "https://cdn-icons-png.flaticon.com/512/2111/2111615.png", // Placeholder
-                        "order_id": data.razorpay_order,
-                        "handler": function (response) {
+                    // res.data is the payment package's Checkout config
+                    // (key, order_id, amount, currency, name, description, prefill,
+                    // theme) — passed straight through to Razorpay Checkout.
+                    const options = Object.assign({}, res.data, {
+                        handler: function (response) {
                             verifyRazorpay(orderId, response);
-                        },
-                        "prefill": {
-                            "name": data.name,
-                            "email": data.email,
-                            "contact": data.mobile
-                        },
-                        "theme": { "color": "#6366f1" }
-                    };
+                        }
+                    });
+
                     var rzp1 = new Razorpay(options);
                     rzp1.on('payment.failed', function (response) {
                         renderFailed(response.error.description);
@@ -503,71 +494,50 @@
             });
         };
 
-        const initStripe = (orderId, key) => {
-            const stripe = Stripe(key);
-            const elements = stripe.elements();
-            const cardElement = elements.create('card', {
-                style: {
-                    base: {
-                        fontSize: '16px',
-                        color: '#424770',
-                        '::placeholder': { color: '#aab7c4' },
-                    },
-                    invalid: { color: '#9e2146' },
-                }
-            });
-
-            $('#payBtn').hide();
-            $('#backBtn').hide();
-            $('#stripe-element-container').show();
-            $('#payment-element').empty();
-            cardElement.mount('#payment-element');
-
-            $('#submitStripe').off('click').on('click', async function () {
-                const btn = $(this);
-                btn.prop('disabled', true).text('Processing...');
-
-                // Create token from card element
-                const { token, error } = await stripe.createToken(cardElement);
-
-                if (error) {
-                    btn.prop('disabled', false).text('Process Payment');
-                    renderFailed(error.message);
-                    return;
-                }
-
-                // Send token to backend for payment processing
-                $.post(API_BASE + '/prepare', {
-                    order_id: orderId,
-                    stripeToken: token.id
-                }).done(function (res) {
-                    if (res.success && res.data) {
-                        const data = res.data;
-                        if (data.status === 'succeeded') {
-                            // Payment successful
-                            $.get(API_BASE + '/order/' + orderId).done(function (orderRes) {
-                                if (orderRes.success && orderRes.data && orderRes.data.order) {
-                                    renderSuccess(orderRes.data.order);
-                                } else {
-                                    renderSuccess({ id: orderId, payment_status: 'completed' });
-                                }
-                            });
-                        } else if (data.status === 'requires_action' && data.redirect_url) {
-                            // 3D Secure required - redirect
-                            window.location.href = data.redirect_url;
-                        } else {
-                            renderFailed('Payment status: ' + data.status);
-                        }
-                    } else {
-                        btn.prop('disabled', false).text('Process Payment');
-                        renderFailed(res.message || 'Payment failed');
+        const initStripe = (orderId) => {
+            $.post(API_BASE + '/prepare', { order_id: orderId })
+                .done(async function (res) {
+                    if (!res.success || !res.data) {
+                        renderFailed(res.message || 'Failed to prepare payment');
+                        return;
                     }
-                }).fail(function (err) {
-                    btn.prop('disabled', false).text('Process Payment');
+
+                    // res.data is the payment package's embedded Checkout config:
+                    // { client_secret, session_id, publishable_key }.
+                    const cfg = res.data;
+                    const stripe = Stripe(cfg.publishable_key);
+
+                    $('#payBtn').hide();
+                    $('#backBtn').hide();
+                    $('#stripe-embedded').show().empty();
+
+                    // Embedded Checkout (redirect_on_completion = never): payment
+                    // completes in-page and onComplete fires; we then verify the
+                    // session server-side. 3D Secure is handled inside Checkout.
+                    const checkout = await stripe.initEmbeddedCheckout({
+                        clientSecret: cfg.client_secret,
+                        onComplete: function () {
+                            verifyStripe(orderId, cfg.session_id);
+                        }
+                    });
+                    checkout.mount('#stripe-embedded');
+                })
+                .fail(function (err) {
                     const msg = err.responseJSON ? err.responseJSON.message : 'Payment failed';
                     renderFailed(msg);
                 });
-            });
+        };
+
+        const verifyStripe = (orderId, sessionId) => {
+            $.post(API_BASE + '/verify/stripe', { order_id: orderId, session_id: sessionId })
+                .done(function (res) {
+                    if (res.success && res.data && res.data.order) { renderSuccess(res.data.order); }
+                    else { renderFailed(res.message || 'Payment verification failed'); }
+                })
+                .fail(function (err) {
+                    const msg = err.responseJSON ? err.responseJSON.message : 'Verification failed';
+                    renderFailed(msg);
+                });
         };
 
         const renderSuccess = (order) => {

@@ -13,7 +13,6 @@ use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
 use App\Model\Product\Subscription;
 use Carbon\Carbon;
-use Razorpay\Api\Api;
 
 abstract class PostSubscriptionHandleController
 {
@@ -325,16 +324,8 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             $subscription = Subscription::where('order_id', $orderId)->first();
 
             $cancellationHandlers = collect([
-                'rzp_subscription' => function ($subscribeId) {
-                    $apiKeys = ApiKey::select('rzp_key', 'rzp_secret')->first();
-                    $api = new Api($apiKeys->rzp_key, $apiKeys->rzp_secret);
-                    $api->subscription->fetch($subscribeId)->cancel();
-                },
-                'autoRenew_status' => function ($subscribeId) {
-                    $stripeSecretKey = ApiKey::value('stripe_secret');
-                    $stripe = new \Stripe\StripeClient($stripeSecretKey);
-                    $stripe->subscriptions->cancel($subscribeId, []);
-                },
+                'rzp_subscription' => fn ($subscribeId) => app(\App\Services\Payment\SubscriptionService::class)->cancelSubscription('Razorpay', $subscribeId),
+                'autoRenew_status' => fn ($subscribeId) => app(\App\Services\Payment\SubscriptionService::class)->cancelSubscription('Stripe', $subscribeId),
             ]);
 
             if ($subscription->is_subscribed && $subscription->subscribe_id) {

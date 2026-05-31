@@ -2,44 +2,41 @@
 
 namespace App\Http\Controllers\Front;
 
-use App\Http\Controllers\Common\SettingsController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Order\Invoice;
+use App\Model\Order\Order;
+use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Currency;
+use App\Model\Product\Product;
 use App\Services\Payment\InvoicePaymentService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 /**
- * Invoice-driven SPA payment.
+ * Invoice-driven SPA payment (HTTP layer).
  *
- * The flow is fully invoice-id driven and stateless — the amount payable is
- * always recomputed from the invoice server-side, never trusted from the client
- * or the session.
+ * Thin controller: authorises the invoice, delegates to {@see InvoicePaymentService}
+ * for all payment logic, and shapes the JSON response. The flow is fully
+ * invoice-id driven and stateless — the amount payable is recomputed from the
+ * invoice server-side, never trusted from the client or session.
  *
- *  - payInit       : everything the pay page needs to render (invoice, items,
- *                    amount due, active gateways, Stripe publishable key).
+ *  - payInit       : everything the pay page needs to render.
  *  - stripeSession : create an embedded Stripe Checkout Session for the invoice.
  *  - stripeConfirm : authoritatively confirm a completed Stripe session + fulfil.
  *  - razorpayOrder : create a Razorpay Order for the invoice (Checkout config).
  *
- * Razorpay verification + fulfilment is handled by RazorpayController::payment
- * (route POST /payment/{invoice}). All gateway processing lives in the
- * standalone package (App\Plugins\Payment); this controller talks to it only
- * through the application bridge (App\Services\Payment\InvoicePaymentService).
+ * Razorpay verification + fulfilment is handled by RazorpayController::payment,
+ * which delegates to the same InvoicePaymentService.
  */
 class PaymentController extends Controller
 {
-    public function __construct(private readonly InvoicePaymentService $payments)
+    public function __construct(private readonly InvoicePaymentService $invoices)
     {
     }
 
     public function payInit(Request $request, int $invoice)
     {
         $model = $this->authorizedInvoice($request, $invoice);
-
-        $paid = (float) $model->payment()->sum('amount');
-        $due = max(0, (float) $model->grand_total - $paid);
 
         return successResponse('', [
             'invoice' => [
@@ -51,16 +48,67 @@ class PaymentController extends Controller
             ],
             'items' => $model->invoiceItem()->get()->map(function ($item) {
                 $data = $item->toArray();
-                $data['image'] = \App\Model\Product\Product::find($item->product_id)?->image;
+                $data['image'] = Product::find($item->product_id)?->image;
 
                 return $data;
             }),
-            'paid' => $paid,
-            'amount' => $due,
+            'paid' => (float) $model->payment()->sum('amount'),
+            'amount' => $this->invoices->outstanding($model),
             'currency' => $model->currency,
             'currency_symbol' => Currency::where('code', $model->currency)->value('symbol'),
-            'gateways' => $this->gateways($model->currency),
-            'stripe_key' => $this->stripePublishableKey(),
+            'gateways' => $this->invoices->gatewaysFor($model->currency),
+            'stripe_key' => $this->invoices->publishableKey(),
+        ]);
+    }
+
+    /**
+     * Post-payment success summary for an invoice (invoice + orders + payment),
+     * for the SPA success page. Stateless + refreshable; derived from the paid
+     * invoice, not the session.
+     */
+    public function paySuccess(Request $request, int $invoice)
+    {
+        $model = $this->authorizedInvoice($request, $invoice);
+
+        $payment = $model->payment()->latest()->first();
+        $orderIds = OrderInvoiceRelation::where('invoice_id', $model->id)->pluck('order_id');
+        $permissions = app(LicensePermissionsController::class);
+        $cloudProducts = cloudPopupProducts();
+
+        $orders = Order::whereIn('id', $orderIds)->get()->map(function ($order) use ($model, $permissions, $cloudProducts) {
+            $product = Product::select('id', 'name', 'type')->find($order->product);
+
+            $downloadable = false;
+            try {
+                $downloadable = $product
+                    && ! in_array($product->id, $cloudProducts)
+                    && ($permissions->getPermissionsForProduct($order->product)['downloadPermission'] ?? 0) == 1;
+            } catch (\Throwable $e) {
+                $downloadable = false;
+            }
+
+            return [
+                'number' => $order->number,
+                'product_id' => $product?->id,
+                'product_name' => $product?->name,
+                'qty' => $order->qty,
+                'price' => (float) $order->price_override,
+                'downloadable' => $downloadable,
+                'download_url' => $downloadable ? url("product/download/{$order->product}/{$model->number}") : null,
+            ];
+        });
+
+        return successResponse('', [
+            'invoice' => [
+                'number' => $model->number,
+                'grand_total' => (float) $model->grand_total,
+                'currency' => $model->currency,
+                'currency_symbol' => Currency::where('code', $model->currency)->value('symbol'),
+                'status' => $model->status,
+                'date' => $model->created_at,
+            ],
+            'payment_method' => optional($payment)->payment_method,
+            'orders' => $orders,
         ]);
     }
 
@@ -74,12 +122,9 @@ class PaymentController extends Controller
     public function stripeSession(Request $request, int $invoice)
     {
         $model = $this->authorizedInvoice($request, $invoice);
-        $amount = $this->amountDue($model, 'Stripe');
 
         try {
-            $session = $this->payments->start($model, 'Stripe', $amount);
-
-            return successResponse('', $session->clientConfig);
+            return successResponse('', $this->invoices->start($model, 'Stripe')->clientConfig);
         } catch (\Throwable $e) {
             return errorResponse($e->getMessage());
         }
@@ -95,7 +140,7 @@ class PaymentController extends Controller
         $model = $this->authorizedInvoice($request, $invoice);
 
         try {
-            $paid = $this->payments->confirm($model, 'Stripe', ['session_id' => $request->input('session_id')]);
+            $paid = $this->invoices->confirm($model, 'Stripe', ['payment_intent' => $request->input('payment_intent')]);
 
             return $paid
                 ? successResponse('success', [])
@@ -112,25 +157,12 @@ class PaymentController extends Controller
     public function razorpayOrder(Request $request, int $invoice)
     {
         $model = $this->authorizedInvoice($request, $invoice);
-        $amount = $this->amountDue($model, 'Razorpay');
 
         try {
-            $session = $this->payments->start($model, 'Razorpay', $amount);
-
-            return successResponse('', ['razorpay' => $session->clientConfig]);
+            return successResponse('', ['razorpay' => $this->invoices->start($model, 'Razorpay')->clientConfig]);
         } catch (\Throwable $e) {
             return errorResponse($e->getMessage());
         }
-    }
-
-    /** Amount actually payable now: outstanding balance plus the gateway's processing fee. */
-    private function amountDue(Invoice $model, string $gateway): float
-    {
-        $paid = (float) $model->payment()->sum('amount');
-        $due = max(0, (float) $model->grand_total - $paid);
-        $fee = (float) ($this->processingFee($gateway, $model->currency) ?? 0);
-
-        return (float) rounding($due * (1 + $fee / 100));
     }
 
     private function authorizedInvoice(Request $request, int $invoiceId): Invoice
@@ -140,43 +172,5 @@ class PaymentController extends Controller
         abort_if((int) $invoice->user_id !== (int) $request->user()->getAuthIdentifier(), 403, 'Forbidden');
 
         return $invoice;
-    }
-
-    /**
-     * @return array<int, array{name: string, processing_fee: float|null}>
-     */
-    private function gateways(string $currency): array
-    {
-        try {
-            $names = SettingsController::checkPaymentGateway($currency);
-            if (! is_array($names)) {
-                return [];
-            }
-
-            return array_map(fn ($name) => [
-                'name' => $name,
-                'processing_fee' => $this->processingFee($name, $currency),
-            ], $names);
-        } catch (\Throwable $e) {
-            return [];
-        }
-    }
-
-    private function processingFee(string $gateway, string $currency): ?float
-    {
-        try {
-            $fee = DB::table(strtolower($gateway))
-                ->where('currencies', $currency)
-                ->value('processing_fee');
-
-            return $fee !== null ? (float) $fee : null;
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
-
-    private function stripePublishableKey(): string
-    {
-        return (string) (DB::table('api_keys')->where('id', 1)->value('stripe_key') ?? '');
     }
 }

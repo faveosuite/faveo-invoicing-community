@@ -683,6 +683,7 @@ class SettingsController extends BaseSettingsController
                 ['key' => 'email_validation_status', 'slug' => 'email-validation',  'name' => \Lang::get('message.email_provider'),                  'description' => \Lang::get('message.email_validation_description'),    'enabled' => (bool) optional($status)->email_validation_status, 'route' => '/settings/api/email-validation'],
                 ['key' => 'mobile_validation_status', 'slug' => 'mobile-validation', 'name' => \Lang::get('message.mobile_provider'),                 'description' => \Lang::get('message.mobile_validation_description'),   'enabled' => (bool) optional($status)->mobile_validation_status, 'route' => '/settings/api/mobile-validation'],
                 ['key' => 'whatsapp_status',        'slug' => 'whatsapp',          'name' => \Lang::get('message.whatsapp_config'),                  'description' => \Lang::get('message.whatsapp_thirdParty_explanation'), 'enabled' => (bool) optional($status)->whatsapp_status,         'route' => '/settings/whatsapp-integration'],
+                ['key' => 'zoho',                   'slug' => 'zoho',              'name' => \Lang::get('message.zoho_integration'),                'description' => \Lang::get('message.zoho_description'),                'enabled' => true,                                              'route' => '/settings/api/zoho', 'settings_only' => true],
             ];
 
             foreach ($all as $index => &$item) {

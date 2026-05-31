@@ -68,6 +68,22 @@ const tableOptions = reactive({
         name: (f, row) => {
             const links = []
 
+            // Settings-only modules (e.g. Zoho) are configured entirely on their
+            // own page (per-platform OAuth), so they expose just a Settings link.
+            if (row.settings_only) {
+                links.push(
+                    h(RouterLink, {
+                        to: row.route,
+                        class: 'plugin-link'
+                    }, () => 'Settings')
+                )
+
+                return h('div', {}, [
+                    h('p', { class: 'mb-0 fw-semibold text-dark' }, row.name),
+                    h('div', { class: 'plugin-action-links mt-1' }, links)
+                ])
+            }
+
             // Activate/Deactivate link
             links.push(
                 h('a', {

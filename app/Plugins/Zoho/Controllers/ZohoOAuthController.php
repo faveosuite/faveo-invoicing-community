@@ -13,7 +13,10 @@ use InvalidArgumentException;
 
 class ZohoOAuthController extends Controller
 {
-    public function connectPage()
+    /**
+     * Return the list of Zoho integrations as JSON for the Vue settings page.
+     */
+    public function getIntegrations()
     {
         $integrations = ZohoIntegration::select(
             'id',
@@ -22,7 +25,7 @@ class ZohoOAuthController extends Controller
             'is_active'
         )->get();
 
-        return view('zoho::connect', compact('integrations'));
+        return successResponse('', $integrations);
     }
 
     public function getOauthClientKeys($integration)
@@ -38,18 +41,19 @@ class ZohoOAuthController extends Controller
             'integration_id' => 'required|exists:zoho_integrations,id',
             'client_id' => 'required|string',
             'client_secret' => 'required|string',
-            'redirect_uri' => 'required|url',
             'region' => 'required|in:in,us,eu,au,jp,cn',
         ]);
 
         $integration = ZohoIntegration::findOrFail($validated['integration_id']);
 
+        // There is exactly one callback route, so the redirect URI is fixed —
+        // derive it instead of trusting client input (a mismatch breaks OAuth).
         ZohoOAuthClient::updateOrCreate(
             ['integration_id' => $integration->id],
             [
                 'client_id' => $validated['client_id'],
                 'client_secret' => $validated['client_secret'],
-                'redirect_uri' => $validated['redirect_uri'],
+                'redirect_uri' => url('zoho/oauth/callback'),
                 'region' => $validated['region'],
             ]
         );
@@ -119,8 +123,19 @@ class ZohoOAuthController extends Controller
 
         $client = $integration->client;
 
+        // A Zoho authorization code is data-center-specific: it must be redeemed
+        // at the same DC where the user authorized. Zoho reports the actual DC in
+        // the callback's `location` param, which can differ from the region the
+        // admin picked. Honor `location` (falling back to the stored region) and
+        // persist it so later API calls hit the correct DC too.
+        $region = $request->input('location', $client->region);
+
+        if ($region !== $client->region) {
+            $client->update(['region' => $region]);
+        }
+
         $response = Http::asForm()->post(
-            $this->tokenUrl($client->region),
+            $this->tokenUrl($region),
             [
                 'client_id' => $client->client_id,
                 'client_secret' => $client->client_secret,

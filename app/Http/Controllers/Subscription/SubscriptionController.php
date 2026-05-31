@@ -333,25 +333,19 @@ class SubscriptionController extends Controller
                     $user = User::find($subscription->user_id);
                     //Check Razorpay subscription status
                     if ($subscription->subscribe_id && $subscription->rzp_subscription == '2') {
-                        $key_id = ApiKey::pluck('rzp_key')->first();
-                        $secret = ApiKey::pluck('rzp_secret')->first();
-                        $api = new Api($key_id, $secret);
-                        $subscriptionStatus = $api->subscription->fetch($subscription->subscribe_id);
+                        $status = app(\App\Services\Payment\SubscriptionService::class)->getStatus('Razorpay', $subscription->subscribe_id);
 
                         //check subscription status based on that do the need full
-                        match ($subscriptionStatus->status) {
+                        match ($status) {
                             'authenticated' => $this->handleAuthenticatedSubscriptionforRzp($subscription, $invoiceItem, $invoice, $cost, $user, $order, $product_name),
                             'expired' => $this->handleExpiredSubscriptionforRzp($subscription),
                             default => null
                         };
                     } elseif ($subscription->subscribe_id && $subscription->autoRenew_status == '2') {
-                        $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
-                        $stripe = new \Stripe\StripeClient($stripeSecretKey);
-                        \Stripe\Stripe::setApiKey($stripeSecretKey);
-                        $subscriptionStatus = \Stripe\Subscription::retrieve($subscription->subscribe_id);
+                        $status = app(\App\Services\Payment\SubscriptionService::class)->getStatus('Stripe', $subscription->subscribe_id);
 
                         //check subscription status based on that do the need full
-                        match ($subscriptionStatus->status) {
+                        match ($status) {
                             'active' => $this->handleAuthenticatedSubscriptionforStripe($subscription, $invoiceItem, $invoice, $cost, $user, $order, $product_name),
                             'incomplete_expired' => $this->handleExpiredSubscriptionforStripe($subscription),
                             default => null
@@ -532,7 +526,7 @@ class SubscriptionController extends Controller
 
     private function handleIncompleteStripePayment($stripeResponse, $invoice, $subscription, $currency, $plan, $product_details, $cost, $user)
     {
-        $latestInvoiceId = $stripeResponse->latest_invoice;
+        $latestInvoiceId = $stripeResponse->raw['latest_invoice'] ?? null;
         $latestInvoice = \Stripe\Invoice::retrieve($latestInvoiceId);
         $url = $latestInvoice->hosted_invoice_url;
 
@@ -549,7 +543,7 @@ class SubscriptionController extends Controller
 
         if ($rzpResponse->status == 'created') {
             $cost = $this->calculateReverseUnitCost($currency, $unit_cost);
-            $this->mailSendToActiveStripeSubscription($subscription, $product_details, $cost, $currency, $plan, $rzpResponse->short_url, $user);
+            $this->mailSendToActiveStripeSubscription($subscription, $product_details, $cost, $currency, $plan, $rzpResponse->raw['short_url'] ?? null, $user);
             Subscription::where('id', $subscription->id)->update(['subscribe_id' => $rzpResponse->id, 'rzp_subscription' => '2']);
         }
     }

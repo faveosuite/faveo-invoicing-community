@@ -3,9 +3,12 @@
 namespace App\Plugins\Payment\Gateways;
 
 use App\Plugins\Payment\Contracts\PaymentGateway;
+use App\Plugins\Payment\Contracts\SubscriptionGateway;
 use App\Plugins\Payment\Dto\PaymentRequest;
 use App\Plugins\Payment\Dto\PaymentResult;
 use App\Plugins\Payment\Dto\PaymentSession;
+use App\Plugins\Payment\Dto\SubscriptionRequest;
+use App\Plugins\Payment\Dto\SubscriptionResult;
 use App\Plugins\Payment\Exceptions\PaymentException;
 use App\Plugins\Payment\Exceptions\SignatureVerificationException;
 use App\Plugins\Payment\Support\Money;
@@ -31,7 +34,7 @@ use Razorpay\Api\Errors\SignatureVerificationError;
  *   // open Checkout with $session->clientConfig; on the handler callback:
  *   $result   = $razorpay->capturePayment($handlerResponse); // throws on a bad signature
  */
-final class RazorpayGateway implements PaymentGateway
+final class RazorpayGateway implements PaymentGateway, SubscriptionGateway
 {
     /** @var array<int, string> */
     private const SUPPORTED = [
@@ -174,6 +177,115 @@ final class RazorpayGateway implements PaymentGateway
     public function supportedCurrencies(): array
     {
         return self::SUPPORTED;
+    }
+
+    public function createSubscription(SubscriptionRequest $request): SubscriptionResult
+    {
+        try {
+            $api = $this->api();
+
+            $plan = $api->plan->create([
+                'period' => 'monthly',
+                'interval' => (int) round($request->intervalDays / 30),
+                'item' => [
+                    'name' => $request->planName,
+                    'amount' => $request->amountMinor,
+                    'currency' => $request->currency,
+                ],
+            ]);
+
+            $subscription = $api->subscription->create(array_filter([
+                'plan_id' => $plan['id'],
+                'total_count' => $request->totalCount,
+                'quantity' => 1,
+                'expire_by' => $request->expireBy,
+                'start_at' => $request->startAt,
+                'customer_notify' => 1,
+                'addons' => [['item' => [
+                    'name' => $request->planName,
+                    'amount' => $request->amountMinor,
+                    'currency' => $request->currency,
+                ]]],
+            ], static fn ($v) => $v !== null));
+
+            return new SubscriptionResult(
+                gateway: $this->name(),
+                id: $subscription['id'],
+                status: (string) $subscription['status'],
+                raw: $subscription->toArray(),
+            );
+        } catch (\Razorpay\Api\Errors\Error $e) {
+            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        }
+    }
+
+    public function getSubscriptionStatus(string $subscriptionId): string
+    {
+        try {
+            return (string) $this->api()->subscription->fetch($subscriptionId)['status'];
+        } catch (\Razorpay\Api\Errors\Error $e) {
+            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        }
+    }
+
+    public function cancelSubscription(string $subscriptionId): SubscriptionResult
+    {
+        try {
+            $subscription = $this->api()->subscription->fetch($subscriptionId)->cancel();
+
+            return new SubscriptionResult(
+                gateway: $this->name(),
+                id: $subscription['id'] ?? $subscriptionId,
+                status: (string) ($subscription['status'] ?? 'cancelled'),
+                raw: $subscription->toArray(),
+            );
+        } catch (\Razorpay\Api\Errors\Error $e) {
+            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        }
+    }
+
+    public function updateSubscriptionPrice(string $subscriptionId, SubscriptionRequest $request): SubscriptionResult
+    {
+        try {
+            $api = $this->api();
+            $current = $api->subscription->fetch($subscriptionId);
+            $currentPlan = $api->plan->fetch($current['plan_id']);
+            $interval = (int) round($request->intervalDays / 30);
+
+            // Already billing the requested price/interval — nothing to do.
+            if ((int) $currentPlan->item->amount === $request->amountMinor
+                && $currentPlan->item->currency === $request->currency
+                && (int) $currentPlan->interval === $interval) {
+                return new SubscriptionResult($this->name(), $current['id'], (string) $current['status'], $current->toArray());
+            }
+
+            // Razorpay can only re-plan an active subscription.
+            if ($current['status'] !== 'active') {
+                return new SubscriptionResult($this->name(), $current['id'], (string) $current['status'], $current->toArray());
+            }
+
+            $plan = $api->plan->create([
+                'period' => 'monthly',
+                'interval' => $interval,
+                'item' => [
+                    'name' => $request->planName,
+                    'amount' => $request->amountMinor,
+                    'currency' => $request->currency,
+                ],
+            ]);
+
+            $updated = $api->subscription->fetch($subscriptionId)->update([
+                'plan_id' => $plan['id'],
+                'quantity' => 1,
+                'remaining_count' => $current['remaining_count'],
+                'customer_notify' => 1,
+                'schedule_change_at' => 'cycle_end',
+            ]);
+
+            return new SubscriptionResult($this->name(), $updated['id'], (string) $updated['status'], $updated->toArray());
+        } catch (\Razorpay\Api\Errors\Error $e) {
+            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        }
     }
 
     private function api(): Api

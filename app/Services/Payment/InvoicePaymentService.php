@@ -2,77 +2,90 @@
 
 namespace App\Services\Payment;
 
-use App\ApiKey;
+use App\Http\Controllers\Common\SettingsController;
 use App\Model\Order\Invoice;
 use App\Plugins\Payment\Dto\Customer;
 use App\Plugins\Payment\Dto\PaymentRequest;
 use App\Plugins\Payment\Dto\PaymentSession;
-use App\Plugins\Payment\Gateways\RazorpayGateway;
-use App\Plugins\Payment\Gateways\StripeGateway;
-use App\Plugins\Payment\PaymentGatewayManager;
 use App\Traits\Payment\PostPaymentHandle;
+use Illuminate\Support\Facades\DB;
 
 /**
- * Application bridge between the standalone payment package and this app.
+ * Invoice-payment domain logic.
  *
- * This is the ONLY place the dependency-pure package
- * ({@see \App\Plugins\Payment}) meets the application: it sources gateway
- * credentials from the {@see ApiKey} model, turns an {@see Invoice} (+ the
- * authenticated user) into a package {@see PaymentRequest}, and on a verified
- * payment runs the application's order-fulfilment ({@see PostPaymentHandle}).
+ * Sits between the controllers and the generalized {@see PaymentService}. It
+ * owns everything that makes a payment an *invoice* payment: turning an
+ * {@see Invoice} (+ the authenticated user) into a package {@see PaymentRequest},
+ * computing the fee-inclusive amount due server-side, listing the gateways active
+ * for a currency, and — on a verified payment — running order fulfilment via
+ * {@see PostPaymentHandle}.
  *
- * Controllers should depend on this service, never on the gateway drivers
- * directly — that keeps the package portable and the app wiring in one spot.
+ * The gateway mechanics themselves are delegated to {@see PaymentService}, which
+ * stays domain-agnostic and reusable by other payment surfaces. Controllers
+ * (Front\PaymentController, RazorpayController) depend on THIS service so the
+ * invoice flow has one home and no controller calls another.
+ *
+ * The flow is invoice-id driven and stateless — the amount payable is always
+ * recomputed from the invoice, never trusted from the client or session.
  */
 class InvoicePaymentService
 {
     use PostPaymentHandle;
 
-    /** Build a manager wired with this application's configured gateways. */
-    public function manager(): PaymentGatewayManager
+    public function __construct(private readonly PaymentService $payments)
     {
-        $keys = ApiKey::find(1);
-
-        return (new PaymentGatewayManager)
-            ->register('Stripe', fn () => new StripeGateway(
-                (string) ($keys->stripe_secret ?? ''),
-                (string) ($keys->stripe_key ?? ''),
-                (string) config('open_payment.stripe_webhook_secret', ''),
-            ))
-            ->register('Razorpay', fn () => new RazorpayGateway(
-                (string) ($keys->rzp_key ?? ''),
-                (string) ($keys->rzp_secret ?? ''),
-                'Faveo Helpdesk',
-                (string) config('open_payment.razorpay_webhook_secret', ''),
-            ));
     }
 
     /** Stripe publishable key, for the SPA to initialise Stripe.js. */
     public function publishableKey(): string
     {
-        return (string) (ApiKey::where('id', 1)->value('stripe_key') ?? '');
+        return $this->payments->publishableKey();
+    }
+
+    /** Outstanding balance on an invoice (grand total less payments recorded). */
+    public function outstanding(Invoice $invoice): float
+    {
+        $paid = (float) $invoice->payment()->sum('amount');
+
+        return max(0, (float) $invoice->grand_total - $paid);
+    }
+
+    /**
+     * Gateways active for a currency, each with its processing fee.
+     *
+     * @return array<int, array{name: string, processing_fee: float|null}>
+     */
+    public function gatewaysFor(string $currency): array
+    {
+        try {
+            $names = SettingsController::checkPaymentGateway($currency);
+            if (! is_array($names)) {
+                return [];
+            }
+
+            return array_map(fn ($name) => [
+                'name' => $name,
+                'processing_fee' => $this->processingFee($name, $currency),
+            ], $names);
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 
     /**
      * Open a payment for an invoice and return the gateway's client config.
      *
-     * @param  float  $amount  Fee-inclusive amount due, in major currency units.
+     * @throws \App\Plugins\Payment\Exceptions\PaymentException
      */
-    public function start(Invoice $invoice, string $gateway, float $amount): PaymentSession
+    public function start(Invoice $invoice, string $gateway): PaymentSession
     {
-        return $this->manager()->gateway($gateway)->createPayment(
-            new PaymentRequest(
-                amount: $amount,
-                currency: $invoice->currency,
-                reference: (string) $invoice->number,
-                customer: $this->customer(),
-                description: 'Payment for Invoice No - '.$invoice->number,
-                metadata: [
-                    'invoice_id' => (int) $invoice->id,
-                    'user_id' => (int) $invoice->user_id,
-                ],
-            )
-        );
+        $request = $this->invoiceRequest($invoice, $gateway);
+
+        // Stripe uses a PaymentIntent so the SPA can collect card details in its
+        // own UI; Razorpay opens its Checkout via the standard createPayment.
+        return strtolower($gateway) === 'stripe'
+            ? $this->payments->startCardPayment($gateway, $request)
+            : $this->payments->start($gateway, $request);
     }
 
     /**
@@ -86,13 +99,11 @@ class InvoicePaymentService
      */
     public function confirm(Invoice $invoice, string $gateway, array $payload): bool
     {
-        $paid = (float) $invoice->payment()->sum('amount');
-        if (max(0, (float) $invoice->grand_total - $paid) <= 0) {
+        if ($this->outstanding($invoice) <= 0) {
             return true;
         }
 
-        $result = $this->manager()->gateway($gateway)->capturePayment($payload);
-        if (! $result->paid) {
+        if (! $this->payments->capture($gateway, $payload)->paid) {
             return false;
         }
 
@@ -107,6 +118,44 @@ class InvoicePaymentService
         \Session::forget(['items', 'code', 'codevalue', 'totalToBePaid', 'invoice', 'cart_currency']);
 
         return true;
+    }
+
+    /** Build the package payment request for an invoice on a given gateway. */
+    private function invoiceRequest(Invoice $invoice, string $gateway): PaymentRequest
+    {
+        return new PaymentRequest(
+            amount: $this->amountDue($invoice, $gateway),
+            currency: $invoice->currency,
+            reference: (string) $invoice->number,
+            customer: $this->customer(),
+            description: 'Payment for Invoice No - '.$invoice->number,
+            metadata: [
+                'invoice_id' => (int) $invoice->id,
+                'user_id' => (int) $invoice->user_id,
+            ],
+        );
+    }
+
+    /** Amount actually payable now: outstanding balance plus the gateway's processing fee. */
+    private function amountDue(Invoice $invoice, string $gateway): float
+    {
+        $fee = (float) ($this->processingFee($gateway, $invoice->currency) ?? 0);
+
+        return (float) rounding($this->outstanding($invoice) * (1 + $fee / 100));
+    }
+
+    /** Processing fee (%) for a gateway in a currency, or null when not configured. */
+    private function processingFee(string $gateway, string $currency): ?float
+    {
+        try {
+            $fee = DB::table(strtolower($gateway))
+                ->where('currencies', $currency)
+                ->value('processing_fee');
+
+            return $fee !== null ? (float) $fee : null;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     /** Map the authenticated user onto the package's Customer value object. */

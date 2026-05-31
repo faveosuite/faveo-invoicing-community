@@ -31,7 +31,7 @@ class ExtendedOrderController extends Controller
             if (! empty($cloud_domain)) {
                 $user_id = $invoice->user_id;
                 $cloudProductIds = CloudProducts::pluck('cloud_product');
-                $orderNumber = Order::where('invoice_id', $invoiceid)
+                $orderNumber = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'))
                     ->whereIn('product', $cloudProductIds)
                     ->value('number');
                 if ($orderNumber) {

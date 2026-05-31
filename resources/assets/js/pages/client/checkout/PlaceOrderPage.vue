@@ -91,7 +91,7 @@
     </div>
   </div>
 
-  <!-- Stripe card modal -->
+  <!-- Stripe card modal (custom card fields) -->
   <AppModal
     :showModal="showStripeModal"
     :onClose="onStripeModalClose"
@@ -174,7 +174,6 @@ const items = ref([])
 const gateways = ref([])
 const amountDue = ref(0)
 const symbol = ref('')
-const stripeKey = ref('')
 const selectedGateway = ref(gatewayFromUrl)
 
 const cardErrors = reactive({ number: '', expiry: '', cvc: '' })
@@ -182,6 +181,8 @@ const cardComplete = reactive({ number: false, expiry: false, cvc: false })
 
 let stripe = null
 let cardNumber = null
+let clientSecret = null
+let paymentIntentId = null
 
 function logoFallback(event, name) {
   const span = document.createElement('span')
@@ -210,7 +211,6 @@ onMounted(async () => {
     amountDue.value = data.data.amount
     symbol.value = data.data.currency_symbol
     gateways.value = data.data.gateways
-    stripeKey.value = data.data.stripe_key
     if (!selectedGateway.value && gateways.value.length) selectedGateway.value = gateways.value[0].name
   } catch (e) {
     error.value = parseErrorMessage(e)
@@ -224,14 +224,11 @@ async function continuePay() {
   busy.value = true
   alertStore.unsetAlert()
   try {
-    // Razorpay needs a server-built order (select-gateway). Stripe is charged
-    // directly against the invoice id, so it only needs the publishable key
-    // already returned by pay-init — no select-gateway round-trip.
     if (selectedGateway.value.toLowerCase() === 'razorpay') {
-      const { data } = await http.post(`${baseUrl}/invoice/${invoiceId}/select-gateway`, { gateway: selectedGateway.value })
+      const { data } = await http.post(`${baseUrl}/invoice/${invoiceId}/razorpay/order`)
       await payRazorpay(data.data.razorpay)
     } else {
-      await openStripeModal(stripeKey.value)
+      await openStripeModal()
     }
   } catch (e) {
     alertStore.setAlert({ message: parseErrorMessage(e), type: 'danger', component_name: 'client-page' })
@@ -247,9 +244,22 @@ function bindStripeField(element, key) {
   })
 }
 
-async function openStripeModal(publishableKey) {
+// Create a PaymentIntent for the invoice, then mount our own card fields. The
+// card data is confirmed straight to Stripe (confirmCardPayment) — never our server.
+async function openStripeModal() {
+  const { data } = await http.post(`${baseUrl}/invoice/${invoiceId}/stripe/session`)
+  clientSecret = data.data.client_secret
+  paymentIntentId = data.data.payment_intent_id
+
+  // An earlier (idempotent) attempt may have already completed this intent —
+  // don't show the card form again, just verify + fulfil server-side.
+  if (data.data.status === 'succeeded') {
+    await finalizeStripe()
+    return
+  }
+
   await loadScript('https://js.stripe.com/v3/')
-  stripe = window.Stripe(publishableKey)
+  stripe = window.Stripe(data.data.publishable_key)
   const elements = stripe.elements()
 
   // Reset state from any previous open
@@ -302,25 +312,48 @@ async function payStripe() {
   busy.value = true
   alertStore.unsetAlert()
   try {
-    const { token, error: tokenError } = await stripe.createToken(cardNumber)
-    if (tokenError) {
-      alertStore.setAlert({ message: tokenError.message, type: 'danger', component_name: 'stripe-modal' })
+    // Confirm the card against the PaymentIntent. Stripe handles 3D Secure here.
+    const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: { card: cardNumber },
+    })
+
+    if (confirmError) {
+      // The intent was already completed by a previous attempt — don't show an
+      // error, just verify + fulfil (the server confirm is idempotent).
+      if (confirmError.code === 'payment_intent_unexpected_state' || confirmError.payment_intent?.status === 'succeeded') {
+        await finalizeStripe()
+        return
+      }
+      alertStore.setAlert({ message: confirmError.message, type: 'danger', component_name: 'stripe-modal' })
       busy.value = false
       return
     }
-    const { data } = await http.post(`${baseUrl}/invoice/${invoiceId}/charge-stripe`, { stripeToken: token.id })
+
+    if (paymentIntent && paymentIntent.status === 'succeeded') {
+      await finalizeStripe()
+    } else {
+      alertStore.setAlert({ message: __('message.err_msg'), type: 'danger', component_name: 'stripe-modal' })
+      busy.value = false
+    }
+  } catch (e) {
+    alertStore.setAlert({ message: parseErrorMessage(e), type: 'danger', component_name: 'stripe-modal' })
+    busy.value = false
+  }
+}
+
+// Authoritatively verify the PaymentIntent + fulfil the invoice server-side.
+// Idempotent: safe to call for an intent a prior attempt already completed.
+async function finalizeStripe() {
+  try {
+    const { data } = await http.post(`${baseUrl}/invoice/${invoiceId}/stripe/confirm`, { payment_intent: paymentIntentId })
     if (data?.success) {
       showStripeModal.value = false
       onPaid()
-    } else if (data?.data?.redirectUrl) {
-      window.location.href = data.data.redirectUrl
     } else {
       alertStore.setAlert({ message: data?.message ?? __('message.err_msg'), type: 'danger', component_name: 'stripe-modal' })
       busy.value = false
     }
   } catch (e) {
-    const redirect = e.response?.data?.data?.redirectUrl
-    if (redirect) { window.location.href = redirect; return }
     alertStore.setAlert({ message: parseErrorMessage(e), type: 'danger', component_name: 'stripe-modal' })
     busy.value = false
   }
@@ -333,6 +366,7 @@ async function payRazorpay(config) {
     try {
       await http.post(`${baseUrl}/payment/${invoiceId}`, {
         razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_order_id: response.razorpay_order_id,
         razorpay_signature: response.razorpay_signature,
       })
       onPaid()
@@ -346,6 +380,6 @@ async function payRazorpay(config) {
 }
 
 function onPaid() {
-  router.push('/invoices')
+  router.push({ path: '/payment-success', query: { invoice: invoiceId } })
 }
 </script>

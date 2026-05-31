@@ -100,7 +100,6 @@
                                                                 {{ __('message.my_profile') }}
                                                             </RouterLink>
                                                         </li>
-                                                        <li><hr class="dropdown-divider"></li>
                                                         <li>
                                                             <a :href="logoutUrl" class="dropdown-item">
                                                                 {{ __('message.logout') }}
@@ -132,20 +131,75 @@
 
                                     <!-- Cart -->
                                     <div class="header-nav-features header-nav-features-no-border header-nav-features-lg-show-border order-1 order-lg-2 me-2 me-lg-0">
-                                        <div class="header-nav-feature header-nav-features-cart d-inline-flex ms-2 mx-3">
+                                        <div ref="cartRef" class="header-nav-feature header-nav-features-cart d-inline-flex ms-2 mx-3">
                                             <a href="javascript:;"
                                                class="header-nav-features-toggle text-decoration-none"
-                                               @click="onCartClick">
+                                               @click.stop="toggleCartDropdown">
                                                 <span class="text-dark opacity-8 font-weight-bold text-color-hover-primary">
-                                                    {{ __('message.cart') }}
+                                                    {{ __('message.cart') }}<i class="fas fa-shopping-cart ms-1"></i>
                                                 </span>
-                                                <img :src="`${assetUrl}client/porto/fonts/icon-cart.svg`"
-                                                     width="14" alt="" class="header-nav-top-icon-img">
-                                                <span v-if="badgeCount > 0"
-                                                      class="position-absolute top-0 start-100 translate-end badge rounded-pill custom-pills">
-                                                    {{ badgeCount }}
+                                                <span class="cart-info">
+                                                    <span class="cart-qty">{{ badgeCount }}</span>
                                                 </span>
                                             </a>
+
+                                            <div class="header-nav-features-dropdown" :class="{ 'show': showCartDropdown }" id="headerTopCartDropdown">
+                                                <!-- Guest -->
+                                                <div v-if="!isAuthenticated" class="text-center py-3">
+                                                    <i class="fas fa-shopping-cart fa-2x mb-2 d-block text-muted"></i>
+                                                    <a :href="loginUrl" class="btn btn-primary btn-sm mt-2">
+                                                        {{ __('message.sign-up') }}
+                                                    </a>
+                                                </div>
+
+                                                <!-- Authenticated — empty -->
+                                                <div v-else-if="!cartItems.length">
+                                                    <ol class="mini-products-list">
+                                                        <div class="product-details d-flex justify-content-between align-items-center mb-4 fw-medium">
+                                                            <span class="text-muted">0 ITEMS</span>
+                                                            <RouterLink to="/cart" class="text-dark text-uppercase fw-bold" @click="showCartDropdown = false">
+                                                                {{ __('message.view_cart') }}
+                                                            </RouterLink>
+                                                        </div>
+                                                        <hr class="border-top my-0">
+                                                        <span class="d-block text-center mt-3">{{ __('message.no_item_cart') }}</span>
+                                                    </ol>
+                                                </div>
+
+                                                <!-- Authenticated — has items -->
+                                                <div v-else>
+                                                    <ol class="mini-products-list">
+                                                        <li v-for="item in cartItems" :key="item.id" class="item">
+                                                            <a href="#" class="product-image" :title="item.name">
+                                                                <img v-if="item.image" :src="item.image" :alt="item.name" width="70">
+                                                            </a>
+                                                            <div class="product-details">
+                                                                <p class="product-name">
+                                                                    <a href="#">{{ item.name }}</a><br>
+                                                                    <span class="amount"><strong>{{ item.currency_symbol }}{{ item.unit_price }}</strong></span>
+                                                                </p>
+                                                                <a href="#" class="btn-remove" :title="__('message.remove')" @click.prevent="cartStore.removeItem(item.id)">
+                                                                    <i class="fas fa-times"></i>
+                                                                </a>
+                                                            </div>
+                                                        </li>
+                                                    </ol>
+                                                    <div class="totals">
+                                                        <span class="label">{{ __('message.total') }}:</span>
+                                                        <span class="price-total">
+                                                            <span class="price">{{ cartStore.currencySymbol }}{{ cartStore.total }}</span>
+                                                        </span>
+                                                    </div>
+                                                    <div class="actions">
+                                                        <RouterLink class="btn btn-dark" to="/cart" @click="showCartDropdown = false">
+                                                            {{ __('message.view_cart') }}
+                                                        </RouterLink>
+                                                        <RouterLink class="btn btn-primary" to="/checkout" @click="showCartDropdown = false">
+                                                            {{ __('message.checkout') }}
+                                                        </RouterLink>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -194,8 +248,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import http from '@/plugins/axios'
 import { useCartStore } from '@/core/stores/cart'
 import { useNavFeatureToggle } from '../../composables/useNavFeatureToggle.js'
@@ -203,10 +256,21 @@ import { isStickyActive } from '../../composables/useStickyHeader.js'
 
 const { toggle: toggleLanguage } = useNavFeatureToggle()
 
-const router = useRouter()
 const cartStore = useCartStore()
-
 const isScrolled = isStickyActive
+
+const showCartDropdown = ref(false)
+const cartRef = ref(null)
+
+function toggleCartDropdown() {
+    showCartDropdown.value = !showCartDropdown.value
+}
+
+function onClickOutside(e) {
+    if (cartRef.value && !cartRef.value.contains(e.target)) {
+        showCartDropdown.value = false
+    }
+}
 
 const el = document.getElementById('app-client')
 
@@ -227,15 +291,8 @@ const cartCount    = ref(parseInt(el?.dataset?.cartCount ?? '0', 10))
 
 // Authenticated users get the live DB-backed cart count; guests fall back to
 // the server-rendered count attribute.
+const cartItems  = computed(() => Array.isArray(cartStore.items) ? cartStore.items : [])
 const badgeCount = computed(() => isAuthenticated.value ? cartStore.itemCount : cartCount.value)
-
-function onCartClick() {
-    if (isAuthenticated.value) {
-        router.push('/cart')
-    } else {
-        window.location.href = loginUrl.value
-    }
-}
 
 const socialMedia = computed(() => {
     try { return JSON.parse(el?.dataset?.social ?? '[]') } catch { return [] }
@@ -253,6 +310,7 @@ const flagCode = computed(() => localeMap[locale.value] ?? 'us')
 const productGroups = ref([])
 
 onMounted(async () => {
+    document.addEventListener('click', onClickOutside)
     if (isAuthenticated.value) {
         cartStore.fetchCart()
     }
@@ -260,6 +318,10 @@ onMounted(async () => {
         const { data } = await http.post('available-groups')
         productGroups.value = Object.entries(data.data ?? {}).map(([id, g]) => ({ id: parseInt(id), ...g }))
     } catch {}
+})
+
+onUnmounted(() => {
+    document.removeEventListener('click', onClickOutside)
 })
 </script>
 
@@ -297,4 +359,5 @@ onMounted(async () => {
     max-height: 0;
     opacity: 0;
 }
+
 </style>

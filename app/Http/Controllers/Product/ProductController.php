@@ -619,7 +619,7 @@ class ProductController extends BaseProductController
             $file = $this->product_upload
                 ->where('product_id', '=', $uploadid)
                 ->where('id', $version_id)->select('file')->first();
-            $order = Order::where('invoice_id', '=', $invoice_id)->first();
+            $order = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice_id)->pluck('order_id'))->first();
             $order_id = $order->id;
             $relese = $this->getRelease($owner, $repository, $order_id, $file);
 

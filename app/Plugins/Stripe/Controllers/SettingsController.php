@@ -161,37 +161,24 @@ class SettingsController extends Controller
         ];
     }
 
+    /**
+     * Create a recurring Stripe subscription for autopay.
+     *
+     * Thin adapter over the centralized {@see \App\Services\Payment\SubscriptionService}
+     * (which drives the payment package's StripeGateway). Returns a
+     * {@see \App\Plugins\Payment\Dto\SubscriptionResult} — callers read ->status,
+     * ->id and ->raw['latest_invoice']. $unit_cost is already in minor units.
+     */
     public function handleStripeAutoPay($stripe_payment_details, $product_details, $unit_cost, $currency, $plan)
     {
         try {
-            $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
-            $stripe = new StripeClient($stripeSecretKey);
-            \Stripe\Stripe::setApiKey($stripeSecretKey);
-
-            $paymentMethod = \Stripe\PaymentMethod::retrieve($stripe_payment_details->payment_intent_id);
-
-            $product = $stripe->products->create([
-                'name' => $product_details->name,
-            ]);
-            $product_id = $product['id'];
-
-            $price = $stripe->prices->create([
-                'unit_amount' => $unit_cost,
-                'currency' => $currency,
-                'recurring' => ['interval' => 'day', 'interval_count' => $plan->days],
-                'product' => $product_id,
-            ]);
-            $price_id = $price['id'];
-
-            $stripe_subscription = $stripe->subscriptions->create([
-                'customer' => $paymentMethod->customer,
-                'items' => [
-                    ['price' => $price_id],
-                ],
-                'default_payment_method' => $paymentMethod->id,
-            ]);
-
-            return $stripe_subscription;
+            return app(\App\Services\Payment\SubscriptionService::class)->createSubscription('Stripe', new \App\Plugins\Payment\Dto\SubscriptionRequest(
+                amountMinor: (int) $unit_cost,
+                currency: $currency,
+                intervalDays: (int) $plan->days,
+                planName: $product_details->name,
+                paymentMethodReference: $stripe_payment_details->payment_intent_id,
+            ));
         } catch (\Exception $e) {
             \Logger::exception($e);
         }

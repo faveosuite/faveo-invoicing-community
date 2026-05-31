@@ -21,6 +21,7 @@ const routes = [
     { path: '/cart',           meta: { title: 'Shopping Cart', sidebar: false }, component: () => import('@/pages/client/cart/CartPage.vue') },
     { path: '/checkout',       meta: { title: 'Checkout', sidebar: false }, component: () => import('@/pages/client/checkout/CheckoutPage.vue') },
     { path: '/place-order',    meta: { title: 'Place Order', sidebar: false }, component: () => import('@/pages/client/checkout/PlaceOrderPage.vue') },
+    { path: '/payment-success', meta: { title: 'Payment Successful', sidebar: false }, component: () => import('@/pages/client/checkout/PaymentSuccessPage.vue') },
 ]
 
 const router = createRouter({

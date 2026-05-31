@@ -944,6 +944,7 @@ Route::prefix('cart')->name('cart.')->group(function () {
 // Razorpay verification posts to POST /payment/{invoice} (RazorpayController@payment).
 Route::middleware('auth')->group(function () {
     Route::get('invoice/{invoice}/pay-init', [Front\PaymentController::class, 'payInit'])->name('invoice.pay.init');
+    Route::get('invoice/{invoice}/pay-success', [Front\PaymentController::class, 'paySuccess'])->name('invoice.pay.success');
     Route::post('invoice/{invoice}/stripe/session', [Front\PaymentController::class, 'stripeSession'])->name('invoice.pay.stripe.session');
     Route::post('invoice/{invoice}/stripe/confirm', [Front\PaymentController::class, 'stripeConfirm'])->name('invoice.pay.stripe.confirm');
     Route::post('invoice/{invoice}/razorpay/order', [Front\PaymentController::class, 'razorpayOrder'])->name('invoice.pay.razorpay.order');

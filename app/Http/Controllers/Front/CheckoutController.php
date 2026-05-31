@@ -342,9 +342,9 @@ class CheckoutController extends InfoController
                     $url = '';
 
                     $this->checkoutAction($invoice); //For free product generate invoice without payment
-                    $orderNumber = Order::where('invoice_id', $invoice->id)->value('number');
+                    $orderNumber = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->value('number');
 
-                    $orders = Order::where('invoice_id', $invoice->id)->get();
+                    $orders = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->get();
 
 //                    $url = view('themes.default1.front.postCheckoutTemplate', compact('invoice', 'date', 'product', 'items', 'orders', 'orderNumber', 'show'))->render();
                     $url = ['invoice' => $invoice, 'date' => $date, 'product' => $product, 'items' => $items, 'orders' => $orders, 'orderNumber' => $orderNumber, 'show' => $show];
@@ -357,7 +357,7 @@ class CheckoutController extends InfoController
                         \Session::forget('nothingLeft');
                     }
                     if (! empty($invoice->cloud_domain)) {
-                        $orderNumber = Order::where('invoice_id', $invoice->id)->whereIn('product', cloudPopupProducts())->value('number');
+                        $orderNumber = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->whereIn('product', cloudPopupProducts())->value('number');
                         (new TenantController(new Client, new FaveoCloud()))->createTenant(new Request(['orderNo' => $orderNumber, 'domain' => $invoice->cloud_domain]));
                     }
                     if ($discount != null) {
@@ -414,7 +414,7 @@ class CheckoutController extends InfoController
                         $control->successRenew($invoice, true);
                     }
                     if (! empty($invoice->cloud_domain)) {
-                        $orderNumber = Order::where('invoice_id', $invoice->id)->whereIn('product', cloudPopupProducts())->value('number');
+                        $orderNumber = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->whereIn('product', cloudPopupProducts())->value('number');
                         (new TenantController(new Client, new FaveoCloud()))->createTenant(new Request(['orderNo' => $orderNumber, 'domain' => $invoice->cloud_domain]));
                     }
                     $this->performCloudActions($invoice);
@@ -550,7 +550,7 @@ class CheckoutController extends InfoController
                 $payment = new \App\Http\Controllers\Order\InvoiceController();
                 $payment->postRazorpayPayment($invoice);
 
-                $alreadyExecuted = \App\Model\Order\Order::where('invoice_id', $invoice->id)->exists();
+                $alreadyExecuted = \App\Model\Order\Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->exists();
                 if (! $alreadyExecuted) {
                     $order = new \App\Http\Controllers\Order\OrderController();
                     $order->executeOrder($invoice->id, $order_status = 'executed');

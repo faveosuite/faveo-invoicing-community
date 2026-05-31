@@ -174,16 +174,10 @@ class ClientController extends BaseClientController
     private function autoRenewalSubOps($subscription, $orderid)
     {
         if ($subscription->rzp_subscription && $subscription->is_subscribed && $subscription->subscribe_id) {
-            $rzp_key = ApiKey::where('id', 1)->value('rzp_key');
-            $rzp_secret = ApiKey::where('id', 1)->value('rzp_secret');
-            $api = new Api($rzp_key, $rzp_secret);
-            $pause = $api->subscription->fetch($subscription->subscribe_id)->cancel();
+            app(\App\Services\Payment\SubscriptionService::class)->cancelSubscription('Razorpay', $subscription->subscribe_id);
             Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'rzp_subscription' => '0']);
         } elseif ($subscription->autoRenew_status && $subscription->is_subscribed && $subscription->subscribe_id) {
-            $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
-            $stripe = new \Stripe\StripeClient($stripeSecretKey);
-            \Stripe\Stripe::setApiKey($stripeSecretKey);
-            $pause = $stripe->subscriptions->cancel($subscription->subscribe_id, []);
+            app(\App\Services\Payment\SubscriptionService::class)->cancelSubscription('Stripe', $subscription->subscribe_id);
             Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'autoRenew_status' => '0']);
         } else {
             Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'autoRenew_status' => '0', 'rzp_subscription' => '0']);
@@ -772,7 +766,7 @@ class ClientController extends BaseClientController
             $link = $link['body'];
             $countVersions = 3; //because we are taking only the first 10 versions
             $link = array_slice($link, 0, 3, true);
-            $order = Order::where('invoice_id', '=', $invoiceid)->first();
+            $order = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'))->first();
             $order_id = $order->id;
             $orderEndDate = Subscription::select('update_ends_at')
                         ->where('product_id', $productid)->where('order_id', $order_id)->first();
@@ -797,7 +791,7 @@ class ClientController extends BaseClientController
                                 return '<div class="markdown-output">'.$markdown.'</div>';
                             })
                             ->addColumn('file', function ($link) use ($countExpiry, $countVersions, $invoiceid, $productid) {
-                                $order = Order::where('invoice_id', '=', $invoiceid)->first();
+                                $order = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'))->first();
                                 $order_id = $order->id;
                                 $orderEndDate = Subscription::select('update_ends_at')
                                 ->where('product_id', $productid)->where('order_id', $order_id)->first();

@@ -12,7 +12,6 @@ use App\Plugins\Stripe\Controllers\SettingsController;
 use App\Traits\Payment\PostPaymentHandle;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Razorpay\Api\Api;
 
 class RazorpayController extends Controller
 {
@@ -122,36 +121,24 @@ class RazorpayController extends Controller
         }
     }
 
+    /**
+     * Create a recurring Razorpay subscription for autopay.
+     *
+     * Thin adapter over the centralized {@see \App\Services\Payment\SubscriptionService}
+     * (which drives the payment package's RazorpayGateway). Returns a
+     * {@see \App\Plugins\Payment\Dto\SubscriptionResult} — callers read ->status,
+     * ->id and ->raw['short_url']. $cost is already in minor units; start_at /
+     * expire_by are derived here from the subscription's current period.
+     */
     public function handleRzpAutoPay($cost, $days, $product_name, $invoice, $currency, $subscription, $user, $order, $endDate, $productDetails)
     {
-        $key_id = ApiKey::pluck('rzp_key')->first();
-        $secret = ApiKey::pluck('rzp_secret')->first();
-        $api = new Api($key_id, $secret);
-        $rzp_plan = $api->plan->create(['period' => 'monthly',
-            'interval' => round((int) $days / 30),
-            'item' => [
-                'name' => $product_name,
-                'amount' => $cost,
-                'currency' => $currency, ],
-
-        ]
-        );
-
-        $rzp_subscriptionLink = $api->subscription->create([
-            'plan_id' => $rzp_plan['id'],
-            'total_count' => 100,
-            'quantity' => 1,
-            'expire_by' => Carbon::parse($subscription->update_ends_at)->addDays(1)->timestamp,
-            'start_at' => Carbon::parse($subscription->update_ends_at)->addDays(round((int) $days))->timestamp,
-
-            'customer_notify' => 1,
-            'addons' => [['item' => [
-                'name' => $product_name,
-                'amount' => $cost,
-                'currency' => $currency]]],
-
-        ]);
-
-        return $rzp_subscriptionLink;
+        return app(\App\Services\Payment\SubscriptionService::class)->createSubscription('Razorpay', new \App\Plugins\Payment\Dto\SubscriptionRequest(
+            amountMinor: (int) $cost,
+            currency: $currency,
+            intervalDays: (int) $days,
+            planName: $product_name,
+            startAt: Carbon::parse($subscription->update_ends_at)->addDays(round((int) $days))->timestamp,
+            expireBy: Carbon::parse($subscription->update_ends_at)->addDays(1)->timestamp,
+        ));
     }
 }

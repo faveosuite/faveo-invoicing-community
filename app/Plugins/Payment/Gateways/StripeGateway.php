@@ -2,10 +2,15 @@
 
 namespace App\Plugins\Payment\Gateways;
 
+use App\Plugins\Payment\Contracts\CardPaymentGateway;
 use App\Plugins\Payment\Contracts\PaymentGateway;
+use App\Plugins\Payment\Contracts\SubscriptionGateway;
+use App\Plugins\Payment\Dto\Customer;
 use App\Plugins\Payment\Dto\PaymentRequest;
 use App\Plugins\Payment\Dto\PaymentResult;
 use App\Plugins\Payment\Dto\PaymentSession;
+use App\Plugins\Payment\Dto\SubscriptionRequest;
+use App\Plugins\Payment\Dto\SubscriptionResult;
 use App\Plugins\Payment\Exceptions\PaymentException;
 use App\Plugins\Payment\Support\Money;
 use Stripe\Exception\ApiErrorException;
@@ -32,7 +37,7 @@ use Stripe\Webhook;
  *   $result  = $stripe->capturePayment(['session_id' => $session->id]);
  *   if ($result->paid) { ... }
  */
-final class StripeGateway implements PaymentGateway
+final class StripeGateway implements PaymentGateway, SubscriptionGateway, CardPaymentGateway
 {
     /** @var array<int, string> */
     private const SUPPORTED = [
@@ -71,6 +76,9 @@ final class StripeGateway implements PaymentGateway
                 // callback, not a redirect — keeps the payer in the host page.
                 'redirect_on_completion' => 'never',
                 'customer_email' => $request->customer?->email,
+                // India export regulations require the customer's name + address;
+                // Checkout collects the billing address for export transactions.
+                'billing_address_collection' => 'required',
                 'line_items' => [[
                     'quantity' => 1,
                     'price_data' => [
@@ -107,16 +115,81 @@ final class StripeGateway implements PaymentGateway
     }
 
     /**
-     * @param  array{session_id?: string}  $payload
+     * Open a card payment via a PaymentIntent, for a custom in-page card UI.
+     *
+     * Card-only (no redirect-based methods), so the browser can confirm it with
+     * Stripe Elements + confirmCardPayment; 3D Secure is handled by that call.
+     */
+    public function createCardPayment(PaymentRequest $request): PaymentSession
+    {
+        try {
+            $params = [
+                'amount' => Money::toMinor($request->amount, $request->currency),
+                'currency' => strtolower($request->currency),
+                'description' => $request->description ?: $request->reference,
+                'payment_method_types' => ['card'],
+                'receipt_email' => $request->customer?->email,
+                'metadata' => $this->stringMetadata($request->metadata),
+            ];
+
+            // India export regulations require the customer's name + address on
+            // export transactions; supply it as shipping (the description above
+            // covers the required goods/services description). Stripe declines an
+            // export charge without it.
+            if ($shipping = $this->shippingFrom($request->customer)) {
+                $params['shipping'] = $shipping;
+            }
+
+            $intent = $this->client()->paymentIntents->create($params, [
+                // Stable across retries for the same reference + amount, so a double
+                // submit reuses one intent instead of creating duplicates.
+                'idempotency_key' => 'pi_'.$request->reference.'_'.md5($request->currency.'|'.$request->amount),
+            ]);
+
+            return new PaymentSession(
+                gateway: $this->name(),
+                id: $intent->id,
+                clientConfig: [
+                    'client_secret' => $intent->client_secret,
+                    'payment_intent_id' => $intent->id,
+                    'publishable_key' => $this->publishableKey,
+                    // So the client can skip re-confirming an intent that an
+                    // earlier (idempotent) attempt already completed.
+                    'status' => (string) $intent->status,
+                ],
+                raw: $intent->toArray(),
+            );
+        } catch (ApiErrorException $e) {
+            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Verify a completed payment. Accepts either a Checkout Session
+     * ({session_id}) or a PaymentIntent ({payment_intent}, custom card UI).
+     *
+     * @param  array{session_id?: string, payment_intent?: string}  $payload
      */
     public function capturePayment(array $payload): PaymentResult
     {
-        $sessionId = $payload['session_id'] ?? null;
-        if (! $sessionId) {
-            throw new PaymentException('Missing Stripe session_id.');
-        }
-
         try {
+            if (! empty($payload['payment_intent'])) {
+                $intent = $this->client()->paymentIntents->retrieve($payload['payment_intent']);
+
+                return new PaymentResult(
+                    paid: $intent->status === 'succeeded',
+                    gateway: $this->name(),
+                    reference: $intent->id,
+                    status: (string) $intent->status,
+                    raw: $intent->toArray(),
+                );
+            }
+
+            $sessionId = $payload['session_id'] ?? null;
+            if (! $sessionId) {
+                throw new PaymentException('Missing Stripe session_id or payment_intent.');
+            }
+
             $session = $this->client()->checkout->sessions->retrieve($sessionId);
         } catch (ApiErrorException $e) {
             throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
@@ -185,6 +258,105 @@ final class StripeGateway implements PaymentGateway
         return self::SUPPORTED;
     }
 
+    public function createSubscription(SubscriptionRequest $request): SubscriptionResult
+    {
+        try {
+            $client = $this->client();
+
+            // The saved payment method carries the customer it is attached to and
+            // becomes the subscription's default method (off-session renewals).
+            $paymentMethod = $client->paymentMethods->retrieve((string) $request->paymentMethodReference);
+
+            $product = $client->products->create(['name' => $request->planName]);
+
+            $price = $client->prices->create([
+                'unit_amount' => $request->amountMinor,
+                'currency' => strtolower($request->currency),
+                'recurring' => ['interval' => 'day', 'interval_count' => $request->intervalDays],
+                'product' => $product->id,
+            ]);
+
+            $subscription = $client->subscriptions->create([
+                'customer' => $paymentMethod->customer,
+                'items' => [['price' => $price->id]],
+                'default_payment_method' => $paymentMethod->id,
+                'metadata' => $this->stringMetadata($request->metadata),
+            ]);
+
+            return new SubscriptionResult(
+                gateway: $this->name(),
+                id: $subscription->id,
+                status: (string) $subscription->status,
+                raw: $subscription->toArray(),
+            );
+        } catch (ApiErrorException $e) {
+            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        }
+    }
+
+    public function getSubscriptionStatus(string $subscriptionId): string
+    {
+        try {
+            return (string) $this->client()->subscriptions->retrieve($subscriptionId)->status;
+        } catch (ApiErrorException $e) {
+            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        }
+    }
+
+    public function cancelSubscription(string $subscriptionId): SubscriptionResult
+    {
+        try {
+            $subscription = $this->client()->subscriptions->cancel($subscriptionId, []);
+
+            return new SubscriptionResult(
+                gateway: $this->name(),
+                id: $subscription->id,
+                status: (string) $subscription->status,
+                raw: $subscription->toArray(),
+            );
+        } catch (ApiErrorException $e) {
+            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        }
+    }
+
+    public function updateSubscriptionPrice(string $subscriptionId, SubscriptionRequest $request): SubscriptionResult
+    {
+        try {
+            $client = $this->client();
+            $current = $client->subscriptions->retrieve($subscriptionId, []);
+
+            // Only touch an active subscription, and only when the price differs.
+            if ($current->status !== 'active' || (int) $current->plan->amount === $request->amountMinor) {
+                return new SubscriptionResult($this->name(), $current->id, (string) $current->status, $current->toArray());
+            }
+
+            $product = $client->products->create(['name' => $request->planName]);
+            $price = $client->prices->create([
+                'unit_amount' => $request->amountMinor,
+                'currency' => strtolower($request->currency),
+                'recurring' => ['interval' => 'day', 'interval_count' => $request->intervalDays],
+                'product' => $product->id,
+            ]);
+
+            $updated = $client->subscriptions->update($subscriptionId, [
+                'items' => [['id' => $current->items->data[0]->id, 'price' => $price->id]],
+                'proration_behavior' => 'none',
+            ]);
+
+            // A price change that leaves the subscription inactive is cancelled;
+            // flag it so the application can unsubscribe locally.
+            if ($updated->status !== 'active') {
+                $client->subscriptions->cancel($updated->id, []);
+
+                return new SubscriptionResult($this->name(), $updated->id, (string) $updated->status, $updated->toArray() + ['cancelled' => true]);
+            }
+
+            return new SubscriptionResult($this->name(), $updated->id, (string) $updated->status, $updated->toArray());
+        } catch (ApiErrorException $e) {
+            throw new PaymentException($e->getMessage(), (int) $e->getCode(), $e);
+        }
+    }
+
     private function client(): StripeClient
     {
         if ($this->secretKey === '') {
@@ -213,5 +385,31 @@ final class StripeGateway implements PaymentGateway
     private function stringMetadata(array $metadata): array
     {
         return array_map(static fn ($v) => (string) $v, $metadata);
+    }
+
+    /**
+     * Build a Stripe shipping object (name + address) from a customer, for
+     * India export compliance. Returns null when there isn't enough to be useful
+     * (a name and at least a street line) so domestic charges aren't sent a
+     * malformed shipping block.
+     *
+     * @return array{name: string, address: array<string, string>}|null
+     */
+    private function shippingFrom(?Customer $customer): ?array
+    {
+        if (! $customer || ! $customer->name || ! $customer->line1) {
+            return null;
+        }
+
+        return [
+            'name' => $customer->name,
+            'address' => array_filter([
+                'line1' => $customer->line1,
+                'city' => $customer->city,
+                'state' => $customer->state,
+                'postal_code' => $customer->postalCode,
+                'country' => $customer->country,
+            ], static fn ($v) => $v !== null && $v !== ''),
+        ];
     }
 }

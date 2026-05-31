@@ -23,7 +23,6 @@ use Carbon\Carbon;
 use DateTime;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use Razorpay\Api\Api;
 
 //////////////////////////////////////////////////////////////////////////////
 // Handle the post manual payment
@@ -94,7 +93,7 @@ trait PostPaymentHandle
                 $this->doTheDeed($invoice);
 
                 if (! empty($invoice->cloud_domain)) {
-                    $orderNumber = Order::where('invoice_id', $invoice->id)->whereIn('product', cloudPopupProducts())->value('number');
+                    $orderNumber = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->whereIn('product', cloudPopupProducts())->value('number');
                     (new TenantController(new Client, new FaveoCloud()))->createTenant(new Request(['orderNo' => $orderNumber, 'domain' => $invoice->cloud_domain]));
                 }
 
@@ -210,7 +209,7 @@ trait PostPaymentHandle
     {
         try {
             $cart = new Cart();
-            $orders = Order::where('invoice_id', $invoice->id)->get();
+            $orders = Order::whereIn('id', OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->get();
             $invoiceItems = InvoiceItem::where('invoice_id', $invoice->id)->get();
             $cart->clear();
             $status = 'Success';
@@ -291,7 +290,6 @@ trait PostPaymentHandle
         }
 
         $plan = Plan::find($subscription->plan_id);
-        $days = intval(round((int) $plan->days / 30));
         $countryids = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->first();
         $price = PlanPrice::where('plan_id', $subscription->plan_id)->where('currency', $invoice->currency)->where('country_id', $countryids->country_id)->value('renew_price');
         if (empty($price)) {
@@ -300,79 +298,32 @@ trait PostPaymentHandle
         $amount = $this->getPriceforCloud($order, $price, $subscription->product_id, $invoice->currency, $subscription);
         $renewPrice = intval(calculateUnitCost($invoice->currency, $amount));
 
-        if ($subscription->rzp_subscription == '3' && $subscription->subscribe_id) {
-            $key_id = ApiKey::pluck('rzp_key')->first();
-            $secret = ApiKey::pluck('rzp_secret')->first();
-            $api = new Api($key_id, $secret);
+        if (! $subscription->subscribe_id) {
+            return;
+        }
 
-            $fetchSub = $api->subscription->fetch($subscription->subscribe_id);
-            $fetchPlan = $api->plan->fetch($fetchSub['plan_id']);
+        $gateway = $subscription->rzp_subscription == '3' ? 'Razorpay' : 'Stripe';
 
-            if ($fetchPlan->item->amount == $renewPrice &&
-                $fetchPlan->item->currency == $invoice->currency &&
-                $fetchPlan->interval == $days) {
-                return; // Subscription price already matches, no update needed
-            }
+        // The gateway driver fetches the live subscription, skips the update when
+        // the price/interval already matches or the subscription is inactive, and
+        // (Stripe) cancels + flags raw['cancelled'] if the change deactivates it.
+        $result = app(\App\Services\Payment\SubscriptionService::class)->updateSubscriptionPrice(
+            $gateway,
+            $subscription->subscribe_id,
+            new \App\Plugins\Payment\Dto\SubscriptionRequest(
+                amountMinor: $renewPrice,
+                currency: $invoice->currency,
+                intervalDays: (int) $plan->days,
+                planName: $product->name,
+            )
+        );
 
-            if ($fetchSub['status'] == 'active') {
-                $updatePlan = $api->plan->create([
-                    'period' => 'monthly',
-                    'interval' => $days,
-                    'item' => [
-                        'name' => $product->name,
-                        'amount' => $renewPrice,
-                        'currency' => $invoice->currency,
-                    ],
-                ]);
-
-                $updateSubscription = $api->subscription->fetch($subscription->subscribe_id)->update([
-                    'plan_id' => $updatePlan['id'],
-                    'quantity' => 1,
-                    'remaining_count' => $fetchSub['remaining_count'],
-                    'customer_notify' => 1,
-                    'schedule_change_at' => 'cycle_end',
-                ]);
-            }
-        } elseif ($subscription->autoRenew_status == '3' && $subscription->subscribe_id) {
-            $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
-            $stripe = new \Stripe\StripeClient($stripeSecretKey);
-            \Stripe\Stripe::setApiKey($stripeSecretKey);
-
-            $fetchSub = $stripe->subscriptions->retrieve($subscription->subscribe_id, []);
-
-            if ($fetchSub->status == 'active') {
-                if ($fetchSub->plan->amount == $renewPrice) {
-                    return; // Subscription price already matches, no update needed
-                } else {
-                    $product = $stripe->products->create([
-                        'name' => $product->name,
-                    ]);
-                    $product_id = $product['id'];
-
-                    $price = $stripe->prices->create([
-                        'unit_amount' => $renewPrice,
-                        'currency' => $invoice->currency,
-                        'recurring' => ['interval' => 'day', 'interval_count' => $plan->days],
-                        'product' => $product_id,
-                    ]);
-                    $updateSub = $stripe->subscriptions->update(
-                        $subscription->subscribe_id,
-                        [
-                            'items' => [
-                                [
-                                    'id' => $fetchSub->items->data[0]->id,
-                                    'price' => $price['id'],
-                                ],
-                            ],
-                            'proration_behavior' => 'none', // Disable proration
-                        ]
-                    );
-                    if ($updateSub->status != 'active') {
-                        $stripe->subscriptions->cancel($updateSub->id, []);
-                        Subscription::where('id', $subscription->id)->update(['is_subscribed' => '0', 'autoRenew_status' => '0', 'subscribe_id' => null]);
-                    }
-                }
-            }
+        if (($result->raw['cancelled'] ?? false) === true) {
+            Subscription::where('id', $subscription->id)->update([
+                'is_subscribed' => '0',
+                'autoRenew_status' => '0',
+                'subscribe_id' => null,
+            ]);
         }
     }
 
