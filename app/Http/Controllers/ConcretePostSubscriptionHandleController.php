@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\ApiKey;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
