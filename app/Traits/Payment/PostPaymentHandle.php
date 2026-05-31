@@ -2,7 +2,6 @@
 
 namespace App\Traits\Payment;
 
-use App\ApiKey;
 use App\Facades\Cart;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
