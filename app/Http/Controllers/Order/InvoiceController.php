@@ -683,7 +683,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
         // Subtotal shown ex-tax: for tax-inclusive pricing the item subtotal is
         // gross, so strip the tax out so subtotal + tax + fee reconciles to total.
-        $pricesIncludeTax = (int) (optional(\App\Model\Payment\TaxOption::find(1))->inclusive) === 1;
+        $pricesIncludeTax = (int) optional(\App\Model\Payment\TaxOption::find(1))->inclusive === 1;
         $netSubtotal = $pricesIncludeTax ? ($itemSubtotal - $taxTotal) : $itemSubtotal;
         $subtotal = $formatCurrency ? currencyFormat($netSubtotal, $invoice->currency) : round($netSubtotal, 2);
 

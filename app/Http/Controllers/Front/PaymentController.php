@@ -98,7 +98,7 @@ class PaymentController extends Controller
             ])->values()->all();
 
         $taxTotal = round((float) collect($taxes)->sum('amount'), 2);
-        $pricesIncludeTax = (int) (optional(\App\Model\Payment\TaxOption::find(1))->inclusive) === 1;
+        $pricesIncludeTax = (int) optional(\App\Model\Payment\TaxOption::find(1))->inclusive === 1;
 
         return [
             'subtotal' => $subtotal,
