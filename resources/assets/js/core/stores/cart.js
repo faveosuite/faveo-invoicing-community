@@ -21,6 +21,9 @@ export const useCartStore = defineStore('cart', {
         // Checkout-only fields (populated by fetchCheckout()).
         taxes: (state) => state.cart?.taxes ?? [],
         taxTotal: (state) => state.cart?.tax_total ?? 0,
+        subtotalExTax: (state) => state.cart?.subtotal_ex_tax ?? state.cart?.subtotal ?? 0,
+        pricesIncludeTax: (state) => state.cart?.prices_include_tax ?? false,
+        taxLabel: (state) => state.cart?.tax_label ?? '',
         gateways: (state) => state.cart?.gateways ?? [],
         grandTotal: (state) => state.cart?.grand_total ?? 0,
     },

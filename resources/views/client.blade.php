@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 <?php
-    $set        = \App\Model\Common\Setting::findOrFail(1);
-    $cloudBtn   = \App\Model\Common\StatusSetting::where('id', 1)->value('cloud_button');
-    $demoPage   = App\Demo_page::first();
-    $cartFacade = new App\Facades\Cart();
-    $social     = App\Model\Common\SocialMedia::get(['name', 'link']);
+$set = \App\Model\Common\Setting::findOrFail(1);
+$cloudBtn = \App\Model\Common\StatusSetting::where('id', 1)->value('cloud_button');
+$demoPage = App\Demo_page::first();
+$cartFacade = new App\Facades\Cart();
+$social = App\Model\Common\SocialMedia::get(['name', 'link']);
 
-    $widgets = \App\Model\Front\Widgets::where('publish', 1)->get(['id', 'name', 'type', 'content', 'allow_mailchimp', 'allow_social_media', 'allow_tweets']);
+$widgets = \App\Model\Front\Widgets::where('publish', 1)->get(['id', 'name', 'type', 'content', 'allow_mailchimp', 'allow_social_media', 'allow_tweets']);
 ?>
 <head>
     <meta charset="utf-8">
@@ -20,7 +20,9 @@
     @endif
 
     {{-- Google Fonts --}}
-    <link id="googleFonts" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800%7CShadows+Into+Light&display=swap" rel="stylesheet">
+    <link id="googleFonts"
+          href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800%7CShadows+Into+Light&display=swap"
+          rel="stylesheet">
 
     {{-- Porto vendor CSS --}}
     <link rel="stylesheet" href="{{ assetLink('css', 'porto-animate') }}">
@@ -47,37 +49,38 @@
 
 <body data-plugin-scroll-offset="85">
 
-    <div id="app-client"
-         data-theme="porto"
-         data-authenticated="{{ auth()->check() ? 'true' : 'false' }}"
-         data-base-url="{{ url('/') }}"
-         data-client-url="{{ url('/client') }}"
-         data-asset-url="{{ asset('') }}"
-         data-locale="{{ app()->getLocale() }}"
-         data-locale-rtl="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'true' : 'false' }}"
-         data-page-title="{{ $set->favicon_title_client }}"
-         data-app-logo="{{ $set->logo }}"
-         data-company="{{ $set->company }}"
-         data-website="{{ $set->website }}"
-         data-user-id="{{ auth()->user()?->id ?? '' }}"
-         data-user-first-name="{{ auth()->user()?->first_name ?? '' }}"
-         data-user-last-name="{{ auth()->user()?->last_name ?? '' }}"
-         data-user-name="{{ auth()->user() ? auth()->user()->first_name . ' ' . auth()->user()->last_name : '' }}"
-         data-user-username="{{ auth()->user()?->user_name ?? '' }}"
-         data-user-email="{{ auth()->user()?->email ?? '' }}"
-         data-user-avatar="{{ auth()->user()?->profile_pic ?? '' }}"
-         data-phone="{{ $set->phone ?? '' }}"
-         data-phone-code="{{ $set->phone_code ?? '' }}"
-         data-company-email="{{ $set->company_email ?? '' }}"
-         data-cloud="{{ ($cloudBtn == 1) ? 'true' : 'false' }}"
-         data-demo="{{ ($demoPage && $demoPage->status) ? 'true' : 'false' }}"
-         data-cart-count="{{ $cartFacade->getTotalQuantity() }}"
-         data-social="{{ $social->toJson() }}"
-         data-widgets="{{ $widgets->toJson() }}">
-    </div>
+<div id="app-client"
+     data-theme="porto"
+     data-authenticated="{{ auth()->check() ? 'true' : 'false' }}"
+     data-base-url="{{ url('/') }}"
+     data-client-url="{{ url('/client') }}"
+     data-asset-url="{{ asset('') }}"
+     data-locale="{{ app()->getLocale() }}"
+     data-locale-rtl="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'true' : 'false' }}"
+     data-page-title="{{ $set->favicon_title_client }}"
+     data-app-logo="{{ $set->logo }}"
+     data-company="{{ $set->company }}"
+     data-website="{{ $set->website }}"
+     data-user-id="{{ auth()->user()?->id ?? '' }}"
+     data-user-first-name="{{ auth()->user()?->first_name ?? '' }}"
+     data-user-last-name="{{ auth()->user()?->last_name ?? '' }}"
+     data-user-name="{{ auth()->user() ? auth()->user()->first_name . ' ' . auth()->user()->last_name : '' }}"
+     data-user-username="{{ auth()->user()?->user_name ?? '' }}"
+     data-user-email="{{ auth()->user()?->email ?? '' }}"
+     data-user-avatar="{{ auth()->user()?->profile_pic ?? '' }}"
+     data-user-role="{{ auth()->user()?->role ?? '' }}"
+     data-phone="{{ $set->phone ?? '' }}"
+     data-phone-code="{{ $set->phone_code ?? '' }}"
+     data-company-email="{{ $set->company_email ?? '' }}"
+     data-cloud="{{ ($cloudBtn == 1) ? 'true' : 'false' }}"
+     data-demo="{{ ($demoPage && $demoPage->status) ? 'true' : 'false' }}"
+     data-cart-count="{{ $cartFacade->getTotalQuantity() }}"
+     data-social="{{ $social->toJson() }}"
+     data-widgets="{{ $widgets->toJson() }}">
+</div>
 
-    {{-- Bootstrap 5 bundle JS (includes Popper) — used for dropdowns, collapse, tooltips. --}}
-    <script src="{{ assetLink('js', 'bootstrap') }}" defer></script>
+{{-- Bootstrap 5 bundle JS (includes Popper) — used for dropdowns, collapse, tooltips. --}}
+<script src="{{ assetLink('js', 'bootstrap') }}" defer></script>
 
 </body>
 </html>

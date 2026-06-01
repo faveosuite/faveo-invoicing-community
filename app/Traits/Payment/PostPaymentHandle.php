@@ -332,7 +332,7 @@ trait PostPaymentHandle
         $finalPrice = $numberofAgents * $price;
         $controller = new \App\Http\Controllers\Order\InvoiceController();
         $tax = $this->calculateTax($product, \Auth::user()->state, \Auth::user()->country);
-        $tax_rate = $tax->getValue();
+        $tax_rate = $tax['value'];
         $cost = rounding($controller->calculateTotal($tax_rate, $finalPrice));
 
         return $cost;

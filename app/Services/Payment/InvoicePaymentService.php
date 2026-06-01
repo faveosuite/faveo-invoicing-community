@@ -107,6 +107,10 @@ class InvoicePaymentService
             return false;
         }
 
+        // Persist the processing fee that was actually charged, so the invoice
+        // + payment records match the card charge (parity with the legacy flow).
+        $this->applyProcessingFee($invoice, $gateway);
+
         // PostPaymentHandle records + fulfils against the session-stored method.
         \Session::put('payment_method', $gateway);
         $outcome = $this->processPaymentSuccess($invoice, strtolower($invoice->currency));
@@ -142,6 +146,28 @@ class InvoicePaymentService
         $fee = (float) ($this->processingFee($gateway, $invoice->currency) ?? 0);
 
         return (float) rounding($this->outstanding($invoice) * (1 + $fee / 100));
+    }
+
+    /**
+     * Record the gateway's processing fee on the invoice so its grand_total
+     * (and the recorded payment) match what the card was charged. grand_total
+     * is stored fee-inclusive, matching the legacy convention. Idempotent and a
+     * no-op for fee-less gateways (e.g. Razorpay).
+     */
+    private function applyProcessingFee(Invoice $invoice, string $gateway): void
+    {
+        if ($invoice->processing_fee) {
+            return; // already applied
+        }
+
+        $fee = (float) ($this->processingFee($gateway, $invoice->currency) ?? 0);
+        if ($fee <= 0) {
+            return;
+        }
+
+        $invoice->processing_fee = rtrim(rtrim(number_format($fee, 2, '.', ''), '0'), '.').'%';
+        $invoice->grand_total = (float) rounding((float) $invoice->grand_total * (1 + $fee / 100));
+        $invoice->save();
     }
 
     /** Processing fee (%) for a gateway in a currency, or null when not configured. */

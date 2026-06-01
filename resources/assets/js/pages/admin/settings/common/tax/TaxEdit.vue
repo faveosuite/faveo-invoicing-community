@@ -12,48 +12,118 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <TextField name="name" :label="__('message.tax_name')" :required="true" :value="form.name" :onChange="onChange" :error="errors.name" />
+                            <TextField
+                                name="name"
+                                :label="__('message.tax_name')"
+                                :hint="__('message.tt_tax_name')"
+                                :required="true"
+                                :value="form.name"
+                                :onChange="(val) => { form.name = val; setFieldError('name', undefined) }"
+                                :error="errors.name"
+                            />
+                        </div>
+                        <div class="col-md-4">
+                            <TextField
+                                name="rate"
+                                :label="`${__('message.rate')} (%)`"
+                                :hint="__('message.tt_rate')"
+                                :required="true"
+                                type="number"
+                                :value="form.rate"
+                                :onChange="(val) => { form.rate = val; setFieldError('rate', undefined) }"
+                                :error="errors.rate"
+                            />
                         </div>
                         <div class="col-md-4">
                             <SelectField
-                                name="tax_classes_id"
+                                name="tax_class"
                                 :label="__('message.tax_class')"
-                                :required="true"
-                                :elements="taxClassOptions"
-                                :value="taxClassOptions.find(o => o.id === form.tax_classes_id) ?? null"
-                                :onChange="onClassSelect"
+                                :tooltip="__('message.tt_tax_class')"
+                                :elements="classOptions"
+                                :value="classOptions.find(c => c.id === form.tax_class) ?? classOptions[0]"
+                                :onChange="(val) => form.tax_class = val?.id ?? ''"
                                 :clearable="false"
                                 :searchable="false"
-                                :error="errors.tax_classes_id"
                             />
                         </div>
-                        <template v-if="form.tax_classes_id === 'Others'">
-                            <div class="col-md-4">
-                                <TextField name="rate" :label="__('message.rate')" :required="true" :value="form.rate" :onChange="onChange" :error="errors.rate" />
-                            </div>
-                            <div class="col-md-4">
-                                <SelectField
-                                    name="country"
-                                    :label="__('message.country')"
-                                    :elements="countries"
-                                    :value="countries.find(c => c.id === form.country) ?? null"
-                                    :onChange="onCountrySelect"
-                                    :clearable="false"
-                                    :searchable="true"
-                                />
-                            </div>
-                            <div class="col-md-4">
-                                <SelectField
-                                    name="state"
-                                    :label="__('message.state')"
-                                    :elements="[{ id: '', name: __('message.all_states') }, ...states]"
-                                    :value="states.find(s => s.id === form.state) ?? { id: '', name: __('message.all_states') }"
-                                    :onChange="(val) => form.state = val?.id ?? ''"
-                                    :clearable="false"
-                                    :searchable="true"
-                                />
-                            </div>
-                        </template>
+                        <div class="col-md-4">
+                            <SelectField
+                                name="country"
+                                :label="__('message.country')"
+                                :tooltip="__('message.tt_country')"
+                                :elements="[{ id: '', name: __('message.all_countries') }, ...countries]"
+                                :value="countries.find(c => c.id === form.country) ?? { id: '', name: __('message.all_countries') }"
+                                :onChange="onCountrySelect"
+                                :clearable="false"
+                                :searchable="true"
+                            />
+                        </div>
+                        <div class="col-md-4">
+                            <SelectField
+                                name="state"
+                                :label="__('message.state')"
+                                :tooltip="__('message.tt_state')"
+                                :elements="[{ id: '', name: __('message.all_states') }, ...states]"
+                                :value="states.find(s => s.id === form.state) ?? { id: '', name: __('message.all_states') }"
+                                :onChange="(val) => form.state = val?.id ?? ''"
+                                :clearable="false"
+                                :searchable="true"
+                            />
+                        </div>
+                        <div class="col-md-4">
+                            <TextField
+                                name="priority"
+                                :label="__('message.priority')"
+                                :hint="__('message.tt_priority')"
+                                type="number"
+                                :value="form.priority"
+                                :onChange="(val) => form.priority = val"
+                            />
+                        </div>
+                        <div class="col-md-4">
+                            <SelectField
+                                name="compound"
+                                :label="__('message.compound')"
+                                :tooltip="__('message.tt_compound')"
+                                :elements="yesNo"
+                                :value="yesNo.find(o => o.id === form.compound) ?? yesNo[1]"
+                                :onChange="(val) => form.compound = val?.id ?? 0"
+                                :clearable="false"
+                                :searchable="false"
+                            />
+                        </div>
+                        <div class="col-md-4">
+                            <SelectField
+                                name="active"
+                                :label="__('message.status')"
+                                :tooltip="__('message.tt_status')"
+                                :elements="activeOptions"
+                                :value="activeOptions.find(o => o.id === form.active) ?? activeOptions[0]"
+                                :onChange="(val) => form.active = val?.id ?? 1"
+                                :clearable="false"
+                                :searchable="false"
+                            />
+                        </div>
+                        <div class="col-md-6">
+                            <TextField
+                                name="postcode"
+                                :label="__('message.postcode')"
+                                :hint="__('message.tt_postcode')"
+                                :value="form.postcode"
+                                :onChange="(val) => form.postcode = val"
+                                placehold="e.g. 600001, 12*, 12000...12999"
+                            />
+                        </div>
+                        <div class="col-md-6">
+                            <TextField
+                                name="city"
+                                :label="__('message.city')"
+                                :hint="__('message.tt_city')"
+                                :value="form.city"
+                                :onChange="(val) => form.city = val"
+                                placehold="comma-separated"
+                            />
+                        </div>
                     </div>
                 </div>
 
@@ -73,6 +143,7 @@ import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { buildTaxEditSchema } from '@/validations/admin/taxValidations'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const COMPONENT = 'tax-edit'
 const el = document.getElementById('app-root')
@@ -82,45 +153,27 @@ const id = route.params.id
 
 const { errors, setErrors, setFieldError } = useForm()
 
-const loading  = ref(true)
-const saving   = ref(false)
+const loading   = ref(true)
+const saving    = ref(false)
 const countries = ref([])
 const states    = ref([])
+const classOptions = ref([{ id: '', name: 'Standard' }])
 
-const taxClassOptions = [
-    { id: 'CGST',   name: 'CGST'   },
-    { id: 'SGST',   name: 'SGST'   },
-    { id: 'IGST',   name: 'IGST'   },
-    { id: 'UTGST',  name: 'UTGST'  },
-    { id: 'Others', name: 'Others' },
-]
+const yesNo         = [{ id: 1, name: __('message.yes') }, { id: 0, name: __('message.no') }]
+const activeOptions = [{ id: 1, name: __('message.active') }, { id: 0, name: __('message.inactive') }]
 
 const form = reactive({
-    name: '', tax_classes_id: '', rate: '', country: 'IN', state: '',
+    name: '', rate: '', tax_class: '', country: '', state: '',
+    priority: 1, compound: 0, active: 1, postcode: '', city: '',
 })
-
-function onChange(val, name) {
-    setFieldError(name, undefined)
-    form[name] = val
-}
-
-function onClassSelect(val) {
-    setFieldError('tax_classes_id', undefined)
-    form.tax_classes_id = val?.id ?? ''
-    form.rate    = ''
-    form.country = 'IN'
-    form.state   = ''
-    if (form.tax_classes_id === 'Others') loadStates()
-}
 
 async function onCountrySelect(val) {
     form.country = val?.id ?? ''
     form.state   = ''
-    loadStates()
+    await loadStates()
 }
 
 async function loadStates() {
-    form.state  = ''
     states.value = []
     if (!form.country) return
     try {
@@ -136,24 +189,30 @@ onMounted(async () => {
             http.get(`${baseUrl}/tax-options`),
         ])
         const d = editRes.data?.data ?? {}
-        form.name           = d.tax?.name ?? ''
-        form.tax_classes_id = d.tax_class_name ?? ''
-        form.rate           = d.tax?.rate ?? ''
-        form.country        = d.tax?.country ?? 'IN'
-        form.state          = d.tax?.state ?? ''
+        const t = d.tax ?? {}
+        form.name      = t.name ?? ''
+        form.rate      = t.rate ?? ''
+        form.tax_class = t.tax_class ?? ''
+        form.country   = t.country ?? ''
+        form.state     = t.state ?? ''
+        form.priority  = t.priority ?? 1
+        form.compound  = t.compound ? 1 : 0
+        form.active    = t.active ? 1 : 0
+        form.postcode  = d.postcode ?? ''
+        form.city      = d.city ?? ''
 
-        countries.value = Object.entries(optRes.data?.data?.countries ?? {}).map(([cid, name]) => ({ id: cid, name }))
+        countries.value    = Object.entries(optRes.data?.data?.countries ?? {}).map(([cid, name]) => ({ id: cid, name }))
+        classOptions.value = (optRes.data?.data?.classes ?? []).map(c => ({ id: c.slug, name: c.name }))
+        if (!classOptions.value.length) classOptions.value = [{ id: '', name: 'Standard' }]
 
-        if (form.tax_classes_id === 'Others' && form.country) {
-            states.value = Object.entries(d.states ?? {}).map(([iso2, name]) => ({ id: iso2, name }))
-        }
+        if (form.country) await loadStates()
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { loading.value = false }
 })
 
 async function submit() {
     try {
-        buildTaxEditSchema(form).validateSync(form, { abortEarly: false })
+        buildTaxEditSchema().validateSync(form, { abortEarly: false })
     } catch (err) {
         const errMap = {}
         err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
@@ -163,13 +222,7 @@ async function submit() {
 
     saving.value = true
     try {
-        const res = await http.put(`${baseUrl}/tax/${id}`, {
-            name:           form.name,
-            tax_classes_id: form.tax_classes_id,
-            rate:           form.rate,
-            country:        form.country,
-            state:          form.state,
-        })
+        const res = await http.put(`${baseUrl}/tax/${id}`, { ...form })
         successHandler(res, COMPONENT)
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { saving.value = false }

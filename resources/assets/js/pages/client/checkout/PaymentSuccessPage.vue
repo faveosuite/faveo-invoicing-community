@@ -2,9 +2,7 @@
   <div role="main" class="main shop pb-4">
     <div class="container py-4">
 
-      <div v-if="loading" class="text-center py-5">
-        <div class="spinner-border text-primary"></div>
-      </div>
+      <inline-loader v-if="loading" />
 
       <div v-else-if="error" class="text-center py-6">
         <i class="fas fa-triangle-exclamation fa-3x text-color-grey-lighten mb-3 d-block"></i>
@@ -43,7 +41,7 @@
           </div>
 
           <!-- Order table -->
-          <div class="card border-width-3 border-radius-0 border-color-hover-dark mb-4">
+          <div class="card border-width-3 border-radius-0 mb-4">
             <div class="card-body">
               <h4 class="font-weight-bold text-uppercase text-4 mb-3">{{ __('message.your_order') }}</h4>
 

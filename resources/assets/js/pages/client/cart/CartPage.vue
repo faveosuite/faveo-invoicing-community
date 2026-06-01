@@ -3,9 +3,7 @@
     <div class="container pt-4">
 
       <!-- Loading -->
-      <div v-if="cartStore.loading && !cartStore.items.length" class="text-center py-5">
-        <div class="spinner-border text-primary"></div>
-      </div>
+      <inline-loader v-if="cartStore.loading && !cartStore.items.length" />
 
       <!-- Empty -->
       <div v-else-if="cartStore.items.length === 0"
@@ -49,7 +47,7 @@
 
         <!-- Cart totals -->
         <div class="col-lg-4 position-relative">
-          <div class="card border-width-3 border-radius-0 border-color-hover-dark">
+          <div class="card border-width-3 border-radius-0">
             <div class="card-body">
               <h4 class="font-weight-bold text-uppercase text-4 mb-3">{{ __('message.cart_totals') }}</h4>
               <div class="table-responsive">

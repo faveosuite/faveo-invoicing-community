@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Order\Invoice;
+use App\Model\Order\InvoiceTaxLine;
 use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Currency;
@@ -38,6 +39,21 @@ class PaymentController extends Controller
     {
         $model = $this->authorizedInvoice($request, $invoice);
 
+        $items = $model->invoiceItem()->get();
+        $outstanding = $this->invoices->outstanding($model);
+
+        // Each gateway carries its processing fee; surface the fee amount and the
+        // resulting payable total so the pay page shows exactly what's charged.
+        $gateways = array_map(function ($gateway) use ($outstanding) {
+            $fee = (float) ($gateway['processing_fee'] ?? 0);
+            $payable = (float) rounding($outstanding * (1 + $fee / 100));
+
+            return $gateway + [
+                'fee_amount' => round($payable - $outstanding, 2),
+                'payable' => $payable,
+            ];
+        }, $this->invoices->gatewaysFor($model->currency));
+
         return successResponse('', [
             'invoice' => [
                 'id' => $model->id,
@@ -46,19 +62,53 @@ class PaymentController extends Controller
                 'currency' => $model->currency,
                 'status' => $model->status,
             ],
-            'items' => $model->invoiceItem()->get()->map(function ($item) {
+            'items' => $items->map(function ($item) {
                 $data = $item->toArray();
                 $data['image'] = Product::find($item->product_id)?->image;
 
                 return $data;
             }),
+            'summary' => $this->invoiceSummary($model, $items),
             'paid' => (float) $model->payment()->sum('amount'),
-            'amount' => $this->invoices->outstanding($model),
+            'amount' => $outstanding,
             'currency' => $model->currency,
             'currency_symbol' => Currency::where('code', $model->currency)->value('symbol'),
-            'gateways' => $this->invoices->gatewaysFor($model->currency),
+            'gateways' => $gateways,
             'stripe_key' => $this->invoices->publishableKey(),
         ]);
+    }
+
+    /**
+     * Subtotal + per-tax breakdown for an invoice, from the persisted
+     * invoice_tax_lines (every invoice — cart, admin, renewal, and historical
+     * via backfill — has these). Grouped per tax label.
+     *
+     * @return array{subtotal: float, taxes: array<int, array{label:string, amount:float}>, tax_total: float, grand_total: float}
+     */
+    private function invoiceSummary(Invoice $model, $items): array
+    {
+        $subtotal = round((float) $items->sum(fn ($i) => (float) $i->subtotal), 2);
+
+        $taxes = InvoiceTaxLine::where('invoice_id', $model->id)->get()
+            ->groupBy('label')
+            ->map(fn ($group) => [
+                'label' => $group->first()->label,
+                'rate' => (float) $group->first()->rate,
+                'amount' => round((float) $group->sum('amount'), 2),
+            ])->values()->all();
+
+        $taxTotal = round((float) collect($taxes)->sum('amount'), 2);
+        $pricesIncludeTax = (int) (optional(\App\Model\Payment\TaxOption::find(1))->inclusive) === 1;
+
+        return [
+            'subtotal' => $subtotal,
+            'subtotal_ex_tax' => $pricesIncludeTax ? round($subtotal - $taxTotal, 2) : $subtotal,
+            'prices_include_tax' => $pricesIncludeTax,
+            'tax_label' => collect($taxes)->pluck('label')->unique()->implode(' + '),
+            'taxes' => $taxes,
+            'tax_total' => $taxTotal,
+            'grand_total' => (float) $model->grand_total,
+        ];
     }
 
     /**

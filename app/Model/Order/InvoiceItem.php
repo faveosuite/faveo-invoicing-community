@@ -14,7 +14,12 @@ class InvoiceItem extends BaseModel
 
     protected $fillable = ['invoice_id', 'product_name',
         'regular_price', 'quantity', 'discount', 'tax_name',
-        'tax_percentage', 'tax_code', 'discount_mode', 'subtotal', 'domain', 'plan_id', 'agents', 'billing_pay', 'product_id'];
+        'tax_percentage', 'tax_code', 'tax_rate_id', 'discount_mode', 'subtotal', 'domain', 'plan_id', 'agents', 'billing_pay', 'product_id'];
+
+    public function taxLines()
+    {
+        return $this->hasMany(\App\Model\Order\InvoiceTaxLine::class, 'invoice_item_id');
+    }
 
     public function setDomainAttribute($value)
     {

@@ -2,12 +2,10 @@
   <div role="main" class="main shop pb-4">
     <div class="container pt-4">
       <!-- Loading -->
-      <div v-if="loading && !displayItems.length" class="text-center py-5">
-        <div class="spinner-border text-primary"></div>
-      </div>
+      <inline-loader v-if="loading && !displayItems.length" />
 
       <!-- Empty / not found -->
-      <div v-else-if="isEmpty" class="text-center py-6">
+      <div v-else-if="isEmpty" class="d-flex flex-column align-items-center justify-content-center text-center py-6">
         <template v-if="mode === 'invoice'">
           <i class="fas fa-file-invoice fa-3x text-color-grey-lighten mb-3 d-block"></i>
           <p class="text-color-grey mb-0">{{ invError || __('message.err_msg') }}</p>
@@ -25,7 +23,7 @@
       <div v-else class="row pb-4 mb-5">
 
         <!-- Items + coupon -->
-        <div class="col-lg-8 mb-4 mb-lg-0">
+        <div class="col-lg-7 mb-4 mb-lg-0">
           <div class="table-responsive">
             <table class="shop_table cart">
               <thead>
@@ -97,16 +95,19 @@
         </div>
 
         <!-- Order summary -->
-        <div class="col-lg-4 position-relative">
-          <div class="card border-width-3 border-radius-0 border-color-hover-dark">
+        <div class="col-lg-5 position-relative">
+          <div class="card border-width-3 border-radius-0">
             <div class="card-body">
               <h4 class="font-weight-bold text-uppercase text-4 mb-0 pb-3 border-bottom">{{ __('message.your_order') }}</h4>
 
               <!-- Cart-mode breakdown -->
               <template v-if="mode === 'cart'">
                 <div class="d-flex justify-content-between py-3 border-bottom">
-                  <strong class="text-color-dark">{{ __('message.cart_subtotal') }}</strong>
-                  <span class="amount font-weight-medium">{{ symbol }}{{ cartStore.subtotal }}</span>
+                  <strong class="text-color-dark">
+                    {{ __('message.cart_subtotal') }}
+                    <small v-if="cartStore.taxTotal > 0 && cartStore.taxLabel" class="text-color-grey fw-normal">(ex. {{ cartStore.taxLabel }})</small>
+                  </strong>
+                  <span class="amount font-weight-medium">{{ symbol }}{{ cartStore.subtotalExTax }}</span>
                 </div>
 
                 <div v-if="cartStore.couponDiscount > 0" class="d-flex justify-content-between py-3 border-bottom">
@@ -115,7 +116,7 @@
                 </div>
 
                 <div v-for="tax in cartStore.taxes" :key="tax.label" class="d-flex justify-content-between py-3 border-bottom">
-                  <strong class="text-color-dark">{{ tax.label }}</strong>
+                  <strong class="text-color-dark">{{ tax.label }}<span v-if="tax.rate" class="text-color-grey fw-normal"> ({{ tax.rate }}%)</span></strong>
                   <span class="amount font-weight-medium">{{ symbol }}{{ tax.amount }}</span>
                 </div>
 
@@ -130,6 +131,17 @@
                 <div v-if="invoice.number" class="d-flex justify-content-between py-3 border-bottom">
                   <strong class="text-color-dark">{{ __('message.invoice') }}</strong>
                   <span class="font-weight-medium">#{{ invoice.number }}</span>
+                </div>
+                <div v-if="invSummary.subtotal_ex_tax !== undefined" class="d-flex justify-content-between py-3 border-bottom">
+                  <strong class="text-color-dark">
+                    {{ __('message.sub_total') }}
+                    <small v-if="invSummary.tax_total > 0 && invSummary.tax_label" class="text-color-grey fw-normal">(ex. {{ invSummary.tax_label }})</small>
+                  </strong>
+                  <span class="amount font-weight-medium">{{ symbol }}{{ invSummary.subtotal_ex_tax }}</span>
+                </div>
+                <div v-for="(tax, i) in (invSummary.taxes || [])" :key="i" class="d-flex justify-content-between py-3 border-bottom">
+                  <strong class="text-color-dark">{{ tax.label }}<span v-if="tax.rate" class="text-color-grey fw-normal"> ({{ tax.rate }}%)</span></strong>
+                  <span class="amount font-weight-medium">{{ symbol }}{{ tax.amount }}</span>
                 </div>
                 <div class="d-flex justify-content-between py-3 border-bottom">
                   <strong class="text-color-dark text-4">{{ __('message.amount_due') }}</strong>
@@ -160,7 +172,7 @@
               </div>
 
               <button type="button"
-                      class="btn btn-dark btn-modern w-100 text-uppercase bg-color-hover-primary border-color-hover-primary border-radius-0 text-3 py-3"
+                      class="btn btn-dark btn-modern w-100 text-uppercase border-radius-0 text-3 py-3"
                       :disabled="!gateways.length || !selectedGateway || placing"
                       @click="proceed">
                 {{ placing ? __('message.please_wait') : __('message.proceed') }} <i v-if="!placing" class="fas fa-arrow-right ms-2"></i>
@@ -205,6 +217,7 @@ const placing = ref(false)
 const invoiceLoading = ref(false)
 const invoice = ref({})
 const invItems = ref([])
+const invSummary = ref({})
 const invGateways = ref([])
 const invAmount = ref(0)
 const invSymbol = ref('')
@@ -254,6 +267,7 @@ async function loadInvoice() {
     const { data } = await http.get(`${baseUrl}/invoice/${invoiceId}/pay-init`)
     invoice.value = data.data.invoice
     invItems.value = data.data.items
+    invSummary.value = data.data.summary ?? {}
     invAmount.value = data.data.amount
     invSymbol.value = data.data.currency_symbol
     invGateways.value = data.data.gateways

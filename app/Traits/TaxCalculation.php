@@ -2,312 +2,70 @@
 
 namespace App\Traits;
 
-use App\Model\Common\Setting;
-use App\Model\Payment\Tax;
-use App\Model\Payment\TaxByState;
-use App\Model\Payment\TaxClass;
 use App\Model\Payment\TaxOption;
-use App\Model\Payment\TaxProductRelation;
+use App\Services\Tax\TaxService;
 
+/**
+ * Backward-compatible adapter over the generic tax engine
+ * (App\Services\Tax\*). The methods keep their original signatures and return
+ * shapes so existing callers (cart, invoice, renewal, post-payment) work
+ * unchanged, but all calculation now flows through TaxService / TaxEngine —
+ * no India/GST hardcoding, real compound + inclusive support, and no integer
+ * truncation of money.
+ *
+ * New code should depend on App\Services\Tax\TaxService directly.
+ */
 trait TaxCalculation
 {
+    /**
+     * Resolve the tax condition for a product + customer location.
+     *
+     * @return array{name:string, type?:string, value:string}
+     */
     public function calculateTax($productid, $user_state = '', $user_country = '', $taxCaluculationFromAdminPanel = false)
     {
         try {
-            if ($taxCaluculationFromAdminPanel) {
-                $taxCondition = ['name' => 'null', 'value' => '0%'];
-            } else {
-                $taxCondition = [
-                    'name' => 'null', 'type' => 'tax',
-                    'value' => '0%',
-                ];
-            }
-            if (TaxOption::findOrFail(1)->inclusive == 0) {
-                $tax_enable = TaxOption::findOrFail(1)->tax_enable;
-                //Check the state of user for calculating GST(cgst,igst,utgst,sgst)
-                $indian_state = TaxByState::where('state_code', $user_state)->first();
-                $origin_state = Setting::first()->state; //Get the State of origin
-                $origin_country = Setting::first()->country; //Get the State of origin
-                $tax_class_id = TaxProductRelation::where('product_id', $productid)->pluck('tax_class_id')->toArray();
+            $user = $this->taxUserFromLocation($user_state, $user_country);
 
-                // This will check if the product is allowed for the particular tax or not
-                $gstClassNames = ['Intra State GST', 'Inter State GST', 'Union Territory GST'];
+            return app(TaxService::class)->legacyCondition((int) $productid, $user, (bool) $taxCaluculationFromAdminPanel);
+        } catch (\Throwable $ex) {
+            app('log')->warning('calculateTax failed: '.$ex->getMessage());
 
-                $productHasGstTax = TaxClass::whereIn('id', $tax_class_id)
-                    ->whereIn('name', $gstClassNames)
-                    ->exists();
-
-                $productHasOtherTax = TaxClass::whereIn('id', $tax_class_id)
-                    ->whereNotIn('name', $gstClassNames)
-                    ->exists();
-
-                if ($tax_class_id) {//If the product is allowed for tax (Check in tax_product relation table)
-                    if ($tax_enable == 1 && ($productHasGstTax || $productHasOtherTax)) {//If GST is Enabled
-                        $tax = $this->getTaxDetails($indian_state, $user_country, $user_state, $origin_state, $origin_country, $productid);
-                        //All the da a attribute that is sent to the checkout Page if tax_compound=0
-                        $taxCondition = $this->getTaxConditions($tax, $taxCaluculationFromAdminPanel);
-                    } elseif ($tax_enable == 0 && $productHasOtherTax) { //If Tax enable is 0 and other tax is available
-                        $tax = $this->whenOtherTaxAvailableAndTaxNotEnable($productid, $user_state, $user_country);
-                        $taxCondition = $this->getTaxConditions($tax, $taxCaluculationFromAdminPanel);
-                    }
-                }
-            }
-
-            return  $taxCondition;
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return $taxCaluculationFromAdminPanel
+                ? ['name' => 'null', 'value' => '0%']
+                : ['name' => 'null', 'type' => 'tax', 'value' => '0%'];
         }
-    }
-
-    public function getTaxConditions($tax, $taxCaluculationFromAdminPanel)
-    {
-        if ($tax) {
-            if ($taxCaluculationFromAdminPanel) {
-                $taxCondition = ['name' => $tax->name, 'value' => $tax->value.'%'];
-            } else {
-//                $taxCondition = new \Darryldecode\Cart\CartCondition([
-//                    'name' => $tax->name, 'type' => 'tax',
-//                    'value' => $tax->value.'%',
-//                ]);
-                $taxCondition = [
-                    'name' => $tax->name, 'type' => 'tax',
-                    'value' => $tax->value.'%',
-                ];
-            }
-        } else {
-            if ($taxCaluculationFromAdminPanel) {
-                $taxCondition = ['name' => 'null', 'value' => '0%'];
-            } else {
-//                $taxCondition = new \Darryldecode\Cart\CartCondition([
-//                    'name' => 'null', 'type' => 'tax',
-//                    'value' => '0%',
-//                ]);
-                $taxCondition = [
-                    'name' => 'null', 'type' => 'tax',
-                    'value' => '0%',
-                ];
-            }
-        }
-
-        return $taxCondition;
-    }
-
-    public function getTaxDetails($indian_state, $user_country, $user_state, $origin_state, $origin_country, $productid, $status = 1)
-    {
-        if ($origin_country == 'IN' && $indian_state && $user_country == 'IN') {//Get the CGST,SGST,IGST,STATE_CODE of the user,if user from INdia
-            $c_gst = $indian_state->c_gst;
-            $s_gst = $indian_state->s_gst;
-            $i_gst = $indian_state->i_gst;
-            $ut_gst = $indian_state->ut_gst;
-            $state_code = $indian_state->state_code;
-            if ($state_code == $origin_state) {//If user and origin state are same
-                $rateDetails = $this->getTaxWhenIndianSameState($user_state, $origin_state, $productid, $c_gst, $s_gst, $state_code, $status);
-            } elseif ($state_code != $origin_state && $ut_gst == 'NULL') {//If user is from other state
-                $rateDetails = $this->getTaxWhenIndianOtherState($user_state, $origin_state, $productid, $i_gst, $state_code, $status);
-            } elseif ($state_code != $origin_state && $ut_gst != 'NULL') {//if user from Union Territory
-                $rateDetails = $this->getTaxWhenUnionTerritory($user_state, $origin_state, $productid, $c_gst, $ut_gst, $state_code, $status);
-            }
-        } else {
-            $rateDetails = $this->getDetailsWhenUserFromOtherCountry($user_state, $user_country, $productid, $status);
-        }
-
-        return $rateDetails;
     }
 
     /**
-     * When from same Indian State.
+     * Add tax to a total given a percentage label (e.g. "18%" or "9%,9%").
+     * Honours the global "prices entered with tax" (inclusive) setting and,
+     * unlike the old implementation, never truncates the amount to an integer.
      */
-    public function getTaxWhenIndianSameState($user_state, $origin_state, $productid, $c_gst, $s_gst, $state_code, $status)
-    {
-        $taxes = '';
-        $taxClassId = TaxClass::where('name', 'Intra State GST')->select('id')->first(); //Get the class Id  of state
-        if ($taxClassId) {
-            $taxes = $this->getTaxByPriority($taxClassId);
-            $taxes->value = $this->getValueForSameState($productid, $c_gst, $s_gst, $taxes, $taxClassId);
-            if (! $taxes->value) {
-                $taxes = '';
-            }
-        }
-
-        return $taxes;
-    }
-
-    /**
-     * When from other Indian State.
-     */
-    public function getTaxWhenIndianOtherState($user_state, $origin_state, $productid, $i_gst, $state_code, $status)
-    {
-        $taxes = '';
-        $taxClassId = TaxClass::where('name', 'Inter State GST')->select('id')->first(); //Get the class Id  of state
-        if ($taxClassId) {
-            $taxes = $this->getTaxByPriority($taxClassId);
-            $taxes->value = $this->getValueForOtherState($productid, $i_gst, $taxes, $taxClassId);
-            if (! $taxes->value) {
-                $taxes = '';
-            }
-        }
-
-        return $taxes;
-    }
-
-    /**
-     * When from Union Territory.
-     */
-    public function getTaxWhenUnionTerritory($user_state, $origin_state, $productid, $c_gst, $ut_gst, $state_code, $status)
-    {
-        $taxes = '';
-        $taxClassId = TaxClass::where('name', 'Union Territory GST')->select('id')->first(); //Get the class Id  of state
-        if ($taxClassId) {
-            $taxes = $this->getTaxByPriority($taxClassId);
-            $taxes->value = $this->getValueForUnionTerritory($productid, $c_gst, $ut_gst, $taxes, $taxClassId);
-            if (! $taxes->value) {
-                $taxes = '';
-            }
-        }
-
-        return $taxes;
-    }
-
-    public function getDetailsWhenUserFromOtherCountry($user_state, $user_country, $productid, $status = 1)
-    {
-        $taxes = '';
-        $taxClassId = Tax::where('state', $user_state)->orWhere('state', '')->where('country', $user_country)->select('tax_classes_id as id')->first();
-        if ($taxClassId) { //if state equals the user State or country equals user country
-            $taxes = $this->getTaxForSpecificCountry($taxClassId, $productid, $status);
-        } else {//if Tax is selected for Any Country Any State
-            $taxClassId = Tax::where('country', '')
-                    ->where('state', '')
-                    ->select('tax_classes_id as id')->first();
-            if ($taxClassId) {
-                $taxes = $this->getTaxForSpecificCountry($taxClassId, $productid, $status);
-            }
-        }
-
-        return $taxes;
-    }
-
-    public function whenOtherTaxAvailableAndTaxNotEnable($productid, $user_state, $user_country)
-    {
-        $taxes = '';
-        $taxClassId = Tax::where('country', '')
-            ->where('state', '')
-            ->select('tax_classes_id as id')->first(); //In case of India when
-        // other tax is available and tax is not enabled
-        if ($taxClassId) {
-            $taxes = $this->getTaxByPriority($taxClassId);
-            $taxes->value = $this->getValueForOthers($productid, $taxClassId, $taxes);
-        } else {//In case of other country
-            //when tax is available and tax is not enabled
-            //(Applicable when Global Tax class for any country and state is not there)
-            $taxClassId = Tax::where('state', $user_state)
-            ->orWhere('country', $user_country)
-            ->select('tax_classes_id as id')->first();
-            if ($taxClassId) { //if state equals the user State
-                $taxes = $this->getTaxByPriority($taxClassId);
-                $taxes->value = $this->getValueForOthers($productid, $taxClassId, $taxes);
-            }
-        }
-
-        return $taxes;
-    }
-
-    /**
-     *   Get tax value for Same State.
-     *
-     * @param  int  $productid
-     * @param  type  $c_gst
-     * @param  type  $s_gst
-     *                       return type
-     */
-
-    /**
-     * When from Other Country and tax is applied for that country or state.
-     */
-    public function getTaxForSpecificCountry($taxClassId, $productid, $status)
-    {
-        $taxes = $this->getTaxByPriority($taxClassId);
-        $taxes->value = $this->getValueForOthers($productid, $taxClassId, $taxes);
-        if (! $taxes->value) {
-            $taxes = '';
-        }
-
-        return $taxes;
-    }
-
-    public function getValueForSameState($productid, $c_gst, $s_gst, $taxes, $taxClassId)
+    public function calculateTotal($rate, $total)
     {
         try {
-            $value = $taxes->active ? (TaxProductRelation::where('product_id', $productid)->where('tax_class_id', $taxClassId->id)->count() ? $c_gst + $s_gst : 0) : 0;
+            $total = (float) $total;
+            $option = TaxOption::find(1);
 
-            return $value;
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
+            // Prices already include tax — nothing to add on top.
+            if ($option && (int) $option->inclusive === 1) {
+                return $total;
+            }
 
-    /**
-     *   Get tax value for Other States.
-     *
-     * @param  type  $productid
-     * @param  type  $i_gst
-     *                       return type
-     */
-    public function getValueForOtherState($productid, $i_gst, $taxes, $taxClassId)
-    {
-        $value = $taxes->active ? //If the Current Class is active
-              (TaxProductRelation::where('product_id', $productid)->where('tax_class_id', $taxClassId->id)->count() ?
-                        $i_gst : 0) : 0; //IGST
+            $percent = $this->sumPercent($rate);
 
-        return $value;
-    }
+            return $total + ($total * $percent / 100);
+        } catch (\Throwable $ex) {
+            app('log')->warning($ex->getMessage());
 
-    /**
-     *  Get tax value for Union Territory States.
-     *
-     * @param  type  $productid
-     * @param  type  $c_gst
-     * @param  type  $ut_gst
-     *                        return type
-     */
-    public function getValueForUnionTerritory($productid, $c_gst, $ut_gst, $taxes, $taxClassId)
-    {
-        $value = $taxes->active ?
-             (TaxProductRelation::where('product_id', $productid)
-                ->where('tax_class_id', $taxClassId->id)
-                ->count() ? $ut_gst + $c_gst : 0) : 0;
-
-        return $value;
-    }
-
-    public function getValueForOthers($productid, $taxClassId, $taxes)
-    {
-        $value = $taxes->active ? (TaxProductRelation::where('product_id', $productid)
-          ->where('tax_class_id', $taxClassId->id)->count() ? Tax::where('tax_classes_id', $taxClassId->id)->first()->rate : 0) : 0;
-
-        return $value;
-    }
-
-    /**
-     * @param  type  $tax_class_id
-     * @return type
-     *
-     * @throws \Exception
-     */
-    public function getTaxByPriority($taxClassId)
-    {
-        try {
-            $taxe_relation = Tax::where('tax_classes_id', $taxClassId->id)->first();
-
-            return $taxe_relation;
-        } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
         }
     }
 
     /**
-     * @param  type  $rate
-     * @param  type  $price
-     * @return type
+     * Tax amount for a single rate against a price. Retained for invoice
+     * display helpers.
      */
     public static function taxValue($rate, $price, $round = true)
     {
@@ -316,37 +74,41 @@ trait TaxCalculation
                 return 0;
             }
 
-            $rate = floatval(str_replace('%', '', $rate));
+            $rate = floatval(str_replace('%', '', (string) $rate));
 
-            $tax = $price * ($rate / 100);
-
-            return $tax;
+            return $price * ($rate / 100);
         } catch (\Throwable $ex) {
             return 0;
         }
     }
 
-    public function calculateTotal($rate, $total)
+    /** Sum a comma-separated percentage label into a single float. */
+    private function sumPercent($rate): float
     {
-        try {
-            $total = intval($total);
-            $rates = explode(',', $rate);
-            $rule = new TaxOption();
-            $rule = $rule->findOrFail(1);
-            if ($rule->inclusive == 0) {
-                foreach ($rates as $rate1) {
-                    if ($rate1 != '') {
-                        $rateTotal = str_replace('%', '', $rate1);
-                        $total += $total * ($rateTotal / 100);
-                    }
-                }
+        $percent = 0.0;
+        foreach (explode(',', (string) $rate) as $part) {
+            $part = trim(str_replace('%', '', $part));
+            if ($part !== '' && is_numeric($part)) {
+                $percent += (float) $part;
             }
-
-            return intval(round($total));
-        } catch (\Exception $ex) {
-            app('log')->warning($ex->getMessage());
-
-            throw new \Exception($ex->getMessage());
         }
+
+        return $percent;
+    }
+
+    /**
+     * Build the lightweight customer object the tax engine needs from a
+     * state/country pair, carrying the authenticated user's exemption flag
+     * when available.
+     */
+    private function taxUserFromLocation($state, $country): object
+    {
+        return (object) [
+            'country' => $country,
+            'state' => $state,
+            'zip' => optional(\Auth::user())->zip ?? '',
+            'city' => optional(\Auth::user())->city ?? '',
+            'is_tax_exempt' => (bool) (optional(\Auth::user())->is_tax_exempt ?? false),
+        ];
     }
 }

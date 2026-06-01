@@ -142,23 +142,34 @@
 
                     <!-- Tax Tab -->
                     <div v-show="tab === 'tax'">
-                        <p class="text-muted mb-3">{{ __('message.select_tax_classes_text') }}</p>
                         <inline-loader v-if="loadingTax" />
-                        <div v-else class="row">
-                            <div v-for="tc in taxClasses" :key="tc.id" class="col-md-3 mb-2">
-                                <div class="form-check">
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        :id="`tax-${tc.id}`"
-                                        :value="tc.id"
-                                        v-model="form.tax"
+                        <template v-else>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <SelectField
+                                        name="tax_status"
+                                        :label="__('message.tax_status')"
+                                        :elements="taxStatusOptions"
+                                        :value="taxStatusOptions.find(o => o.id === form.tax_status) ?? taxStatusOptions[0]"
+                                        :onChange="(val) => form.tax_status = val?.id ?? 0"
+                                        :clearable="false"
+                                        :searchable="false"
                                     />
-                                    <label class="form-check-label" :for="`tax-${tc.id}`">{{ tc.name }}</label>
+                                </div>
+                                <div class="col-md-4" v-if="form.tax_status === 1">
+                                    <SelectField
+                                        name="tax_class_id"
+                                        :label="__('message.tax_class')"
+                                        :elements="taxClasses"
+                                        :value="taxClasses.find(c => c.id === form.tax_class_id) ?? null"
+                                        :onChange="(val) => form.tax_class_id = val?.id ?? ''"
+                                        :clearable="false"
+                                        :searchable="false"
+                                    />
                                 </div>
                             </div>
-                            <div v-if="!taxClasses.length" class="col-12 text-muted">{{ __('message.no_tax_classes') }}</div>
-                        </div>
+                            <div v-if="!taxClasses.length" class="text-muted">{{ __('message.no_tax_classes') }}</div>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -216,8 +227,14 @@ const form = reactive({
     hidden: false,
     invoice_hidden: false,
     whatsapp_integration: false,
-    tax: [],
+    tax_status: 1,
+    tax_class_id: '',
 })
+
+const taxStatusOptions = [
+    { id: 1, name: __('message.taxable') },
+    { id: 0, name: __('message.none') },
+]
 
 function onChange(val, name) {
     setFieldError(name, undefined)
@@ -243,6 +260,9 @@ onMounted(async () => {
     try {
         const res = await http.get(`${baseUrl}/dependency/tax-classes`, { params: { limit: 'all' } })
         taxClasses.value = res.data?.data?.tax_classes ?? []
+        // Default the class to Standard (or the first available).
+        const standard = taxClasses.value.find(c => c.name === 'Standard') ?? taxClasses.value[0]
+        if (standard && !form.tax_class_id) form.tax_class_id = standard.id
     } catch (e) {
         errorHandler(e, COMPONENT)
     } finally {
@@ -280,7 +300,8 @@ async function submit() {
         fd.append('hidden', form.hidden ? '1' : '0')
         fd.append('invoice_hidden', form.invoice_hidden ? '1' : '0')
         fd.append('whatsapp_integration', form.whatsapp_integration ? '1' : '0')
-        form.tax.forEach(id => fd.append('tax[]', id))
+        fd.append('tax_status', form.tax_status ? '1' : '0')
+        if (form.tax_status === 1 && form.tax_class_id) fd.append('tax_class_id', form.tax_class_id)
         if (form.image) fd.append('image', form.image)
 
         const res = await http.put(`${baseUrl}/product`, fd, {

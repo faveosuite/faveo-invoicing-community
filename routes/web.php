@@ -500,13 +500,6 @@ Route::middleware('installAgora')->group(function () {
     Route::post('create/tax-class', [Payment\TaxController::class, 'saveTaxClassSettingApi']);
     Route::delete('tax/delete', [Payment\TaxController::class, 'deleteTax']);
     Route::get('get-state/{state}', [Payment\TaxController::class, 'getState']);
-    Route::get('get-taxtable', [Payment\TaxController::class, 'getTaxTable'])->name('get-taxtable');
-
-    // Route::get('get-tax', [Payment\TaxController::class, 'GetTax']);
-
-    Route::delete('tax-delete', [Payment\TaxController::class, 'destroy'])->name('tax-delete');
-    Route::post('taxes/option', [Payment\TaxController::class, 'saveTaxOptionSetting'])->name('taxes/option');
-    Route::post('taxes/class', [Payment\TaxController::class, 'saveTaxClassSetting']);
 
     /*
      * Promotion

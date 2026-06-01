@@ -14,6 +14,7 @@ use App\Model\Common\Template;
 use App\Model\Mailjob\QueueService;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
+use App\Model\Order\InvoiceTaxLine;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
@@ -370,6 +371,19 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 'billing_pay' => $amt_credit,
             ]);
 
+            $percent = $this->sumPercent($tax_percentage);
+            if ($tax_name && strtolower((string) $tax_name) !== 'null' && $percent > 0) {
+                InvoiceTaxLine::create([
+                    'invoice_id' => $invoiceid,
+                    'invoice_item_id' => $invoiceItem->id,
+                    'tax_rate_id' => null,
+                    'label' => $tax_name,
+                    'rate' => $percent,
+                    'compound' => 0,
+                    'amount' => round((float) $invoiceItem->subtotal * $percent / 100, 4),
+                ]);
+            }
+
             return $invoiceItem;
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
@@ -475,6 +489,21 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 'plan_id' => $planid,
                 'agents' => $agents,
             ]);
+
+            // Persist the tax breakdown so admin- and renewal-created invoices
+            // expose tax via invoice_tax_lines like cart invoices do.
+            $percent = $this->sumPercent($tax_rate);
+            if ($tax_name && strtolower((string) $tax_name) !== 'null' && $percent > 0) {
+                InvoiceTaxLine::create([
+                    'invoice_id' => $invoiceid,
+                    'invoice_item_id' => $items->id,
+                    'tax_rate_id' => null,
+                    'label' => $tax_name,
+                    'rate' => $percent,
+                    'compound' => 0,
+                    'amount' => round((float) $items->subtotal * $percent / 100, 4),
+                ]);
+            }
 
             return $items;
         } catch (\Exception $ex) {
@@ -626,45 +655,37 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     {
         $invoice = Invoice::with(['invoiceItem', 'user'])->findOrFail($invoiceId);
 
-        $taxState = $invoice->user->state;
         $itemSubtotal = 0;
-        $taxComponents = [];
-
-        // Process each item
         foreach ($invoice->invoiceItem as $item) {
             $itemSubtotal += $item->subtotal;
-
-            if ($item->tax_name) {
-                $itemTaxes = bifurcate(
-                    $item->tax_name,
-                    $item->tax_percentage,
-                    $invoice->currency,
-                    $taxState,
-                    $item->subtotal
-                );
-
-                foreach ($itemTaxes as $component) {
-                    $taxComponents[$component['name']] = ($taxComponents[$component['name']] ?? 0) + $component['value'];
-                }
-            }
         }
 
-        // Format taxes if required
+        // Tax breakdown from the persisted invoice_tax_lines, grouped per tax.
         $taxes = [];
-        foreach ($taxComponents as $name => $value) {
+        $taxTotal = 0.0;
+        foreach (InvoiceTaxLine::where('invoice_id', $invoice->id)->get()->groupBy('label') as $name => $lines) {
+            $value = (float) $lines->sum('amount');
+            $taxTotal += $value;
             $taxes[$name] = $formatCurrency
                 ? currencyFormat($value, $invoice->currency)
                 : round($value, 2);
         }
 
-        // Processing fee
-        $processingFee = $invoice->processing_fee ? floatval(filter_var($invoice->processing_fee, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION)) : 0;
-        if ($formatCurrency) {
-            $processingFee = currencyFormat($processingFee, $invoice->currency);
-        }
+        // Processing fee: grand_total is stored fee-inclusive, so the fee amount
+        // is the part of grand_total above the pre-fee total (NOT the % itself).
+        $pct = $invoice->processing_fee
+            ? (float) filter_var($invoice->processing_fee, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION)
+            : 0;
+        $feeAmount = $pct > 0
+            ? (float) $invoice->grand_total - ((float) $invoice->grand_total / (1 + $pct / 100))
+            : 0;
+        $processingFee = $formatCurrency ? currencyFormat($feeAmount, $invoice->currency) : round($feeAmount, 2);
 
-        // Subtotal
-        $subtotal = $formatCurrency ? currencyFormat($itemSubtotal, $invoice->currency) : round($itemSubtotal, 2);
+        // Subtotal shown ex-tax: for tax-inclusive pricing the item subtotal is
+        // gross, so strip the tax out so subtotal + tax + fee reconciles to total.
+        $pricesIncludeTax = (int) (optional(\App\Model\Payment\TaxOption::find(1))->inclusive) === 1;
+        $netSubtotal = $pricesIncludeTax ? ($itemSubtotal - $taxTotal) : $itemSubtotal;
+        $subtotal = $formatCurrency ? currencyFormat($netSubtotal, $invoice->currency) : round($netSubtotal, 2);
 
         // Credits and discounts
         $credits = $invoice->credits ?? 0;

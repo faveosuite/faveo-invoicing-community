@@ -7,8 +7,10 @@ use App\Model\Cart\Cart;
 use App\Model\Cart\CartItem;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
+use App\Model\Order\InvoiceTaxLine;
 use App\Model\Payment\Promotion;
-use App\Traits\TaxCalculation;
+use App\Model\Payment\TaxOption;
+use App\Services\Tax\TaxService;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
@@ -16,7 +18,6 @@ use Illuminate\Support\Facades\DB;
 
 class CartService
 {
-    use TaxCalculation;
 
     public function __construct(private readonly GuestCart $guest)
     {
@@ -141,9 +142,17 @@ class CartService
     {
         $summary = $this->summary($cart, $user);
 
+        $pricesIncludeTax = (int) (optional(TaxOption::find(1))->inclusive) === 1;
+        $subtotalExTax = $pricesIncludeTax
+            ? round($summary['subtotal'] - $summary['tax_total'], 2)
+            : round($summary['subtotal'], 2);
+
         return [
             'taxes' => $summary['taxes'],
             'tax_total' => $summary['tax_total'],
+            'subtotal_ex_tax' => $subtotalExTax,
+            'prices_include_tax' => $pricesIncludeTax,
+            'tax_label' => collect($summary['taxes'])->pluck('label')->unique()->implode(' + '),
             'gateways' => $this->activeGateways($cart->currency ?? 'USD'),
             'grand_total' => $summary['grand_total'],
         ];
@@ -186,12 +195,28 @@ class CartService
             if ($invoice) {
                 $invoice->update($attributes);
                 $invoice->invoiceItem()->delete();
+                InvoiceTaxLine::where('invoice_id', $invoice->id)->delete();
             } else {
                 $invoice = Invoice::create($attributes + ['number' => random_int(11111111, 99999999)]);
             }
 
             foreach ($summary['items'] as $item) {
-                InvoiceItem::create(['invoice_id' => $invoice->id] + $item);
+                $breakdown = $item['tax_breakdown'] ?? [];
+                unset($item['tax_breakdown']); // not an invoice_items column
+
+                $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id] + $item);
+
+                foreach ($breakdown as $taxLine) {
+                    InvoiceTaxLine::create([
+                        'invoice_id' => $invoice->id,
+                        'invoice_item_id' => $invoiceItem->id,
+                        'tax_rate_id' => $taxLine['tax_rate_id'],
+                        'label' => $taxLine['label'],
+                        'rate' => $taxLine['rate'],
+                        'compound' => $taxLine['compound'],
+                        'amount' => $taxLine['amount'],
+                    ]);
+                }
             }
 
             $cart->update(['invoice_id' => $invoice->id]);
@@ -300,25 +325,42 @@ class CartService
                 'quantity' => $line->quantity,
                 'tax_name' => $tax['name'],
                 'tax_percentage' => $tax['percent_label'],
+                'tax_rate_id' => $tax['tax_rate_id'],
+                'tax_breakdown' => $tax['breakdown'], // stripped before persist; drives invoice_tax_lines
                 'subtotal' => $lineTotal,
                 'domain' => $line->domain ?: '',
                 'plan_id' => $line->plan_id ?? 0,
                 'agents' => $line->agents,
             ];
 
-            if ($tax['amount'] > 0) {
-                $grouped[$tax['name']] = ($grouped[$tax['name']] ?? 0) + $tax['amount'];
-                $taxTotal += $tax['amount'];
+            // Group taxes per rate (not the combined line label) so multiple
+            // taxes show as separate lines — consistent with the invoice view.
+            foreach ($tax['breakdown'] as $rateLine) {
+                if ($rateLine['amount'] <= 0) {
+                    continue;
+                }
+                $key = $rateLine['label'];
+                $grouped[$key]['label'] = $rateLine['label'];
+                $grouped[$key]['rate'] = $rateLine['rate'];
+                $grouped[$key]['amount'] = ($grouped[$key]['amount'] ?? 0) + $rateLine['amount'];
+                $taxTotal += $rateLine['amount'];
             }
         }
 
         $taxes = [];
-        foreach ($grouped as $label => $amount) {
-            $taxes[] = ['label' => $label, 'amount' => round($amount, 2)];
+        foreach ($grouped as $g) {
+            $taxes[] = ['label' => $g['label'], 'rate' => $g['rate'], 'amount' => round($g['amount'], 2)];
         }
 
         $subtotal = (float) $cart->subtotal();
         $discount = (float) $cart->coupon_discount;
+
+        // When prices are entered inclusive of tax, the tax is already inside
+        // the subtotal — show it for information but do not add it again.
+        $pricesIncludeTax = (int) (optional(TaxOption::find(1))->inclusive) === 1;
+        $payable = $pricesIncludeTax
+            ? max(0, $subtotal - $discount)
+            : max(0, $subtotal - $discount + $taxTotal);
 
         return [
             'items' => $items,
@@ -326,52 +368,47 @@ class CartService
             'discount' => $discount,
             'taxes' => $taxes,
             'tax_total' => round($taxTotal, 2),
-            'grand_total' => rounding(max(0, $subtotal - $discount + $taxTotal)),
+            'grand_total' => rounding($payable),
         ];
     }
 
     /**
-     * Resolve the tax for every cart line once. Returns one entry per line so
-     * callers can either group them (display) or attach them per-item (invoice).
+     * Resolve the tax for every cart line once, via the generic tax engine.
+     * Returns one entry per line so callers can group them (display), attach
+     * them per-item (invoice) or persist the per-rate breakdown.
      *
-     * @return array<int, array{line: CartItem, name: string, percent: float, percent_label: string, amount: float}>
+     * @return array<int, array{line: CartItem, name: string, percent: float, percent_label: string, amount: float, tax_rate_id: ?int, breakdown: array}>
      */
     private function lineTaxes(Cart $cart, Authenticatable $user): array
     {
         $currency = $cart->currency ?? 'USD';
+        $tax = app(TaxService::class);
 
-        return $cart->items->map(function (CartItem $line) use ($user, $currency) {
-            $condition = $this->safeTaxCondition($line->product_id, $user);
-            $percent = $condition ? $this->percentValue($condition['value'] ?? '0') : 0.0;
+        return $cart->items->map(function (CartItem $line) use ($user, $currency, $tax) {
             $lineTotal = $line->priceFor($currency) * $line->quantity * $line->agents;
+            $result = $tax->calculate($lineTotal, (int) $line->product_id, $user);
+
+            // A single applied rate can be referenced directly on the item;
+            // multi-rate/compound lines rely on the persisted breakdown.
+            $rateId = ($result['applicable'] && count($result['lines']) === 1)
+                ? $result['lines'][0]['tax_rate_id']
+                : null;
 
             return [
                 'line' => $line,
-                'name' => $condition['name'] ?? '',
-                'percent' => $percent,
-                'percent_label' => $condition['value'] ?? '',
-                'amount' => $percent > 0 ? $lineTotal * $percent / 100 : 0.0,
+                'name' => $result['applicable'] ? $result['name'] : '',
+                'percent' => $result['percent'],
+                'percent_label' => $result['applicable'] ? $this->percentLabel($result['percent']) : '',
+                'amount' => $result['total'],
+                'tax_rate_id' => $rateId,
+                'breakdown' => $result['lines'],
             ];
         })->all();
     }
 
-    private function safeTaxCondition(int $productId, Authenticatable $user): ?array
+    private function percentLabel(float $percent): string
     {
-        try {
-            $condition = $this->calculateTax($productId, $user->state, $user->country);
-            if (! is_array($condition) || ($condition['name'] ?? 'null') === 'null') {
-                return null;
-            }
-
-            return $condition;
-        } catch (\Throwable) {
-            return null;
-        }
-    }
-
-    private function percentValue(string $value): float
-    {
-        return (float) str_replace('%', '', $value);
+        return rtrim(rtrim(number_format($percent, 4, '.', ''), '0'), '.').'%';
     }
 
     private function activeGateways(string $currency): array

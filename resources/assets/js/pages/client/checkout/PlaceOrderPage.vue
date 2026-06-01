@@ -1,10 +1,10 @@
 <template>
   <div role="main" class="main shop pb-4">
     <div class="container pt-4">
-      <div v-if="loading" class="text-center py-5">
-        <div class="spinner-border text-primary"></div>
-      </div>
+      <!-- Loading -->
+      <inline-loader v-if="loading" />
 
+      <!-- Not found -->
       <div v-else-if="!invoice.id" class="text-center py-6">
         <i class="fas fa-file-invoice fa-3x text-color-grey-lighten mb-3 d-block"></i>
         <p class="text-color-grey mb-0">{{ error || __('message.err_msg') }}</p>
@@ -19,10 +19,10 @@
               <thead>
                 <tr class="text-color-dark">
                   <th class="product-thumbnail" width="15%">&nbsp;</th>
-                  <th class="product-name text-uppercase">{{ __('message.product') }}</th>
-                  <th class="product-quantity text-uppercase">{{ __('message.quantity') }}</th>
-                  <th class="product-quantity text-uppercase">{{ __('message.agents') }}</th>
-                  <th class="product-subtotal text-uppercase text-end">{{ __('message.total') }}</th>
+                  <th class="product-name text-uppercase" width="35%">{{ __('message.product') }}</th>
+                  <th class="product-quantity text-uppercase" width="15%">{{ __('message.quantity') }}</th>
+                  <th class="product-quantity text-uppercase" width="20%">{{ __('message.agents') }}</th>
+                  <th class="product-subtotal text-uppercase text-end" width="15%">{{ __('message.total') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -53,36 +53,43 @@
             <div class="card-body">
               <h4 class="font-weight-bold text-uppercase text-4 mb-0 pb-3 border-bottom">{{ __('message.your_order') }}</h4>
 
+              <div v-if="invoice.number" class="d-flex justify-content-between py-3 border-bottom">
+                <strong class="text-color-dark">{{ __('message.invoice') }}</strong>
+                <span class="font-weight-medium">#{{ invoice.number }}</span>
+              </div>
+
+              <div v-if="summary.subtotal_ex_tax !== undefined" class="d-flex justify-content-between py-3 border-bottom">
+                <strong class="text-color-dark">
+                  {{ __('message.sub_total') }}
+                  <small v-if="summary.tax_total > 0 && summary.tax_label" class="text-color-grey fw-normal">(ex. {{ summary.tax_label }})</small>
+                </strong>
+                <span class="amount font-weight-medium">{{ symbol }}{{ summary.subtotal_ex_tax }}</span>
+              </div>
+
+              <div v-for="(t, i) in (summary.taxes || [])" :key="i" class="d-flex justify-content-between py-3 border-bottom">
+                <strong class="text-color-dark">{{ t.label }}<span v-if="t.rate" class="text-color-grey fw-normal"> ({{ t.rate }}%)</span></strong>
+                <span class="amount font-weight-medium">{{ symbol }}{{ t.amount }}</span>
+              </div>
+
+              <div v-if="feeAmount > 0" class="d-flex justify-content-between py-3 border-bottom">
+                <strong class="text-color-dark">{{ __('message.processing_fee') }}<span v-if="feePercent" class="text-color-grey fw-normal"> ({{ feePercent }}%)</span></strong>
+                <span class="amount font-weight-medium">{{ symbol }}{{ feeAmount }}</span>
+              </div>
+
               <div class="d-flex justify-content-between py-3 border-bottom">
-                <strong class="text-color-dark text-4">{{ __('message.amount_due') }}</strong>
-                <strong class="text-color-dark text-4">{{ symbol }}{{ amountDue }}</strong>
+                <strong class="text-color-dark text-4">{{ __('message.total') }}</strong>
+                <strong class="text-color-dark text-4">{{ symbol }}{{ payable }}</strong>
               </div>
 
-              <!-- Gateway pre-selected via URL: show Pay Now button directly -->
-              <div v-if="gatewayFromUrl" class="py-3">
-                <button class="btn btn-dark btn-modern w-100 text-uppercase text-nowrap border-radius-0 text-3 py-3"
-                        :disabled="busy" @click="continuePay">
-                  {{ busy ? __('message.please_wait') : `${__('message.pay_now')} ${symbol}${amountDue}` }}
+              <div class="py-3">
+                <button type="button"
+                        class="btn btn-dark btn-modern w-100 text-uppercase border-radius-0 text-3 py-3"
+                        :disabled="!selectedGateway || busy"
+                        @click="continuePay">
+                  {{ busy ? __('message.please_wait') : __('message.pay_now') }}
+                  <i v-if="!busy" class="fas fa-arrow-right ms-2"></i>
                 </button>
               </div>
-
-              <!-- No pre-selected gateway: show gateway selection -->
-              <div v-else class="py-3">
-                <strong class="d-block text-color-dark text-uppercase mb-3">{{ __('message.payment_methods') }}</strong>
-                <p v-if="!gateways.length" class="text-color-grey text-2 mb-0">{{ __('message.no_payment_gateway') }}</p>
-                <div v-for="g in gateways" :key="g.name" class="mb-3">
-                  <label class="d-flex align-items-center mb-0" style="cursor:pointer">
-                    <input type="radio" v-model="selectedGateway" :value="g.name" name="gw" class="me-2" />
-                    <img :src="`${baseUrl}/images/logo/${g.name}.png`" :alt="g.name" height="22" @error="logoFallback($event, g.name)" />
-                    <span v-if="g.processing_fee" class="text-color-grey text-2 ms-2">(+{{ g.processing_fee }}%)</span>
-                  </label>
-                </div>
-                <button class="btn btn-dark btn-modern w-100 text-uppercase text-nowrap border-radius-0 text-3 py-3 mt-2"
-                        :disabled="!selectedGateway || busy" @click="continuePay">
-                  {{ busy ? __('message.please_wait') : __('message.place_order_and_pay') }}
-                </button>
-              </div>
-
             </div>
           </div>
         </div>
@@ -133,7 +140,7 @@
         <!-- Total row -->
         <div class="d-flex justify-content-between align-items-center border rounded px-2 py-2 mb-3">
           <span class="fw-bold text-color-dark">{{ __('message.total') }}</span>
-          <span class="fw-bold text-color-dark">{{ symbol }}{{ amountDue }}</span>
+          <span class="fw-bold text-color-dark">{{ symbol }}{{ payable }}</span>
         </div>
 
         <!-- Pay Now button -->
@@ -148,7 +155,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAlertStore } from '@/core/stores/alert'
 import http, { parseErrorMessage } from '@/plugins/axios'
@@ -171,10 +178,19 @@ const showStripeModal = ref(false)
 
 const invoice = ref({})
 const items = ref([])
+const summary = ref({})
 const gateways = ref([])
 const amountDue = ref(0)
 const symbol = ref('')
 const selectedGateway = ref(gatewayFromUrl)
+
+// Processing fee + payable total for the chosen gateway (from payInit).
+const selectedGatewayData = computed(() =>
+  gateways.value.find(g => (g.name || '').toLowerCase() === (selectedGateway.value || '').toLowerCase()) ?? null
+)
+const feeAmount = computed(() => selectedGatewayData.value?.fee_amount ?? 0)
+const feePercent = computed(() => selectedGatewayData.value?.processing_fee ?? 0)
+const payable = computed(() => selectedGatewayData.value?.payable ?? amountDue.value)
 
 const cardErrors = reactive({ number: '', expiry: '', cvc: '' })
 const cardComplete = reactive({ number: false, expiry: false, cvc: false })
@@ -208,6 +224,7 @@ onMounted(async () => {
     const { data } = await http.get(`${baseUrl}/invoice/${invoiceId}/pay-init`)
     invoice.value = data.data.invoice
     items.value = data.data.items
+    summary.value = data.data.summary ?? {}
     amountDue.value = data.data.amount
     symbol.value = data.data.currency_symbol
     gateways.value = data.data.gateways

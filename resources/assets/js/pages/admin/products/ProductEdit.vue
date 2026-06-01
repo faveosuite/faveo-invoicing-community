@@ -183,19 +183,28 @@
 
                         <!-- Tax Tab -->
                         <div v-show="tab === 'tax'">
-                            <p class="text-muted mb-3">{{ __('message.select_tax_classes_text') }}</p>
                             <div class="row">
-                                <div v-for="tc in taxClasses" :key="tc.id" class="col-md-3 mb-2">
-                                    <div class="form-check">
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            :id="`tax-${tc.id}`"
-                                            :value="tc.id"
-                                            v-model="form.tax"
-                                        />
-                                        <label class="form-check-label" :for="`tax-${tc.id}`">{{ tc.name }}</label>
-                                    </div>
+                                <div class="col-md-4">
+                                    <SelectField
+                                        name="tax_status"
+                                        :label="__('message.tax_status')"
+                                        :elements="taxStatusOptions"
+                                        :value="taxStatusOptions.find(o => o.id === form.tax_status) ?? taxStatusOptions[0]"
+                                        :onChange="(val) => form.tax_status = val?.id ?? 0"
+                                        :clearable="false"
+                                        :searchable="false"
+                                    />
+                                </div>
+                                <div class="col-md-4" v-if="form.tax_status === 1">
+                                    <SelectField
+                                        name="tax_class_id"
+                                        :label="__('message.tax_class')"
+                                        :elements="taxClasses"
+                                        :value="taxClasses.find(c => c.id === form.tax_class_id) ?? null"
+                                        :onChange="(val) => form.tax_class_id = val?.id ?? ''"
+                                        :clearable="false"
+                                        :searchable="false"
+                                    />
                                 </div>
                                 <div v-if="!taxClasses.length" class="col-12 text-muted">{{ __('message.no_tax_classes') }}</div>
                             </div>
@@ -259,6 +268,11 @@ const saving = ref(false)
 const taxClasses = ref([])
 const tab = ref('details')
 const githubEnabled = ref(false)
+
+const taxStatusOptions = [
+    { id: 1, name: __('message.taxable') },
+    { id: 0, name: __('message.none') },
+]
 
 const plansApiUrl = `${baseUrl}/dependency/product-plans?product_id=${route.params.id}`
 
@@ -327,7 +341,8 @@ const form = reactive({
     hidden: false,
     invoice_hidden: false,
     whatsapp_integration: false,
-    tax: [],
+    tax_status: 1,
+    tax_class_id: '',
     file_source: 'filesystem',
     github_owner: '',
     github_repository: '',
@@ -384,7 +399,11 @@ onMounted(async () => {
         form.type                 = p.type ?? null
         form.group                = p.group ?? null
         form.parent               = p.parent ?? null
-        form.tax                  = (p.taxes ?? []).map(t => t.id)
+        // Tax status is driven by whether the product has a tax class assigned.
+        const assigned = (p.taxes ?? [])
+        form.tax_status   = assigned.length ? 1 : 0
+        const standard    = taxClasses.value.find(c => c.name === 'Standard') ?? taxClasses.value[0]
+        form.tax_class_id = assigned[0]?.id ?? standard?.id ?? ''
         form.github_owner         = p.github_owner ?? ''
         form.github_repository    = p.github_repository ?? ''
         form.version              = p.version ?? ''
@@ -435,7 +454,8 @@ async function submit() {
         fd.append('hidden', form.hidden ? '1' : '0')
         fd.append('invoice_hidden', form.invoice_hidden ? '1' : '0')
         fd.append('whatsapp_integration', form.whatsapp_integration ? '1' : '0')
-        form.tax.forEach(id => fd.append('tax[]', id))
+        fd.append('tax_status', form.tax_status ? '1' : '0')
+        if (form.tax_status === 1 && form.tax_class_id) fd.append('tax_class_id', form.tax_class_id)
         if (form.image) fd.append('image', form.image)
         if (form.file_source === 'github') {
             fd.append('github_owner', form.github_owner)

@@ -6,7 +6,6 @@ use App\Model\Common\Country;
 use App\Model\Common\Setting;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
-use App\Model\Payment\TaxByState;
 use App\Model\Product\ProductUpload;
 use App\Traits\TaxCalculation;
 use App\User;
@@ -518,87 +517,30 @@ function getIndianCurrencyFormat($number)
     }
 }
 
-function bifurcateTax($taxName, $taxValue, $currency, $state, $price = '')
+/**
+ * Render a single tax for display. Tax is now a generic named rate (no
+ * CGST/SGST/IGST split), so this simply formats name@rate and the amount.
+ */
+function bifurcateTax($taxName, $taxValue, $currency, $state = '', $price = '')
 {
-    if (\Auth::user()->country == 'IN') {
-        $gst = TaxByState::where('state_code', $state)->select('c_gst', 's_gst', 'ut_gst')->first();
-        if ($taxName == 'CGST+SGST') {
-            $html = 'CGST@'.$gst->c_gst.'%<br>SGST@'.$gst->s_gst.'%';
+    $html = $taxName.'@'.$taxValue;
+    $tax_value = currencyFormat(TaxCalculation::taxValue($taxValue, $price), $currency);
 
-            $cgst_value = currencyFormat(TaxCalculation::taxValue($gst->c_gst, $price), $currency);
-
-            $sgst_value = currencyFormat(TaxCalculation::taxValue($gst->s_gst, $price), $currency);
-
-            return ['html' => $html, 'tax' => $cgst_value.'<br>'.$sgst_value];
-        } elseif ($taxName == 'CGST+UTGST') {
-            $html = 'CGST@'.$gst->c_gst.'%<br>UTGST@'.$gst->ut_gst.'%';
-
-            $cgst_value = currencyFormat(TaxCalculation::taxValue($gst->c_gst, $price), $currency);
-            $utgst_value = currencyFormat(TaxCalculation::taxValue($gst->ut_gst, $price), $currency);
-
-            return ['html' => $html, 'tax' => $cgst_value.'<br>'.$utgst_value];
-        } else {
-            $html = $taxName.'@'.$taxValue;
-            $tax_value = currencyFormat(TaxCalculation::taxValue($taxValue, $price), $currency);
-
-            return ['html' => $html, 'tax' => $tax_value];
-        }
-    } else {
-        $html = $taxName.'@'.$taxValue;
-        $tax_value = currencyFormat(TaxCalculation::taxValue($taxValue, $price), $currency);
-
-        return ['html' => $html, 'tax' => $tax_value];
-    }
+    return ['html' => $html, 'tax' => $tax_value];
 }
 
-function bifurcate($taxName, $taxValue, $currency, $state, $price = '')
+/**
+ * Structured tax breakdown for display. One generic entry per tax.
+ */
+function bifurcate($taxName, $taxValue, $currency, $state = '', $price = '')
 {
-    $response = [];
-
-    if (\Auth::user()->country == 'IN') {
-        $gst = TaxByState::where('state_code', $state)
-            ->select('c_gst', 's_gst', 'ut_gst')
-            ->first();
-
-        if ($taxName === 'CGST+SGST') {
-            $response = [
-                [
-                    'name' => 'CGST',
-                    'rate' => $gst->c_gst,
-                    'value' => TaxCalculation::taxValue($gst->c_gst, $price, false),
-                ],
-                [
-                    'name' => 'SGST',
-                    'rate' => $gst->s_gst,
-                    'value' => TaxCalculation::taxValue($gst->s_gst, $price, false),
-                ],
-            ];
-        } elseif ($taxName === 'CGST+UTGST') {
-            $response = [
-                [
-                    'name' => 'CGST',
-                    'rate' => $gst->c_gst,
-                    'value' => TaxCalculation::taxValue($gst->c_gst, $price, false),
-                ],
-                [
-                    'name' => 'UTGST',
-                    'rate' => $gst->ut_gst,
-                    'value' => TaxCalculation::taxValue($gst->ut_gst, $price, false),
-                ],
-            ];
-        }
-    }
-
-    // Fallback (other countries or generic tax)
-    if (empty($response)) {
-        $response[] = [
+    return [
+        [
             'name' => $taxName,
             'rate' => $taxValue,
             'value' => TaxCalculation::taxValue($taxValue, $price, false),
-        ];
-    }
-
-    return $response;
+        ],
+    ];
 }
 
 /**

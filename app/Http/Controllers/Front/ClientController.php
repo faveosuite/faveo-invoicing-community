@@ -13,6 +13,7 @@ use App\Model\Common\StatusSetting;
 use App\Model\Github\Github;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
+use App\Model\Order\InvoiceTaxLine;
 use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
@@ -575,7 +576,6 @@ class ClientController extends BaseClientController
 
         $itemsSubtotal = 0;
         $taxAmt = 0;
-        $taxName = [];
 
         foreach ($items as $item) {
             $itemsSubtotal += floatval($item->subtotal);
@@ -583,38 +583,24 @@ class ClientController extends BaseClientController
             if ($item->tax_name != 'null') {
                 $taxAmt += floatval($item->subtotal);
             }
-
-            $taxName[] = $item->tax_name.'@'.$item->tax_percentage;
         }
 
-        $taxName = array_unique($taxName);
-
+        // Tax breakdown from the persisted invoice_tax_lines, grouped per tax.
         $gstSplit = [];
+        $taxDeducted = 0.0;
 
-        foreach ($taxName as $tax) {
-            [$name, $percentage] = explode('@', $tax);
-            if ($name == 'null') {
-                continue;
-            }
-
-            $split = bifurcateTax($name, $percentage, $invoice->currency, $user->state, $taxAmt);
+        foreach (InvoiceTaxLine::where('invoice_id', $invoice->id)->get()->groupBy('label') as $label => $lines) {
+            $amount = (float) $lines->sum('amount');
+            $taxDeducted += $amount;
+            $percentage = rtrim(rtrim(number_format((float) $lines->first()->rate, 2, '.', ''), '0'), '.').'%';
 
             $gstSplit[] = [
-                'name' => $name,
+                'name' => $label,
                 'percentage' => $percentage,
-                'labels' => explode('<br>', $split['html']),
-                'values' => explode('<br>', $split['tax']),
+                'labels' => [$label.'@'.$percentage],
+                'values' => [currencyFormat($amount, $invoice->currency)],
             ];
         }
-
-        $values = array_column($gstSplit, 'values');
-
-        $taxDeducted = array_sum(
-            array_map(
-                fn ($v) => (float) preg_replace('/[^0-9.\-]/', '', $v),
-                array_merge(...$values)
-            )
-        );
 
         $processingFeeAmount = 0;
 

@@ -236,8 +236,8 @@ class RenewController extends BaseRenewController
         try {
             $controller = new \App\Http\Controllers\Order\InvoiceController();
             $tax = $this->calculateTax($product->id, $user->state, $user->country);
-            $tax_name = $tax->getName();
-            $tax_rate = $tax->getValue();
+            $tax_name = $tax['name'];
+            $tax_rate = $tax['value'];
 
             $grand_total = $controller->calculateTotal($tax_rate, $cost);
 

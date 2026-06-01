@@ -2,6 +2,7 @@
     <div class="mb-3">
         <label v-if="label" class="form-label fw-bold">
             {{ label }}<span v-if="required" class="text-danger ms-1">*</span>
+            <ToolTip v-if="tooltip" :message="tooltip" size="small" />
         </label>
         <v-select
             :inputId="name"
@@ -15,6 +16,7 @@
             :searchable="searchable"
             :closeOnSelect="closeOnSelect"
             :taggable="taggable"
+            :create-option="createOption || undefined"
             :noDrop="noDrop"
             :class="['faveo-dynamic-select', { 'is-invalid': fieldError }]"
             @update:modelValue="onValueChange"
@@ -32,10 +34,13 @@
 import { ref, watch, computed } from 'vue'
 import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
+import ToolTip from '@/components/Reusable/Tooltip.vue'
 
 const props = defineProps({
     name:          { type: String, required: true },
     label:         { type: String, default: '' },
+    tooltip:       { type: String, default: '' },
+    createOption:  { type: Function, default: null },
     elements:      { type: Array, default: () => [] },
     multiple:      { type: Boolean, default: false },
     value:         { type: [Object, Array, String, Number], default: null },

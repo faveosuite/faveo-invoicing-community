@@ -909,16 +909,19 @@ class ProductController extends BaseProductController
                 // Filter only fillable fields
                 $data = array_intersect_key($validated, array_flip((new Product)->getFillable()));
 
+                // Tax status: Taxable (1) / None (0)
+                $data['tax_apply'] = $request->boolean('tax_status') ? 1 : 0;
+
                 // Create Product
                 $product = Product::create($data);
 
-                // Insert Taxes
-                collect($request->input('tax', []))
-                    ->map(fn ($taxId) => [
+                // A taxable product carries exactly one tax class.
+                if ($data['tax_apply'] === 1 && $request->filled('tax_class_id')) {
+                    TaxProductRelation::create([
                         'product_id' => $product->id,
-                        'tax_class_id' => $taxId,
-                    ])
-                    ->whenNotEmpty(fn ($taxData) => TaxProductRelation::insert($taxData));
+                        'tax_class_id' => $request->input('tax_class_id'),
+                    ]);
+                }
             });
 
             return successResponse(__('message.saved-successfully'));
@@ -969,18 +972,17 @@ class ProductController extends BaseProductController
 
                 // Update product with only fillable fields
                 $fillableData = array_intersect_key($validated, array_flip($product->getFillable()));
+                $fillableData['tax_apply'] = $request->boolean('tax_status') ? 1 : 0;
                 $product->update($fillableData);
 
-                // Handle taxes in the same elegant style as create()
-                collect($request->input('tax', []))
-                    ->map(fn ($taxId) => [
+                // Reset to a single tax class (or none when not taxable).
+                TaxProductRelation::where('product_id', $product->id)->delete();
+                if ($fillableData['tax_apply'] === 1 && $request->filled('tax_class_id')) {
+                    TaxProductRelation::create([
                         'product_id' => $product->id,
-                        'tax_class_id' => $taxId,
-                    ])
-                    ->whenNotEmpty(function ($taxData) use ($product) {
-                        TaxProductRelation::where('product_id', $product->id)->delete();
-                        TaxProductRelation::insert($taxData->toArray());
-                    });
+                        'tax_class_id' => $request->input('tax_class_id'),
+                    ]);
+                }
 
                 // Update version from GitHub if provided
                 if ($request->filled('github_owner') && $request->filled('github_repository')) {

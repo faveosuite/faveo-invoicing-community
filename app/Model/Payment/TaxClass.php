@@ -11,14 +11,14 @@ class TaxClass extends BaseModel
 
     protected $table = 'tax_classes';
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'slug'];
 
     protected $logName = 'tax';
 
     protected $logNameColumn = 'name';
 
     protected $logAttributes = [
-        'name',
+        'name', 'slug',
     ];
 
     protected $requireLogUrl = false;
@@ -27,9 +27,17 @@ class TaxClass extends BaseModel
     {
         return [
             'name' => ['Tax Class Name', fn ($value) => $value],
+            'slug' => ['Slug', fn ($value) => $value ?: 'standard'],
         ];
     }
 
+    /** Generic tax rates that belong to this class (joined on slug). */
+    public function rates()
+    {
+        return $this->hasMany(\App\Model\Payment\TaxRate::class, 'tax_class', 'slug');
+    }
+
+    /** @deprecated legacy India-GST taxes table; kept for historical data. */
     public function tax()
     {
         return $this->hasMany(\App\Model\Payment\Tax::class, 'tax_classes_id');
