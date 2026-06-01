@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\DB;
 
 class CartService
 {
-
     public function __construct(private readonly GuestCart $guest)
     {
     }
@@ -142,7 +141,7 @@ class CartService
     {
         $summary = $this->summary($cart, $user);
 
-        $pricesIncludeTax = (int) (optional(TaxOption::find(1))->inclusive) === 1;
+        $pricesIncludeTax = (int) optional(TaxOption::find(1))->inclusive === 1;
         $subtotalExTax = $pricesIncludeTax
             ? round($summary['subtotal'] - $summary['tax_total'], 2)
             : round($summary['subtotal'], 2);
@@ -357,7 +356,7 @@ class CartService
 
         // When prices are entered inclusive of tax, the tax is already inside
         // the subtotal — show it for information but do not add it again.
-        $pricesIncludeTax = (int) (optional(TaxOption::find(1))->inclusive) === 1;
+        $pricesIncludeTax = (int) optional(TaxOption::find(1))->inclusive === 1;
         $payable = $pricesIncludeTax
             ? max(0, $subtotal - $discount)
             : max(0, $subtotal - $discount + $taxTotal);

@@ -17,7 +17,7 @@ class TaxEngine
 {
     /**
      * @param  array<int, array>  $rates
-     * @return array<int|string, float>  tax amount keyed by rate id
+     * @return array<int|string, float> tax amount keyed by rate id
      */
     public function calc(float $price, array $rates, bool $pricesIncludeTax = false): array
     {
