@@ -5,6 +5,7 @@ namespace App\Plugins\Razorpay\Controllers;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
+use App\Services\Payment\ProcessingFee;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
 
@@ -33,6 +34,7 @@ class SettingsController extends Controller
                 'rzp_key' => $rzpKeys->rzp_key ?? '',
                 'rzp_secret' => $rzpKeys->rzp_secret ?? '',
                 'apilayer_key' => $rzpKeys->apilayer_key ?? '',
+                'processing_fee' => (string) ProcessingFee::percent('razorpay'),
             ]);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
@@ -48,6 +50,7 @@ class SettingsController extends Controller
         $request->validate([
             'rzp_key' => 'required|string',
             'rzp_secret' => 'required|string',
+            'processing_fee' => 'nullable|numeric|min:0|max:100',
         ], [
             'rzp_key.required' => __('message.razorpay_key_required'),
             'rzp_secret.required' => __('message.razorpay_secret_required'),
@@ -70,6 +73,8 @@ class SettingsController extends Controller
                 'rzp_secret' => $rzp_secret,
                 'apilayer_key' => $request->input('apilayer_key'),
             ]);
+
+            ProcessingFee::store('razorpay', (float) $request->input('processing_fee', 0));
 
             // Only touch the enable/disable flag when the caller actually sends it,
             // so saving keys can't silently disable the gateway.

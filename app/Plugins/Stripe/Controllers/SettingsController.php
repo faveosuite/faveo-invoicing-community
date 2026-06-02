@@ -6,6 +6,7 @@ use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Traits\Payment\PostPaymentHandle;
 use App\User;
+use App\Services\Payment\ProcessingFee;
 use Cartalyst\Stripe\Laravel\Facades\Stripe;
 use Illuminate\Http\Request;
 use Stripe\StripeClient;
@@ -39,6 +40,7 @@ class SettingsController extends Controller
             return successResponse('', [
                 'stripe_key' => $stripeKeys->stripe_key ?? '',
                 'stripe_secret' => $stripeKeys->stripe_secret ?? '',
+                'processing_fee' => (string) ProcessingFee::percent('stripe'),
             ]);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
@@ -50,6 +52,7 @@ class SettingsController extends Controller
         $request->validate([
             'stripe_secret' => 'required|string',
             'stripe_key' => 'required|string',
+            'processing_fee' => 'nullable|numeric|min:0|max:100',
         ], [
             'stripe_secret.required' => __('message.stripe_secret_required'),
             'stripe_key.required' => __('message.stripe_key_required'),
@@ -64,6 +67,8 @@ class SettingsController extends Controller
                 'stripe_secret' => $request->input('stripe_secret'),
                 'stripe_key' => $request->input('stripe_key'),
             ]);
+
+            ProcessingFee::store('stripe', (float) $request->input('processing_fee', 0));
 
             return successResponse(__('message.stripe_settings_updated_successfully'));
         } catch (\Cartalyst\Stripe\Exception\UnauthorizedException $e) {

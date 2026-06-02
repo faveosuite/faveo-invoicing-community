@@ -67,30 +67,20 @@
             </table>
           </div>
 
-          <!-- Coupon (cart mode only — an invoice's totals are already final) -->
-          <div v-if="mode === 'cart'" class="d-flex align-items-center mt-3">
-            <template v-if="cartStore.couponCode">
-              <span class="badge bg-success text-3 py-2 px-3 me-2">{{ cartStore.couponCode }}</span>
-              <button type="button"
-                      class="btn btn-light btn-modern text-2 text-uppercase"
-                      style="background:#F4F4F4;"
-                      @click="removeCoupon">
-                {{ __('message.remove') }}
-              </button>
-            </template>
-            <template v-else>
-              <input v-model="couponInput" type="text"
-                     class="form-control h-auto border-radius-0 line-height-1 py-3"
-                     style="max-width:280px;"
-                     :placeholder="__('message.coupon_code')" @keyup.enter="applyCode" />
-              <button type="button"
-                      class="btn btn-light btn-modern text-2 text-uppercase ms-2"
-                      style="background:#F4F4F4;"
-                      :disabled="!couponInput || cartStore.loading"
-                      @click="applyCode">
-                {{ __('message.apply') }}
-              </button>
-            </template>
+          <!-- Coupon input (cart mode only; once applied it shows in the Discount
+               summary row, where it can also be removed — an invoice's totals are final) -->
+          <div v-if="mode === 'cart' && !cartStore.couponCode" class="d-flex align-items-center mt-3">
+            <input v-model="couponInput" type="text"
+                   class="form-control h-auto border-radius-0 line-height-1 py-3"
+                   style="max-width:280px;"
+                   :placeholder="__('message.coupon_code')" @keyup.enter="applyCode" />
+            <button type="button"
+                    class="btn btn-light btn-modern text-2 text-uppercase ms-2"
+                    style="background:#F4F4F4;"
+                    :disabled="!couponInput || cartStore.loading"
+                    @click="applyCode">
+              {{ __('message.apply') }}
+            </button>
           </div>
         </div>
 
@@ -110,9 +100,20 @@
                   <span class="amount font-weight-medium">{{ symbol }}{{ cartStore.subtotalExTax }}</span>
                 </div>
 
-                <div v-if="cartStore.couponDiscount > 0" class="d-flex justify-content-between py-3 border-bottom">
-                  <strong class="text-color-dark">{{ __('message.discount') }}</strong>
-                  <span class="amount text-success">−{{ symbol }}{{ cartStore.couponDiscount }}</span>
+                <div v-if="cartStore.couponDiscount > 0" class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                  <strong class="text-color-dark">{{ __('message.coupon') }} :
+                    <span class="text-color-grey fw-normal"> {{ cartStore.couponCode }} </span>
+                  </strong>
+                  <span class="d-flex align-items-center">
+                    <span class="amount text-success">−{{ symbol }}{{ cartStore.couponDiscount }}</span>
+                    <button type="button"
+                            v-tooltip
+                            class="btn ms-2 p-0 lh-1 border-0"
+                            :title="__('message.remove')"
+                            @click="removeCoupon">
+                      <i class="fas fa-times-circle text-color-dark fa-lg"></i>
+                    </button>
+                  </span>
                 </div>
 
                 <div v-for="tax in cartStore.taxes" :key="tax.label" class="d-flex justify-content-between py-3 border-bottom">
@@ -142,6 +143,10 @@
                 <div v-for="(tax, i) in (invSummary.taxes || [])" :key="i" class="d-flex justify-content-between py-3 border-bottom">
                   <strong class="text-color-dark">{{ tax.label }}<span v-if="tax.rate" class="text-color-grey fw-normal"> ({{ tax.rate }}%)</span></strong>
                   <span class="amount font-weight-medium">{{ symbol }}{{ tax.amount }}</span>
+                </div>
+                <div v-if="invSummary.discount > 0" class="d-flex justify-content-between py-3 border-bottom">
+                  <strong class="text-color-dark">{{ __('message.coupon') }}<span v-if="invSummary.coupon_code" class="text-color-grey fw-normal"> : {{ invSummary.coupon_code }}</span></strong>
+                  <span class="amount text-success">−{{ symbol }}{{ invSummary.discount }}</span>
                 </div>
                 <div class="d-flex justify-content-between py-3 border-bottom">
                   <strong class="text-color-dark text-4">{{ __('message.amount_due') }}</strong>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Common\MailChimpController;
+use App\Services\Payment\ProcessingFee;
 use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\Order\ExtendedBaseInvoiceController;
 use App\Http\Controllers\Tenancy\TenantController;
@@ -469,13 +470,7 @@ class CheckoutController extends InfoController
 
     private function getProcessingFee($paymentMethod, $currency)
     {
-        try {
-            if ($paymentMethod) {
-                return $paymentMethod == 'razorpay' ? 0 : \DB::table(strtolower($paymentMethod))->where('currencies', $currency)->value('processing_fee');
-            }
-        } catch (\Exception $e) {
-            throw new \Exception(__('message.invalid_modification'));
-        }
+        return ProcessingFee::percent($paymentMethod);
     }
 
     public static function updateFinalPrice(Request $request)

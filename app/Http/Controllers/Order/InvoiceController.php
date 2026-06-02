@@ -673,12 +673,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
         // Processing fee: grand_total is stored fee-inclusive, so the fee amount
         // is the part of grand_total above the pre-fee total (NOT the % itself).
-        $pct = $invoice->processing_fee
-            ? (float) filter_var($invoice->processing_fee, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION)
-            : 0;
-        $feeAmount = $pct > 0
-            ? (float) $invoice->grand_total - ((float) $invoice->grand_total / (1 + $pct / 100))
-            : 0;
+        $feeAmount = \App\Services\Payment\ProcessingFee::fromInclusive((float) $invoice->grand_total, $invoice->processing_fee);
         $processingFee = $formatCurrency ? currencyFormat($feeAmount, $invoice->currency) : round($feeAmount, 2);
 
         // Subtotal shown ex-tax: for tax-inclusive pricing the item subtotal is

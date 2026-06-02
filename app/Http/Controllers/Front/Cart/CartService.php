@@ -10,6 +10,7 @@ use App\Model\Order\InvoiceItem;
 use App\Model\Order\InvoiceTaxLine;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\TaxOption;
+use App\Services\Payment\ProcessingFee;
 use App\Services\Tax\TaxService;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -93,7 +94,7 @@ class CartService
         if ($user = $request->user()) {
             $cart = $this->dbCart($user);
             $cart->items()->delete();
-            $cart->update(['coupon_code' => null, 'coupon_discount' => 0]);
+            $cart->update(['coupon_code' => null, 'coupon_discount' => 0, 'invoice_id' => null]);
 
             return;
         }
@@ -233,7 +234,7 @@ class CartService
     {
         $invoice = $cart->invoice_id ? Invoice::find($cart->invoice_id) : null;
 
-        if ($invoice && $invoice->status === 'pending' && (float) $invoice->payment()->sum('amount') === 0.0) {
+        if ($invoice && strtolower($invoice->status) === 'pending' && (float) $invoice->payment()->sum('amount') === 0.0) {
             return $invoice;
         }
 
@@ -418,12 +419,8 @@ class CartService
                 return [];
             }
 
-            return array_map(function ($name) use ($currency) {
-                $fee = DB::table(strtolower($name))
-                    ->where('currencies', $currency)
-                    ->value('processing_fee');
-
-                return ['name' => $name, 'processing_fee' => $fee !== null ? (float) $fee : null];
+            return array_map(function ($name) {
+                return ['name' => $name, 'processing_fee' => ProcessingFee::percent($name) ?: null];
             }, $names);
         } catch (\Throwable) {
             return [];
@@ -435,6 +432,14 @@ class CartService
         $cart = $cart->fresh(['items']);
 
         if (empty($cart->coupon_code)) {
+            return;
+        }
+
+        // An emptied cart drops its coupon outright — otherwise the code lingers
+        // on the row and silently re-applies the moment an item is added back.
+        if ($cart->items->isEmpty()) {
+            $cart->update(['coupon_code' => null, 'coupon_discount' => 0]);
+
             return;
         }
 
@@ -475,14 +480,25 @@ class CartService
     {
         $now = Carbon::now();
 
-        if (! empty($promo->start) && $now->lt(Carbon::parse($promo->start))) {
+        if ($this->hasDateBound($promo->start) && $now->lt(Carbon::parse($promo->start))) {
             return false;
         }
 
-        if (! empty($promo->expiry) && $now->gt(Carbon::parse($promo->expiry))) {
+        if ($this->hasDateBound($promo->expiry) && $now->gt(Carbon::parse($promo->expiry))) {
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * Whether a promotion date is a real bound. null/empty and the legacy
+     * "0000-00-00" sentinel both mean "no limit" (a coupon with neither bound is
+     * always valid) — Carbon would otherwise parse "0000-00-00" as year -1 and
+     * read every such coupon as expired.
+     */
+    private function hasDateBound($value): bool
+    {
+        return ! empty($value) && ! str_starts_with((string) $value, '0000-00-00');
     }
 }

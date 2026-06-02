@@ -181,6 +181,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('get-my-orders', [Front\ClientController::class, 'getClientOrder'])->name('get-my-orders');
     Route::get('my-order/{id}', [Front\ClientController::class, 'getOrder']);
     Route::get('renew-popup-details/{productid}', [Front\ClientController::class, 'renewPopupVue']);
+    Route::get('get-cloud-settings/{orderId}', [Front\ClientController::class, 'getCloudSettings']);
     Route::get('get-my-invoices/{orderid}/{userid}/{admin?}', [Front\ClientController::class, 'getInvoicesByOrderId']);
     Route::get('get-my-payment-client/{orderid}/{userid}', [Front\ClientController::class, 'getPaymentByOrderIdClient'])->name('get-my-payment-client');
     Route::get('get-my-installations/{orderid}', [Front\ClientController::class, 'getOrderInstallations']);
@@ -993,6 +994,9 @@ Route::delete('pages', [Front\PageController::class, 'deleteBulkPages']);
 Route::post('page', [Front\PageController::class, 'createPage']);
 Route::get('page/{id}', [Front\PageController::class, 'getPage']);
 Route::put('page/{id}', [Front\PageController::class, 'updatePage']);
+// Public endpoints for the front-end SPA (navbar list + page content by slug)
+Route::get('published-pages', [Front\PageController::class, 'publishedPages']);
+Route::get('page-content/{slug}', [Front\PageController::class, 'pageBySlug']);
 Route::get('demo', [Front\PageController::class, 'getDemoStatus']);
 Route::post('save/demo', [Front\PageController::class, 'saveDemoPage']);
 Route::get('products', [Product\ProductController::class, 'getAllProducts']);

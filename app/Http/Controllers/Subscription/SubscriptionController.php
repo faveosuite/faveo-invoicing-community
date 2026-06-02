@@ -210,12 +210,12 @@ class SubscriptionController extends Controller
                     $cost = $price;
                 }
 
-                // add processing fee for stripe payment
-                if ($payment_method == 'stripe') {
-                    $processingFee = \DB::table(strtolower('stripe'))->where('currencies', $currency)->value('processing_fee');
-                    $processingFee = (float) $processingFee / 100;
-                    $price = $cost + ($cost * $processingFee);
-                }
+                // Charge the gateway's processing fee on top of the renewal cost,
+                // for parity with the checkout/pay flow — the customer pays it each
+                // cycle. Folded into $cost so it flows into both the renewal invoice
+                // grand_total and the amount charged, for any gateway (not just Stripe).
+                $cost = \App\Services\Payment\ProcessingFee::addTo($cost, $payment_method);
+                $price = $cost;
 
                 if ($this->shouldCancelSubscription($product_details, $price)) {
                     Subscription::where('id', $subscription->id)->update(['is_subscribed' => 0]);

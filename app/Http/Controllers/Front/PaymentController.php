@@ -11,6 +11,7 @@ use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Currency;
 use App\Model\Product\Product;
 use App\Services\Payment\InvoicePaymentService;
+use App\Services\Payment\ProcessingFee;
 use Illuminate\Http\Request;
 
 /**
@@ -45,12 +46,9 @@ class PaymentController extends Controller
         // Each gateway carries its processing fee; surface the fee amount and the
         // resulting payable total so the pay page shows exactly what's charged.
         $gateways = array_map(function ($gateway) use ($outstanding) {
-            $fee = (float) ($gateway['processing_fee'] ?? 0);
-            $payable = (float) rounding($outstanding * (1 + $fee / 100));
-
             return $gateway + [
-                'fee_amount' => round($payable - $outstanding, 2),
-                'payable' => $payable,
+                'fee_amount' => ProcessingFee::amount($outstanding, $gateway['name']),
+                'payable' => ProcessingFee::addTo($outstanding, $gateway['name']),
             ];
         }, $this->invoices->gatewaysFor($model->currency));
 
@@ -107,6 +105,8 @@ class PaymentController extends Controller
             'tax_label' => collect($taxes)->pluck('label')->unique()->implode(' + '),
             'taxes' => $taxes,
             'tax_total' => $taxTotal,
+            'discount' => round((float) $model->discount, 2),
+            'coupon_code' => $model->coupon_code,
             'grand_total' => (float) $model->grand_total,
         ];
     }

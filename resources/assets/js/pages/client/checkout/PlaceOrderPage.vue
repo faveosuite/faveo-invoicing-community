@@ -53,11 +53,6 @@
             <div class="card-body">
               <h4 class="font-weight-bold text-uppercase text-4 mb-0 pb-3 border-bottom">{{ __('message.your_order') }}</h4>
 
-              <div v-if="invoice.number" class="d-flex justify-content-between py-3 border-bottom">
-                <strong class="text-color-dark">{{ __('message.invoice') }}</strong>
-                <span class="font-weight-medium">#{{ invoice.number }}</span>
-              </div>
-
               <div v-if="summary.subtotal_ex_tax !== undefined" class="d-flex justify-content-between py-3 border-bottom">
                 <strong class="text-color-dark">
                   {{ __('message.sub_total') }}
@@ -69,6 +64,11 @@
               <div v-for="(t, i) in (summary.taxes || [])" :key="i" class="d-flex justify-content-between py-3 border-bottom">
                 <strong class="text-color-dark">{{ t.label }}<span v-if="t.rate" class="text-color-grey fw-normal"> ({{ t.rate }}%)</span></strong>
                 <span class="amount font-weight-medium">{{ symbol }}{{ t.amount }}</span>
+              </div>
+
+              <div v-if="summary.discount > 0" class="d-flex justify-content-between py-3 border-bottom">
+                <strong class="text-color-dark">{{ __('message.coupon') }}<span v-if="summary.coupon_code" class="text-color-grey fw-normal"> : {{ summary.coupon_code }}</span></strong>
+                <span class="amount text-success">−{{ symbol }}{{ summary.discount }}</span>
               </div>
 
               <div v-if="feeAmount > 0" class="d-flex justify-content-between py-3 border-bottom">

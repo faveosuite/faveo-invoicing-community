@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\License\LicensePermissionsController;
+use App\Services\Payment\ProcessingFee;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
@@ -205,10 +206,11 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
 
     public function getProcessingFee($paymentMethod, $currency)
     {
-        if ($paymentMethod) {
-            $de = $paymentMethod == 'razorpay' ? 0 : \DB::table(strtolower($paymentMethod))->where('currencies', $currency)->value('processing_fee');
-            \DB::table(strtolower($paymentMethod))->where('currencies', $currency)->value('processing_fee');
-        }
+        $percent = ProcessingFee::percent($paymentMethod);
+
+        // Stored as the same "2.5%" label the checkout/pay flow uses, so the
+        // invoice's grand_total (already fee-inclusive) reconciles on display.
+        return $percent > 0 ? ProcessingFee::label($percent) : null;
     }
 
     public function PaymentSuccessMailtoAdmin($invoice, $total, $user, $productName, $template, $order, $payment)

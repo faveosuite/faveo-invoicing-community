@@ -64,6 +64,12 @@
                                     {{ __('message.payment_receipts') }}
                                 </a>
                             </li>
+                            <li v-if="showCloudTab" class="nav-item">
+                                <a class="nav-link text-3" :class="{ active: activeTab === 'cloud' }"
+                                   href="javascript:;" @click="openCloudTab">
+                                    {{ __('message.cloud_settings') }}
+                                </a>
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link text-3" :class="{ active: activeTab === 'auto-renew' }"
                                    href="javascript:;" @click="activeTab = 'auto-renew'">
@@ -201,6 +207,88 @@
                         </DataTable>
                     </div>
 
+                    <!-- ── Cloud Settings ───────────────────────────────── -->
+                    <div v-if="showCloudTab" v-show="activeTab === 'cloud'">
+
+                        <inline-loader v-if="cloudLoading" />
+
+                        <template v-else-if="cloud">
+                            <div class="row pb-4">
+                                <div class="col-7"></div>
+                                <div class="col-5">
+                                    <div class="text-end">
+                                        <span class="font-weight-normal text-4">
+                                            {{ __('message.plan_expiry') }}
+                                            <strong class="font-weight-bold">{{ formatDate(cloud.plan_expiry) }}</strong>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Change cloud domain -->
+                                <div class="col-lg-6 mb-4">
+                                    <div class="card border-radius-1 bg-color-light box-shadow-6 box-shadow-hover cur-pointer h-100"
+                                         @click="openDomainModal">
+                                        <div class="card-body p-relative zindex-1 p-3">
+                                            <div class="feature-box feature-box-style-6 text-center d-block">
+                                                <div class="feature-box-icon justify-content-center">
+                                                    <i class="fas fa-globe text-primary"></i>
+                                                </div>
+                                                <div class="feature-box-info">
+                                                    <h4 class="text-4 mt-3 mb-2 text-color-grey">{{ __('message.change_cloud_domain') }}</h4>
+                                                    <p class="mb-2"><strong class="text-black text-2">{{ __('message.current_domain_name') }}</strong> {{ cloud.installation_path || '—' }}</p>
+                                                    <p class="mb-0 text-2">{{ __('message.click_customising_domain') }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Increase / decrease agents -->
+                                <div class="col-lg-6 mb-4">
+                                    <div class="card border-radius-1 bg-color-light box-shadow-6 box-shadow-hover cur-pointer h-100"
+                                         @click="openAgentsModal">
+                                        <div class="card-body p-relative zindex-1 p-3">
+                                            <div class="feature-box feature-box-style-6 text-center d-block">
+                                                <div class="feature-box-icon justify-content-center">
+                                                    <i class="fas fa-users text-primary"></i>
+                                                </div>
+                                                <div class="feature-box-info">
+                                                    <h4 class="text-4 mt-3 mb-2 text-color-grey">{{ __('message.increase_decrease_agents') }}</h4>
+                                                    <p class="mb-2"><strong class="text-black text-2">{{ __('message.current_no_agents') }} </strong>{{ cloud.current_agents }}</p>
+                                                    <p class="mb-0 text-2">{{ __('message.update_agent_count') }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Upgrade / downgrade plan -->
+                                <div v-if="!cloud.is_free_plan" class="col-lg-6 mb-4">
+                                    <div class="card border-radius-1 bg-color-light box-shadow-6 box-shadow-hover cur-pointer h-100"
+                                         @click="openPlanModal">
+                                        <div class="card-body p-relative zindex-1 p-3">
+                                            <div class="feature-box feature-box-style-6 text-center d-block">
+                                                <div class="feature-box-icon justify-content-center">
+                                                    <i class="fas fa-cloud-upload-alt text-primary"></i>
+                                                </div>
+                                                <div class="feature-box-info">
+                                                    <h4 class="text-4 mt-3 mb-2 text-color-grey">{{ __('message.upgrade_downgrade_cloud') }}</h4>
+                                                    <p class="mb-2"><strong class="text-black text-2">{{ __('message.current_plan') }}</strong> {{ cloud.current_plan_name }}</p>
+                                                    <p class="mb-0 text-2">{{ __('message.change_cloud_plan') }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-else class="col-12">
+                                    <h6 class="mb-1"><i>{{ __('message.current_plan') }} {{ cloud.current_plan_name }}</i></h6>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
                     <!-- ── Auto Renewal ─────────────────────────────────── -->
                     <div v-show="activeTab === 'auto-renew'">
                         <div class="alert alert-info">
@@ -211,16 +299,105 @@
                 </div>
             </div>
 
+            <!-- ── Change Cloud Domain modal ────────────────────────── -->
+            <Modal :showModal="showDomainModal" :onClose="closeDomainModal" :showControls="false">
+                <template #title>
+                    <h4 class="modal-title">{{ __('message.change_cloud_domain') }}</h4>
+                </template>
+                <template #fields>
+                    <p>{{ __('message.current_cloud_domain') }} <strong>{{ cloud?.installation_path || '—' }}</strong></p>
+                    <div class="form-group">
+                        <label class="form-label">{{ __('message.enter_domain_new_name') }} <span class="text-danger">*</span></label>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">https://</span>
+                            <input type="text" class="form-control" v-model.trim="domainForm.newDomain"
+                                   autocomplete="off" placeholder="billing.custom.com">
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-light me-2" @click="closeDomainModal">{{ __('message.close') }}</button>
+                        <button type="button" class="btn btn-primary" :disabled="domainBusy || !domainForm.newDomain" @click="submitDomain">
+                            <i class="fas fa-globe"></i> {{ __('message.chg_domain') }}
+                        </button>
+                    </div>
+                </template>
+            </Modal>
+
+            <!-- ── Change Number of Agents modal ────────────────────── -->
+            <Modal :showModal="showAgentsModal" :onClose="closeAgentsModal" :showControls="false">
+                <template #title>
+                    <h4 class="modal-title">{{ __('message.change_no_of_agents') }}</h4>
+                </template>
+                <template #fields>
+                    <p class="text-black"><strong>{{ __('message.current_no_agents') }}</strong> {{ cloud?.current_agents }}</p>
+                    <p class="text-black"><strong>{{ __('message.price_per_agent') }} </strong>{{ cloud?.price_per_agent }}</p>
+
+                    <div class="form-group mb-3">
+                        <label class="text-black"><strong>{{ __('message.action') }}</strong> <span class="text-danger">*</span></label>
+                        <select class="form-control" v-model="agentForm.action" @change="fetchAgentCost">
+                            <option value="increase">{{ __('message.increase') }}</option>
+                            <option value="decrease">{{ __('message.decrease') }}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="text-black"><strong>{{ __('message.choose_no_desired_agents') }}</strong> <span class="text-danger">*</span></label>
+                        <input type="number" min="1" class="form-control" v-model="agentForm.number" @input="fetchAgentCost">
+                    </div>
+
+                    <p v-if="agentCost" class="text-black"><strong>{{ __('message.price_to_be_paid') }}</strong> {{ agentCost }}</p>
+
+                    <div class="text-end">
+                        <button type="button" class="btn btn-light me-2" @click="closeAgentsModal">{{ __('message.close') }}</button>
+                        <button type="button" class="btn btn-primary" :disabled="agentBusy || !agentForm.number" @click="submitAgents">
+                            <i class="fas fa-users"></i> {{ __('message.update_agents') }}
+                        </button>
+                    </div>
+                </template>
+            </Modal>
+
+            <!-- ── Upgrade / Downgrade Plan modal ───────────────────── -->
+            <Modal :showModal="showPlanModal" :onClose="closePlanModal" :showControls="false">
+                <template #title>
+                    <h4 class="modal-title">{{ __('message.upgrade_downgrade_cloud_plan') }}</h4>
+                </template>
+                <template #fields>
+                    <p class="text-black"><strong>{{ __('message.current_plan') }} </strong>{{ cloud?.current_plan_name }}</p>
+
+                    <div class="form-group mb-3">
+                        <label class="text-black"><strong>{{ __('message.select_new_plan') }}</strong> <span class="text-danger">*</span></label>
+                        <select class="form-control" v-model="planForm.planId" @change="fetchPlanCost">
+                            <option value="">{{ __('message.select') }}</option>
+                            <option v-for="p in cloud?.plans || []" :key="p.id" :value="p.id">{{ p.name }}</option>
+                        </select>
+                    </div>
+
+                    <template v-if="planCost">
+                        <p class="text-black"><strong>{{ __('message.total_credits_remaining') }} </strong>{{ planCost.priceoldplan }}</p>
+                        <p class="text-black"><strong>{{ __('message.price_for_new_plan') }} </strong>{{ planCost.pricenewplan }}</p>
+                        <p class="text-black"><strong>{{ __('message.price_to_be_paid') }} </strong>{{ planCost.price_to_be_paid }}</p>
+                    </template>
+
+                    <div class="text-end">
+                        <button type="button" class="btn btn-light me-2" @click="closePlanModal">{{ __('message.close') }}</button>
+                        <button type="button" class="btn btn-primary" :disabled="planBusy || !planForm.planId" @click="submitPlan">
+                            <i class="fas fa-cloud-upload-alt"></i> {{ __('message.change_plan') }}
+                        </button>
+                    </div>
+                </template>
+            </Modal>
+
         </template>
     </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
-import { errorHandler } from '@/helpers/responseHandler.js'
+import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
+import Modal from '@/themes/porto/components/common/Modal.vue'
 
 const el      = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
@@ -277,6 +454,28 @@ const paymentOptions = reactive({
     filterable: true,
 })
 
+/* ── Cloud settings state ─────────────────────────────────── */
+const cloud        = ref(null)
+const cloudLoading = ref(false)
+const cloudLoaded  = ref(false)
+
+const showDomainModal = ref(false)
+const showAgentsModal = ref(false)
+const showPlanModal   = ref(false)
+
+const domainForm = reactive({ newDomain: '' })
+const agentForm  = reactive({ action: 'increase', number: '' })
+const planForm   = reactive({ planId: '' })
+
+const agentCost = ref('')
+const planCost  = ref(null)
+
+const domainBusy = ref(false)
+const agentBusy  = ref(false)
+const planBusy   = ref(false)
+
+const showCloudTab = computed(() => !!order.value?.is_cloud && order.value?.status !== 'Terminated')
+
 function formatDate(d) {
     if (!d) return '—'
     return new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
@@ -308,6 +507,138 @@ async function copyLicense() {
         copied.value = true
         setTimeout(() => { copied.value = false }, 2000)
     } catch {}
+}
+
+/* ── Cloud settings: lazy load on first tab open ──────────── */
+async function openCloudTab() {
+    activeTab.value = 'cloud'
+    if (cloudLoaded.value) return
+    cloudLoading.value = true
+    try {
+        const res = await http.get(`${baseUrl}/get-cloud-settings/${orderId}`)
+        cloud.value = res.data?.data ?? null
+        cloudLoaded.value = true
+    } catch (e) {
+        errorHandler(e, 'client-page')
+    } finally {
+        cloudLoading.value = false
+    }
+}
+
+/* ── Change domain ────────────────────────────────────────── */
+function openDomainModal() {
+    domainForm.newDomain = ''
+    showDomainModal.value = true
+}
+function closeDomainModal() { showDomainModal.value = false }
+
+async function submitDomain() {
+    if (!cloud.value) return
+    domainBusy.value = true
+    try {
+        const res = await http.post(`${baseUrl}/change/domain`, {
+            newDomain:     domainForm.newDomain,
+            currentDomain: cloud.value.installation_path,
+            lic_code:      cloud.value.serial_key,
+            product_id:    cloud.value.product_id,
+            order_id:      cloud.value.order_id,
+        })
+        successHandler(res, 'client-page')
+        closeDomainModal()
+    } catch (e) {
+        errorHandler(e, 'client-page')
+    } finally {
+        domainBusy.value = false
+    }
+}
+
+/* ── Change agents ────────────────────────────────────────── */
+function openAgentsModal() {
+    agentForm.action = 'increase'
+    agentForm.number = ''
+    agentCost.value  = ''
+    showAgentsModal.value = true
+}
+function closeAgentsModal() { showAgentsModal.value = false }
+
+async function fetchAgentCost() {
+    if (!cloud.value || !agentForm.number) { agentCost.value = ''; return }
+    try {
+        const res = await http.post(`${baseUrl}/get-agent-inc-dec-cost`, {
+            number:      agentForm.number,
+            oldAgents:   cloud.value.current_agents,
+            orderId:     cloud.value.order_id,
+            agentAction: agentForm.action,
+        })
+        // raw (un-wrapped) array response: { pricePerAgent, totalPrice, priceToPay }
+        agentCost.value = res.data?.priceToPay ?? ''
+    } catch (e) {
+        agentCost.value = ''
+        errorHandler(e, 'client-page')
+    }
+}
+
+async function submitAgents() {
+    if (!cloud.value || !agentForm.number) return
+    agentBusy.value = true
+    try {
+        const res = await http.post(`${baseUrl}/changeAgents`, {
+            newAgents:   agentForm.number,
+            orderId:     cloud.value.order_id,
+            product_id:  cloud.value.product_id,
+            subId:       cloud.value.sub_id,
+            agentAction: agentForm.action,
+        })
+        const url = res.data?.data?.url
+        if (url) window.location.href = url
+    } catch (e) {
+        errorHandler(e, 'client-page')
+    } finally {
+        agentBusy.value = false
+    }
+}
+
+/* ── Upgrade / downgrade plan ─────────────────────────────── */
+function openPlanModal() {
+    planForm.planId = ''
+    planCost.value  = null
+    showPlanModal.value = true
+}
+function closePlanModal() { showPlanModal.value = false }
+
+async function fetchPlanCost() {
+    if (!cloud.value || !planForm.planId) { planCost.value = null; return }
+    try {
+        const res = await http.post(`${baseUrl}/get-cloud-upgrade-cost`, {
+            plan:    planForm.planId,
+            agents:  cloud.value.current_agents,
+            orderId: cloud.value.order_id,
+        })
+        // raw (un-wrapped) array response
+        planCost.value = res.data ?? null
+    } catch (e) {
+        planCost.value = null
+        errorHandler(e, 'client-page')
+    }
+}
+
+async function submitPlan() {
+    if (!cloud.value || !planForm.planId) return
+    planBusy.value = true
+    try {
+        const res = await http.post(`${baseUrl}/upgradeDowngradeCloud`, {
+            id:      planForm.planId,
+            agents:  cloud.value.current_agents,
+            userId:  userId,
+            orderId: cloud.value.order_id,
+        })
+        const url = res.data?.data?.url
+        if (url) window.location.href = url
+    } catch (e) {
+        errorHandler(e, 'client-page')
+    } finally {
+        planBusy.value = false
+    }
 }
 
 onMounted(async () => {

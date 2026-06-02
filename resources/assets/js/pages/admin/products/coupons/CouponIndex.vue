@@ -124,7 +124,9 @@ const tableOptions = reactive({
         type:     (f, row) => row.promotion_type?.name || '—',
         value:    (f, row) => row.value || '—',
         products: (f, row) => {
-            const items = row.products ?? []
+            // `products` is a hasOneThrough relation, so the backend serializes
+            // it as a single object (not an array). Normalize to an array.
+            const items = row.products == null ? [] : (Array.isArray(row.products) ? row.products : [row.products])
             if (!items.length) return '—'
             return h('span', {}, items.flatMap((p, i) => {
                 const link = p.id ? h(RouterLink, { to: '/products/' + p.id + '/edit' }, () => p.name) : p.name

@@ -28,7 +28,7 @@ class PageController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['auth', 'admin'], ['except' => ['pageTemplates', 'contactUs', 'postDemoReq', 'postContactUs']]);
+        $this->middleware(['auth', 'admin'], ['except' => ['pageTemplates', 'contactUs', 'postDemoReq', 'postContactUs', 'publishedPages', 'pageBySlug']]);
         $this->middleware('recaptcha:contact')->only('postContactUs');
         $this->middleware('recaptcha:demo')->only('postDemoReq');
         $page = new FrontendPage();
@@ -237,6 +237,43 @@ class PageController extends Controller
             return view('themes.default1.front.page.show', compact('page'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
+        }
+    }
+
+    /**
+     * Public: list published pages for the front-end navbar.
+     * Returns the hierarchy fields so the SPA can build parent/child menus.
+     */
+    public function publishedPages()
+    {
+        try {
+            $pages = FrontendPage::where('publish', 1)
+                ->select('id', 'name', 'slug', 'url', 'type', 'parent_page_id')
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            return successResponse('', $pages);
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    /**
+     * Public: fetch a single published page by slug for the SPA page view.
+     * Returns null data (200) when not found so the client can show a
+     * "page not found" state instead of being redirected.
+     */
+    public function pageBySlug($slug)
+    {
+        try {
+            $page = FrontendPage::where('slug', $slug)
+                ->where('publish', 1)
+                ->select('id', 'name', 'slug', 'content', 'type')
+                ->first();
+
+            return successResponse('', $page);
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -1253,7 +1290,7 @@ class PageController extends Controller
                 'publish' => $request->input('publish', 0),
                 'slug' => $request->input('slug'),
                 'url' => $url,
-                'parent_page_id' => $request->input('parent_page_id'),
+                'parent_page_id' => $request->input('parent_page_id') ?? 0,
                 'type' => $request->input('type'),
                 'content' => $request->input('content'),
             ]);
@@ -1285,6 +1322,11 @@ class PageController extends Controller
 
             // Fill except created_at
             $page->fill($request->except('created_at'));
+
+            // parent_page_id is NOT NULL in the schema; default to 0 (no parent)
+            if ($page->parent_page_id === null) {
+                $page->parent_page_id = 0;
+            }
 
             // Handle created_at if provided and valid
             if ($request->filled('created_at')) {

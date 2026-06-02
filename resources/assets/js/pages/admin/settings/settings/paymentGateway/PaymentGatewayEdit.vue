@@ -79,17 +79,19 @@ const form    = reactive({})
 const GATEWAY_CONFIGS = {
     razorpay: {
         fields: [
-            { name: 'rzp_key',      label: 'Razorpay Key',                                       type: 'text'     },
-            { name: 'rzp_secret',   label: 'Razorpay Secret',                                    type: 'password' },
-            { name: 'apilayer_key', label: 'ApiLayer Access Key (For Exchange Rate Conversion)',  type: 'text', required: false },
+            { name: 'rzp_key',        label: 'Razorpay Key',                                       type: 'text'     },
+            { name: 'rzp_secret',     label: 'Razorpay Secret',                                    type: 'password' },
+            { name: 'apilayer_key',   label: 'ApiLayer Access Key (For Exchange Rate Conversion)',  type: 'text', required: false },
+            { name: 'processing_fee', label: 'Processing Fee (%)',                                 type: 'number', required: false },
         ],
         fetchUrl: `${baseUrl}/get-razorpay-settings`,
         saveUrl:  `${baseUrl}/update-api-key/payment-gateway/razorpay`,
     },
     stripe: {
         fields: [
-            { name: 'stripe_key',    label: 'Stripe Publishable Key', type: 'text'     },
-            { name: 'stripe_secret', label: 'Stripe Secret Key',      type: 'password' },
+            { name: 'stripe_key',     label: 'Stripe Publishable Key', type: 'text'     },
+            { name: 'stripe_secret',  label: 'Stripe Secret Key',      type: 'password' },
+            { name: 'processing_fee', label: 'Processing Fee (%)',     type: 'number', required: false },
         ],
         fetchUrl: `${baseUrl}/get-stripe-settings`,
         saveUrl:  `${baseUrl}/update-api-key/payment-gateway/stripe`,

@@ -149,10 +149,12 @@ onMounted(async () => {
         form.start  = p.start  ? p.start.substring(0, 10)  : null
         form.expiry = p.expiry ? p.expiry.substring(0, 10) : null
 
-        const firstProduct = p.products?.[0]
-        if (firstProduct) {
-            form.applied = firstProduct.id
-            form.productObj = { id: firstProduct.id, name: firstProduct.name }
+        // `products` is a hasOneThrough relation, so it serializes as a single
+        // object (not an array). Guard for both shapes just in case.
+        const product = Array.isArray(p.products) ? p.products[0] : p.products
+        if (product) {
+            form.applied = product.id
+            form.productObj = { id: product.id, name: product.name }
         }
     } catch (e) {
         errorHandler(e, COMPONENT)

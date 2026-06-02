@@ -8,7 +8,6 @@ use App\Plugins\Payment\Dto\Customer;
 use App\Plugins\Payment\Dto\PaymentRequest;
 use App\Plugins\Payment\Dto\PaymentSession;
 use App\Traits\Payment\PostPaymentHandle;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Invoice-payment domain logic.
@@ -65,7 +64,7 @@ class InvoicePaymentService
 
             return array_map(fn ($name) => [
                 'name' => $name,
-                'processing_fee' => $this->processingFee($name, $currency),
+                'processing_fee' => ProcessingFee::percent($name) ?: null,
             ], $names);
         } catch (\Throwable $e) {
             return [];
@@ -143,16 +142,14 @@ class InvoicePaymentService
     /** Amount actually payable now: outstanding balance plus the gateway's processing fee. */
     private function amountDue(Invoice $invoice, string $gateway): float
     {
-        $fee = (float) ($this->processingFee($gateway, $invoice->currency) ?? 0);
-
-        return (float) rounding($this->outstanding($invoice) * (1 + $fee / 100));
+        return ProcessingFee::addTo($this->outstanding($invoice), $gateway);
     }
 
     /**
      * Record the gateway's processing fee on the invoice so its grand_total
      * (and the recorded payment) match what the card was charged. grand_total
      * is stored fee-inclusive, matching the legacy convention. Idempotent and a
-     * no-op for fee-less gateways (e.g. Razorpay).
+     * no-op for fee-less gateways (e.g. a gateway configured with a 0% fee).
      */
     private function applyProcessingFee(Invoice $invoice, string $gateway): void
     {
@@ -160,28 +157,14 @@ class InvoicePaymentService
             return; // already applied
         }
 
-        $fee = (float) ($this->processingFee($gateway, $invoice->currency) ?? 0);
+        $fee = ProcessingFee::percent($gateway);
         if ($fee <= 0) {
             return;
         }
 
-        $invoice->processing_fee = rtrim(rtrim(number_format($fee, 2, '.', ''), '0'), '.').'%';
-        $invoice->grand_total = (float) rounding((float) $invoice->grand_total * (1 + $fee / 100));
+        $invoice->processing_fee = ProcessingFee::label($fee);
+        $invoice->grand_total = ProcessingFee::addTo((float) $invoice->grand_total, $gateway);
         $invoice->save();
-    }
-
-    /** Processing fee (%) for a gateway in a currency, or null when not configured. */
-    private function processingFee(string $gateway, string $currency): ?float
-    {
-        try {
-            $fee = DB::table(strtolower($gateway))
-                ->where('currencies', $currency)
-                ->value('processing_fee');
-
-            return $fee !== null ? (float) $fee : null;
-        } catch (\Throwable $e) {
-            return null;
-        }
     }
 
     /** Map the authenticated user onto the package's Customer value object. */

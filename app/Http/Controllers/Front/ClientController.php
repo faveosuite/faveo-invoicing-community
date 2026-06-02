@@ -373,6 +373,8 @@ class ClientController extends BaseClientController
                 'serial_key' => $order->serial_key,
                 'invoice_id' => $latestInvoice?->id,
                 'invoice_number' => $latestInvoice?->number,
+                'sub_id' => $order->subscription?->id,
+                'is_cloud' => in_array($order->productRelation?->id, cloudPopupProducts()),
                 'user' => [
                     'name' => ucfirst($user->first_name ?? '').' '.ucfirst($user->last_name ?? ''),
                     'email' => $user->email,
@@ -434,6 +436,70 @@ class ClientController extends BaseClientController
         });
 
         return successResponse('', $paginated);
+    }
+
+    /**
+     * Cloud settings data for the client order view (Vue cloud-settings tab).
+     * Returns the current domain, agent count, plan, expiry and the plan list
+     * used by the change-domain / change-agents / upgrade-downgrade modals.
+     *
+     * @param  $orderId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCloudSettings($orderId)
+    {
+        try {
+            $user = \Auth::user();
+            $order = $this->getClientPanelOrdersData()->where('id', $orderId)->first();
+            $product = $order?->productRelation;
+
+            if (! $order || ! $product || ! in_array($product->id, cloudPopupProducts())) {
+                return errorResponse(__('message.no_records_found'));
+            }
+
+            $currency = getCurrencyForClient($user->country);
+            $subscription = $order->subscription;
+
+            $installation_path = \App\License\Models\Installation::where('license_code', $order->serial_key)
+                ->where('installation_path', '!=', cloudCentralDomain())
+                ->latest('updated_at')->value('installation_path');
+
+            $currentAgents = ltrim(substr($order->serial_key, 12), '0');
+
+            $planIdOld = $subscription?->plan_id;
+            $planName = \App\Model\Payment\Plan::where('id', $planIdOld)->value('name');
+            $pricePerAgent = \App\Model\Payment\PlanPrice::where('plan_id', $planIdOld)
+                ->where('currency', $currency)->latest()->value('add_price');
+
+            // Plans available for upgrade/downgrade (other cloud products' plans, free excluded).
+            $plans = $this->planPriceProductRelation($product);
+            $planIds = array_keys($plans);
+            $countryids = \App\Model\Common\Country::where('country_code_char2', $user->country)->first();
+            $plans = $this->planDetails($planIds, $countryids, $user->country, $plans, $product);
+            $planOptions = [];
+            foreach ($plans as $pid => $pname) {
+                $planOptions[] = ['id' => $pid, 'name' => $pname];
+            }
+
+            return successResponse('', [
+                'order_id' => $order->id,
+                'product_id' => $product->id,
+                'sub_id' => $subscription?->id,
+                'serial_key' => $order->serial_key,
+                'installation_path' => $installation_path,
+                'current_agents' => $currentAgents,
+                'current_plan_id' => $planIdOld,
+                'current_plan_name' => $planName,
+                'is_free_plan' => $planName ? stripos($planName, 'free') !== false : false,
+                'plan_expiry' => $subscription?->ends_at,
+                'price_per_agent' => currencyFormat($pricePerAgent, $currency, true),
+                'plans' => $planOptions,
+            ]);
+        } catch (\Exception $e) {
+            \Logger::exception($e);
+
+            return errorResponse(__('message.something_bad'));
+        }
     }
 
     public function renewPopupVue(Request $request, int $productid)
@@ -587,11 +653,9 @@ class ClientController extends BaseClientController
 
         // Tax breakdown from the persisted invoice_tax_lines, grouped per tax.
         $gstSplit = [];
-        $taxDeducted = 0.0;
 
         foreach (InvoiceTaxLine::where('invoice_id', $invoice->id)->get()->groupBy('label') as $label => $lines) {
             $amount = (float) $lines->sum('amount');
-            $taxDeducted += $amount;
             $percentage = rtrim(rtrim(number_format((float) $lines->first()->rate, 2, '.', ''), '0'), '.').'%';
 
             $gstSplit[] = [
@@ -602,17 +666,9 @@ class ClientController extends BaseClientController
             ];
         }
 
-        $processingFeeAmount = 0;
-
-        if ($invoice->processing_fee && $invoice->processing_fee != '0%') {
-            $percent = floatval(filter_var(
-                $invoice->processing_fee,
-                FILTER_SANITIZE_NUMBER_FLOAT,
-                FILTER_FLAG_ALLOW_FRACTION
-            ));
-
-            $processingFeeAmount = ($percent / 100) * ($itemsSubtotal + $taxDeducted);
-        }
+        // grand_total is stored fee-inclusive, so the fee is the part of it above
+        // the pre-fee total — reverse it out (matches Order\InvoiceController).
+        $processingFeeAmount = \App\Services\Payment\ProcessingFee::fromInclusive((float) $invoice->grand_total, $invoice->processing_fee);
         $base64 = '';
         if ($set->logo) {
             $type = pathinfo($set->logo, PATHINFO_EXTENSION);

@@ -28,7 +28,7 @@
                         />
                     </div>
                     <div class="col-md-6">
-                        <TextField name="url" :label="__('message.page_url')" :required="form.type !== 'contactus'" :value="form.url" :onChange="onChange" :disabled="form.type === 'contactus'" :error="errors.url" />
+                        <TextField name="url" :label="__('message.page_url')" :value="form.url" :onChange="onChange" :disabled="form.type === 'contactus'" :error="errors.url" />
                     </div>
                 </div>
 

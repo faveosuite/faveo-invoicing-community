@@ -76,6 +76,28 @@
                           </ul>
                         </li>
 
+                        <!-- CMS Pages (published) -->
+                        <template v-for="page in topLevelPages" :key="page.id">
+                          <!-- Page with children -> dropdown -->
+                          <li v-if="childPages(page.id).length" class="dropdown">
+                            <a class="nav-link dropdown-toggle" href="javascript:;"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                              &nbsp;{{ ucfirst(page.name) }}&nbsp;
+                            </a>
+                            <ul class="dropdown-menu border-light mt-n1">
+                              <li v-for="child in childPages(page.id)" :key="child.id">
+                                <a v-if="child.type === 'contactus'" :href="child.url" class="dropdown-item">{{ ucfirst(child.name) }}</a>
+                                <RouterLink v-else :to="'/pages/' + child.slug" class="dropdown-item">{{ ucfirst(child.name) }}</RouterLink>
+                              </li>
+                            </ul>
+                          </li>
+                          <!-- Simple page -->
+                          <li v-else>
+                            <a v-if="page.type === 'contactus'" :href="page.url" class="nav-link">&nbsp;{{ ucfirst(page.name) }}&nbsp;</a>
+                            <RouterLink v-else :to="'/pages/' + page.slug" class="nav-link">&nbsp;{{ ucfirst(page.name) }}&nbsp;</RouterLink>
+                          </li>
+                        </template>
+
                         <!-- My Account (authenticated) -->
                         <li v-if="isAuthenticated" class="dropdown">
                           <a class="nav-link dropdown-toggle" href="javascript:;"
@@ -332,6 +354,15 @@ const flagCode = computed(() => localeMap[locale.value] ?? 'us')
 
 const productGroups = ref([])
 
+// Published CMS pages shown in the navbar (public).
+const publishedPages = ref([])
+const ucfirst = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s)
+const topLevelPages = computed(() =>
+    publishedPages.value.filter(p => !p.parent_page_id || p.parent_page_id === 0)
+)
+const childPages = (parentId) =>
+    publishedPages.value.filter(p => p.parent_page_id === parentId)
+
 onMounted(async () => {
   document.addEventListener('click', onClickOutside)
   if (isAuthenticated.value) {
@@ -340,6 +371,11 @@ onMounted(async () => {
   try {
     const {data} = await http.post('available-groups')
     productGroups.value = Object.entries(data.data ?? {}).map(([id, g]) => ({id: parseInt(id), ...g}))
+  } catch {
+  }
+  try {
+    const {data} = await http.get('published-pages')
+    publishedPages.value = data.data ?? []
   } catch {
   }
 })
