@@ -4,9 +4,9 @@ namespace App\Plugins\Stripe\Controllers;
 
 use App\ApiKey;
 use App\Http\Controllers\Controller;
+use App\Services\Payment\ProcessingFee;
 use App\Traits\Payment\PostPaymentHandle;
 use App\User;
-use App\Services\Payment\ProcessingFee;
 use Cartalyst\Stripe\Laravel\Facades\Stripe;
 use Illuminate\Http\Request;
 use Stripe\StripeClient;
