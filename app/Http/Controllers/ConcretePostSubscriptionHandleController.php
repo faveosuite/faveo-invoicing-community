@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\License\LicensePermissionsController;
-use App\Services\Payment\ProcessingFee;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
@@ -12,6 +11,7 @@ use App\Model\Order\Order;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
 use App\Model\Product\Subscription;
+use App\Services\Payment\ProcessingFee;
 use Carbon\Carbon;
 
 abstract class PostSubscriptionHandleController

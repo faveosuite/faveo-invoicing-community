@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Common\MailChimpController;
-use App\Services\Payment\ProcessingFee;
 use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\Order\ExtendedBaseInvoiceController;
 use App\Http\Controllers\Tenancy\TenantController;
@@ -22,6 +21,7 @@ use App\Model\Payment\PromotionType;
 use App\Model\Product\Price;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Services\Payment\ProcessingFee;
 use App\Traits\Payment\PostPaymentHandle;
 use App\Traits\TaxCalculation;
 use App\User;
