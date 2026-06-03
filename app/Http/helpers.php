@@ -906,8 +906,8 @@ function isRtlForLang()
 function honeypotData(): array
 {
     return [
-        'pot'   => 'p'.Str::random(),
-        'time'  => 't'.Str::random(),
+        'pot' => 'p'.Str::random(),
+        'time' => 't'.Str::random(),
         'token' => Crypt::encrypt(time()),
     ];
 }
