@@ -213,18 +213,6 @@
                         <inline-loader v-if="cloudLoading" />
 
                         <template v-else-if="cloud">
-                            <div class="row pb-4">
-                                <div class="col-7"></div>
-                                <div class="col-5">
-                                    <div class="text-end">
-                                        <span class="font-weight-normal text-4">
-                                            {{ __('message.plan_expiry') }}
-                                            <strong class="font-weight-bold">{{ formatDate(cloud.plan_expiry) }}</strong>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
                             <div class="row">
                                 <!-- Change cloud domain -->
                                 <div class="col-lg-6 mb-4">
@@ -300,31 +288,27 @@
             </div>
 
             <!-- ── Change Cloud Domain modal ────────────────────────── -->
-            <Modal :showModal="showDomainModal" :onClose="closeDomainModal" :showControls="false">
+            <Modal :showModal="showDomainModal" :onClose="closeDomainModal" :showCloseBtn="false">
                 <template #title>
                     <h4 class="modal-title">{{ __('message.change_cloud_domain') }}</h4>
                 </template>
                 <template #fields>
                     <p>{{ __('message.current_cloud_domain') }} <strong>{{ cloud?.installation_path || '—' }}</strong></p>
-                    <div class="form-group">
-                        <label class="form-label">{{ __('message.enter_domain_new_name') }} <span class="text-danger">*</span></label>
-                        <div class="input-group mb-3">
-                            <span class="input-group-text">https://</span>
-                            <input type="text" class="form-control" v-model.trim="domainForm.newDomain"
-                                   autocomplete="off" placeholder="billing.custom.com">
-                        </div>
-                    </div>
-                    <div class="text-end">
-                        <button type="button" class="btn btn-light me-2" @click="closeDomainModal">{{ __('message.close') }}</button>
-                        <button type="button" class="btn btn-primary" :disabled="domainBusy || !domainForm.newDomain" @click="submitDomain">
-                            <i class="fas fa-globe"></i> {{ __('message.chg_domain') }}
-                        </button>
-                    </div>
+                    <ClientField type="text" name="newDomain" required
+                                 :label="__('message.enter_domain_new_name')"
+                                 v-model="domainForm.newDomain"
+                                 placeholder="https://billing.custom.com" autocomplete="off" />
+                </template>
+                <template #controls>
+                    <button type="button" class="btn btn-light me-2" @click="closeDomainModal">{{ __('message.close') }}</button>
+                    <button type="button" class="btn btn-primary" :disabled="domainBusy || !domainForm.newDomain" @click="submitDomain">
+                        <i class="fas fa-globe"></i> {{ __('message.chg_domain') }}
+                    </button>
                 </template>
             </Modal>
 
             <!-- ── Change Number of Agents modal ────────────────────── -->
-            <Modal :showModal="showAgentsModal" :onClose="closeAgentsModal" :showControls="false">
+            <Modal :showModal="showAgentsModal" :onClose="closeAgentsModal" :showCloseBtn="false">
                 <template #title>
                     <h4 class="modal-title">{{ __('message.change_no_of_agents') }}</h4>
                 </template>
@@ -332,58 +316,53 @@
                     <p class="text-black"><strong>{{ __('message.current_no_agents') }}</strong> {{ cloud?.current_agents }}</p>
                     <p class="text-black"><strong>{{ __('message.price_per_agent') }} </strong>{{ cloud?.price_per_agent }}</p>
 
-                    <div class="form-group mb-3">
-                        <label class="text-black"><strong>{{ __('message.action') }}</strong> <span class="text-danger">*</span></label>
-                        <select class="form-control" v-model="agentForm.action" @change="fetchAgentCost">
-                            <option value="increase">{{ __('message.increase') }}</option>
-                            <option value="decrease">{{ __('message.decrease') }}</option>
-                        </select>
-                    </div>
+                    <SelectField name="action" required
+                                 :label="__('message.action')"
+                                 :elements="actionOptions"
+                                 :value="actionOptions.find(o => o.id === agentForm.action) ?? null"
+                                 :onChange="onActionChange"
+                                 :clearable="false" />
 
-                    <div class="form-group mb-3">
-                        <label class="text-black"><strong>{{ __('message.choose_no_desired_agents') }}</strong> <span class="text-danger">*</span></label>
-                        <input type="number" min="1" class="form-control" v-model="agentForm.number" @input="fetchAgentCost">
-                    </div>
+                    <ClientField type="number" name="number" required
+                                 :label="__('message.choose_no_desired_agents')"
+                                 v-model="agentForm.number" @update:modelValue="fetchAgentCost" />
 
                     <p v-if="agentCost" class="text-black"><strong>{{ __('message.price_to_be_paid') }}</strong> {{ agentCost }}</p>
-
-                    <div class="text-end">
-                        <button type="button" class="btn btn-light me-2" @click="closeAgentsModal">{{ __('message.close') }}</button>
-                        <button type="button" class="btn btn-primary" :disabled="agentBusy || !agentForm.number" @click="submitAgents">
-                            <i class="fas fa-users"></i> {{ __('message.update_agents') }}
-                        </button>
-                    </div>
+                </template>
+                <template #controls>
+                    <button type="button" class="btn btn-light me-2" @click="closeAgentsModal">{{ __('message.close') }}</button>
+                    <button type="button" class="btn btn-primary" :disabled="agentBusy || !agentForm.number" @click="submitAgents">
+                        <i class="fas fa-users"></i> {{ __('message.update_agents') }}
+                    </button>
                 </template>
             </Modal>
 
             <!-- ── Upgrade / Downgrade Plan modal ───────────────────── -->
-            <Modal :showModal="showPlanModal" :onClose="closePlanModal" :showControls="false">
+            <Modal :showModal="showPlanModal" :onClose="closePlanModal" :showCloseBtn="false">
                 <template #title>
                     <h4 class="modal-title">{{ __('message.upgrade_downgrade_cloud_plan') }}</h4>
                 </template>
                 <template #fields>
                     <p class="text-black"><strong>{{ __('message.current_plan') }} </strong>{{ cloud?.current_plan_name }}</p>
 
-                    <div class="form-group mb-3">
-                        <label class="text-black"><strong>{{ __('message.select_new_plan') }}</strong> <span class="text-danger">*</span></label>
-                        <select class="form-control" v-model="planForm.planId" @change="fetchPlanCost">
-                            <option value="">{{ __('message.select') }}</option>
-                            <option v-for="p in cloud?.plans || []" :key="p.id" :value="p.id">{{ p.name }}</option>
-                        </select>
-                    </div>
+                    <SelectField name="planId" required
+                                 :label="__('message.select_new_plan')"
+                                 :elements="cloud?.plans || []"
+                                 :value="(cloud?.plans || []).find(p => p.id === planForm.planId) ?? null"
+                                 :onChange="onPlanChange"
+                                 :placeholder="__('message.select')" />
 
                     <template v-if="planCost">
                         <p class="text-black"><strong>{{ __('message.total_credits_remaining') }} </strong>{{ planCost.priceoldplan }}</p>
                         <p class="text-black"><strong>{{ __('message.price_for_new_plan') }} </strong>{{ planCost.pricenewplan }}</p>
                         <p class="text-black"><strong>{{ __('message.price_to_be_paid') }} </strong>{{ planCost.price_to_be_paid }}</p>
                     </template>
-
-                    <div class="text-end">
-                        <button type="button" class="btn btn-light me-2" @click="closePlanModal">{{ __('message.close') }}</button>
-                        <button type="button" class="btn btn-primary" :disabled="planBusy || !planForm.planId" @click="submitPlan">
-                            <i class="fas fa-cloud-upload-alt"></i> {{ __('message.change_plan') }}
-                        </button>
-                    </div>
+                </template>
+                <template #controls>
+                    <button type="button" class="btn btn-light me-2" @click="closePlanModal">{{ __('message.close') }}</button>
+                    <button type="button" class="btn btn-primary" :disabled="planBusy || !planForm.planId" @click="submitPlan">
+                        <i class="fas fa-cloud-upload-alt"></i> {{ __('message.change_plan') }}
+                    </button>
                 </template>
             </Modal>
 
@@ -466,6 +445,22 @@ const showPlanModal   = ref(false)
 const domainForm = reactive({ newDomain: '' })
 const agentForm  = reactive({ action: 'increase', number: '' })
 const planForm   = reactive({ planId: '' })
+
+// Increase/Decrease options for the SelectField (vue-select expects objects).
+const actionOptions = computed(() => [
+    { id: 'increase', name: __('message.increase') },
+    { id: 'decrease', name: __('message.decrease') },
+])
+
+function onActionChange(v) {
+    agentForm.action = v?.id ?? 'increase'
+    fetchAgentCost()
+}
+
+function onPlanChange(v) {
+    planForm.planId = v?.id ?? ''
+    fetchPlanCost()
+}
 
 const agentCost = ref('')
 const planCost  = ref(null)

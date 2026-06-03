@@ -1,224 +1,251 @@
 <template>
-    <div>
-        <AppCard :title="__('message.profile_information')">
-        <inline-loader v-if="!hasDataPopulated" />
+  <div>
+    <AppCard :title="__('message.profile_information')">
+      <inline-loader v-if="!hasDataPopulated"/>
 
-        <div v-if="hasDataPopulated">
+      <div v-if="hasDataPopulated">
 
-            <!-- Avatar -->
-            <div class="d-flex justify-content-center mb-5">
-                <ProfileImageUpload
-                    :src="avatarPreview"
-                    :initials="initials"
-                    :alt="form.first_name"
-                    @change="onImageChange"
-                />
-            </div>
-
-            <!-- Profile form -->
-            <form @submit.prevent="submitProfile" class="needs-validation">
-
-                <ClientField type="text" name="first_name"
-                             :label="__('message.first_name')"
-                             v-model="form.first_name"
-                             :error="errors.first_name"
-                             :required="true" />
-
-                <ClientField type="text" name="last_name"
-                             :label="__('message.last_name')"
-                             v-model="form.last_name"
-                             :error="errors.last_name"
-                             :required="true" />
-
-                <ClientField type="text" name="user_name"
-                             :label="__('message.user_name')"
-                             v-model="form.user_name"
-                             :error="errors.user_name"
-                             :required="true" />
-
-                <!-- Email — read-only -->
-                <div class="form-group row">
-                    <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2">
-                        {{ __('message.email') }}
-                    </label>
-                    <div class="col-lg-9">
-                        <input class="form-control text-3 h-auto py-2"
-                               type="email" :value="form.email" disabled
-                               style="background-color: #f8f9fa;">
-                    </div>
-                </div>
-
-                <ClientField type="text" name="company"
-                             :label="__('message.company')"
-                             v-model="form.company"
-                             :error="errors.company"
-                             :required="true" />
-
-                <!-- Mobile -->
-                <div class="form-group row">
-                    <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">
-                        {{ __('message.mobile') }}
-                    </label>
-                    <div class="col-lg-9">
-                        <input class="form-control text-3 h-auto py-2"
-                               :class="{ 'is-invalid': errors.mobile }"
-                               type="text" v-model="form.mobile">
-                        <div v-if="errors.mobile" class="invalid-feedback">{{ errors.mobile }}</div>
-                    </div>
-                </div>
-
-                <ClientField type="text" name="address"
-                             :label="__('message.address')"
-                             v-model="form.address"
-                             :error="errors.address"
-                             :required="true" />
-
-                <ClientField type="text" name="town"
-                             :label="__('message.town')"
-                             v-model="form.town" />
-
-                <ClientField type="select" name="country"
-                             :label="__('message.country')"
-                             v-model="form.country"
-                             :error="errors.country"
-                             @change="onCountryChange">
-                    <option value="">-- {{ __('message.select') }} --</option>
-                    <option v-for="c in countries" :key="c.id" :value="c.code">{{ c.name }}</option>
-                </ClientField>
-
-                <ClientField type="select" name="state"
-                             :label="__('message.state')"
-                             v-model="form.state">
-                    <option value="">-- {{ __('message.select') }} --</option>
-                    <option v-for="s in states" :key="s.id" :value="s.id">{{ s.name }}</option>
-                </ClientField>
-
-                <ClientField type="text" name="zipcode"
-                             :label="__('message.zip')"
-                             v-model="form.zipcode" />
-
-                <div class="form-group row">
-                    <div class="col-lg-9 offset-lg-3">
-                        <button type="submit" class="btn btn-primary btn-modern" :disabled="savingProfile">
-                            <i v-if="savingProfile" class="fas fa-circle-notch fa-spin me-1"></i>
-                            {{ __('message.save') }}
-                        </button>
-                    </div>
-                </div>
-
-            </form>
-
+        <!-- Avatar -->
+        <div class="d-flex justify-content-center mb-5">
+          <ProfileImageUpload
+              :src="avatarPreview"
+              :initials="initials"
+              :alt="form.first_name"
+              @change="onImageChange"
+          />
         </div>
-        </AppCard>
-    </div>
+
+        <!-- Profile form -->
+        <form @submit.prevent="submitProfile" class="needs-validation">
+
+          <div class="row">
+            <div class="col-md-6">
+              <ClientField type="text" name="first_name"
+                           :label="__('message.first_name')"
+                           v-model="form.first_name"
+                           :error="errors.first_name"
+                           :required="true"/>
+            </div>
+            <div class="col-md-6">
+              <ClientField type="text" name="last_name"
+                           :label="__('message.last_name')"
+                           v-model="form.last_name"
+                           :error="errors.last_name"
+                           :required="true"/>
+            </div>
+          </div>
+
+          <ClientField type="text" name="user_name"
+                       :label="__('message.user_name')"
+                       v-model="form.user_name"
+                       :error="errors.user_name"
+                       :required="true"/>
+
+          <!-- Email — read-only -->
+          <ClientField type="email" name="email"
+                       :label="__('message.email')"
+                       v-model="form.email"
+                       :disabled="true"/>
+
+          <!-- Mobile -->
+          <PhoneField name="mobile" :label="__('message.mobile')" required
+                      :value="form.mobile" :error="errors.mobile"
+                      :initialCountry="(form.mobile_country_iso || 'auto').toLowerCase()"
+                      :onChange="onMobileInput"
+                      @countryChange="onMobileCountryChange"/>
+
+          <ClientField type="text" name="company"
+                       :label="__('message.company')"
+                       v-model="form.company"
+                       :error="errors.company"
+                       :required="true"/>
+
+          <ClientField type="text" name="address"
+                       :label="__('message.address')"
+                       v-model="form.address"
+                       :error="errors.address"
+                       :required="true"/>
+
+          <ClientField type="text" name="town"
+                       :label="__('message.town')"
+                       v-model="form.town"/>
+
+          <!-- Country — managed by admin, read-only on the client panel -->
+          <SelectField name="country"
+                       :label="__('message.country')"
+                       :elements="countries"
+                       optionLabel="name"
+                       :value="countries.find(c => c.code === form.country) ?? null"
+                       :onChange="(v) => form.country = v?.code ?? ''"
+                       :disabled="true" />
+
+          <SelectField name="state"
+                       :label="__('message.state')"
+                       :elements="states"
+                       optionLabel="name"
+                       :value="states.find(s => s.id === form.state) ?? null"
+                       :onChange="(v) => form.state = v?.id ?? ''" />
+
+          <DynamicSelect name="timezone_id"
+                         :label="__('message.timezone')"
+                         :apiEndpoint="`${baseUrl}/dependency/time-zones`"
+                         dataKey="time_zones"
+                         optionLabel="name"
+                         :value="selectedTimezone"
+                         :onChange="onTimezoneChange"
+                         :placeholder="__('message.select')"
+                         :error="errors.timezone_id" />
+
+          <div class="form-group row">
+            <div class="col-lg-9 offset-lg-3">
+              <button type="submit" class="btn btn-primary btn-modern" :disabled="savingProfile">
+                <i v-if="savingProfile" class="fas fa-circle-notch fa-spin me-1"></i>
+                {{ __('message.save') }}
+              </button>
+            </div>
+          </div>
+
+        </form>
+
+      </div>
+    </AppCard>
+  </div>
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted } from 'vue'
+import {reactive, ref, computed, onMounted} from 'vue'
 import http from '@/plugins/axios'
-import { __ } from '@/plugins/i18n'
-import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { profileSchema } from '@/validations/client/profile.js'
+import {__} from '@/plugins/i18n'
+import {successHandler, errorHandler} from '@/helpers/responseHandler.js'
+import {profileSchema} from '@/validations/client/profile.js'
 import ProfileImageUpload from '@/themes/porto/components/common/ProfileImageUpload.vue'
 
-const el           = document.getElementById('app-client')
-const baseUrl      = el?.dataset?.baseUrl ?? ''
+const el = document.getElementById('app-client')
+const baseUrl = el?.dataset?.baseUrl ?? ''
 const avatarPreview = ref(el?.dataset?.userAvatar ?? '')
 const selectedImage = ref(null)
 
 const COMPONENT = 'client-page'
 
 const hasDataPopulated = ref(false)
-const savingProfile    = ref(false)
+const savingProfile = ref(false)
 
 const form = reactive({
-    first_name: '', last_name: '', user_name: '', email: '',
-    company: '', mobile: '', mobile_code: '', mobile_country_iso: '',
-    address: '', town: '', country: '', state: '', zipcode: '',
+  first_name: '', last_name: '', user_name: '', email: '',
+  company: '', mobile: '', mobile_code: '', mobile_country_iso: '',
+  address: '', town: '', country: '', state: '', timezone_id: '',
+  // kept (not shown) so the saved value is preserved on submit
+  zipcode: '',
 })
 const errors = ref({})
 
 const initials = computed(() => {
-    const f = form.first_name?.[0] ?? ''
-    const l = form.last_name?.[0] ?? ''
-    return (f + l).toUpperCase() || '?'
+  const f = form.first_name?.[0] ?? ''
+  const l = form.last_name?.[0] ?? ''
+  return (f + l).toUpperCase() || '?'
 })
 
 const countries = ref([])
-const states    = ref([])
+const states = ref([])
+// Current timezone object for the DynamicSelect's initial display; its options
+// are loaded on demand from /dependency/time-zones (the DependencyController).
+const selectedTimezone = ref(null)
 
 onMounted(async () => {
-    try {
-        const [profileRes, countriesRes] = await Promise.all([
-            http.get(`${baseUrl}/my-profile`),
-            http.get(`${baseUrl}/dependency/countries`, { params: { limit: 'all' } }),
-        ])
-        countries.value = countriesRes.data?.data?.countries ?? []
-        const d    = profileRes.data?.data ?? {}
-        const user = d.user ?? {}
-        Object.assign(form, {
-            first_name: user.first_name ?? '', last_name: user.last_name ?? '',
-            user_name: user.user_name ?? '', email: user.email ?? '',
-            company: user.company ?? '', mobile: user.mobile ?? '',
-            mobile_code: user.mobile_code ?? '', mobile_country_iso: user.mobile_country_iso ?? '',
-            address: user.address ?? '', town: user.town ?? '',
-            country: user.country ?? '', state: user.state ?? '', zipcode: user.zipcode ?? user.zip ?? '',
-        })
-        if (form.country) await loadStates(form.country)
-    } catch (e) {
-        errorHandler(e, COMPONENT)
-    } finally {
-        hasDataPopulated.value = true
+  try {
+    const [profileRes, countriesRes] = await Promise.all([
+      http.get(`${baseUrl}/my-profile`),
+      http.get(`${baseUrl}/dependency/countries`, {params: {limit: 'all'}}),
+    ])
+    countries.value = countriesRes.data?.data?.countries ?? []
+    const d = profileRes.data?.data ?? {}
+    const user = d.user ?? {}
+    Object.assign(form, {
+      first_name: user.first_name ?? '', last_name: user.last_name ?? '',
+      user_name: user.user_name ?? '', email: user.email ?? '',
+      company: user.company ?? '', mobile: user.mobile ?? '',
+      mobile_code: user.mobile_code ?? '', mobile_country_iso: user.mobile_country_iso ?? '',
+      address: user.address ?? '', town: user.town ?? '',
+      country: user.country ?? '', state: user.state ?? '',
+      timezone_id: user.timezone_id ?? '', zipcode: user.zipcode ?? user.zip ?? '',
+    })
+    if (user.timezone) {
+      selectedTimezone.value = { id: user.timezone.id, name: user.timezone.timezone_name ?? user.timezone.name }
     }
+    if (form.country) await loadStates(form.country)
+  } catch (e) {
+    errorHandler(e, COMPONENT)
+  } finally {
+    hasDataPopulated.value = true
+  }
 })
 
+function onTimezoneChange(v) {
+  selectedTimezone.value = v
+  form.timezone_id = v?.id ?? ''
+  errors.value = { ...errors.value, timezone_id: undefined }
+}
+
 async function loadStates(code) {
-    if (!code) { states.value = []; return }
-    try {
-        const res = await http.get(`${baseUrl}/dependency/states`, { params: { country: code, limit: 'all' } })
-        states.value = (res.data?.data?.states ?? []).map(st => ({
-            id:   st.iso2,
-            name: st.name,
-        }))
-    } catch { states.value = [] }
-}
-
-async function onCountryChange() {
-    errors.value = { ...errors.value, country: undefined }
-    form.state = ''
+  if (!code) {
+    states.value = [];
+    return
+  }
+  try {
+    const res = await http.get(`${baseUrl}/dependency/states`, {params: {country: code, limit: 'all'}})
+    states.value = (res.data?.data?.states ?? []).map(st => ({
+      id: st.iso2,
+      name: st.name,
+    }))
+  } catch {
     states.value = []
-    if (form.country) await loadStates(form.country)
+  }
 }
 
-function onImageChange({ file, previewUrl }) {
-    selectedImage.value  = file
-    avatarPreview.value  = previewUrl
+function onImageChange({file, previewUrl}) {
+  selectedImage.value = file
+  avatarPreview.value = previewUrl
+}
+
+// PhoneField writes the digits back; its own country selector drives the dial code.
+function onMobileInput(value) {
+  form.mobile = String(value).replace(/[^\d]/g, '')
+  errors.value = {...errors.value, mobile: undefined}
+}
+
+function onMobileCountryChange({iso, dialCode}) {
+  form.mobile_country_iso = iso
+  form.mobile_code = dialCode
 }
 
 async function submitProfile() {
-    errors.value = {}
-    try {
-        profileSchema.validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const map = {}
-        err.inner?.forEach(e => { if (e.path && !map[e.path]) map[e.path] = e.message })
-        errors.value = map
-        return
+  errors.value = {}
+  try {
+    profileSchema.validateSync(form, {abortEarly: false})
+  } catch (err) {
+    const map = {}
+    err.inner?.forEach(e => {
+      if (e.path && !map[e.path]) map[e.path] = e.message
+    })
+    errors.value = map
+    return
+  }
+  savingProfile.value = true
+  try {
+    const data = new FormData()
+    Object.entries(form).forEach(([k, v]) => {
+      if (v != null) data.append(k, v)
+    })
+    if (selectedImage.value) {
+      data.append('profile_pic', selectedImage.value, 'profile_pic.jpg')
     }
-    savingProfile.value = true
-    try {
-        const data = new FormData()
-        Object.entries(form).forEach(([k, v]) => { if (v != null) data.append(k, v) })
-        if (selectedImage.value) {
-            data.append('profile_pic', selectedImage.value, 'profile_pic.jpg')
-        }
-        data.append('_method', 'PATCH')
-        const res = await http.post(`${baseUrl}/my-profile`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
-        successHandler(res, COMPONENT)
-    } catch (e) {
-        errorHandler(e, COMPONENT)
-    } finally {
-        savingProfile.value = false
-    }
+    data.append('_method', 'PATCH')
+    const res = await http.post(`${baseUrl}/my-profile`, data, {headers: {'Content-Type': 'multipart/form-data'}})
+    successHandler(res, COMPONENT)
+  } catch (e) {
+    errorHandler(e, COMPONENT)
+  } finally {
+    savingProfile.value = false
+  }
 }
 </script>
