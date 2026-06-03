@@ -53,7 +53,7 @@ class LoginController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest')->except(['logout', 'store-basic-details']);
+        $this->middleware('guest')->except(['logout', 'store-basic-details', 'loginConfig']);
         $this->middleware(['blockFailedVerifications:login', 'recaptcha:login'])->only('login');
         $this->cart = new Cart();
     }
@@ -96,6 +96,40 @@ class LoginController extends Controller
         } catch (\Exception $ex) {
             \Logger::exception($ex);
             $error = $ex->getMessage();
+        }
+    }
+
+    /**
+     * JSON config consumed by the Vue guest login/register SPA page.
+     * Mirrors the data that showLoginForm() passed to the blade view.
+     */
+    public function loginConfig()
+    {
+        try {
+            $status = StatusSetting::select('msg91_status', 'emailverification_status', 'terms')->first();
+            if ($status) {
+                $status->terms = (bool) $status->terms;
+            }
+            $apiKeys = ApiKey::select('nocaptcha_sitekey', 'terms_url')->first();
+            $analyticsTag = ChatScript::where('google_analytics', 1)->where('on_registration', 1)->value('google_analytics_tag');
+            $location = getLocation();
+
+            $social = [
+                'google' => (int) SocialLogin::where('type', 'google')->value('status'),
+                'github' => (int) SocialLogin::where('type', 'github')->value('status'),
+                'twitter' => (int) SocialLogin::where('type', 'twitter')->value('status'),
+                'linkedin' => (int) SocialLogin::where('type', 'linkedin')->value('status'),
+            ];
+
+            return successResponse('login-config', [
+                'status' => $status,
+                'apiKeys' => $apiKeys,
+                'analyticsTag' => $analyticsTag,
+                'location' => $location,
+                'social' => $social,
+            ]);
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -238,13 +272,13 @@ class LoginController extends Controller
             $this->clearRateLimit('2fa', $auth);
         }
 
-        $defaultPath = ($auth && $auth->role === 'user')
-            ? '/client-dashboard'
-            : '/';
-        $defaultPath = ($this->cart->isEmpty() === false) ? '/show/cart' : $defaultPath;
+        // Land users on the client Vue panel (now at the app root) and staff on
+        // the admin panel. A pending cart takes precedence so checkout can resume.
+        if ($this->cart->isEmpty() === false) {
+            return url('/cart');
+        }
 
-        return successResponse('success', ['role' => $auth->role]);
-        // return redirect()->intended($defaultPath)->getTargetUrl();
+        return url(($auth && $auth->role === 'user') ? '/client-dashboard' : '/admin');
     }
 
     /**
@@ -265,7 +299,7 @@ class LoginController extends Controller
         \Config::set("services.$provider.client_secret", $details->client_secret);
 
         //return Socialite::driver($provider)->redirect();
-        return successResponse('success', [Socialite::driver($provider)->redirect()]);
+        return successResponse('success', ['url' => Socialite::driver($provider)->redirect()->getTargetUrl()]);
     }
 
     /**

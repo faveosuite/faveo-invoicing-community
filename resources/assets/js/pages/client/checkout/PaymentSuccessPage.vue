@@ -88,10 +88,10 @@
 
           <!-- Actions -->
           <div class="d-flex justify-content-center gap-3">
-            <router-link to="/invoices" class="btn btn-dark btn-modern text-uppercase border-radius-0 px-4 py-2">
+            <router-link to="/my-invoices" class="btn btn-dark btn-modern text-uppercase border-radius-0 px-4 py-2">
               {{ __('message.my_invoices') }}
             </router-link>
-            <router-link to="/orders" class="btn btn-light-scale-2 text-uppercase border-radius-0 px-4 py-2 text-dark">
+            <router-link to="/my-orders" class="btn btn-light-scale-2 text-uppercase border-radius-0 px-4 py-2 text-dark">
               {{ __('message.my_orders') }}
             </router-link>
           </div>

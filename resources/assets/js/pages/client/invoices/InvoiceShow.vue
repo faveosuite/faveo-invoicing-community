@@ -95,7 +95,7 @@
                             <tbody>
                                 <tr v-for="item in items" :key="item.id">
                                     <td>
-                                        <RouterLink v-if="item.order" :to="`/orders/${item.order.id}`">
+                                        <RouterLink v-if="item.order" :to="`/my-order/${item.order.id}`">
                                             #{{ item.order.number }}
                                         </RouterLink>
                                         <span v-else>—</span>

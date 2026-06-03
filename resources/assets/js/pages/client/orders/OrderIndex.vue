@@ -3,13 +3,13 @@
         <AppCard :title="__('message.my_orders')">
             <DataTable :url="apiUrl" :dataColumns="columns" :option="tableOptions">
                 <template #number="{ row }">
-                    <RouterLink :to="'/orders/' + row.id" class="fw-semibold">{{ row.number || '—' }}</RouterLink>
+                    <RouterLink :to="'/my-order/' + row.id" class="fw-semibold">{{ row.number || '—' }}</RouterLink>
                 </template>
                 <template #order_date="{ row }">{{ formatDate(row.order_date) }}</template>
                 <template #update_ends_at="{ row }">{{ formatDate(row.update_ends_at) }}</template>
                 <template #action="{ row }">
                     <div class="d-flex align-items-center gap-1 flex-nowrap">
-                        <action-button action="view" :to="'/orders/' + row.id"
+                        <action-button action="view" :to="'/my-order/' + row.id"
                                        v-tooltip :title="__('message.view')" />
 
                         <action-button v-if="!row.is_terminated"

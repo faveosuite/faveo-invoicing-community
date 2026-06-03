@@ -51,14 +51,14 @@ const el      = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const defaultItems = [
-    { key: 'dashboard', label_key: 'dashboard',         route: '/dashboard',              active: 'exact' },
-    { key: 'orders',    label_key: 'my_orders',          route: '/orders',                 active: 'prefix' },
-    { key: 'invoices',  label_key: 'my_invoices',        route: '/invoices',               active: 'prefix' },
-{ key: 'profile',   label_key: 'my_profile',         route: '/profile',                active: 'prefix',
+    { key: 'dashboard', label_key: 'dashboard',         route: '/client-dashboard',              active: 'exact' },
+    { key: 'orders',    label_key: 'my_orders',          route: '/my-orders',                 active: 'prefix' },
+    { key: 'invoices',  label_key: 'my_invoices',        route: '/my-invoices',               active: 'prefix' },
+{ key: 'profile',   label_key: 'my_profile',         route: '/my-profile',                active: 'prefix',
         children: [
-            { key: 'profile_info',    label_key: 'profile_information', route: '/profile',                 active: 'exact' },
-            { key: 'change_password', label_key: 'change_password',     route: '/profile/change-password', active: 'exact' },
-            { key: 'two_fa',          label_key: 'two_factor_auth',     route: '/profile/2fa',             active: 'exact' },
+            { key: 'profile_info',    label_key: 'profile_information', route: '/my-profile',                 active: 'exact' },
+            { key: 'change_password', label_key: 'change_password',     route: '/my-profile/change-password', active: 'exact' },
+            { key: 'two_fa',          label_key: 'two_factor_auth',     route: '/my-profile/2fa',             active: 'exact' },
         ],
     },
     { key: 'logout', label_key: 'logout', url: '__LOGOUT__' },

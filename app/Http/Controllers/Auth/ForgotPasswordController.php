@@ -52,16 +52,17 @@ class ForgotPasswordController extends Controller
      */
     public function sendResetLinkEmail(Request $request)
     {
+        $this->validate($request,
+            ['email' => 'required|email|exists:users,email',
+                'forgot' => [new Honeypot()],
+            ],
+            [
+                'email.required' => __('validation.custom_email.required'),
+                'email.email' => __('validation.custom_email.email'),
+                'email.exists' => __('validation.custom_email.exists'),
+            ]);
+
         try {
-            $this->validate($request,
-                ['email' => 'required|email|exists:users,email',
-                    'forgot' => [new Honeypot()],
-                ],
-                [
-                    'email.required' => __('validation.custom_email.required'),
-                    'email.email' => __('validation.custom_email.email'),
-                    'email.exists' => __('validation.custom_email.exists'),
-                ]);
             $email = $request->email;
 
             $rateLimit = rateLimitForKeyIp('forgot_password'.$email, 3, 360, $request->ip());

@@ -4,7 +4,7 @@
         <div v-else class="row">
 
             <div class="col-md-4 mb-4">
-                <RouterLink to="/invoices" class="text-decoration-none">
+                <RouterLink to="/my-invoices" class="text-decoration-none">
                     <div class="card h-100 bg-color-grey">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
@@ -20,7 +20,7 @@
             </div>
 
             <div class="col-md-4 mb-4">
-                <RouterLink to="/orders" class="text-decoration-none">
+                <RouterLink to="/my-orders" class="text-decoration-none">
                     <div class="card h-100 bg-color-grey">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
@@ -36,7 +36,7 @@
             </div>
 
             <div class="col-md-4 mb-4">
-                <RouterLink to="/orders" class="text-decoration-none">
+                <RouterLink to="/my-orders" class="text-decoration-none">
                     <div class="card h-100 bg-color-grey">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">

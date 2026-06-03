@@ -21,7 +21,8 @@ const AppAlert         = defineAsyncComponent(() => import('./components/common/
 const AppButton        = defineAsyncComponent(() => import('./components/common/Button.vue'))
 const AppBadge         = defineAsyncComponent(() => import('./components/common/Badge.vue'))
 
-const ClientField   = defineAsyncComponent(() => import('./components/forms/ClientField.vue'))
+const ClientField    = defineAsyncComponent(() => import('./components/forms/ClientField.vue'))
+const ClientCheckbox = defineAsyncComponent(() => import('./components/forms/ClientCheckbox.vue'))
 const TextField     = defineAsyncComponent(() => import('./components/forms/TextField.vue'))
 const SelectField   = defineAsyncComponent(() => import('./components/forms/SelectField.vue'))
 const TextareaField = defineAsyncComponent(() => import('./components/forms/TextareaField.vue'))
@@ -37,6 +38,7 @@ const PlanCard     = defineAsyncComponent(() => import('./components/store/PlanC
 export const components = {
     ActionButton,
     ClientField,
+    ClientCheckbox,
     DefaultLayout,
     Sidebar,
     Navbar,

@@ -1,58 +1,73 @@
 <template>
-    <div class="form-group row">
-        <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2"
-               :class="{ required }">
+    <div class="mb-3">
+        <label v-if="label" :for="fieldId" class="form-label text-dark">
             {{ label }}
+            <span v-if="required" class="text-danger">*</span>
         </label>
-        <div class="col-lg-9">
 
-            <!-- password with show/hide toggle -->
-            <div v-if="type === 'password'" class="input-group">
-                <input class="form-control text-3 h-auto py-2"
-                       :class="{ 'is-invalid': error }"
-                       :type="showPassword ? 'text' : 'password'"
-                       :value="modelValue"
-                       :autocomplete="autocomplete"
-                       @input="$emit('update:modelValue', $event.target.value)">
-                <span class="input-group-text text-3" style="cursor:pointer"
-                      @click="showPassword = !showPassword">
-                    <i class="fa" :class="showPassword ? 'fa-eye' : 'fa-eye-slash'"></i>
-                </span>
-                <div v-if="error" class="invalid-feedback">{{ error }}</div>
-            </div>
-
-            <!-- select -->
-            <div v-else-if="type === 'select'" class="custom-select-1">
-                <select class="form-control text-3 h-auto py-2"
-                        :class="{ 'is-invalid': error }"
-                        :value="modelValue"
-                        @change="$emit('update:modelValue', $event.target.value); $emit('change', $event.target.value)">
-                    <slot />
-                </select>
-                <div v-if="error" class="invalid-feedback d-block">{{ error }}</div>
-            </div>
-
-            <!-- text / email / number / etc -->
-            <template v-else>
-                <input class="form-control text-3 h-auto py-2"
-                       :class="{ 'is-invalid': error }"
-                       :type="type"
-                       :value="modelValue"
-                       :disabled="disabled"
-                       :placeholder="placeholder"
-                       @input="$emit('update:modelValue', $event.target.value)">
-                <div v-if="error" class="invalid-feedback">{{ error }}</div>
-            </template>
-
+        <!-- password (with show / hide toggle) -->
+        <div v-if="type === 'password'" class="input-group">
+            <input :id="fieldId"
+                   class="form-control form-control-lg text-4"
+                   :class="{ 'is-invalid': error }"
+                   :type="revealed ? 'text' : 'password'"
+                   :value="modelValue"
+                   :autocomplete="autocomplete"
+                   :placeholder="placeholder"
+                   :disabled="disabled"
+                   @input="onInput"
+                   @focus="$emit('focus', $event)"
+                   @blur="$emit('blur', $event)">
+            <button type="button" class="input-group-text" tabindex="-1"
+                    :aria-label="revealed ? 'Hide password' : 'Show password'"
+                    @mousedown.prevent
+                    @click="revealed = !revealed">
+                <i class="fa" :class="revealed ? 'fa-eye' : 'fa-eye-slash'"></i>
+            </button>
         </div>
+
+        <!-- select -->
+        <select v-else-if="type === 'select'" :id="fieldId"
+                class="form-control form-control-lg text-4"
+                :class="{ 'is-invalid': error }"
+                :value="modelValue"
+                :disabled="disabled"
+                @change="onChange">
+            <slot />
+        </select>
+
+        <!-- textarea -->
+        <textarea v-else-if="type === 'textarea'" :id="fieldId"
+                  class="form-control form-control-lg text-4"
+                  :class="{ 'is-invalid': error }"
+                  :rows="rows"
+                  :value="modelValue"
+                  :placeholder="placeholder"
+                  :disabled="disabled"
+                  @input="onInput"></textarea>
+
+        <!-- text / email / number / tel / … -->
+        <input v-else :id="fieldId"
+               class="form-control form-control-lg text-4"
+               :class="{ 'is-invalid': error }"
+               :type="type"
+               :value="modelValue"
+               :autocomplete="autocomplete"
+               :placeholder="placeholder"
+               :disabled="disabled"
+               @input="onInput"
+               @focus="$emit('focus', $event)"
+               @blur="$emit('blur', $event)">
+
+        <div v-if="error" class="invalid-feedback d-block">{{ error }}</div>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, useId } from 'vue'
 
-defineProps({
-    label:        { type: String,  required: true },
+const props = defineProps({
+    label:        { type: String,  default: '' },
     name:         { type: String,  required: true },
     type:         { type: String,  default: 'text' },
     modelValue:   { type: [String, Number], default: '' },
@@ -61,13 +76,20 @@ defineProps({
     disabled:     { type: Boolean, default: false },
     autocomplete: { type: String,  default: '' },
     placeholder:  { type: String,  default: '' },
+    rows:         { type: [String, Number], default: 3 },
 })
 
-defineEmits(['update:modelValue', 'change'])
+const emit = defineEmits(['update:modelValue', 'change', 'focus', 'blur'])
 
-const showPassword = ref(false)
+const revealed = ref(false)
+const uid = useId()
+const fieldId = computed(() => `field-${props.name}-${uid}`)
+
+const onInput  = (e) => emit('update:modelValue', e.target.value)
+const onChange = (e) => { emit('update:modelValue', e.target.value); emit('change', e.target.value) }
 </script>
 
-<style>
+<style scoped>
 input[type="password"]::-ms-reveal { display: none; }
+.input-group-text { cursor: pointer; }
 </style>

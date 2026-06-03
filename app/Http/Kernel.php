@@ -27,6 +27,12 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\LanguageMiddleware::class,
         SecurityEnforcer::class,
         AddCspHeaders::class,
+        // Serve the client Vue SPA for browser navigations to root client paths
+        // (/login, /orders, /store, …). Global (not in the web group) so it runs
+        // before route resolution — otherwise paths whose only route is non-GET
+        // (e.g. POST /login) would 405 before the web group ever runs. Runs after
+        // StartSession (above) so auth() is available; XHR/JSON falls through.
+        \App\Http\Middleware\ClientSpaShell::class,
     ];
 
     /**

@@ -182,14 +182,14 @@
                     <div v-if="activeTab === 'invoice'">
                         <DataTable :url="invoicesUrl" :dataColumns="invoiceColumns" :option="invoiceOptions">
                             <template #number="{ row }">
-                                <RouterLink :to="'/invoices/' + row.id" class="fw-semibold">{{ row.number || '—' }}</RouterLink>
+                                <RouterLink :to="'/my-invoice/' + row.id" class="fw-semibold">{{ row.number || '—' }}</RouterLink>
                             </template>
                             <template #date="{ row }">{{ formatDate(row.date) }}</template>
                             <template #status="{ row }">
                                 <span class="badge" :class="invoiceBadge(row.status)">{{ row.status || '—' }}</span>
                             </template>
                             <template #action="{ row }">
-                                <RouterLink :to="'/invoices/' + row.id" class="btn btn-sm btn-light"
+                                <RouterLink :to="'/my-invoice/' + row.id" class="btn btn-sm btn-light"
                                             v-tooltip :title="__('message.view')">
                                     <i class="fas fa-eye"></i>
                                 </RouterLink>

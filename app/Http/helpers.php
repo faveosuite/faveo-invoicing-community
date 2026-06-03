@@ -896,6 +896,22 @@ function isRtlForLang()
 {
     return in_array(app()->getLocale(), ['ar', 'he']);
 }
+/**
+ * Honeypot field metadata for JS/SPA clients. Mirrors honeypotField() but returns
+ * the parts as data so a Vue component can render the hidden field and submit the
+ * expected { pXxx: '', tYyy: <encrypted time> } shape validated by App\Rules\Honeypot.
+ *
+ * @return array{pot:string,time:string,token:string}
+ */
+function honeypotData(): array
+{
+    return [
+        'pot'   => 'p'.Str::random(),
+        'time'  => 't'.Str::random(),
+        'token' => Crypt::encrypt(time()),
+    ];
+}
+
 function honeypotField(string $name = 'honeypot'): string
 {
     $potFieldName = 'p'.Str::random();

@@ -117,7 +117,25 @@ Route::middleware('installAgora')->group(function () {
 
     //Login api's
     Route::post('login', [Auth\LoginController::class, 'login'])->name('login')->middleware(['blockFailedVerifications:login']);
-    Route::auth();
+
+    // Guest SPA JSON config endpoints (consumed by the Vue pages on mount).
+    // Honeypot field metadata (pot/time names + encrypted timestamp) for the SPA
+    // honeypot component. Public so guest forms (login/register/forgot/…) can use it.
+    Route::get('honeypot', fn () => successResponse('honeypot', honeypotData()));
+    Route::get('auth/login-config', [Auth\LoginController::class, 'loginConfig']);
+    Route::get('auth/forgot-config', [Auth\ForgotPasswordController::class, 'showLinkRequestForm']);
+    Route::get('auth/reset-validate/{token}', [Auth\ResetPasswordController::class, 'showResetForm']);
+    Route::get('auth/verify-config', [Auth\AuthController::class, 'verifyConfig']);
+
+    // Login/register/verify pages are served by the Vue SPA (ClientSpaShell) and
+    // submit to the dedicated endpoints above (POST login, auth/register, …), so
+    // Route::auth() is not used. Only the password-reset endpoints it used to
+    // provide are still needed — defined explicitly here (the GET route is kept
+    // for its `password.reset` name, used by the reset email + 2FA redirect).
+    Route::get('password/reset/{token}', [Auth\ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('password/email', [Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::post('password/reset', [Auth\ResetPasswordController::class, 'reset'])->name('password.update');
+
     Route::post('auth/register', [Auth\RegisterController::class, 'postRegister'])->name('auth/register');
     Route::get('auth/logout', [Auth\LoginController::class, 'logout'])->name('logout');
 
@@ -125,6 +143,7 @@ Route::middleware('installAgora')->group(function () {
         Route::get('2fa/session-check', [Google2FAController::class, 'verifySession'])->name('2fa.session.check');
         Route::get('recovery-code', [Google2FAController::class, 'showRecoveryCode']);
         Route::get('verify-2fa', [Google2FAController::class, 'verify2fa']);
+        Route::get('auth/2fa-check', [Google2FAController::class, 'verify2fa']);
         Route::post('2fa/loginValidate', [Google2FAController::class, 'postLoginValidateToken'])->name('2fa/loginValidate');
         Route::post('verify-recovery-code', [Google2FAController::class, 'verifyRecoveryCode'])->name('verify-recovery-code');
     });
@@ -168,8 +187,9 @@ Route::middleware('installAgora')->group(function () {
     Route::post('first-login', [FreeTrailController::class, 'firstLoginAttempt']);
 
     //invoice api's
-    Route::get('my-invoices', [Front\ClientController::class, 'invoices'])->name('my-invoices');
-    Route::get('my-invoice/{id}', [Front\ClientController::class, 'getInvoice']);
+    // Client invoice pages — Vue SPA served at their legacy URLs by ClientSpaShell
+    // (browser navigations). `my-invoices` is kept as a named route for route('my-invoices').
+    Route::get('my-invoices', fn () => view('client'))->name('my-invoices');
     Route::get('get-my-invoices', [Front\ClientController::class, 'getInvoices'])->name('get-my-invoices');
     Route::delete('invoices/delete/{id}', [Front\ClientController::class, 'invoiceDelete']);
     Route::get('paynow/{id}', [Front\CheckoutController::class, 'payNow']);
@@ -177,9 +197,9 @@ Route::middleware('installAgora')->group(function () {
     Route::post('store-basic-details', [Auth\LoginController::class, 'storeBasicDetailsss'])->name('store-basic-details');
 
     //order api's
-    Route::get('my-orders', [Front\ClientController::class, 'orders']);
+    // Client order pages (my-orders, my-order/{id}) — Vue SPA served at their
+    // legacy URLs by ClientSpaShell. Data APIs (get-my-orders) are unchanged.
     Route::get('get-my-orders', [Front\ClientController::class, 'getClientOrder'])->name('get-my-orders');
-    Route::get('my-order/{id}', [Front\ClientController::class, 'getOrder']);
     Route::get('renew-popup-details/{productid}', [Front\ClientController::class, 'renewPopupVue']);
     Route::get('get-cloud-settings/{orderId}', [Front\ClientController::class, 'getCloudSettings']);
     Route::get('get-my-invoices/{orderid}/{userid}/{admin?}', [Front\ClientController::class, 'getInvoicesByOrderId']);
@@ -1043,13 +1063,4 @@ Route::get('/admin/{any?}', function () {
     }
 
     return view('admin');
-})->where('any', '.*');
-
-// Client Vue Panel — same guard pattern as admin.
-Route::get('/client/{any?}', function () {
-    if (! auth()->check()) {
-        return redirect(url('/login'));
-    }
-
-    return view('client');
 })->where('any', '.*');

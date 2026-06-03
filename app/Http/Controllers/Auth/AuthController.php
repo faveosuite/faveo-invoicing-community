@@ -407,6 +407,41 @@ class AuthController extends BaseAuthController
         ));
     }
 
+    /**
+     * JSON config consumed by the Vue guest OTP-verify SPA page.
+     * Mirrors the data that verify() passed to the blade view.
+     */
+    public function verifyConfig()
+    {
+        $userId = \Session::get('verification_user_id') ?? optional(\Session::get('user'))->id;
+        if (! $userId) {
+            return successResponse('', ['redirect' => url('login')]);
+        }
+
+        $user = User::find($userId);
+        if (! $user) {
+            return successResponse('', ['redirect' => url('login')]);
+        }
+        $eid = Crypt::encrypt($user->email);
+
+        $setting = StatusSetting::select('emailverification_status', 'msg91_status')->first();
+
+        $isMobileVerified = ! ($setting->msg91_status == 1 && $user->mobile_verified != 1);
+        $isEmailVerified = ! ($setting->emailverification_status == 1 && $user->email_verified != 1);
+
+        $verification_preference = ApiKey::value('verification_preference') ?? ($isEmailVerified ? 'email' : 'mobile');
+
+        return successResponse('verify-config', [
+            'eid' => $eid,
+            'mobile' => $user->mobile_code.$user->mobile,
+            'email' => $user->email,
+            'setting' => $setting,
+            'isMobileVerified' => $isMobileVerified,
+            'isEmailVerified' => $isEmailVerified,
+            'verification_preference' => $verification_preference,
+        ]);
+    }
+
     private function userNeedVerified($user)
     {
         $setting = StatusSetting::first(['emailverification_status', 'msg91_status']);

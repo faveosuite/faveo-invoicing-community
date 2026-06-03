@@ -8,7 +8,7 @@
           <div class="header-row">
             <div id="main-logo"
                  class="header-logo p-relative m-0 d-flex align-items-center justify-content-center navbar-logo-wrapper">
-              <RouterLink :to="isAuthenticated ? '/dashboard' : '/'">
+              <RouterLink :to="isAuthenticated ? '/client-dashboard' : '/'">
                 <img v-if="logoUrl" :src="logoUrl" alt="Logo"
                      class="img-fluid navbar-logo-img">
                 <span v-else class="brand-text fw-bold">{{ appCompany }}</span>
@@ -111,22 +111,22 @@
                               </a>
                             </li>
                             <li>
-                              <RouterLink to="/dashboard" class="dropdown-item">
+                              <RouterLink to="/client-dashboard" class="dropdown-item">
                                 {{ __('message.dashboard') }}
                               </RouterLink>
                             </li>
                             <li>
-                              <RouterLink to="/orders" class="dropdown-item">
+                              <RouterLink to="/my-orders" class="dropdown-item">
                                 {{ __('message.my_orders') }}
                               </RouterLink>
                             </li>
                             <li>
-                              <RouterLink to="/invoices" class="dropdown-item">
+                              <RouterLink to="/my-invoices" class="dropdown-item">
                                 {{ __('message.my_invoices') }}
                               </RouterLink>
                             </li>
                             <li>
-                              <RouterLink to="/profile" class="dropdown-item">
+                              <RouterLink to="/my-profile" class="dropdown-item">
                                 {{ __('message.my_profile') }}
                               </RouterLink>
                             </li>
@@ -242,14 +242,26 @@
                   </div>
 
                   <!-- Language selector -->
-                  <div
+                  <div v-if="languages.length"
                       class="header-nav-features header-nav-features-no-border header-nav-features-lg-show-border order-1 order-lg-2 me-2 me-lg-0">
                     <div class="header-nav-feature header-nav-features-cart d-inline-flex ms-2 mx-3">
-                      <a href="#" class="header-nav-features-toggle text-decoration-none"
-                         @click="toggleLanguage">
-                        <i :class="`flag-icon flag-icon-${flagCode}`" id="flagIcon"></i>
+                      <a href="javascript:;" class="header-nav-features-toggle text-decoration-none d-flex align-items-center gap-1"
+                         @click="toggleLanguage" :aria-label="`Change language, current: ${currentLocale}`">
+                        <span :class="`fi fi-${flagCodeFor(currentLocale)}`"></span>
+                        <span class="text-dark opacity-8 font-weight-bold text-2 d-none d-md-inline">{{ currentLocale.toUpperCase() }}</span>
                       </a>
-                      <div class="header-nav-features-dropdown right-15" id="language-dropdown"></div>
+                      <div class="header-nav-features-dropdown right-15 lang-dropdown" id="language-dropdown">
+                        <ul class="list-unstyled m-0">
+                          <li v-for="lang in languages" :key="lang.locale">
+                            <a href="javascript:;" class="lang-item d-flex align-items-center gap-2"
+                               :class="{ active: lang.locale.toLowerCase() === currentLocale }"
+                               @click.prevent="selectLang(lang)">
+                              <span :class="`fi fi-${flagCodeFor(lang.locale)}`"></span>
+                              <span>{{ lang.name }}</span>
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
 
@@ -288,6 +300,7 @@
 
 <script setup>
 import {computed, onMounted, onUnmounted, ref} from 'vue'
+import 'flag-icons/css/flag-icons.min.css'
 import http from '@/plugins/axios'
 import {useCartStore} from '@/core/stores/cart'
 import {useNavFeatureToggle} from '../../composables/useNavFeatureToggle.js'
@@ -343,14 +356,39 @@ const socialMedia = computed(() => {
   }
 })
 
+// Maps language locale codes → ISO 3166-1 alpha-2 country codes used by flag-icons.
 const localeMap = {
-  ar: 'ae', bsn: 'bs', de: 'de', en: 'us', 'en-gb': 'gb', es: 'es',
-  fr: 'fr', id: 'id', it: 'it', kr: 'kr', mt: 'mt', nl: 'nl', no: 'no',
-  pt: 'pt', ru: 'ru', vi: 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn',
-  ja: 'jp', ta: 'in', hi: 'in', he: 'il', tr: 'tr',
+  ar: 'sa', bsn: 'ba', bs: 'ba', de: 'de', en: 'us', 'en-gb': 'gb', 'en-us': 'us', es: 'es',
+  fr: 'fr', id: 'id', it: 'it', ko: 'kr', kr: 'kr', mt: 'mt', nl: 'nl', no: 'no',
+  pt: 'pt', 'pt-br': 'br', ru: 'ru', vi: 'vn', zh: 'cn', 'zh-hans': 'cn', 'zh-hant': 'tw', 'zh-cn': 'cn', 'zh-tw': 'tw',
+  ja: 'jp', ta: 'in', hi: 'in', he: 'il', tr: 'tr', pl: 'pl', sv: 'se', da: 'dk', cs: 'cz', uk: 'ua',
 }
-const locale = computed(() => el?.dataset?.locale ?? 'en')
-const flagCode = computed(() => localeMap[locale.value] ?? 'us')
+
+function flagCodeFor(loc) {
+  const lc = String(loc ?? '').toLowerCase()
+  return localeMap[lc] ?? localeMap[lc.slice(0, 2)] ?? 'un'
+}
+
+const currentLocale = computed(() => (el?.dataset?.locale ?? 'en').toLowerCase())
+
+// Languages for the dropdown — public endpoint, so it works on guest pages too.
+const languages = ref([])
+
+async function loadLanguages() {
+  try {
+    const {data} = await http.get('language/control')
+    languages.value = (data?.data ?? []).filter(l => Number(l.status) === 1)
+  } catch { /* best-effort */ }
+}
+
+async function selectLang(lang) {
+  try {
+    await http.post('lang/update', {language: lang.locale})
+    window.location.reload()
+  } catch (e) {
+    console.error('Language switch failed', e)
+  }
+}
 
 const productGroups = ref([])
 
@@ -365,6 +403,7 @@ const childPages = (parentId) =>
 
 onMounted(async () => {
   document.addEventListener('click', onClickOutside)
+  loadLanguages()
   if (isAuthenticated.value) {
     cartStore.fetchCart()
   }
@@ -418,6 +457,37 @@ onUnmounted(() => {
 .navbar-scrolled .navbar-info-bar {
   max-height: 0;
   opacity: 0;
+}
+
+/* Language dropdown */
+.lang-dropdown {
+  min-width: 220px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+
+.lang-dropdown .lang-item {
+  padding: 8px 16px;
+  color: #333;
+  text-decoration: none;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.lang-dropdown .lang-item:hover {
+  background-color: #f5f5f5;
+  color: var(--primary, #0088CC);
+}
+
+.lang-dropdown .lang-item.active {
+  font-weight: 600;
+  color: var(--primary, #0088CC);
+}
+
+.lang-dropdown .fi {
+  width: 1.33em;
+  line-height: 1em;
 }
 
 </style>

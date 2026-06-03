@@ -4,7 +4,7 @@
       <DataTable :url="apiUrl" :dataColumns="columns" :option="tableOptions">
         <template #number="{ row }">
           <div class="d-flex flex-column">
-            <RouterLink :to="'/invoices/' + row.id" class="fw-semibold">{{ row.number || '—' }}</RouterLink>
+            <RouterLink :to="'/my-invoice/' + row.id" class="fw-semibold">{{ row.number || '—' }}</RouterLink>
             <span v-if="row.is_renewed" class="badge bg-primary mt-1 w-auto">
               {{ __('message.renewed') }}
             </span>
@@ -14,7 +14,7 @@
         <template #orders="{ row }">
           <template v-if="row.orders && row.orders.length">
                     <span v-for="(order, i) in row.orders" :key="order.id">
-                        <RouterLink :to="'/orders/' + order.id" class="fw-semibold">{{ order.number }}</RouterLink>
+                        <RouterLink :to="'/my-order/' + order.id" class="fw-semibold">{{ order.number }}</RouterLink>
                         <span v-if="i < row.orders.length - 1">, </span>
                     </span>
           </template>
@@ -27,7 +27,7 @@
         </template>
         <template #action="{ row }">
           <div class="d-flex align-items-center gap-1 flex-nowrap">
-            <action-button action="view" :to="'/invoices/' + row.id"
+            <action-button action="view" :to="'/my-invoice/' + row.id"
                            v-tooltip :title="__('message.view')"/>
 
             <action-button v-if="row.show_pay"

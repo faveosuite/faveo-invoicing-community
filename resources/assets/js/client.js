@@ -1,3 +1,4 @@
+import '../css/client.css'
 import { createApp } from 'vue'
 import Client from './Client.vue'
 import clientRouter from './routes/clientRouter'

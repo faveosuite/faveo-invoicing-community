@@ -85,8 +85,9 @@ class Google2FAController extends Controller
                 $isValid = (new Google2FA())->verifyKey($secret, $request->totp);
 
                 if (! $isValid) {
-//                    throw new \Exception(__('message.invalid_passcode'));
-                    return errorResponse(__('message.invalid_passcode'));
+                    // MUST throw — handleTwoFactorLogin proceeds to Auth::login unless
+                    // validation aborts. A returned response here would be ignored.
+                    throw new \Exception(__('message.invalid_passcode'));
                 }
             });
         } catch (\Exception $e) {
@@ -242,7 +243,9 @@ class Google2FAController extends Controller
         // Rate limit for 6 hours
         RateLimiter::hit("{$rateLimiterKey}:{$user->id}");
 
-        // Run the type-specific validation logic
+        // Run the type-specific validation logic. Validators MUST throw on a failed
+        // check (the caller's try/catch turns it into an error response); control
+        // only reaches Auth::login below when validation passed.
         $validator($user, $request);
 
         // Clear session identifiers
@@ -264,7 +267,7 @@ class Google2FAController extends Controller
         $loginController->logActivityLogin($user);
         $loginController->convertCart();
 
-        return successResponse('', ['redirect' => (new LoginController())->redirectPath()]);
+        return successResponse('', ['redirect' => $loginController->redirectPath()]);
     }
 
     public function verifySession()
