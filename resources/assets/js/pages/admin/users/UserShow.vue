@@ -338,7 +338,7 @@
                                                             <a href="javascript:;" class="btn btn-xs btn-light me-1" @click="startEdit(comment)">
                                                                 <i class="fas fa-edit"></i>
                                                             </a>
-                                                            <a href="javascript:;" class="btn btn-xs btn-light" @click="deleteComment(comment.id)">
+                                                            <a href="javascript:;" class="btn btn-xs btn-light" @click="confirmDeleteComment(comment.id)">
                                                                 <i class="fas fa-trash text-danger"></i>
                                                             </a>
                                                         </div>
@@ -366,10 +366,22 @@
             </div>
         </div>
     </div>
+
+    <DeleteModal
+        v-if="pendingDelete"
+        :showModal="true"
+        :onClose="() => pendingDelete = null"
+        :deleteUrl="pendingDeleteUrl"
+        :deleteData="{}"
+        :title="__('message.Delete')"
+        :message="__('message.are_you_sure')"
+        :componentName="COMPONENT"
+        @deleted="() => { const id = pendingDelete?.commentId; pendingDelete = null; comments.value = comments.value.filter(c => c.id !== id) }"
+    />
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { h }                        from 'vue'
 import { useRoute, RouterLink }     from 'vue-router'
 import http                         from '@/plugins/axios'
@@ -377,6 +389,7 @@ import { errorHandler }             from '@/helpers/responseHandler.js'
 import TextField                    from '@/components/Reusable/FormField/TextField.vue'
 import { asset }                    from '@/core/utils/asset.js'
 import { useNotification }          from '@/core/composables/useNotification.js'
+import DeleteModal                  from '@/themes/adminlte/components/common/DeleteModal.vue'
 
 const COMPONENT  = 'user-show'
 const route      = useRoute()
@@ -405,6 +418,10 @@ const comments       = ref([])
 const newComment     = ref('')
 const savingComment  = ref(false)
 const editingComment = ref(null)
+const pendingDelete  = ref(null)
+const pendingDeleteUrl = computed(() =>
+    pendingDelete.value ? `${baseUrl}/user/${userId}/comments/${pendingDelete.value.commentId}` : ''
+)
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 const tabs = [
@@ -507,15 +524,8 @@ async function saveEdit(comment) {
     }
 }
 
-async function deleteComment(commentId) {
-    if (!confirm(__('message.are_you_sure') || 'Are you sure?')) return
-    try {
-        await http.delete(`${baseUrl}/user/${userId}/comments/${commentId}`)
-        comments.value = comments.value.filter(c => c.id !== commentId)
-        notify(__('message.deleted-successfully') || 'Deleted', 'success')
-    } catch (e) {
-        notify(e?.response?.data?.message || 'Error', 'danger')
-    }
+function confirmDeleteComment(commentId) {
+    pendingDelete.value = { commentId }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

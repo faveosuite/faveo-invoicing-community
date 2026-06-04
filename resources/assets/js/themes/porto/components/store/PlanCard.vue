@@ -62,6 +62,7 @@
         <!-- Features / description -->
         <div
             ref="descriptionEl"
+            class="product-description"
             v-if="product.description"
             v-html="product.description"
         ></div>
@@ -69,6 +70,63 @@
       </div>
     </div>
   </div>
+
+  <!-- Cloud domain modal — uses the shared Modal component -->
+  <Modal
+    :showModal="showDomainModal"
+    :onClose="() => { showDomainModal = false; domainError = '' }"
+    :closeLabel="__('message.close')"
+    :closeOnBackdrop="true"
+    classname="modal-md"
+  >
+    <template #title>
+      <h5 class="modal-title fw-bold">{{ __('message.cloud_heading') }}</h5>
+    </template>
+
+    <template #fields>
+      <!-- Domain input -->
+      <ClientField
+        name="domain"
+        :label="__('message.cloud_field_label')"
+        :placeholder="__('message.cloud_domain')"
+        :modelValue="domain"
+        :error="domainError"
+        @update:modelValue="domain = $event; domainError = ''"
+        @keyup.enter="onDomainConfirmed"
+      >
+        <template #append>
+          <span class="input-group-text bg-primary text-white border-primary fw-semibold">
+            .{{ cloudSubdomain }}
+          </span>
+        </template>
+      </ClientField>
+
+      <!-- Data center -->
+      <DynamicSelect
+        v-if="dataCenters.length"
+        name="data_center_id"
+        :label="__('message.choose_data_center')"
+        :elements="dataCenters"
+        :value="selectedDataCenter"
+        :onChange="(val) => selectedDataCenter = val"
+        :clearable="false"
+        optionLabel="name"
+      />
+    </template>
+
+    <template #controls>
+      <button
+        type="button"
+        class="btn btn-primary"
+        :disabled="modalLoading"
+        @click="onDomainConfirmed"
+      >
+        <span v-if="modalLoading" class="spinner-border spinner-border-sm me-1" />
+        <i v-else class="fas fa-check me-1" />
+        {{ __('message.submit') }}
+      </button>
+    </template>
+  </Modal>
 </template>
 
 <script setup>
@@ -76,17 +134,27 @@ import {ref, computed, watch, onMounted, onBeforeUnmount, nextTick} from 'vue'
 import { useRouter } from 'vue-router'
 import { __ } from '@/plugins/i18n'
 import { useCartStore } from '@/core/stores/cart'
+import Modal from '../common/Modal.vue'
+import ClientField from '../forms/ClientField.vue'
+import DynamicSelect from '../forms/DynamicSelect.vue'
 
 const props = defineProps({
-  product: {type: Object, required: true},
-  currencySymbol: {type: String, default: '$'},
-  billingCycle: {type: String, default: null},
+  product:        { type: Object,  required: true },
+  currencySymbol: { type: String,  default: '$' },
+  cloudSubdomain: { type: String,  default: '' },
+  dataCenters:    { type: Array,   default: () => [] },
+  billingCycle:   { type: String,  default: null },
 })
 
 const cartStore = useCartStore()
-const router = useRouter()
+const router    = useRouter()
 
-const descriptionEl = ref(null)
+const descriptionEl      = ref(null)
+const showDomainModal    = ref(false)
+const modalLoading       = ref(false)
+const domain             = ref('')
+const domainError        = ref('')
+const selectedDataCenter = ref(null)
 
 function initTooltips() {
   if (!descriptionEl.value || !window.bootstrap?.Tooltip) return
@@ -181,41 +249,73 @@ async function handleOrder() {
     return
   }
 
-  const plan = currentPlan.value
-  const productId = btn.product_id ?? props.product.id
+  if (props.product.is_cloud) {
+    domain.value             = ''
+    domainError.value        = ''
+    selectedDataCenter.value = props.dataCenters[0] ?? null
+    showDomainModal.value    = true
+    return
+  }
+
+  await addToCart()
+}
+
+async function addToCart(domain = null, dataCenterId = null) {
+  const plan      = currentPlan.value
+  const productId = props.product.button.product_id ?? props.product.id
 
   try {
     await cartStore.addItem({
-      product_id:    productId,
-      plan_id:       plan?.id ?? null,
-      quantity:      1,
-      agents:        1,
-      billing_cycle: resolveCycle(plan),
+      product_id:     productId,
+      plan_id:        plan?.id ?? null,
+      quantity:       1,
+      agents:         1,
+      billing_cycle:  resolveCycle(plan),
+      ...(domain       ? { domain }                         : {}),
+      ...(dataCenterId ? { data_center_id: dataCenterId }   : {}),
     })
     router.push('/cart')
   } catch {
     // cartStore.error holds the failure message for display.
   }
 }
+
+async function onDomainConfirmed() {
+  domain.value = domain.value.trim()
+  if (! domain.value) {
+    domainError.value = 'Domain name is required.'
+    return
+  }
+  if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/i.test(domain.value)) {
+    domainError.value = 'Only letters, numbers, and hyphens are allowed.'
+    return
+  }
+  modalLoading.value = true
+  try {
+    await addToCart(domain.value, selectedDataCenter.value?.id ?? null)
+    showDomainModal.value = false
+  } finally {
+    modalLoading.value = false
+  }
+}
 </script>
 
 <style scoped>
 
-
-:deep(ul li) {
+:deep(.product-description ul li) {
   list-style: none;
   position: relative;
   color: #777;
 }
 
-:deep(ul li [data-bs-toggle="tooltip"]) {
+:deep(.product-description ul li [data-bs-toggle="tooltip"]) {
   text-decoration: underline;
   text-decoration-style: dotted;
   text-underline-offset: 3px;
   cursor: help;
 }
 
-:deep(ul li)::before {
+:deep(.product-description ul li)::before {
   content: "\f00c";
   font-family: "Font Awesome 7 Free";
   font-weight: 900;

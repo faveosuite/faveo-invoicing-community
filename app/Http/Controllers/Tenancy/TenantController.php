@@ -17,6 +17,7 @@ use App\Model\Order\Order;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Subscription;
+use App\License\Services\LicenseService;
 use App\ThirdPartyApp;
 use App\User;
 use Carbon\Carbon;
@@ -268,7 +269,7 @@ class TenantController extends Controller
             $token = str_random(32);
             \DB::table('third_party_tokens')->insert(['user_id' => $userId, 'token' => $token]);
             $client = new Client([]);
-            $data = ['domain' => $faveoCloud, 'app_key' => $keys->app_key, 'token' => $token, 'lic_code' => $licCode, 'username' => $userEmail, 'userId' => $userId, 'timestamp' => time(), 'product' => $product, 'product_id' => $order[0]->product()->value('id')];
+            $data = ['domain' => $faveoCloud, 'app_key' => $keys->app_key, 'token' => $token, 'lic_code' => $licCode, 'username' => $userEmail, 'userId' => $userId, 'timestamp' => time(), 'product' => $product, 'product_id' => $order[0]->product];
             $encodedData = http_build_query($data);
             $hashedSignature = hash_hmac('sha256', $encodedData, $keys->app_secret);
             $response = $client->request(
@@ -314,8 +315,9 @@ class TenantController extends Controller
                 $template = \App\Model\Common\TemplateType::getSelectedTemplate('cloud_created');
                 $contact = getContactData();
 
+                $productName = \App\Model\Product\Product::find($order[0]->product)?->name ?? '';
                 $type = $template?->type()->value('name') ?? '';
-                $subject = 'Your '.$order[0]->product()->value('name').' is now ready for use. Get started!';
+                $subject = 'Your '.$productName.' is now ready for use. Get started!';
                 $message = (isset($result->reason) && $result->reason != '') ? __('message.'.$result->message, ['installationUrl' => $result->installationUrl, 'reason' => $result->reason]) :
                                         __('message.'.$result->message, ['installationUrl' => $result->installationUrl]);
 
@@ -325,7 +327,7 @@ class TenantController extends Controller
 
                 $replace = [
                     'message' => $userData,
-                    'product' => $order[0]->product()->value('name'),
+                    'product' => $productName,
                     'name' => $userFirstName.' '.$userLastName,
                     'contact' => $contact['contact'],
                     'logo' => $contact['logo'],
@@ -342,7 +344,9 @@ class TenantController extends Controller
                 );
 
                 $this->prepareMessages($faveoCloud, $userEmail, true);
-                $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $template->type()->value('name'), $replace, $type);
+                if ($template) {
+                    $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $template->type()->value('name'), $replace, $type);
+                }
                 if (isset($result->reason) && $result->reason != '') {
                     $data = ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'reason' => $result->reason, 'Free_trial_domain' => $faveoCloud];
 
@@ -358,9 +362,7 @@ class TenantController extends Controller
             $message = $e->getMessage().' Domain: '.$faveoCloud.' Email: '.$userEmail;
             $this->googleChat($message);
 
-            $data = ['status' => 'false', 'message' => trans('message.something_bad')];
-
-            return errorResponse('', [$data]);
+            return errorResponse(trans('message.something_bad'));
         }
     }
 
@@ -410,7 +412,13 @@ class TenantController extends Controller
                     $this->statusChange($request->orderId);
                 }
 //                (empty($request->orderId)) ?: Order::where('number', $request->get('orderId'))->delete();
-                app(\App\License\Services\InstallationService::class)->reissue($request->input('id'));
+                if (! empty($request->orderId)) {
+                    $encryptedKey = Order::where('number', $request->input('orderId'))->value('serial_key');
+                    if ($encryptedKey) {
+                        app(\App\License\Services\LicenseService::class)
+                            ->reissueLicenseCloud(\Crypt::decrypt($encryptedKey));
+                    }
+                }
 
                 $loggingUser = \Auth::check()
                     ? "<a href='".url('clients/'.\Auth::id())."'>".\Auth::user()->first_name.' '.\Auth::user()->last_name.'</a>'
@@ -722,7 +730,7 @@ class TenantController extends Controller
             'mobile' => ($user->mobile_code && $user->mobile)
                 ? '+'.$user->mobile_code.' '.$user->mobile
                 : null,
-            'country' => Country::where('country_code_char2', $user->country)->value('nicename'),
+            'country' => Country::where('country_code_char2', $user->country)->value('country_name'),
             'profile' => url("clients/{$user->id}"),
         ];
     }
@@ -744,8 +752,8 @@ class TenantController extends Controller
         $plan = $price ? 'Paid Subscription' : 'Free Trial';
 
         $expiry = Carbon::parse($subscription->ends_at)->format('d M Y');
-        $cloud_days = ExpiryMailDay::whereNotNull('cloud_days')->value('cloud_days');
-        $deletion_date = $expiry ? Carbon::parse($expiry)->addDays($cloud_days)->format('d M Y') : null;
+        $cloud_days = (int) ExpiryMailDay::whereNotNull('cloud_days')->value('cloud_days');
+        $deletion_date = ($expiry && $cloud_days) ? Carbon::parse($expiry)->addDays($cloud_days)->format('d M Y') : null;
 
         return [
             'subscription_expiry' => $expiry ?: null,

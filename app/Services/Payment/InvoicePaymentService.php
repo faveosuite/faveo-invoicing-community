@@ -7,7 +7,6 @@ use App\Model\Order\Invoice;
 use App\Plugins\Payment\Dto\Customer;
 use App\Plugins\Payment\Dto\PaymentRequest;
 use App\Plugins\Payment\Dto\PaymentSession;
-use App\Traits\Payment\PostPaymentHandle;
 
 /**
  * Invoice-payment domain logic.
@@ -29,10 +28,10 @@ use App\Traits\Payment\PostPaymentHandle;
  */
 class InvoicePaymentService
 {
-    use PostPaymentHandle;
-
-    public function __construct(private readonly PaymentService $payments)
-    {
+    public function __construct(
+        private readonly PaymentService $payments,
+        private readonly PostPaymentService $postPayment,
+    ) {
     }
 
     /** Stripe publishable key, for the SPA to initialise Stripe.js. */
@@ -110,15 +109,7 @@ class InvoicePaymentService
         // + payment records match the card charge (parity with the legacy flow).
         $this->applyProcessingFee($invoice, $gateway);
 
-        // PostPaymentHandle records + fulfils against the session-stored method.
-        \Session::put('payment_method', $gateway);
-        $outcome = $this->processPaymentSuccess($invoice, strtolower($invoice->currency));
-        if (! is_array($outcome)) {
-            // processPaymentSuccess swallows its own errors into a JsonResponse.
-            throw new \RuntimeException(__('message.payment_declined_try_other_gateway'));
-        }
-
-        \Session::forget(['items', 'code', 'codevalue', 'totalToBePaid', 'invoice', 'cart_currency']);
+        $this->postPayment->handle($invoice, $gateway);
 
         return true;
     }

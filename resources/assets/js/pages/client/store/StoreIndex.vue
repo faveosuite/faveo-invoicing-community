@@ -17,6 +17,8 @@
                 v-else
                 :products="products"
                 :currencySymbol="currencySymbol"
+                :cloudSubdomain="cloudSubdomain"
+                :dataCenters="dataCenters"
                 :switcher="currentGroup?.status === true"
             />
         </template>
@@ -42,6 +44,8 @@ const selectedGroupId = ref(null)
 const currentGroup    = ref(null)
 const products        = ref([])
 const currencySymbol  = ref('$')
+const cloudSubdomain  = ref('')
+const dataCenters     = ref([])
 const loadingGroups   = ref(true)
 const loadingProducts = ref(false)
 
@@ -73,9 +77,11 @@ async function selectGroup(groupId) {
         const res  = await http.get(`${baseUrl}/store/${groupId}/products`)
         const data = res.data?.data ?? {}
 
-        currentGroup.value   = data.group ?? null
-        products.value       = data.products ?? []
-        currencySymbol.value = data.currency_symbol ?? '$'
+        currentGroup.value    = data.group ?? null
+        products.value        = data.products ?? []
+        currencySymbol.value  = data.currency_symbol ?? '$'
+        cloudSubdomain.value  = data.cloud_subdomain ?? ''
+        dataCenters.value     = data.data_centers ?? []
 
         setPageTitle(data.group?.name)
 

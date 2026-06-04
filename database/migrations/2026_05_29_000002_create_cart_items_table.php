@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedInteger('quantity')->default(1);
             $table->unsignedInteger('agents')->default(1);
             $table->string('domain')->nullable();
+            $table->unsignedBigInteger('data_center_id')->nullable();
             $table->string('billing_cycle')->default('monthly'); // monthly|yearly|onetime
             $table->timestamps();
 

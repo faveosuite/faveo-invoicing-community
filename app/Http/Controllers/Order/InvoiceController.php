@@ -317,8 +317,27 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $currency = \Session::has('cart_currency') ? \Session::get('cart_currency') : getCurrencyForClient(\Auth::user()->country);
             $cloud_domain = \Session::has('cloud_domain') ? \Session::get('cloud_domain') : '';
             $cont = new \App\Http\Controllers\Payment\PromotionController();
-            $invoice = $this->invoice->create(['user_id' => $user_id, 'number' => $number, 'date' => $date, 'grand_total' => $grand_total, 'status' => 'pending',
-                'currency' => $currency, 'coupon_code' => \Session::get('code'), 'discount' => \Session::get('discountPrice'), 'discount_mode' => 'coupon', 'billing_pay' => $amt_to_credit, 'cloud_domain' => str_replace('.'.cloudSubDomain(), '', $cloud_domain), 'credits' => \Session::get('priceRemaining')]);
+            $invoice = $this->invoice->create([
+                'user_id'       => $user_id,
+                'number'        => $number,
+                'date'          => $date,
+                'grand_total'   => $grand_total,
+                'status'        => 'pending',
+                'currency'      => $currency,
+                'coupon_code'   => \Session::get('code'),
+                'discount'      => \Session::get('discountPrice'),
+                'discount_mode' => 'coupon',
+                'billing_pay'   => $amt_to_credit,
+                'cloud_domain'  => str_replace('.'.cloudSubDomain(), '', $cloud_domain),
+                'credits'       => \Session::get('priceRemaining'),
+                'metadata'      => \Session::has('upgradeDowngradeProduct') ? [
+                    'type'              => 'upgrade_downgrade',
+                    'old_order_id'      => (int) \Session::get('upgradeorderId'),
+                    'old_license'       => \Session::get('upgradeOldLicense'),
+                    'installation_path' => \Session::get('upgradeInstallationPath'),
+                    'discount'          => \Session::has('discount') ? (float) \Session::get('discount') : null,
+                ] : null,
+            ]);
 
             foreach ($this->cart->getContent() as $cart) {
                 $this->createInvoiceItems($invoice->id, $cart, $amt_to_credit);

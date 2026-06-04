@@ -131,7 +131,7 @@
                             <ul class="dropdown-menu">
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <button class="dropdown-item" @click="bulkDelete">
+                                    <button class="dropdown-item" @click="confirmBulkDelete">
                                         {{ __('message.Delete') }}
                                     </button>
                                 </li>
@@ -143,6 +143,18 @@
         </div>
 
     </div>
+
+    <DeleteModal
+        v-if="pendingBulkDelete"
+        :showModal="true"
+        :onClose="() => pendingBulkDelete = null"
+        :deleteUrl="`${baseUrl}/tax/delete`"
+        :deleteData="pendingBulkDelete"
+        :title="__('message.Delete')"
+        :message="__('message.are_you_sure')"
+        :componentName="COMPONENT"
+        @deleted="() => { pendingBulkDelete = null; selected.value = []; dtRef.value?.refresh() }"
+    />
 </template>
 
 <script setup>
@@ -150,6 +162,7 @@ import { h, ref, reactive, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
 
 const COMPONENT = 'tax-index'
 const el      = document.getElementById('app-root')
@@ -160,6 +173,7 @@ const dtRef          = ref(null)
 const selected       = ref([])
 const optionsLoading = ref(true)
 const savingOptions  = ref(false)
+const pendingBulkDelete = ref(null)
 
 const allSelected = computed(() => {
     const data = dtRef.value?.tableData ?? []
@@ -260,16 +274,9 @@ async function saveOptions() {
     }
 }
 
-async function bulkDelete() {
+function confirmBulkDelete() {
     if (!selected.value.length) return
-    try {
-        const res = await http.delete(`${baseUrl}/tax/delete`, { data: { select: selected.value } })
-        successHandler(res, COMPONENT)
-        selected.value = []
-        dtRef.value?.refresh()
-    } catch (e) {
-        errorHandler(e, COMPONENT)
-    }
+    pendingBulkDelete.value = { select: [...selected.value] }
 }
 
 const columns = ['select', 'name', 'country', 'state', 'rate', 'priority', 'compound', 'active', 'action']

@@ -20,6 +20,8 @@
                 <PlanCard
                     :product="product"
                     :currencySymbol="currencySymbol"
+                    :cloudSubdomain="cloudSubdomain"
+                    :dataCenters="dataCenters"
                     :billingCycle="switcher ? billingCycle : null"
                 />
             </div>
@@ -35,6 +37,8 @@ import { useCarousel } from '../../composables/useCarousel.js'
 const props = defineProps({
     products:       { type: Array,   required: true },
     currencySymbol: { type: String,  default: '$' },
+    cloudSubdomain: { type: String,  default: '' },
+    dataCenters:    { type: Array,   default: () => [] },
     switcher:       { type: Boolean, default: false },
     defaultCycle:   { type: String,  default: 'yearly' },
 })

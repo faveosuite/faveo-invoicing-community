@@ -33,7 +33,7 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <button class="dropdown-item" @click="bulkDelete">
+                                    <button class="dropdown-item" @click="confirmBulkDelete">
                                         {{ __('message.Delete') }}
                                     </button>
                                 </li>
@@ -43,14 +43,37 @@
                 </DataTable>
             </div>
         </div>
+
+        <DeleteModal
+            v-if="pendingDeleteRow"
+            :showModal="true"
+            :onClose="() => pendingDeleteRow = null"
+            :deleteUrl="`${baseUrl}/social-media/delete`"
+            :deleteData="pendingDeleteRow"
+            :title="__('message.Delete')"
+            :message="__('message.are_you_sure')"
+            :componentName="COMPONENT"
+            @deleted="() => { pendingDeleteRow = null; dtRef?.refresh() }"
+        />
+
+        <DeleteModal
+            v-if="pendingBulkDelete"
+            :showModal="true"
+            :onClose="() => pendingBulkDelete = null"
+            :deleteUrl="`${baseUrl}/social-media/delete`"
+            :deleteData="pendingBulkDelete"
+            :title="__('message.Delete')"
+            :message="__('message.are_you_sure')"
+            :componentName="COMPONENT"
+            @deleted="() => { pendingBulkDelete = null; selected.value = []; dtRef?.refresh() }"
+        />
     </div>
 </template>
 
 <script setup>
 import { h, ref, computed, reactive } from 'vue'
 import { RouterLink } from 'vue-router'
-import http from '@/plugins/axios'
-import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
 
 const COMPONENT = 'social-media-index'
 const el      = document.getElementById('app-root')
@@ -59,6 +82,9 @@ const apiUrl  = `${baseUrl}/social-media/list`
 
 const dtRef    = ref(null)
 const selected = ref([])
+
+const pendingDeleteRow  = ref(null)
+const pendingBulkDelete = ref(null)
 
 const allSelected = computed(() => {
     const data = dtRef.value?.tableData ?? []
@@ -82,27 +108,13 @@ function toggleAll(e) {
     }
 }
 
-async function deleteRow(id) {
-    try {
-        const res = await http.delete(`${baseUrl}/social-media/delete`, { data: { id } })
-        successHandler(res, COMPONENT)
-        selected.value = selected.value.filter(s => s !== id)
-        dtRef.value?.refresh()
-    } catch (e) {
-        errorHandler(e, COMPONENT)
-    }
+function confirmDeleteRow(id) {
+    pendingDeleteRow.value = { id }
 }
 
-async function bulkDelete() {
+function confirmBulkDelete() {
     if (!selected.value.length) return
-    try {
-        const res = await http.delete(`${baseUrl}/social-media/delete`, { data: { id: selected.value } })
-        successHandler(res, COMPONENT)
-        selected.value = []
-        dtRef.value?.refresh()
-    } catch (e) {
-        errorHandler(e, COMPONENT)
-    }
+    pendingBulkDelete.value = { id: [...selected.value] }
 }
 
 const columns = ['select', 'name', 'link', 'action']
@@ -141,7 +153,7 @@ const tableOptions = reactive({
             h('button', {
                 class:   'btn btn-light table_btn',
                 title:   __('message.Delete'),
-                onClick: () => deleteRow(row.id),
+                onClick: () => confirmDeleteRow(row.id),
             }, h('i', { class: 'fas fa-trash' })),
         ]),
     },

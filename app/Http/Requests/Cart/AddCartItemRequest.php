@@ -28,8 +28,9 @@ class AddCartItemRequest extends FormRequest
             'plan_id' => ['nullable', 'integer'],
             'quantity' => ['sometimes', 'integer', 'min:1'],
             'agents' => ['sometimes', 'integer', 'min:1'],
-            'domain' => ['nullable', 'string', 'max:255'],
-            'billing_cycle' => ['sometimes', 'in:monthly,yearly,onetime'],
+            'domain'         => ['nullable', 'string', 'max:255'],
+            'data_center_id' => ['nullable', 'integer', 'exists:cloud_data_centers,id'],
+            'billing_cycle'  => ['sometimes', 'in:monthly,yearly,onetime'],
         ];
     }
 }

@@ -65,7 +65,7 @@
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <button class="dropdown-item" @click="bulkDelete">
+                                <button class="dropdown-item" @click="confirmBulkDelete">
                                     {{ __('message.Delete') }}
                                 </button>
                             </li>
@@ -76,6 +76,18 @@
         </div>
     </div>
     </div>
+
+    <DeleteModal
+        v-if="pendingBulkDelete"
+        :showModal="true"
+        :onClose="() => pendingBulkDelete = null"
+        :deleteUrl="`${baseUrl}/users`"
+        :deleteData="pendingBulkDelete"
+        :title="__('message.Delete')"
+        :message="__('message.are_you_sure')"
+        :componentName="COMPONENT"
+        @deleted="() => { pendingBulkDelete = null; selectedUsers.value = []; dtRef.value?.refresh() }"
+    />
 </template>
 
 <script setup>
@@ -86,6 +98,7 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import UserTableActions from './components/UserTableActions.vue'
 import UserFilter from './components/UserFilter.vue'
+import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
 
 const COMPONENT = 'users-index'
 
@@ -98,6 +111,7 @@ const selectedUsers = ref([])
 const showFilter = ref(false)
 const activeFilters = ref({})
 const exporting = ref(false)
+const pendingBulkDelete = ref(null)
 
 const allSelected = computed(() => {
     const data = dtRef.value?.tableData ?? []
@@ -159,16 +173,9 @@ async function bulkExport() {
     }
 }
 
-async function bulkDelete() {
+function confirmBulkDelete() {
     if (!selectedUsers.value.length) return
-    if (!confirm(`Delete ${selectedUsers.value.length} selected user(s)? This cannot be undone.`)) return
-    try {
-        await http.delete(`${baseUrl}/users`, { data: { user_ids: selectedUsers.value } })
-        selectedUsers.value = []
-        dtRef.value?.refresh()
-    } catch (e) {
-        errorHandler(e, COMPONENT)
-    }
+    pendingBulkDelete.value = { user_ids: [...selectedUsers.value] }
 }
 
 const columns = ['select', 'name', 'email', 'mobile', 'country', 'created_at', 'account_info', 'action']

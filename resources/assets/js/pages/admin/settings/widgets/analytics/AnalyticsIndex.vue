@@ -33,7 +33,7 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <button class="dropdown-item" @click="bulkDelete">
+                                    <button class="dropdown-item" @click="confirmBulkDelete">
                                         {{ __('message.Delete') }}
                                     </button>
                                 </li>
@@ -44,6 +44,30 @@
             </div>
         </div>
     </div>
+
+    <DeleteModal
+        v-if="pendingDelete"
+        :showModal="true"
+        :onClose="() => pendingDelete = null"
+        :deleteUrl="`${baseUrl}/chat/delete`"
+        :deleteData="pendingDelete"
+        :title="__('message.Delete')"
+        :message="__('message.are_you_sure')"
+        :componentName="COMPONENT"
+        @deleted="() => { pendingDelete = null; dtRef?.refresh() }"
+    />
+
+    <DeleteModal
+        v-if="pendingBulkDelete"
+        :showModal="true"
+        :onClose="() => pendingBulkDelete = null"
+        :deleteUrl="`${baseUrl}/chat/delete`"
+        :deleteData="pendingBulkDelete"
+        :title="__('message.Delete')"
+        :message="__('message.are_you_sure')"
+        :componentName="COMPONENT"
+        @deleted="() => { pendingBulkDelete = null; selected.value = []; dtRef?.refresh() }"
+    />
 </template>
 
 <script setup>
@@ -51,6 +75,7 @@ import { h, ref, computed, reactive } from 'vue'
 import { RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
 
 const COMPONENT = 'analytics-widgets'
 const el      = document.getElementById('app-root')
@@ -59,6 +84,8 @@ const apiUrl  = `${baseUrl}/chat/list`
 
 const dtRef    = ref(null)
 const selected = ref([])
+const pendingDelete     = ref(null)
+const pendingBulkDelete = ref(null)
 
 const allSelected = computed(() => {
     const data = dtRef.value?.tableData ?? []
@@ -82,27 +109,13 @@ function toggleAll(e) {
     }
 }
 
-async function deleteRow(id) {
-    try {
-        const res = await http.delete(`${baseUrl}/chat/delete`, { data: { select: [id] } })
-        successHandler(res, COMPONENT)
-        selected.value = selected.value.filter(s => s !== id)
-        dtRef.value?.refresh()
-    } catch (e) {
-        errorHandler(e, COMPONENT)
-    }
+function confirmDelete(id) {
+    pendingDelete.value = { select: [id] }
 }
 
-async function bulkDelete() {
+function confirmBulkDelete() {
     if (!selected.value.length) return
-    try {
-        const res = await http.delete(`${baseUrl}/chat/delete`, { data: { select: selected.value } })
-        successHandler(res, COMPONENT)
-        selected.value = []
-        dtRef.value?.refresh()
-    } catch (e) {
-        errorHandler(e, COMPONENT)
-    }
+    pendingBulkDelete.value = { select: [...selected.value] }
 }
 
 const columns = ['select', 'name', 'action']
@@ -138,7 +151,7 @@ const tableOptions = reactive({
             h('button', {
                 class:   'btn btn-light table_btn',
                 title:   __('message.Delete'),
-                onClick: () => deleteRow(row.id),
+                onClick: () => confirmDelete(row.id),
             }, h('i', { class: 'fas fa-trash' })),
         ]),
     },

@@ -146,34 +146,23 @@ trait PaymentsAndInvoices
         }
     }
 
-    public function postRazorpayPayment($invoice)
+    public function recordPayment(Invoice $invoice, string $gateway): void
     {
-        try {
-            $payment_method = \Session::get('payment_method');
-            $totalPayment = ($payment_method == 'Credits')
-                ? $invoice->billing_pay
-                : (empty($invoice->billing_pay) ?
-                    $invoice->grand_total :
-                    $invoice->grand_total - $invoice->billing_pay);
+        $alreadyPaid = (float) $invoice->payment()->where('payment_status', 'success')->sum('amount');
+        $outstanding = max(0, (float) $invoice->grand_total - $alreadyPaid);
 
-            if (count($invoice->payment()->get())) {//If partial payment is made
-                $paid = array_sum($invoice->payment()->pluck('amount')->toArray());
-                $totalPayment = $invoice->grand_total - $paid;
-            }
-            $payment_status = 'success';
-            $payment_date = \Carbon\Carbon::now()->toDateTimeString();
-            $paymentRenewal = $this->updateInvoicePayment(
-                $invoice->id,
-                $payment_method,
-                $payment_status,
-                $payment_date,
-                rounding($totalPayment)
-            );
-
-            return redirect()->back()->with('success', __('message.payment_accepted_succcessfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+        if ($outstanding > 0) {
+            \App\Model\Order\Payment::create([
+                'invoice_id'     => $invoice->id,
+                'user_id'        => $invoice->user_id,
+                'amount'         => rounding($outstanding),
+                'payment_method' => $gateway,
+                'payment_status' => 'success',
+                'created_at'     => \Carbon\Carbon::now(),
+            ]);
         }
+
+        $invoice->update(['status' => 'success']);
     }
 
     public function sendmailClientAgent($userid, $invoiceid)

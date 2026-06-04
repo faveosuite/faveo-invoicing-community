@@ -153,13 +153,19 @@ class BaseRenewController extends Controller
             $items = $controller->createInvoiceItemsByAdmin($invoice->id, $product->id, $renewalPrice, $currency, $qty = 1, $agents, $planid, $user->id, $tax_name, $tax_rate, $renewalPrice);
             if (in_array($product->id, cloudPopupProducts())) {
                 $license_code = Order::where('id', $orderid)->value('serial_key');
-                $installation_path = Installation::where('license_code', Order::find($orderid)->serial_key)->latest('updated_at')->value('installation_path');
-                \Session::put('AgentAlterationRenew', $user->id);
-                \Session::put('newAgentsRenew', $agents);
-                \Session::put('orderIdRenew', $orderid);
-                \Session::put('installation_pathRenew', $installation_path);
-                \Session::put('product_idRenew', $product->id);
-                \Session::put('oldLicenseRenew', $license_code);
+                $installation_path = Installation::where('license_code', Order::find($orderid)->serial_key)
+                    ->latest('updated_at')->value('installation_path');
+                $invoice->update([
+                    'metadata' => [
+                        'renewal_agent' => [
+                            'new_agents'        => $agents,
+                            'order_id'          => $orderid,
+                            'installation_path' => $installation_path,
+                            'product_id'        => $product->id,
+                            'old_license'       => $license_code,
+                        ],
+                    ],
+                ]);
             }
 
             return $items;

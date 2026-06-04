@@ -16,11 +16,14 @@ class Invoice extends BaseModel
 
     protected $fillable = [
         'user_id', 'number', 'date', 'coupon_code', 'discount', 'discount_mode',
-        'grand_total', 'currency', 'status', 'description', 'is_renewed', 'processing_fee', 'billing_pay', 'cloud_domain', 'credits',
+        'grand_total', 'currency', 'status', 'description', 'is_renewed',
+        'processing_fee', 'billing_pay', 'cloud_domain', 'credits',
+        'metadata',
     ];
 
     protected $casts = [
         'date' => 'datetime',
+        'metadata' => 'array',
     ];
 
     protected $logName = 'invoice';

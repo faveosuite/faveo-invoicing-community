@@ -42,7 +42,7 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <button class="dropdown-item" @click="bulkDelete">
+                                    <button class="dropdown-item" @click="confirmBulkDelete">
                                         {{ __('message.Delete') }}
                                     </button>
                                 </li>
@@ -53,6 +53,18 @@
             </div>
         </div>
     </div>
+
+    <DeleteModal
+        v-if="pendingBulkDelete"
+        :showModal="true"
+        :onClose="() => pendingBulkDelete = null"
+        :deleteUrl="`${baseUrl}/orders`"
+        :deleteData="pendingBulkDelete"
+        :title="__('message.Delete')"
+        :message="__('message.are_you_sure')"
+        componentName="orders-index"
+        @deleted="() => { pendingBulkDelete = null; selectedOrders.value = []; dtRef.value?.refresh() }"
+    />
 </template>
 
 <script setup>
@@ -63,6 +75,7 @@ import http from '@/plugins/axios'
 import { errorHandler } from '@/helpers/responseHandler.js'
 import OrderTableActions from './components/OrderTableActions.vue'
 import OrderFilter from './components/OrderFilter.vue'
+import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
 
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
@@ -72,6 +85,7 @@ const dtRef = ref(null)
 const selectedOrders = ref([])
 const showFilter = ref(false)
 const activeFilters = ref({})
+const pendingBulkDelete = ref(null)
 
 const allSelected = computed(() => {
     const data = dtRef.value?.tableData ?? []
@@ -106,16 +120,9 @@ function onFilterReset() {
     dtRef.value?.refresh()
 }
 
-async function bulkDelete() {
+function confirmBulkDelete() {
     if (!selectedOrders.value.length) return
-    if (!confirm(`Delete ${selectedOrders.value.length} selected order(s)? This cannot be undone.`)) return
-    try {
-        await http.delete(apiUrl, { data: { order_ids: selectedOrders.value } })
-        selectedOrders.value = []
-        dtRef.value?.refresh()
-    } catch (e) {
-        errorHandler(e, 'orders-index')
-    }
+    pendingBulkDelete.value = { order_ids: [...selectedOrders.value] }
 }
 
 const columns = ['select', 'client', 'email', 'mobile', 'country', 'number', 'order_status', 'product_name', 'group', 'plan', 'version', 'agents', 'status', 'order_date', 'update_ends_at', 'action']

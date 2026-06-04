@@ -263,12 +263,19 @@ class CloudExtraActivities extends Controller
             $invoice = (new RenewController())->renewBySubId($request->subId, $items['planId'], '', $items['price'], '', false, $totalAgents);
 
             if ($invoice) {
-                \Session::put('AgentAlteration', $request->subId);
-                \Session::put('newAgents', $totalAgents);
-                \Session::put('orderId', $orderId);
-                \Session::put('installation_path', $installation_path);
-                \Session::put('product_id', $product_id);
-                \Session::put('oldLicense', $oldLicense);
+                Invoice::find($invoice->invoice_id)->update([
+                    'metadata' => [
+                        'type'                => 'agent_alteration',
+                        'sub_id'              => $request->subId,
+                        'new_agents'          => $totalAgents,
+                        'order_id'            => $orderId,
+                        'installation_path'   => $installation_path,
+                        'product_id'          => $product_id,
+                        'old_license'         => $oldLicense,
+                        'agent_increase_date' => \Session::has('agentIncreaseDate'),
+                    ],
+                ]);
+                \Session::forget('agentIncreaseDate');
 
                 $url = url('paynow/'.$invoice->invoice_id);
 
@@ -904,46 +911,42 @@ class CloudExtraActivities extends Controller
      *
      * @throws
      */
-    public function doTheProductUpgradeDowngrade($licenseCode, $installationPath, $productID, $oldLicenseCode)
-    {
-        \Session::forget('priceRemaining');
+    public function doTheProductUpgradeDowngrade(
+        string $licenseCode,
+        string $installationPath,
+        int $productID,
+        string $oldLicenseCode,
+        int $terminatedOrderId = 0,
+        int $newActiveOrderId = 0,
+        ?float $discount = null
+    ): void {
+        $this->doTheActivity($terminatedOrderId, $newActiveOrderId, $discount);
 
-        $this->doTheActivity();
-
-        $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
+        $keys  = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
         $token = str_random(32);
-        $data = ['licenseCode' => $licenseCode, 'installation_path' => $installationPath, 'product_id' => $productID, 'old_lic_code' => $oldLicenseCode, 'app_key' => $keys->app_key, 'token' => $token, 'timestamp' => time()];
-        $encodedData = http_build_query($data);
-        $client = new Client();
+        $data  = [
+            'licenseCode'       => $licenseCode,
+            'installation_path' => $installationPath,
+            'product_id'        => $productID,
+            'old_lic_code'      => $oldLicenseCode,
+            'app_key'           => $keys->app_key,
+            'token'             => $token,
+            'timestamp'         => time(),
+        ];
+        $encodedData     = http_build_query($data);
         $hashedSignature = hash_hmac('sha256', $encodedData, $keys->app_secret);
-        \Log::debug('sas', [$data, $hashedSignature]);
-        $response = $client->request(
+
+        (new Client())->request(
             'POST',
-            $this->cloud->cloud_central_domain.'/performProductUpgradeOrDowngrade', ['form_params' => $data, 'headers' => ['signature' => $hashedSignature]]
+            $this->cloud->cloud_central_domain.'/performProductUpgradeOrDowngrade',
+            ['form_params' => $data, 'headers' => ['signature' => $hashedSignature]]
         );
 
-        $response = explode('{', (string) $response->getBody());
-
-        $response = '{'.$response[1];
-
-        json_decode($response);
-
-        $orderId = \Session::get('upgradeorderId');
-
-        Order::where('id', $orderId)->update(['order_status' => 'Terminated']);
-
-        \DB::table('terminated_order_upgrade')->insert(['terminated_order_id' => $orderId, 'upgraded_order_id' => \Session::get('upgradeNewActiveOrder')]);
-
-        \Session::forget('upgradeDowngradeProduct');
-        \Session::forget('upgradeOldLicense');
-        \Session::forget('upgradeInstallationPath');
-        \Session::forget('upgradeorderId');
-        \Session::forget('upgradeProductId');
-        \Session::forget('upgradeNewActiveOrder');
-        \Session::forget('plan');
-
-        \Cart::clear();
-        $this->cart->clear();
+        Order::where('id', $terminatedOrderId)->update(['order_status' => 'Terminated']);
+        \DB::table('terminated_order_upgrade')->insert([
+            'terminated_order_id' => $terminatedOrderId,
+            'upgraded_order_id'   => $newActiveOrderId,
+        ]);
     }
 
     public function checkUpgradeDowngrade()
@@ -1004,36 +1007,37 @@ class CloudExtraActivities extends Controller
      *
      * @throws
      */
-    private function doTheActivity()
+    public function doTheActivity(int $terminatedOrderId, int $newActiveOrderId, ?float $discount = null): void
     {
-        if (\Session::has('discount')) {
-            $discount = \Session::get('discount');
-            if ($discount) {
-                Payment::where('user_id', \Auth::user()->id)
-                    ->where('payment_status', 'pending')->where('amt_to_credit', $discount)
-                    ->where('payment_method', 'Credit Balance')
-                    ->latest()->update(['payment_status' => 'success']);
+        if ($discount !== null) {
+            Payment::where('user_id', \Auth::user()->id)
+                ->where('payment_status', 'pending')
+                ->where('amt_to_credit', $discount)
+                ->where('payment_method', 'Credit Balance')
+                ->latest()->update(['payment_status' => 'success']);
 
-                $payment_id = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('id');
-                $formattedValue = currencyFormat($discount, getCurrencyForClient(\Auth::user()->country), true);
-                $oldOrderId = \Session::get('upgradeorderId');
-                $oldOrderNumber = Order::where('id', $oldOrderId)->value('number');
-                $newOrderId = \Session::get('upgradeNewActiveOrder');
-                $newOrderNumber = Order::where('id', $newOrderId)->value('number');
+            $payment_id = \DB::table('payments')
+                ->where('user_id', \Auth::user()->id)
+                ->where('payment_status', 'success')
+                ->where('payment_method', 'Credit Balance')
+                ->value('id');
 
-                $messageAdmin = 'A credit of '.$formattedValue.' has been added to the balance due to a plan downgrade. Details of the terminated order can be found here: '.
-                    '<a href="'.config('app.url').'/orders/'.$oldOrderId.'">'.$oldOrderNumber.'</a>.'.' You can also view details of the downgraded order here: '.
-                    '<a href="'.config('app.url').'/orders/'.$newOrderId.'">'.$newOrderNumber.'</a>.';
+            $formattedValue = currencyFormat($discount, getCurrencyForClient(\Auth::user()->country), true);
+            $oldOrderNumber = Order::where('id', $terminatedOrderId)->value('number');
+            $newOrderNumber = Order::where('id', $newActiveOrderId)->value('number');
 
-                $messageClient = 'A credit of '.$formattedValue.' has been added to your balance due to a product downgrade. Details of the terminated order can be found here: '.
-                    '<a href="'.config('app.url').'/my-order/'.$oldOrderId.'">'.$oldOrderNumber.'</a>.'.' You can also view details of the downgraded order here: '.
-                    '<a href="'.config('app.url').'/my-order/'.$newOrderId.'">'.$newOrderNumber.'</a>.';
+            $messageAdmin = 'A credit of '.$formattedValue.' has been added to the balance due to a plan downgrade. Details of the terminated order can be found here: '
+                .'<a href="'.config('app.url').'/orders/'.$terminatedOrderId.'">'.$oldOrderNumber.'</a>.'
+                .' You can also view details of the downgraded order here: '
+                .'<a href="'.config('app.url').'/orders/'.$newActiveOrderId.'">'.$newOrderNumber.'</a>.';
 
-                \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
-                \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+            $messageClient = 'A credit of '.$formattedValue.' has been added to your balance due to a product downgrade. Details of the terminated order can be found here: '
+                .'<a href="'.config('app.url').'/my-order/'.$terminatedOrderId.'">'.$oldOrderNumber.'</a>.'
+                .' You can also view details of the downgraded order here: '
+                .'<a href="'.config('app.url').'/my-order/'.$newActiveOrderId.'">'.$newOrderNumber.'</a>.';
 
-                \Session::forget('discount');
-            }
+            \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin,  'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+            \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user',  'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
         }
     }
 

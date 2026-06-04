@@ -389,7 +389,7 @@ class CheckoutController extends InfoController
                     if (! empty($invoice->billing_pay)) {
                         Invoice::where('id', $invoice->id)->update(['grand_total' => ($invoice->grand_total + $invoice->billing_pay)]);
                     }
-                    $payment->postRazorpayPayment($invoice);
+                    $payment->recordPayment($invoice, 'Credits');
                     $date = getDateHtml($invoice->date);
                     $product = $this->product($invoice->id);
                     $items = $invoice->invoiceItem()->get();
@@ -542,8 +542,6 @@ class CheckoutController extends InfoController
 
             //execute the order
             if (! $agent) {
-                $payment = new \App\Http\Controllers\Order\InvoiceController();
-                $payment->postRazorpayPayment($invoice);
 
                 $alreadyExecuted = \App\Model\Order\Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->exists();
                 if (! $alreadyExecuted) {
@@ -636,12 +634,15 @@ class CheckoutController extends InfoController
      */
     private function cloudUpDownGradeOps($cloud, $invoice)
     {
-        $oldLicense = \Session::get('upgradeOldLicense');
+        $oldLicense       = \Session::get('upgradeOldLicense');
         $installationPath = \Session::get('upgradeInstallationPath');
-        $productId = \Session::get('upgradeProductId');
-        $licenseCode = \Session::get('upgradeSerialKey');
+        $productId        = \Session::get('upgradeProductId');
+        $licenseCode      = \Session::get('upgradeSerialKey');
+        $terminatedOrderId = (int) \Session::get('upgradeorderId', 0);
+        $newActiveOrderId  = (int) \Session::get('upgradeNewActiveOrder', 0);
+        $upgradeDiscount   = \Session::has('discount') ? (float) \Session::get('discount') : null;
         $this->doTheDeed($invoice, false);
-        $cloud->doTheProductUpgradeDowngrade($licenseCode, $installationPath, $productId, $oldLicense);
+        $cloud->doTheProductUpgradeDowngrade($licenseCode, $installationPath, $productId, $oldLicense, $terminatedOrderId, $newActiveOrderId, $upgradeDiscount);
         $this->perfromUpdateSubscription($invoice);
     }
 

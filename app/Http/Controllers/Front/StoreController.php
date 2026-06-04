@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
+use App\Model\CloudDataCenters;
 use App\Model\Payment\Currency;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
@@ -59,9 +60,15 @@ class StoreController extends Controller
                 $group->only(['id', 'name', 'headline', 'tagline']),
                 ['status' => (bool) $group->status]
             ),
-            'currency' => $currency,
-            'currency_symbol' => $symbol,
-            'products' => $products->map(fn ($p) => $this->transformProduct($p, $currency))->values(),
+            'currency'         => $currency,
+            'currency_symbol'  => $symbol,
+            'cloud_subdomain'  => cloudSubDomain() ?? '',
+            'data_centers'     => CloudDataCenters::select('id', 'cloud_countries', 'cloud_state')->get()
+                ->map(fn ($dc) => [
+                    'id'   => $dc->id,
+                    'name' => trim($dc->cloud_countries.($dc->cloud_state ? ', '.$dc->cloud_state : '')),
+                ])->values(),
+            'products'         => $products->map(fn ($p) => $this->transformProduct($p, $currency))->values(),
         ]);
     }
 
@@ -92,11 +99,12 @@ class StoreController extends Controller
         $isFree = ($default['price_raw'] ?? 0) == 0;
 
         return [
-            'id' => $product->id,
-            'name' => $product->name,
+            'id'                => $product->id,
+            'name'              => $product->name,
             'short_description' => $product->short_description,
-            'description' => $product->description,
-            'highlighted' => $highlighted,
+            'description'       => $product->description,
+            'highlighted'       => $highlighted,
+            'is_cloud'          => in_array($product->id, cloudPopupProducts(), true),
             'display_price' => $default
                 ? ($isFree ? __('message.free') : currencyFormat($default['price_raw'], $currency))
                 : __('message.free'),

@@ -7,6 +7,7 @@ use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
 use App\Model\Configure\ProductPluginGroup;
 use App\Model\Order\Order;
+use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
@@ -107,7 +108,6 @@ class BaseOrderController extends ExtendedOrderController
             $plan_id = $this->plan($item->id);
 
             $order = $this->order->create([
-                'invoice_id' => $invoiceid,
                 'invoice_item_id' => $item->id,
                 'client' => $user_id,
                 'order_status' => $order_status,
@@ -329,8 +329,9 @@ class BaseOrderController extends ExtendedOrderController
         $setting = $settings::find(1);
         $orders = new Order();
         $order = $orders->where('id', $orderid)->first();
-        $invoice = $this->invoice->find($order->invoice_id);
-        $number = $invoice->number;
+        $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
+        $invoice = $this->invoice->find($invoiceId);
+        $number = $invoice?->number;
         $downloadurl = '';
         if ($user && $order->order_status == 'Executed') {
             $downloadurl = url('product/'.'download'.'/'.$productId.'/'.$number);
@@ -346,6 +347,9 @@ class BaseOrderController extends ExtendedOrderController
     {
         $contact = getContactData();
         $product = Product::where('id', $productId)->first();
+        if (! $product) {
+            return;
+        }
         $value = $product->type;
 
         $template = TemplateType::getSelectedTemplate('order_mail');
@@ -385,16 +389,16 @@ class BaseOrderController extends ExtendedOrderController
         $mail = new \App\Http\Controllers\Common\PhpMailController();
         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
 
-        if ($order->invoice->grand_total) {
-            SettingsController::sendPaymentSuccessMailtoAdmin($order->invoice, $order->invoice->grand_total, $user, $product->name);
+        $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
+        $orderInvoice = $invoiceId ? \App\Model\Order\Invoice::find($invoiceId) : null;
+        if ($orderInvoice?->grand_total) {
+            SettingsController::sendPaymentSuccessMailtoAdmin($orderInvoice, $orderInvoice->grand_total, $user, $product->name);
         }
     }
 
     public function invoiceUrl($orderid)
     {
-        $orders = new Order();
-        $order = $orders->where('id', $orderid)->first();
-        $invoiceid = $order->invoice_id;
+        $invoiceid = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
         $url = url('my-invoice/'.$invoiceid);
 
         return $url;
@@ -419,10 +423,9 @@ class BaseOrderController extends ExtendedOrderController
 
     public function downloadUrl($userid, $orderid)
     {
-        $orders = new Order();
-        $order = $orders->where('id', $orderid)->first();
-        $invoice = $this->invoice->find($order->invoice_id);
-        $number = $invoice->number;
+        $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
+        $invoice = $this->invoice->find($invoiceId);
+        $number = $invoice?->number;
         $url = url('download/'.$userid.'/'.$number);
 
         return $url;

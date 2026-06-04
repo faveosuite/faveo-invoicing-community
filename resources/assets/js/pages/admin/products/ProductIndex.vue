@@ -25,14 +25,12 @@
                                 type="button"
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false"
-                                :disabled="deleting"
                             >
-                                <spinner-loader v-if="deleting" :size="18" />
-                                <span v-else>{{ __('message.bulk_action') }}</span>
+                                {{ __('message.bulk_action') }}
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <button class="dropdown-item" @click="bulkDelete">
+                                    <button class="dropdown-item" @click="confirmBulkDelete">
                                         {{ __('message.Delete') }}
                                     </button>
                                 </li>
@@ -43,6 +41,18 @@
             </div>
         </div>
     </div>
+
+    <DeleteModal
+        v-if="pendingBulkDelete"
+        :showModal="true"
+        :onClose="() => pendingBulkDelete = null"
+        :deleteUrl="`${baseUrl}/products`"
+        :deleteData="pendingBulkDelete"
+        :title="__('message.Delete')"
+        :message="__('message.are_you_sure')"
+        componentName="products-index"
+        @deleted="() => { pendingBulkDelete = null; selectedProducts.value = []; dtRef.value?.refresh() }"
+    />
 </template>
 
 <script setup>
@@ -51,6 +61,7 @@ import { h, ref, computed, reactive } from 'vue'
 import http from '@/plugins/axios'
 import { errorHandler } from '@/helpers/responseHandler.js'
 import ProductTableActions from './components/ProductTableActions.vue'
+import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
 
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
@@ -58,7 +69,7 @@ const apiUrl = `${baseUrl}/products`
 
 const dtRef = ref(null)
 const selectedProducts = ref([])
-const deleting = ref(false)
+const pendingBulkDelete = ref(null)
 
 const allSelected = computed(() => {
     const data = dtRef.value?.tableData ?? []
@@ -82,20 +93,9 @@ function toggleAll(e) {
     }
 }
 
-async function bulkDelete() {
+function confirmBulkDelete() {
     if (!selectedProducts.value.length) return
-    if (!confirm(`Delete ${selectedProducts.value.length} selected product(s)? This cannot be undone.`)) return
-    
-    deleting.value = true
-    try {
-        await http.delete(apiUrl, { data: { product_ids: selectedProducts.value } })
-        selectedProducts.value = []
-        dtRef.value?.refresh()
-    } catch (e) {
-        errorHandler(e, 'products-index')
-    } finally {
-        deleting.value = false
-    }
+    pendingBulkDelete.value = { product_ids: [...selectedProducts.value] }
 }
 
 const columns = ['select', 'name', 'image', 'license_type', 'group', 'action']

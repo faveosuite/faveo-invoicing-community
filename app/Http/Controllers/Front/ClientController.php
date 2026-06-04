@@ -1094,7 +1094,7 @@ class ClientController extends BaseClientController
     private function planPriceProductRelation($product)
     {
         $plans = Plan::where('product', '!=', $product->id)
-            ->whereHas('product', function ($query) {
+            ->whereHas('productRelation', function ($query) {
                 $query->where('type', 4)
                       ->where('can_modify_agent', 1);
             })

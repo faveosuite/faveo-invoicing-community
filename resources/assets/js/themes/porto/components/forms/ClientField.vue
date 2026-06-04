@@ -46,18 +46,21 @@
                   :disabled="disabled"
                   @input="onInput"></textarea>
 
-        <!-- text / email / number / tel / … -->
-        <input v-else :id="fieldId"
-               class="form-control form-control-lg text-4"
-               :class="{ 'is-invalid': error }"
-               :type="type"
-               :value="modelValue"
-               :autocomplete="autocomplete"
-               :placeholder="placeholder"
-               :disabled="disabled"
-               @input="onInput"
-               @focus="$emit('focus', $event)"
-               @blur="$emit('blur', $event)">
+        <!-- text / email / number / tel / … (with optional append slot) -->
+        <div v-else :class="$slots.append ? 'input-group' : ''">
+            <input :id="fieldId"
+                   class="form-control form-control-lg text-4"
+                   :class="{ 'is-invalid': error }"
+                   :type="type"
+                   :value="modelValue"
+                   :autocomplete="autocomplete"
+                   :placeholder="placeholder"
+                   :disabled="disabled"
+                   @input="onInput"
+                   @focus="$emit('focus', $event)"
+                   @blur="$emit('blur', $event)">
+            <slot name="append" />
+        </div>
 
         <div v-if="error" class="invalid-feedback d-block">{{ error }}</div>
     </div>

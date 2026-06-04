@@ -192,6 +192,32 @@
         </template>
     </AppModal>
 
+    <!-- Tenant Delete Confirm Modal -->
+    <DeleteModal
+        v-if="pendingDeleteTenant"
+        :showModal="true"
+        :onClose="() => pendingDeleteTenant = null"
+        :deleteUrl="`${baseUrl}/delete-tenant`"
+        :deleteData="{ id: pendingDeleteTenant.tenantId, orderId: pendingDeleteTenant.orderNumber }"
+        :title="__('message.delete_tenant')"
+        :message="__('message.are_you_sure')"
+        :componentName="COMPONENT"
+        @deleted="() => { pendingDeleteTenant = null; tenantDtRef?.refresh() }"
+    />
+
+    <!-- Product Delete Confirm Modal -->
+    <DeleteModal
+        v-if="pendingDeleteProduct"
+        :showModal="true"
+        :onClose="() => pendingDeleteProduct = null"
+        :deleteUrl="`${baseUrl}/delete-cloud-product`"
+        :deleteData="{ id: pendingDeleteProduct.id }"
+        :title="__('message.Delete')"
+        :message="__('message.are_you_sure')"
+        :componentName="COMPONENT"
+        @deleted="() => { pendingDeleteProduct = null; productDtRef?.refresh() }"
+    />
+
     <!-- Data Center Config Modal -->
     <AppModal :showModal="showDCModal" :onClose="closeDCModal" :showCloseBtn="false">
         <template #title>
@@ -236,6 +262,7 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
+import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
 import { cloudSettingsSchema, cloudProductSchema } from '@/validations/admin/cloudValidations'
 
 const COMPONENT = 'cloud-details'
@@ -252,6 +279,9 @@ const activeTab     = ref('settings')
 
 const showProductModal = ref(false)
 const showDCModal      = ref(false)
+
+const pendingDeleteTenant  = ref(null)   // { tenantId, orderNumber }
+const pendingDeleteProduct = ref(null)   // { id }
 
 function openProductModal()  { resetForm(); showProductModal.value = true }
 function closeProductModal() { showProductModal.value = false; productForm.cloud_product = null; productForm.cloud_free_plan = null; productForm.cloud_product_key = '' }
@@ -452,11 +482,8 @@ async function toggleTrialStatus(id, status) {
     } catch (e) { errorHandler(e, COMPONENT); productDtRef.value?.refresh() }
 }
 
-async function deleteProduct(id) {
-    try {
-        await http.delete(`${baseUrl}/delete-cloud-product`, { data: { id } })
-        productDtRef.value?.refresh()
-    } catch (e) { errorHandler(e, COMPONENT) }
+function confirmDeleteProduct(id) {
+    pendingDeleteProduct.value = { id }
 }
 
 const productColumns = ['cloud_product', 'cloud_free_plan', 'cloud_product_key', 'trial_status', 'action']
@@ -489,7 +516,7 @@ const productTableOptions = reactive({
         action: (f, row) => h('button', {
             class:   'btn btn-light table_btn',
             title:   __('message.Delete'),
-            onClick: () => deleteProduct(row.id),
+            onClick: () => confirmDeleteProduct(row.id),
         }, [h('i', { class: 'fas fa-trash' })]),
     },
     sortable:   ['cloud_product'],
@@ -514,11 +541,8 @@ const productTableOptions = reactive({
 
 const tenantDtRef = ref(null)
 
-async function deleteTenant(tenantId, orderId) {
-    try {
-        await http.delete(`${baseUrl}/delete-tenant`, { data: { id: tenantId, orderId } })
-        tenantDtRef.value?.refresh()
-    } catch (e) { errorHandler(e, COMPONENT) }
+function confirmDeleteTenant(tenantId, orderNumber) {
+    pendingDeleteTenant.value = { tenantId, orderNumber }
 }
 
 const tenantColumns = [
@@ -576,7 +600,7 @@ const tenantTableOptions = reactive({
         action:      (f, row) => h('button', {
             class:   'btn btn-light table_btn',
             title:   __('message.Delete'),
-            onClick: () => deleteTenant(row.action?.delete?.tenant_id, row.order?.order_id),
+            onClick: () => confirmDeleteTenant(row.action?.delete?.tenant_id, row.action?.delete?.order_number),
         }, [h('i', { class: 'fas fa-trash' })]),
     },
     sortable:   [],

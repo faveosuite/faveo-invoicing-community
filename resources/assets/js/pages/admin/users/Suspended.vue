@@ -31,7 +31,7 @@
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <button class="dropdown-item" @click="bulkDelete">
+                                    <button class="dropdown-item" @click="confirmBulkDelete">
                                         {{ __('message.Delete') }}
                                     </button>
                                 </li>
@@ -42,6 +42,18 @@
             </div>
         </div>
     </div>
+
+    <DeleteModal
+        v-if="pendingBulkDelete"
+        :showModal="true"
+        :onClose="() => pendingBulkDelete = null"
+        :deleteUrl="`${baseUrl}/permanent-delete-client`"
+        :deleteData="pendingBulkDelete"
+        :title="__('message.Delete')"
+        :message="__('message.are_you_sure')"
+        :componentName="COMPONENT"
+        @deleted="() => { pendingBulkDelete = null; selected.value = []; dtRef.value?.refresh() }"
+    />
 </template>
 
 <script setup>
@@ -49,6 +61,7 @@ import { h, ref, computed, reactive } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import SuspendedTableActions from './components/SuspendedTableActions.vue'
+import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
 
 const COMPONENT = 'suspended-index'
 
@@ -58,6 +71,7 @@ const apiUrl  = `${baseUrl}/soft-delete`
 
 const dtRef  = ref(null)
 const selected = ref([])
+const pendingBulkDelete = ref(null)
 
 const allSelected = computed(() => {
     const data = dtRef.value?.tableData ?? []
@@ -93,16 +107,9 @@ async function bulkRestore() {
     }
 }
 
-async function bulkDelete() {
+function confirmBulkDelete() {
     if (!selected.value.length) return
-    if (!confirm(`Permanently delete ${selected.value.length} selected user(s)? This cannot be undone.`)) return
-    try {
-        await http.delete(`${baseUrl}/permanent-delete-client`, { data: { user_ids: selected.value } })
-        selected.value = []
-        dtRef.value?.refresh()
-    } catch (e) {
-        errorHandler(e, COMPONENT)
-    }
+    pendingBulkDelete.value = { user_ids: [...selected.value] }
 }
 
 const columns = ['select', 'name', 'email', 'mobile', 'country', 'created_at', 'action']
