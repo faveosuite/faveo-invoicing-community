@@ -542,7 +542,6 @@ class CheckoutController extends InfoController
 
             //execute the order
             if (! $agent) {
-
                 $alreadyExecuted = \App\Model\Order\Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->exists();
                 if (! $alreadyExecuted) {
                     $order = new \App\Http\Controllers\Order\OrderController();
@@ -634,13 +633,13 @@ class CheckoutController extends InfoController
      */
     private function cloudUpDownGradeOps($cloud, $invoice)
     {
-        $oldLicense       = \Session::get('upgradeOldLicense');
+        $oldLicense = \Session::get('upgradeOldLicense');
         $installationPath = \Session::get('upgradeInstallationPath');
-        $productId        = \Session::get('upgradeProductId');
-        $licenseCode      = \Session::get('upgradeSerialKey');
+        $productId = \Session::get('upgradeProductId');
+        $licenseCode = \Session::get('upgradeSerialKey');
         $terminatedOrderId = (int) \Session::get('upgradeorderId', 0);
-        $newActiveOrderId  = (int) \Session::get('upgradeNewActiveOrder', 0);
-        $upgradeDiscount   = \Session::has('discount') ? (float) \Session::get('discount') : null;
+        $newActiveOrderId = (int) \Session::get('upgradeNewActiveOrder', 0);
+        $upgradeDiscount = \Session::has('discount') ? (float) \Session::get('discount') : null;
         $this->doTheDeed($invoice, false);
         $cloud->doTheProductUpgradeDowngrade($licenseCode, $installationPath, $productId, $oldLicense, $terminatedOrderId, $newActiveOrderId, $upgradeDiscount);
         $this->perfromUpdateSubscription($invoice);

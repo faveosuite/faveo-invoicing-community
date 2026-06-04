@@ -265,13 +265,13 @@ class CloudExtraActivities extends Controller
             if ($invoice) {
                 Invoice::find($invoice->invoice_id)->update([
                     'metadata' => [
-                        'type'                => 'agent_alteration',
-                        'sub_id'              => $request->subId,
-                        'new_agents'          => $totalAgents,
-                        'order_id'            => $orderId,
-                        'installation_path'   => $installation_path,
-                        'product_id'          => $product_id,
-                        'old_license'         => $oldLicense,
+                        'type' => 'agent_alteration',
+                        'sub_id' => $request->subId,
+                        'new_agents' => $totalAgents,
+                        'order_id' => $orderId,
+                        'installation_path' => $installation_path,
+                        'product_id' => $product_id,
+                        'old_license' => $oldLicense,
                         'agent_increase_date' => \Session::has('agentIncreaseDate'),
                     ],
                 ]);
@@ -922,18 +922,18 @@ class CloudExtraActivities extends Controller
     ): void {
         $this->doTheActivity($terminatedOrderId, $newActiveOrderId, $discount);
 
-        $keys  = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
+        $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
         $token = str_random(32);
-        $data  = [
-            'licenseCode'       => $licenseCode,
+        $data = [
+            'licenseCode' => $licenseCode,
             'installation_path' => $installationPath,
-            'product_id'        => $productID,
-            'old_lic_code'      => $oldLicenseCode,
-            'app_key'           => $keys->app_key,
-            'token'             => $token,
-            'timestamp'         => time(),
+            'product_id' => $productID,
+            'old_lic_code' => $oldLicenseCode,
+            'app_key' => $keys->app_key,
+            'token' => $token,
+            'timestamp' => time(),
         ];
-        $encodedData     = http_build_query($data);
+        $encodedData = http_build_query($data);
         $hashedSignature = hash_hmac('sha256', $encodedData, $keys->app_secret);
 
         (new Client())->request(
@@ -945,7 +945,7 @@ class CloudExtraActivities extends Controller
         Order::where('id', $terminatedOrderId)->update(['order_status' => 'Terminated']);
         \DB::table('terminated_order_upgrade')->insert([
             'terminated_order_id' => $terminatedOrderId,
-            'upgraded_order_id'   => $newActiveOrderId,
+            'upgraded_order_id' => $newActiveOrderId,
         ]);
     }
 
