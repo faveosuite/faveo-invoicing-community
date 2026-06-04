@@ -17,7 +17,6 @@ use App\Model\Order\Order;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Subscription;
-use App\License\Services\LicenseService;
 use App\ThirdPartyApp;
 use App\User;
 use Carbon\Carbon;

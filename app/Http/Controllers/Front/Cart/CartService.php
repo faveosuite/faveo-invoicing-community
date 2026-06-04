@@ -185,16 +185,16 @@ class CartService
             );
 
             $attributes = [
-                'user_id'       => $user->getAuthIdentifier(),
-                'date'          => Carbon::now(),
-                'grand_total'   => $summary['grand_total'],
-                'status'        => 'pending',
-                'currency'      => $cart->currency ?? 'USD',
-                'coupon_code'   => $cart->coupon_code,
-                'discount'      => $summary['discount'],
+                'user_id' => $user->getAuthIdentifier(),
+                'date' => Carbon::now(),
+                'grand_total' => $summary['grand_total'],
+                'status' => 'pending',
+                'currency' => $cart->currency ?? 'USD',
+                'coupon_code' => $cart->coupon_code,
+                'discount' => $summary['discount'],
                 'discount_mode' => 'coupon',
-                'is_renewed'    => 0,
-                'cloud_domain'  => $cloudItem?->domain ?: null,
+                'is_renewed' => 0,
+                'cloud_domain' => $cloudItem?->domain ?: null,
             ];
 
             if ($invoice) {
@@ -293,13 +293,13 @@ class CartService
             $existing->increment('quantity', $data['quantity'] ?? 1);
         } else {
             $cart->items()->create([
-                'product_id'     => $data['product_id'],
-                'plan_id'        => $data['plan_id'] ?? null,
-                'quantity'       => $data['quantity'] ?? 1,
-                'agents'         => $data['agents'] ?? 1,
-                'domain'         => $data['domain'] ?? null,
+                'product_id' => $data['product_id'],
+                'plan_id' => $data['plan_id'] ?? null,
+                'quantity' => $data['quantity'] ?? 1,
+                'agents' => $data['agents'] ?? 1,
+                'domain' => $data['domain'] ?? null,
                 'data_center_id' => $data['data_center_id'] ?? null,
-                'billing_cycle'  => $data['billing_cycle'] ?? 'monthly',
+                'billing_cycle' => $data['billing_cycle'] ?? 'monthly',
             ]);
         }
 

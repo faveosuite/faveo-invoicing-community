@@ -32,18 +32,18 @@ class PostPaymentService
         $this->recordPayment($invoice, $gateway);
 
         $metadata = $invoice->metadata ?? [];
-        $type     = $metadata['type'] ?? 'purchase';
+        $type = $metadata['type'] ?? 'purchase';
 
         $result = match ($type) {
-            'agent_alteration'  => $this->handleAgentAlteration($invoice, $metadata),
+            'agent_alteration' => $this->handleAgentAlteration($invoice, $metadata),
             'upgrade_downgrade' => $this->handleUpgradeDowngrade($invoice, $metadata),
-            default             => $invoice->is_renewed == 1
+            default => $invoice->is_renewed == 1
                                        ? $this->handleRenewal($invoice, $metadata)
                                        : $this->handlePurchase($invoice),
         };
 
         if ($invoice->grand_total && emailSendingStatus()) {
-            $user         = User::find($invoice->user_id);
+            $user = User::find($invoice->user_id);
             $productNames = $invoice->invoiceItem()->pluck('product_name')->implode(', ');
             self::sendPaymentSuccessMailtoAdmin($invoice, $invoice->grand_total, $user, $productNames);
         }
@@ -87,7 +87,7 @@ class PostPaymentService
 
         // Agent count also changed at renewal time (metadata written by BaseRenewController in Task 4)
         if (! empty($metadata['renewal_agent'])) {
-            $ra    = $metadata['renewal_agent'];
+            $ra = $metadata['renewal_agent'];
             $cloud = new CloudExtraActivities(new Client(), new FaveoCloud());
             $cloud->doTheAgentAltering(
                 $ra['new_agents'],
@@ -127,9 +127,9 @@ class PostPaymentService
     private function handleUpgradeDowngrade(Invoice $invoice, array $metadata): array
     {
         $terminatedOrderId = (int) $metadata['old_order_id'];
-        $oldLicense        = (string) $metadata['old_license'];
-        $installationPath  = (string) $metadata['installation_path'];
-        $discount          = isset($metadata['discount']) ? (float) $metadata['discount'] : null;
+        $oldLicense = (string) $metadata['old_license'];
+        $installationPath = (string) $metadata['installation_path'];
+        $discount = isset($metadata['discount']) ? (float) $metadata['discount'] : null;
 
         $this->executeOrders($invoice);
 
@@ -140,7 +140,7 @@ class PostPaymentService
             throw new \RuntimeException("New order not found for invoice #{$invoice->id} after checkoutAction.");
         }
         $licenseCode = \Crypt::decrypt($newOrder->serial_key);
-        $productId   = (int) $newOrder->product;
+        $productId = (int) $newOrder->product;
 
         $this->doTheDeed($invoice);
 
@@ -156,22 +156,22 @@ class PostPaymentService
         );
 
         // Transfer subscription from terminated order to new order
-        $termOrderId     = \DB::table('terminated_order_upgrade')
+        $termOrderId = \DB::table('terminated_order_upgrade')
             ->where('upgraded_order_id', $newActiveOrderId)->value('terminated_order_id');
         $terminatedOrder = Order::find($termOrderId);
         if ($terminatedOrder) {
             $oldSub = Subscription::where('order_id', $terminatedOrder->id)->first();
             if ($terminatedOrder->order_status === 'Terminated' && $oldSub?->subscribe_id) {
                 Subscription::where('order_id', $newActiveOrderId)->update([
-                    'subscribe_id'     => $oldSub->subscribe_id,
-                    'is_subscribed'    => $oldSub->is_subscribed,
+                    'subscribe_id' => $oldSub->subscribe_id,
+                    'is_subscribed' => $oldSub->is_subscribed,
                     'autoRenew_status' => $oldSub->autoRenew_status,
                     'rzp_subscription' => $oldSub->rzp_subscription,
                 ]);
                 $this->updateSubscriptionPriceIfNeeded($newActiveOrderId, $invoice);
             } elseif ($terminatedOrder->order_status === 'Terminated' && $oldSub?->is_subscribed === '1') {
                 Subscription::where('order_id', $newActiveOrderId)->update([
-                    'is_subscribed'    => $oldSub->is_subscribed,
+                    'is_subscribed' => $oldSub->is_subscribed,
                     'autoRenew_status' => $oldSub->autoRenew_status,
                     'rzp_subscription' => $oldSub->rzp_subscription,
                 ]);
@@ -200,12 +200,12 @@ class PostPaymentService
 
         if ($outstanding > 0) {
             Payment::create([
-                'invoice_id'     => $invoice->id,
-                'user_id'        => $invoice->user_id,
-                'amount'         => rounding($outstanding),
+                'invoice_id' => $invoice->id,
+                'user_id' => $invoice->user_id,
+                'amount' => rounding($outstanding),
                 'payment_method' => $gateway,
                 'payment_status' => 'success',
-                'created_at'     => \Carbon\Carbon::now(),
+                'created_at' => \Carbon\Carbon::now(),
             ]);
         }
 
@@ -227,14 +227,14 @@ class PostPaymentService
                 ->update(['amt_to_credit' => $amt_to_credit]);
             \App\User::where('id', \Auth::user()->id)->update(['billing_pay_balance' => 0]);
 
-            $payment_id     = \DB::table('payments')
+            $payment_id = \DB::table('payments')
                 ->where('user_id', \Auth::user()->id)
                 ->where('payment_status', 'success')
                 ->where('payment_method', 'Credit Balance')
                 ->value('id');
             $formattedValue = currencyFormat($invoice->billing_pay, $invoice->currency, true);
 
-            $messageAdmin  = 'The payment balance of '.$formattedValue.' has been utilized or adjusted with this invoice.'
+            $messageAdmin = 'The payment balance of '.$formattedValue.' has been utilized or adjusted with this invoice.'
                 .' You can view the details of the invoice '
                 .'<a href="'.config('app.url').'/invoices/show?invoiceid='.$invoice->id.'">'.$invoice->number.'</a>.';
             $messageClient = 'The payment balance of '.$formattedValue.' has been utilized or adjusted with this invoice.'
@@ -246,12 +246,12 @@ class PostPaymentService
 
             if ($invoice->billing_pay) {
                 Payment::create([
-                    'invoice_id'     => $invoice->id,
-                    'user_id'        => $invoice->user_id,
-                    'amount'         => $invoice->billing_pay,
+                    'invoice_id' => $invoice->id,
+                    'user_id' => $invoice->user_id,
+                    'amount' => $invoice->billing_pay,
                     'payment_method' => 'Credits',
                     'payment_status' => 'success',
-                    'created_at'     => \Carbon\Carbon::now(),
+                    'created_at' => \Carbon\Carbon::now(),
                 ]);
             }
         }

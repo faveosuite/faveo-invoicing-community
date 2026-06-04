@@ -153,12 +153,12 @@ trait PaymentsAndInvoices
 
         if ($outstanding > 0) {
             \App\Model\Order\Payment::create([
-                'invoice_id'     => $invoice->id,
-                'user_id'        => $invoice->user_id,
-                'amount'         => rounding($outstanding),
+                'invoice_id' => $invoice->id,
+                'user_id' => $invoice->user_id,
+                'amount' => rounding($outstanding),
                 'payment_method' => $gateway,
                 'payment_status' => 'success',
-                'created_at'     => \Carbon\Carbon::now(),
+                'created_at' => \Carbon\Carbon::now(),
             ]);
         }
 

@@ -158,11 +158,11 @@ class BaseRenewController extends Controller
                 $invoice->update([
                     'metadata' => [
                         'renewal_agent' => [
-                            'new_agents'        => $agents,
-                            'order_id'          => $orderid,
+                            'new_agents' => $agents,
+                            'order_id' => $orderid,
                             'installation_path' => $installation_path,
-                            'product_id'        => $product->id,
-                            'old_license'       => $license_code,
+                            'product_id' => $product->id,
+                            'old_license' => $license_code,
                         ],
                     ],
                 ]);
