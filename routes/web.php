@@ -206,8 +206,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('get-my-payment-client/{orderid}/{userid}', [Front\ClientController::class, 'getPaymentByOrderIdClient'])->name('get-my-payment-client');
     Route::get('get-my-installations/{orderid}', [Front\ClientController::class, 'getOrderInstallations']);
     // Route::get('autoPayment-client/{orderid}', [Front\ClientController::class, 'getAutoPaymentStatus']);
-    Route::get('get-versions/{productid}/{clientid}/{invoiceid}/', [Front\ClientController::class, 'getVersionList'])->name('get-versions');
-    Route::get('get-github-versions/{productid}/{clientid}/{invoiceid}/', [Front\ClientController::class, 'getGithubVersionList'])->name('get-github-versions');
+    Route::get('get-versions/{orderid}', [Front\ClientController::class, 'getVersionList'])->name('get-versions');
 
     //renew api's
     Route::get('renew/{id}/{agents?}', [Order\RenewController::class, 'renewForm']);
@@ -233,8 +232,7 @@ Route::middleware('installAgora')->group(function () {
 
     Route::delete('invoices/delete/{id}', [Front\ClientController::class, 'invoiceDelete']);
 
-    Route::get('get-versions/{productid}/{clientid}/{invoiceid}/', [Front\ClientController::class, 'getVersionList'])->name('get-versions');
-    Route::get('get-github-versions/{productid}/{clientid}/{invoiceid}/', [Front\ClientController::class, 'getGithubVersionList'])->name('get-github-versions');
+    Route::get('get-versions/{orderid}', [Front\ClientController::class, 'getVersionList'])->name('get-versions');
 
     // Post Route For Make Razorpay Payment Request
     Route::post('payment/{invoice}', [RazorpayController::class, 'payment'])->name('payment');

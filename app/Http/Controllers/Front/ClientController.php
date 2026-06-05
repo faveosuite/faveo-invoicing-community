@@ -707,153 +707,165 @@ class ClientController extends BaseClientController
      * @param  type  $invoiceid
      * @return type
      */
-    public function getVersionList(Request $request, $productid, $clientid, $invoiceid)
+    public function getVersionList(Request $request, $orderid)
     {
         try {
-            if (! authorizeOwnership((int) $clientid)) {
+            $order = Order::with([
+                'productRelation:id,github_owner,github_repository',
+                'subscription:id,order_id,product_id,update_ends_at',
+                'invoices' => fn ($q) => $q->select('invoices.id', 'invoices.number')->latest('invoices.id'),
+            ])->where('id', $orderid)->where('client', \Auth::id())->first();
+
+            if (! $order) {
                 return errorResponse(__('message.unauthorized_action'), 403);
             }
 
-            $searchValue = $request->input('search.value');
-            $invoice_id = Invoice::where('number', $invoiceid)->where('user_id', $clientid)->pluck('id')->first();
+            $product = $order->productRelation;
+            $subscription = $order->subscription;
 
-            $orders = OrderInvoiceRelation::where('invoice_id', $invoice_id)->get([
-                'order_id',
-            ])->toArray();
-
-            $order = Order::whereIn('id', $orders)->where('product', $productid)->where('client', $clientid)->firstOrFail();
-
-            $order_id = $order->id;
-
-            $versions = ProductUpload::where('product_id', $productid)->where('is_private', 0)
-                ->select(
-                    'id',
-                    'product_id',
-                    'version',
-                    'title',
-                    'description',
-                    'file',
-                    'created_at',
-                    'release_type'
-                )
-                ->latest();
-            if ($searchValue) {
-                $versions->where(function ($query) use ($searchValue) {
-                    $query->where('version', 'LIKE', '%'.$searchValue.'%')
-                        ->orWhere('title', 'LIKE', '%'.$searchValue.'%')
-                        ->orWhere('description', 'LIKE', '%'.$searchValue.'%');
-                });
+            if ($product->github_owner && $product->github_repository) {
+                return $this->githubVersions($request, $product, $subscription);
             }
 
-            $updatesEndDate = Subscription::select('update_ends_at')
-                ->where('product_id', $productid)
-                ->where('order_id', $order_id)
-                ->first();
-
-            $downloadPermission = LicensePermissionsController::getPermissionsForProduct($productid);
-
-            return \DataTables::of($versions)
-                ->addColumn('id', function ($version) {
-                    return ucfirst($version->id);
-                })
-                ->addColumn('version', function ($version) {
-                    return ucfirst($version->version).' '.getPreReleaseStatusLabel($version->release_type);
-                })
-                ->addColumn('title', function ($version) {
-                    return ucfirst($version->title);
-                })
-                ->addColumn('description', function ($version) {
-                    return ucfirst($version->description);
-                })
-                ->addColumn('file', function ($version) use ($downloadPermission, $updatesEndDate, $productid, $clientid, $invoiceid) {
-                    if ($updatesEndDate) {
-                        if ($downloadPermission['allowDownloadTillExpiry'] == 1) {
-                            return $this->whenDownloadTillExpiry($updatesEndDate, $productid, $version, $clientid, $invoiceid);
-                        } elseif ($downloadPermission['allowDownloadTillExpiry'] == 0) {
-                            return $this->whenDownloadExpiresAfterExpiry($updatesEndDate, $productid, $version, $clientid, $invoiceid);
-                        }
-                    }
-                })
-                ->rawColumns(['version', 'title', 'description', 'file'])
-                ->make(true);
+            return $this->uploadVersions($request, $order, $product, $subscription);
         } catch (Exception $ex) {
-            return errorResponse($ex->getMessage());
+            return errorResponse($ex->getMessage(), 500);
         }
     }
 
-    /**
-     * Get list of all the versions from Github.
-     *
-     * @param  type  $productid
-     * @param  type  $clientid
-     * @param  type  $invoiceid
-     */
-    public function getGithubVersionList($productid, $clientid, $invoiceid)
+    private function githubVersions(Request $request, $product, $subscription)
     {
-        try {
-            if (! authorizeOwnership((int) $clientid)) {
-                return errorResponse(__('message.unauthorized_action'), 403);
+        $url = "https://api.github.com/repos/{$product->github_owner}/{$product->github_repository}/releases";
+        $allReleases = array_slice($this->github_api->getCurl1($url)['body'] ?? [], 0, 3, true);
+
+        $downloadPermission = LicensePermissionsController::getPermissionsForProduct((int) $product->id);
+        $allowTillExpiry = $downloadPermission['allowDownloadTillExpiry'] == 1;
+        $countVersions = count($allReleases);
+        $countExpiry = 0;
+
+        if ($subscription) {
+            foreach ($allReleases as $release) {
+                if (strtotime($release['created_at']) < strtotime($subscription->update_ends_at)
+                    || $subscription->update_ends_at == '0000-00-00 00:00:00') {
+                    $countExpiry++;
+                }
             }
-            $products = $this->product::where('id', $productid)
-            ->select('name', 'version', 'github_owner', 'github_repository')->get();
-            $owner = '';
-            $repo = '';
-            foreach ($products as $product) {
-                $owner = $product->github_owner;
-                $repo = $product->github_repository;
+        }
+
+        $search = trim($request->input('search-query', ''));
+        $items = collect();
+
+        foreach ($allReleases as $release) {
+            if ($search && stripos($release['tag_name'].$release['name'], $search) === false) {
+                continue;
             }
-            $url = "https://api.github.com/repos/$owner/$repo/releases";
-            $countExpiry = 0;
-            $link = $this->github_api->getCurl1($url);
-            $link = $link['body'];
-            $countVersions = 3; //because we are taking only the first 10 versions
-            $link = array_slice($link, 0, 3, true);
-            $order = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'))->first();
-            $order_id = $order->id;
-            $orderEndDate = Subscription::select('update_ends_at')
-                        ->where('product_id', $productid)->where('order_id', $order_id)->first();
-            if ($orderEndDate) {
-                foreach ($link as $lin) {
-                    if (strtotime($lin['created_at']) < strtotime($orderEndDate->update_ends_at) || $orderEndDate->update_ends_at == '0000-00-00 00:00:00') {
-                        $countExpiry = $countExpiry + 1;
-                    }
+
+            $canDownload = false;
+            $downloadUrl = null;
+
+            if (! $subscription) {
+                $canDownload = true;
+            } elseif ($allowTillExpiry) {
+                $canDownload = strtotime($release['created_at']) < strtotime($subscription->update_ends_at)
+                    || $subscription->update_ends_at == '0000-00-00 00:00:00';
+            } else {
+                $canDownload = $countExpiry == $countVersions;
+            }
+
+            if ($canDownload) {
+                $response = $this->github_api->getCurl1($release['zipball_url']);
+                if (($response['body'] ?? null) === null) {
+                    $downloadUrl = $response['header']['Location'] ?? $response['header']['location'] ?? null;
+                } else {
+                    preg_match_all('/https:\/\/[^\s,"]+/', $response['body']['message'] ?? '', $matches);
+                    $downloadUrl = $matches[0][0] ?? null;
                 }
             }
 
-            return \DataTables::of($link)
-                            ->addColumn('version', function ($link) {
-                                return ucfirst($link['tag_name']);
-                            })
-                            ->addColumn('name', function ($link) {
-                                return ucfirst($link['name']);
-                            })
-                            ->addColumn('description', function ($link) {
-                                $markdown = Str::markdown(ucfirst($link['body']));
-
-                                return '<div class="markdown-output">'.$markdown.'</div>';
-                            })
-                            ->addColumn('file', function ($link) use ($countExpiry, $countVersions, $invoiceid, $productid) {
-                                $order = Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoiceid)->pluck('order_id'))->first();
-                                $order_id = $order->id;
-                                $orderEndDate = Subscription::select('update_ends_at')
-                                ->where('product_id', $productid)->where('order_id', $order_id)->first();
-                                if ($orderEndDate) {
-                                    $actionButton = $this->getActionButton($countExpiry, $countVersions, $link, $orderEndDate, $productid);
-
-                                    return $actionButton;
-                                } elseif (! $orderEndDate) {
-                                    $link = $this->github_api->getCurl1($link['zipball_url']);
-
-                                    return '<p><a href="'.$link['header']['Location'].'" class="btn btn-sm btn-primary">'
-                                        .__('message.download').
-                                        '</a>&nbsp;</p>';
-                                }
-                            })
-                            ->rawColumns(['version', 'name', 'description', 'file'])
-                            ->make(true);
-        } catch (Exception $ex) {
-            echo $ex->getMessage();
+            $items->push([
+                'version'      => ucfirst($release['tag_name']),
+                'name'         => ucfirst($release['name']),
+                'description'  => $release['body'] ?? '',
+                'created_at'   => $release['created_at'],
+                'can_download' => $canDownload,
+                'download_url' => $downloadUrl,
+            ]);
         }
+
+        $page = (int) $request->input('page', 1);
+        $perPage = (int) $request->input('limit', 10);
+        $paginator = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items->forPage($page, $perPage)->values(),
+            $items->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return successResponse('', $paginator);
+    }
+
+    private function uploadVersions(Request $request, $order, $product, $subscription)
+    {
+        $search = trim($request->input('search-query', ''));
+        $invoiceNumber = $order->invoices->first()?->number;
+
+        $base = ProductUpload::where('product_id', $product->id)
+            ->where('is_private', 0)
+            ->select('id', 'product_id', 'version', 'title', 'description', 'created_at', 'release_type');
+
+        if ($search) {
+            $base->where(function ($q) use ($search) {
+                $q->where('version', 'LIKE', "%{$search}%")
+                  ->orWhere('title', 'LIKE', "%{$search}%")
+                  ->orWhere('description', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $allowed = ['version' => 'version', 'name' => 'title', 'created_at' => 'created_at'];
+        $sortCol = $allowed[$request->input('sort-field', 'created_at')] ?? 'created_at';
+        $sortDir = $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc';
+        $base->orderBy($sortCol, $sortDir);
+
+        $downloadPermission = LicensePermissionsController::getPermissionsForProduct((int) $product->id);
+        $allowTillExpiry = $downloadPermission['allowDownloadTillExpiry'] == 1;
+
+        $countVersions = (clone $base)->count();
+        $countExpiry = 0;
+
+        if ($subscription && ! $allowTillExpiry) {
+            $countExpiry = $subscription->update_ends_at == '0000-00-00 00:00:00'
+                ? $countVersions
+                : (clone $base)->where('created_at', '<', $subscription->update_ends_at)->count();
+        }
+
+        $paginator = $base->paginate((int) $request->input('limit', 10));
+
+        $paginator->getCollection()->transform(function ($version) use ($allowTillExpiry, $countExpiry, $countVersions, $subscription, $order, $product, $invoiceNumber) {
+            $canDownload = false;
+
+            if (! $subscription) {
+                $canDownload = true;
+            } elseif ($allowTillExpiry) {
+                $canDownload = $version->created_at->toDateTimeString() < $subscription->update_ends_at
+                    || $subscription->update_ends_at == '0000-00-00 00:00:00';
+            } else {
+                $canDownload = $countExpiry == $countVersions;
+            }
+
+            return [
+                'version'      => ucfirst($version->version).' '.getPreReleaseStatusLabel($version->release_type),
+                'name'         => ucfirst($version->title),
+                'description'  => ucfirst($version->description ?? ''),
+                'created_at'   => $version->created_at,
+                'can_download' => $canDownload,
+                'download_url' => $canDownload
+                    ? url("download/{$product->id}/{$order->client}/{$invoiceNumber}/{$version->id}")
+                    : null,
+            ];
+        });
+
+        return successResponse('', $paginator);
     }
 
     /**

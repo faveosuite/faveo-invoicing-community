@@ -37,41 +37,31 @@
             :onClose="closeDownloadModal"
             classname="modal-xl"
             :showCloseBtn="false"
+            :showControls="false"
         >
             <template #title>
                 <h5>{{ __('message.product_version') }}</h5>
             </template>
             <template #fields>
-                <div v-if="downloadLoading" class="text-center py-4">
-                    <inline-loader />
-                </div>
-                <div v-else-if="downloadError" class="alert alert-danger mb-0">{{ downloadError }}</div>
-                <div v-else class="table-responsive">
-                    <table class="table table-striped mb-0">
-                        <thead>
-                            <tr>
-                                <th>{{ __('message.version') }}</th>
-                                <th>{{ __('message.title') }}</th>
-                                <th>{{ __('message.description') }}</th>
-                                <th>{{ __('message.file') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(v, i) in downloadVersions" :key="i">
-                                <td v-html="v.version"></td>
-                                <td v-html="v.title"></td>
-                                <td v-html="v.description"></td>
-                                <td v-html="v.file"></td>
-                            </tr>
-                            <tr v-if="!downloadVersions.length">
-                                <td colspan="4" class="text-center text-muted py-3">{{ __('message.empty_table') }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </template>
-            <template #controls>
-                <action-button action="close" @click="closeDownloadModal" />
+                <DataTable v-if="downloadVersionsUrl"
+                           :key="downloadVersionsUrl"
+                           :url="downloadVersionsUrl"
+                           :dataColumns="versionColumns"
+                           :option="versionOptions">
+                    <template #version="{ row }"><span v-html="row.version" /></template>
+                    <template #name="{ row }"><span v-html="row.name" /></template>
+                    <template #description="{ row }"><span v-html="row.description" /></template>
+                    <template #action="{ row }">
+                        <a v-if="row.can_download && row.download_url"
+                           :href="row.download_url"
+                           class="btn btn-sm btn-primary">
+                            <i class="fas fa-download me-1"></i>{{ __('message.download') }}
+                        </a>
+                        <button v-else class="btn btn-sm btn-danger disabled">
+                            {{ __('message.please_renew') }}
+                        </button>
+                    </template>
+                </DataTable>
             </template>
         </AppModal>
 
@@ -146,7 +136,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { __ } from '@/plugins/i18n'
 import http from '@/plugins/axios'
@@ -177,29 +167,30 @@ function formatDate(d) {
 }
 
 // ─── Download Modal ──────────────────────────────────────────
-const showDownloadModal = ref(false)
-const downloadLoading   = ref(false)
-const downloadError     = ref('')
-const downloadVersions  = ref([])
-const downloadRow       = ref(null)
+const showDownloadModal   = ref(false)
+const downloadRow         = ref(null)
+const downloadVersionsUrl = computed(() => downloadRow.value ? `${baseUrl}/get-versions/${downloadRow.value.id}` : null)
+
+const versionColumns = ['version', 'name', 'description', 'action']
+const versionOptions = reactive({
+    headings: {
+        version:     () => __('message.version'),
+        name:        () => __('message.title'),
+        description: () => __('message.description'),
+        action:      () => __('message.file'),
+    },
+    sortable:   ['version', 'name'],
+    filterable: true,
+})
 
 function openDownloadModal(row) {
-    downloadRow.value      = row
-    downloadVersions.value = []
-    downloadError.value    = ''
-    downloadLoading.value  = true
+    downloadRow.value       = row
     showDownloadModal.value = true
-
-    http.get(`${baseUrl}/get-versions/${row.product_id}/${row.client_id}/${row.invoice_number}`, {
-        params: { draw: 1, start: 0, length: 100 },
-    })
-        .then(res  => { downloadVersions.value = res.data?.data ?? [] })
-        .catch(err => { downloadError.value = err.response?.data?.message ?? __('message.something_went_wrong') })
-        .finally(() => { downloadLoading.value = false })
 }
 
 function closeDownloadModal() {
     showDownloadModal.value = false
+    downloadRow.value       = null
 }
 
 // ─── Renew Modal ─────────────────────────────────────────────

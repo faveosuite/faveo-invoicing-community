@@ -17,7 +17,7 @@
 
         <!-- Go to client panel -->
         <li class="nav-item d-none d-md-block">
-          <a :href="`${baseUrl}/client/dashboard`" class="nav-link" aria-label="Go to client panel">
+          <a :href="`${baseUrl}/client-dashboard`" class="nav-link" aria-label="Go to client panel">
             <i class="fas fa-arrow-up-right-from-square me-1" aria-hidden="true"></i>
             {{ __('message.go_to_client') }}
           </a>
