@@ -27,7 +27,6 @@ use App\User;
 use App\WhatsappIntegration;
 use Exception;
 use GuzzleHttp\Client;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
@@ -79,7 +78,7 @@ class ClientController extends BaseClientController
     }
 
     /**
-    /**
+     * /**
      *  Auto-renew by id and redirect to paynow page.
      *
      * @param
@@ -213,9 +212,9 @@ class ClientController extends BaseClientController
                 'sub_id' => $order->subscription?->id,
                 'is_cloud' => in_array($order->productRelation?->id, cloudPopupProducts()),
                 'autorenewal_enabled' => (bool) \App\Model\Common\Setting::where('id', 1)->value('autorenewal_status'),
-                'autorenew_status'    => (bool) $order->subscription?->autoRenew_status,
-                'is_subscribed'       => (bool) $order->subscription?->is_subscribed,
-                'autorenew_log'       => \App\Payment_log::where('order', $order->number)
+                'autorenew_status' => (bool) $order->subscription?->autoRenew_status,
+                'is_subscribed' => (bool) $order->subscription?->is_subscribed,
+                'autorenew_log' => \App\Payment_log::where('order', $order->number)
                     ->where('payment_type', 'Payment method updated')
                     ->orderByDesc('id')
                     ->first(['payment_method', 'date']),

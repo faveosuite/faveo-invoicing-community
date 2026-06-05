@@ -20,7 +20,9 @@ use Illuminate\Support\Facades\DB;
 
 class FreeTrialService
 {
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     /**
      * @throws \RuntimeException
@@ -43,8 +45,8 @@ class FreeTrialService
     public function provision(User $user, string $domain, CloudProducts $cloudProduct): array
     {
         $currency = getCurrencyForClient($user->country);
-        $plan     = $this->resolveFreePlan($cloudProduct);
-        $product  = Product::findOrFail($cloudProduct->cloud_product);
+        $plan = $this->resolveFreePlan($cloudProduct);
+        $product = Product::findOrFail($cloudProduct->cloud_product);
 
         return DB::transaction(function () use ($user, $domain, $cloudProduct, $plan, $product, $currency) {
             $invoice = $this->createInvoice($user, $plan, $currency);
@@ -62,9 +64,9 @@ class FreeTrialService
             }
 
             DB::table('free_trial_allowed')->insert([
-                'user_id'    => $user->id,
+                'user_id' => $user->id,
                 'product_id' => $cloudProduct->cloud_product,
-                'domain'     => $result['Free_trial_domain'] ?? $domain,
+                'domain' => $result['Free_trial_domain'] ?? $domain,
             ]);
 
             return $result;
@@ -80,37 +82,37 @@ class FreeTrialService
 
     private function createInvoice(User $user, Plan $plan, string $currency): Invoice
     {
-        $price      = (float) (PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('add_price') ?? 0);
-        $rounding   = (bool) (TaxOption::find(1)?->rounding ?? false);
+        $price = (float) (PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('add_price') ?? 0);
+        $rounding = (bool) (TaxOption::find(1)?->rounding ?? false);
         $grandTotal = $rounding ? round($price) : $price;
 
         return Invoice::create([
-            'user_id'     => $user->id,
-            'number'      => rand(11111111, 99999999),
-            'date'        => Carbon::now(),
+            'user_id' => $user->id,
+            'number' => rand(11111111, 99999999),
+            'date' => Carbon::now(),
             'grand_total' => $grandTotal,
-            'status'      => 'success',
-            'currency'    => $currency,
+            'status' => 'success',
+            'currency' => $currency,
         ]);
     }
 
     private function createInvoiceItem(Invoice $invoice, Product $product, Plan $plan, string $currency): InvoiceItem
     {
-        $price  = (float) (PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('add_price') ?? 0);
+        $price = (float) (PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('add_price') ?? 0);
         $agents = PlanPrice::where('plan_id', $plan->id)->value('no_of_agents');
 
         return InvoiceItem::create([
-            'invoice_id'     => $invoice->id,
-            'product_name'   => $product->name,
-            'product_id'     => $product->id,
-            'regular_price'  => $price,
-            'quantity'       => 1,
-            'tax_name'       => 'null',
+            'invoice_id' => $invoice->id,
+            'product_name' => $product->name,
+            'product_id' => $product->id,
+            'regular_price' => $price,
+            'quantity' => 1,
+            'tax_name' => 'null',
             'tax_percentage' => $product->planRelation()->where('id', $plan->id)->value('allow_tax'),
-            'subtotal'       => 0,
-            'domain'         => '',
-            'plan_id'        => $plan->id,
-            'agents'         => $agents,
+            'subtotal' => 0,
+            'domain' => '',
+            'plan_id' => $plan->id,
+            'agents' => $agents,
         ]);
     }
 }

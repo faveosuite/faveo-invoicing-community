@@ -12,24 +12,25 @@ use App\Plugins\Payment\Dto\Customer as PaymentCustomer;
 use App\Plugins\Payment\Dto\PaymentRequest as GatewayPaymentRequest;
 use App\Services\Payment\PaymentService;
 use App\Services\Payment\SubscriptionService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AutoRenewalController extends Controller
 {
-    public function __construct(private readonly PaymentService $payments) {}
+    public function __construct(private readonly PaymentService $payments)
+    {
+    }
 
     /**
      * Create a Stripe PaymentIntent for card verification.
      * Returns client_secret + payment_intent_id + publishable_key.
-     * POST auto-renewal/{order}/stripe/session
+     * POST auto-renewal/{order}/stripe/session.
      */
     public function stripeSession(Request $request, int $order)
     {
-        $order    = $this->authorizedOrder($order);
+        $order = $this->authorizedOrder($order);
         $currency = getCurrencyForClient(\Auth::user()->country);
-        $amount   = getMinimumAmountForPayments($currency, 'stripe');
-        $symbol   = Currency::where('code', $currency)->value('symbol') ?? $currency;
+        $amount = getMinimumAmountForPayments($currency, 'stripe');
+        $symbol = Currency::where('code', $currency)->value('symbol') ?? $currency;
 
         try {
             // Use a unique nonce in the reference so each modal open creates a
@@ -39,8 +40,8 @@ class AutoRenewalController extends Controller
             $session = $this->payments->startCardPayment('Stripe', $paymentRequest);
 
             return successResponse('', array_merge($session->clientConfig, [
-                'display_amount'   => $amount,
-                'currency_symbol'  => $symbol,
+                'display_amount' => $amount,
+                'currency_symbol' => $symbol,
             ]));
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
@@ -50,7 +51,7 @@ class AutoRenewalController extends Controller
     /**
      * Verify the confirmed PaymentIntent, refund the verification charge,
      * and save the payment method for future auto-renewal.
-     * POST auto-renewal/{order}/stripe/confirm
+     * POST auto-renewal/{order}/stripe/confirm.
      */
     public function stripeConfirm(Request $request, int $order)
     {
@@ -77,19 +78,21 @@ class AutoRenewalController extends Controller
             return successResponse(__('message.card_details_updated_successfully'));
         } catch (\Exception $e) {
             $this->logPayment($order, 'stripe', 'failed', $e->getMessage());
+
             return errorResponse(__('message.something_different_payment'));
         }
     }
 
     /**
      * Create a Razorpay Order and return the Checkout config for the browser.
-     * POST auto-renewal/{order}/razorpay/order
+     * POST auto-renewal/{order}/razorpay/order.
      */
     public function razorpayOrder(Request $request, int $order)
     {
         $order = $this->authorizedOrder($order);
         try {
             $session = $this->payments->start('Razorpay', $this->buildRequest($order, 'razorpay'));
+
             return successResponse('', $session->clientConfig);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
@@ -99,7 +102,7 @@ class AutoRenewalController extends Controller
     /**
      * Verify the Razorpay signature, refund the verification charge,
      * and save the payment method for future auto-renewal.
-     * POST auto-renewal/{order}/razorpay/confirm
+     * POST auto-renewal/{order}/razorpay/confirm.
      */
     public function razorpayConfirm(Request $request, int $order)
     {
@@ -120,6 +123,7 @@ class AutoRenewalController extends Controller
             return successResponse(__('message.card_details_updated_successfully'));
         } catch (\Exception $e) {
             $this->logPayment($order, 'razorpay', 'failed', $e->getMessage());
+
             return errorResponse($e->getMessage());
         }
     }
@@ -127,7 +131,7 @@ class AutoRenewalController extends Controller
     /**
      * Disable auto-renewal for an order, cancelling the active subscription
      * on the gateway if one exists.
-     * POST auto-renewal/{order}/disable
+     * POST auto-renewal/{order}/disable.
      */
     public function disable(Request $request, int $order)
     {
@@ -135,6 +139,7 @@ class AutoRenewalController extends Controller
         try {
             $subscription = Subscription::where('order_id', $order->id)->firstOrFail();
             $this->cancelSubscription($subscription);
+
             return successResponse(__('message.auto_subscription_disabled'));
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
@@ -147,12 +152,13 @@ class AutoRenewalController extends Controller
     {
         $order = Order::findOrFail($orderId);
         abort_if(! authorizeOwnership($order->client), 403, __('message.unauthorized_action'));
+
         return $order;
     }
 
     private function buildRequest(Order $order, string $gateway, string $nonce = ''): GatewayPaymentRequest
     {
-        $user     = \Auth::user();
+        $user = \Auth::user();
         $currency = getCurrencyForClient($user->country);
 
         $amount = getMinimumAmountForPayments($currency, $gateway);
@@ -181,17 +187,17 @@ class AutoRenewalController extends Controller
     private function saveRenewal(Order $order, string $gateway, string $paymentRef): void
     {
         Auto_renewal::create([
-            'user_id'          => \Auth::user()->id,
-            'customer_id'      => $paymentRef,
-            'payment_method'   => $gateway,
-            'order_id'         => $order->id,
+            'user_id' => \Auth::user()->id,
+            'customer_id' => $paymentRef,
+            'payment_method' => $gateway,
+            'order_id' => $order->id,
             'payment_intent_id' => $paymentRef,
         ]);
 
         $gatewayColumn = $gateway === 'razorpay' ? 'rzp_subscription' : 'autoRenew_status';
         Subscription::where('order_id', $order->id)->update([
             'is_subscribed' => '1',
-            $gatewayColumn  => '1',
+            $gatewayColumn => '1',
         ]);
 
         $this->logPayment($order, $gateway, 'success');

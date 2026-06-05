@@ -219,11 +219,11 @@ Route::middleware('installAgora')->group(function () {
     Route::post('cart/remove', [Front\CartController::class, 'cartRemove']);
 
     Route::prefix('auto-renewal/{order}')->group(function () {
-        Route::post('stripe/session',   [Front\AutoRenewalController::class, 'stripeSession']);
-        Route::post('stripe/confirm',   [Front\AutoRenewalController::class, 'stripeConfirm']);
-        Route::post('razorpay/order',   [Front\AutoRenewalController::class, 'razorpayOrder']);
+        Route::post('stripe/session', [Front\AutoRenewalController::class, 'stripeSession']);
+        Route::post('stripe/confirm', [Front\AutoRenewalController::class, 'stripeConfirm']);
+        Route::post('razorpay/order', [Front\AutoRenewalController::class, 'razorpayOrder']);
         Route::post('razorpay/confirm', [Front\AutoRenewalController::class, 'razorpayConfirm']);
-        Route::post('disable',          [Front\AutoRenewalController::class, 'disable']);
+        Route::post('disable', [Front\AutoRenewalController::class, 'disable']);
     });
     //Route::get('my-subscriptions', [Front\ClientController::class, 'subscriptions']);
     //Route::get('get-my-subscriptions', [Front\ClientController::class, 'getSubscriptions']);
