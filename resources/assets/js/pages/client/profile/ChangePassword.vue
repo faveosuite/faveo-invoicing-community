@@ -7,6 +7,7 @@
                          :label="__('message.current_password')"
                          v-model="form.current_password"
                          :error="errors.current_password"
+                         @update:modelValue="setFieldError('current_password', undefined)"
                          autocomplete="current-password"
                          :required="true" />
 
@@ -14,6 +15,7 @@
                          :label="__('message.new_password')"
                          v-model="form.password"
                          :error="errors.password"
+                         @update:modelValue="setFieldError('password', undefined)"
                          autocomplete="new-password"
                          :required="true" />
 
@@ -21,12 +23,14 @@
                          :label="__('message.confirm_password')"
                          v-model="form.password_confirmation"
                          :error="errors.password_confirmation"
+                         @update:modelValue="setFieldError('password_confirmation', undefined)"
                          autocomplete="new-password"
                          :required="true" />
 
             <div class="form-group row">
-                <div class="col-lg-9 offset-lg-3">
-                    <button type="submit" class="btn btn-primary btn-modern" :disabled="saving">
+                <div class="form-group col-lg-9"></div>
+                <div class="form-group col-lg-3">
+                    <button type="submit" class="btn btn-primary btn-modern float-end" :disabled="saving">
                         <i v-if="saving" class="fas fa-circle-notch fa-spin me-1"></i>
                         {{ __('message.save') }}
                     </button>
@@ -40,6 +44,7 @@
 
 <script setup>
 import { reactive, ref } from 'vue'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
@@ -51,22 +56,21 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const COMPONENT = 'client-page'
 
 const saving = ref(false)
+const { errors, setErrors, setFieldError } = useForm()
 
 const form = reactive({
     current_password: '',
     password: '',
     password_confirmation: '',
 })
-const errors = ref({})
 
 async function submitPassword() {
-    errors.value = {}
     try {
         passwordChangeSchema.validateSync(form, { abortEarly: false })
     } catch (err) {
         const map = {}
         err.inner?.forEach(e => { if (e.path && !map[e.path]) map[e.path] = e.message })
-        errors.value = map
+        setErrors(map)
         return
     }
     saving.value = true
@@ -85,7 +89,7 @@ async function submitPassword() {
             const map = {}
             Object.entries(serverErrors).forEach(([k, v]) => { map[k] = Array.isArray(v) ? v[0] : v })
             if (Object.keys(map).length) {
-                errors.value = map
+                setErrors(map)
                 return
             }
         }

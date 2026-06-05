@@ -70,7 +70,7 @@
                                     {{ __('message.cloud_settings') }}
                                 </a>
                             </li>
-                            <li class="nav-item">
+                            <li v-if="showAutoRenewTab" class="nav-item">
                                 <a class="nav-link text-3" :class="{ active: activeTab === 'auto-renew' }"
                                    href="javascript:;" @click="activeTab = 'auto-renew'">
                                     {{ __('message.auto_renewal') }}
@@ -278,10 +278,46 @@
                     </div>
 
                     <!-- ── Auto Renewal ─────────────────────────────────── -->
-                    <div v-show="activeTab === 'auto-renew'">
-                        <div class="alert alert-info">
-                            {{ __('message.auto_renewal') }}
-                        </div>
+                    <div v-if="showAutoRenewTab && activeTab === 'auto-renew'">
+                        <AppCard :title="__('message.auto_renewal')">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fas fa-sync-alt" style="font-size:20px;"></i>
+                                    <div>
+                                        <span class="text-2">
+                                            {{ __('message.auto_renewal') }}
+                                            <span v-if="order.is_subscribed" class="badge bg-success ms-1">{{ __('message.active') }}</span>
+                                            <span v-else class="badge bg-secondary ms-1">{{ __('message.inactive') }}</span>
+                                        </span>
+                                        <template v-if="order.is_subscribed && order.autorenew_log">
+                                            <br>
+                                            <small class="text-muted text-capitalize">
+                                                {{ __('message.payment_gateway') }}: {{ order.autorenew_log.payment_method }}
+                                                &nbsp;&middot;&nbsp;
+                                                {{ __('message.subscription_enabled_date') }} {{ formatDate(order.autorenew_log.date) }}
+                                            </small>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button v-if="!order.is_subscribed"
+                                            type="button"
+                                            class="btn btn-primary btn-sm btn-modern"
+                                            @click="showRenewalModal = true">
+                                        <i class="fas fa-toggle-on me-1"></i>{{ __('message.enable') }}
+                                    </button>
+                                    <button v-else
+                                            type="button"
+                                            class="btn btn-outline-secondary btn-sm btn-modern"
+                                            :disabled="renewalBusy"
+                                            @click="showDisableRenewalModal = true">
+                                        <i v-if="renewalBusy" class="fas fa-circle-notch fa-spin me-1"></i>
+                                        <i v-else class="fas fa-toggle-off me-1"></i>
+                                        {{ __('message.disable') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </AppCard>
                     </div>
 
                 </div>
@@ -366,6 +402,94 @@
                 </template>
             </Modal>
 
+        <!-- ── Enable Auto Renewal: gateway selection modal ──── -->
+        <Modal :showModal="showRenewalModal" :onClose="closeRenewalModal" :showCloseBtn="false">
+            <template #title>
+                <h5 class="modal-title">{{ __('message.auto_renewal') }}</h5>
+            </template>
+            <template #fields>
+                <AppAlert componentName="auto-renew-modal" />
+                <SelectField
+                    name="gateway"
+                    :label="__('message.select_payment')"
+                    :elements="gatewayOptions"
+                    :value="gatewayOptions.find(g => g.id === selectedGateway) ?? null"
+                    :onChange="(v) => selectedGateway = v?.id ?? ''"
+                    :clearable="false"
+                    :required="true"
+                />
+            </template>
+            <template #controls>
+                <button type="button" class="btn btn-primary" :disabled="renewalBusy || !selectedGateway" @click="enableAutoRenewal">
+                    <i v-if="renewalBusy" class="fas fa-circle-notch fa-spin me-1"></i>
+                    <i v-else class="fas fa-toggle-on me-1"></i>
+                    {{ __('message.enable') }}
+                </button>
+            </template>
+        </Modal>
+
+        <!-- ── Stripe card modal for renewal ──────────────────── -->
+        <Modal :showModal="showStripeRenewalModal" :onClose="closeStripeRenewalModal" :showCloseBtn="true" :showControls="false" classname="modal-md">
+            <template #title>
+                <h5 class="modal-title fw-bold">{{ __('message.enter_card_details') }}</h5>
+            </template>
+            <template #fields>
+                <div class="px-2 pb-3">
+                    <AppAlert componentName="stripe-renewal-modal" />
+
+                    <div class="mb-4">
+                        <label class="form-label text-color-grey mb-1">{{ __('message.card_number') }}</label>
+                        <div id="renewal-card-number" class="form-control h-auto py-3" :class="{ 'is-invalid': renewalCardErrors.number }"></div>
+                        <div v-if="renewalCardErrors.number" class="invalid-feedback d-block">{{ renewalCardErrors.number }}</div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <label class="form-label text-color-grey mb-1">{{ __('message.expiry_date') }}</label>
+                            <div id="renewal-card-expiry" class="form-control h-auto py-3" :class="{ 'is-invalid': renewalCardErrors.expiry }"></div>
+                            <div v-if="renewalCardErrors.expiry" class="invalid-feedback d-block">{{ renewalCardErrors.expiry }}</div>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-color-grey mb-1">CVC</label>
+                            <div id="renewal-card-cvc" class="form-control h-auto py-3" :class="{ 'is-invalid': renewalCardErrors.cvc }"></div>
+                            <div v-if="renewalCardErrors.cvc" class="invalid-feedback d-block">{{ renewalCardErrors.cvc }}</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center border rounded px-2 py-2 mb-3">
+                        <span class="fw-bold text-color-dark">{{ __('message.total') }}</span>
+                        <span class="fw-bold text-color-dark">{{ renewalSymbol }}{{ renewalAmount }}</span>
+                    </div>
+
+                    <button class="btn btn-primary w-100 py-2 fw-bold text-uppercase"
+                            :disabled="stripeRenewalBusy" @click="payRenewalStripe">
+                        <span v-if="stripeRenewalBusy" class="spinner-border spinner-border-sm me-1"></span>
+                        {{ stripeRenewalBusy ? __('message.please_wait') : __('message.pay_now') }}
+                    </button>
+                </div>
+            </template>
+        </Modal>
+
+        <!-- ── Disable Auto-Renewal confirmation ─────────────────── -->
+        <Modal :showModal="showDisableRenewalModal" :onClose="closeDisableRenewalModal" :showCloseBtn="false">
+            <template #title>
+                <h5 class="modal-title">{{ __('message.disable_auto_renewal') }}</h5>
+            </template>
+            <template #fields>
+                <p class="mb-0">{{ __('message.disable_auto_renewal_confirm') }}</p>
+            </template>
+            <template #controls>
+                <button type="button" class="btn btn-light me-2" @click="closeDisableRenewalModal">
+                    {{ __('message.cancel') }}
+                </button>
+                <button type="button" class="btn btn-danger" :disabled="renewalBusy" @click="confirmDisableRenewal">
+                    <i v-if="renewalBusy" class="fas fa-circle-notch fa-spin me-1"></i>
+                    <i v-else class="fas fa-toggle-off me-1"></i>
+                    {{ __('message.disable') }}
+                </button>
+            </template>
+        </Modal>
+
         </template>
     </div>
 </template>
@@ -376,7 +500,9 @@ import { useRoute, RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
+import { useAlertStore } from '@/core/stores/alert'
 import Modal from '@/themes/porto/components/common/Modal.vue'
+import AppAlert from '@/themes/porto/components/common/Alert.vue'
 
 const el      = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
@@ -469,7 +595,241 @@ const domainBusy = ref(false)
 const agentBusy  = ref(false)
 const planBusy   = ref(false)
 
-const showCloudTab = computed(() => !!order.value?.is_cloud && order.value?.status !== 'Terminated')
+const alertStore = useAlertStore()
+
+const showCloudTab      = computed(() => !!order.value?.is_cloud && order.value?.status !== 'Terminated')
+const showAutoRenewTab  = computed(() => !!order.value?.autorenewal_enabled)
+
+/* ── Auto Renewal ─────────────────────────────────────────── */
+const showRenewalModal = ref(false)
+const renewalBusy      = ref(false)
+const selectedGateway  = ref('')
+
+const gatewayOptions = computed(() => {
+    const active = (order.value?.available_gateways ?? []).map(g => g.toLowerCase())
+    const all = [
+        { id: 'stripe',   name: __('message.stripe') },
+        { id: 'razorpay', name: __('message.razorpay') },
+    ]
+    return active.length ? all.filter(g => active.includes(g.id)) : all
+})
+
+// Stripe card renewal state
+const showStripeRenewalModal = ref(false)
+const stripeRenewalBusy      = ref(false)
+const renewalCardErrors      = reactive({ number: '', expiry: '', cvc: '' })
+const renewalCardComplete    = reactive({ number: false, expiry: false, cvc: false })
+let stripeRenewal    = null
+let renewalCardNumber = null
+
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${src}"]`)) return resolve()
+        const s = document.createElement('script')
+        s.src = src
+        s.onload = resolve
+        s.onerror = () => reject(new Error('Failed to load ' + src))
+        document.head.appendChild(s)
+    })
+}
+
+function closeRenewalModal() {
+    alertStore.unsetAlert()
+    showRenewalModal.value = false
+    selectedGateway.value  = ''
+}
+
+function closeStripeRenewalModal() {
+    alertStore.unsetAlert()
+    showStripeRenewalModal.value = false
+    stripeRenewalBusy.value = false
+}
+
+const showDisableRenewalModal = ref(false)
+
+function closeDisableRenewalModal() {
+    showDisableRenewalModal.value = false
+}
+
+async function confirmDisableRenewal() {
+    renewalBusy.value = true
+    closeDisableRenewalModal()
+    try {
+        const res = await http.post(`${baseUrl}/auto-renewal/${orderId}/disable`)
+        order.value.is_subscribed    = false
+        order.value.autorenew_status = false
+        successHandler(res, 'client-page')
+    } catch (e) {
+        errorHandler(e, 'client-page')
+    } finally {
+        renewalBusy.value = false
+    }
+}
+
+async function enableAutoRenewal() {
+    if (!selectedGateway.value) return
+    renewalBusy.value = true
+    try {
+        if (selectedGateway.value === 'razorpay') {
+            const { data } = await http.post(`${baseUrl}/auto-renewal/${orderId}/razorpay/order`)
+            closeRenewalModal()
+            await openRenewalRazorpayPopup(data.data)
+        } else {
+            closeRenewalModal()
+            await openRenewalStripeModal()
+        }
+    } catch (e) {
+        alertStore.setAlert({
+            message: e?.response?.data?.message ?? __('message.something_went_wrong'),
+            type: 'danger',
+            component_name: 'auto-renew-modal',
+        })
+        showRenewalModal.value = true
+    } finally {
+        renewalBusy.value = false
+    }
+}
+
+async function openRenewalRazorpayPopup(config) {
+    await loadScript('https://checkout.razorpay.com/v1/checkout.js')
+    const options = { ...config }
+    options.handler = async (response) => {
+        try {
+            renewalBusy.value = true
+            const res = await http.post(`${baseUrl}/auto-renewal/${orderId}/razorpay/confirm`, {
+                razorpay_order_id:   response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature:  response.razorpay_signature,
+            })
+            order.value.is_subscribed    = true
+            order.value.autorenew_status = true
+            successHandler(res, 'client-page')
+        } catch (e) {
+            errorHandler(e, 'client-page')
+        } finally {
+            renewalBusy.value = false
+        }
+    }
+    options.modal = { ondismiss: () => { renewalBusy.value = false } }
+    new window.Razorpay(options).open()
+}
+
+let renewalClientSecret    = null
+let renewalPaymentIntentId = null
+const renewalAmount        = ref('')
+const renewalSymbol        = ref('')
+
+async function openRenewalStripeModal() {
+    const { data } = await http.post(`${baseUrl}/auto-renewal/${orderId}/stripe/session`)
+    renewalClientSecret    = data.data.client_secret
+    renewalPaymentIntentId = data.data.payment_intent_id
+    renewalAmount.value    = data.data.display_amount ?? ''
+    renewalSymbol.value    = data.data.currency_symbol ?? ''
+
+    // Intent already succeeded on a prior idempotent attempt — skip card entry.
+    if (data.data.status === 'succeeded') {
+        await finalizeRenewalStripe()
+        return
+    }
+
+    await loadScript('https://js.stripe.com/v3/')
+    stripeRenewal = window.Stripe(data.data.publishable_key)
+    const elements = stripeRenewal.elements()
+
+    Object.assign(renewalCardErrors,   { number: '', expiry: '', cvc: '' })
+    Object.assign(renewalCardComplete, { number: false, expiry: false, cvc: false })
+    alertStore.unsetAlert()
+    showStripeRenewalModal.value = true
+
+    await new Promise(r => setTimeout(r, 100))
+
+    const style = {
+        base: { fontSize: '15px', color: '#32325d', fontFamily: 'inherit', '::placeholder': { color: '#aab7c4' } },
+        invalid: { color: '#dc3545' },
+    }
+    renewalCardNumber = elements.create('cardNumber', { showIcon: true, style })
+    const cardExpiry  = elements.create('cardExpiry', { style })
+    const cardCvc     = elements.create('cardCvc', { style })
+
+    renewalCardNumber.mount('#renewal-card-number')
+    cardExpiry.mount('#renewal-card-expiry')
+    cardCvc.mount('#renewal-card-cvc')
+
+    const bind = (el, key) => el.on('change', e => {
+        renewalCardErrors[key]   = e.error ? e.error.message : ''
+        renewalCardComplete[key] = e.complete
+    })
+    bind(renewalCardNumber, 'number')
+    bind(cardExpiry, 'expiry')
+    bind(cardCvc, 'cvc')
+}
+
+async function payRenewalStripe() {
+    if (!renewalCardComplete.number) renewalCardErrors.number = renewalCardErrors.number || __('message.card_number_required')
+    if (!renewalCardComplete.expiry) renewalCardErrors.expiry = renewalCardErrors.expiry || __('message.expiry_required')
+    if (!renewalCardComplete.cvc)    renewalCardErrors.cvc    = renewalCardErrors.cvc    || __('message.cvc_required')
+    if (!renewalCardComplete.number || !renewalCardComplete.expiry || !renewalCardComplete.cvc) return
+
+    stripeRenewalBusy.value = true
+    alertStore.unsetAlert()
+    try {
+        const { paymentIntent, error: confirmError } = await stripeRenewal.confirmCardPayment(
+            renewalClientSecret,
+            { payment_method: { card: renewalCardNumber } },
+        )
+
+        if (confirmError) {
+            if (
+                confirmError.code === 'payment_intent_unexpected_state' ||
+                confirmError.payment_intent?.status === 'succeeded'
+            ) {
+                await finalizeRenewalStripe()
+                return
+            }
+            closeStripeRenewalModal()
+            alertStore.setAlert({ message: confirmError.message, type: 'danger', component_name: 'client-page' })
+            stripeRenewalBusy.value = false
+            return
+        }
+
+        if (paymentIntent?.status === 'succeeded') {
+            await finalizeRenewalStripe()
+        } else {
+            closeStripeRenewalModal()
+            alertStore.setAlert({ message: __('message.err_msg'), type: 'danger', component_name: 'client-page' })
+            stripeRenewalBusy.value = false
+        }
+    } catch (e) {
+        closeStripeRenewalModal()
+        alertStore.setAlert({
+            message: e?.response?.data?.message ?? __('message.something_went_wrong'),
+            type: 'danger',
+            component_name: 'client-page',
+        })
+        stripeRenewalBusy.value = false
+    }
+}
+
+async function finalizeRenewalStripe() {
+    try {
+        const res = await http.post(`${baseUrl}/auto-renewal/${orderId}/stripe/confirm`, {
+            payment_intent: renewalPaymentIntentId,
+        })
+        order.value.is_subscribed    = true
+        order.value.autorenew_status = true
+        closeStripeRenewalModal()
+        successHandler(res, 'client-page')
+    } catch (e) {
+        closeStripeRenewalModal()
+        alertStore.setAlert({
+            message: e?.response?.data?.message ?? __('message.something_went_wrong'),
+            type: 'danger',
+            component_name: 'client-page',
+        })
+    } finally {
+        stripeRenewalBusy.value = false
+    }
+}
 
 function formatDate(d) {
     if (!d) return '—'

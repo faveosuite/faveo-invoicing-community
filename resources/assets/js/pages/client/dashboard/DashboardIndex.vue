@@ -12,7 +12,7 @@
                                 <span class="display-6 fw-bold text-dark">{{ data.pending_invoices_count ?? 0 }}</span>
                             </div>
                             <div class="mt-3">
-                                <strong class="text-uppercase text-dark small">{{ __('message.pending_invoices') }}</strong>
+                                <strong class="text-uppercase text-dark">{{ __('message.pending_invoices') }}</strong>
                             </div>
                         </div>
                     </div>
@@ -28,7 +28,7 @@
                                 <span class="display-6 fw-bold text-dark">{{ data.total_orders_count ?? 0 }}</span>
                             </div>
                             <div class="mt-3">
-                                <strong class="text-uppercase text-dark small">{{ __('message.orders') }}</strong>
+                                <strong class="text-uppercase text-dark">{{ __('message.orders') }}</strong>
                             </div>
                         </div>
                     </div>
@@ -44,7 +44,7 @@
                                 <span class="display-6 fw-bold text-dark">{{ data.order_renewals_count ?? 0 }}</span>
                             </div>
                             <div class="mt-3">
-                                <strong class="text-uppercase text-dark small">{{ __('message.order_renewals') }}</strong>
+                                <strong class="text-uppercase text-dark">{{ __('message.order_renewals') }}</strong>
                             </div>
                         </div>
                     </div>

@@ -28,7 +28,7 @@ class PageController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['auth', 'admin'], ['except' => ['pageTemplates', 'contactUs', 'postDemoReq', 'postContactUs', 'publishedPages', 'pageBySlug']]);
+        $this->middleware(['auth', 'admin'], ['except' => ['pageTemplates', 'postDemoReq', 'postContactUs', 'publishedPages', 'pageBySlug', 'contactUsInfo']]);
         $this->middleware('recaptcha:contact')->only('postContactUs');
         $this->middleware('recaptcha:demo')->only('postDemoReq');
         $page = new FrontendPage();
@@ -621,20 +621,30 @@ class PageController extends Controller
      *
      * @throws
      */
-    public function contactUs()
+    public function contactUsInfo()
     {
         try {
-            $status = StatusSetting::select('msg91_status', 'emailverification_status', 'terms')->first();
-            $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
-            $set = new \App\Model\Common\Setting();
-            $set = $set->findOrFail(1);
+            $set = \App\Model\Common\Setting::findOrFail(1);
             $address = preg_replace("/^\R+|\R+\z/", '', $set->address);
             $state = State::where('country_code', $set->country)->where('iso2', $set->state)->value('state_subdivision_name');
             $country = Country::where('country_code_char2', $set->country)->value('country_name');
+            $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck')->first();
+            $status = StatusSetting::select('msg91_status')->first();
 
-            return view('themes.default1.front.contact', compact('status', 'apiKeys', 'set', 'state', 'country', 'address'));
+            return successResponse('', [
+                'address'       => $address,
+                'city'          => $set->city,
+                'state'         => $state,
+                'country'       => $country,
+                'zip'           => $set->zip,
+                'phone_code'    => $set->phone_code,
+                'phone'         => $set->phone,
+                'company_email' => $set->company_email,
+                'recaptcha_key' => $apiKeys->nocaptcha_sitekey ?? null,
+                'msg91_status'  => (bool) ($status->msg91_status ?? false),
+            ]);
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 

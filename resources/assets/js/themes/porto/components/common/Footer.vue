@@ -22,15 +22,20 @@
                             {{ newsletterError }}
                         </div>
                         <form v-if="!newsletterSuccess" @submit.prevent="subscribeNewsletter" class="me-4 mb-4">
-                            <div class="input-group input-group-rounded">
-                                <input class="form-control form-control-sm bg-light"
+                            <div class="input-group input-group-rounded has-validation">
+                                <input class="form-control form-control-sm bg-light px-4 text-3"
+                                       :class="{ 'is-invalid': newsletterEmailError }"
                                        type="email" v-model="newsletterEmail"
-                                       placeholder="Email Address..." required>
-                                <button class="btn btn-light text-color-dark"
+                                       placeholder="Email Address..."
+                                       @input="newsletterEmailError = ''">
+                                <button class="btn btn-primary text-color-light text-2 py-3 px-4"
                                         type="submit" :disabled="subscribing">
-                                    <strong>GO!</strong>
+                                    <strong>SUBSCRIBE!</strong>
                                 </button>
                             </div>
+                            <span v-if="newsletterEmailError" class="text-danger text-1 mt-1 d-block">
+                                {{ newsletterEmailError }}
+                            </span>
                         </form>
                     </template>
 
@@ -90,7 +95,13 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { __ } from '@/plugins/i18n'
+import * as yup from 'yup'
 import http from '@/plugins/axios'
+
+const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+const newsletterSchema = yup.string()
+    .required(() => __('message.error_email_address'))
+    .matches(EMAIL_RE, () => __('message.contact_error_email'))
 
 const el           = document.getElementById('app-client')
 const company      = computed(() => el?.dataset?.company ?? '')
@@ -113,12 +124,21 @@ const footerWidgets = computed(() => {
     } catch { return [] }
 })
 
-const newsletterEmail   = ref('')
-const newsletterSuccess = ref(false)
-const newsletterError   = ref('')
-const subscribing       = ref(false)
+const newsletterEmail      = ref('')
+const newsletterEmailError = ref('')
+const newsletterSuccess    = ref(false)
+const newsletterError      = ref('')
+const subscribing          = ref(false)
 
 async function subscribeNewsletter() {
+    newsletterEmailError.value = ''
+    try {
+        newsletterSchema.validateSync(newsletterEmail.value)
+    } catch (err) {
+        newsletterEmailError.value = err.message
+        return
+    }
+
     subscribing.value     = true
     newsletterError.value = ''
     try {

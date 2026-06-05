@@ -23,7 +23,6 @@ use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\Payment_log;
-use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
 use App\WhatsappIntegration;
 use Exception;
@@ -80,167 +79,6 @@ class ClientController extends BaseClientController
     }
 
     /**
-     * Create new Auto renewal and update auto-renewal status.
-     *
-     * @param  Request  $request
-     * @return array{type:string,message:string}|JsonResponse
-     */
-    public function enableAutorenewalStatus(Request $request)
-    {
-        try {
-            $currency = getCurrencyForClient(\Auth::user()->country);
-            $amount = getMinimumAmountForPayments($currency, 'stripe');
-            $orderid = $request->get('order_id');
-
-            $order = Order::findOrFail($orderid);
-
-            if (! authorizeOwnership($order->client)) {
-                return errorResponse(__('message.unauthorized_action'), 403);
-            }
-
-            $url = url('my-order/'.$orderid.'#auto-renew');
-            $controller = new SettingsController();
-            $confirm = $controller->handlePayment($request, $amount, $currency, $url);
-
-            $paymentIntent = \Stripe\PaymentIntent::retrieve($confirm['id']);
-            $subscription = Subscription::where('order_id', $orderid)->first();
-            if ($confirm->status == 'requires_action') {
-                $redirectUrl = $paymentIntent->next_action->redirect_to_url->url;
-
-                return $redirectUrl;
-            } elseif ($confirm->status === 'succeeded') {
-                $refund = \Stripe\Refund::create([
-                    'payment_intent' => $confirm['id'],
-                    'amount' => $confirm['amount'],
-                ]);
-                $invoice_id = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
-                $number = Invoice::where($paymentIntent->customerid)->value('number');
-                $customer_details = [
-                    'user_id' => \Auth::user()->id,
-                    'customer_id' => $paymentIntent->customer,
-                    'payment_method' => 'stripe',
-                    'order_id' => $orderid,
-                    'payment_intent_id' => $paymentIntent->payment_method,
-                ];
-                Auto_renewal::create($customer_details);
-                Subscription::where('order_id', $orderid)->update(['is_subscribed' => '1', 'autoRenew_status' => '1']);
-                $mail = new \App\Http\Controllers\Common\PhpMailController();
-
-                $mail->payment_log(\Auth::user()->email, 'stripe', 'success', Order::where('id', $orderid)->value('number'), null, $amount, 'Payment method updated');
-
-                $response = ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
-
-                return ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
-            }
-        } catch(\Exception $ex) {
-            $result = $ex->getMessage();
-            $mail = new \App\Http\Controllers\Common\PhpMailController();
-            $mail->payment_log(\Auth::user()->email, 'stripe', 'failed', Order::where('id', $orderid)->value('number'), $result, $amount, 'Payment method updated');
-            $errorMessage = __('message.something_different_payment');
-
-            return response()->json(['error' => $errorMessage], 500);
-        }
-    }
-
-    /**
-     *  Delete Auto renewal and update auto-renewal status.
-     *
-     * @param  Request  $request
-     * @return JsonResponse
-     */
-    public function disableAutorenewalStatus(Request $request)
-    {
-        try {
-            $orderid = $request->get('order_id');
-            $userid = Subscription::where('order_id', $orderid)->value('user_id');
-            User::findOrfail($userid);
-
-            if (! authorizeOwnership($userid)) {
-                return errorResponse(__('message.unauthorized_action'), 403);
-            }
-
-            $subscription = Subscription::where('order_id', $orderid)->first();
-            $this->autoRenewalSubOps($subscription, $orderid);
-            $response = ['type' => 'success', 'message' => __('message.auto_subscription_disabled')];
-
-            return response()->json($response);
-        } catch(\Exception $ex) {
-            $result = $ex->getMessage();
-
-            return response()->json(compact('result'), 500);
-        }
-    }
-
-    private function autoRenewalSubOps($subscription, $orderid)
-    {
-        if ($subscription->rzp_subscription && $subscription->is_subscribed && $subscription->subscribe_id) {
-            app(\App\Services\Payment\SubscriptionService::class)->cancelSubscription('Razorpay', $subscription->subscribe_id);
-            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'rzp_subscription' => '0']);
-        } elseif ($subscription->autoRenew_status && $subscription->is_subscribed && $subscription->subscribe_id) {
-            app(\App\Services\Payment\SubscriptionService::class)->cancelSubscription('Stripe', $subscription->subscribe_id);
-            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'autoRenew_status' => '0']);
-        } else {
-            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'autoRenew_status' => '0', 'rzp_subscription' => '0']);
-        }
-    }
-
-    /**
-     *  Setup razorpay , create auto renewal and update auto renewal status.
-     *
-     * @param  Request  $request
-     * @return RedirectResponse
-     */
-    public function enableRzpStatus(Request $request)
-    {
-        try {
-            $currency = getCurrencyForClient(\Auth::user()->country);
-            $amount = currencyFormat('1', $currency);
-            $orderid = $request->route('orderid');
-            $subscription = Subscription::where('order_id', $orderid)->first();
-
-            User::findOrfail($subscription->user_id);
-
-            if (! authorizeOwnership($subscription->user_id)) {
-                return redirect()->back()->with('fails', __('message.unauthorized_action'));
-            }
-
-            $input = $request->all();
-            $error = 'Payment Failed';
-            $rzp_key = ApiKey::where('id', 1)->value('rzp_key');
-            $rzp_secret = ApiKey::where('id', 1)->value('rzp_secret');
-            $api = new Api($rzp_key, $rzp_secret);
-
-            $payment = $api->payment->fetch($input['razorpay_payment_id']);
-            $response = $api->payment->fetch($input['razorpay_payment_id']);
-            $capture = $api->payment->fetch($response->id)->capture(['amount' => $response->amount]);
-            $refund = $api->payment->fetch($response->id)->refund(['amount' => $response->amount, 'speed' => 'normal']);
-
-            $invoice_id = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
-            $number = Invoice::where('id', $invoice_id)->value('number');
-
-            $customer_details = [
-                'user_id' => \Auth::user()->id,
-                'customer_id' => $response['id'],
-                'payment_method' => 'razorpay',
-                'order_id' => $orderid,
-            ];
-            Auto_renewal::create($customer_details);
-
-            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '1', 'rzp_subscription' => '1']);
-
-            $mail = new \App\Http\Controllers\Common\PhpMailController();
-            $mail->payment_log(\Auth::user()->email, 'Razorpay', 'success', Order::where('id', $orderid)->value('number'), null, $amount, 'Payment method updated');
-
-            return redirect()->back()->with('success', __('message.card_updated_successfully'));
-        } catch(\Exception $ex) {
-            $result = $ex->getMessage();
-            $mail = new \App\Http\Controllers\Common\PhpMailController();
-            $mail->payment_log(\Auth::user()->email, 'stripe', 'failed', Order::where('id', $orderid)->value('number'), $result, $amount, 'Payment method updated');
-
-            return redirect()->back()->with('fails', __('message.payment_declined', ['msg' => $ex->getMessage()]));
-        }
-    }
-
     /**
      *  Auto-renew by id and redirect to paynow page.
      *
@@ -374,6 +212,16 @@ class ClientController extends BaseClientController
                 'invoice_number' => $latestInvoice?->number,
                 'sub_id' => $order->subscription?->id,
                 'is_cloud' => in_array($order->productRelation?->id, cloudPopupProducts()),
+                'autorenewal_enabled' => (bool) \App\Model\Common\Setting::where('id', 1)->value('autorenewal_status'),
+                'autorenew_status'    => (bool) $order->subscription?->autoRenew_status,
+                'is_subscribed'       => (bool) $order->subscription?->is_subscribed,
+                'autorenew_log'       => \App\Payment_log::where('order', $order->number)
+                    ->where('payment_type', 'Payment method updated')
+                    ->orderByDesc('id')
+                    ->first(['payment_method', 'date']),
+                'available_gateways' => \App\Http\Controllers\Common\SettingsController::checkPaymentGateway(
+                    getCurrencyForClient($user->country)
+                ),
                 'user' => [
                     'name' => ucfirst($user->first_name ?? '').' '.ucfirst($user->last_name ?? ''),
                     'email' => $user->email,
@@ -1023,7 +871,7 @@ class ClientController extends BaseClientController
             $exchangeRate = '';
             $orderData = [
                 'receipt' => '3456',
-                'amount' => getMinimumAmountForPayments($currency, 'razorpay'),
+                'amount' => calculateUnitCost($displayCurrency, getMinimumAmountForPayments($displayCurrency, 'razorpay')),
                 'currency' => $displayCurrency,
                 'payment_capture' => 0, // auto capture
             ];

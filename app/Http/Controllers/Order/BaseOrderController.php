@@ -3,13 +3,18 @@
 namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\License\LicensePermissionsController;
+use App\License\Services\LicenseService;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
 use App\Model\Configure\ProductPluginGroup;
+use App\Model\Order\Invoice;
+use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Plan;
+use App\Model\Product\Price;
 use App\Model\Product\Product;
+use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\Traits\Order\UpdateDates;
@@ -20,20 +25,6 @@ use Crypt;
 class BaseOrderController extends ExtendedOrderController
 {
     protected $sendMail;
-
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('admin');
-
-        $this->order = new Order();
-
-        $this->product = new Product();
-
-        $this->subscription = new Subscription();
-
-        $this->plan = new Plan();
-    }
 
     use UpdateDates;
 
@@ -70,81 +61,54 @@ class BaseOrderController extends ExtendedOrderController
      *
      * @throws \Exception
      */
-    public function executeOrder($invoiceid, $order_status = 'executed', $admin = false)
+    public function executeOrder($invoiceId): \Illuminate\Support\Collection
     {
-        try {
-            $invoice_items = $this->invoice_items->where('invoice_id', $invoiceid)->get();
+        $userId = Invoice::findOrFail($invoiceId)->user_id;
+        $items = InvoiceItem::where('invoice_id', $invoiceId)->get();
 
-            $user_id = $this->invoice->find($invoiceid)->user_id;
-            if (count($invoice_items) > 0) {
-                foreach ($invoice_items as $item) {
-                    if ($item) {
-                        $items = $this->getIfItemPresent($item, $invoiceid, $user_id, $order_status, $admin);
-                    }
-                }
-            }
-
-            return 'success';
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            throw new \Exception($ex->getMessage());
-        }
+        return $items->map(fn ($item) => $this->processInvoiceItem($item, $userId));
     }
 
-    public function getIfItemPresent($item, $invoiceid, $user_id, $order_status, $admin = false)
+    private function processInvoiceItem($item, $userId): Order
     {
-        try {
-            $productModel = $this->product->find($item->product_id);
-            $product = $productModel->id;
-            $version = $productModel->version;
-            if ($version == null) {
-                //Get Version from Product Upload Table
-                $version = $this->product_upload->where('product_id', $product)->pluck('version')->first();
-            }
-            $serial_key = $this->generateSerialKey($product, $item->agents); //Send Product Id and Agents to generate Serial Key
-            \Session::put('upgradeSerialKey', $serial_key);
-            $domain = $item->domain;
-            $plan_id = $this->plan($item->id);
+        $productModel = Product::findOrFail($item->product_id);
+        $product = $productModel->id;
+        $version = ProductUpload::where('product_id', $product)->value('version') ?? '';
 
-            $order = $this->order->create([
-                'invoice_item_id' => $item->id,
-                'client' => $user_id,
-                'order_status' => $order_status,
-                'serial_key' => Crypt::encrypt($serial_key),
-                'product' => $product,
-                'price_override' => $item->subtotal,
-                'qty' => $item->quantity,
-                'domain' => $domain,
-                'number' => $this->generateNumber(),
-                'created_at' => Carbon::now(),
-            ]);
-            \Session::put('upgradeNewActiveOrder', $order->id);
+        $serialKey = $this->generateSerialKey($product, $item->agents);
 
-            $this->addOrderInvoiceRelation($invoiceid, $order->id);
-            if ($plan_id != 0) {
-                $this->addSubscription($order->id, $plan_id, $version, $product, $serial_key, $admin);
+        $order = Order::create([
+            'invoice_item_id' => $item->id,
+            'client'          => $userId,
+            'order_status'    => 'executed',
+            'serial_key'      => Crypt::encrypt($serialKey),
+            'product'         => $product,
+            'price_override'  => $item->subtotal,
+            'qty'             => $item->quantity,
+            'domain'          => $item->domain,
+            'number'          => $this->generateNumber(),
+        ]);
 
-                $addOnIds = implode(',', $this->product->find($product)->productPluginGroupsAsProduct->pluck('plugin_id')->toArray());
+        OrderInvoiceRelation::create([
+            'order_id' => $order->id, 'invoice_id' => $item->invoice_id]
+        );
 
-                $options = $this->formatConfigurableOptions($product)->toArray();
-
-                app(\App\License\Services\LicenseService::class)->syncAddons($serial_key, explode(',', $addOnIds), $options);
-            }
-
-            if (emailSendingStatus()) {
-                $this->sendOrderMail($user_id, $order->id, $item->id);
-            }
-            //Update Subscriber To Mailchimp
-            $mailchimpStatus = StatusSetting::pluck('mailchimp_status')->first();
-            if ($mailchimpStatus) {
-                $this->addtoMailchimp($product, $user_id, $item);
-            }
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            throw new \Exception($ex->getMessage());
+        if ($item->plan_id) {
+            $this->addSubscription($order->id, $item->plan_id, $version, $product, $serialKey, $item->invoice_id);
+            $addOnIds = Product::find($product)->productPluginGroupsAsProduct->pluck('plugin_id')->toArray();
+            $options = $this->formatConfigurableOptions($product)->toArray();
+            app(LicenseService::class)->syncAddons($serialKey, $addOnIds, $options);
         }
+
+        if (emailSendingStatus()) {
+            $this->sendOrderMail($userId, $order->id, $item->id);
+        }
+
+        if (StatusSetting::pluck('mailchimp_status')->first()) {
+            $this->addtoMailchimp($product, $userId, $item);
+        }
+
+        return $order;
     }
 
     public function addToMailchimp($product, $user_id, $item)
@@ -175,79 +139,59 @@ class BaseOrderController extends ExtendedOrderController
      *
      * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
      */
-    public function addSubscription($orderid, $planid, $version, $product, $serial_key, $admin = false)
+    public function addSubscription($orderid, $planid, $version, $product, $serial_key, $invoiceId = null): void
     {
-        try {
-            $permissions = LicensePermissionsController::getPermissionsForProduct($product);
-            if ($version == null) {
-                $version = '';
-            }
-            $days = null;
-            $status = Product::find($product);
-            if ($status->status && ! $admin) {
-                if (\Session::get('planDays') == 'monthly') {
-                    $days = $this->plan->where('product', $product)->whereIn('days', [30, 31])->first();
-                } elseif (\Session::get('planDays') == 'freeTrial') {
-                    $days = $this->plan->where('product', $product)->where('days', '<', 30)->first();
-                } elseif (\Session::get('planDays') == 'yearly' || \Session::get('planDays') == null) {
-                    $days = $this->plan->where('product', $product)->whereIn('days', [365, 366])->first();
-                }
-            }
+        $permissions = LicensePermissionsController::getPermissionsForProduct($product);
+        $version = $version ?? '';
 
-            if ($days === null) {
-                if (\Session::has('plan_id')) {
-                    $planid = \Session::get('plan_id');
-                }
-                $days = $this->plan->where('id', $planid)->first();
-            }
+        $plan  = Plan::findOrFail($planid);
+        $order = Order::findOrFail($orderid);
 
-            if (\Session::has('increase-decrease-days')) {
-                $increaseDate = \Session::get('increase-decrease-days');
-                $licenseExpiry = $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $increaseDate);
-                $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $increaseDate);
-                $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $increaseDate);
-            } elseif (\Session::has('increase-decrease-days-dont-cloud')) {
-                $oldCloudOrderId = \Session::get('increase-decrease-days-dont-cloud');
-                $expiryDate = Subscription::where('order_id', $oldCloudOrderId)->value('ends_at');
-                $licenseExpiry = $expiryDate;
-                $updatesExpiry = $expiryDate;
-                $supportExpiry = $expiryDate;
-            } else {
-                $planid = $days->id;
-                $period = $days->periods()->where('name', 'One Time')->get();
+        $meta = $invoiceId ? (Invoice::find($invoiceId)?->metadata ?? []) : [];
 
-                $licenseExpiry = (! $period->isEmpty()) ? '' : $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $days->days);
-                $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $days->days);
-                $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $days->days);
-            }
-
-            $user_id = $this->order->find($orderid)->client;
-            $this->subscription->create(['user_id' => $user_id,
-                'plan_id' => $planid, 'order_id' => $orderid, 'update_ends_at' => $updatesExpiry, 'ends_at' => $licenseExpiry, 'support_ends_at' => $supportExpiry, 'version' => $version, 'product_id' => $product, 'is_subscribed' => '0']);
-
-            $order = \App\Model\Order\Order::find($orderid);
-            $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($order->domain ?? '');
-            app(\App\License\Services\LicenseService::class)->create([
-                'product_id' => $product,
-                'user_id' => $user_id,
-                'license_code' => $serial_key,
-                'license_order_number' => $order->number,
-                'license_domain' => $ipAndDomain['domain'],
-                'license_ip' => $ipAndDomain['ip'],
-                'license_require_domain' => $ipAndDomain['requireDomain'],
-                'license_limit' => 1,
-                'license_expire_date' => ($licenseExpiry != '') ? $licenseExpiry->toDateString() : null,
-                'license_updates_date' => ($updatesExpiry != '') ? $updatesExpiry->toDateString() : null,
-                'license_support_date' => ($supportExpiry != '') ? $supportExpiry->toDateString() : null,
-                'license_status' => 1,
-            ]);
-            \Session::forget('increase-decrease-days');
-            \Session::forget('increase-decrease-days-dont-cloud');
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            throw new \Exception(__('message.cannot_generate_subscription').'.'.$ex->getMessage());
+        if (isset($meta['increase-decrease-days'])) {
+            $days          = $meta['increase-decrease-days'];
+            $licenseExpiry = $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $days);
+            $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $days);
+            $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $days);
+        } elseif (isset($meta['increase-decrease-days-dont-cloud'])) {
+            $sub           = Subscription::where('order_id', $meta['increase-decrease-days-dont-cloud'])->first();
+            $licenseExpiry = $updatesExpiry = $supportExpiry = $sub?->ends_at;
+        } else {
+            $isOneTime     = $plan->periods()->where('name', 'One Time')->exists();
+            $licenseExpiry = $isOneTime ? '' : $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $plan->days);
+            $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $plan->days);
+            $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $plan->days);
         }
+
+
+        Subscription::create([
+            'user_id'         => $order->client,
+            'plan_id'         => $plan->id,
+            'order_id'        => $orderid,
+            'update_ends_at'  => $updatesExpiry,
+            'ends_at'         => $licenseExpiry,
+            'support_ends_at' => $supportExpiry,
+            'version'         => $version,
+            'product_id'      => $product,
+            'is_subscribed'   => '0',
+        ]);
+
+        $ipAndDomain = LicenseService::parseIpAndDomain($order->domain ?? '');
+        app(LicenseService::class)->create([
+            'product_id'             => $product,
+            'user_id'                => $order->client,
+            'license_code'           => $serial_key,
+            'license_order_number'   => $order->number,
+            'license_domain'         => $ipAndDomain['domain'],
+            'license_ip'             => $ipAndDomain['ip'],
+            'license_require_domain' => $ipAndDomain['requireDomain'],
+            'license_limit'          => 1,
+            'license_expire_date'    => $licenseExpiry instanceof Carbon ? $licenseExpiry->toDateString() : null,
+            'license_updates_date'   => $updatesExpiry instanceof Carbon ? $updatesExpiry->toDateString() : null,
+            'license_support_date'   => $supportExpiry instanceof Carbon ? $supportExpiry->toDateString() : null,
+            'license_status'         => 1,
+        ]);
     }
 
     /**
@@ -303,21 +247,10 @@ class BaseOrderController extends ExtendedOrderController
 
         return $support_ends_at;
     }
-
-    public function addOrderInvoiceRelation($invoiceid, $orderid)
-    {
-        try {
-            $relation = new \App\Model\Order\OrderInvoiceRelation();
-            $relation->create(['order_id' => $orderid, 'invoice_id' => $invoiceid]);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
-        }
-    }
-
     public function sendOrderMail($userid, $orderid, $itemid)
     {
         //order
-        $order = $this->order->find($orderid);
+        $order = Order::find($orderid);
         //product
         $product = $this->product($itemid);
         //user
@@ -330,7 +263,7 @@ class BaseOrderController extends ExtendedOrderController
         $orders = new Order();
         $order = $orders->where('id', $orderid)->first();
         $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
-        $invoice = $this->invoice->find($invoiceId);
+        $invoice = Invoice::find($invoiceId);
         $number = $invoice?->number;
         $downloadurl = '';
         if ($user && $order->order_status == 'Executed') {
@@ -415,7 +348,7 @@ class BaseOrderController extends ExtendedOrderController
     public function getPrice($product_id)
     {
         try {
-            return $this->price->where('product_id', $product_id)->first();
+            return Price::where('product_id', $product_id)->first();
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
         }
@@ -424,7 +357,7 @@ class BaseOrderController extends ExtendedOrderController
     public function downloadUrl($userid, $orderid)
     {
         $invoiceId = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
-        $invoice = $this->invoice->find($invoiceId);
+        $invoice = Invoice::find($invoiceId);
         $number = $invoice?->number;
         $url = url('download/'.$userid.'/'.$number);
 
@@ -440,7 +373,7 @@ class BaseOrderController extends ExtendedOrderController
             ->toArray();
 
         // Fetch all products with related configurations in one query
-        $products = $this->product->with('configOptions.configOptionValues')
+        $products = Product::with('configOptions.configOptionValues')
             ->whereIn('id', $productIds)
             ->get();
 

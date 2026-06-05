@@ -23,7 +23,7 @@ class ExtendedOrderController extends Controller
     {
         try {
             $invoiceid = $request->input('invoiceid');
-            $execute = $this->executeOrder($invoiceid, 'executed', true);
+            $execute = $this->executeOrder($invoiceid);
 
             //only for cloud
             $invoice = Invoice::find($invoiceid);
@@ -39,11 +39,7 @@ class ExtendedOrderController extends Controller
                 }
             }
 
-            if ($execute == 'success') {
-                return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
-            } else {
-                return redirect()->back()->with('fails', \Lang::get('message.not-saved-successfully'));
-            }
+            return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

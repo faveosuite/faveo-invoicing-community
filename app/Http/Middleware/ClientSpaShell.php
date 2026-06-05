@@ -32,6 +32,7 @@ class ClientSpaShell
     /** Public client paths (served to anyone, authenticated or not). */
     protected array $public = [
         'pages/*',
+        'contact-us',
         'verify',
         'verify-2fa',
     ];

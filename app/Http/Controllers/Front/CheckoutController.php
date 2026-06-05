@@ -545,7 +545,7 @@ class CheckoutController extends InfoController
                 $alreadyExecuted = \App\Model\Order\Order::whereIn('id', \App\Model\Order\OrderInvoiceRelation::where('invoice_id', $invoice->id)->pluck('order_id'))->exists();
                 if (! $alreadyExecuted) {
                     $order = new \App\Http\Controllers\Order\OrderController();
-                    $order->executeOrder($invoice->id, $order_status = 'executed');
+                    $order->executeOrder($invoice->id);
                 }
             }
 

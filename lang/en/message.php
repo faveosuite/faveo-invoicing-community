@@ -1459,6 +1459,8 @@ return [
     'payment_receipts' => 'Payment Receipts',
     'cloud_settings' => 'Cloud Settings',
     'auto_renewal' => 'Auto Renewal',
+    'disable_auto_renewal' => 'Disable Auto-Renewal',
+    'disable_auto_renewal_confirm' => 'Are you sure you want to disable auto-renewal? Your subscription will not be renewed automatically.',
     'has_been_generated' => 'has been generated because order:',
     'was_terminated' => 'was terminated.',
     'license_code' => 'License Code:',

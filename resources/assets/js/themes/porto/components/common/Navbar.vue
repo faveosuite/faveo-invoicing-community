@@ -86,15 +86,13 @@
                             </a>
                             <ul class="dropdown-menu border-light mt-n1">
                               <li v-for="child in childPages(page.id)" :key="child.id">
-                                <a v-if="child.type === 'contactus'" :href="child.url" class="dropdown-item">{{ ucfirst(child.name) }}</a>
-                                <RouterLink v-else :to="'/pages/' + child.slug" class="dropdown-item">{{ ucfirst(child.name) }}</RouterLink>
+                                <RouterLink :to="child.type === 'contactus' ? '/contact-us' : '/pages/' + child.slug" class="dropdown-item">{{ ucfirst(child.name) }}</RouterLink>
                               </li>
                             </ul>
                           </li>
                           <!-- Simple page -->
                           <li v-else>
-                            <a v-if="page.type === 'contactus'" :href="page.url" class="nav-link">&nbsp;{{ ucfirst(page.name) }}&nbsp;</a>
-                            <RouterLink v-else :to="'/pages/' + page.slug" class="nav-link">&nbsp;{{ ucfirst(page.name) }}&nbsp;</RouterLink>
+                            <RouterLink :to="page.type === 'contactus' ? '/contact-us' : '/pages/' + page.slug" class="nav-link">&nbsp;{{ ucfirst(page.name) }}&nbsp;</RouterLink>
                           </li>
                         </template>
 
@@ -145,12 +143,12 @@
 
                         <!-- Free Trial / Demo (mobile only, shown in collapsed nav) -->
                         <li v-if="cloudEnabled" class="demo-icons d-lg-none">
-                          <a class="nav-link btn open-createTenantDialog startFreeTrialBtn">
+                          <a class="nav-link btn" href="javascript:;" @click="showCloudTrialModal = true">
                             {{ __('message.start_free_trial') }}
                           </a>
                         </li>
                         <li v-if="demoEnabled" class="demo-icons d-lg-none">
-                          <a class="nav-link" id="demo-req-mobile">
+                          <a class="nav-link btn" href="javascript:;" @click="showDemoModal = true">
                             {{ __('message.request_for_demo') }}
                           </a>
                         </li>
@@ -279,12 +277,15 @@
               <!-- Desktop CTA buttons -->
               <div class="px-4 d-none d-lg-inline-block ws-nowrap">
                 <a v-if="cloudEnabled"
-                   class="btn border-0 px-4 py-2 line-height-9 btn-dark me-2 text-white open-createTenantDialog startFreeTrialBtn">
+                   href="javascript:;"
+                   class="btn border-0 px-4 py-2 line-height-9 btn-dark me-2 text-white"
+                   @click="showCloudTrialModal = true">
                   {{ __('message.start_free_trial') }}
                 </a>
                 <a v-if="demoEnabled"
-                   id="demo-req"
-                   class="btn border-0 px-4 py-2 line-height-9 btn-primary text-white">
+                   href="javascript:;"
+                   class="btn border-0 px-4 py-2 line-height-9 btn-primary text-white"
+                   @click="showDemoModal = true">
                   {{ __('message.request_for_demo') }}
                 </a>
               </div>
@@ -296,6 +297,18 @@
       </div>
     </div>
   </div>
+
+  <!-- Cloud trial modal -->
+  <CloudTrialModal
+    :show="showCloudTrialModal"
+    @close="showCloudTrialModal = false"
+  />
+
+  <!-- Book a demo modal -->
+  <BookDemoModal
+    :show="showDemoModal"
+    @close="showDemoModal = false"
+  />
 </template>
 
 <script setup>
@@ -305,11 +318,16 @@ import http from '@/plugins/axios'
 import {useCartStore} from '@/core/stores/cart'
 import {useNavFeatureToggle} from '../../composables/useNavFeatureToggle.js'
 import {isStickyActive} from '../../composables/useStickyHeader.js'
+import CloudTrialModal from '../store/CloudTrialModal.vue'
+import BookDemoModal from '../store/BookDemoModal.vue'
 
 const {toggle: toggleLanguage} = useNavFeatureToggle()
 
 const cartStore = useCartStore()
 const isScrolled = isStickyActive
+
+const showCloudTrialModal = ref(false)
+const showDemoModal = ref(false)
 
 const showCartDropdown = ref(false)
 const cartRef = ref(null)

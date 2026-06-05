@@ -24,6 +24,7 @@
                            :label="__('message.first_name')"
                            v-model="form.first_name"
                            :error="errors.first_name"
+                           @update:modelValue="setFieldError('first_name', undefined)"
                            :required="true"/>
             </div>
             <div class="col-md-6">
@@ -31,6 +32,7 @@
                            :label="__('message.last_name')"
                            v-model="form.last_name"
                            :error="errors.last_name"
+                           @update:modelValue="setFieldError('last_name', undefined)"
                            :required="true"/>
             </div>
           </div>
@@ -39,6 +41,7 @@
                        :label="__('message.user_name')"
                        v-model="form.user_name"
                        :error="errors.user_name"
+                       @update:modelValue="setFieldError('user_name', undefined)"
                        :required="true"/>
 
           <!-- Email — read-only -->
@@ -58,12 +61,14 @@
                        :label="__('message.company')"
                        v-model="form.company"
                        :error="errors.company"
+                       @update:modelValue="setFieldError('company', undefined)"
                        :required="true"/>
 
           <ClientField type="text" name="address"
                        :label="__('message.address')"
                        v-model="form.address"
                        :error="errors.address"
+                       @update:modelValue="setFieldError('address', undefined)"
                        :required="true"/>
 
           <ClientField type="text" name="town"
@@ -97,8 +102,9 @@
                          :error="errors.timezone_id" />
 
           <div class="form-group row">
-            <div class="col-lg-9 offset-lg-3">
-              <button type="submit" class="btn btn-primary btn-modern" :disabled="savingProfile">
+            <div class="form-group col-lg-9"></div>
+            <div class="form-group col-lg-3">
+              <button type="submit" class="btn btn-primary btn-modern float-end" :disabled="savingProfile">
                 <i v-if="savingProfile" class="fas fa-circle-notch fa-spin me-1"></i>
                 {{ __('message.save') }}
               </button>
@@ -114,6 +120,7 @@
 
 <script setup>
 import {reactive, ref, computed, onMounted} from 'vue'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import {__} from '@/plugins/i18n'
 import {successHandler, errorHandler} from '@/helpers/responseHandler.js'
@@ -129,6 +136,7 @@ const COMPONENT = 'client-page'
 
 const hasDataPopulated = ref(false)
 const savingProfile = ref(false)
+const { errors, setErrors, setFieldError } = useForm()
 
 const form = reactive({
   first_name: '', last_name: '', user_name: '', email: '',
@@ -137,7 +145,6 @@ const form = reactive({
   // kept (not shown) so the saved value is preserved on submit
   zipcode: '',
 })
-const errors = ref({})
 
 const initials = computed(() => {
   const f = form.first_name?.[0] ?? ''
@@ -183,7 +190,7 @@ onMounted(async () => {
 function onTimezoneChange(v) {
   selectedTimezone.value = v
   form.timezone_id = v?.id ?? ''
-  errors.value = { ...errors.value, timezone_id: undefined }
+  setFieldError('timezone_id', undefined)
 }
 
 async function loadStates(code) {
@@ -210,7 +217,7 @@ function onImageChange({file, previewUrl}) {
 // PhoneField writes the digits back; its own country selector drives the dial code.
 function onMobileInput(value) {
   form.mobile = String(value).replace(/[^\d]/g, '')
-  errors.value = {...errors.value, mobile: undefined}
+  setFieldError('mobile', undefined)
 }
 
 function onMobileCountryChange({iso, dialCode}) {
@@ -219,7 +226,6 @@ function onMobileCountryChange({iso, dialCode}) {
 }
 
 async function submitProfile() {
-  errors.value = {}
   try {
     profileSchema.validateSync(form, {abortEarly: false})
   } catch (err) {
@@ -227,7 +233,7 @@ async function submitProfile() {
     err.inner?.forEach(e => {
       if (e.path && !map[e.path]) map[e.path] = e.message
     })
-    errors.value = map
+    setErrors(map)
     return
   }
   savingProfile.value = true

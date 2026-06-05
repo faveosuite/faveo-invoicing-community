@@ -984,19 +984,7 @@ function getMinimumAmountForPayments(string $currency, string $paymentMethod): f
 
     $pluginMap = (new \App\Http\Controllers\Common\PaymentSettingsController())->getPaymentPluginMap();
 
-    switch ($method) {
-        case 'razorpay':
-            $amount = calculateUnitCost($currency, $pluginMap[$method]['supported_currencies'][$currency]);
-            break;
-
-        case 'stripe':
-            $amount = $pluginMap[$method]['supported_currencies'][$currency] ?? 1;
-            break;
-
-        default:
-            $amount = 1;
-            break;
-    }
+    $amount = (float) ($pluginMap[$method]['supported_currencies'][$currency] ?? 1);
 
     return $amount;
 }

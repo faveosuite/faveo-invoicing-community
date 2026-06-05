@@ -189,7 +189,7 @@ class PostPaymentService
         )->exists();
 
         if (! $alreadyExecuted) {
-            (new OrderController())->executeOrder($invoice->id, 'executed');
+            (new OrderController())->executeOrder($invoice->id);
         }
     }
 

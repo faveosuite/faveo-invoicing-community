@@ -12,3 +12,8 @@
     background-image: none;
     padding-right: 0.75rem;
 }
+
+/* Porto sets border:0 on .input-group-rounded .form-control; restore it for invalid state. */
+.input-group-rounded .form-control.is-invalid {
+    border: 1px solid var(--bs-form-invalid-border-color, #dc3545) !important;
+}

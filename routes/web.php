@@ -98,7 +98,6 @@ Route::middleware('installAgora')->group(function () {
     Route::patch('mailchimp-ispaid/mapping', [Common\MailChimpController::class, 'postIsPaidMapField']);
     Route::patch('mailchimp-group/mapping', [Common\MailChimpController::class, 'postGroupMapField']);
     Route::get('get-group-field/{value}', [Common\MailChimpController::class, 'addInterestFieldsToAgora']);
-    Route::get('contact-us', [Front\PageController::class, 'contactUs']);
     Route::post('contact-us', [Front\PageController::class, 'postContactUs']);
     Route::post('remove-coupon', [Front\CartController::class, 'removeCoupon']);
     Route::post('remove-product');
@@ -184,7 +183,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('create/tenant/purchase', [Tenancy\CloudExtraActivities::class, 'storeTenantTillPurchase']);
     Route::post('available-groups', [Product\GroupController::class, 'getAvailableGroups'])->withoutMiddleware(['auth', 'admin']);
     Route::post('mail-chimp/subcribe', [Common\MailChimpController::class, 'addSubscriberByClientPanel']);
-    Route::post('first-login', [FreeTrailController::class, 'firstLoginAttempt']);
+    Route::post('free-trial/start', [FreeTrailController::class, 'startTrial'])->name('free-trial.start');
 
     //invoice api's
     // Client invoice pages — Vue SPA served at their legacy URLs by ClientSpaShell
@@ -219,9 +218,13 @@ Route::middleware('installAgora')->group(function () {
     Route::get('cart-access', [Front\BaseClientController::class, 'cartAccess']);
     Route::post('cart/remove', [Front\CartController::class, 'cartRemove']);
 
-    Route::post('strRenewal-enable', [Front\ClientController::class, 'enableAutorenewalStatus']);
-    Route::post('renewal-disable', [Front\ClientController::class, 'disableAutorenewalStatus']);
-    Route::post('rzpRenewal-disable/{orderid}', [Front\ClientController::class, 'enableRzpStatus']);
+    Route::prefix('auto-renewal/{order}')->group(function () {
+        Route::post('stripe/session',   [Front\AutoRenewalController::class, 'stripeSession']);
+        Route::post('stripe/confirm',   [Front\AutoRenewalController::class, 'stripeConfirm']);
+        Route::post('razorpay/order',   [Front\AutoRenewalController::class, 'razorpayOrder']);
+        Route::post('razorpay/confirm', [Front\AutoRenewalController::class, 'razorpayConfirm']);
+        Route::post('disable',          [Front\AutoRenewalController::class, 'disable']);
+    });
     //Route::get('my-subscriptions', [Front\ClientController::class, 'subscriptions']);
     //Route::get('get-my-subscriptions', [Front\ClientController::class, 'getSubscriptions']);
     Route::get('uploadFile', [License\LocalizedLicenseController::class, 'storeFile']);
@@ -931,6 +934,7 @@ Route::get('store/groups', [Front\StoreController::class, 'getGroups'])->name('s
 Route::get('store/{groupId}/products', [Front\StoreController::class, 'getProducts'])
     ->where('groupId', '[0-9]+')
     ->name('store.group.products');
+Route::get('store/cloud-products', [FreeTrailController::class, 'getCloudProducts'])->name('store.cloud.products');
 
 // DB-backed shopping cart (Vue SPA) — session-backed, JSON responses.
 // Guests get a session-scoped cart; checkout/place-order still require auth.
@@ -1015,6 +1019,7 @@ Route::put('page/{id}', [Front\PageController::class, 'updatePage']);
 // Public endpoints for the front-end SPA (navbar list + page content by slug)
 Route::get('published-pages', [Front\PageController::class, 'publishedPages']);
 Route::get('page-content/{slug}', [Front\PageController::class, 'pageBySlug']);
+Route::get('contact-us-info', [Front\PageController::class, 'contactUsInfo']);
 Route::get('demo', [Front\PageController::class, 'getDemoStatus']);
 Route::post('save/demo', [Front\PageController::class, 'saveDemoPage']);
 Route::get('products', [Product\ProductController::class, 'getAllProducts']);
