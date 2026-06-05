@@ -81,10 +81,10 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">{{ __('message.recaptcha_v3') }} {{ __('message.preview') }}</label>
-                                    <div class="border rounded p-3 bg-light" style="min-height: 60px;">
-                                        <div id="v3_response"></div>
+                                <div class="col-md-12">
+                                    <div class="alert alert-info mb-0 d-flex align-items-start gap-2">
+                                        <i class="fas fa-info-circle mt-1"></i>
+                                        <span>{{ __('message.recaptcha_v3_badge_note') }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -177,33 +177,32 @@
             </template>
         </div>
 
-        <RecaptchaPreviewProvider
-            v-if="!loading"
+        <RecaptchaProvider
+            v-if="!loading && (showV2CheckboxPreview || showV2InvisiblePreview)"
             :key="previewTrigger"
-            :v2SiteKey="form.v2_site_key"
-            :v3SiteKey="form.v3_site_key"
+            :auto-config="false"
+            :enabled="true"
+            :mode="previewMode"
+            :v2-site-key="form.v2_site_key"
+            :theme="form.theme"
+            :size="form.size"
+            :badge="form.badge_position"
         >
-            <Teleport v-if="showV3Preview" to="#v3_response">
-                <ChallengeV3 action="settings_preview" :autoExecute="false">
-                    <template #default="{ response, execute }">
-                        <div class="d-flex align-items-center gap-2">
-                            <button class="btn btn-sm btn-outline-secondary" @click="execute">{{ __('message.verify_v3_key') }}</button>
-                            <span v-if="response" class="text-success small">
-                                <i class="fas fa-check-circle me-1"></i> {{ __('message.v3_key_valid') }}
-                            </span>
-                        </div>
-                    </template>
-                </ChallengeV3>
-            </Teleport>
             <Teleport v-if="showV2CheckboxPreview" to="#v2_response">
-                <Checkbox :theme="form.theme" :size="form.size" />
+                <RecaptchaCheckbox :theme="form.theme" :size="form.size" />
             </Teleport>
             <Teleport v-else-if="showV2InvisiblePreview" to="#v2_response">
-                <ChallengeV2 badge="inline">
-                    <span class="text-muted small d-block mb-2">Click to test invisible reCAPTCHA</span>
-                </ChallengeV2>
+                <div class="d-flex align-items-center gap-2">
+                    <RecaptchaV2Invisible ref="invisiblePreviewRef" :badge="form.badge_position" />
+                    <button type="button" class="btn btn-sm btn-outline-secondary" :disabled="previewBusy" @click="runInvisiblePreview">
+                        {{ __('message.test_invisible_recaptcha') }}
+                    </button>
+                    <span v-if="v2InvisibleVerified" class="text-success small">
+                        <i class="fas fa-check-circle me-1"></i> {{ __('message.v2_key_valid') }}
+                    </span>
+                </div>
             </Teleport>
-        </RecaptchaPreviewProvider>
+        </RecaptchaProvider>
     </div>
 </template>
 
@@ -213,8 +212,7 @@ import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
 import TextField from '@/themes/adminlte/components/forms/TextField.vue'
-import { Checkbox, ChallengeV2, ChallengeV3 } from 'vue-recaptcha/head'
-import RecaptchaPreviewProvider from './RecaptchaPreviewProvider.vue'
+import { RecaptchaProvider, RecaptchaCheckbox, RecaptchaV2Invisible } from '@recaptcha'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 
 const COMPONENT = 'recaptcha-settings'
@@ -224,6 +222,11 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const loading = ref(true)
 const saving  = ref(false)
 const previewTrigger = ref(0)
+
+// Preview widget refs + result flags
+const invisiblePreviewRef = ref(null)
+const previewBusy = ref(false)
+const v2InvisibleVerified = ref(false)
 
 function debounce(fn, ms) {
     let t
@@ -259,7 +262,6 @@ const failoverOptions = [
 const badgeOptions = [
     { id: 'bottomright', name: __('message.badge_bottomright') },
     { id: 'bottomleft',  name: __('message.badge_bottomleft') },
-    { id: 'inline',      name: __('message.badge_inline') },
 ]
 
 const isV3           = computed(() => form.captcha_version === 'v3_invisible')
@@ -268,9 +270,25 @@ const isV2Invisible  = computed(() => form.captcha_version === 'v2_invisible')
 const isV2           = computed(() => isV2Checkbox.value || isV2Invisible.value)
 const showBadge      = computed(() => isV3.value || isV2Invisible.value)
 
-const showV3Preview          = computed(() => isV3.value && form.v3_site_key.trim() !== '')
 const showV2CheckboxPreview  = computed(() => isV2Checkbox.value && form.v2_site_key.trim() !== '')
 const showV2InvisiblePreview = computed(() => isV2Invisible.value && form.v2_site_key.trim() !== '')
+
+// The preview only renders interactive v2 widgets (v3 has no widget — just the
+// native floating badge), so the provider always loads an explicit-mode script.
+const previewMode = computed(() => isV2Invisible.value ? 'v2-invisible' : 'v2')
+
+async function runInvisiblePreview() {
+    previewBusy.value = true
+    v2InvisibleVerified.value = false
+    try {
+        const token = await invisiblePreviewRef.value?.execute()
+        v2InvisibleVerified.value = !!token
+    } catch {
+        v2InvisibleVerified.value = false
+    } finally {
+        previewBusy.value = false
+    }
+}
 
 const selectedVersion  = computed(() => versionOptions.find(o => o.id === form.captcha_version) ?? null)
 const selectedFailover = computed(() => failoverOptions.find(o => o.id === form.failover_action) ?? null)
@@ -304,6 +322,11 @@ watch(
     () => [form.v3_site_key, form.v2_site_key, form.captcha_version, form.failover_action, form.theme, form.size],
     bumpPreview
 )
+
+// Clear stale "valid" indicators when the preview rebuilds.
+watch(previewTrigger, () => {
+    v2InvisibleVerified.value = false
+})
 
 async function save() {
     saving.value = true

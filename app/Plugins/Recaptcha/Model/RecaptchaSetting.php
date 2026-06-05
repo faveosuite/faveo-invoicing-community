@@ -30,4 +30,31 @@ class RecaptchaSetting extends Model
                 ! empty($recaptchaSetting?->v2_site_key) || ! empty($recaptchaSetting?->v3_site_key)
             );
     }
+
+    /**
+     * Guest-safe configuration consumed by the Vue reCAPTCHA layer.
+     *
+     * Never includes secret keys — token verification stays server-side in the
+     * RecaptchaMiddleware.
+     */
+    public static function publicConfig(): array
+    {
+        $status = \App\Model\Common\StatusSetting::first();
+        $settings = self::firstOrCreate([]);
+
+        $statusEnabled = (bool) ($status?->recaptcha_status ?? false);
+        $hasKey = ! empty($settings->v2_site_key) || ! empty($settings->v3_site_key);
+
+        return [
+            'enabled' => $statusEnabled && $hasKey,
+            'version' => $settings->captcha_version ?? 'v3_invisible',
+            'failover_action' => $settings->failover_action ?? 'none',
+            'v2_site_key' => $settings->v2_site_key ?? '',
+            'v3_site_key' => $settings->v3_site_key ?? '',
+            'theme' => $settings->theme ?? 'light',
+            'size' => $settings->size ?? 'normal',
+            'badge_position' => $settings->badge_position ?? 'bottomright',
+            'lang' => app()->getLocale() ?? 'en',
+        ];
+    }
 }

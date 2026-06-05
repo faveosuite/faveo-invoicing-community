@@ -26,6 +26,7 @@ export default defineConfig({
         alias: {
             vue: 'vue/dist/vue.esm-bundler.js',
             '@': path.resolve(__dirname, 'resources/assets/js'),
+            '@recaptcha': path.resolve(__dirname, 'app/Plugins/Recaptcha/resources/assets/js/vue'),
         },
     },
     build: {
