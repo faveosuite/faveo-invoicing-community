@@ -78,8 +78,10 @@ import { useNotification }           from '@/core/composables/useNotification.js
 import { useAlertStore }             from '@/core/stores/alert.js'
 import { useBreadcrumb }             from '@/core/composables/useBreadcrumb.js'
 import { useStickyHeader }           from '../composables/useStickyHeader.js'
+import { useAnalyticsScripts }       from '@/core/composables/useAnalyticsScripts.js'
 
 useStickyHeader()
+useAnalyticsScripts()
 
 const route        = useRoute()
 const router       = useRouter()

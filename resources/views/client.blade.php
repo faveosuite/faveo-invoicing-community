@@ -8,6 +8,7 @@ $cartFacade = new App\Facades\Cart();
 $social = App\Model\Common\SocialMedia::get(['name', 'link']);
 
 $widgets = \App\Model\Front\Widgets::where('publish', 1)->get(['id', 'name', 'type', 'content', 'allow_mailchimp', 'allow_social_media', 'allow_tweets']);
+$chatScripts = \App\Model\Common\ChatScript::get(['id', 'script', 'google_analytics', 'google_analytics_tag', 'on_registration', 'on_every_page']);
 ?>
 <head>
     <meta charset="utf-8">
@@ -76,7 +77,8 @@ $widgets = \App\Model\Front\Widgets::where('publish', 1)->get(['id', 'name', 'ty
      data-demo="{{ ($demoPage && $demoPage->status) ? 'true' : 'false' }}"
      data-cart-count="{{ $cartFacade->getTotalQuantity() }}"
      data-social="{{ $social->toJson() }}"
-     data-widgets="{{ $widgets->toJson() }}">
+     data-widgets="{{ $widgets->toJson() }}"
+     data-scripts="{{ $chatScripts->toJson() }}">
 </div>
 
 {{-- Bootstrap 5 bundle JS (includes Popper) — used for dropdowns, collapse, tooltips. --}}
