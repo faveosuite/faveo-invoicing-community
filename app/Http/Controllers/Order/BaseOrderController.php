@@ -79,14 +79,14 @@ class BaseOrderController extends ExtendedOrderController
 
         $order = Order::create([
             'invoice_item_id' => $item->id,
-            'client'          => $userId,
-            'order_status'    => 'executed',
-            'serial_key'      => Crypt::encrypt($serialKey),
-            'product'         => $product,
-            'price_override'  => $item->subtotal,
-            'qty'             => $item->quantity,
-            'domain'          => $item->domain,
-            'number'          => $this->generateNumber(),
+            'client' => $userId,
+            'order_status' => 'executed',
+            'serial_key' => Crypt::encrypt($serialKey),
+            'product' => $product,
+            'price_override' => $item->subtotal,
+            'qty' => $item->quantity,
+            'domain' => $item->domain,
+            'number' => $this->generateNumber(),
         ]);
 
         OrderInvoiceRelation::create([
@@ -144,53 +144,52 @@ class BaseOrderController extends ExtendedOrderController
         $permissions = LicensePermissionsController::getPermissionsForProduct($product);
         $version = $version ?? '';
 
-        $plan  = Plan::findOrFail($planid);
+        $plan = Plan::findOrFail($planid);
         $order = Order::findOrFail($orderid);
 
         $meta = $invoiceId ? (Invoice::find($invoiceId)?->metadata ?? []) : [];
 
         if (isset($meta['increase-decrease-days'])) {
-            $days          = $meta['increase-decrease-days'];
+            $days = $meta['increase-decrease-days'];
             $licenseExpiry = $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $days);
             $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $days);
             $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $days);
         } elseif (isset($meta['increase-decrease-days-dont-cloud'])) {
-            $sub           = Subscription::where('order_id', $meta['increase-decrease-days-dont-cloud'])->first();
+            $sub = Subscription::where('order_id', $meta['increase-decrease-days-dont-cloud'])->first();
             $licenseExpiry = $updatesExpiry = $supportExpiry = $sub?->ends_at;
         } else {
-            $isOneTime     = $plan->periods()->where('name', 'One Time')->exists();
+            $isOneTime = $plan->periods()->where('name', 'One Time')->exists();
             $licenseExpiry = $isOneTime ? '' : $this->getLicenseExpiryDate($permissions['generateLicenseExpiryDate'], $plan->days);
             $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $plan->days);
             $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $plan->days);
         }
 
-
         Subscription::create([
-            'user_id'         => $order->client,
-            'plan_id'         => $plan->id,
-            'order_id'        => $orderid,
-            'update_ends_at'  => $updatesExpiry,
-            'ends_at'         => $licenseExpiry,
+            'user_id' => $order->client,
+            'plan_id' => $plan->id,
+            'order_id' => $orderid,
+            'update_ends_at' => $updatesExpiry,
+            'ends_at' => $licenseExpiry,
             'support_ends_at' => $supportExpiry,
-            'version'         => $version,
-            'product_id'      => $product,
-            'is_subscribed'   => '0',
+            'version' => $version,
+            'product_id' => $product,
+            'is_subscribed' => '0',
         ]);
 
         $ipAndDomain = LicenseService::parseIpAndDomain($order->domain ?? '');
         app(LicenseService::class)->create([
-            'product_id'             => $product,
-            'user_id'                => $order->client,
-            'license_code'           => $serial_key,
-            'license_order_number'   => $order->number,
-            'license_domain'         => $ipAndDomain['domain'],
-            'license_ip'             => $ipAndDomain['ip'],
+            'product_id' => $product,
+            'user_id' => $order->client,
+            'license_code' => $serial_key,
+            'license_order_number' => $order->number,
+            'license_domain' => $ipAndDomain['domain'],
+            'license_ip' => $ipAndDomain['ip'],
             'license_require_domain' => $ipAndDomain['requireDomain'],
-            'license_limit'          => 1,
-            'license_expire_date'    => $licenseExpiry instanceof Carbon ? $licenseExpiry->toDateString() : null,
-            'license_updates_date'   => $updatesExpiry instanceof Carbon ? $updatesExpiry->toDateString() : null,
-            'license_support_date'   => $supportExpiry instanceof Carbon ? $supportExpiry->toDateString() : null,
-            'license_status'         => 1,
+            'license_limit' => 1,
+            'license_expire_date' => $licenseExpiry instanceof Carbon ? $licenseExpiry->toDateString() : null,
+            'license_updates_date' => $updatesExpiry instanceof Carbon ? $updatesExpiry->toDateString() : null,
+            'license_support_date' => $supportExpiry instanceof Carbon ? $supportExpiry->toDateString() : null,
+            'license_status' => 1,
         ]);
     }
 
@@ -247,6 +246,7 @@ class BaseOrderController extends ExtendedOrderController
 
         return $support_ends_at;
     }
+
     public function sendOrderMail($userid, $orderid, $itemid)
     {
         //order

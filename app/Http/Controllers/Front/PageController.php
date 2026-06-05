@@ -632,16 +632,16 @@ class PageController extends Controller
             $status = StatusSetting::select('msg91_status')->first();
 
             return successResponse('', [
-                'address'       => $address,
-                'city'          => $set->city,
-                'state'         => $state,
-                'country'       => $country,
-                'zip'           => $set->zip,
-                'phone_code'    => $set->phone_code,
-                'phone'         => $set->phone,
+                'address' => $address,
+                'city' => $set->city,
+                'state' => $state,
+                'country' => $country,
+                'zip' => $set->zip,
+                'phone_code' => $set->phone_code,
+                'phone' => $set->phone,
                 'company_email' => $set->company_email,
                 'recaptcha_key' => $apiKeys->nocaptcha_sitekey ?? null,
-                'msg91_status'  => (bool) ($status->msg91_status ?? false),
+                'msg91_status' => (bool) ($status->msg91_status ?? false),
             ]);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());

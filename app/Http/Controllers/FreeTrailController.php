@@ -19,7 +19,7 @@ class FreeTrailController extends Controller
     public function startTrial(Request $request)
     {
         $request->validate([
-            'domain'     => ['required', 'regex:/^[a-zA-Z0-9]+$/u'],
+            'domain' => ['required', 'regex:/^[a-zA-Z0-9]+$/u'],
             'product_id' => ['required', 'integer'],
         ], [
             'domain.regex' => __('validation.special_characters_not_allowed'),
@@ -54,8 +54,8 @@ class FreeTrailController extends Controller
         if (empty($cloudProductIds)) {
             return successResponse('', [
                 'cloud_subdomain' => cloudSubDomain() ?? '',
-                'data_centers'    => [],
-                'products'        => [],
+                'data_centers' => [],
+                'products' => [],
             ]);
         }
 
@@ -69,14 +69,14 @@ class FreeTrailController extends Controller
 
         return successResponse('', [
             'cloud_subdomain' => cloudSubDomain() ?? '',
-            'data_centers'    => CloudDataCenters::select('id', 'cloud_countries', 'cloud_state')->get()
+            'data_centers' => CloudDataCenters::select('id', 'cloud_countries', 'cloud_state')->get()
                 ->map(fn ($dc) => [
-                    'id'   => $dc->id,
+                    'id' => $dc->id,
                     'name' => trim($dc->cloud_countries.($dc->cloud_state ? ', '.$dc->cloud_state : '')),
                 ])->values(),
             'products' => $products->map(fn ($p) => [
-                'id'              => $p->id,
-                'name'            => $p->name,
+                'id' => $p->id,
+                'name' => $p->name,
                 'default_plan_id' => $cloudPlans->get($p->id),
             ])->values(),
         ]);
