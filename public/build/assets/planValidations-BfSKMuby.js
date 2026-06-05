@@ -1,0 +1,1 @@
+import{p as e,s as r}from"./mitt-CsqWP4Ak.js";import{r as a}from"./helpers-NH6DV6MN.js";const p=e({name:r().required(()=>__("validation.plan_request.name_required")),product:a(()=>__("validation.plan_request.pro_req"))});export{p};

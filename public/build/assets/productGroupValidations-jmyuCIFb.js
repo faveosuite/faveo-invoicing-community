@@ -1,1 +1,0 @@
-import{c as e,b as r}from"./index.esm-pidfweT1.js";import{r as a}from"./helpers-B1XLEHnm.js";const o=e({name:r().required(()=>__("validation.group.name.required")),pricing_templates_id:a(()=>__("validation.group.pricing_templates_id.required"))});export{o as p};

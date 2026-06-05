@@ -1,0 +1,1 @@
+import{_ as o,o as s,c as r,z as t}from"./mitt-CsqWP4Ak.js";const a={},c={class:"fileupload-wrapper"};function l(e,n){return s(),r("div",c,[t(e.$slots,"default")])}const d=o(a,[["render",l]]);export{d as default};

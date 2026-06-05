@@ -1,0 +1,1 @@
+import{_ as r,o as s,c,z as o}from"./mitt-CsqWP4Ak.js";const t={},a={class:"card-wrapper"};function n(e,_){return s(),c("div",a,[o(e.$slots,"default")])}const l=r(t,[["render",n]]);export{l as default};
