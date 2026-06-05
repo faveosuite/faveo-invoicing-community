@@ -31,7 +31,6 @@ use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Razorpay\Api\Api;
 
 class ClientController extends BaseClientController
@@ -783,10 +782,10 @@ class ClientController extends BaseClientController
             }
 
             $items->push([
-                'version'      => ucfirst($release['tag_name']),
-                'name'         => ucfirst($release['name']),
-                'description'  => $release['body'] ?? '',
-                'created_at'   => $release['created_at'],
+                'version' => ucfirst($release['tag_name']),
+                'name' => ucfirst($release['name']),
+                'description' => $release['body'] ?? '',
+                'created_at' => $release['created_at'],
                 'can_download' => $canDownload,
                 'download_url' => $downloadUrl,
             ]);
@@ -854,10 +853,10 @@ class ClientController extends BaseClientController
             }
 
             return [
-                'version'      => ucfirst($version->version).' '.getPreReleaseStatusLabel($version->release_type),
-                'name'         => ucfirst($version->title),
-                'description'  => ucfirst($version->description ?? ''),
-                'created_at'   => $version->created_at,
+                'version' => ucfirst($version->version).' '.getPreReleaseStatusLabel($version->release_type),
+                'name' => ucfirst($version->title),
+                'description' => ucfirst($version->description ?? ''),
+                'created_at' => $version->created_at,
                 'can_download' => $canDownload,
                 'download_url' => $canDownload
                     ? url("download/{$product->id}/{$order->client}/{$invoiceNumber}/{$version->id}")
