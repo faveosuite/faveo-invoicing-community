@@ -18,6 +18,7 @@ class MailchimpServiceProvider extends ServiceProvider
         // Bind MailchimpClient — resolved fresh from the stored API key each time
         $this->app->bind(MailchimpClient::class, function () {
             $apiKey = MailchimpSetting::value('api_key') ?? '';
+
             return new MailchimpClient($apiKey);
         });
 

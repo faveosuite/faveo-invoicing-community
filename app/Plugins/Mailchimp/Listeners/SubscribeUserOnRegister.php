@@ -9,7 +9,9 @@ use App\User;
 
 class SubscribeUserOnRegister
 {
-    public function __construct(private readonly MailchimpService $service) {}
+    public function __construct(private readonly MailchimpService $service)
+    {
+    }
 
     public function handle(User $user): void
     {

@@ -23,22 +23,22 @@ class ContactBuilder
     public function mergeFields(User $user): array
     {
         $relation = $this->relation();
-        $fields   = [];
+        $fields = [];
 
         $country = Country::where('country_code_char2', $user->country)->value('country_name');
 
         $map = [
             'first_name' => $user->first_name,
-            'last_name'  => $user->last_name,
-            'company'    => $user->company,
-            'mobile'     => $user->mobile,
-            'address'    => $user->address,
-            'town'       => $user->town,
-            'country'    => $country,
-            'state'      => $user->state,
-            'zip'        => $user->zip,
-            'active'     => $user->active,
-            'role'       => $user->role,
+            'last_name' => $user->last_name,
+            'company' => $user->company,
+            'mobile' => $user->mobile,
+            'address' => $user->address,
+            'town' => $user->town,
+            'country' => $country,
+            'state' => $user->state,
+            'zip' => $user->zip,
+            'active' => $user->active,
+            'role' => $user->role,
         ];
 
         foreach ($map as $field => $value) {
@@ -62,18 +62,22 @@ class ContactBuilder
      */
     public function purchaseInterests(int $productId, bool $isPaid): array
     {
-        $relation  = $this->relation();
+        $relation = $this->relation();
         $interests = [];
 
-        $isPaidStatus      = \App\Model\Common\StatusSetting::value('mailchimp_ispaid_status');
-        $productStatus     = \App\Model\Common\StatusSetting::value('mailchimp_product_status');
+        $isPaidStatus = \App\Model\Common\StatusSetting::value('mailchimp_ispaid_status');
+        $productStatus = \App\Model\Common\StatusSetting::value('mailchimp_product_status');
 
         if ($isPaidStatus) {
             $idYes = $relation->is_paid_yes;
-            $idNo  = $relation->is_paid_no;
+            $idNo = $relation->is_paid_no;
 
-            if ($idYes) $interests[$idYes] = $isPaid;
-            if ($idNo)  $interests[$idNo]  = ! $isPaid;
+            if ($idYes) {
+                $interests[$idYes] = $isPaid;
+            }
+            if ($idNo) {
+                $interests[$idNo] = ! $isPaid;
+            }
         }
 
         if ($productStatus) {

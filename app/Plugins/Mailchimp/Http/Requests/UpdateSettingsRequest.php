@@ -22,7 +22,7 @@ class UpdateSettingsRequest extends FormRequest
     {
         return [
             'mailchimp_auth_key.required' => __('message.mailchimp_apikey_error'),
-            'mailchimp_auth_key.min'      => __('message.mailchimp_apikey_error'),
+            'mailchimp_auth_key.min' => __('message.mailchimp_apikey_error'),
         ];
     }
 }
