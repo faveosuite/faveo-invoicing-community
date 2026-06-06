@@ -82,28 +82,28 @@ trait ApiKeySettings
     public function updatemobileDetails(Request $request)
     {
         $request->validate([
-            'msg91_auth_key'    => 'required|string',
-            'msg91_sender'      => 'required|string',
+            'msg91_auth_key' => 'required|string',
+            'msg91_sender' => 'required|string',
             'msg91_template_id' => 'required|string',
         ]);
 
-        $authKey      = trim($request->input('msg91_auth_key'));
-        $sender       = trim($request->input('msg91_sender'));
-        $templateId   = trim($request->input('msg91_template_id'));
+        $authKey = trim($request->input('msg91_auth_key'));
+        $sender = trim($request->input('msg91_sender'));
+        $templateId = trim($request->input('msg91_template_id'));
         $thirdPartyId = $request->input('thirdPartyId');
-        $status       = $request->input('status');
+        $status = $request->input('status');
 
         // Validate the authkey against the MSG91 OTP Analytics endpoint.
         // This is a read-only GET — no OTP is sent and no credits are consumed.
         // MSG91 returns 401 for an invalid authkey, 200 for a valid one.
         try {
-            $today    = now()->toDateString();
+            $today = now()->toDateString();
             $response = Http::withHeaders([
                 'Authkey' => $authKey,
-                'Accept'  => 'application/json',
+                'Accept' => 'application/json',
             ])->get('https://control.msg91.com/api/v5/report/analytics/p/otp', [
                 'startDate' => $today,
-                'endDate'   => $today,
+                'endDate' => $today,
             ]);
 
             if ($response->status() === 401) {
@@ -116,9 +116,9 @@ trait ApiKeySettings
         StatusSetting::find(1)->update(['msg91_status' => $status]);
 
         ApiKey::find(1)->update([
-            'msg91_auth_key'       => $authKey,
-            'msg91_sender'         => $sender,
-            'msg91_template_id'    => $templateId,
+            'msg91_auth_key' => $authKey,
+            'msg91_sender' => $sender,
+            'msg91_template_id' => $templateId,
             'msg91_third_party_id' => $thirdPartyId,
         ]);
 

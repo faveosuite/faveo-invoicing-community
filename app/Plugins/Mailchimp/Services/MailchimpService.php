@@ -5,7 +5,6 @@ namespace App\Plugins\Mailchimp\Services;
 use App\Model\Common\Mailchimp\MailchimpField;
 use App\Model\Common\Mailchimp\MailchimpFieldAgoraRelation;
 use App\Model\Common\Mailchimp\MailchimpGroup;
-use App\Model\Common\Mailchimp\MailchimpGroupAgoraRelation;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Plugins\Mailchimp\Exceptions\MailchimpApiException;
 use App\Plugins\Mailchimp\Http\Client\MailchimpClient;
@@ -16,8 +15,8 @@ class MailchimpService
     private string $listId;
 
     public function __construct(
-        private readonly MailchimpClient  $client,
-        private readonly ContactBuilder   $contactBuilder,
+        private readonly MailchimpClient $client,
+        private readonly ContactBuilder $contactBuilder,
         private readonly MailchimpSetting $setting,
     ) {
         $this->listId = $setting->list_id ?? '';
@@ -38,14 +37,16 @@ class MailchimpService
      */
     public function subscribe(User $user): void
     {
-        if (! $this->listId) return;
+        if (! $this->listId) {
+            return;
+        }
 
         $mergeFields = $this->contactBuilder->mergeFields($user);
 
         $payload = [
             'email_address' => $user->email,
-            'status'        => $this->setting->subscribe_status ?? 'subscribed',
-            'merge_fields'  => $mergeFields,
+            'status' => $this->setting->subscribe_status ?? 'subscribed',
+            'merge_fields' => $mergeFields,
         ];
 
         try {
@@ -57,6 +58,7 @@ class MailchimpService
                     "lists/{$this->listId}/members/{$this->memberHash($user->email)}",
                     array_merge($payload, ['status_if_new' => $payload['status']])
                 );
+
                 return;
             }
             throw $e;
@@ -68,17 +70,21 @@ class MailchimpService
      */
     public function subscribeEmail(string $email): void
     {
-        if (! $this->listId) return;
+        if (! $this->listId) {
+            return;
+        }
 
         $payload = [
             'email_address' => $email,
-            'status'        => $this->setting->subscribe_status ?? 'subscribed',
+            'status' => $this->setting->subscribe_status ?? 'subscribed',
         ];
 
         try {
             $this->client->post("lists/{$this->listId}/members", $payload);
         } catch (MailchimpApiException $e) {
-            if ($e->isMemberExists()) return;
+            if ($e->isMemberExists()) {
+                return;
+            }
             throw $e;
         }
     }
@@ -88,7 +94,9 @@ class MailchimpService
      */
     public function unsubscribe(string $email): void
     {
-        if (! $this->listId) return;
+        if (! $this->listId) {
+            return;
+        }
 
         try {
             $this->client->patch(
@@ -97,7 +105,9 @@ class MailchimpService
             );
         } catch (MailchimpApiException $e) {
             // 404 = not in list; silently ignore
-            if ($e->getHttpStatus() !== 404) throw $e;
+            if ($e->getHttpStatus() !== 404) {
+                throw $e;
+            }
         }
     }
 
@@ -106,10 +116,14 @@ class MailchimpService
      */
     public function updatePurchaseInterests(User $user, int $productId, bool $isPaid): void
     {
-        if (! $this->listId) return;
+        if (! $this->listId) {
+            return;
+        }
 
         $interests = $this->contactBuilder->purchaseInterests($productId, $isPaid);
-        if (empty($interests)) return;
+        if (empty($interests)) {
+            return;
+        }
 
         $this->client->patch(
             "lists/{$this->listId}/members/{$this->memberHash($user->email)}",
@@ -122,18 +136,18 @@ class MailchimpService
     public function getLists(int $count = 20, int $offset = 0): array
     {
         $result = $this->client->get('lists', [
-            'count'  => $count,
+            'count' => $count,
             'offset' => $offset,
             'fields' => 'lists.id,lists.name,total_items',
         ]);
 
-        $lists      = $result['lists'] ?? [];
-        $total      = $result['total_items'] ?? count($lists);
-        $hasMore    = ($offset + $count) < $total;
+        $lists = $result['lists'] ?? [];
+        $total = $result['total_items'] ?? count($lists);
+        $hasMore = ($offset + $count) < $total;
 
         return [
-            'lists'    => $lists,
-            'total'    => $total,
+            'lists' => $lists,
+            'total' => $total,
             'has_more' => $hasMore,
         ];
     }
@@ -142,8 +156,11 @@ class MailchimpService
 
     public function getMergeFields(): array
     {
-        if (! $this->listId) return [];
+        if (! $this->listId) {
+            return [];
+        }
         $result = $this->client->get("lists/{$this->listId}/merge-fields", ['count' => 100]);
+
         return $result['merge_fields'] ?? [];
     }
 
@@ -163,12 +180,12 @@ class MailchimpService
             MailchimpField::updateOrCreate(
                 ['merge_id' => $field['merge_id']],
                 [
-                    'tag'      => $field['tag'],
-                    'name'     => $field['name'],
-                    'type'     => $field['type'],
+                    'tag' => $field['tag'],
+                    'name' => $field['name'],
+                    'type' => $field['type'],
                     'required' => $field['required'] ? 1 : 0,
-                    'list_id'  => $field['list_id'],
-                    'options'  => json_encode($field['options'] ?? []),
+                    'list_id' => $field['list_id'],
+                    'options' => json_encode($field['options'] ?? []),
                 ]
             );
         }
@@ -178,18 +195,24 @@ class MailchimpService
 
     public function getInterestCategories(): array
     {
-        if (! $this->listId) return [];
+        if (! $this->listId) {
+            return [];
+        }
         $result = $this->client->get("lists/{$this->listId}/interest-categories", ['count' => 100]);
+
         return $result['categories'] ?? [];
     }
 
     public function getInterestGroupOptions(string $categoryId): array
     {
-        if (! $this->listId) return [];
+        if (! $this->listId) {
+            return [];
+        }
         $result = $this->client->get(
             "lists/{$this->listId}/interest-categories/{$categoryId}/interests",
             ['count' => 100]
         );
+
         return $result['interests'] ?? [];
     }
 
@@ -207,8 +230,8 @@ class MailchimpService
                 MailchimpGroup::updateOrCreate(
                     ['category_option_id' => $option['id']],
                     [
-                        'category_id'   => $option['category_id'],
-                        'list_id'       => $option['list_id'],
+                        'category_id' => $option['category_id'],
+                        'list_id' => $option['list_id'],
                         'category_name' => $option['name'],
                     ]
                 );

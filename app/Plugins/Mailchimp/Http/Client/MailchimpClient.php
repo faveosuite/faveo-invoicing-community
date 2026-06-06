@@ -27,6 +27,7 @@ class MailchimpClient
     {
         try {
             $data = $this->get('/');
+
             return isset($data['account_id']);
         } catch (\Throwable) {
             return false;
@@ -55,17 +56,17 @@ class MailchimpClient
 
     private function request(string $method, string $endpoint, array $data = []): array
     {
-        $url = $this->baseUrl . '/' . ltrim($endpoint, '/');
+        $url = $this->baseUrl.'/'.ltrim($endpoint, '/');
 
         $pending = Http::withBasicAuth('anystring', $this->apiKey)
                        ->acceptJson()
                        ->contentType('application/json');
 
         $response = match (strtoupper($method)) {
-            'GET'   => $pending->get($url, $data),
-            'POST'  => $pending->post($url, $data),
+            'GET' => $pending->get($url, $data),
+            'POST' => $pending->post($url, $data),
             'PATCH' => $pending->patch($url, $data),
-            'PUT'   => $pending->put($url, $data),
+            'PUT' => $pending->put($url, $data),
             default => throw new \InvalidArgumentException("Unsupported HTTP method: {$method}"),
         };
 
@@ -74,7 +75,7 @@ class MailchimpClient
         }
 
         if ($response->failed()) {
-            $body    = $response->json() ?? [];
+            $body = $response->json() ?? [];
             $message = $body['detail'] ?? $body['title'] ?? "Mailchimp API error ({$response->status()})";
             throw new MailchimpApiException($message, $response->status());
         }

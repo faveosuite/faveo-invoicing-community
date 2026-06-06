@@ -7,7 +7,9 @@ use App\Plugins\Mailchimp\Services\MailchimpService;
 
 class UnsubscribeOnUserDeleted
 {
-    public function __construct(private readonly MailchimpService $service) {}
+    public function __construct(private readonly MailchimpService $service)
+    {
+    }
 
     public function handle(string $email): void
     {

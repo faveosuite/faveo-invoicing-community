@@ -22,11 +22,11 @@ class ZohoOAuthController extends Controller
             ->select('id', 'platform', 'description', 'is_active')
             ->get()
             ->map(fn ($i) => [
-                'id'          => $i->id,
-                'platform'    => $i->platform,
+                'id' => $i->id,
+                'platform' => $i->platform,
                 'description' => $i->description,
-                'is_active'   => $i->is_active,
-                'has_token'   => $i->token !== null,
+                'is_active' => $i->is_active,
+                'has_token' => $i->token !== null,
             ]);
 
         return successResponse('', $integrations);

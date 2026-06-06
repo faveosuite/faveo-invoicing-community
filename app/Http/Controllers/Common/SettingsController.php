@@ -1896,9 +1896,9 @@ class SettingsController extends BaseSettingsController
             if ($apiKey) {
                 try {
                     $mailchimp = new \Mailchimp\Mailchimp($apiKey);
-                    $result    = $mailchimp->get('lists?count=100');
-                    $raw       = is_array($result) ? ($result['lists'] ?? []) : ($result->lists ?? []);
-                    $allLists  = json_decode(json_encode($raw), true);
+                    $result = $mailchimp->get('lists?count=100');
+                    $raw = is_array($result) ? ($result['lists'] ?? []) : ($result->lists ?? []);
+                    $allLists = json_decode(json_encode($raw), true);
                 } catch (\Exception $e) {
                     // API key invalid or network error — return empty list
                 }

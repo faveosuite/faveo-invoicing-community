@@ -9,13 +9,17 @@ use App\User;
 
 class UpdateSubscriberOnPurchase
 {
-    public function __construct(private readonly MailchimpService $service) {}
+    public function __construct(private readonly MailchimpService $service)
+    {
+    }
 
     public function handle(int $productId, int $userId, InvoiceItem $item): void
     {
         try {
             $user = User::find($userId);
-            if (! $user) return;
+            if (! $user) {
+                return;
+            }
 
             $isPaid = $item->subtotal > 0;
             $this->service->updatePurchaseInterests($user, $productId, $isPaid);

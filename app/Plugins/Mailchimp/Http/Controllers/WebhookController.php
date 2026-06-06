@@ -3,7 +3,6 @@
 namespace App\Plugins\Mailchimp\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Plugins\Mailchimp\Services\MailchimpService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -26,7 +25,7 @@ class WebhookController extends Controller
      */
     public function handle(Request $request): Response
     {
-        $type  = $request->input('type');
+        $type = $request->input('type');
         $email = $request->input('data.email');
 
         if (! $email) {
@@ -36,7 +35,7 @@ class WebhookController extends Controller
         try {
             match ($type) {
                 'unsubscribe', 'cleaned' => $this->handleUnsubscribe($email),
-                default                  => null,
+                default => null,
             };
         } catch (\Throwable $e) {
             \Logger::exception($e);
