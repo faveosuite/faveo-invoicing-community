@@ -82,7 +82,8 @@ class DatabaseSeeder extends Seeder
             'anhskohbo/no-captcha',
             'barryvdh/laravel-dompdf',
             'torann/currency',
-            'devio/pipedrive'
+            'devio/pipedrive',
+            'slavka/mailchimp-apiv3',
         ];
 
         $configs = [

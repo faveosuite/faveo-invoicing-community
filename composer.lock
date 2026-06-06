@@ -7767,63 +7767,6 @@
             "time": "2025-12-12T17:47:19+00:00"
         },
         {
-            "name": "slavka/mailchimp-apiv3",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/slavka041/mailchimp-api-v3.git",
-                "reference": "d4c99f784559ae791eece8341faafdd79d41a353"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/slavka041/mailchimp-api-v3/zipball/d4c99f784559ae791eece8341faafdd79d41a353",
-                "reference": "d4c99f784559ae791eece8341faafdd79d41a353",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.5.0"
-            },
-            "require-dev": {
-                "phpspec/phpspec": "~2.2"
-            },
-            "default-branch": true,
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Mailchimp\\": "src/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Chris Magnussen",
-                    "email": "chris@hirvi.no"
-                },
-                {
-                    "name": "Vyacheslav Sinyakov",
-                    "email": "vyacheslav.sinyakov@gmail.com"
-                }
-            ],
-            "description": "Simple API wrapper for Mailchimp API V3",
-            "keywords": [
-                "api",
-                "mailchimp",
-                "php",
-                "v3"
-            ],
-            "support": {
-                "source": "https://github.com/slavka041/mailchimp-api-v3/tree/master"
-            },
-            "time": "2020-12-03T09:23:58+00:00"
-        },
-        {
             "name": "spatie/browsershot",
             "version": "5.2.3",
             "source": {
@@ -15963,7 +15906,6 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "itsgoingd/clockwork": 20,
-        "slavka/mailchimp-apiv3": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

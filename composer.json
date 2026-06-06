@@ -10,10 +10,6 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/slavka041/mailchimp-api-v3"
-        },
-        {
-            "type": "vcs",
             "url": "https://github.com/ladybirdweb/clockwork.git"
         }
     ],
@@ -54,7 +50,6 @@
         "pragmarx/google2fa-qrcode": "^v3.0.1",
         "predis/predis": "^v3.3.0",
         "razorpay/razorpay": "^2.9.2",
-        "slavka/mailchimp-apiv3": "dev-master#d4c99f784559ae791eece8341faafdd79d41a353",
         "spatie/laravel-activitylog": "^4.10.2",
         "spatie/laravel-csp": "^3.22.0",
         "spatie/laravel-html": "^3.12.3",
