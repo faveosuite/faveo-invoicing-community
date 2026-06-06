@@ -7,7 +7,7 @@ use App\Plugins\Recaptcha\Controller\RecaptchaSettingsController;
 // session/locale middleware run (the v3 -> v2 fallback session lives in `web`).
 Route::middleware('web')->get('recaptcha/config', [RecaptchaConfigController::class, 'show']);
 
-Route::get('recaptcha-settings', [RecaptchaSettingsController::class, 'getSettings']);
-Route::post('recaptcha-settings', [RecaptchaSettingsController::class, 'updateSettings']);
-Route::get('recaptcha', [RecaptchaSettingsController::class, 'settings']);
-Route::post('captcha/verify', [RecaptchaSettingsController::class, 'updateSettings']);
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('recaptcha-settings', [RecaptchaSettingsController::class, 'getSettings']);
+    Route::match(['post', 'patch'], 'recaptcha-settings', [RecaptchaSettingsController::class, 'updateSettings']);
+});

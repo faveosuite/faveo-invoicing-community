@@ -17,7 +17,9 @@
                                 :label="__('message.terms_url')"
                                 :value="form.terms_url"
                                 placeholder="https://example.com/terms"
-                                :onChange="(val, key) => form[key] = val"
+                                :onChange="(val, key) => { setFieldError(key, undefined); form[key] = val }"
+                                :error="errors.terms_url"
+                                :required="true"
                             />
                         </div>
                     </div>
@@ -33,9 +35,11 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import TextField from '@/themes/adminlte/components/forms/TextField.vue'
+import { termsSchema } from '@/validations/admin/termsValidations'
 
 const COMPONENT = 'terms-settings'
 const el      = document.getElementById('app-root')
@@ -43,6 +47,8 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
 const saving  = ref(false)
+
+const { errors, setErrors, setFieldError } = useForm()
 
 const form = reactive({ terms_url: '' })
 
@@ -58,6 +64,15 @@ onMounted(async () => {
 })
 
 async function save() {
+    try {
+        termsSchema.validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
+
     saving.value = true
     try {
         const res = await http.post(`${baseUrl}/updateTermsDetails`, {

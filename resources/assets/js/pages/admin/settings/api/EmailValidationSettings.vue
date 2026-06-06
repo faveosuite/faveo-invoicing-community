@@ -4,6 +4,12 @@
         <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.email_validation_provider') }}</h4>
+                <div class="card-tools">
+                    <RouterLink :to="{ path: '/settings/api/email-validation/logs' }" class="btn btn-tool"
+                        v-tooltip :title="__('message.email_validation_logs')">
+                        <i class="fas fa-list-alt"></i>
+                    </RouterLink>
+                </div>
             </div>
 
             <inline-loader v-if="loading" context="card-body" />
@@ -28,7 +34,9 @@
                                 :label="__('message.emailApikey')"
                                 :value="form.apikey"
                                 placeholder="Enter your API key"
-                                :onChange="(val, key) => form[key] = val"
+                                :required="true"
+                                :error="errors.apikey"
+                                :onChange="(val, key) => { setFieldError(key, undefined); form[key] = val }"
                             />
                         </div>
                         <div class="col-md-6">
@@ -77,13 +85,18 @@
 
 <script setup>
 import { reactive, ref, computed, onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import TextField from '@/themes/adminlte/components/forms/TextField.vue'
+import { emailValidationProviderSchema } from '@/validations/admin/emailValidationProviderValidations'
 
 const COMPONENT = 'email-validation-settings'
 const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
+
+const { errors, setErrors, setFieldError } = useForm()
 
 const loading      = ref(true)
 const saving       = ref(false)
@@ -128,6 +141,15 @@ onMounted(async () => {
 })
 
 async function save() {
+    try {
+        emailValidationProviderSchema.validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
+
     saving.value = true
     try {
         const payload = {

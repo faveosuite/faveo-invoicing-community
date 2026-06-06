@@ -24,9 +24,10 @@
                                         :label="__('message.recaptcha_version')"
                                         :elements="versionOptions"
                                         :value="selectedVersion"
-                                        :onChange="(val) => form.captcha_version = val?.id ?? 'v2_checkbox'"
+                                        :onChange="onVersionChange"
                                         :searchable="false"
                                         :clearable="false"
+                                        :error="errors.captcha_version"
                                     />
                                 </div>
                                 <div class="col-md-6 mb-3" v-show="isV3">
@@ -35,9 +36,10 @@
                                         :label="__('message.failover_action')"
                                         :elements="failoverOptions"
                                         :value="selectedFailover"
-                                        :onChange="(val) => form.failover_action = val?.id ?? 'none'"
+                                        :onChange="onFailoverChange"
                                         :searchable="false"
                                         :clearable="false"
+                                        :error="errors.failover_action"
                                     />
                                 </div>
                             </div>
@@ -55,37 +57,35 @@
                                     <TextField
                                         name="v3_site_key"
                                         :label="__('message.v3_site_key')"
+                                        :required="true"
                                         :value="form.v3_site_key"
                                         :placeholder="__('message.enter_v3_site_key')"
-                                        :onChange="(val, key) => form[key] = val"
+                                        :onChange="onChange"
+                                        :error="errors.v3_site_key"
                                     />
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <TextField
                                         name="v3_secret_key"
                                         :label="__('message.v3_secret_key')"
+                                        :required="true"
                                         type="password"
                                         :value="form.v3_secret_key"
                                         :placeholder="__('message.enter_v3_secret_key')"
-                                        :onChange="(val, key) => form[key] = val"
+                                        :onChange="onChange"
+                                        :error="errors.v3_secret_key"
                                     />
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <TextField
                                         name="score_threshold"
                                         :label="__('message.v3_score_threshold')"
+                                        :required="true"
                                         type="number"
                                         :value="form.score_threshold"
-                                        :onChange="(val, key) => form[key] = parseFloat(val)"
+                                        :onChange="onScoreChange"
+                                        :error="errors.score_threshold"
                                     />
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="alert alert-info mb-0 d-flex align-items-start gap-2">
-                                        <i class="fas fa-info-circle mt-1"></i>
-                                        <span>{{ __('message.recaptcha_v3_badge_note') }}</span>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -102,19 +102,23 @@
                                     <TextField
                                         name="v2_site_key"
                                         :label="__('message.v2_site_key')"
+                                        :required="true"
                                         :value="form.v2_site_key"
                                         :placeholder="__('message.enter_v2_site_key')"
-                                        :onChange="(val, key) => form[key] = val"
+                                        :onChange="onChange"
+                                        :error="errors.v2_site_key"
                                     />
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <TextField
                                         name="v2_secret_key"
                                         :label="__('message.v2_secret_key')"
+                                        :required="true"
                                         type="password"
                                         :value="form.v2_secret_key"
                                         :placeholder="__('message.enter_v2_secret_key')"
-                                        :onChange="(val, key) => form[key] = val"
+                                        :onChange="onChange"
+                                        :error="errors.v2_secret_key"
                                     />
                                 </div>
                             </div>
@@ -142,8 +146,9 @@
                                         :label="__('message.theme')"
                                         :options="[{ name: __('message.theme_light'), value: 'light' }, { name: __('message.theme_dark'), value: 'dark' }]"
                                         :value="form.theme"
-                                        :onChange="(val) => form.theme = val"
+                                        :onChange="onChange"
                                     />
+                                    <div v-if="errors.theme" class="text-danger small mt-1">{{ errors.theme }}</div>
                                 </div>
                                 <div class="col-md-6 mb-3" v-show="isV2Checkbox">
                                     <RadioButton
@@ -151,8 +156,9 @@
                                         :label="__('message.size')"
                                         :options="[{ name: __('message.size_normal'), value: 'normal' }, { name: __('message.size_compact'), value: 'compact' }]"
                                         :value="form.size"
-                                        :onChange="(val) => form.size = val"
+                                        :onChange="onChange"
                                     />
+                                    <div v-if="errors.size" class="text-danger small mt-1">{{ errors.size }}</div>
                                 </div>
                                 <div class="col-md-6 mb-3" v-show="showBadge">
                                     <SelectField
@@ -160,9 +166,10 @@
                                         :label="__('message.badge_position')"
                                         :elements="badgeOptions"
                                         :value="selectedBadge"
-                                        :onChange="(val) => form.badge_position = val?.id ?? 'bottomright'"
+                                        :onChange="onBadgeChange"
                                         :searchable="false"
                                         :clearable="false"
+                                        :error="errors.badge_position"
                                     />
                                 </div>
                             </div>
@@ -178,7 +185,7 @@
         </div>
 
         <RecaptchaProvider
-            v-if="!loading && (showV2CheckboxPreview || showV2InvisiblePreview)"
+            v-if="!loading && !isV3 && (showV2CheckboxPreview || showV2InvisiblePreview)"
             :key="previewTrigger"
             :auto-config="false"
             :enabled="true"
@@ -189,31 +196,45 @@
             :badge="form.badge_position"
         >
             <Teleport v-if="showV2CheckboxPreview" to="#v2_response">
-                <RecaptchaCheckbox :theme="form.theme" :size="form.size" />
+                <RecaptchaCheckbox
+                    ref="checkboxRef"
+                    :theme="form.theme"
+                    :size="form.size"
+                    @verify="onCheckboxVerify"
+                    @expired="onCheckboxExpired"
+                    @error="onCheckboxError"
+                />
             </Teleport>
             <Teleport v-else-if="showV2InvisiblePreview" to="#v2_response">
-                <div class="d-flex align-items-center gap-2">
-                    <RecaptchaV2Invisible ref="invisiblePreviewRef" :badge="form.badge_position" />
-                    <button type="button" class="btn btn-sm btn-outline-secondary" :disabled="previewBusy" @click="runInvisiblePreview">
-                        {{ __('message.test_invisible_recaptcha') }}
-                    </button>
-                    <span v-if="v2InvisibleVerified" class="text-success small">
-                        <i class="fas fa-check-circle me-1"></i> {{ __('message.v2_key_valid') }}
-                    </span>
-                </div>
+                <RecaptchaV2Invisible ref="invisiblePreviewRef" :badge="form.badge_position" @error="onInvisibleError" />
             </Teleport>
+        </RecaptchaProvider>
+
+        <RecaptchaProvider
+            v-if="!loading && isV3 && form.v3_site_key.trim() !== ''"
+            ref="v3ProviderRef"
+            :key="previewTrigger"
+            :auto-config="false"
+            :enabled="true"
+            mode="v3"
+            :v3-site-key="form.v3_site_key"
+            :badge="form.badge_position"
+        >
+            <RecaptchaV3 ref="v3Ref" action="settings_save" />
         </RecaptchaProvider>
     </div>
 </template>
 
 <script setup>
 import { reactive, ref, computed, onMounted, watch } from 'vue'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
 import TextField from '@/themes/adminlte/components/forms/TextField.vue'
-import { RecaptchaProvider, RecaptchaCheckbox, RecaptchaV2Invisible } from '@recaptcha'
+import { RecaptchaProvider, RecaptchaCheckbox, RecaptchaV2Invisible, RecaptchaV3 } from '@recaptcha'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
+import { buildRecaptchaSchema } from '@/validations/admin/recaptchaValidations'
 
 const COMPONENT = 'recaptcha-settings'
 const el = document.getElementById('app-root')
@@ -221,12 +242,16 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
 const saving  = ref(false)
+
+const { errors, setErrors, setFieldError } = useForm()
 const previewTrigger = ref(0)
 
 // Preview widget refs + result flags
 const invisiblePreviewRef = ref(null)
-const previewBusy = ref(false)
-const v2InvisibleVerified = ref(false)
+const checkboxRef         = ref(null)
+const v3Ref               = ref(null)
+const v3ProviderRef       = ref(null)
+const v2CheckboxToken     = ref('')
 
 function debounce(fn, ms) {
     let t
@@ -270,25 +295,13 @@ const isV2Invisible  = computed(() => form.captcha_version === 'v2_invisible')
 const isV2           = computed(() => isV2Checkbox.value || isV2Invisible.value)
 const showBadge      = computed(() => isV3.value || isV2Invisible.value)
 
-const showV2CheckboxPreview  = computed(() => isV2Checkbox.value && form.v2_site_key.trim() !== '')
+const showV2CheckboxPreview  = computed(() => form.captcha_version === 'v2_checkbox' && form.v2_site_key.trim() !== '')
 const showV2InvisiblePreview = computed(() => isV2Invisible.value && form.v2_site_key.trim() !== '')
 
 // The preview only renders interactive v2 widgets (v3 has no widget — just the
 // native floating badge), so the provider always loads an explicit-mode script.
 const previewMode = computed(() => isV2Invisible.value ? 'v2-invisible' : 'v2')
 
-async function runInvisiblePreview() {
-    previewBusy.value = true
-    v2InvisibleVerified.value = false
-    try {
-        const token = await invisiblePreviewRef.value?.execute()
-        v2InvisibleVerified.value = !!token
-    } catch {
-        v2InvisibleVerified.value = false
-    } finally {
-        previewBusy.value = false
-    }
-}
 
 const selectedVersion  = computed(() => versionOptions.find(o => o.id === form.captcha_version) ?? null)
 const selectedFailover = computed(() => failoverOptions.find(o => o.id === form.failover_action) ?? null)
@@ -296,7 +309,7 @@ const selectedBadge    = computed(() => badgeOptions.find(o => o.id === form.bad
 
 onMounted(async () => {
     try {
-        const res = await http.get(`${baseUrl}/settings/recaptcha`)
+        const res = await http.get(`${baseUrl}/recaptcha-settings`)
         const d = res.data?.data ?? {}
         Object.assign(form, {
             captcha_version:  d.captcha_version  ?? 'v2_checkbox',
@@ -323,15 +336,70 @@ watch(
     bumpPreview
 )
 
-// Clear stale "valid" indicators when the preview rebuilds.
-watch(previewTrigger, () => {
-    v2InvisibleVerified.value = false
-})
+// Validate v3 site key the moment the provider finishes loading the reCAPTCHA script.
+// This fires both on page-load (saved keys) and whenever the site key changes (provider remounts).
+// v2 invisible / v2 checkbox rely on the widget's native @error event instead.
+watch(
+    () => v3ProviderRef.value?.isReady,
+    async (ready) => {
+        if (!ready) return
+        try {
+            const token = await v3Ref.value?.execute('settings_save')
+            if (!token) setFieldError('v3_site_key', __('recaptcha.valid_recaptcha_site_key'))
+            else setFieldError('v3_site_key', undefined)
+        } catch {
+            setFieldError('v3_site_key', __('recaptcha.valid_recaptcha_site_key'))
+        }
+    }
+)
+
+function onInvisibleError() { setFieldError('v2_site_key', __('recaptcha.valid_recaptcha_site_key')) }
+
+function onCheckboxVerify(token) {
+    setFieldError('v2_site_key', undefined)
+    v2CheckboxToken.value = token
+}
+function onCheckboxExpired() { v2CheckboxToken.value = '' }
+function onCheckboxError() { setFieldError('v2_site_key', __('recaptcha.valid_recaptcha_site_key')) }
+
+function onChange(val, name) {
+    setFieldError(name, undefined)
+    form[name] = val
+}
+
+function onVersionChange(val) {
+    setFieldError('captcha_version', undefined)
+    form.captcha_version = val?.id ?? 'v2_checkbox'
+}
+
+function onFailoverChange(val) {
+    setFieldError('failover_action', undefined)
+    form.failover_action = val?.id ?? 'none'
+}
+
+function onScoreChange(val, name) {
+    setFieldError(name, undefined)
+    form[name] = parseFloat(val)
+}
+
+function onBadgeChange(val) {
+    setFieldError('badge_position', undefined)
+    form.badge_position = val?.id ?? 'bottomright'
+}
 
 async function save() {
+    try {
+        buildRecaptchaSchema(form).validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
+
     saving.value = true
     try {
-        const res = await http.patch(`${baseUrl}/settings/recaptcha`, {
+        const payload = {
             captcha_version:  form.captcha_version,
             failover_action:  form.failover_action,
             v3_site_key:      form.v3_site_key,
@@ -343,10 +411,43 @@ async function save() {
             size:             form.size,
             badge_position:   form.badge_position,
             recaptcha_status: true,
-        })
+        }
+
+        // Generate tokens so UpdateSettingsRequest can verify keys via Google API
+        if (isV3.value && form.v3_site_key) {
+            try {
+                payload.v3_g_recaptcha_response = await v3Ref.value?.execute('settings_save') ?? ''
+            } catch {
+                setFieldError('v3_site_key', __('recaptcha.valid_recaptcha_site_key'))
+                return
+            }
+        }
+
+        if (isV2Invisible.value && form.v2_site_key) {
+            try {
+                payload.v2_g_recaptcha_response = await invisiblePreviewRef.value?.execute() ?? ''
+                invisiblePreviewRef.value?.reset()
+            } catch {
+                setFieldError('v2_site_key', __('recaptcha.valid_recaptcha_site_key'))
+                return
+            }
+        }
+
+        if (form.captcha_version === 'v2_checkbox') {
+            payload.v2_g_recaptcha_response = v2CheckboxToken.value ?? ''
+        }
+
+        const res = await http.patch(`${baseUrl}/recaptcha-settings`, payload)
         successHandler(res, COMPONENT)
     } catch (e) {
-        errorHandler(e, COMPONENT)
+        if (e.response?.status === 422) {
+            const errs = e.response.data?.errors ?? {}
+            setErrors(Object.fromEntries(
+                Object.entries(errs).map(([k, msgs]) => [k, Array.isArray(msgs) ? msgs[0] : msgs])
+            ))
+        } else {
+            errorHandler(e, COMPONENT)
+        }
     } finally {
         saving.value = false
     }

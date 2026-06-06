@@ -26,7 +26,6 @@ use App\Model\Payment\Plan;
 use App\Model\Plugin;
 use App\Model\Product\Product;
 use App\Payment_log;
-use App\Plugins\Recaptcha\Model\RecaptchaSetting;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -517,6 +516,7 @@ class SettingsController extends BaseSettingsController
             'is_msg91_enabled' => (bool) $statusSetting?->msg91_status,
             'is_pipedrive_enabled' => (int) $statusSetting?->pipedrive_status === 1,
             'is_recaptcha_enabled' => (int) $statusSetting?->recaptcha_status === 1,
+            'is_email_validation_enabled' => (bool) $statusSetting?->email_validation_status,
         ]);
     }
 
@@ -716,51 +716,6 @@ class SettingsController extends BaseSettingsController
                 'next_page_url' => $page < $lastPage ? $base.'?page='.($page + 1).'&limit='.$perPage : null,
                 'prev_page_url' => $page > 1 ? $base.'?page='.($page - 1).'&limit='.$perPage : null,
             ]);
-        } catch (\Exception $ex) {
-            return errorResponse($ex->getMessage());
-        }
-    }
-
-    public function getRecaptchaSettings()
-    {
-        try {
-            $status = StatusSetting::first();
-            $settings = RecaptchaSetting::firstOrCreate([]);
-
-            return successResponse('', [
-                'recaptcha_status' => (bool) optional($status)->recaptcha_status,
-                'captcha_version' => $settings->captcha_version ?? 'v2_checkbox',
-                'failover_action' => $settings->failover_action ?? 'none',
-                'v3_site_key' => $settings->v3_site_key ?? '',
-                'v3_secret_key' => $settings->v3_secret_key ?? '',
-                'score_threshold' => $settings->score_threshold ?? 0.5,
-                'v2_site_key' => $settings->v2_site_key ?? '',
-                'v2_secret_key' => $settings->v2_secret_key ?? '',
-                'theme' => $settings->theme ?? 'light',
-                'size' => $settings->size ?? 'normal',
-                'badge_position' => $settings->badge_position ?? 'bottomright',
-            ]);
-        } catch (\Exception $ex) {
-            return errorResponse($ex->getMessage());
-        }
-    }
-
-    public function updateRecaptchaSettings(Request $request)
-    {
-        try {
-            $status = StatusSetting::findOrFail(1);
-            $status->recaptcha_status = $request->boolean('recaptcha_status');
-            $status->save();
-
-            $settings = RecaptchaSetting::firstOrCreate([]);
-            $settings->update($request->only([
-                'captcha_version', 'failover_action',
-                'v3_site_key', 'v3_secret_key', 'score_threshold',
-                'v2_site_key', 'v2_secret_key',
-                'theme', 'size', 'badge_position',
-            ]));
-
-            return successResponse(__('message.recaptcha_settings_updated'));
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -1697,6 +1652,35 @@ class SettingsController extends BaseSettingsController
         }
     }
 
+    public function listEmailValidationLogs(Request $request)
+    {
+        try {
+            $query = EmailValidationResults::select(['id', 'email', 'method', 'status', 'registration', 'created_at']);
+
+            if ($search = $request->input('search-query')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('email', 'like', "%{$search}%")
+                      ->orWhere('method', 'like', "%{$search}%")
+                      ->orWhere('status', 'like', "%{$search}%");
+                });
+            }
+
+            $sortField = $request->input('sort-field', 'created_at');
+            if (! in_array($sortField, ['email', 'method', 'status', 'registration', 'created_at'])) {
+                $sortField = 'created_at';
+            }
+            $query->orderBy($sortField, $request->input('sort-order', 'desc') === 'asc' ? 'asc' : 'desc');
+
+            return successResponse('', $query->paginate($request->input('limit', 10))
+                ->through(fn ($r) => array_merge($r->only(['id', 'email', 'registration', 'created_at']), [
+                    'method' => ucfirst($r->method),
+                    'status' => ucfirst($r->status),
+                ])));
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
     public function getEmailValidationResults(Request $request)
     {
         try {
@@ -1873,7 +1857,7 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $apiKey = ApiKey::first();
-            $thirdPartyApps = \App\ThirdPartyApp::orderBy('app_name')->get(['id', 'app_name']);
+            $thirdPartyApps = \App\ThirdPartyApp::orderBy('app_name')->get(['id', 'app_name', 'app_key', 'app_secret']);
 
             return successResponse('', [
                 'msg91_auth_key' => $apiKey->msg91_auth_key ?? '',
@@ -1912,7 +1896,9 @@ class SettingsController extends BaseSettingsController
             if ($apiKey) {
                 try {
                     $mailchimp = new \Mailchimp\Mailchimp($apiKey);
-                    $allLists = $mailchimp->get('lists?count=100')['lists'] ?? [];
+                    $result    = $mailchimp->get('lists?count=100');
+                    $raw       = is_array($result) ? ($result['lists'] ?? []) : ($result->lists ?? []);
+                    $allLists  = json_decode(json_encode($raw), true);
                 } catch (\Exception $e) {
                     // API key invalid or network error — return empty list
                 }

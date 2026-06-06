@@ -17,7 +17,9 @@
                                 :label="__('message.username')"
                                 :value="form.git_username"
                                 placeholder="Enter GitHub username"
-                                :onChange="(val, key) => form[key] = val"
+                                :required="true"
+                                :error="errors.git_username"
+                                :onChange="(val, key) => { setFieldError(key, undefined); form[key] = val }"
                             />
                         </div>
                         <div class="col-md-6 mb-3">
@@ -27,7 +29,9 @@
                                 type="password"
                                 :value="form.git_password"
                                 placeholder="Enter Personal Access Token"
-                                :onChange="(val, key) => form[key] = val"
+                                :required="true"
+                                :error="errors.git_password"
+                                :onChange="(val, key) => { setFieldError(key, undefined); form[key] = val }"
                             />
                         </div>
                     </div>
@@ -43,13 +47,17 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import TextField from '@/themes/adminlte/components/forms/TextField.vue'
+import { githubSchema } from '@/validations/admin/githubValidations'
 
 const COMPONENT = 'github-settings'
 const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
+
+const { errors, setErrors, setFieldError } = useForm()
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -75,6 +83,15 @@ onMounted(async () => {
 })
 
 async function save() {
+    try {
+        githubSchema.validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
+
     saving.value = true
     try {
         const res = await http.post(`${baseUrl}/github-setting`, {

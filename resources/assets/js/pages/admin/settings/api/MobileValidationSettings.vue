@@ -28,7 +28,9 @@
                                 :label="__('message.mobileApikey')"
                                 :value="form.apikey"
                                 placeholder="Enter your API key"
-                                :onChange="(val, key) => form[key] = val"
+                                :required="true"
+                                :error="errors.apikey"
+                                :onChange="(val, key) => { setFieldError(key, undefined); form[key] = val }"
                             />
                         </div>
 
@@ -40,7 +42,9 @@
                                     type="password"
                                     :value="form.apisecret"
                                     placeholder="Enter your API secret"
-                                    :onChange="(val, key) => form[key] = val"
+                                    :required="true"
+                                    :error="errors.apisecret"
+                                    :onChange="(val, key) => { setFieldError(key, undefined); form[key] = val }"
                                 />
                             </div>
                             <div class="col-md-6">
@@ -68,13 +72,17 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import TextField from '@/themes/adminlte/components/forms/TextField.vue'
+import { buildMobileValidationSchema } from '@/validations/admin/mobileValidationProviderValidations'
 
 const COMPONENT = 'mobile-validation-settings'
 const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
+
+const { errors, setErrors, setFieldError } = useForm()
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -115,6 +123,15 @@ onMounted(async () => {
 })
 
 async function save() {
+    try {
+        buildMobileValidationSchema(form).validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
+
     saving.value = true
     try {
         const payload = {

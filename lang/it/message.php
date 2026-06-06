@@ -1272,6 +1272,10 @@ return [
     'api' => 'Api',
     'mail_chimp' => 'Mail Chimp',
     'common' => 'Comuni',
+    'license_and_access' => 'License & Access',
+    'integrations' => 'Integrations',
+    'communication' => 'Communication',
+    'logs_and_monitoring' => 'Logs & Monitoring',
     // template generale
     'country_list' => 'Elenco Paesi',
     'footer' => 'Piè di pagina',

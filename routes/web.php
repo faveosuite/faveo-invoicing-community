@@ -91,13 +91,7 @@ Route::middleware('installAgora')->group(function () {
     });
 
     Route::post('pricing/update', [Front\CartController::class, 'addCouponUpdate']);
-//    Route::get('mailchimp', [Common\MailChimpController::class, 'mailChimpSettings'])->middleware('admin');
-    Route::patch('mailchimp', [Common\MailChimpController::class, 'postMailChimpSettings']);
-    Route::get('mail-chimp/mapping', [Common\MailChimpController::class, 'mapField'])->middleware('admin');
-    Route::patch('mail-chimp/mapping', [Common\MailChimpController::class, 'postMapField']);
-    Route::patch('mailchimp-ispaid/mapping', [Common\MailChimpController::class, 'postIsPaidMapField']);
-    Route::patch('mailchimp-group/mapping', [Common\MailChimpController::class, 'postGroupMapField']);
-    Route::get('get-group-field/{value}', [Common\MailChimpController::class, 'addInterestFieldsToAgora']);
+    // Mailchimp routes moved to App\Plugins\Mailchimp\MailchimpServiceProvider
     Route::post('contact-us', [Front\PageController::class, 'postContactUs']);
     Route::post('remove-coupon', [Front\CartController::class, 'removeCoupon']);
     Route::post('remove-product');
@@ -182,7 +176,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('trial-cloud-products', [Tenancy\CloudExtraActivities::class, 'trialCloudProducts']);
     Route::post('create/tenant/purchase', [Tenancy\CloudExtraActivities::class, 'storeTenantTillPurchase']);
     Route::post('available-groups', [Product\GroupController::class, 'getAvailableGroups'])->withoutMiddleware(['auth', 'admin']);
-    Route::post('mail-chimp/subcribe', [Common\MailChimpController::class, 'addSubscriberByClientPanel']);
+    // Mailchimp newsletter subscribe — handled by plugin (see MailchimpServiceProvider)
     Route::post('free-trial/start', [FreeTrailController::class, 'startTrial'])->name('free-trial.start');
 
     //invoice api's
@@ -303,10 +297,8 @@ Route::middleware('installAgora')->group(function () {
     Route::post('googleCaptcha', [Common\SettingsController::class, 'googleCaptcha']);
 
     /*
-     * Mailchimp Api keys
+     * Mailchimp routes moved to App\Plugins\Mailchimp\MailchimpServiceProvider
      */
-    Route::post('mailchimpkeys', [Common\SettingsController::class, 'mailchimpKeys']);
-    Route::post('updateMailchimpDetails', [Common\BaseSettingsController::class, 'updateMailchimpDetails'])->name('updateMailchimpDetails');
 
     /*
      * Mobile Verification Api (Msg91)
@@ -367,15 +359,14 @@ Route::middleware('installAgora')->group(function () {
     Route::get('settings/cron-data', [Common\SettingsController::class, 'getCronSettingsData']);
     Route::patch('settings/cron-data', [Common\SettingsController::class, 'updateCronSettingsData']);
     Route::patch('settings/cron-days', [Common\SettingsController::class, 'updateCronDaysData']);
-    Route::get('settings/recaptcha', [Common\SettingsController::class, 'getRecaptchaSettings']);
-    Route::patch('settings/recaptcha', [Common\SettingsController::class, 'updateRecaptchaSettings']);
     Route::get('settings/pipedrive', [Common\SettingsController::class, 'getPipedriveSettings']);
     Route::patch('settings/pipedrive', [Common\SettingsController::class, 'updatePipedriveSettings']);
     Route::get('settings/msg91', [Common\SettingsController::class, 'getMsg91Settings']);
     Route::get('settings/github', [Common\SettingsController::class, 'getGithubSettings']);
-    Route::get('settings/mailchimp', [Common\SettingsController::class, 'getMailchimpSettings']);
+    // settings/mailchimp → handled by plugin (MailchimpServiceProvider)
     Route::get('settings/terms', [Common\SettingsController::class, 'getTermsSettings']);
     Route::get('settings/email-validation', [Common\SettingsController::class, 'getEmailValidationSettings']);
+    Route::get('settings/email-validation-logs', [Common\SettingsController::class, 'listEmailValidationLogs']);
     Route::get('settings/mobile-validation', [Common\SettingsController::class, 'getMobileValidationSettings']);
     Route::get('settings/cloud-details', [Common\SettingsController::class, 'getCloudDetails']);
     Route::get('localized-license/files', [LocalizedLicenseController::class, 'filesApi']);
@@ -436,8 +427,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('updateemailDetails', [Common\SettingsController::class, 'updateEmailDetails'])->name('updateemailDetails');
     Route::post('updatetwitterDetails', [Common\SettingsController::class, 'updateTwitterDetails'])->name('updatetwitterDetails');
     Route::post('updatezohoDetails', [Common\SettingsController::class, 'updateZohoDetails'])->name('updatezohoDetails');
-    Route::post('mailchimp-prod-status', [Common\SettingsController::class, 'updateMailchimpProductStatus'])->name('mailchimp-prod-status');
-    Route::post('mailchimp-paid-status', [Common\SettingsController::class, 'updateMailchimpIsPaidStatus'])->name('mailchimp-paid-status');
+    // mailchimp-prod-status / mailchimp-paid-status → handled by plugin (MailchimpServiceProvider)
     Route::post('updatedomainCheckDetails', [Common\SettingsController::class, 'updatedomainCheckDetails'])->name('updatedomainCheckDetails');
     Route::post('v3captchaDetails', [Common\SettingsController::class, 'v3captchaDetails'])->name('v3captchaDetails');
     Route::get('demo/page', [Front\PageController::class, 'VewDemoPage']);

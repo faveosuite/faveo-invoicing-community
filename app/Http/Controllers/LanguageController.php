@@ -28,6 +28,7 @@ class LanguageController extends Controller
         foreach ($languages as $lang) {
             $this->appendCoreLanguage($lang, $languageArray);
             $this->appendPackageLanguage('BillingLog', $lang, 'log', $languageArray);
+            $this->appendRecaptchaLanguage($lang, $languageArray);
             $this->appendLicenseLanguage($lang, $languageArray);
         }
 
@@ -41,6 +42,17 @@ class LanguageController extends Controller
     {
         $path = base_path('lang/'.$languageName);
         $this->updateLanguageArray($path, $languageArray);
+    }
+
+    private function appendRecaptchaLanguage(string $locale, array &$languageArray): void
+    {
+        $path = app_path("Plugins/Recaptcha/resources/lang/{$locale}/recaptcha.php");
+
+        if (! is_file($path)) {
+            return;
+        }
+
+        $languageArray['recaptcha'] = array_merge($languageArray['recaptcha'] ?? [], require $path);
     }
 
     private function appendLicenseLanguage(string $locale, array &$languageArray): void

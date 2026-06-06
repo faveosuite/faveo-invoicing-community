@@ -17,7 +17,9 @@
                                 :label="__('message.msg91_key')"
                                 :value="form.msg91_auth_key"
                                 placeholder="Enter your MSG91 Auth Key"
-                                :onChange="(val, key) => form[key] = val"
+                                :required="true"
+                                :onChange="(val, key) => { setFieldError('msg91_auth_key', undefined); form[key] = val }"
+                                :error="errors.msg91_auth_key"
                             />
                         </div>
                         <div class="col-md-6 mb-3">
@@ -26,7 +28,9 @@
                                 :label="__('message.msg91_sender')"
                                 :value="form.msg91_sender"
                                 placeholder="Enter Sender ID"
-                                :onChange="(val, key) => form[key] = val"
+                                :required="true"
+                                :onChange="(val, key) => { setFieldError('msg91_sender', undefined); form[key] = val }"
+                                :error="errors.msg91_sender"
                             />
                         </div>
                         <div class="col-md-6 mb-3">
@@ -35,7 +39,9 @@
                                 :label="__('message.msg91_template_id')"
                                 :value="form.msg91_template_id"
                                 placeholder="Enter Template ID"
-                                :onChange="(val, key) => form[key] = val"
+                                :required="true"
+                                :onChange="(val, key) => { setFieldError('msg91_template_id', undefined); form[key] = val }"
+                                :error="errors.msg91_template_id"
                             />
                         </div>
                         <div class="col-md-6 mb-3">
@@ -50,6 +56,29 @@
                                 :placeholder="__('message.select_third_party_app')"
                             />
                         </div>
+
+                        <div v-if="webhookUrl" class="col-md-12 mb-3">
+                            <label class="form-label fw-semibold">{{ __('message.msg91_webhook_url') }}</label>
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    :value="webhookUrl"
+                                    readonly
+                                />
+                                <button
+                                    class="btn btn-outline-secondary"
+                                    type="button"
+                                    :title="__('message.copy')"
+                                    @click="copyWebhookUrl"
+                                >
+                                    <i :class="copied ? 'fas fa-check text-success' : 'fas fa-copy'"></i>
+                                </button>
+                            </div>
+                            <div class="form-text text-muted">
+                                {{ __('message.msg91_webhook_url_hint') }}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -63,10 +92,12 @@
 
 <script setup>
 import { reactive, ref, computed, onMounted } from 'vue'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import TextField from '@/themes/adminlte/components/forms/TextField.vue'
 import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
+import { msg91Schema } from '@/validations/admin/msg91Validations'
 
 const COMPONENT = 'msg91-settings'
 const el      = document.getElementById('app-root')
@@ -74,6 +105,7 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
 const saving  = ref(false)
+const copied  = ref(false)
 
 const thirdPartyApps = ref([])
 
@@ -84,6 +116,8 @@ const form = reactive({
     third_party_id:    null,
 })
 
+const { errors, setErrors, setFieldError } = useForm()
+
 const thirdPartyOptions = computed(() =>
     thirdPartyApps.value.map(a => ({ id: a.id, name: a.app_name }))
 )
@@ -91,6 +125,21 @@ const thirdPartyOptions = computed(() =>
 const selectedApp = computed(() =>
     thirdPartyOptions.value.find(o => o.id === form.third_party_id) ?? null
 )
+
+const webhookUrl = computed(() => {
+    if (!form.third_party_id) return null
+    const app = thirdPartyApps.value.find(a => a.id === form.third_party_id)
+    if (!app?.app_key || !app?.app_secret) return null
+    return `${baseUrl}/msg91/reports/${app.app_key}/${app.app_secret}`
+})
+
+function copyWebhookUrl() {
+    if (!webhookUrl.value) return
+    navigator.clipboard.writeText(webhookUrl.value).then(() => {
+        copied.value = true
+        setTimeout(() => { copied.value = false }, 2000)
+    })
+}
 
 onMounted(async () => {
     try {
@@ -111,6 +160,15 @@ onMounted(async () => {
 })
 
 async function save() {
+    try {
+        await msg91Schema.validate(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
+
     saving.value = true
     try {
         const res = await http.post(`${baseUrl}/updatemobileDetails`, {

@@ -118,23 +118,8 @@ class ExternalServiceController extends BaseAuthController
 
     public function updateSubscriberForMailchimpProduct(int $productId, int $userId, InvoiceItem $item): void
     {
-        try {
-            $email = User::whereKey($userId)->value('email');
-
-            if (! $email) {
-                return;
-            }
-
-            $mailchimp = app(MailChimpController::class);
-
-            if ($item->subtotal > 0) {
-                $mailchimp->addSubscriberForPaidProduct($email, $productId);
-            } else {
-                $mailchimp->addSubscriberForFreeProduct($email, $productId);
-            }
-        } catch (\Throwable $e) {
-            \Logger::exception($e);
-        }
+        app(\App\Plugins\Mailchimp\Listeners\UpdateSubscriberOnPurchase::class)
+            ->handle($productId, $userId, $item);
     }
 
     public function updateSubscriberForZohoProduct(int $productId, int $userId, InvoiceItem $item): void

@@ -112,12 +112,13 @@ const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const flags = ref({
-    is_redis_configured:     false,
-    is_debug_mode:           false,
-    is_mail_sending_enabled: false,
-    is_msg91_enabled:        false,
-    is_pipedrive_enabled:    false,
-    is_recaptcha_enabled:    false,
+    is_redis_configured:          false,
+    is_debug_mode:                false,
+    is_mail_sending_enabled:      false,
+    is_msg91_enabled:             false,
+    is_pipedrive_enabled:         false,
+    is_recaptcha_enabled:         false,
+    is_email_validation_enabled:  false,
 })
 
 const modal = ref({ show: false, title: '', reason: '' })
@@ -145,62 +146,68 @@ async function checkMonitoring(type, url) {
 
 const sections = computed(() => [
     {
-        title: __('message.settings'),
+        title: __('message.system'),
         items: [
-            { to: '/settings/system',              icon: 'fas fa-display',           label: __('message.system-settings') },
-            { to: '/settings/cron',                icon: 'fas fa-gauge',             label: __('message.cron-setting') },
-            { to: '/settings/license-type',        icon: 'fas fa-file-lines',        label: __('message.license-type') },
-            { to: '/settings/license-permissions', icon: 'fas fa-diagram-project',   label: __('message.license_permission') },
-            { to: '/settings/file-storage',        icon: 'fas fa-hard-drive',        label: __('message.file_storage') },
-            { to: '/settings/payment-gateway',     icon: 'fas fa-credit-card',       label: __('message.payment_gateway_integrations') },
-            { to: '/settings/system-managers',     icon: 'fas fa-people-group',      label: __('message.system_manager_settings') },
-            { to: '/settings/third-party-apps',    icon: 'fas fa-puzzle-piece',      label: __('message.third_party_apps') },
-            { to: '/settings/cloud-details',       icon: 'fas fa-cloud',             label: __('message.cloud_hub') },
-            { to: '/settings/localized-license',   icon: 'fas fa-globe',             label: __('message.localized_license') },
-            { to: '/settings/debugging',           icon: 'fas fa-bug',               label: __('message.debugging') },
-            { to: '/settings/social-logins',       icon: 'fas fa-id-badge',          label: __('message.social_logins') },
-            { to: '/settings/language',            icon: 'fas fa-language',          label: __('message.language') },
-            { to: '/settings/whatsapp-users',      icon: 'fab fa-whatsapp',          label: __('message.whatsapp_users') },
-            ...(flags.value.is_mail_sending_enabled ? [{ to: '/settings/contact-options', icon: 'fas fa-phone', label: __('message.contact_options') }] : []),
-            ...(flags.value.is_debug_mode ? [
-                { monitor: 'clockwork', href: `${baseUrl}/clockwork/app`, icon: 'fas fa-clock',     label: __('message.clockwork') },
-                { monitor: 'pulse',     href: `${baseUrl}/pulse`,         icon: 'fas fa-heartbeat', label: __('message.pulse') },
-            ] : []),
+            { to: '/settings/system',    icon: 'fas fa-display',      label: __('message.system-settings') },
+            { to: '/settings/cron',      icon: 'fas fa-gauge',         label: __('message.cron-setting') },
+            { to: '/settings/language',  icon: 'fas fa-language',      label: __('message.language') },
+            { to: '/settings/file-storage', icon: 'fas fa-hard-drive', label: __('message.file_storage') },
+            { to: '/settings/common/queues', icon: 'fas fa-layer-group', label: __('message.queues') },
+            { to: '/settings/debugging', icon: 'fas fa-bug',           label: __('message.debugging') },
         ],
     },
     {
-        title: __('message.logs'),
+        title: __('message.license_and_access'),
         items: [
-            { to: '/settings/logs/system',   icon: 'fas fa-list-ul',         label: __('message.log_setting') },
-            { to: '/settings/logs/activity', icon: 'fas fa-wave-square',     label: __('message.activity_logs') },
-            { to: '/settings/logs/payment',  icon: 'fas fa-money-bill-wave', label: __('message.payment_logs') },
-            ...(flags.value.is_msg91_enabled ? [{ to: '/settings/logs/msg91', icon: 'fas fa-message', label: __('message.msg_reports') }] : []),
+            { to: '/settings/license-type',        icon: 'fas fa-file-lines',      label: __('message.license-type') },
+            { to: '/settings/license-permissions', icon: 'fas fa-diagram-project', label: __('message.license_permission') },
+            { to: '/settings/localized-license',   icon: 'fas fa-globe',           label: __('message.localized_license') },
+            { to: '/settings/system-managers',     icon: 'fas fa-people-group',    label: __('message.system_manager_settings') },
         ],
     },
     {
-        title: __('message.email'),
+        title: __('message.billing'),
+        items: [
+            { to: '/settings/payment-gateway',   icon: 'fas fa-credit-card',        label: __('message.payment_gateway_integrations') },
+            { to: '/settings/common/currency',   icon: 'fas fa-money-bill-transfer', label: __('message.currency') },
+            { to: '/settings/common/countries',  icon: 'fas fa-globe',               label: __('message.countries') },
+            { to: '/settings/common/tax',        icon: 'fas fa-calculator',          label: __('message.tax') },
+        ],
+    },
+    {
+        title: __('message.integrations'),
+        items: [
+            { to: '/settings/cloud-details',    icon: 'fas fa-cloud',        label: __('message.cloud_hub') },
+            { to: '/settings/social-logins',    icon: 'fas fa-id-badge',     label: __('message.social_logins') },
+            { to: '/settings/whatsapp-users',   icon: 'fab fa-whatsapp',     label: __('message.whatsapp_users') },
+            { to: '/settings/third-party-apps', icon: 'fas fa-puzzle-piece', label: __('message.third_party_apps') },
+            { to: '/settings/api/third-party',  icon: 'fas fa-link',         label: __('message.third_party_integrations') },
+            ...(flags.value.is_pipedrive_enabled ? [{ to: '/settings/api/pipedrive', icon: 'fas fa-diagram-project', label: __('message.pipedrive') }] : []),
+            ...(flags.value.is_recaptcha_enabled ? [{ to: '/settings/api/recaptcha', icon: 'fas fa-shield-halved',   label: __('message.recaptcha') }] : []),
+        ],
+    },
+    {
+        title: __('message.communication'),
         items: [
             { to: '/settings/email/settings',          icon: 'fas fa-envelope',   label: __('message.email_settings') },
             { to: '/settings/email/template-settings', icon: 'fas fa-table-list', label: __('message.template_settings') },
             { to: '/settings/email/templates',         icon: 'fas fa-file-lines', label: __('message.email_templates') },
-            ...(flags.value.is_redis_configured ? [{ monitor: 'horizon', href: `${baseUrl}/horizon`, icon: 'fas fa-gauge-high', label: 'Queue Monitor' }] : []),
+            ...(flags.value.is_mail_sending_enabled ? [{ to: '/settings/contact-options', icon: 'fas fa-phone', label: __('message.contact_options') }] : []),
         ],
     },
     {
-        title: __('message.api_integrations'),
+        title: __('message.logs_and_monitoring'),
         items: [
-            ...(flags.value.is_pipedrive_enabled ? [{ to: '/settings/api/pipedrive',  icon: 'fas fa-diagram-project', label: __('message.pipedrive') }] : []),
-            ...(flags.value.is_recaptcha_enabled ? [{ to: '/settings/api/recaptcha',  icon: 'fas fa-shield-halved',   label: __('message.recaptcha') }] : []),
-            { to: '/settings/api/third-party', icon: 'fas fa-link', label: __('message.third_party_integrations') },
-        ],
-    },
-    {
-        title: __('message.common'),
-        items: [
-            { to: '/settings/common/currency',  icon: 'fas fa-money-bill-transfer', label: __('message.currency') },
-            { to: '/settings/common/countries', icon: 'fas fa-globe',               label: __('message.countries') },
-            { to: '/settings/common/queues',    icon: 'fas fa-layer-group',         label: __('message.queues') },
-            { to: '/settings/common/tax',       icon: 'fas fa-calculator',          label: __('message.tax') },
+            { to: '/settings/logs/system',   icon: 'fas fa-list-ul',         label: __('message.log_setting') },
+            { to: '/settings/logs/activity', icon: 'fas fa-wave-square',     label: __('message.activity_logs') },
+            { to: '/settings/logs/payment',  icon: 'fas fa-money-bill-wave', label: __('message.payment_logs') },
+            ...(flags.value.is_msg91_enabled             ? [{ to: '/settings/logs/msg91',                           icon: 'fas fa-message',   label: __('message.msg_reports') }] : []),
+            ...(flags.value.is_email_validation_enabled  ? [{ to: '/settings/api/email-validation/logs',            icon: 'fas fa-list-alt',  label: __('message.email_validation_logs') }] : []),
+            ...(flags.value.is_redis_configured ? [{ monitor: 'horizon',   href: `${baseUrl}/horizon`,               icon: 'fas fa-gauge-high', label: 'Queue Monitor' }] : []),
+            ...(flags.value.is_debug_mode       ? [
+                { monitor: 'clockwork', href: `${baseUrl}/clockwork/app`, icon: 'fas fa-clock',     label: __('message.clockwork') },
+                { monitor: 'pulse',     href: `${baseUrl}/pulse`,         icon: 'fas fa-heartbeat', label: __('message.pulse') },
+            ] : []),
         ],
     },
     {

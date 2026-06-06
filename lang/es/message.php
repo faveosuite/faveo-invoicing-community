@@ -1273,6 +1273,10 @@ return [
     'api' => 'API',
     'mail_chimp' => 'Mail Chimp',
     'common' => 'Común',
+    'license_and_access' => 'License & Access',
+    'integrations' => 'Integrations',
+    'communication' => 'Communication',
+    'logs_and_monitoring' => 'Logs & Monitoring',
     // Lista de países
     'country_list' => 'Lista de Países',
     'footer' => 'Pie de Página',

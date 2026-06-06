@@ -18,12 +18,16 @@ class ZohoOAuthController extends Controller
      */
     public function getIntegrations()
     {
-        $integrations = ZohoIntegration::select(
-            'id',
-            'platform',
-            'description',
-            'is_active'
-        )->get();
+        $integrations = ZohoIntegration::with('token')
+            ->select('id', 'platform', 'description', 'is_active')
+            ->get()
+            ->map(fn ($i) => [
+                'id'          => $i->id,
+                'platform'    => $i->platform,
+                'description' => $i->description,
+                'is_active'   => $i->is_active,
+                'has_token'   => $i->token !== null,
+            ]);
 
         return successResponse('', $integrations);
     }
@@ -228,5 +232,16 @@ class ZohoOAuthController extends Controller
             '%s/oauth/v2/token',
             $this->accountsBaseUrl($region)
         );
+    }
+
+    public function toggleIntegration(Request $request, $id)
+    {
+        $newValue = $request->boolean('is_active') ? 1 : 0;
+
+        \DB::table('zoho_integrations')
+            ->where('id', (int) $id)
+            ->update(['is_active' => $newValue]);
+
+        return successResponse(__('message.zoho_status'), ['is_active' => (bool) $newValue]);
     }
 }

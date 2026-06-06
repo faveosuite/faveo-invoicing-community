@@ -1,0 +1,125 @@
+<template>
+    <div>
+        <AppAlert :componentName="COMPONENT" />
+
+        <div class="card card-light">
+            <div class="card-header">
+                <h4 class="card-title">{{ __('message.email_validation_logs') }}</h4>
+            </div>
+
+            <div class="card-body">
+                <DataTable
+                    ref="dtRef"
+                    :url="apiUrl"
+                    :dataColumns="columns"
+                    :option="tableOptions"
+                />
+            </div>
+        </div>
+
+        <!-- Result detail modal -->
+        <AppModal
+            :showModal="showDetailModal"
+            :onClose="() => showDetailModal = false"
+            classname="modal-lg"
+            :containerStyle="{ maxWidth: '800px' }"
+        >
+            <template #title><h4>{{ __('message.email_validation_result') }}</h4></template>
+            <template #fields>
+                <inline-loader v-if="loadingDetail" />
+                <div v-else class="table-responsive">
+                    <table class="table table-striped table-bordered mb-0">
+                        <tbody>
+                            <tr v-for="(val, key) in detailData" :key="key">
+                                <td class="fw-semibold text-capitalize" style="width:40%">{{ key }}</td>
+                                <td>{{ val }}</td>
+                            </tr>
+                            <tr v-if="!Object.keys(detailData).length">
+                                <td class="text-muted text-center py-3">{{ __('message.no_data_available') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+        </AppModal>
+    </div>
+</template>
+
+<script setup>
+import { h, reactive, ref } from 'vue'
+import http from '@/plugins/axios'
+import { errorHandler } from '@/helpers/responseHandler.js'
+
+const COMPONENT = 'email-validation-logs'
+const el      = document.getElementById('app-root')
+const baseUrl = el?.dataset?.baseUrl ?? ''
+const apiUrl  = `${baseUrl}/settings/email-validation-logs`
+
+const dtRef           = ref(null)
+const showDetailModal = ref(false)
+const loadingDetail   = ref(false)
+const detailData      = ref({})
+
+async function openDetail(id) {
+    showDetailModal.value = true
+    loadingDetail.value   = true
+    detailData.value      = {}
+    try {
+        const res    = await http.get(`${baseUrl}/get-email-validation-results`, { params: { id } })
+        detailData.value = res.data?.data ?? {}
+    } catch (e) {
+        errorHandler(e, COMPONENT)
+        showDetailModal.value = false
+    } finally {
+        loadingDetail.value = false
+    }
+}
+
+const columns = ['email', 'method', 'status', 'registration', 'created_at', 'action']
+
+const tableOptions = reactive({
+    headings: {
+        email:        __('message.email'),
+        method:       __('message.method'),
+        status:       __('message.status'),
+        registration: __('message.registration'),
+        created_at: __('message.created_at'),
+        action:     __('message.action'),
+    },
+    columnsClasses: {
+        email:        'dt-name',
+        method:       'dt-name',
+        status:       'dt-name',
+        registration: 'dt-name',
+        created_at:   'dt-date',
+        action:       'dt-action',
+    },
+    templates: {
+        status: (f, row) => {
+            const s = row.status?.toLowerCase()
+            const cls = s === 'safe' ? 'bg-success'
+                : s === 'invalid' || s === 'disposable' ? 'bg-danger'
+                : 'bg-secondary'
+            return h('span', { class: `badge ${cls}` }, row.status || '—')
+        },
+        created_at: (f, row) => h('span', { innerHTML: row.created_at }),
+        action: (f, row) => h('button', {
+            class: 'btn btn-light table_btn',
+            title: __('message.click_here_view'),
+            onClick: () => openDetail(row.id),
+        }, h('i', { class: 'fas fa-eye' })),
+    },
+    sortable:   ['email', 'method', 'status', 'registration', 'created_at'],
+    filterable: true,
+    requestAdapter(data) {
+        return {
+            'sort-field':   data.orderBy ?? 'created_at',
+            'sort-order':   data.ascending ? 'asc' : 'desc',
+            'search-query': (data.query ?? '').trim(),
+            page:  data.page,
+            limit: data.limit,
+        }
+    },
+    orderBy: { column: 'created_at', ascending: false },
+})
+</script>

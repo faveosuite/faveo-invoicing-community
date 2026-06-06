@@ -28,6 +28,7 @@ Route::prefix('zoho')->group(function () {
     Route::get('integrations', [ZohoOAuthController::class, 'getIntegrations']);
     Route::get('getKeys/{integrationId}', [ZohoOAuthController::class, 'getOauthClientKeys']);
     Route::post('saveKeys', [ZohoOAuthController::class, 'saveOauthClientKeys']);
+    Route::patch('integrations/{id}/toggle', [ZohoOAuthController::class, 'toggleIntegration']);
     Route::get('oauth/callback', [ZohoOAuthController::class, 'handleZohoCallback']);
 
     // Common Routes

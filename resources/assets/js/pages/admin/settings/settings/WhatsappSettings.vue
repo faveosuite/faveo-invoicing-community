@@ -10,11 +10,6 @@
 
             <template v-else>
                 <div class="card-body">
-                    <div class="alert alert-info mb-3">
-                        <i class="fas fa-info-circle me-2"></i>
-                        {{ __('message.whatsapp_thirdParty_explanation') }}
-                    </div>
-
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <TextField
@@ -22,7 +17,9 @@
                                 :label="__('message.app_id')"
                                 :value="form.app_id"
                                 :placeholder="__('message.enter_whatsapp_app_id')"
-                                :onChange="(val, key) => form[key] = val"
+                                :required="true"
+                                :error="errors.app_id"
+                                :onChange="(val, key) => { setFieldError(key, undefined); form[key] = val }"
                             />
                         </div>
                         <div class="col-md-6 mb-3">
@@ -32,7 +29,9 @@
                                 type="password"
                                 :value="form.app_secret"
                                 :placeholder="__('message.enter_whatsapp_app_secret')"
-                                :onChange="(val, key) => form[key] = val"
+                                :required="true"
+                                :error="errors.app_secret"
+                                :onChange="(val, key) => { setFieldError(key, undefined); form[key] = val }"
                             />
                         </div>
                         <div class="col-md-6 mb-3">
@@ -41,7 +40,9 @@
                                 :label="__('message.config_id')"
                                 :value="form.config_id"
                                 :placeholder="__('message.enter_whatsapp_config_id')"
-                                :onChange="(val, key) => form[key] = val"
+                                :required="true"
+                                :error="errors.config_id"
+                                :onChange="(val, key) => { setFieldError(key, undefined); form[key] = val }"
                             />
                         </div>
                         <div class="col-md-6 mb-3">
@@ -50,7 +51,9 @@
                                 :label="__('message.verify_token')"
                                 :value="form.verify_token"
                                 :placeholder="__('message.enter_whatsapp_verify_token')"
-                                :onChange="(val, key) => form[key] = val"
+                                :required="true"
+                                :error="errors.verify_token"
+                                :onChange="(val, key) => { setFieldError(key, undefined); form[key] = val }"
                             />
                         </div>
                     </div>
@@ -66,13 +69,17 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
+import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import TextField from '@/themes/adminlte/components/forms/TextField.vue'
+import { whatsappSchema } from '@/validations/admin/whatsappValidations'
 
 const COMPONENT = 'whatsapp-settings'
 const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
+
+const { errors, setErrors, setFieldError } = useForm()
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -102,6 +109,15 @@ onMounted(async () => {
 })
 
 async function save() {
+    try {
+        whatsappSchema.validateSync(form, { abortEarly: false })
+    } catch (err) {
+        const errMap = {}
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+        setErrors(errMap)
+        return
+    }
+
     saving.value = true
     try {
         const res = await http.post(`${baseUrl}/whatsapp-integration-save`, {

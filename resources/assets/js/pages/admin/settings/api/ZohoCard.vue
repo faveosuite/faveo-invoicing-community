@@ -1,64 +1,61 @@
 <template>
     <div class="small-box gateway-card-box bg-light d-flex flex-column p-3">
 
-        <!-- Main content -->
-        <div class="d-flex">
-            <div class="flex-grow-1 gateway-content">
-                <div class="provider-header">
-                    <div class="provider-icon-wrap">
-                        <i :class="iconClass" class="gateway-icon text-secondary"></i>
-                    </div>
-
-                    <div class="provider-text-wrap">
+        <!-- Header row: icon + name/status | toggle + settings -->
+        <div class="d-flex align-items-start justify-content-between">
+            <div class="provider-header">
+                <div class="provider-icon-wrap">
+                    <i :class="iconClass" class="gateway-icon text-secondary"></i>
+                </div>
+                <div class="provider-text-wrap">
+                    <div class="d-flex align-items-center gap-2">
                         <b class="text-header">{{ label }}</b>
-                        <div class="mt-1">
-                            <span class="provider-status-label" :class="integration.is_active ? 'text-success' : 'text-danger'">
-                                {{ integration.is_active ? __('message.connected') : __('message.not_connected') }}
-                            </span>
-                        </div>
+                        <RouterLink
+                            v-if="integration.is_active"
+                            :to="`/settings/api/zoho/${integration.platform}`"
+                            class="text-muted settings-icon"
+                            v-tooltip :title="__('message.settings')"
+                        >
+                            <i class="fas fa-cog"></i>
+                        </RouterLink>
+                    </div>
+                    <div class="mt-1">
+                        <span class="provider-status-label" :class="integration.is_active ? 'text-success' : 'text-secondary'">
+                            {{ integration.is_active ? __('message.enabled') : __('message.disabled') }}
+                        </span>
                     </div>
                 </div>
-
-                <p class="text-muted fs-7 mt-2 mb-0">{{ integration.description }}</p>
             </div>
 
-            <!-- Field mapping shortcut (only once connected) -->
-            <div class="d-flex align-items-center gap-2 ms-2 flex-shrink-0 align-self-start pt-1">
-                <button
-                    v-if="integration.is_active"
-                    class="btn btn-link p-0 text-muted"
-                    :title="__('message.field_mapping')"
-                    @click="$emit('mapping', integration)"
-                >
-                    <i class="fas fa-sliders"></i>
-                </button>
+            <div class="form-check form-switch mb-0 flex-shrink-0">
+                <input
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    :checked="integration.is_active"
+                    :disabled="toggling"
+                    style="cursor:pointer"
+                    @change="$emit('toggle', integration)"
+                />
             </div>
         </div>
 
-        <!-- Primary action -->
-        <div class="mt-auto pt-3 text-end">
-            <button
-                type="button"
-                class="btn btn-sm"
-                :class="integration.is_active ? 'btn-outline-secondary' : 'btn-primary'"
-                @click="$emit('connect', integration)"
-            >
-                <i class="fas fa-plug me-1"></i>
-                {{ integration.is_active ? __('message.reconnect') : __('message.connect') }}
-            </button>
-        </div>
+        <!-- Description -->
+        <p class="text-muted fs-7 mt-3 mb-0">{{ integration.description }}</p>
     </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
 
 const props = defineProps({
     integration: { type: Object, required: true },
     iconClass:   { type: String, default: 'fas fa-plug' },
+    toggling:    { type: Boolean, default: false },
 })
 
-defineEmits(['connect', 'mapping'])
+defineEmits(['toggle'])
 
 const label = computed(() => {
     const map = { crm: __('message.zoho_crm'), campaigns: __('message.zoho_campaigns') }
@@ -111,5 +108,16 @@ const label = computed(() => {
     font-size: 14px;
     font-weight: 700;
     line-height: 1.1;
+}
+
+.settings-icon {
+    font-size: 15px;
+    opacity: 0.65;
+    transition: opacity 0.15s;
+    text-decoration: none;
+}
+
+.settings-icon:hover {
+    opacity: 1;
 }
 </style>

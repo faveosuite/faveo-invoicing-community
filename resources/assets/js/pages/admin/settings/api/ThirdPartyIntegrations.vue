@@ -19,7 +19,7 @@
 
 <script setup>
 import { h, ref, reactive } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 
@@ -28,20 +28,11 @@ const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const apiUrl  = `${baseUrl}/module-settings`
 
-const router    = useRouter()
 const dtRef     = ref(null)
 const savingKey = ref(null)
 const columns   = ['name', 'description']
 
 async function toggle(row, newVal) {
-    // Enabling a module that requires configuration → go to settings page first.
-    // The settings page is responsible for saving config and enabling the module.
-    if (newVal && row.route) {
-        dtRef.value?.refresh()   // revert the switch back to off
-        router.push(row.route)
-        return
-    }
-
     savingKey.value = row.key
     try {
         const payload = { [row.key]: newVal ? 1 : 0 }

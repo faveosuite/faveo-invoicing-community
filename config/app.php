@@ -225,6 +225,7 @@ return [
         App\Plugins\Recaptcha\RecaptchaServiceProvider::class,
         App\Providers\CartServiceProvider::class,
         \App\Plugins\Zoho\Providers\ZohoServiceProvider::class,
+        App\Plugins\Mailchimp\MailchimpServiceProvider::class,
     ],
 
     /*
