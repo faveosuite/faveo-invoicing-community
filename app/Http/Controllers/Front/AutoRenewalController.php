@@ -218,10 +218,10 @@ class AutoRenewalController extends Controller
         }
 
         $subscription->update([
-            'is_subscribed'   => 0,
-            'autoRenew_status'=> 0,
-            'rzp_subscription'=> 0,
-            'subscribe_id'    => '',
+            'is_subscribed' => 0,
+            'autoRenew_status' => 0,
+            'rzp_subscription' => 0,
+            'subscribe_id' => '',
         ]);
     }
 

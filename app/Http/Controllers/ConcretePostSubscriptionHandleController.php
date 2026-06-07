@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
@@ -59,7 +58,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
 
     public function successRenew(Invoice $invoice, $subscription, string $payment_method, string $currency): int
     {
-        $sub  = $this->sub->find($subscription->id);
+        $sub = $this->sub->find($subscription->id);
         $plan = $this->plan->find($subscription->plan_id);
 
         // Extend dates first — if this fails, invoice remains pending (safe to retry)
@@ -76,12 +75,12 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $invoice->update(['status' => 'success']);
 
         return $this->payment->create([
-            'invoice_id'     => $invoice->id,
-            'user_id'        => $invoice->user_id,
-            'amount'         => $invoice->grand_total,
+            'invoice_id' => $invoice->id,
+            'user_id' => $invoice->user_id,
+            'amount' => $invoice->grand_total,
             'payment_method' => $payment_method,
             'payment_status' => 'success',
-            'created_at'     => Carbon::now()->toDateTimeString(),
+            'created_at' => Carbon::now()->toDateTimeString(),
         ]);
     }
 

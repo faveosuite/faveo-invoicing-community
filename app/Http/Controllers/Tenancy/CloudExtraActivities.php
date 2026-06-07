@@ -41,13 +41,13 @@ class CloudExtraActivities extends Controller
 
     private function cloudApiPost(string $endpoint, array $data): object
     {
-        $keys            = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-        $data            = array_merge($data, ['app_key' => $keys->app_key, 'token' => str_random(32), 'timestamp' => time()]);
+        $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
+        $data = array_merge($data, ['app_key' => $keys->app_key, 'token' => str_random(32), 'timestamp' => time()]);
         $hashedSignature = hash_hmac('sha256', http_build_query($data), $keys->app_secret);
 
         $response = (new Client())->request('POST', $this->cloud->cloud_central_domain.$endpoint, [
             'form_params' => $data,
-            'headers'     => ['signature' => $hashedSignature],
+            'headers' => ['signature' => $hashedSignature],
         ]);
 
         return json_decode('{'.explode('{', (string) $response->getBody())[1]);
@@ -65,7 +65,7 @@ class CloudExtraActivities extends Controller
 
     private function checktheAgent($numberOfAgents, $domain)
     {
-        $client   = new Client([]);
+        $client = new Client([]);
         $response = $client->request('POST', 'https://'.$domain.'/api/agent-check', [
             'form_params' => ['number_of_agents' => $numberOfAgents],
         ]);
@@ -95,14 +95,14 @@ class CloudExtraActivities extends Controller
     public function getUpgradeCost(Request $request)
     {
         try {
-            $planId  = $request->input('plan');
-            $agents  = $request->input('agents');
+            $planId = $request->input('plan');
+            $agents = $request->input('agents');
             $orderId = $request->input('orderId');
-            $plan    = Plan::find($planId);
+            $plan = Plan::find($planId);
 
-            $planDetails   = userCurrencyAndPrice(\Auth::user()->id, $plan);
-            $actualPrice   = $planDetails['plan']->add_price * $agents;
-            $oldLicense    = Order::where('id', $orderId)->latest()->value('serial_key');
+            $planDetails = userCurrencyAndPrice(\Auth::user()->id, $plan);
+            $actualPrice = $planDetails['plan']->add_price * $agents;
+            $oldLicense = Order::where('id', $orderId)->latest()->value('serial_key');
 
             return $this->getThePaymentCalculationUpgradeDowngradeDisplay(
                 $agents, $oldLicense, $orderId, $planId, $actualPrice, $planDetails['plan']->add_price
@@ -119,20 +119,20 @@ class CloudExtraActivities extends Controller
         try {
             $this->validate($request, [
                 'currentDomain' => 'required',
-                'newDomain'     => 'required',
+                'newDomain' => 'required',
             ], [
                 'currentDomain.required' => __('validation.current_domain_required'),
-                'newDomain.required'     => __('validation.new_domain_required'),
+                'newDomain.required' => __('validation.new_domain_required'),
             ]);
 
-            $orderId       = $request->input('order_id');
-            $order         = Order::where('id', $orderId)->first();
+            $orderId = $request->input('order_id');
+            $order = Order::where('id', $orderId)->first();
 
             if ($order->client != \Auth::user()->id) {
                 return errorResponse(trans('message.invalid_user'));
             }
 
-            $newDomain     = $request->get('newDomain');
+            $newDomain = $request->get('newDomain');
             $currentDomain = $request->get('currentDomain');
 
             if (! filter_var($newDomain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
@@ -155,9 +155,9 @@ class CloudExtraActivities extends Controller
 
             $this->cloudApiPost('/changeDomain', [
                 'currentDomain' => $currentDomain,
-                'newDomain'     => $newDomain,
-                'lic_code'      => $request->get('lic_code'),
-                'product_id'    => $request->product_id,
+                'newDomain' => $newDomain,
+                'lic_code' => $request->get('lic_code'),
+                'product_id' => $request->product_id,
             ]);
 
             $this->jobsForCloudDomain($newDomain, $currentDomain);
@@ -173,7 +173,7 @@ class CloudExtraActivities extends Controller
     private function jobsForCloudDomain(string $newDomain, string $currentDomain): void
     {
         (new Client([]))->request('GET', env('CLOUD_JOB_URL'), [
-            'auth'  => [env('CLOUD_USER'), env('CLOUD_AUTH')],
+            'auth' => [env('CLOUD_USER'), env('CLOUD_AUTH')],
             'query' => ['token' => env('CLOUD_OAUTH_TOKEN'), 'domain' => $newDomain],
         ]);
     }
@@ -188,7 +188,7 @@ class CloudExtraActivities extends Controller
             }
 
             $orderId = $request->input('orderId');
-            $order   = Order::where('id', $orderId)->first();
+            $order = Order::where('id', $orderId)->first();
 
             if ($order->client != \Auth::user()->id) {
                 return errorResponse(trans('message.invalid_user'));
@@ -217,25 +217,25 @@ class CloudExtraActivities extends Controller
                 return errorResponse(trans('message.agent_reduce'));
             }
 
-            $oldLicense  = $order->serial_key;
-            $items       = $this->getThePaymentCalculation($newAgents, $oldLicense, $orderId, null, $request->agentAction);
-            $invoice     = (new RenewController())->renewBySubId($request->subId, $items['planId'], '', $items['price'], '', false, $totalAgents);
+            $oldLicense = $order->serial_key;
+            $items = $this->getThePaymentCalculation($newAgents, $oldLicense, $orderId, null, $request->agentAction);
+            $invoice = (new RenewController())->renewBySubId($request->subId, $items['planId'], '', $items['price'], '', false, $totalAgents);
 
             if ($invoice) {
                 // Determine if subscription is expired — if so, renewal date extension is needed
-                $sub       = Subscription::where('order_id', $orderId)->first();
+                $sub = Subscription::where('order_id', $orderId)->first();
                 $isExpired = $sub && Carbon::now() >= Carbon::parse($sub->ends_at);
 
                 Invoice::find($invoice->invoice_id)->update([
                     'metadata' => [
-                        'type'               => 'agent_alteration',
-                        'sub_id'             => $request->subId,
-                        'new_agents'         => $totalAgents,
-                        'order_id'           => $orderId,
-                        'installation_path'  => $installationPath,
-                        'product_id'         => $request->product_id,
-                        'old_license'        => $oldLicense,
-                        'agent_increase_date'=> $isExpired,
+                        'type' => 'agent_alteration',
+                        'sub_id' => $request->subId,
+                        'new_agents' => $totalAgents,
+                        'order_id' => $orderId,
+                        'installation_path' => $installationPath,
+                        'product_id' => $request->product_id,
+                        'old_license' => $oldLicense,
+                        'agent_increase_date' => $isExpired,
                     ],
                 ]);
 
@@ -251,8 +251,8 @@ class CloudExtraActivities extends Controller
     public function upgradeDowngradeCloud(Request $request)
     {
         try {
-            $planId  = $request->id;
-            $agents  = (int) $request->agents;
+            $planId = $request->id;
+            $agents = (int) $request->agents;
             $orderId = $request->orderId;
 
             $order = Order::find($orderId);
@@ -260,36 +260,36 @@ class CloudExtraActivities extends Controller
                 return errorResponse(trans('message.invalid_user'));
             }
 
-            $oldLicense       = $order->serial_key;
+            $oldLicense = $order->serial_key;
             $installationPath = Installation::where('license_code', $oldLicense)
                 ->where('installation_path', '!=', cloudCentralDomain())
                 ->latest('updated_at')
                 ->value('installation_path');
 
-            $calc          = $this->getThePaymentCalculationUpgradeDowngrade($agents, $oldLicense, $orderId, $planId);
-            $price         = abs(round($calc['price']));
-            $discount      = $calc['discount'] ?? null;
-            $productNew    = $calc['product'];
-            $currencyNew   = $calc['currency'];
+            $calc = $this->getThePaymentCalculationUpgradeDowngrade($agents, $oldLicense, $orderId, $planId);
+            $price = abs(round($calc['price']));
+            $discount = $calc['discount'] ?? null;
+            $productNew = $calc['product'];
+            $currencyNew = $calc['currency'];
 
-            $user          = \Auth::user();
-            $tax           = $this->calculateTax($productNew->id, $user->state, $user->country);
-            $invoiceCtrl   = new InvoiceCtrl();
-            $finalCost     = rounding($invoiceCtrl->calculateTotal($tax['value'], $price));
+            $user = \Auth::user();
+            $tax = $this->calculateTax($productNew->id, $user->state, $user->country);
+            $invoiceCtrl = new InvoiceCtrl();
+            $finalCost = rounding($invoiceCtrl->calculateTotal($tax['value'], $price));
 
             $invoice = Invoice::create([
-                'user_id'     => $user->id,
-                'number'      => rand(11111111, 99999999),
-                'date'        => Carbon::now(),
+                'user_id' => $user->id,
+                'number' => rand(11111111, 99999999),
+                'date' => Carbon::now(),
                 'grand_total' => $finalCost,
-                'currency'    => $currencyNew,
-                'status'      => 'pending',
-                'metadata'    => [
-                    'type'              => 'upgrade_downgrade',
-                    'old_order_id'      => $orderId,
-                    'old_license'       => $oldLicense,
+                'currency' => $currencyNew,
+                'status' => 'pending',
+                'metadata' => [
+                    'type' => 'upgrade_downgrade',
+                    'old_order_id' => $orderId,
+                    'old_license' => $oldLicense,
                     'installation_path' => $installationPath,
-                    'discount'          => $discount,
+                    'discount' => $discount,
                 ],
             ]);
 
@@ -312,35 +312,35 @@ class CloudExtraActivities extends Controller
     private function getThePaymentCalculation($newAgents, $oldLicense, $orderId, $planId = null, $agentAction): array
     {
         try {
-            $sub    = Subscription::where('order_id', $orderId)->first();
+            $sub = Subscription::where('order_id', $orderId)->first();
             $planId = $planId ?? $sub->plan_id;
-            $plan   = Plan::with('productRelation')->find($planId);
+            $plan = Plan::with('productRelation')->find($planId);
 
-            $product    = $plan->productRelation;
-            $currency   = userCurrencyAndPrice('', $product->planRelation->find($planId));
-            $ends_at    = $sub->ends_at;
+            $product = $plan->productRelation;
+            $currency = userCurrencyAndPrice('', $product->planRelation->find($planId));
+            $ends_at = $sub->ends_at;
             $base_price = $currency['plan']?->add_price;
-            $oldAgents  = substr($oldLicense, 12, 16);
-            $planDays   = (int) $plan->days;
+            $oldAgents = substr($oldLicense, 12, 16);
+            $planDays = (int) $plan->days;
 
             switch ($agentAction) {
                 case 'increase':
                     $totalAgents = $newAgents + $oldAgents;
-                    $price       = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+                    $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
                     break;
                 case 'decrease':
                     $totalAgents = $oldAgents - $newAgents;
-                    $price       = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+                    $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
                     break;
             }
 
             return [
-                'id'              => $product_id,
-                'name'            => $product->name,
-                'price'           => round($price),
-                'planId'          => $planId,
-                'quantity'        => 1,
-                'attributes'      => ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $totalAgents],
+                'id' => $product_id,
+                'name' => $product->name,
+                'price' => round($price),
+                'planId' => $planId,
+                'quantity' => 1,
+                'attributes' => ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $totalAgents],
                 'associatedModel' => $product,
             ];
         } catch (\Exception $e) {
@@ -356,9 +356,9 @@ class CloudExtraActivities extends Controller
             return (float) ($base_price * $newAgents);
         }
 
-        $agentsAdded    = $newAgents - $oldAgents;
-        $pricePerDay    = $base_price / $planDays;
-        $daysRemain     = (int) $this->daysRemaining($ends_at);
+        $agentsAdded = $newAgents - $oldAgents;
+        $pricePerDay = $base_price / $planDays;
+        $daysRemain = (int) $this->daysRemaining($ends_at);
 
         return (float) ($agentsAdded * $pricePerDay * $daysRemain);
     }
@@ -369,11 +369,11 @@ class CloudExtraActivities extends Controller
             return (float) ($base_price * $newAgents);
         }
 
-        $daysRemain              = (int) $this->daysRemaining($ends_at);
-        $pricePerDayNewAgents    = ($base_price * $newAgents) / $planDays;
-        $pricePerDayOldAgents    = ($base_price * $oldAgents) / $planDays;
-        $priceRemaining          = $pricePerDayOldAgents * $daysRemain;
-        $priceToBePaid           = $pricePerDayNewAgents * $daysRemain;
+        $daysRemain = (int) $this->daysRemaining($ends_at);
+        $pricePerDayNewAgents = ($base_price * $newAgents) / $planDays;
+        $pricePerDayOldAgents = ($base_price * $oldAgents) / $planDays;
+        $priceRemaining = $pricePerDayOldAgents * $daysRemain;
+        $priceToBePaid = $pricePerDayNewAgents * $daysRemain;
 
         return $priceToBePaid > $priceRemaining ? $priceToBePaid - $priceRemaining : 0;
     }
@@ -381,18 +381,18 @@ class CloudExtraActivities extends Controller
     private function getThePaymentCalculationUpgradeDowngrade($newAgents, $oldLicense, $orderId, $planIdNew): array
     {
         try {
-            $sub       = Subscription::where('order_id', $orderId)->first();
+            $sub = Subscription::where('order_id', $orderId)->first();
             $planIdOld = $sub->plan_id;
-            $ends_at   = $sub->ends_at;
+            $ends_at = $sub->ends_at;
             $oldAgents = substr($oldLicense, 12, 16);
 
-            $planOld     = Plan::with('productRelation')->find($planIdOld);
+            $planOld = Plan::with('productRelation')->find($planIdOld);
             $currencyOld = userCurrencyAndPrice('', $planOld->productRelation->planRelation->find($planIdOld));
-            $base_priceOld  = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->value('add_price') * $oldAgents;
+            $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->value('add_price') * $oldAgents;
             $planDaysOld = (int) $planOld->days;
 
-            $planNew     = Plan::with('productRelation')->find($planIdNew);
-            $productNew  = $planNew->productRelation;
+            $planNew = Plan::with('productRelation')->find($planIdNew);
+            $productNew = $planNew->productRelation;
             $currencyNew = userCurrencyAndPrice('', $productNew->planRelation->find($planIdNew));
             $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->value('add_price') * $newAgents;
             $planDaysNew = (int) $planNew->days;
@@ -406,9 +406,9 @@ class CloudExtraActivities extends Controller
             }
 
             return [
-                'price'    => $result['price'],
+                'price' => $result['price'],
                 'discount' => $result['discount'] ?? null,
-                'product'  => $productNew,
+                'product' => $productNew,
                 'currency' => $currencyNew['currency'],
             ];
         } catch (\Exception $e) {
@@ -424,9 +424,9 @@ class CloudExtraActivities extends Controller
             return ['price' => $base_price_new, 'priceRemaining' => 0, 'priceToBePaid' => $base_price_new, 'discount' => null];
         }
 
-        $daysRemain         = (int) $this->daysRemaining($ends_at);
-        $pricePerDayNew     = $base_price_new / $planDaysNew;
-        $pricePerDayOld     = $base_priceOld / $planDaysOld;
+        $daysRemain = (int) $this->daysRemaining($ends_at);
+        $pricePerDayNew = $base_price_new / $planDaysNew;
+        $pricePerDayOld = $base_priceOld / $planDaysOld;
 
         if ($planDaysOld !== $planDaysNew) {
             return $this->lessPriceNewDaysNotEqualToOldDays($daysRemain, $planDaysNew, $planDaysOld, $pricePerDayNew, $pricePerDayOld, $orderId);
@@ -437,9 +437,9 @@ class CloudExtraActivities extends Controller
 
     private function lessPriceNewDaysEqualToOldDays($daysRemain, $pricePerDayForNewPlan, $pricePerDayForOldPlan, $orderId): array
     {
-        $priceToBePaid  = $pricePerDayForNewPlan * $daysRemain;
+        $priceToBePaid = $pricePerDayForNewPlan * $daysRemain;
         $priceRemaining = $pricePerDayForOldPlan * $daysRemain;
-        $discount       = null;
+        $discount = null;
 
         if ($priceToBePaid > $priceRemaining) {
             $price = $priceToBePaid - $priceRemaining;
@@ -457,13 +457,13 @@ class CloudExtraActivities extends Controller
         $discount = null;
 
         if ($daysRemain <= $planDaysNew && $planDaysOld > $planDaysNew) {
-            $priceToBePaid  = $pricePerDayForNewPlan * $daysRemain;
+            $priceToBePaid = $pricePerDayForNewPlan * $daysRemain;
             $priceRemaining = $pricePerDayForOldPlan * $daysRemain;
         } else {
-            $daysRemainNew      = $planDaysOld - $daysRemain;
+            $daysRemainNew = $planDaysOld - $daysRemain;
             $daysRemainNewFinal = $planDaysNew - $daysRemainNew;
-            $priceToBePaid      = $pricePerDayForNewPlan * $daysRemainNewFinal;
-            $priceRemaining     = $pricePerDayForOldPlan * $daysRemain;
+            $priceToBePaid = $pricePerDayForNewPlan * $daysRemainNewFinal;
+            $priceRemaining = $pricePerDayForOldPlan * $daysRemain;
         }
 
         if ($priceToBePaid > $priceRemaining) {
@@ -485,7 +485,7 @@ class CloudExtraActivities extends Controller
 
         $pricePerDayNew = $base_price_new / $planDaysNew;
         $pricePerDayOld = $base_priceOld / $planDaysOld;
-        $daysRemain     = (int) $this->daysRemaining($ends_at);
+        $daysRemain = (int) $this->daysRemaining($ends_at);
 
         if ($planDaysNew !== $planDaysOld) {
             return $this->newPlanDaysNotEqualToOld($planDaysNew, $planDaysOld, $daysRemain, $pricePerDayNew, $pricePerDayOld);
@@ -496,17 +496,17 @@ class CloudExtraActivities extends Controller
 
     private function newPlanDaysNotEqualToOld($planDaysNew, $planDaysOld, $daysRemain, $pricePerDayNew, $pricePerDayOld): array
     {
-        $daysRemainNew      = $planDaysOld - $daysRemain;
+        $daysRemainNew = $planDaysOld - $daysRemain;
         $daysRemainNewFinal = $planDaysNew - $daysRemainNew;
-        $priceToBePaid      = $pricePerDayNew * $daysRemainNewFinal;
-        $priceRemaining     = $pricePerDayOld * $daysRemain;
+        $priceToBePaid = $pricePerDayNew * $daysRemainNewFinal;
+        $priceRemaining = $pricePerDayOld * $daysRemain;
 
         return ['price' => $priceToBePaid - $priceRemaining, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid, 'discount' => null];
     }
 
     private function newPlanDaysEqualToOld($daysRemain, $pricePerDayNew, $pricePerDayOld, $orderId): array
     {
-        $priceToBePaid  = $pricePerDayNew * $daysRemain;
+        $priceToBePaid = $pricePerDayNew * $daysRemain;
         $priceRemaining = $pricePerDayOld * $daysRemain;
 
         return ['price' => $priceToBePaid - $priceRemaining, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid, 'discount' => null];
@@ -524,13 +524,13 @@ class CloudExtraActivities extends Controller
     public function doTheAgentAltering($newAgents, $oldLicense, $orderId, $installation_path, $product_id)
     {
         try {
-            $len      = strlen($newAgents);
+            $len = strlen($newAgents);
             $lastFour = match (true) {
                 $len === 1 => '000'.$newAgents,
                 $len === 2 => '00'.$newAgents,
                 $len === 3 => '0'.$newAgents,
                 $len === 4 => (string) $newAgents,
-                default    => '0000',
+                default => '0000',
             };
 
             $licenseCode = substr($oldLicense, 0, -4).$lastFour;
@@ -538,10 +538,10 @@ class CloudExtraActivities extends Controller
             Order::where('id', $orderId)->update(['serial_key' => \Crypt::encrypt(substr($licenseCode, 0, 12).$lastFour)]);
 
             $result = $this->cloudApiPost('/performAgentUpgradeOrDowngrade', [
-                'licenseCode'       => $licenseCode,
+                'licenseCode' => $licenseCode,
                 'installation_path' => $installation_path,
-                'product_id'        => $product_id,
-                'old_lic_code'      => $oldLicense,
+                'product_id' => $product_id,
+                'old_lic_code' => $oldLicense,
             ]);
 
             if ($result->status == 'fails') {
@@ -562,28 +562,28 @@ class CloudExtraActivities extends Controller
         int $productID,
         string $oldLicenseCode,
         int $terminatedOrderId = 0,
-        int $newActiveOrderId  = 0,
-        ?float $discount       = null
+        int $newActiveOrderId = 0,
+        ?float $discount = null
     ): void {
         $this->doTheActivity($terminatedOrderId, $newActiveOrderId, $discount);
 
         $this->cloudApiPost('/performProductUpgradeOrDowngrade', [
-            'licenseCode'       => $licenseCode,
+            'licenseCode' => $licenseCode,
             'installation_path' => $installationPath,
-            'product_id'        => $productID,
-            'old_lic_code'      => $oldLicenseCode,
+            'product_id' => $productID,
+            'old_lic_code' => $oldLicenseCode,
         ]);
 
         Order::where('id', $terminatedOrderId)->update(['order_status' => 'Terminated']);
         \DB::table('terminated_order_upgrade')->insert([
             'terminated_order_id' => $terminatedOrderId,
-            'upgraded_order_id'   => $newActiveOrderId,
+            'upgraded_order_id' => $newActiveOrderId,
         ]);
     }
 
     public function formatCurrency(Request $request)
     {
-        $amount   = $request->input('amount');
+        $amount = $request->input('amount');
         $currency = $request->input('currency');
 
         if ($request->has('invoiceId') && $request->has('alter') && $request->get('alter')) {
@@ -609,7 +609,7 @@ class CloudExtraActivities extends Controller
             ->latest()
             ->update(['payment_status' => 'success']);
 
-        $payment_id     = \DB::table('payments')
+        $payment_id = \DB::table('payments')
             ->where('user_id', \Auth::user()->id)
             ->where('payment_status', 'success')
             ->where('payment_method', 'Credit Balance')
@@ -619,7 +619,7 @@ class CloudExtraActivities extends Controller
         $oldOrderNumber = Order::where('id', $terminatedOrderId)->value('number');
         $newOrderNumber = Order::where('id', $newActiveOrderId)->value('number');
 
-        $messageAdmin  = 'A credit of '.$formattedValue.' has been added to the balance due to a plan downgrade. Details of the terminated order can be found here: '
+        $messageAdmin = 'A credit of '.$formattedValue.' has been added to the balance due to a plan downgrade. Details of the terminated order can be found here: '
             .'<a href="'.config('app.url').'/orders/'.$terminatedOrderId.'">'.$oldOrderNumber.'</a>.'
             .' You can also view details of the downgraded order here: '
             .'<a href="'.config('app.url').'/orders/'.$newActiveOrderId.'">'.$newOrderNumber.'</a>.';
@@ -636,21 +636,21 @@ class CloudExtraActivities extends Controller
     private function getThePaymentCalculationUpgradeDowngradeDisplay($newAgents, $oldAgents, $orderId, $planIdNew, $actualPrice, $pricePerAgent): array
     {
         try {
-            $discount      = 0;
-            $planIdOld     = Subscription::where('order_id', $orderId)->value('plan_id');
-            $ends_at       = Subscription::where('order_id', $orderId)->value('ends_at');
-            $oldAgents     = substr($oldAgents, 12, 16);
+            $discount = 0;
+            $planIdOld = Subscription::where('order_id', $orderId)->value('plan_id');
+            $ends_at = Subscription::where('order_id', $orderId)->value('ends_at');
+            $oldAgents = substr($oldAgents, 12, 16);
 
             $product_id_old = Plan::where('id', $planIdOld)->pluck('product')->first();
-            $planDaysOld    = Plan::where('id', $planIdOld)->pluck('days')->first();
-            $productOld     = Product::find($product_id_old);
-            $currencyOld    = userCurrencyAndPrice('', $productOld->planRelation->find($planIdOld));
-            $base_priceOld  = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->value('add_price') * $oldAgents;
+            $planDaysOld = Plan::where('id', $planIdOld)->pluck('days')->first();
+            $productOld = Product::find($product_id_old);
+            $currencyOld = userCurrencyAndPrice('', $productOld->planRelation->find($planIdOld));
+            $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->value('add_price') * $oldAgents;
 
             $product_id_new = Plan::where('id', $planIdNew)->pluck('product')->first();
-            $planDaysNew    = Plan::where('id', $planIdNew)->pluck('days')->first();
-            $productNew     = Product::find($product_id_new);
-            $currencyNew    = userCurrencyAndPrice('', $productNew->planRelation->find($planIdNew));
+            $planDaysNew = Plan::where('id', $planIdNew)->pluck('days')->first();
+            $productNew = Product::find($product_id_new);
+            $currencyNew = userCurrencyAndPrice('', $productNew->planRelation->find($planIdNew));
             $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->value('add_price') * $newAgents;
 
             if ($base_price_new > $base_priceOld) {
@@ -663,15 +663,15 @@ class CloudExtraActivities extends Controller
                 }
             } else {
                 $variables = $this->displayPriceNewLessThanOld($ends_at, $base_price_new, $base_priceOld, $planDaysNew, $planDaysOld);
-                $discount  = $variables['discount'] ?? 0;
+                $discount = $variables['discount'] ?? 0;
             }
 
             return [
-                'priceoldplan'   => currencyFormat($variables['priceRemaining'], $currencyNew['currency'], true),
-                'pricenewplan'   => currencyFormat($variables['priceToBePaid'], $currencyNew['currency'], true),
+                'priceoldplan' => currencyFormat($variables['priceRemaining'], $currencyNew['currency'], true),
+                'pricenewplan' => currencyFormat($variables['priceToBePaid'], $currencyNew['currency'], true),
                 'price_to_be_paid' => currencyFormat(abs($variables['price']), $currencyNew['currency'], true),
-                'discount'       => currencyFormat($discount, $currencyNew['currency'], true),
-                'priceperagent'  => currencyFormat($pricePerAgent, $currencyNew['currency'], true),
+                'discount' => currencyFormat($discount, $currencyNew['currency'], true),
+                'priceperagent' => currencyFormat($pricePerAgent, $currencyNew['currency'], true),
             ];
         } catch (\Exception $e) {
             \Logger::exception($e);
@@ -688,14 +688,14 @@ class CloudExtraActivities extends Controller
 
         $pricePerDayNew = $base_price_new / $planDaysNew;
         $pricePerDayOld = $base_priceOld / $planDaysOld;
-        $daysRemain     = (int) $this->daysRemaining($ends_at);
+        $daysRemain = (int) $this->daysRemaining($ends_at);
 
         if ($planDaysNew !== $planDaysOld) {
             $daysRemainNewFinal = $planDaysNew - ($planDaysOld - $daysRemain);
-            $priceToBePaid      = $pricePerDayNew * $daysRemainNewFinal;
-            $priceRemaining     = $pricePerDayOld * $daysRemain;
+            $priceToBePaid = $pricePerDayNew * $daysRemainNewFinal;
+            $priceRemaining = $pricePerDayOld * $daysRemain;
         } else {
-            $priceToBePaid  = $pricePerDayNew * $daysRemain;
+            $priceToBePaid = $pricePerDayNew * $daysRemain;
             $priceRemaining = $pricePerDayOld * $daysRemain;
         }
 
@@ -710,24 +710,24 @@ class CloudExtraActivities extends Controller
             return ['price' => $base_price_new, 'priceRemaining' => 0, 'priceToBePaid' => $base_price_new, 'discount' => 0];
         }
 
-        $daysRemain         = (int) $this->daysRemaining($ends_at);
-        $pricePerDayNew     = $base_price_new / $planDaysNew;
-        $pricePerDayOld     = $base_priceOld / $planDaysOld;
+        $daysRemain = (int) $this->daysRemaining($ends_at);
+        $pricePerDayNew = $base_price_new / $planDaysNew;
+        $pricePerDayOld = $base_priceOld / $planDaysOld;
 
         if ($planDaysOld !== $planDaysNew) {
             $variables = $this->displayNewPlanDaysNotEqualOld($daysRemain, $planDaysNew, $planDaysOld, $pricePerDayNew, $pricePerDayOld);
-            $price         = $variables['price'];
+            $price = $variables['price'];
             $priceToBePaid = $variables['priceToBePaid'];
             $priceRemaining = $variables['priceRemaining'];
-            $discount      = $variables['discount'];
+            $discount = $variables['discount'];
         } else {
-            $priceToBePaid  = $pricePerDayNew * $daysRemain;
+            $priceToBePaid = $pricePerDayNew * $daysRemain;
             $priceRemaining = $pricePerDayOld * $daysRemain;
             if ($priceToBePaid > $priceRemaining) {
                 $price = $priceToBePaid - $priceRemaining;
             } else {
                 $discount = $priceRemaining - $priceToBePaid;
-                $price    = 0;
+                $price = 0;
             }
         }
 
@@ -739,19 +739,19 @@ class CloudExtraActivities extends Controller
         $discount = 0;
 
         if ($daysRemain <= $planDaysNew && $planDaysOld > $planDaysNew) {
-            $priceToBePaid  = $pricePerDayForNewPlan * $daysRemain;
+            $priceToBePaid = $pricePerDayForNewPlan * $daysRemain;
             $priceRemaining = $pricePerDayForOldPlan * $daysRemain;
         } else {
             $daysRemainNewFinal = $planDaysNew - ($planDaysOld - $daysRemain);
-            $priceToBePaid      = $pricePerDayForNewPlan * $daysRemainNewFinal;
-            $priceRemaining     = $pricePerDayForOldPlan * $daysRemain;
+            $priceToBePaid = $pricePerDayForNewPlan * $daysRemainNewFinal;
+            $priceRemaining = $pricePerDayForOldPlan * $daysRemain;
         }
 
         if ($priceToBePaid > $priceRemaining) {
             $price = $priceToBePaid - $priceRemaining;
         } else {
             $discount = $priceRemaining - $priceToBePaid;
-            $price    = 0;
+            $price = 0;
         }
 
         return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid, 'discount' => $discount];
@@ -772,13 +772,13 @@ class CloudExtraActivities extends Controller
                 return errorResponse(trans('message.agent_decrease_invalid'));
             }
 
-            $orderId   = $request->get('orderId');
-            $planId    = Subscription::where('order_id', $orderId)->value('plan_id');
-            $product   = Product::find(Plan::where('id', $planId)->pluck('product')->first());
-            $plan      = $product->planRelation->find($planId);
-            $currency  = userCurrencyAndPrice('', $plan);
-            $ends_at   = Subscription::where('order_id', $orderId)->value('ends_at');
-            $planDays  = (int) Plan::where('id', $planId)->pluck('days')->first();
+            $orderId = $request->get('orderId');
+            $planId = Subscription::where('order_id', $orderId)->value('plan_id');
+            $product = Product::find(Plan::where('id', $planId)->pluck('product')->first());
+            $plan = $product->planRelation->find($planId);
+            $currency = userCurrencyAndPrice('', $plan);
+            $ends_at = Subscription::where('order_id', $orderId)->value('ends_at');
+            $planDays = (int) Plan::where('id', $planId)->pluck('days')->first();
             $base_price = PlanPrice::where('plan_id', $planId)->where('currency', $currency['currency'])->value('add_price');
 
             if (empty($newAgents)) {
@@ -788,18 +788,18 @@ class CloudExtraActivities extends Controller
             switch ($request->agentAction) {
                 case 'increase':
                     $totalAgents = $newAgents + $oldAgents;
-                    $price       = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+                    $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
                     break;
                 case 'decrease':
                     $totalAgents = $oldAgents - $newAgents;
-                    $price       = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
+                    $price = $this->newAgentlessthenOld($ends_at, $base_price, $totalAgents, $oldAgents, $planDays);
                     break;
             }
 
             return [
                 'pricePerAgent' => currencyFormat($base_price, $currency['currency'], true),
-                'totalPrice'    => currencyFormat($base_price * $totalAgents, $currency['currency'], true),
-                'priceToPay'    => currencyFormat($price, $currency['currency'], true),
+                'totalPrice' => currencyFormat($base_price * $totalAgents, $currency['currency'], true),
+                'priceToPay' => currencyFormat($price, $currency['currency'], true),
             ];
         } catch (\Exception $e) {
             \Logger::exception($e);
@@ -841,13 +841,13 @@ class CloudExtraActivities extends Controller
                 ->paginate((int) $request->input('limit', 10));
 
             $productPlanData->getCollection()->transform(fn ($model) => [
-                'id'                => $model->id,
-                'cloud_product'     => $model->product->name ?? null,
-                'cloud_product_id'  => $model->product->id ?? null,
+                'id' => $model->id,
+                'cloud_product' => $model->product->name ?? null,
+                'cloud_product_id' => $model->product->id ?? null,
                 'cloud_product_key' => $model->cloud_product_key,
-                'cloud_free_plan'   => $model->plan->name ?? null,
-                'cloud_free_plan_id'=> $model->plan->id ?? null,
-                'trial_status'      => (bool) $model->trial_status,
+                'cloud_free_plan' => $model->plan->name ?? null,
+                'cloud_free_plan_id' => $model->plan->id ?? null,
+                'trial_status' => (bool) $model->trial_status,
             ]);
 
             return successResponse('', $productPlanData);
@@ -869,7 +869,7 @@ class CloudExtraActivities extends Controller
 
     public function trialCloudProducts()
     {
-        $cloud   = CloudProducts::where('trial_status', '1')->with('product')->get();
+        $cloud = CloudProducts::where('trial_status', '1')->with('product')->get();
         $product = $cloud->pluck('product.name', 'cloud_product_key')->filter()->all();
 
         return successResponse('Products', $product);
@@ -891,20 +891,20 @@ class CloudExtraActivities extends Controller
         $request->validate(['cloud_countries' => 'required', 'cloud_state' => 'required']);
 
         $countryName = Country::where('country_code_char2', strtoupper($request->get('cloud_countries')))->value('country_name');
-        $state       = $request->get('cloud_state');
-        $city        = $request->get('cloud_city');
-        $geo         = empty($city)
+        $state = $request->get('cloud_state');
+        $city = $request->get('cloud_city');
+        $geo = empty($city)
             ? $this->getStateCoordinates(strtoupper($request->get('cloud_countries')).'-'.$state)
             : $this->getStateCoordinates($city);
-        $state       = State::where('country_code', strtoupper($request->get('cloud_countries')))->where('iso2', $state)->value('state_subdivision_name');
+        $state = State::where('country_code', strtoupper($request->get('cloud_countries')))->where('iso2', $state)->value('state_subdivision_name');
 
         if (! empty($geo)) {
             CloudDataCenters::create([
                 'cloud_countries' => $countryName,
-                'cloud_state'     => $state,
-                'cloud_city'      => $city,
-                'latitude'        => $geo['latitude'],
-                'longitude'       => $geo['longitude'],
+                'cloud_state' => $state,
+                'cloud_city' => $city,
+                'latitude' => $geo['latitude'],
+                'longitude' => $geo['longitude'],
             ]);
 
             return successResponse(__('message.saved_data_center'));
@@ -916,9 +916,9 @@ class CloudExtraActivities extends Controller
     private function getStateCoordinates($stateName)
     {
         $stateName = str_replace(' ', '+', $stateName);
-        $url       = "https://nominatim.openstreetmap.org/search?q={$stateName}&format=json&limit=1";
-        $response  = (new Client(['verify' => true]))->get($url, ['headers' => ['Referer' => $url]]);
-        $data      = json_decode($response->getBody(), true);
+        $url = "https://nominatim.openstreetmap.org/search?q={$stateName}&format=json&limit=1";
+        $response = (new Client(['verify' => true]))->get($url, ['headers' => ['Referer' => $url]]);
+        $data = json_decode($response->getBody(), true);
 
         if (empty($data)) {
             return null;

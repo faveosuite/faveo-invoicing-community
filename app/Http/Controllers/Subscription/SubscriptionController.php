@@ -24,7 +24,8 @@ class SubscriptionController extends Controller
 {
     public function __construct(
         protected ConcretePostSubscriptionHandleController $PostSubscriptionHandle
-    ) {}
+    ) {
+    }
 
     // ── Cron entry point ──────────────────────────────────────────────────
 
@@ -45,7 +46,7 @@ class SubscriptionController extends Controller
 
     public function getOnDayExpiryInfoSubs(): array
     {
-        $stripeEnabled   = (bool) StatusSetting::value('stripe_auto_renewal');
+        $stripeEnabled = (bool) StatusSetting::value('stripe_auto_renewal');
         $razorpayEnabled = (bool) StatusSetting::value('razorpay_auto_renewal');
 
         if (! $stripeEnabled && ! $razorpayEnabled) {
@@ -90,7 +91,7 @@ class SubscriptionController extends Controller
 
     public function getCreatedSubscription(): array
     {
-        $stripeEnabled   = (bool) StatusSetting::value('stripe_auto_renewal');
+        $stripeEnabled = (bool) StatusSetting::value('stripe_auto_renewal');
         $razorpayEnabled = (bool) StatusSetting::value('razorpay_auto_renewal');
 
         if (! $stripeEnabled && ! $razorpayEnabled) {
@@ -114,7 +115,7 @@ class SubscriptionController extends Controller
                     ->orWhereDate('ends_at', $endDate)
                 )
                 ->where(fn ($q) => $q
-                    ->when($stripeEnabled,   fn ($q) => $q->orWhere('autoRenew_status', 2))
+                    ->when($stripeEnabled, fn ($q) => $q->orWhere('autoRenew_status', 2))
                     ->when($razorpayEnabled, fn ($q) => $q->orWhere('rzp_subscription', 2))
                 )
                 ->get()
@@ -143,22 +144,22 @@ class SubscriptionController extends Controller
 
     private function processSubscriptionRenewal(object $subscriptionData): void
     {
-        $invoice       = null;
-        $cost          = null;
-        $currency      = null;
-        $order         = null;
-        $user          = null;
-        $product       = null;
+        $invoice = null;
+        $cost = null;
+        $currency = null;
+        $order = null;
+        $user = null;
+        $product = null;
         $paymentMethod = null;
 
         try {
-            $subscription  = Subscription::findOrFail($subscriptionData->id);
-            $plan          = Plan::findOrFail($subscription->plan_id);
-            $order         = Order::findOrFail($subscription->order_id);
-            $user          = User::findOrFail($subscription->user_id);
-            $product       = Product::findOrFail($subscription->product_id);
-            $planDetails   = userCurrencyAndPrice($user->id, $plan);
-            $currency      = $planDetails['currency'];
+            $subscription = Subscription::findOrFail($subscriptionData->id);
+            $plan = Plan::findOrFail($subscription->plan_id);
+            $order = Order::findOrFail($subscription->order_id);
+            $user = User::findOrFail($subscription->user_id);
+            $product = Product::findOrFail($subscription->product_id);
+            $planDetails = userCurrencyAndPrice($user->id, $plan);
+            $currency = $planDetails['currency'];
             $paymentMethod = $this->resolvePaymentMethod($subscription);
 
             if (is_null($planDetails['plan'])) {
@@ -170,11 +171,12 @@ class SubscriptionController extends Controller
 
             if ($cost == 0) {
                 $subscription->update(['is_subscribed' => 0]);
+
                 return;
             }
 
-            $invoice  = $this->findOrCreateRenewalInvoice($subscription, $order, $product, $user, $plan, $cost, $currency);
-            $cost     = $invoice->grand_total;
+            $invoice = $this->findOrCreateRenewalInvoice($subscription, $order, $product, $user, $plan, $cost, $currency);
+            $cost = $invoice->grand_total;
             $currency = $invoice->currency;
             $unitCost = $this->PostSubscriptionHandle->calculateUnitCost($currency, $cost);
 
@@ -199,8 +201,13 @@ class SubscriptionController extends Controller
 
     private function resolvePaymentMethod(Subscription $subscription): ?string
     {
-        if ($subscription->autoRenew_status != '0') return 'stripe';
-        if ($subscription->rzp_subscription  != '0') return 'razorpay';
+        if ($subscription->autoRenew_status != '0') {
+            return 'stripe';
+        }
+        if ($subscription->rzp_subscription != '0') {
+            return 'razorpay';
+        }
+
         return null;
     }
 
@@ -210,6 +217,7 @@ class SubscriptionController extends Controller
 
         if (isAgentAllowed($subscription->product_id, $subscription->plan_id)) {
             $pricePerAgent = $price / $planDetails['plan']->no_of_agents;
+
             return (float) $this->getPriceforCloud($order, $pricePerAgent);
         }
 
@@ -245,7 +253,7 @@ class SubscriptionController extends Controller
             ->oldest()
             ->value('invoice_id');
 
-        $agents      = \DB::table('invoice_items')->where('invoice_id', $originalInvoiceId)->value('agents');
+        $agents = \DB::table('invoice_items')->where('invoice_id', $originalInvoiceId)->value('agents');
         $invoiceItem = (new BaseRenewController())->generateInvoice($product, $user, $order->id, $plan->id, $cost, '', $agents, $currency);
 
         return Invoice::findOrFail($invoiceItem->invoice_id);
@@ -261,33 +269,33 @@ class SubscriptionController extends Controller
                 ->latest()
                 ->value('invoice_id');
 
-            $item    = \DB::table('invoice_items')->where('invoice_id', $invoiceId)->where('product_id', $subscription->product_id)->first();
+            $item = \DB::table('invoice_items')->where('invoice_id', $invoiceId)->where('product_id', $subscription->product_id)->first();
             $invoice = Invoice::where('id', $item?->invoice_id)->where('status', 'pending')->first();
 
             if (! $invoice) {
                 return;
             }
 
-            $order       = Order::find($subscription->order_id);
-            $user        = User::find($subscription->user_id);
+            $order = Order::find($subscription->order_id);
+            $user = User::find($subscription->user_id);
             $productName = Product::where('id', $subscription->product_id)->value('name');
-            $cost        = $invoice->grand_total;
+            $cost = $invoice->grand_total;
 
             $sub = Subscription::find($subscription->id);
 
             if ($sub->subscribe_id && $sub->rzp_subscription == '2') {
                 $status = app(\App\Services\Payment\SubscriptionService::class)->getStatus('Razorpay', $sub->subscribe_id);
                 match ($status) {
-                    'authenticated'  => $this->handleAuthenticatedSubscription($sub, $invoice, $cost, $user, $order, $productName, 'razorpay'),
-                    'expired'        => $sub->update(['rzp_subscription' => '1', 'subscribe_id' => '']),
-                    default          => null,
+                    'authenticated' => $this->handleAuthenticatedSubscription($sub, $invoice, $cost, $user, $order, $productName, 'razorpay'),
+                    'expired' => $sub->update(['rzp_subscription' => '1', 'subscribe_id' => '']),
+                    default => null,
                 };
             } elseif ($sub->subscribe_id && $sub->autoRenew_status == '2') {
                 $status = app(\App\Services\Payment\SubscriptionService::class)->getStatus('Stripe', $sub->subscribe_id);
                 match ($status) {
-                    'active'             => $this->handleAuthenticatedSubscription($sub, $invoice, $cost, $user, $order, $productName, 'stripe'),
+                    'active' => $this->handleAuthenticatedSubscription($sub, $invoice, $cost, $user, $order, $productName, 'stripe'),
                     'incomplete_expired' => $sub->update(['autoRenew_status' => '1', 'subscribe_id' => '']),
-                    default              => null,
+                    default => null,
                 };
             }
         } catch (\Exception $ex) {
@@ -340,7 +348,7 @@ class SubscriptionController extends Controller
             }
         } elseif ($response->status === 'incomplete') {
             $stripeInvoice = \Stripe\Invoice::retrieve($response->raw['latest_invoice'] ?? null);
-            $url           = $stripeInvoice->hosted_invoice_url;
+            $url = $stripeInvoice->hosted_invoice_url;
 
             if ($url && emailSendingStatus()) {
                 $this->sendPendingAuthMail($subscription, $product, $cost, $currency, $plan, $url, $user);
@@ -355,7 +363,7 @@ class SubscriptionController extends Controller
 
         if ($response->status === 'created') {
             $cost = $this->calculateReverseUnitCost($currency, $unitCost);
-            $url  = $response->raw['short_url'] ?? null;
+            $url = $response->raw['short_url'] ?? null;
             $this->sendPendingAuthMail($subscription, $product, $cost, $currency, $plan, $url, $user);
             Subscription::where('id', $subscription->id)->update(['subscribe_id' => $response->id, 'rzp_subscription' => '2']);
         }
@@ -379,16 +387,16 @@ class SubscriptionController extends Controller
         ];
 
         return match ($decimalPlaces[$currency] ?? 2) {
-            0       => (float) round((int) $cost),
-            3       => round((int) $cost) / 1000,
+            0 => (float) round((int) $cost),
+            3 => round((int) $cost) / 1000,
             default => round((int) $cost) / 100,
         };
     }
 
     private function sendPendingAuthMail(Subscription $subscription, Product $product, $cost, string $currency, Plan $plan, ?string $url, $user): void
     {
-        $setting  = Setting::find(1);
-        $contact  = getContactData();
+        $setting = Setting::find(1);
+        $contact = getContactData();
         $template = TemplateType::where('name', 'stripe_subscription_authentication')
             ->with('templates')
             ->first()
@@ -402,18 +410,18 @@ class SubscriptionController extends Controller
         $order = Order::find($subscription->order_id);
 
         $replace = [
-            'name'              => ucfirst($user->first_name).' '.ucfirst($user->last_name),
-            'product'           => $product->name,
-            'total'             => currencyFormat($cost, $currency),
-            'contact'           => $contact['contact'],
-            'logo'              => $contact['logo'],
-            'expiry_date'       => Carbon::tomorrow()->format('d M Y'),
-            'reply_email'       => $setting->company_email,
+            'name' => ucfirst($user->first_name).' '.ucfirst($user->last_name),
+            'product' => $product->name,
+            'total' => currencyFormat($cost, $currency),
+            'contact' => $contact['contact'],
+            'logo' => $contact['logo'],
+            'expiry_date' => Carbon::tomorrow()->format('d M Y'),
+            'reply_email' => $setting->company_email,
             'application_title' => $setting->title,
-            'company_title'     => $setting->company,
-            'url'               => $url,
-            'number'            => $order?->number,
-            'date'              => Carbon::parse($subscription->update_ends_at)->format('d M Y'),
+            'company_title' => $setting->company,
+            'url' => $url,
+            'number' => $order?->number,
+            'date' => Carbon::parse($subscription->update_ends_at)->format('d M Y'),
         ];
 
         (new \App\Http\Controllers\Common\PhpMailController())

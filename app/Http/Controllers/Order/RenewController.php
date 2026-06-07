@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\License\Models\Installation;
 use App\Model\Common\FaveoCloud;
@@ -312,22 +311,21 @@ class RenewController extends BaseRenewController
             );
 
             $planId = (int) $request->input('plan');
-            $sub    = Subscription::findOrFail($id);
-            $plan   = Plan::findOrFail($planId);
+            $sub = Subscription::findOrFail($id);
+            $plan = Plan::findOrFail($planId);
 
             $existingUnpaidInvoice = $this->checkExistingUnpaidInvoice($sub, $planId);
             if ($existingUnpaidInvoice) {
                 return successResponse(trans('message.existings_invoice'), ['invoice_id' => $existingUnpaidInvoice->invoice_id]);
             }
 
-            $planDetails       = userCurrencyAndPrice(\Auth::user()->id, $plan);
-            $price             = $planDetails['plan']->renew_price;
-            $currency          = $planDetails['currency'];
+            $planDetails = userCurrencyAndPrice(\Auth::user()->id, $plan);
+            $price = $planDetails['plan']->renew_price;
+            $currency = $planDetails['currency'];
             $noOfAgentsPerPlan = (int) $planDetails['plan']->no_of_agents;
 
-            $agents = InvoiceItem::whereHas('invoice', fn ($q) =>
-                    $q->whereHas('orders', fn ($q) => $q->where('orders.id', $sub->order_id))
-                )
+            $agents = InvoiceItem::whereHas('invoice', fn ($q) => $q->whereHas('orders', fn ($q) => $q->where('orders.id', $sub->order_id))
+            )
                 ->orderByDesc('id')
                 ->value('agents');
 
@@ -335,7 +333,7 @@ class RenewController extends BaseRenewController
                 ? ($price / $noOfAgentsPerPlan) * (int) $agents
                 : $price;
 
-            $items     = $this->invoiceBySubscriptionId($id, $planId, $cost, $currency, $agents ?: null);
+            $items = $this->invoiceBySubscriptionId($id, $planId, $cost, $currency, $agents ?: null);
             $invoiceid = $items->invoice_id;
 
             return successResponse('', ['invoice_id' => $invoiceid]);

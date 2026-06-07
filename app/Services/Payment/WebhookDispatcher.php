@@ -65,6 +65,7 @@ class WebhookDispatcher
                     'payment_intent' => $object['payment_intent'] ?? $object['id'] ?? null,
                 ]);
             }
+
             return;
         }
 
@@ -72,9 +73,9 @@ class WebhookDispatcher
         if ($orderId && $order = OpenPaymentOrder::find($orderId)) {
             if (! $order->isPaid()) {
                 $order->update([
-                    'payment_status'          => 'completed',
-                    'gateway_transaction_id'  => $object['payment_intent'] ?? $object['id'] ?? null,
-                    'paid_at'                 => now(),
+                    'payment_status' => 'completed',
+                    'gateway_transaction_id' => $object['payment_intent'] ?? $object['id'] ?? null,
+                    'paid_at' => now(),
                 ]);
             }
         }
@@ -95,7 +96,7 @@ class WebhookDispatcher
     private static function handleRazorpayPayment(array $event): void
     {
         $payment = $event['payload']['payment']['entity'] ?? [];
-        $type    = $event['event'] ?? '';
+        $type = $event['event'] ?? '';
 
         if ($invoiceId = $payment['notes']['invoice_id'] ?? null) {
             if ($invoice = Invoice::find($invoiceId)) {
@@ -105,6 +106,7 @@ class WebhookDispatcher
                     ]);
                 }
             }
+
             return;
         }
 
@@ -112,9 +114,9 @@ class WebhookDispatcher
         if ($orderId && $order = OpenPaymentOrder::find($orderId)) {
             if ($type === 'payment.captured' && ! $order->isPaid()) {
                 $order->update([
-                    'payment_status'         => 'completed',
+                    'payment_status' => 'completed',
                     'gateway_transaction_id' => $payment['id'] ?? null,
-                    'paid_at'                => now(),
+                    'paid_at' => now(),
                 ]);
             } elseif ($type === 'payment.failed' && ! $order->isPaid()) {
                 $order->update(['payment_status' => 'failed']);
