@@ -11,7 +11,6 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Traits\TaxCalculation;
-use App\User;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -88,18 +87,19 @@ class BaseRenewController extends Controller
     public function getCost(Request $request)
     {
         try {
-            $planId  = $request->input('plan');
+            $planId = $request->input('plan');
             $orderId = $request->input('order');
 
             if (! $planId) {
                 $currency = getCurrencyForClient(\Auth::user()->country);
+
                 return successResponse('', ['formatted_price' => currencyFormat(0, $currency)]);
             }
 
-            $plan        = Plan::find($planId);
+            $plan = Plan::find($planId);
             $planDetails = userCurrencyAndPrice(\Auth::user()->id, $plan);
-            $price       = $planDetails['plan']->renew_price;
-            $currency    = $planDetails['currency'];
+            $price = $planDetails['plan']->renew_price;
+            $currency = $planDetails['currency'];
 
             $agents = InvoiceItem::whereHas('invoice', fn ($q) => $q->whereHas('orders', fn ($q) => $q->where('orders.id', $orderId)))
                 ->where('plan_id', $planId)
@@ -116,7 +116,7 @@ class BaseRenewController extends Controller
 
             return successResponse('', [
                 'formatted_price' => $formattedCurrency,
-                'renewalPrice'    => $renewalPrice,
+                'renewalPrice' => $renewalPrice,
             ]);
         } catch (Exception $ex) {
             return errorResponse($ex->getMessage());

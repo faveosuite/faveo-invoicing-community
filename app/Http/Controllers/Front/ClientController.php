@@ -211,13 +211,13 @@ class ClientController extends BaseClientController
                 'invoice_number' => $latestInvoice?->number,
                 'sub_id' => $order->subscription?->id,
                 'is_cloud' => in_array($order->productRelation?->id, cloudPopupProducts()),
-                'autorenew_status'    => (bool) $order->subscription?->autoRenew_status,
-                'is_subscribed'       => (bool) $order->subscription?->is_subscribed,
-                'autorenew_log'       => \App\Payment_log::where('order', $order->number)
+                'autorenew_status' => (bool) $order->subscription?->autoRenew_status,
+                'is_subscribed' => (bool) $order->subscription?->is_subscribed,
+                'autorenew_log' => \App\Payment_log::where('order', $order->number)
                     ->where('payment_type', 'Payment method updated')
                     ->orderByDesc('id')
                     ->first(['payment_method', 'date']),
-                'available_gateways'  => $this->autoRenewalGateways($user->country),
+                'available_gateways' => $this->autoRenewalGateways($user->country),
                 'autorenewal_enabled' => count($this->autoRenewalGateways($user->country)) > 0,
                 'user' => [
                     'name' => ucfirst($user->first_name ?? '').' '.ucfirst($user->last_name ?? ''),
@@ -571,14 +571,18 @@ class ClientController extends BaseClientController
 
     private function autoRenewalGateways(string $country): array
     {
-        $status   = \App\Model\Common\StatusSetting::first(['stripe_auto_renewal', 'razorpay_auto_renewal']);
+        $status = \App\Model\Common\StatusSetting::first(['stripe_auto_renewal', 'razorpay_auto_renewal']);
         $currency = getCurrencyForClient($country);
-        $active   = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway($currency);
-        $active   = array_map('strtolower', $active);
+        $active = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway($currency);
+        $active = array_map('strtolower', $active);
 
         $enabled = [];
-        if ($status?->stripe_auto_renewal   && in_array('stripe',   $active)) $enabled[] = 'Stripe';
-        if ($status?->razorpay_auto_renewal && in_array('razorpay', $active)) $enabled[] = 'Razorpay';
+        if ($status?->stripe_auto_renewal && in_array('stripe', $active)) {
+            $enabled[] = 'Stripe';
+        }
+        if ($status?->razorpay_auto_renewal && in_array('razorpay', $active)) {
+            $enabled[] = 'Razorpay';
+        }
 
         return $enabled;
     }

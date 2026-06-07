@@ -20,17 +20,17 @@ class SettingsController extends Controller
     public function getSettings()
     {
         try {
-            $keys   = ApiKey::select('rzp_key', 'rzp_secret', 'apilayer_key', 'razorpay_webhook_secret')->first();
+            $keys = ApiKey::select('rzp_key', 'rzp_secret', 'apilayer_key', 'razorpay_webhook_secret')->first();
             $status = StatusSetting::select('razorpay_auto_renewal')->first();
 
             return successResponse('', [
-                'rzp_key'          => $keys->rzp_key ?? '',
-                'rzp_secret'       => $keys->rzp_secret ?? '',
-                'apilayer_key'     => $keys->apilayer_key ?? '',
-                'webhook_secret'   => $keys->razorpay_webhook_secret ?? '',
-                'processing_fee'   => (string) ProcessingFee::percent('razorpay'),
-                'auto_renewal'     => (bool) ($status->razorpay_auto_renewal ?? false),
-                'webhook_url'      => url('webhook/razorpay'),
+                'rzp_key' => $keys->rzp_key ?? '',
+                'rzp_secret' => $keys->rzp_secret ?? '',
+                'apilayer_key' => $keys->apilayer_key ?? '',
+                'webhook_secret' => $keys->razorpay_webhook_secret ?? '',
+                'processing_fee' => (string) ProcessingFee::percent('razorpay'),
+                'auto_renewal' => (bool) ($status->razorpay_auto_renewal ?? false),
+                'webhook_url' => url('webhook/razorpay'),
             ]);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
@@ -40,13 +40,13 @@ class SettingsController extends Controller
     public function updateApiKey(Request $request)
     {
         $request->validate([
-            'rzp_key'        => 'required|string',
-            'rzp_secret'     => 'required|string',
+            'rzp_key' => 'required|string',
+            'rzp_secret' => 'required|string',
             'webhook_secret' => 'nullable|string',
             'processing_fee' => 'nullable|numeric|min:0|max:100',
-            'auto_renewal'   => 'nullable|boolean',
+            'auto_renewal' => 'nullable|boolean',
         ], [
-            'rzp_key.required'    => __('message.razorpay_key_required'),
+            'rzp_key.required' => __('message.razorpay_key_required'),
             'rzp_secret.required' => __('message.razorpay_secret_required'),
         ]);
 
@@ -55,10 +55,10 @@ class SettingsController extends Controller
             $api->order->create(['receipt' => 'key-validation', 'amount' => 2000 * 100, 'currency' => 'INR', 'payment_capture' => 1]);
 
             ApiKey::find(1)->update([
-                'rzp_key'                  => $request->input('rzp_key'),
-                'rzp_secret'               => $request->input('rzp_secret'),
-                'apilayer_key'             => $request->input('apilayer_key'),
-                'razorpay_webhook_secret'  => $request->input('webhook_secret'),
+                'rzp_key' => $request->input('rzp_key'),
+                'rzp_secret' => $request->input('rzp_secret'),
+                'apilayer_key' => $request->input('apilayer_key'),
+                'razorpay_webhook_secret' => $request->input('webhook_secret'),
             ]);
 
             ProcessingFee::store('razorpay', (float) $request->input('processing_fee', 0));

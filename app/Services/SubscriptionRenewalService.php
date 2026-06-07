@@ -12,9 +12,9 @@ class SubscriptionRenewalService
     /**
      * Extend subscription dates by the plan's days, then sync with the license server.
      *
-     * @param bool $fromNowIfExpired  true for auto-renewal: if the date has already passed,
-     *                                extend from now() instead of the expired date.
-     *                                false for manual renewal: always extend from the stored date.
+     * @param  bool  $fromNowIfExpired  true for auto-renewal: if the date has already passed,
+     *                                  extend from now() instead of the expired date.
+     *                                  false for manual renewal: always extend from the stored date.
      */
     public function extendDates(Subscription $sub, int $days, bool $fromNowIfExpired = false): void
     {
@@ -24,8 +24,8 @@ class SubscriptionRenewalService
         $updatesExpiry = $this->computeExpiry($permissions['generateUpdatesxpiryDate'], $sub->update_ends_at, $days, $fromNowIfExpired);
         $supportExpiry = $this->computeExpiry($permissions['generateSupportExpiryDate'], $sub->support_ends_at, $days, $fromNowIfExpired);
 
-        $sub->ends_at         = $licenseExpiry;
-        $sub->update_ends_at  = $updatesExpiry;
+        $sub->ends_at = $licenseExpiry;
+        $sub->update_ends_at = $updatesExpiry;
         $sub->support_ends_at = $supportExpiry;
         $sub->save();
 
@@ -54,8 +54,8 @@ class SubscriptionRenewalService
     }
 
     private const PERMISSION_MAP = [
-        'ends_at'         => 'generateLicenseExpiryDate',
-        'update_ends_at'  => 'generateUpdatesxpiryDate',
+        'ends_at' => 'generateLicenseExpiryDate',
+        'update_ends_at' => 'generateUpdatesxpiryDate',
         'support_ends_at' => 'generateSupportExpiryDate',
     ];
 
@@ -85,9 +85,9 @@ class SubscriptionRenewalService
 
     public function updateInstallationLimit(Subscription $sub, int $limit): void
     {
-        $licenseService  = app(\App\License\Services\LicenseService::class);
-        $order           = Order::find($sub->order_id);
-        $ipAndDomain     = \App\License\Services\LicenseService::parseIpAndDomain($order->domain);
+        $licenseService = app(\App\License\Services\LicenseService::class);
+        $order = Order::find($sub->order_id);
+        $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($order->domain);
         $existingLicense = $licenseService->findByCode($order->serial_key);
 
         if (! $existingLicense) {
@@ -95,14 +95,14 @@ class SubscriptionRenewalService
         }
 
         $licenseService->update($existingLicense->id, [
-            'license_order_number'   => $order->number,
-            'license_domain'         => $ipAndDomain['domain'],
-            'license_ip'             => $ipAndDomain['ip'],
+            'license_order_number' => $order->number,
+            'license_domain' => $ipAndDomain['domain'],
+            'license_ip' => $ipAndDomain['ip'],
             'license_require_domain' => $ipAndDomain['requireDomain'],
-            'license_expire_date'    => $sub->ends_at ? Carbon::parse($sub->ends_at)->format('Y-m-d') : $existingLicense->license_expire_date,
-            'license_updates_date'   => $sub->update_ends_at ? Carbon::parse($sub->update_ends_at)->format('Y-m-d') : $existingLicense->license_updates_date,
-            'license_support_date'   => $sub->support_ends_at ? Carbon::parse($sub->support_ends_at)->format('Y-m-d') : $existingLicense->license_support_date,
-            'license_limit'          => $limit,
+            'license_expire_date' => $sub->ends_at ? Carbon::parse($sub->ends_at)->format('Y-m-d') : $existingLicense->license_expire_date,
+            'license_updates_date' => $sub->update_ends_at ? Carbon::parse($sub->update_ends_at)->format('Y-m-d') : $existingLicense->license_updates_date,
+            'license_support_date' => $sub->support_ends_at ? Carbon::parse($sub->support_ends_at)->format('Y-m-d') : $existingLicense->license_support_date,
+            'license_limit' => $limit,
         ]);
     }
 
@@ -121,10 +121,10 @@ class SubscriptionRenewalService
         $installService = app(\App\License\Services\InstallationService::class);
         $licenseService = app(\App\License\Services\LicenseService::class);
 
-        $licenseCode    = $sub->order->serial_key;
-        $domain         = $sub->order->domain;
-        $orderNo        = $sub->order->number;
-        $ipAndDomain    = \App\License\Services\LicenseService::parseIpAndDomain($domain);
+        $licenseCode = $sub->order->serial_key;
+        $domain = $sub->order->domain;
+        $orderNo = $sub->order->number;
+        $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($domain);
         $existingLicense = $licenseService->findByCode($licenseCode);
 
         if (! $existingLicense) {
@@ -132,14 +132,14 @@ class SubscriptionRenewalService
         }
 
         $licenseService->update($existingLicense->id, [
-            'license_order_number'    => $orderNo,
-            'license_domain'          => $ipAndDomain['domain'],
-            'license_ip'              => $ipAndDomain['ip'],
-            'license_require_domain'  => $ipAndDomain['requireDomain'],
-            'license_expire_date'     => $licenseExpiry ? Carbon::parse($licenseExpiry)->format('Y-m-d') : '',
-            'license_updates_date'    => $updatesExpiry ? Carbon::parse($updatesExpiry)->format('Y-m-d') : '',
-            'license_support_date'    => $supportExpiry ? Carbon::parse($supportExpiry)->format('Y-m-d') : '',
-            'license_limit'           => $installService->countActiveInstallations($licenseCode) ?: 2,
+            'license_order_number' => $orderNo,
+            'license_domain' => $ipAndDomain['domain'],
+            'license_ip' => $ipAndDomain['ip'],
+            'license_require_domain' => $ipAndDomain['requireDomain'],
+            'license_expire_date' => $licenseExpiry ? Carbon::parse($licenseExpiry)->format('Y-m-d') : '',
+            'license_updates_date' => $updatesExpiry ? Carbon::parse($updatesExpiry)->format('Y-m-d') : '',
+            'license_support_date' => $supportExpiry ? Carbon::parse($supportExpiry)->format('Y-m-d') : '',
+            'license_limit' => $installService->countActiveInstallations($licenseCode) ?: 2,
         ]);
     }
 }

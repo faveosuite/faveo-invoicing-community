@@ -25,20 +25,21 @@ class SubscriptionWebhookService
 {
     public function __construct(
         private readonly ConcretePostSubscriptionHandleController $handler
-    ) {}
+    ) {
+    }
 
     // ── Stripe ────────────────────────────────────────────────────────────
 
     public function handleStripeEvent(array $event): void
     {
-        $type   = $event['type'] ?? null;
+        $type = $event['type'] ?? null;
         $object = $event['data']['object'] ?? [];
 
         match ($type) {
-            'invoice.payment_succeeded'      => $this->onStripeInvoicePaid($object),
-            'invoice.payment_failed'         => $this->onStripeInvoiceFailed($object),
-            'customer.subscription.deleted'  => $this->onStripeSubscriptionDeleted($object),
-            default                          => null,
+            'invoice.payment_succeeded' => $this->onStripeInvoicePaid($object),
+            'invoice.payment_failed' => $this->onStripeInvoiceFailed($object),
+            'customer.subscription.deleted' => $this->onStripeSubscriptionDeleted($object),
+            default => null,
         };
     }
 
@@ -55,7 +56,7 @@ class SubscriptionWebhookService
         }
 
         $amountPaid = $invoice['amount_paid'] ?? 0;
-        $currency   = strtoupper($invoice['currency'] ?? '');
+        $currency = strtoupper($invoice['currency'] ?? '');
 
         $this->fulfillRenewal('stripe', $gatewaySubscriptionId, $amountPaid, $currency);
     }
@@ -74,8 +75,8 @@ class SubscriptionWebhookService
 
         $this->handler->disableAutorenewalStatusByOrderId($subscription->order_id);
 
-        $order   = Order::find($subscription->order_id);
-        $user    = User::find($subscription->user_id);
+        $order = Order::find($subscription->order_id);
+        $user = User::find($subscription->user_id);
         $product = Product::find($subscription->product_id);
 
         $this->handler->sendFailedPayment(
@@ -101,16 +102,16 @@ class SubscriptionWebhookService
 
         match ($type) {
             'subscription.charged' => $this->onRazorpayCharged($event['payload'] ?? []),
-            'subscription.halted'  => $this->onRazorpayHalted($event['payload'] ?? []),
-            default                => null,
+            'subscription.halted' => $this->onRazorpayHalted($event['payload'] ?? []),
+            default => null,
         };
     }
 
     private function onRazorpayCharged(array $payload): void
     {
         $gatewaySubscriptionId = $payload['subscription']['entity']['id'] ?? null;
-        $amountPaid            = $payload['payment']['entity']['amount'] ?? 0;
-        $currency              = strtoupper($payload['payment']['entity']['currency'] ?? '');
+        $amountPaid = $payload['payment']['entity']['amount'] ?? 0;
+        $currency = strtoupper($payload['payment']['entity']['currency'] ?? '');
 
         if (! $gatewaySubscriptionId) {
             return;
@@ -133,8 +134,8 @@ class SubscriptionWebhookService
 
         $this->handler->disableAutorenewalStatusByOrderId($subscription->order_id);
 
-        $order   = Order::find($subscription->order_id);
-        $user    = User::find($subscription->user_id);
+        $order = Order::find($subscription->order_id);
+        $user = User::find($subscription->user_id);
         $product = Product::find($subscription->product_id);
 
         $this->handler->sendFailedPayment(
@@ -151,16 +152,17 @@ class SubscriptionWebhookService
         $subscription = Subscription::where('subscribe_id', $gatewaySubscriptionId)->first();
         if (! $subscription) {
             \Logger::warning("SubscriptionWebhook: no subscription found for {$gateway} ID {$gatewaySubscriptionId}");
+
             return;
         }
 
-        $order   = Order::findOrFail($subscription->order_id);
-        $user    = User::findOrFail($subscription->user_id);
-        $plan    = Plan::findOrFail($subscription->plan_id);
+        $order = Order::findOrFail($subscription->order_id);
+        $user = User::findOrFail($subscription->user_id);
+        $plan = Plan::findOrFail($subscription->plan_id);
         $product = Product::findOrFail($subscription->product_id);
 
         $planDetails = userCurrencyAndPrice($user->id, $plan);
-        $currency    = $planDetails['currency'];
+        $currency = $planDetails['currency'];
 
         // Convert gateway amount (smallest unit) to local currency amount
         $cost = $this->fromGatewayAmount($gatewayAmount, $currency);
@@ -205,7 +207,7 @@ class SubscriptionWebhookService
             ->oldest()
             ->value('invoice_id');
 
-        $agents      = \DB::table('invoice_items')->where('invoice_id', $originalInvoiceId)->value('agents');
+        $agents = \DB::table('invoice_items')->where('invoice_id', $originalInvoiceId)->value('agents');
         $invoiceItem = (new BaseRenewController())->generateInvoice($product, $user, $order->id, $plan->id, $cost, '', $agents, $currency);
 
         return Invoice::findOrFail($invoiceItem->invoice_id);

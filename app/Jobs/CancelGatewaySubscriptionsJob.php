@@ -37,8 +37,8 @@ class CancelGatewaySubscriptionsJob implements ShouldQueue
 
                     $subscription->update([
                         'is_subscribed' => 0,
-                        $statusField    => 0,
-                        'subscribe_id'  => '',
+                        $statusField => 0,
+                        'subscribe_id' => '',
                     ]);
                 }
             });
