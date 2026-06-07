@@ -358,8 +358,7 @@ class ClientController extends BaseClientController
                 ->where('status', 1)
                 ->where('days', '!=', 14)
                 ->with([
-                    'planPrice' => fn ($q) =>
-                    $q->where('currency', $currency)
+                    'planPrice' => fn ($q) => $q->where('currency', $currency)
                         ->where('renew_price', '!=', '0')])
                 ->get()
                 ->filter(fn ($plan) => $plan->planPrice->isNotEmpty());
