@@ -597,15 +597,15 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             }
 
             return Pdf::view('themes.default1.invoice.newpdf', [
-                'invoice'      => $invoice,
+                'invoice' => $invoice,
                 'invoiceItems' => $invoice->invoiceItem()->get(),
-                'user'         => $invoiceUser,
-                'set'          => $set,
-                'base64'       => $base64,
-                'order'        => Order::getOrderLink(OrderInvoiceRelation::where('invoice_id', $id)->value('order_id'), 'my-order'),
-                'date'         => getDateHtml($invoice->date),
-                'symbol'       => $invoice->currency,
-                'totals'       => $totals,
+                'user' => $invoiceUser,
+                'set' => $set,
+                'base64' => $base64,
+                'order' => Order::getOrderLink(OrderInvoiceRelation::where('invoice_id', $id)->value('order_id'), 'my-order'),
+                'date' => getDateHtml($invoice->date),
+                'symbol' => $invoice->currency,
+                'totals' => $totals,
             ])
                 ->download($authUser->first_name.'-invoice.pdf');
         } catch (\Exception $ex) {
