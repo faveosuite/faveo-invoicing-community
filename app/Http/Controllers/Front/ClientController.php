@@ -211,16 +211,14 @@ class ClientController extends BaseClientController
                 'invoice_number' => $latestInvoice?->number,
                 'sub_id' => $order->subscription?->id,
                 'is_cloud' => in_array($order->productRelation?->id, cloudPopupProducts()),
-                'autorenewal_enabled' => (bool) \App\Model\Common\Setting::where('id', 1)->value('autorenewal_status'),
-                'autorenew_status' => (bool) $order->subscription?->autoRenew_status,
-                'is_subscribed' => (bool) $order->subscription?->is_subscribed,
-                'autorenew_log' => \App\Payment_log::where('order', $order->number)
+                'autorenew_status'    => (bool) $order->subscription?->autoRenew_status,
+                'is_subscribed'       => (bool) $order->subscription?->is_subscribed,
+                'autorenew_log'       => \App\Payment_log::where('order', $order->number)
                     ->where('payment_type', 'Payment method updated')
                     ->orderByDesc('id')
                     ->first(['payment_method', 'date']),
-                'available_gateways' => \App\Http\Controllers\Common\SettingsController::checkPaymentGateway(
-                    getCurrencyForClient($user->country)
-                ),
+                'available_gateways'  => $this->autoRenewalGateways($user->country),
+                'autorenewal_enabled' => count($this->autoRenewalGateways($user->country)) > 0,
                 'user' => [
                     'name' => ucfirst($user->first_name ?? '').' '.ucfirst($user->last_name ?? ''),
                     'email' => $user->email,
@@ -271,6 +269,7 @@ class ClientController extends BaseClientController
                 'order_date' => $order->created_at,
                 'update_ends_at' => $order->subscription?->update_ends_at,
                 'agents' => $order->invoiceItem?->agents,
+                'current_plan' => $order->subscription?->plan?->name,
                 'product_id' => $order->productRelation?->id,
                 'client_id' => $order->client,
                 'invoice_number' => $latestInvoice?->number,
@@ -570,6 +569,20 @@ class ClientController extends BaseClientController
         }
     }
 
+    private function autoRenewalGateways(string $country): array
+    {
+        $status   = \App\Model\Common\StatusSetting::first(['stripe_auto_renewal', 'razorpay_auto_renewal']);
+        $currency = getCurrencyForClient($country);
+        $active   = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway($currency);
+        $active   = array_map('strtolower', $active);
+
+        $enabled = [];
+        if ($status?->stripe_auto_renewal   && in_array('stripe',   $active)) $enabled[] = 'Stripe';
+        if ($status?->razorpay_auto_renewal && in_array('razorpay', $active)) $enabled[] = 'Razorpay';
+
+        return $enabled;
+    }
+
     private function githubVersions(Request $request, $product, $subscription)
     {
         $url = "https://api.github.com/repos/{$product->github_owner}/{$product->github_repository}/releases";
@@ -717,7 +730,8 @@ class ClientController extends BaseClientController
     {
         return Order::with([
             'productRelation:id,name,github_owner,github_repository,type',
-            'subscription:id,order_id,version,update_ends_at,ends_at',
+            'subscription:id,order_id,plan_id,version,update_ends_at,ends_at',
+            'subscription.plan:id,name',
             'invoiceItem:id,agents',
             'invoices' => fn ($q) => $q->select('invoices.id', 'invoices.number')->latest('invoices.id'),
         ])

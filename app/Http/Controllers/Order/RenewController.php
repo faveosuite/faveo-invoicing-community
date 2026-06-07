@@ -72,22 +72,7 @@ class RenewController extends BaseRenewController
             $sub = $this->sub->find($id);
             $currency = userCurrencyAndPrice($sub->user_id, $plan)['currency'];
             if ($isAgentIncrease) {
-                $permissions = LicensePermissionsController::getPermissionsForProduct($sub->product_id);
-                $licenseExpiry = $this->getExpiryDate($permissions['generateLicenseExpiryDate'], $sub, $days);
-                $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $sub, $days);
-                $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $sub, $days);
-                $sub->ends_at = $licenseExpiry;
-                $sub->update_ends_at = $updatesExpiry;
-                $sub->support_ends_at = $supportExpiry;
-                $sub->save();
-            }
-
-            if (Order::where('id', $sub->order_id)->value('license_mode') == 'File') {
-                Order::where('id', $sub->order_id)->update(['is_downloadable' => 0]);
-            } else {
-                if ($isAgentIncrease) {
-                    $this->editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry);
-                }
+                app(\App\Services\SubscriptionRenewalService::class)->extendDates($sub, $days);
             }
 
             $invoice = $this->invoiceBySubscriptionId($id, $planid, $cost, $currency, $agents);
@@ -103,39 +88,26 @@ class RenewController extends BaseRenewController
     }
 
     //Renewal from ClienT Panel
-    public function successRenew($invoice, $isCloud = false)
+    public function successRenew(Invoice $invoice): void
     {
         try {
-            if (! $isCloud) {
-                $invoice->processing_fee = $invoice->processing_fee;
-                $invoice->status = 'success';
-                $invoice->save();
+            $invoice->status = 'success';
+            $invoice->save();
+
+            $orderId = OrderInvoiceRelation::where('invoice_id', $invoice->id)->value('order_id');
+
+            $newPlanId = InvoiceItem::where('invoice_id', $invoice->id)->value('plan_id');
+
+            $sub = Subscription::where('order_id', $orderId)->firstOrFail();
+
+            if ($newPlanId) {
+                $sub->plan_id = $newPlanId;
+                $sub->save();
             }
-            $orderid = \DB::table('order_invoice_relations')->where('invoice_id', $invoice->id)->value('order_id');
-            if (Session::has('plan_id')) {
-                Subscription::where('order_id', $orderid)->update(['plan_id' => Session::get('plan_id')]);
-            }
-            // $id = Session::get('subscription_id');
-            // $planid = Session::get('plan_id');
-            $id = Subscription::where('order_id', $orderid)->value('id');
-            $planid = Subscription::where('order_id', $orderid)->value('plan_id');
-            $plan = $this->plan->find($planid);
-            $days = $plan->days;
-            $sub = $this->sub->find($id);
-            $permissions = LicensePermissionsController::getPermissionsForProduct($sub->product_id);
-            $licenseExpiry = $this->getExpiryDate($permissions['generateLicenseExpiryDate'], $sub, $days);
-            $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $sub, $days);
-            $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $sub, $days);
-            $sub->ends_at = $licenseExpiry;
-            $sub->update_ends_at = $updatesExpiry;
-            $sub->support_ends_at = $supportExpiry;
-            $sub->save();
-            if (Order::where('id', $sub->order_id)->value('license_mode') == 'File') {
-                Order::where('id', $sub->order_id)->update(['is_downloadable' => 0]);
-            } else {
-                $this->editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry);
-            }
-            $this->removeSession();
+
+            $days = Plan::findOrFail($sub->plan_id)->days;
+
+            app(\App\Services\SubscriptionRenewalService::class)->extendDates($sub, (int) $days);
         } catch (Exception $ex) {
             throw new Exception($ex->getMessage());
         }
@@ -333,87 +305,42 @@ class RenewController extends BaseRenewController
 
     public function renewByClient($id, Request $request)
     {
-        $subscription = Subscription::find($id);
-        $userId = $subscription->user_id;
-        $existingUnpaidInvoice = $this->checkExistingUnpaidInvoice($subscription, $request->input('plan'));
-        if ($existingUnpaidInvoice) {
-            return redirect('my-invoice/'.$existingUnpaidInvoice->invoice_id.'#invoice-section')
-                ->with('warning', trans('message.existings_invoice'));
-        }
-
-        $this->validate($request, [
-            'plan' => 'required',
-            'code' => 'exists:promotions,code',
-        ],
-            [
-                'plan.required' => __('validation.plan_renewal.plan_required'),
-                'code.exists' => __('validation.plan_renewal.code_not_valid'),
-            ]);
-
         try {
-            $planId = $request->input('plan');
-            $userId = $request->input('user');
-            $code = $request->input('code');
-            $agentsInput = $request->input('agents');
+            $request->validate(
+                ['plan' => 'required'],
+                ['plan.required' => __('validation.plan_renewal.plan_required')]
+            );
 
-            $plan = Plan::find($planId);
-            $planDetails = userCurrencyAndPrice($userId, $plan);
+            $planId = (int) $request->input('plan');
+            $sub    = Subscription::findOrFail($id);
+            $plan   = Plan::findOrFail($planId);
 
-            $cost = preg_replace('/[^0-9]/', '', $planDetails['plan']->renew_price);
-            $currency = $planDetails['currency'];
-            $noOfAgentsPerPlan = $planDetails['plan']->no_of_agents;
-
-            $sub = Subscription::find($id);
-            $orderId = $sub->order_id;
-
-            // Get old agent count from serial key
-            $serialKey = Order::where('id', $orderId)->value('serial_key');
-            $oldAgents = intval(substr($serialKey, 12));
-
-            // If agents are not provided
-            $agents = null;
-
-            // Handle custom agent input
-            if ($agentsInput !== null) {
-                $agents = (int) $agentsInput;
-
-                // Check agent modification restrictions
-                $installationPath = Installation::where('license_code', Order::find($orderId)->serial_key)
-                    ->where('installation_path', '!=', cloudCentralDomain())
-                    ->latest('last_active')
-                    ->value('installation_path');
-
-                if ($oldAgents != $agents) {
-                    if (empty($installationPath)) {
-                        return redirect()->back()->with('fails', trans('message.without_installation_found'));
-                    }
-
-                    if ($this->checktheAgent($agents, $installationPath)) {
-                        return redirect()->back()->with('fails', trans('message.agent_reduce'));
-                    }
-                }
-            } else {
-                $product = Product::find($plan->product);
-
-                if ($product && $product->show_agent) {
-                    $agents = $oldAgents;
-                }
+            $existingUnpaidInvoice = $this->checkExistingUnpaidInvoice($sub, $planId);
+            if ($existingUnpaidInvoice) {
+                return successResponse(trans('message.existings_invoice'), ['invoice_id' => $existingUnpaidInvoice->invoice_id]);
             }
 
-            // If agent count is available, adjust cost accordingly
-            if (isset($agents) && $noOfAgentsPerPlan > 0) {
-                $cost = ($cost / $noOfAgentsPerPlan) * $agents;
-            }
+            $planDetails       = userCurrencyAndPrice(\Auth::user()->id, $plan);
+            $price             = $planDetails['plan']->renew_price;
+            $currency          = $planDetails['currency'];
+            $noOfAgentsPerPlan = (int) $planDetails['plan']->no_of_agents;
 
-            $items = $this->invoiceBySubscriptionId($id, $planId, $cost, $currency, $agents);
+            $agents = InvoiceItem::whereHas('invoice', fn ($q) =>
+                    $q->whereHas('orders', fn ($q) => $q->where('orders.id', $sub->order_id))
+                )
+                ->orderByDesc('id')
+                ->value('agents');
+
+            $cost = ($agents > 0 && $noOfAgentsPerPlan > 0)
+                ? ($price / $noOfAgentsPerPlan) * (int) $agents
+                : $price;
+
+            $items     = $this->invoiceBySubscriptionId($id, $planId, $cost, $currency, $agents ?: null);
             $invoiceid = $items->invoice_id;
-            $this->setSession($id, $planId);
 
-            return successResponse('success', [url('paynow/'.$invoiceid)]);
-            //return redirect('paynow/'.$invoiceid);
+            return successResponse('', ['invoice_id' => $invoiceid]);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
-//            throw new \Exception($ex->getMessage());
         }
     }
 

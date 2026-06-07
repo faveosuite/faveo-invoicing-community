@@ -326,31 +326,43 @@
             <!-- ── Change Cloud Domain modal ────────────────────────── -->
             <Modal :showModal="showDomainModal" :onClose="closeDomainModal" :showCloseBtn="false">
                 <template #title>
-                    <h4 class="modal-title">{{ __('message.change_cloud_domain') }}</h4>
+                    <h5 class="modal-title fw-bold">{{ __('message.change_cloud_domain') }}</h5>
                 </template>
                 <template #fields>
-                    <p>{{ __('message.current_cloud_domain') }} <strong>{{ cloud?.installation_path || '—' }}</strong></p>
+                    <AppAlert componentName="domain-modal" />
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                        <span class="text-muted">{{ __('message.current_cloud_domain') }}</span>
+                        <span class="fw-bold text-dark">{{ cloud?.installation_path || '—' }}</span>
+                    </div>
                     <ClientField type="text" name="newDomain" required
                                  :label="__('message.enter_domain_new_name')"
                                  v-model="domainForm.newDomain"
                                  placeholder="https://billing.custom.com" autocomplete="off" />
                 </template>
                 <template #controls>
-                    <button type="button" class="btn btn-light me-2" @click="closeDomainModal">{{ __('message.close') }}</button>
-                    <button type="button" class="btn btn-primary" :disabled="domainBusy || !domainForm.newDomain" @click="submitDomain">
-                        <i class="fas fa-globe"></i> {{ __('message.chg_domain') }}
-                    </button>
+                    <action-button action="confirm"
+                                   :label="__('message.chg_domain')"
+                                   :loading="domainBusy"
+                                   :disabled="!domainForm.newDomain"
+                                   @click="submitDomain" />
                 </template>
             </Modal>
 
             <!-- ── Change Number of Agents modal ────────────────────── -->
             <Modal :showModal="showAgentsModal" :onClose="closeAgentsModal" :showCloseBtn="false">
                 <template #title>
-                    <h4 class="modal-title">{{ __('message.change_no_of_agents') }}</h4>
+                    <h5 class="modal-title fw-bold">{{ __('message.change_no_of_agents') }}</h5>
                 </template>
                 <template #fields>
-                    <p class="text-black"><strong>{{ __('message.current_no_agents') }}</strong> {{ cloud?.current_agents }}</p>
-                    <p class="text-black"><strong>{{ __('message.price_per_agent') }} </strong>{{ cloud?.price_per_agent }}</p>
+                    <AppAlert componentName="agents-modal" />
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">{{ __('message.current_no_agents') }}</span>
+                        <span class="fw-bold text-dark">{{ cloud?.current_agents || '—' }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                        <span class="text-muted">{{ __('message.price_per_agent') }}</span>
+                        <span class="fw-bold text-dark">{{ cloud?.price_per_agent || '—' }}</span>
+                    </div>
 
                     <SelectField name="action" required
                                  :label="__('message.action')"
@@ -363,23 +375,31 @@
                                  :label="__('message.choose_no_desired_agents')"
                                  v-model="agentForm.number" @update:modelValue="fetchAgentCost" />
 
-                    <p v-if="agentCost" class="text-black"><strong>{{ __('message.price_to_be_paid') }}</strong> {{ agentCost }}</p>
+                    <div v-if="agentCost" class="d-flex justify-content-between align-items-center border-top pt-3 mt-1">
+                        <span class="text-muted">{{ __('message.price_to_be_paid') }}</span>
+                        <span class="fw-bold text-dark fs-6">{{ agentCost }}</span>
+                    </div>
                 </template>
                 <template #controls>
-                    <button type="button" class="btn btn-light me-2" @click="closeAgentsModal">{{ __('message.close') }}</button>
-                    <button type="button" class="btn btn-primary" :disabled="agentBusy || !agentForm.number" @click="submitAgents">
-                        <i class="fas fa-users"></i> {{ __('message.update_agents') }}
-                    </button>
+                    <action-button action="confirm"
+                                   :label="__('message.update_agents')"
+                                   :loading="agentBusy"
+                                   :disabled="!agentForm.number"
+                                   @click="submitAgents" />
                 </template>
             </Modal>
 
             <!-- ── Upgrade / Downgrade Plan modal ───────────────────── -->
             <Modal :showModal="showPlanModal" :onClose="closePlanModal" :showCloseBtn="false">
                 <template #title>
-                    <h4 class="modal-title">{{ __('message.upgrade_downgrade_cloud_plan') }}</h4>
+                    <h5 class="modal-title fw-bold">{{ __('message.upgrade_downgrade_cloud_plan') }}</h5>
                 </template>
                 <template #fields>
-                    <p class="text-black"><strong>{{ __('message.current_plan') }} </strong>{{ cloud?.current_plan_name }}</p>
+                    <AppAlert componentName="plan-modal" />
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                        <span class="text-muted">{{ __('message.current_plan') }}</span>
+                        <span class="fw-bold text-dark">{{ cloud?.current_plan_name || '—' }}</span>
+                    </div>
 
                     <SelectField name="planId" required
                                  :label="__('message.select_new_plan')"
@@ -389,16 +409,26 @@
                                  :placeholder="__('message.select')" />
 
                     <template v-if="planCost">
-                        <p class="text-black"><strong>{{ __('message.total_credits_remaining') }} </strong>{{ planCost.priceoldplan }}</p>
-                        <p class="text-black"><strong>{{ __('message.price_for_new_plan') }} </strong>{{ planCost.pricenewplan }}</p>
-                        <p class="text-black"><strong>{{ __('message.price_to_be_paid') }} </strong>{{ planCost.price_to_be_paid }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-2 mb-1">
+                            <span class="text-muted">{{ __('message.total_credits_remaining') }}</span>
+                            <span class="fw-bold text-dark">{{ planCost.priceoldplan }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted">{{ __('message.price_for_new_plan') }}</span>
+                            <span class="fw-bold text-dark">{{ planCost.pricenewplan }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-2">
+                            <span class="text-muted">{{ __('message.price_to_be_paid') }}</span>
+                            <span class="fw-bold text-dark fs-6">{{ planCost.price_to_be_paid }}</span>
+                        </div>
                     </template>
                 </template>
                 <template #controls>
-                    <button type="button" class="btn btn-light me-2" @click="closePlanModal">{{ __('message.close') }}</button>
-                    <button type="button" class="btn btn-primary" :disabled="planBusy || !planForm.planId" @click="submitPlan">
-                        <i class="fas fa-cloud-upload-alt"></i> {{ __('message.change_plan') }}
-                    </button>
+                    <action-button action="confirm"
+                                   :label="__('message.change_plan')"
+                                   :loading="planBusy"
+                                   :disabled="!planForm.planId"
+                                   @click="submitPlan" />
                 </template>
             </Modal>
 
@@ -496,7 +526,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { useRoute, RouterLink } from 'vue-router'
+import { useRoute, useRouter, RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
@@ -509,6 +539,7 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const userId  = el?.dataset?.userId  ?? ''
 
 const route   = useRoute()
+const router  = useRouter()
 const orderId = route.params.id
 
 const loading   = ref(true)
@@ -885,7 +916,7 @@ function openDomainModal() {
     domainForm.newDomain = ''
     showDomainModal.value = true
 }
-function closeDomainModal() { showDomainModal.value = false }
+function closeDomainModal() { showDomainModal.value = false; alertStore.unsetAlert() }
 
 async function submitDomain() {
     if (!cloud.value) return
@@ -901,7 +932,7 @@ async function submitDomain() {
         successHandler(res, 'client-page')
         closeDomainModal()
     } catch (e) {
-        errorHandler(e, 'client-page')
+        errorHandler(e, 'domain-modal')
     } finally {
         domainBusy.value = false
     }
@@ -914,7 +945,7 @@ function openAgentsModal() {
     agentCost.value  = ''
     showAgentsModal.value = true
 }
-function closeAgentsModal() { showAgentsModal.value = false }
+function closeAgentsModal() { showAgentsModal.value = false; alertStore.unsetAlert() }
 
 async function fetchAgentCost() {
     if (!cloud.value || !agentForm.number) { agentCost.value = ''; return }
@@ -929,7 +960,7 @@ async function fetchAgentCost() {
         agentCost.value = res.data?.priceToPay ?? ''
     } catch (e) {
         agentCost.value = ''
-        errorHandler(e, 'client-page')
+        errorHandler(e, 'agents-modal')
     }
 }
 
@@ -944,10 +975,10 @@ async function submitAgents() {
             subId:       cloud.value.sub_id,
             agentAction: agentForm.action,
         })
-        const url = res.data?.data?.url
-        if (url) window.location.href = url
+        const invoiceId = res.data?.data?.invoice_id
+        if (invoiceId) router.push({ path: '/checkout', query: { invoice: invoiceId } })
     } catch (e) {
-        errorHandler(e, 'client-page')
+        errorHandler(e, 'agents-modal')
     } finally {
         agentBusy.value = false
     }
@@ -959,7 +990,7 @@ function openPlanModal() {
     planCost.value  = null
     showPlanModal.value = true
 }
-function closePlanModal() { showPlanModal.value = false }
+function closePlanModal() { showPlanModal.value = false; alertStore.unsetAlert() }
 
 async function fetchPlanCost() {
     if (!cloud.value || !planForm.planId) { planCost.value = null; return }
@@ -973,7 +1004,7 @@ async function fetchPlanCost() {
         planCost.value = res.data ?? null
     } catch (e) {
         planCost.value = null
-        errorHandler(e, 'client-page')
+        errorHandler(e, 'plan-modal')
     }
 }
 
@@ -987,10 +1018,10 @@ async function submitPlan() {
             userId:  userId,
             orderId: cloud.value.order_id,
         })
-        const url = res.data?.data?.url
-        if (url) window.location.href = url
+        const invoiceId = res.data?.data?.invoice_id
+        if (invoiceId) router.push({ path: '/checkout', query: { invoice: invoiceId } })
     } catch (e) {
-        errorHandler(e, 'client-page')
+        errorHandler(e, 'plan-modal')
     } finally {
         planBusy.value = false
     }

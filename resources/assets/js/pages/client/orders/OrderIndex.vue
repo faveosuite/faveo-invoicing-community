@@ -72,39 +72,38 @@
             :showCloseBtn="false"
         >
             <template #title>
-                <h5>{{ __('message.renew_your_order') }}</h5>
+                <h5 class="modal-title fw-bold">{{ __('message.renew_your_order') }}</h5>
             </template>
             <template #fields>
                 <div v-if="renewLoading" class="text-center py-4">
                     <inline-loader />
                 </div>
                 <template v-else>
-                    <ClientField type="select" name="plan"
+                    <!-- Current order info -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">{{ __('message.current_plan') }}</span>
+                        <span class="fw-bold text-dark">{{ renewRow?.current_plan || '—' }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                        <span class="text-muted">{{ __('message.agents') }}</span>
+                        <span class="fw-bold text-dark">{{ renewRow?.agents || '—' }}</span>
+                    </div>
+
+                    <SelectField name="plan"
                                  :label="__('message.plans')"
-                                 v-model="selectedPlan"
-                                 @change="fetchRenewCost"
-                                 :required="true">
-                        <option value="">{{ __('message.Select') }}</option>
-                        <option v-for="plan in renewPlans" :key="plan.id" :value="plan.id">
-                            {{ plan.name }}
-                        </option>
-                    </ClientField>
+                                 :elements="renewPlans"
+                                 :value="selectedPlan"
+                                 :onChange="onPlanChange"
+                                 :required="true" />
 
-                    <ClientField v-if="renewIsCloud"
-                                 type="number" name="agents"
-                                 :label="__('message.agents')"
-                                 v-model="renewAgents"
-                                 :required="true"
-                                 placeholder="1" />
-
-                    <p class="mb-0 mt-2">
-                        <strong>{{ __('message.price_to_be_paid') }}</strong>
-                        {{ renewPrice || '—' }}
-                    </p>
+                    <!-- Price summary -->
+                    <div v-if="renewPrice" class="d-flex justify-content-between align-items-center border-top pt-3 mt-1">
+                        <span class="text-muted">{{ __('message.price_to_be_paid') }}</span>
+                        <span class="fw-bold text-dark fs-6">{{ renewPrice }}</span>
+                    </div>
                 </template>
             </template>
             <template #controls>
-                <action-button action="cancel" @click="closeRenewModal" />
                 <action-button
                     action="confirm"
                     :label="__('message.renew')"
@@ -128,7 +127,6 @@
                 <p class="mb-0">{{ __('message.delete_cloud') }}</p>
             </template>
             <template #controls>
-                <action-button action="cancel" @click="closeDeleteModal" />
                 <action-button action="delete" @click="confirmDelete" />
             </template>
         </AppModal>
@@ -136,12 +134,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
-import { RouterLink } from 'vue-router'
+import { ref, reactive, computed } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 import { __ } from '@/plugins/i18n'
 import http from '@/plugins/axios'
 import { errorHandler } from '@/helpers/responseHandler.js'
+import SelectField from '@/themes/porto/components/forms/SelectField.vue'
 
+const router  = useRouter()
 const el      = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const apiUrl  = `${baseUrl}/get-my-orders`
@@ -199,24 +199,21 @@ const renewLoading    = ref(false)
 const renewSubmitting = ref(false)
 const renewRow        = ref(null)
 const renewPlans      = ref([])
-const renewIsCloud    = ref(false)
-const selectedPlan    = ref('')
-const renewAgents     = ref('')
+const selectedPlan    = ref(null)
 const renewPrice      = ref('')
 
 async function openRenewModal(row) {
-    renewRow.value      = row
-    renewPlans.value    = []
-    selectedPlan.value  = ''
-    renewAgents.value   = String(row.agents ?? '')
-    renewPrice.value    = ''
-    renewLoading.value  = true
+    renewRow.value       = row
+    renewPlans.value     = []
+    selectedPlan.value   = null
+    renewPrice.value     = ''
+    renewLoading.value   = true
     showRenewModal.value = true
 
     try {
         const res = await http.get(`${baseUrl}/renew-popup-details/${row.product_id}`)
-        renewPlans.value   = res.data?.data?.plans   ?? []
-        renewIsCloud.value = res.data?.data?.is_cloud ?? false
+        renewPlans.value = res.data?.data?.plans ?? []
+        if (renewPlans.value.length) await onPlanChange(renewPlans.value[0])
     } catch { /* silent */ }
     finally { renewLoading.value = false }
 }
@@ -225,15 +222,18 @@ function closeRenewModal() {
     showRenewModal.value = false
 }
 
-watch(renewAgents, fetchRenewCost)
+async function onPlanChange(plan) {
+    selectedPlan.value = plan
+    await fetchRenewCost()
+}
 
 async function fetchRenewCost() {
     if (!selectedPlan.value) { renewPrice.value = ''; return }
     try {
-        const params = { user: renewRow.value?.client_id, plan: selectedPlan.value }
-        if (renewIsCloud.value && renewAgents.value) params.agents = renewAgents.value
-        const res = await http.get(`${baseUrl}/get-renew-cost`, { params })
-        renewPrice.value = res.data?.formatted_price ?? ''
+        const res = await http.get(`${baseUrl}/get-renew-cost`, {
+            params: { plan: selectedPlan.value.id, order: renewRow.value?.id },
+        })
+        renewPrice.value = res.data?.data?.formatted_price ?? ''
     } catch { /* silent */ }
 }
 
@@ -241,12 +241,12 @@ async function submitRenew() {
     if (!selectedPlan.value || renewSubmitting.value) return
     renewSubmitting.value = true
     try {
-        const payload = { plan: selectedPlan.value, user: renewRow.value?.client_id }
-        if (renewIsCloud.value && renewAgents.value) payload.agents = renewAgents.value
-
-        const res = await http.post(`${baseUrl}/client/renew/${renewRow.value?.sub_id}`, payload)
-        const redirectUrl = res.data?.data?.[0]
-        if (redirectUrl) window.location.href = redirectUrl
+        const res = await http.post(`${baseUrl}/client/renew/${renewRow.value?.sub_id}`, {
+            plan: selectedPlan.value.id,
+            user: renewRow.value?.client_id,
+        })
+        const invoiceId = res.data?.data?.invoice_id
+        if (invoiceId) router.push({ path: '/checkout', query: { invoice: invoiceId } })
         else closeRenewModal()
     } catch (e) {
         errorHandler(e, 'client-page')

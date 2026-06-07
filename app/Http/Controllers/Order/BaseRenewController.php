@@ -88,32 +88,35 @@ class BaseRenewController extends Controller
     public function getCost(Request $request)
     {
         try {
-            $planId = $request->input('plan');
-            $userId = $request->input('user');
-            $agents = $request->integer('agents', 0);
+            $planId  = $request->input('plan');
+            $orderId = $request->input('order');
 
-            if (! $planId || $planId === 'Choose') {
-                return response()->json([
-                    'formatted_price' => currencyFormat(0, getCurrencyForClient(User::find($userId)?->country)),
-                ]);
+            if (! $planId) {
+                $currency = getCurrencyForClient(\Auth::user()->country);
+                return successResponse('', ['formatted_price' => currencyFormat(0, $currency)]);
             }
 
-            $plan = Plan::find($planId);
-            $planDetails = userCurrencyAndPrice($userId, $plan);
-            $price = $planDetails['plan']->renew_price;
-            $currency = $planDetails['currency'];
+            $plan        = Plan::find($planId);
+            $planDetails = userCurrencyAndPrice(\Auth::user()->id, $plan);
+            $price       = $planDetails['plan']->renew_price;
+            $currency    = $planDetails['currency'];
 
-            if (isAgentAllowed($plan->product, $planId)) {
-                $priceForAgents = $price / $planDetails['plan']->no_of_agents;
-                $priceForTheAgents = $agents * $priceForAgents;
-                $formattedCurrency = currencyFormat($priceForTheAgents, $currency, true);
+            $agents = InvoiceItem::whereHas('invoice', fn ($q) => $q->whereHas('orders', fn ($q) => $q->where('orders.id', $orderId)))
+                ->where('plan_id', $planId)
+                ->orderByDesc('id')
+                ->value('agents');
+
+            if ($agents > 0 && $planDetails['plan']->no_of_agents > 0) {
+                $renewalPrice = ($price / $planDetails['plan']->no_of_agents) * (int) $agents;
             } else {
-                $formattedCurrency = currencyFormat($price, $currency, true);
+                $renewalPrice = $price;
             }
 
-            return response()->json([
+            $formattedCurrency = currencyFormat($renewalPrice, $currency, true);
+
+            return successResponse('', [
                 'formatted_price' => $formattedCurrency,
-                'renewalPrice' => isAgentAllowed($plan->product, $planId) ? $priceForTheAgents : $price,
+                'renewalPrice'    => $renewalPrice,
             ]);
         } catch (Exception $ex) {
             return errorResponse($ex->getMessage());

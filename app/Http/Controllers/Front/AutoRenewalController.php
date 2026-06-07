@@ -207,15 +207,22 @@ class AutoRenewalController extends Controller
     {
         $service = app(SubscriptionService::class);
 
-        if ($subscription->rzp_subscription && $subscription->is_subscribed && $subscription->subscribe_id) {
-            $service->cancelSubscription('Razorpay', $subscription->subscribe_id);
-            $subscription->update(['is_subscribed' => '0', 'rzp_subscription' => '0']);
-        } elseif ($subscription->autoRenew_status && $subscription->is_subscribed && $subscription->subscribe_id) {
-            $service->cancelSubscription('Stripe', $subscription->subscribe_id);
-            $subscription->update(['is_subscribed' => '0', 'autoRenew_status' => '0']);
-        } else {
-            $subscription->update(['is_subscribed' => '0', 'autoRenew_status' => '0', 'rzp_subscription' => '0']);
+        if ($subscription->subscribe_id) {
+            $gateway = $subscription->rzp_subscription ? 'Razorpay' : 'Stripe';
+            try {
+                $service->cancelSubscription($gateway, $subscription->subscribe_id);
+            } catch (\Exception $e) {
+                // Already cancelled at gateway — continue to reset local state
+                \Logger::warning("Subscription cancel skipped [{$gateway}]: ".$e->getMessage());
+            }
         }
+
+        $subscription->update([
+            'is_subscribed'   => 0,
+            'autoRenew_status'=> 0,
+            'rzp_subscription'=> 0,
+            'subscribe_id'    => '',
+        ]);
     }
 
     private function logPayment(Order $order, string $gateway, string $status, string $note = ''): void

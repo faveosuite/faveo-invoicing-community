@@ -29,6 +29,33 @@
                                     :error="errors[field.name]"
                                 />
                             </div>
+
+                            <!-- Webhook URL — read-only, at the end -->
+                            <div v-if="form.webhook_url" class="col-md-6 mb-3">
+                                <label class="form-label">{{ __('message.webhook_url') }}</label>
+                                <div class="input-group">
+                                    <input class="form-control" readonly :value="form.webhook_url" />
+                                    <button class="btn btn-outline-secondary" type="button" @click="copyWebhookUrl">
+                                        <i :class="copied ? 'fas fa-check text-success' : 'fas fa-copy'"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">{{ __('message.webhook_url_hint') }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Auto-renewal toggle -->
+                        <div class="border-top pt-3 mt-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold">{{ __('message.auto_renewal') }}</div>
+                                    <div class="text-muted small">{{ __('message.auto_renewal_hint') }}</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox"
+                                           :checked="form.auto_renewal"
+                                           @change="form.auto_renewal = $event.target.checked" />
+                                </div>
+                            </div>
                         </div>
                     </template>
 
@@ -72,6 +99,7 @@ const { errors, setErrors, setFieldError } = useForm()
 
 const loading = ref(true)
 const saving  = ref(false)
+const copied  = ref(false)
 const plugin  = ref(null)
 const form    = reactive({})
 
@@ -79,10 +107,11 @@ const form    = reactive({})
 const GATEWAY_CONFIGS = {
     razorpay: {
         fields: [
-            { name: 'rzp_key',        label: 'Razorpay Key',                                       type: 'text'     },
-            { name: 'rzp_secret',     label: 'Razorpay Secret',                                    type: 'password' },
-            { name: 'apilayer_key',   label: 'ApiLayer Access Key (For Exchange Rate Conversion)',  type: 'text', required: false },
-            { name: 'processing_fee', label: 'Processing Fee (%)',                                 type: 'number', required: false },
+            { name: 'rzp_key',        label: 'Razorpay Key',                                      type: 'text'     },
+            { name: 'rzp_secret',     label: 'Razorpay Secret',                                   type: 'password' },
+            { name: 'webhook_secret', label: 'Webhook Secret',                                    type: 'password', required: false },
+            { name: 'apilayer_key',   label: 'ApiLayer Access Key (For Exchange Rate Conversion)', type: 'text',     required: false },
+            { name: 'processing_fee', label: 'Processing Fee (%)',                                type: 'number',   required: false },
         ],
         fetchUrl: `${baseUrl}/get-razorpay-settings`,
         saveUrl:  `${baseUrl}/update-api-key/payment-gateway/razorpay`,
@@ -91,7 +120,8 @@ const GATEWAY_CONFIGS = {
         fields: [
             { name: 'stripe_key',     label: 'Stripe Publishable Key', type: 'text'     },
             { name: 'stripe_secret',  label: 'Stripe Secret Key',      type: 'password' },
-            { name: 'processing_fee', label: 'Processing Fee (%)',     type: 'number', required: false },
+            { name: 'webhook_secret', label: 'Webhook Secret',         type: 'password', required: false },
+            { name: 'processing_fee', label: 'Processing Fee (%)',     type: 'number',   required: false },
         ],
         fetchUrl: `${baseUrl}/get-stripe-settings`,
         saveUrl:  `${baseUrl}/update-api-key/payment-gateway/stripe`,
@@ -113,6 +143,8 @@ onMounted(async () => {
             const settingsRes = await http.get(gatewayConfig.value.fetchUrl)
             const data = settingsRes.data?.data ?? {}
             gatewayConfig.value.fields.forEach(f => { form[f.name] = data[f.name] ?? '' })
+            form.webhook_url   = data.webhook_url ?? ''
+            form.auto_renewal  = data.auto_renewal ?? false
         }
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -120,6 +152,12 @@ onMounted(async () => {
         loading.value = false
     }
 })
+
+function copyWebhookUrl() {
+    navigator.clipboard.writeText(form.webhook_url)
+    copied.value = true
+    setTimeout(() => { copied.value = false }, 2000)
+}
 
 async function save() {
     if (!gatewayConfig.value) return

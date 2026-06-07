@@ -85,19 +85,6 @@ class PostPaymentService
 
         $this->doTheDeed($invoice);
 
-        // Agent count also changed at renewal time (metadata written by BaseRenewController in Task 4)
-        if (! empty($metadata['renewal_agent'])) {
-            $ra = $metadata['renewal_agent'];
-            $cloud = new CloudExtraActivities(new Client(), new FaveoCloud());
-            $cloud->doTheAgentAltering(
-                $ra['new_agents'],
-                $ra['old_license'],
-                $ra['order_id'],
-                $ra['installation_path'],
-                $ra['product_id'],
-            );
-        }
-
         return ['status' => 'success'];
     }
 

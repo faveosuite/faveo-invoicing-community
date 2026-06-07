@@ -95,44 +95,14 @@ class OpenPaymentService
         return true;
     }
 
-    /** Settle / fail an order from a verified Stripe webhook event. */
     private function handleStripeEvent(array $event): void
     {
-        $type = $event['type'] ?? null;
-        $object = $event['data']['object'] ?? [];
-        $orderId = $object['metadata']['order_id'] ?? null;
-
-        if (! $orderId || ! $order = OpenPaymentOrder::find($orderId)) {
-            return;
-        }
-
-        // Embedded Checkout completes via checkout.session.completed; the legacy
-        // PaymentIntent event is still honoured for safety.
-        if (in_array($type, ['checkout.session.completed', 'payment_intent.succeeded'], true)) {
-            if (! $order->isPaid()) {
-                $this->markPaid($order, $object['payment_intent'] ?? $object['id'] ?? null);
-            }
-        } elseif ($type === 'payment_intent.payment_failed' && ! $order->isPaid()) {
-            $order->update(['payment_status' => 'failed']);
-        }
+        WebhookDispatcher::stripe()->dispatch($event['type'] ?? '', $event);
     }
 
-    /** Settle / fail an order from a verified Razorpay webhook event. */
     private function handleRazorpayEvent(array $event): void
     {
-        $type = $event['event'] ?? null;
-        $payment = $event['payload']['payment']['entity'] ?? [];
-        $orderId = $payment['notes']['order_id'] ?? null;
-
-        if (! $orderId || ! $order = OpenPaymentOrder::find($orderId)) {
-            return;
-        }
-
-        if ($type === 'payment.captured' && ! $order->isPaid()) {
-            $this->markPaid($order, $payment['id'] ?? null);
-        } elseif ($type === 'payment.failed' && ! $order->isPaid()) {
-            $order->update(['payment_status' => 'failed']);
-        }
+        WebhookDispatcher::razorpay()->dispatch($event['event'] ?? '', $event);
     }
 
     /** Mark an order paid, recording the gateway's transaction reference. */

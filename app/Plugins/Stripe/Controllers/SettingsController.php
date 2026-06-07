@@ -35,12 +35,16 @@ class SettingsController extends Controller
     public function getSettings()
     {
         try {
-            $stripeKeys = ApiKey::select('stripe_key', 'stripe_secret')->first();
+            $keys   = ApiKey::select('stripe_key', 'stripe_secret', 'stripe_webhook_secret')->first();
+            $status = \App\Model\Common\StatusSetting::select('stripe_auto_renewal')->first();
 
             return successResponse('', [
-                'stripe_key' => $stripeKeys->stripe_key ?? '',
-                'stripe_secret' => $stripeKeys->stripe_secret ?? '',
-                'processing_fee' => (string) ProcessingFee::percent('stripe'),
+                'stripe_key'      => $keys->stripe_key ?? '',
+                'stripe_secret'   => $keys->stripe_secret ?? '',
+                'webhook_secret'  => $keys->stripe_webhook_secret ?? '',
+                'processing_fee'  => (string) ProcessingFee::percent('stripe'),
+                'auto_renewal'    => (bool) ($status->stripe_auto_renewal ?? false),
+                'webhook_url'     => url('webhook/stripe'),
             ]);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
@@ -50,25 +54,36 @@ class SettingsController extends Controller
     public function updateApiKey(Request $request)
     {
         $request->validate([
-            'stripe_secret' => 'required|string',
-            'stripe_key' => 'required|string',
+            'stripe_secret'  => 'required|string',
+            'stripe_key'     => 'required|string',
+            'webhook_secret' => 'nullable|string',
             'processing_fee' => 'nullable|numeric|min:0|max:100',
+            'auto_renewal'   => 'nullable|boolean',
         ], [
             'stripe_secret.required' => __('message.stripe_secret_required'),
-            'stripe_key.required' => __('message.stripe_key_required'),
+            'stripe_key.required'    => __('message.stripe_key_required'),
         ]);
 
         try {
-            // Validate the secret key against Stripe before storing it.
             $stripe = Stripe::make($request->input('stripe_secret'));
             $stripe->customers()->create(['description' => 'Test Customer to Validate Secret Key']);
 
             ApiKey::find(1)->update([
-                'stripe_secret' => $request->input('stripe_secret'),
-                'stripe_key' => $request->input('stripe_key'),
+                'stripe_secret'          => $request->input('stripe_secret'),
+                'stripe_key'             => $request->input('stripe_key'),
+                'stripe_webhook_secret'  => $request->input('webhook_secret'),
             ]);
 
             ProcessingFee::store('stripe', (float) $request->input('processing_fee', 0));
+
+            if ($request->has('auto_renewal')) {
+                $enabling = $request->boolean('auto_renewal');
+                \App\Model\Common\StatusSetting::find(1)->update(['stripe_auto_renewal' => $enabling ? 1 : 0]);
+
+                if (! $enabling) {
+                    \App\Jobs\CancelGatewaySubscriptionsJob::dispatch('stripe');
+                }
+            }
 
             return successResponse(__('message.stripe_settings_updated_successfully'));
         } catch (\Cartalyst\Stripe\Exception\UnauthorizedException $e) {

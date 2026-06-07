@@ -38,13 +38,13 @@ class PaymentService
             ->register('Stripe', fn () => new StripeGateway(
                 (string) ($keys->stripe_secret ?? ''),
                 (string) ($keys->stripe_key ?? ''),
-                (string) config('open_payment.stripe_webhook_secret', ''),
+                (string) ($keys->stripe_webhook_secret ?? ''),
             ))
             ->register('Razorpay', fn () => new RazorpayGateway(
                 (string) ($keys->rzp_key ?? ''),
                 (string) ($keys->rzp_secret ?? ''),
                 'Faveo Helpdesk',
-                (string) config('open_payment.razorpay_webhook_secret', ''),
+                (string) ($keys->razorpay_webhook_secret ?? ''),
             ));
     }
 

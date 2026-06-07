@@ -33,17 +33,9 @@ abstract class PostSubscriptionHandleController
         $this->payment = $payment;
     }
 
-    abstract public function successRenew($invoice, $subscription, $payment_method, $currency);
+    abstract public function successRenew(Invoice $invoice, $subscription, string $payment_method, string $currency): int;
 
-    abstract public function getExpiryDate($permissions, $sub, $days);
-
-    abstract public function getUpdatesExpiryDate($permissions, $sub, $days);
-
-    abstract public function getSupportExpiryDate($permissions, $sub, $days);
-
-    abstract public function editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry);
-
-    abstract public function postRazorpayPayment($invoice, $payment_method);
+    abstract public function recordPayment(Invoice $invoice, string $payment_method);
 
     abstract public function getProcessingFee($paymentMethod, $currency);
 
@@ -65,143 +57,32 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         parent::__construct($invoiceModel, $orderModel, $statusSettingModel, $plan, $sub, $payment);
     }
 
-    public function successRenew($invoice, $subscription, $payment_method, $currency)
+    public function successRenew(Invoice $invoice, $subscription, string $payment_method, string $currency): int
     {
-        try {
-            $processingFee = $this->getProcessingFee($payment_method, $currency);
-            Invoice::where('id', $invoice->invoice_id)->update(['processing_fee' => $processingFee, 'status' => 'success']);
-            $id = $subscription->id;
-            $planid = $subscription->plan_id;
-            $plan = $this->plan->find($planid);
-            $days = $plan->days;
-            $sub = $this->sub->find($id);
-            $permissions = LicensePermissionsController::getPermissionsForProduct($sub->product_id);
-            $licenseExpiry = $this->getExpiryDate($permissions['generateLicenseExpiryDate'], $sub, $days);
-            $updatesExpiry = $this->getUpdatesExpiryDate($permissions['generateUpdatesxpiryDate'], $sub, $days);
-            $supportExpiry = $this->getSupportExpiryDate($permissions['generateSupportExpiryDate'], $sub, $days);
-            $sub->ends_at = $licenseExpiry;
-            $sub->update_ends_at = $updatesExpiry;
-            $sub->support_ends_at = $supportExpiry;
-            $sub->save();
-            if (Order::where('id', $sub->order_id)->value('license_mode') == 'File') {
-                Order::where('id', $sub->order_id)->update(['is_downloadable' => 0]);
-            } else {
-                $this->editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry);
-            }
+        $sub  = $this->sub->find($subscription->id);
+        $plan = $this->plan->find($subscription->plan_id);
 
-            return $id;
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
-        }
+        // Extend dates first — if this fails, invoice remains pending (safe to retry)
+        app(\App\Services\SubscriptionRenewalService::class)->extendDates($sub, (int) $plan->days, fromNowIfExpired: true);
+
+        $processingFee = $this->getProcessingFee($payment_method, $currency);
+        $invoice->update(['processing_fee' => $processingFee, 'status' => 'success']);
+
+        return $sub->id;
     }
 
-    public function getExpiryDate($permissions, $sub, $days)
+    public function recordPayment(Invoice $invoice, string $payment_method)
     {
-        $expiry_date = '';
-        if ($days > 0 && $permissions == 1) {
-            $date = \Carbon\Carbon::parse($sub->ends_at);
-            if ($date->isPast()) {
-                $date = now();
-            }
-            $expiry_date = $date->addDays((int) $days);
-        }
+        $invoice->update(['status' => 'success']);
 
-        return $expiry_date;
-    }
-
-    public function getUpdatesExpiryDate($permissions, $sub, $days)
-    {
-        $expiry_date = '';
-        if ($days > 0 && $permissions == 1) {
-            $date = \Carbon\Carbon::parse($sub->update_ends_at);
-            if ($date->isPast()) {
-                $date = now();
-            }
-            $expiry_date = $date->addDays((int) $days);
-        }
-
-        return $expiry_date;
-    }
-
-    public function getSupportExpiryDate($permissions, $sub, $days)
-    {
-        $expiry_date = '';
-        if ($days > 0 && $permissions == 1) {
-            $date = \Carbon\Carbon::parse($sub->support_ends_at);
-            if ($date->isPast()) {
-                $date = now();
-            }
-            $expiry_date = $date->addDays((int) $days);
-        }
-
-        return $expiry_date;
-    }
-
-    public function editDateInAPL($sub, $updatesExpiry, $licenseExpiry, $supportExpiry)
-    {
-        $productId = $sub->product_id;
-        $domain = $sub->order->domain;
-        $orderNo = $sub->order->number;
-        $licenseCode = $sub->order->serial_key;
-        $expiryDate = $updatesExpiry ? Carbon::parse($updatesExpiry)->format('Y-m-d') : '';
-        $licenseExpiry = $licenseExpiry ? Carbon::parse($licenseExpiry)->format('Y-m-d') : '';
-        $supportExpiry = $supportExpiry ? Carbon::parse($supportExpiry)->format('Y-m-d') : '';
-        $noOfAllowedInstallation = '';
-        $getInstallPreference = '';
-        $installService = app(\App\License\Services\InstallationService::class);
-        $licenseService = app(\App\License\Services\LicenseService::class);
-        $noOfAllowedInstallation = $installService->countActiveInstallations($licenseCode);
-        $getInstallPreference = $licenseService->findByCode($licenseCode)->license_require_domain ?? 1;
-        $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($domain);
-        $existingLicense = $licenseService->findByCode($licenseCode);
-        if ($existingLicense) {
-            $licenseService->update($existingLicense->id, [
-                'license_order_number' => $orderNo,
-                'license_domain' => $ipAndDomain['domain'],
-                'license_ip' => $ipAndDomain['ip'],
-                'license_require_domain' => $ipAndDomain['requireDomain'],
-                'license_expire_date' => $licenseExpiry,
-                'license_updates_date' => $expiryDate,
-                'license_support_date' => $supportExpiry,
-                'license_limit' => $noOfAllowedInstallation ?: 2,
-            ]);
-        }
-    }
-
-    public function postRazorpayPayment($invoice, $payment_method)
-    {
-        try {
-            $invoice = Invoice::where('id', $invoice->invoice_id)->first();
-
-            $payment_status = 'success';
-            $payment_date = \Carbon\Carbon::now()->toDateTimeString();
-
-            $invoice = Invoice::find($invoice->id);
-
-            $invoice->status = 'success';
-            $invoice->save();
-
-            $payment = $this->payment->create([
-                'invoice_id' => $invoice->id,
-                'user_id' => $invoice->user_id,
-                'amount' => $invoice->grand_total,
-                'payment_method' => $payment_method,
-                'payment_status' => $payment_status,
-                'created_at' => $payment_date,
-            ]);
-            $all_payments = $this->payment
-            ->where('invoice_id', $invoice->id)
-            ->where('payment_status', 'success')
-            ->pluck('amount')->toArray();
-            $total_paid = array_sum($all_payments);
-            if ($total_paid >= $invoice->grand_total) {
-                $invoice_status = 'success';
-            }
-
-            return $payment;
-        } catch (\Exception $ex) {
-            echo $ex->getMessage();
-        }
+        return $this->payment->create([
+            'invoice_id'     => $invoice->id,
+            'user_id'        => $invoice->user_id,
+            'amount'         => $invoice->grand_total,
+            'payment_method' => $payment_method,
+            'payment_status' => 'success',
+            'created_at'     => Carbon::now()->toDateTimeString(),
+        ]);
     }
 
     public function getProcessingFee($paymentMethod, $currency)

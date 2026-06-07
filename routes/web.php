@@ -888,8 +888,8 @@ Route::prefix('open-payment')->withoutMiddleware(['auth', 'web'])->group(functio
     Route::post('verify/stripe', [OpenPaymentController::class, 'verifyStripePayment'])->name('open-payment.verify.stripe');
 
     // Webhooks (CSRF exempt - handled in VerifyCsrfToken middleware)
-    Route::post('webhook/stripe', [OpenPaymentController::class, 'handleStripeWebhook'])->name('open-payment.webhook.stripe');
-    Route::post('webhook/razorpay', [OpenPaymentController::class, 'handleRazorpayWebhook'])->name('open-payment.webhook.razorpay');
+    Route::post('webhook/stripe', [Front\PaymentController::class, 'stripeWebhook'])->name('webhook.stripe');
+    Route::post('webhook/razorpay', [Front\PaymentController::class, 'razorpayWebhook'])->name('webhook.razorpay');
 
     // Admin Routes
     Route::get('list', [OpenPaymentController::class, 'listOrders'])->name('open-payment.list');

@@ -159,40 +159,6 @@ class OpenPaymentController extends Controller
     }
 
     /**
-     * Razorpay webhook (backup for client-side verification).
-     * Webhook URL: /open-payment/webhook/razorpay.
-     */
-    public function handleRazorpayWebhook(Request $request)
-    {
-        $processed = $this->payments->handleWebhook(
-            'Razorpay',
-            $request->getContent(),
-            (string) $request->header('X-Razorpay-Signature'),
-        );
-
-        return $processed
-            ? successResponse('Webhook processed successfully')
-            : errorResponse('Invalid signature', 400);
-    }
-
-    /**
-     * Stripe webhook (backup for client-side verification).
-     * Webhook URL: /open-payment/webhook/stripe.
-     */
-    public function handleStripeWebhook(Request $request)
-    {
-        $processed = $this->payments->handleWebhook(
-            'Stripe',
-            $request->getContent(),
-            (string) $request->header('Stripe-Signature'),
-        );
-
-        return $processed
-            ? successResponse('Webhook processed successfully')
-            : errorResponse('Invalid signature', 400);
-    }
-
-    /**
      * List all open payment orders (Admin).
      */
     public function listOrders(Request $request)

@@ -11,6 +11,7 @@ use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Currency;
 use App\Model\Product\Product;
 use App\Services\Payment\InvoicePaymentService;
+use App\Services\Payment\OpenPaymentService;
 use App\Services\Payment\ProcessingFee;
 use Illuminate\Http\Request;
 
@@ -22,19 +23,22 @@ use Illuminate\Http\Request;
  * invoice-id driven and stateless — the amount payable is recomputed from the
  * invoice server-side, never trusted from the client or session.
  *
- *  - payInit       : everything the pay page needs to render.
- *  - stripeSession : create an embedded Stripe Checkout Session for the invoice.
- *  - stripeConfirm : authoritatively confirm a completed Stripe session + fulfil.
- *  - razorpayOrder : create a Razorpay Order for the invoice (Checkout config).
+ *  - payInit         : everything the pay page needs to render.
+ *  - stripeSession   : create an embedded Stripe Checkout Session for the invoice.
+ *  - stripeConfirm   : authoritatively confirm a completed Stripe session + fulfil.
+ *  - razorpayOrder   : create a Razorpay Order for the invoice (Checkout config).
+ *  - stripeWebhook   : gateway webhook — handles all Stripe payment types.
+ *  - razorpayWebhook : gateway webhook — handles all Razorpay payment types.
  *
  * Razorpay verification + fulfilment is handled by RazorpayController::payment,
  * which delegates to the same InvoicePaymentService.
  */
 class PaymentController extends Controller
 {
-    public function __construct(private readonly InvoicePaymentService $invoices)
-    {
-    }
+    public function __construct(
+        private readonly InvoicePaymentService $invoices,
+        private readonly OpenPaymentService $webhooks,
+    ) {}
 
     public function payInit(Request $request, int $invoice)
     {
@@ -213,6 +217,40 @@ class PaymentController extends Controller
         } catch (\Throwable $e) {
             return errorResponse($e->getMessage());
         }
+    }
+
+    /**
+     * Stripe webhook — entry point for all Stripe payment events.
+     * Handles purchases, renewals, agent alterations, upgrade/downgrades,
+     * open payments, and subscription auto-renewals.
+     */
+    public function stripeWebhook(Request $request)
+    {
+        $processed = $this->webhooks->handleWebhook(
+            'Stripe',
+            $request->getContent(),
+            (string) $request->header('Stripe-Signature'),
+        );
+
+        return $processed
+            ? successResponse('Webhook processed')
+            : errorResponse('Invalid signature', 400);
+    }
+
+    /**
+     * Razorpay webhook — entry point for all Razorpay payment events.
+     */
+    public function razorpayWebhook(Request $request)
+    {
+        $processed = $this->webhooks->handleWebhook(
+            'Razorpay',
+            $request->getContent(),
+            (string) $request->header('X-Razorpay-Signature'),
+        );
+
+        return $processed
+            ? successResponse('Webhook processed')
+            : errorResponse('Invalid signature', 400);
     }
 
     private function authorizedInvoice(Request $request, int $invoiceId): Invoice

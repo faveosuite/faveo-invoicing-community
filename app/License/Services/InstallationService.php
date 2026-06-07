@@ -74,6 +74,13 @@ class InstallationService
     /**
      * Get installations for a license.
      */
+    public function countActiveInstallations(string $licenseCode): int
+    {
+        return Installation::where('license_code', $licenseCode)
+            ->where('installation_status', 1)
+            ->count();
+    }
+
     public function getByLicenseCode(string $licenseCode): Collection
     {
         return Installation::where('license_code', $licenseCode)
