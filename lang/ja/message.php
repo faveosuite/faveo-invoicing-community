@@ -1340,6 +1340,7 @@ return [
     'clear_my_cart' => 'カートをクリア',
     'proceed_checkout' => 'チェックアウトに進む',
     'checkout' => 'チェックアウト',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'カートは空です',
     'your_order' => 'あなたの注文',
     'cart_subtotal' => 'カート小計',

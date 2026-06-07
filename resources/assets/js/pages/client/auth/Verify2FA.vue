@@ -22,6 +22,8 @@
                     </a>
                 </p>
 
+                <RecaptchaField ref="totpCaptchaRef" action="login_2fa" class="mb-3" />
+
                 <div class="d-grid mb-3">
                     <button type="submit" class="btn btn-dark btn-modern text-uppercase fw-bold py-3" :disabled="saving || !totpHpReady">
                         <i v-if="saving" class="fas fa-circle-notch fa-spin me-1"></i>
@@ -47,6 +49,8 @@
                     </a>
                 </p>
 
+                <RecaptchaField ref="recCaptchaRef" action="login_recovery" class="mb-3" />
+
                 <div class="d-grid mb-3">
                     <button type="submit" class="btn btn-dark btn-modern text-uppercase fw-bold py-3" :disabled="saving || !recHpReady">
                         <i v-if="saving" class="fas fa-circle-notch fa-spin me-1"></i>
@@ -67,12 +71,15 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { twoFaSchema, recoverySchema } from '@/validations/client/authSchemas.js'
 import AuthLayout from './partials/AuthLayout.vue'
 import Honeypot from '@/components/Reusable/Honeypot.vue'
+import { RecaptchaField } from '@recaptcha'
 
 const COMPONENT = 'client-page'
 const el      = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError } = useForm()
+const totpCaptchaRef = ref(null)
+const recCaptchaRef  = ref(null)
 const form        = reactive({ totp: '', rec_code: '', code2fa: {}, recovery: {} })
 const totpHpReady = ref(false)
 const recHpReady  = ref(false)
@@ -116,7 +123,9 @@ async function submitTotp() {
         setErrors(map)
         return
     }
-    await postVerify(`${baseUrl}/2fa/loginValidate`, { totp: form.totp, '2fa_code': form.code2fa })
+    const captchaPayload = await totpCaptchaRef.value?.getPayload()
+    if (!totpCaptchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) return
+    await postVerify(`${baseUrl}/2fa/loginValidate`, { totp: form.totp, '2fa_code': form.code2fa, ...captchaPayload }, totpCaptchaRef)
 }
 
 async function submitRecovery() {
@@ -128,11 +137,12 @@ async function submitRecovery() {
         setErrors(map)
         return
     }
-    // `recovery_code` is the honeypot field validated by the backend (App\Rules\Honeypot).
-    await postVerify(`${baseUrl}/verify-recovery-code`, { rec_code: form.rec_code, recovery_code: form.recovery })
+    const captchaPayload = await recCaptchaRef.value?.getPayload()
+    if (!recCaptchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) return
+    await postVerify(`${baseUrl}/verify-recovery-code`, { rec_code: form.rec_code, recovery_code: form.recovery, ...captchaPayload }, recCaptchaRef)
 }
 
-async function postVerify(url, payload) {
+async function postVerify(url, payload, captchaRef) {
     saving.value = true
     try {
         const res = await http.post(url, payload)
@@ -143,6 +153,10 @@ async function postVerify(url, payload) {
             successHandler(res, COMPONENT)
         }
     } catch (e) {
+        if (e?.response?.data?.data?.show_v2_recaptcha) {
+            captchaRef?.value?.triggerFallback()
+            return
+        }
         errorHandler(e, COMPONENT)
     } finally {
         saving.value = false

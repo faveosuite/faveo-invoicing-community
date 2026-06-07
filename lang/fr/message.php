@@ -1131,6 +1131,7 @@ return [
     'clear_my_cart' => 'Vider mon panier',
     'proceed_checkout' => 'Passer à la caisse',
     'checkout' => 'Caisse',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'Votre panier est vide',
     'your_order' => 'Votre commande',
     'cart_subtotal' => 'Sous-total du panier',

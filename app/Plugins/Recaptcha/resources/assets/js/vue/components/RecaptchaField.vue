@@ -4,12 +4,12 @@
  * behind one imperative API and owns the v3 -> v2-checkbox fallback transition.
  *
  *   <RecaptchaProvider>
- *     <RecaptchaField ref="captcha" action="login" page-id="login" />
+ *     <RecaptchaField ref="captcha" action="login" />
  *   </RecaptchaProvider>
  *
  *   // on submit:
  *   const payload = await captcha.value.getPayload()
- *   // payload => { 'g-recaptcha-response': token|null, page_id }
+ *   // payload => { 'g-recaptcha-response': token|null }
  *   ...send with the form...
  *   // on 422 { show_v2_recaptcha: true }:
  *   captcha.value.triggerFallback()
@@ -26,7 +26,6 @@ import RecaptchaV3 from './RecaptchaV3.vue'
 
 const props = defineProps({
     action: { type: String, default: 'submit' },
-    pageId: { type: String, required: true },
     // Show the built-in inline validation message on a missing token.
     showError: { type: Boolean, default: true },
     errorMessage: { type: String, default: 'Please complete the reCAPTCHA.' },
@@ -101,11 +100,11 @@ async function getToken(actionOverride) {
 
 /**
  * Convenience: the exact request fields the backend middleware expects.
- * @returns {Promise<{'g-recaptcha-response': string|null, page_id: string}>}
+ * @returns {Promise<{'g-recaptcha-response': string|null}>}
  */
 async function getPayload(actionOverride) {
     const token = await getToken(actionOverride)
-    return { 'g-recaptcha-response': token, page_id: props.pageId }
+    return { 'g-recaptcha-response': token }
 }
 
 /**

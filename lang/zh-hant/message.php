@@ -1118,6 +1118,7 @@ return [
     'clear_my_cart' => '清空我的購物車',
     'proceed_checkout' => '進行結帳',
     'checkout' => '結帳',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => '您的購物車是空的',
     'your_order' => '您的訂單',
     'cart_subtotal' => '購物車小計',

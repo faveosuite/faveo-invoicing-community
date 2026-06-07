@@ -141,50 +141,42 @@
     <table class="summary-table">
         <tr>
             <th>{{ __('message.sub_total') }}</th>
-            <td class="right">{{ currencyFormat($itemsSubtotal, $symbol) }}</td>
+            <td class="right">{{ $totals['subtotal'] }}</td>
         </tr>
 
         @if($invoice->credits)
             <tr>
-                <th>{{ __('message.discount') }}</th>
-                <td class="right">{{ currencyFormat($invoice->credits,$symbol) }}</td>
+                <th>{{ __('message.credits') }}</th>
+                <td class="right">{{ $totals['credits'] }}</td>
             </tr>
         @endif
 
         @if($invoice->discount)
             <tr>
                 <th>{{ __('message.discount') }}</th>
-                <td class="right">{{ currencyFormat($invoice->discount,$symbol) }} ({{ $invoice->coupon_code }})</td>
+                <td class="right">{{ $totals['discount'] }} ({{ $invoice->coupon_code }})</td>
             </tr>
         @endif
 
-        @foreach($gstSplit as $tax)
-            @foreach($tax['labels'] as $i => $label)
-                <tr>
-                    <th>{{ $label }}</th>
-                    <td class="right">{{ $tax['values'][$i] }}</td>
-                </tr>
-            @endforeach
+        @foreach($totals['tax'] as $label => $value)
+            <tr>
+                <th>{{ $label }}</th>
+                <td class="right">{{ $value }}</td>
+            </tr>
         @endforeach
 
-        @if($processingFeeAmount > 0)
+        @if($invoice->processing_fee)
             <tr>
                 <th>{{ __('message.processing_fee') }}</th>
-                <td class="right">{{ currencyFormat($processingFeeAmount,$symbol) }}</td>
+                <td class="right">{{ $totals['processing_fee'] }}</td>
             </tr>
         @endif
 
         <tr class="total-row">
             <th>{{ __('message.total') }}</th>
-            <td class="right">{{ currencyFormat($invoice->grand_total,$symbol) }}</td>
+            <td class="right">{{ $totals['total'] }}</td>
         </tr>
     </table>
-
-    <!-- FOOTER -->
-{{--    <footer>--}}
-{{--        {{ $set->company }} | {{ $set->company_email }} | +{{ $set->phone_code }} {{ $set->phone }}--}}
-{{--    </footer>--}}
-
 </div>
 
 </body>

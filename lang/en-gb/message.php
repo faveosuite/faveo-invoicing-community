@@ -1524,6 +1524,7 @@ return [
     'clear_my_cart' => 'Clear My Cart',
     'proceed_checkout' => 'Proceed to Checkout',
     'checkout' => 'Checkout',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'Your Cart is empty',
     'your_order' => 'Your Order',
     'cart_subtotal' => 'Cart Subtotal',

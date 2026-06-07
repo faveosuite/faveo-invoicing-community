@@ -35,6 +35,8 @@
 
             <Honeypot name="reset" v-model="form.reset" @ready="hpReady = $event" />
 
+            <RecaptchaField ref="captchaRef" action="reset" class="mb-3" />
+
             <button type="submit"
                     class="btn btn-dark btn-modern w-100 text-uppercase rounded-0 font-weight-bold text-3 py-3"
                     :disabled="saving || !hpReady">
@@ -55,6 +57,7 @@ import { successHandler, applyServerValidation } from '@/helpers/responseHandler
 import { resetSchema, passwordChecks } from '@/validations/client/authSchemas.js'
 import AuthLayout from './partials/AuthLayout.vue'
 import Honeypot from '@/components/Reusable/Honeypot.vue'
+import { RecaptchaField } from '@recaptcha'
 
 const COMPONENT = 'client-page'
 const el      = document.getElementById('app-client')
@@ -62,6 +65,7 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const route   = useRoute()
 
 const { errors, setErrors, setFieldError } = useForm()
+const captchaRef = ref(null)
 const form = reactive({ token: route.params.token, email: '', password: '', password_confirmation: '', reset: {} })
 
 const loading        = ref(true)
@@ -119,18 +123,26 @@ async function submit() {
 
     saving.value = true
     try {
-        // `reset` is the honeypot field validated by the backend (App\Rules\Honeypot).
+        const captchaPayload = await captchaRef.value?.getPayload()
+        if (!captchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) {
+            return
+        }
         const res = await http.post(`${baseUrl}/password/reset`, {
             token: form.token,
             email: form.email,
             password: form.password,
             password_confirmation: form.password_confirmation,
             reset: form.reset,
+            ...captchaPayload,
         })
         successHandler(res, COMPONENT)
         const redirect = res.data?.data?.redirect
         setTimeout(() => { window.location.href = redirect || `${baseUrl}/login` }, 1500)
     } catch (e) {
+        if (e?.response?.data?.data?.show_v2_recaptcha) {
+            captchaRef.value?.triggerFallback()
+            return
+        }
         applyServerValidation(e, { setErrors, fields: ['password', 'password_confirmation'], component: COMPONENT })
     } finally {
         saving.value = false

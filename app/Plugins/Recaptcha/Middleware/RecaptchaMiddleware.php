@@ -44,12 +44,7 @@ class RecaptchaMiddleware
         RecaptchaSetting $settings,
         Closure $next
     ): mixed {
-        $pageId = $request->input('page_id');
-        if (! $pageId) {
-            return errorResponse(__('recaptcha::recaptcha.captcha_message'), 422);
-        }
-
-        $sessionKey = $this->getSessionKey($action, $pageId);
+        $sessionKey = $this->getSessionKey($action);
 
         // Handle failover mode (V2 verification)
         if (Session::get($sessionKey)) {
@@ -128,8 +123,8 @@ class RecaptchaMiddleware
         )->json();
     }
 
-    private function getSessionKey(string $action, string $pageId): string
+    private function getSessionKey(string $action): string
     {
-        return "recaptcha_v2_fallback_{$action}_{$pageId}";
+        return "recaptcha_v2_fallback_{$action}";
     }
 }

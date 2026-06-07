@@ -1341,6 +1341,7 @@ return [
     'clear_my_cart' => 'נקה את העגלה שלי',
     'proceed_checkout' => 'המשך לתשלום',
     'checkout' => 'תשלום',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'העגלה שלך ריקה',
     'your_order' => 'ההזמנה שלך',
     'cart_subtotal' => 'סכום ביניים בעגלה',

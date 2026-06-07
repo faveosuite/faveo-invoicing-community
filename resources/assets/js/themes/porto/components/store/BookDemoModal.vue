@@ -56,6 +56,8 @@
         :rows="4"
         @update:modelValue="form.message = $event; setFieldError('message', undefined)"
       />
+
+      <RecaptchaField ref="captchaRef" action="demo" class="mt-2" />
     </template>
 
     <template #controls>
@@ -84,6 +86,7 @@ import Modal from '../common/Modal.vue'
 import Alert from '../common/Alert.vue'
 import ClientField from '../forms/ClientField.vue'
 import PhoneField from '../forms/PhoneField.vue'
+import { RecaptchaField } from '@recaptcha'
 
 const props = defineProps({
   show: { type: Boolean, default: false },
@@ -94,6 +97,7 @@ const emit = defineEmits(['close'])
 const alertStore = useAlertStore()
 const { errors, setErrors, setFieldError } = useForm()
 
+const captchaRef = ref(null)
 const submitting = ref(false)
 const honeypot = ref(null)
 
@@ -113,6 +117,7 @@ watch(() => props.show, async (val) => {
     form.country_code = ''
     form.message = ''
     setErrors({})
+    captchaRef.value?.reset()
     try {
       const { data } = await http.get('honeypot')
       honeypot.value = data?.data ?? null
@@ -151,12 +156,17 @@ async function submit() {
 
   submitting.value = true
   try {
+    const captchaPayload = await captchaRef.value?.getPayload()
+    if (!captchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) {
+      return
+    }
     const payload = {
       demoname:     form.name,
       demoemail:    form.email,
       Mobile:       form.mobile,
       country_code: form.country_code,
       demomessage:  form.message,
+      ...captchaPayload,
     }
     if (honeypot.value) {
       payload.demo = {
@@ -171,12 +181,17 @@ async function submit() {
     form.country_code = ''
     form.message = ''
     setErrors({})
+    captchaRef.value?.reset()
     alertStore.setAlert({
       message: res?.data?.message ?? __('message.message_sent_successfully_400'),
       type: 'success',
       component_name: 'BookDemoModal',
     })
   } catch (e) {
+    if (e?.response?.data?.data?.show_v2_recaptcha) {
+      captchaRef.value?.triggerFallback()
+      return
+    }
     alertStore.setAlert({
       message: e?.response?.data?.message ?? __('message.something_went_wrong'),
       type: 'error',

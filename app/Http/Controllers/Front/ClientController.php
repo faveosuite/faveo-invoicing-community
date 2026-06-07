@@ -353,37 +353,29 @@ class ClientController extends BaseClientController
         try {
             $user = \Auth::user();
             $currency = getCurrencyForClient($user->country);
-            $isCloud = in_array($productid, cloudPopupProducts());
 
-            $plans = Plan::join('products', 'plans.product', '=', 'products.id')
-                ->leftJoin('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
-                ->where('plans.product', $productid)
-                ->where('plans.status', 1)
-                ->where('plan_prices.currency', $currency)
-                ->where('plan_prices.renew_price', '!=', '0')
-                ->where('plans.days', '!=', 14)
-                ->select('plans.id', 'plans.name', 'plan_prices.renew_price')
-                ->get();
+            $plans = Plan::where('product', $productid)
+                ->where('status', 1)
+                ->where('days', '!=', 14)
+                ->with([
+                    'planPrice' => fn ($q) =>
+                    $q->where('currency', $currency)
+                        ->where('renew_price', '!=', '0')])
+                ->get()
+                ->filter(fn ($plan) => $plan->planPrice->isNotEmpty());
 
-            $planOptions = $plans->map(function ($plan) use ($isCloud, $currency) {
-                $label = $plan->name;
-                if ($isCloud) {
-                    $label .= ' (Plan price-per agent: '.currencyFormat($plan->renew_price, $currency, true).')';
-                } else {
-                    $label .= ' (Renewal price: '.currencyFormat($plan->renew_price, $currency, true).')';
-                }
+            $planOptions = $plans->map(function ($plan) use ($currency) {
+                $renewPrice = $plan->planPrice->first()->renew_price;
 
-                return ['id' => $plan->id, 'name' => $label];
+                return [
+                    'id' => $plan->id,
+                    'name' => $plan->name.' (Renewal price: '.currencyFormat($renewPrice, $currency, true).')',
+                ];
             })->values();
-
-            if ($isCloud) {
-                $planOptions = $planOptions->filter(fn ($p) => stripos($p['name'], 'free') === false)->values();
-            }
 
             return successResponse('', [
                 'plans' => $planOptions,
                 'user_id' => $user->id,
-                'is_cloud' => $isCloud,
             ]);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());

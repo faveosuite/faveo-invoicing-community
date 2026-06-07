@@ -1338,6 +1338,7 @@ return [
     'clear_my_cart' => 'என் கார்டைத் துறக்கவும்',
     'proceed_checkout' => 'பணம் செலுத்த கைக்கொடு',
     'checkout' => 'பணம் செலுத்து',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'உங்கள் கார்ட் காலியாக உள்ளது',
     'your_order' => 'உங்கள் ஆர்டர்',
     'cart_subtotal' => 'கார்டு சுற்று மொத்தம்',

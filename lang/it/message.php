@@ -1134,6 +1134,7 @@ return [
     'clear_my_cart' => 'Svuota il mio carrello',
     'proceed_checkout' => 'Procedi al checkout',
     'checkout' => 'Checkout',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'Il tuo carrello è vuoto',
     'your_order' => 'Il tuo ordine',
     'cart_subtotal' => 'Subtotale carrello',

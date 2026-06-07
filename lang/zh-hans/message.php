@@ -1121,6 +1121,7 @@ return [
     'clear_my_cart' => '清空我的购物车',
     'proceed_checkout' => '继续结账',
     'checkout' => '结账',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => '您的购物车为空',
     'your_order' => '您的订单',
     'cart_subtotal' => '购物车小计',

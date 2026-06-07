@@ -26,6 +26,8 @@
 
           <Honeypot name="login" v-model="loginForm.login" @ready="loginHpReady = $event" />
 
+          <RecaptchaField ref="loginCaptchaRef" action="login" class="mb-3" />
+
           <button type="submit"
                   class="btn btn-dark btn-modern w-100 text-uppercase rounded-0 font-weight-bold text-3 py-3"
                   :disabled="loggingIn || !loginHpReady" data-loading-text="Loading...">
@@ -112,6 +114,8 @@
 
           <Honeypot name="registerForm" v-model="regForm.registerForm" @ready="regHpReady = $event" />
 
+          <RecaptchaField ref="regCaptchaRef" action="register" class="mb-3" />
+
           <button type="submit"
                   class="btn btn-dark btn-modern w-100 text-uppercase rounded-0 font-weight-bold text-3 py-3 mt-3"
                   :disabled="registering || !regHpReady" data-loading-text="Loading...">
@@ -133,10 +137,11 @@ import {successHandler, errorHandler, applyServerValidation} from '@/helpers/res
 import {loginSchema, registerSchema, passwordChecks} from '@/validations/client/authSchemas.js'
 import SocialButtons from './partials/SocialButtons.vue'
 import Honeypot from '@/components/Reusable/Honeypot.vue'
+import { RecaptchaField } from '@recaptcha'
 
 const COMPONENT = 'client-page'
-const el = document.getElementById('app-client')
-const baseUrl = el?.dataset?.baseUrl ?? ''
+const el        = document.getElementById('app-client')
+const baseUrl   = el?.dataset?.baseUrl ?? ''
 
 // Separate vee-validate instances so the two forms don't share error state.
 const {errors: loginErrors, setErrors: loginSetErrors, setFieldError: loginSetFieldError} = useForm()
@@ -157,6 +162,8 @@ const regForm = reactive({
   password: '', password_confirmation: '', terms: false, registerForm: {},
 })
 
+const loginCaptchaRef = ref(null)
+const regCaptchaRef   = ref(null)
 const loggingIn = ref(false)
 const registering = ref(false)
 const loginHpReady = ref(false)
@@ -240,12 +247,16 @@ async function submitLogin() {
 
   loggingIn.value = true
   try {
-    // `login` is the honeypot field validated by LoginRequest (App\Rules\Honeypot).
+    const captchaPayload = await loginCaptchaRef.value?.getPayload()
+    if (!loginCaptchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) {
+      return
+    }
     const res = await http.post(`${baseUrl}/login`, {
       email_username: loginForm.email_username,
       password1: loginForm.password1,
       remember: loginForm.remember ? 'on' : '',
       login: loginForm.login,
+      ...captchaPayload,
     })
     const redirect = res.data?.data?.redirect
     if (redirect) {
@@ -254,6 +265,10 @@ async function submitLogin() {
       errorHandler({response: {status: 400, data: {message: __('message.something_wrong')}}}, COMPONENT)
     }
   } catch (e) {
+    if (e?.response?.data?.data?.show_v2_recaptcha) {
+      loginCaptchaRef.value?.triggerFallback()
+      return
+    }
     applyServerValidation(e, { setErrors: loginSetErrors, fields: LOGIN_FIELDS, component: COMPONENT })
   } finally {
     loggingIn.value = false
@@ -279,6 +294,10 @@ async function submitRegister() {
 
   registering.value = true
   try {
+    const captchaPayload = await regCaptchaRef.value?.getPayload()
+    if (!regCaptchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) {
+      return
+    }
     const res = await http.post(`${baseUrl}/auth/register`, {
       first_name: regForm.first_name,
       last_name: regForm.last_name,
@@ -293,6 +312,7 @@ async function submitRegister() {
       password_confirmation: regForm.password_confirmation,
       terms: termsEnabled.value ? regForm.terms : undefined,
       registerForm: regForm.registerForm,
+      ...captchaPayload,
     })
     successHandler(res, COMPONENT)
     const needVerify = Number(res.data?.data?.need_verify) === 1
@@ -300,6 +320,10 @@ async function submitRegister() {
       window.location.href = `${baseUrl}/${needVerify ? 'verify' : 'login'}`
     }, 1200)
   } catch (e) {
+    if (e?.response?.data?.data?.show_v2_recaptcha) {
+      regCaptchaRef.value?.triggerFallback()
+      return
+    }
     applyServerValidation(e, { setErrors: regSetErrors, fields: REGISTER_FIELDS, component: COMPONENT })
   } finally {
     registering.value = false

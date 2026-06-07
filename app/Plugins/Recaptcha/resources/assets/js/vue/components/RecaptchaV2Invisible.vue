@@ -6,7 +6,7 @@
  * needed) when execute() is called. execute() resolves with the token, or
  * rejects if the user closes/expires the challenge.
  */
-import { onBeforeUnmount, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRecaptchaContext } from '../core/context.js'
 
 const props = defineProps({
@@ -89,7 +89,8 @@ function reset() {
     settleReject(new Error('reCAPTCHA reset.'))
 }
 
-watch(isReady, ready => { if (ready) render() }, { immediate: true })
+watch(isReady, ready => { if (ready) render() })
+onMounted(() => { if (isReady.value) render() })
 
 onBeforeUnmount(reset)
 

@@ -77,6 +77,12 @@
 
           <div class="row">
             <div class="form-group col">
+              <RecaptchaField ref="captchaRef" action="contact" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="form-group col">
               <button
                 type="submit"
                 class="btn btn-dark btn-modern"
@@ -129,12 +135,14 @@ import { contactUsSchema } from '@/validations/client/contactUsValidations'
 import http from '@/plugins/axios'
 import Alert from '@/themes/porto/components/common/Alert.vue'
 import PhoneField from '@/themes/porto/components/forms/PhoneField.vue'
+import { RecaptchaField } from '@recaptcha'
 
 const COMPONENT = 'contact-us-page'
 
 const alertStore = useAlertStore()
 const { errors, setErrors, setFieldError } = useForm()
 
+const captchaRef  = ref(null)
 const submitting  = ref(false)
 const loadingInfo = ref(true)
 const info        = ref(null)
@@ -188,12 +196,17 @@ async function submit() {
   submitting.value = true
   alertStore.unsetAlert()
   try {
+    const captchaPayload = await captchaRef.value?.getPayload()
+    if (!captchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) {
+      return
+    }
     const payload = {
       conName:      form.name,
       email:        form.email,
       Mobile:       form.mobile,
       country_code: form.country_code,
       conmessage:   form.message,
+      ...captchaPayload,
     }
     if (honeypot.value) {
       payload.contact = {
@@ -208,12 +221,17 @@ async function submit() {
     form.country_code = ''
     form.message      = ''
     setErrors({})
+    captchaRef.value?.reset()
     alertStore.setAlert({
       message:        res?.data?.message ?? __('message.message_sent_successfully_400'),
       type:           'success',
       component_name: COMPONENT,
     })
   } catch (e) {
+    if (e?.response?.data?.data?.show_v2_recaptcha) {
+      captchaRef.value?.triggerFallback()
+      return
+    }
     alertStore.setAlert({
       message:        e?.response?.data?.message ?? __('message.something_went_wrong'),
       type:           'danger',

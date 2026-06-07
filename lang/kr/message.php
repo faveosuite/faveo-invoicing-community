@@ -1145,6 +1145,7 @@ return [
     'clear_my_cart' => '내 장바구니 비우기',
     'proceed_checkout' => '결제 진행',
     'checkout' => '결제',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => '장바구니가 비었습니다.',
     'your_order' => '당신의 주문',
     'cart_subtotal' => '장바구니 소계',

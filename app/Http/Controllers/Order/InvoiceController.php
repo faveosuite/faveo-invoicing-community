@@ -16,6 +16,7 @@ use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\InvoiceTaxLine;
 use App\Model\Order\Order;
+use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
@@ -487,7 +488,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     }
 
     public function createInvoiceItemsByAdmin($invoiceid, $productid, $price,
-        $currency, $qty, $agents, $planid, $userid, $tax_name, $tax_rate, $grandTotalAfterCoupon)
+                                              $currency, $qty, $agents, $planid, $userid, $tax_name, $tax_rate, $grandTotalAfterCoupon)
     {
         try {
             $product = $this->product->findOrFail($productid);
@@ -566,24 +567,49 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $invoice = $this->invoice->find($id);
 
             if (! $invoice) {
-                return redirect()->back()->with('fails', __('message.invalid-invoice-id'));
+                return errorResponse(__('message.invalid-invoice-id'));
             }
 
-            $user = \Auth::user();
-            if ($invoice->user_id != $user->id && $user->role != 'admin') {
-                return redirect()->back()->with('fails', __('message.invalid_user'));
+            $authUser = \Auth::user();
+            if ($invoice->user_id != $authUser->id && $authUser->role != 'admin') {
+                return errorResponse(__('message.invalid_user'));
             }
 
-            $data = (new ClientController())->prepareInvoiceData($invoice);
+            $totals = self::calculateInvoice($id, true);
 
-            return Pdf::view('themes.default1.invoice.newpdf', array_merge([
-                'invoice' => $invoice,
-                'invoiceItems' => $data['items'],
-            ], $data))
-                ->margins(10, 10, 10, 10)
-                ->download($user->first_name.'-invoice.pdf');
+            $set = Setting::select(
+                'id', 'company', 'address', 'state', 'zip', 'city', 'country',
+                'phone_code', 'phone', 'logo', 'company_email', 'gstin', 'cin_no'
+            )->first();
+
+            $base64 = '';
+            if ($set->logo) {
+                $type = pathinfo($set->logo, PATHINFO_EXTENSION);
+                $contents = file_get_contents($set->logo);
+                $base64 = 'data:image/'.$type.';base64,'.base64_encode($contents);
+            }
+
+            $invoiceUser = $invoice->user;
+            if ($invoiceUser) {
+                $invoiceUser->state = key_exists('name', getStateByCode($invoiceUser->country, $invoiceUser->state))
+                    ? getStateByCode($invoiceUser->country, $invoiceUser->state)['name']
+                    : $invoiceUser->state;
+            }
+
+            return Pdf::view('themes.default1.invoice.newpdf', [
+                'invoice'      => $invoice,
+                'invoiceItems' => $invoice->invoiceItem()->get(),
+                'user'         => $invoiceUser,
+                'set'          => $set,
+                'base64'       => $base64,
+                'order'        => Order::getOrderLink(OrderInvoiceRelation::where('invoice_id', $id)->value('order_id'), 'my-order'),
+                'date'         => getDateHtml($invoice->date),
+                'symbol'       => $invoice->currency,
+                'totals'       => $totals,
+            ])
+                ->download($authUser->first_name.'-invoice.pdf');
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 

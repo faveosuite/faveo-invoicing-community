@@ -14,6 +14,8 @@
 
             <Honeypot name="forgot" v-model="form.forgot" @ready="hpReady = $event" />
 
+            <RecaptchaField ref="captchaRef" action="forgot" class="mb-3" />
+
             <button type="submit"
                     class="btn btn-dark btn-modern w-100 text-uppercase rounded-0 font-weight-bold text-3 py-3"
                     :disabled="saving || !hpReady">
@@ -33,12 +35,14 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { forgotSchema } from '@/validations/client/authSchemas.js'
 import AuthLayout from './partials/AuthLayout.vue'
 import Honeypot from '@/components/Reusable/Honeypot.vue'
+import { RecaptchaField } from '@recaptcha'
 
 const COMPONENT = 'client-page'
 const el      = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError } = useForm()
+const captchaRef = ref(null)
 const form   = reactive({ email: '', forgot: {} })
 const saving = ref(false)
 const hpReady = ref(false)
@@ -55,11 +59,23 @@ async function submit() {
 
     saving.value = true
     try {
-        // `forgot` is the honeypot field validated by the backend (App\Rules\Honeypot).
-        const res = await http.post(`${baseUrl}/password/email`, { email: form.email, forgot: form.forgot })
+        const captchaPayload = await captchaRef.value?.getPayload()
+        if (!captchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) {
+            return
+        }
+        const res = await http.post(`${baseUrl}/password/email`, {
+            email: form.email,
+            forgot: form.forgot,
+            ...captchaPayload,
+        })
         successHandler(res, COMPONENT)
         form.email = ''
+        captchaRef.value?.reset()
     } catch (e) {
+        if (e?.response?.data?.data?.show_v2_recaptcha) {
+            captchaRef.value?.triggerFallback()
+            return
+        }
         const serverErrors = e?.response?.data?.errors
         if (serverErrors?.email) {
             setErrors({ email: Array.isArray(serverErrors.email) ? serverErrors.email[0] : serverErrors.email })

@@ -1076,6 +1076,7 @@
      'clear_my_cart' => 'Niffru l-Karrettun Tiegħi',
      'proceed_checkout' => 'Ipproċedi għall-Kaxxa',
      'checkout' => 'Kaxxa',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
      'your_cart_empty' => 'Il-Karrettun Tiegħek huwa Voids',
      'your_order' => 'Il-Ordni Tiegħek',
      'cart_subtotal' => 'Subtotal tal-Karrettun',

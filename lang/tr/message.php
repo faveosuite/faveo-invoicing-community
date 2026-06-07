@@ -1349,6 +1349,7 @@ return [
     'clear_my_cart' => 'Sepetimi Temizle',
     'proceed_checkout' => 'Ödemeye Geç',
     'checkout' => 'Ödeme',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'Sepetiniz boş',
     'your_order' => 'Siparişiniz',
     'cart_subtotal' => 'Sepet Ara Toplamı',

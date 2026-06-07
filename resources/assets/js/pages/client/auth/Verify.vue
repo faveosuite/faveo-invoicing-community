@@ -59,6 +59,9 @@
                                             <i class="fas fa-phone-alt me-1"></i>{{ __('message.otp_call') }}
                                         </button>
                                     </div>
+                                    <div class="col-12 mb-2">
+                                        <RecaptchaField ref="captchaRef" :action="captchaAction" />
+                                    </div>
                                     <div class="col-6 text-end">
                                         <button type="submit" class="btn btn-primary btn-lg" :disabled="saving">
                                             <i v-if="saving" class="fas fa-circle-notch fa-spin me-1"></i>
@@ -89,12 +92,13 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted, onUnmounted } from 'vue'
+import { reactive, ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { otpSchema } from '@/validations/client/authSchemas.js'
+import { RecaptchaField } from '@recaptcha'
 
 const COMPONENT = 'client-page'
 const COOLDOWN  = 120
@@ -102,6 +106,8 @@ const el      = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError } = useForm()
+const captchaRef    = ref(null)
+const captchaAction = computed(() => current.value?.type === 'mobile' ? 'mobile_verify' : 'email_verify')
 const form      = reactive({ otp: '' })
 const loading   = ref(true)
 const saving    = ref(false)
@@ -166,6 +172,8 @@ onMounted(async () => {
 
 onUnmounted(() => clearInterval(timer))
 
+watch(stepIndex, () => captchaRef.value?.reset())
+
 function startCooldown() {
     cooldown.value = COOLDOWN
     clearInterval(timer)
@@ -216,10 +224,13 @@ async function verify() {
         return
     }
 
+    const captchaPayload = await captchaRef.value?.getPayload()
+    if (!captchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) return
+
     saving.value = true
     const url = current.value.type === 'mobile' ? `${baseUrl}/otp/verify` : `${baseUrl}/email/verify`
     try {
-        const res = await http.post(url, { eid: eid.value, otp: form.otp })
+        const res = await http.post(url, { eid: eid.value, otp: form.otp, ...captchaPayload })
         successHandler(res, COMPONENT)
         form.otp = ''
 
@@ -235,6 +246,10 @@ async function verify() {
             setTimeout(() => { window.location.href = `${baseUrl}/login` }, 1500)
         }
     } catch (e) {
+        if (e?.response?.data?.data?.show_v2_recaptcha) {
+            captchaRef.value?.triggerFallback()
+            return
+        }
         errorHandler(e, COMPONENT)
     } finally {
         saving.value = false

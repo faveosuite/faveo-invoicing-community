@@ -1138,6 +1138,7 @@ return [
     'clear_my_cart' => 'Xóa giỏ hàng của tôi',
     'proceed_checkout' => 'Tiến hành thanh toán',
     'checkout' => 'Thanh toán',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'Giỏ hàng của bạn đang trống',
     'your_order' => 'Đơn hàng của bạn',
     'cart_subtotal' => 'Tổng phụ giỏ hàng',

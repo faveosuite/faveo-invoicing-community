@@ -1066,6 +1066,7 @@ return [
     'clear_my_cart' => 'Očisti moju košaricu',
     'proceed_checkout' => 'Nastavite na blagajnu',
     'checkout' => 'Blagajna',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'Vaša košarica je prazna',
     'your_order' => 'Vaša narudžba',
     'cart_subtotal' => 'Podzbroj u košarici',

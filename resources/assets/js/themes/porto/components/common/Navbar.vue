@@ -138,7 +138,7 @@
 
                         <!-- Sign-up (guest) -->
                         <li v-else>
-                          <a class="nav-link" :href="loginUrl">{{ __('message.sign-up') }}</a>
+                          <RouterLink class="nav-link" to="/login">{{ __('message.sign-up') }}</RouterLink>
                         </li>
 
                         <!-- Free Trial / Demo (mobile only, shown in collapsed nav) -->
@@ -175,19 +175,10 @@
 
                       <div class="header-nav-features-dropdown" :class="{ 'show': showCartDropdown }"
                            id="headerTopCartDropdown">
-                        <!-- Guest -->
-                        <div v-if="!isAuthenticated" class="text-center py-3">
-                          <i class="fas fa-shopping-cart fa-2x mb-2 d-block text-muted"></i>
-                          <a :href="loginUrl" class="btn btn-primary btn-sm mt-2">
-                            {{ __('message.sign-up') }}
-                          </a>
-                        </div>
-
-                        <!-- Authenticated — empty -->
-                        <div v-else-if="!cartItems.length">
+                        <!-- Empty cart -->
+                        <div v-if="!cartItems.length">
                           <ol class="mini-products-list">
-                            <div
-                                class="product-details d-flex justify-content-between align-items-center mb-4 fw-medium">
+                            <div class="product-details d-flex justify-content-between align-items-center mb-4 fw-medium">
                               <span class="text-muted">0 ITEMS</span>
                               <RouterLink to="/cart" class="text-dark text-uppercase fw-bold"
                                           @click="showCartDropdown = false">
@@ -199,7 +190,7 @@
                           </ol>
                         </div>
 
-                        <!-- Authenticated — has items -->
+                        <!-- Cart has items -->
                         <div v-else>
                           <ol class="mini-products-list">
                             <li v-for="item in cartItems" :key="item.id" class="item">
@@ -221,18 +212,16 @@
                           <div class="totals">
                             <span class="label">{{ __('message.total') }}:</span>
                             <span class="price-total">
-                                                            <span class="price">{{
-                                                                cartStore.currencySymbol
-                                                              }}{{ cartStore.total }}</span>
-                                                        </span>
+                              <span class="price">{{ cartStore.currencySymbol }}{{ cartStore.total }}</span>
+                            </span>
                           </div>
                           <div class="actions">
                             <RouterLink class="btn btn-dark" to="/cart" @click="showCartDropdown = false">
                               {{ __('message.view_cart') }}
                             </RouterLink>
-                            <RouterLink class="btn btn-primary" to="/checkout" @click="showCartDropdown = false">
+                            <button class="btn btn-primary" @click="handleCheckout">
                               {{ __('message.checkout') }}
-                            </RouterLink>
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -316,24 +305,44 @@ import {computed, onMounted, onUnmounted, ref} from 'vue'
 import 'flag-icons/css/flag-icons.min.css'
 import http from '@/plugins/axios'
 import {useCartStore} from '@/core/stores/cart'
+import {useAlertStore} from '@/core/stores/alert'
 import {useNavFeatureToggle} from '../../composables/useNavFeatureToggle.js'
 import {isStickyActive} from '../../composables/useStickyHeader.js'
 import CloudTrialModal from '../store/CloudTrialModal.vue'
 import BookDemoModal from '../store/BookDemoModal.vue'
+import { useRouter } from 'vue-router'
+import { __ } from '@/plugins/i18n'
 
 const {toggle: toggleLanguage} = useNavFeatureToggle()
 
-const cartStore = useCartStore()
+const router     = useRouter()
+const cartStore  = useCartStore()
+const alertStore = useAlertStore()
 const isScrolled = isStickyActive
 
 const showCloudTrialModal = ref(false)
-const showDemoModal = ref(false)
-
-const showCartDropdown = ref(false)
-const cartRef = ref(null)
+const showDemoModal       = ref(false)
+const showCartDropdown    = ref(false)
+const cartRef             = ref(null)
 
 function toggleCartDropdown() {
   showCartDropdown.value = !showCartDropdown.value
+}
+
+function handleCheckout() {
+  if (!isAuthenticated.value) {
+    showCartDropdown.value = false
+    router.push('/login').then(() => {
+      alertStore.setAlert({
+        message: __('message.please_login_to_checkout'),
+        type: 'warning',
+        component_name: 'client-page',
+      })
+    })
+    return
+  }
+  showCartDropdown.value = false
+  router.push('/checkout')
 }
 
 function onClickOutside(e) {
@@ -364,7 +373,7 @@ const cartCount = ref(parseInt(el?.dataset?.cartCount ?? '0', 10))
 // Authenticated users get the live DB-backed cart count; guests fall back to
 // the server-rendered count attribute.
 const cartItems = computed(() => Array.isArray(cartStore.items) ? cartStore.items : [])
-const badgeCount = computed(() => isAuthenticated.value ? cartStore.itemCount : cartCount.value)
+const badgeCount = computed(() => cartStore.itemCount || cartCount.value)
 
 const socialMedia = computed(() => {
   try {
@@ -422,9 +431,7 @@ const childPages = (parentId) =>
 onMounted(async () => {
   document.addEventListener('click', onClickOutside)
   loadLanguages()
-  if (isAuthenticated.value) {
-    cartStore.fetchCart()
-  }
+  cartStore.fetchCart()
   try {
     const {data} = await http.post('available-groups')
     productGroups.value = Object.entries(data.data ?? {}).map(([id, g]) => ({id: parseInt(id), ...g}))

@@ -1118,6 +1118,7 @@ return [
     'clear_my_cart' => 'Leeg mijn winkelwagen',
     'proceed_checkout' => 'Ga verder naar afrekenen',
     'checkout' => 'Afrekenen',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'Je winkelwagen is leeg',
     'your_order' => 'Je bestelling',
     'cart_subtotal' => 'Subtotaal winkelwagen',

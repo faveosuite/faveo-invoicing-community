@@ -1139,6 +1139,7 @@ return [
     'clear_my_cart' => 'Очистить мою корзину',
     'proceed_checkout' => 'Перейти к оформлению заказа',
     'checkout' => 'Оформление заказа',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'Ваша корзина пуста',
     'your_order' => 'Ваш заказ',
     'cart_subtotal' => 'Промежуточный итог корзины',

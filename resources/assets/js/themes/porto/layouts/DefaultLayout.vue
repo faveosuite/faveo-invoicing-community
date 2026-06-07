@@ -1,4 +1,5 @@
 <template>
+    <RecaptchaProvider>
     <div class="body">
 
         <header id="header" class="header-effect-reveal"
@@ -69,6 +70,7 @@
         <AppFooter />
 
     </div>
+    </RecaptchaProvider>
 </template>
 
 <script setup>
@@ -79,6 +81,7 @@ import { useAlertStore }             from '@/core/stores/alert.js'
 import { useBreadcrumb }             from '@/core/composables/useBreadcrumb.js'
 import { useStickyHeader }           from '../composables/useStickyHeader.js'
 import { useAnalyticsScripts }       from '@/core/composables/useAnalyticsScripts.js'
+import { RecaptchaProvider }         from '@recaptcha'
 
 useStickyHeader()
 useAnalyticsScripts()

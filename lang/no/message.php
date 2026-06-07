@@ -1144,6 +1144,7 @@ return [
     'clear_my_cart' => 'Tøm min handlevogn',
     'proceed_checkout' => 'Fortsett til kassen',
     'checkout' => 'Kasse',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'Din handlevogn er tom',
     'your_order' => 'Din bestilling',
     'cart_subtotal' => 'Handlevogn Subtotal',

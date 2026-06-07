@@ -1024,6 +1024,7 @@ return [
     'clear_my_cart' => 'مسح سلتني',
     'proceed_checkout' => 'المتابعة إلى الخروج',
     'checkout' => 'الدفع',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'سلتك فارغة',
     'your_order' => 'طلبك',
     'cart_subtotal' => 'إجمالي السلة الفرعي',

@@ -1134,6 +1134,7 @@ return [
     'clear_my_cart' => 'Kosongkan Keranjang Saya',
     'proceed_checkout' => 'Lanjutkan ke Pembayaran',
     'checkout' => 'Pembayaran',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'Keranjang Anda kosong',
     'your_order' => 'Pesanan Anda',
     'cart_subtotal' => 'Subtotal Keranjang',

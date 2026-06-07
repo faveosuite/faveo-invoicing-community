@@ -1346,6 +1346,7 @@ return [
     'clear_my_cart' => 'मेरा कार्ट साफ करें',
     'proceed_checkout' => 'चेकआउट पर जाएं',
     'checkout' => 'चेकआउट',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'आपका कार्ट खाली है',
     'your_order' => 'आपका ऑर्डर',
     'cart_subtotal' => 'कार्ट सबटोटल',

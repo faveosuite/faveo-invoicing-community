@@ -17,3 +17,8 @@
 .input-group-rounded .form-control.is-invalid {
     border: 1px solid var(--bs-form-invalid-border-color, #dc3545) !important;
 }
+
+
+.grecaptcha-badge {
+    bottom: 14px !important;
+}

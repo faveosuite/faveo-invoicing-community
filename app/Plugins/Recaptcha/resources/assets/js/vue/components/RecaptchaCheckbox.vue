@@ -5,7 +5,7 @@
  * Renders an explicit widget into its own container and surfaces the lifecycle
  * via events plus an imperative API (getResponse/reset/execute is N/A here).
  */
-import { onBeforeUnmount, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRecaptchaContext } from '../core/context.js'
 
 const props = defineProps({
@@ -65,7 +65,8 @@ function getResponse() {
     return response.value
 }
 
-watch(isReady, ready => { if (ready) render() }, { immediate: true })
+watch(isReady, ready => { if (ready) render() })
+onMounted(() => { if (isReady.value) render() })
 
 onBeforeUnmount(() => {
     // grecaptcha has no destroy(); resetting frees the challenge state.

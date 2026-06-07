@@ -1132,6 +1132,7 @@ return [
     'clear_my_cart' => 'Meinen Warenkorb leeren',
     'proceed_checkout' => 'Zur Kasse gehen',
     'checkout' => 'Kasse',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'Ihr Warenkorb ist leer',
     'your_order' => 'Ihre Bestellung',
     'cart_subtotal' => 'Warenkorb Zwischensumme',

@@ -14,13 +14,7 @@
 
                     <!-- Newsletter form (allow_mailchimp) -->
                     <template v-if="widget.allow_mailchimp">
-                        <div v-if="newsletterSuccess" class="alert alert-success">
-                            <strong>{{ __('message.success') }}!</strong>
-                            {{ __('message.newsletter_subscribed') }}
-                        </div>
-                        <div v-if="newsletterError" class="alert alert-danger">
-                            {{ newsletterError }}
-                        </div>
+                        <Alert componentName="newsletter" />
                         <form v-if="!newsletterSuccess" @submit.prevent="subscribeNewsletter" class="me-4 mb-4">
                             <div class="input-group input-group-rounded has-validation">
                                 <input class="form-control form-control-sm bg-light px-4 text-3"
@@ -36,6 +30,7 @@
                             <span v-if="newsletterEmailError" class="text-danger text-1 mt-1 d-block">
                                 {{ newsletterEmailError }}
                             </span>
+                            <RecaptchaField :ref="setNewsletterCaptchaRef" action="mailChimp" class="mt-2" />
                         </form>
                     </template>
 
@@ -97,6 +92,9 @@ import { ref, computed } from 'vue'
 import { __ } from '@/plugins/i18n'
 import * as yup from 'yup'
 import http from '@/plugins/axios'
+import { RecaptchaField } from '@recaptcha'
+import { useAlertStore } from '@/core/stores/alert'
+import Alert from '@/themes/porto/components/common/Alert.vue'
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 const newsletterSchema = yup.string()
@@ -124,10 +122,13 @@ const footerWidgets = computed(() => {
     } catch { return [] }
 })
 
+const alertStore = useAlertStore()
+
+const newsletterCaptchaRef = ref(null)
+function setNewsletterCaptchaRef(el) { if (el) newsletterCaptchaRef.value = el }
 const newsletterEmail      = ref('')
 const newsletterEmailError = ref('')
 const newsletterSuccess    = ref(false)
-const newsletterError      = ref('')
 const subscribing          = ref(false)
 
 async function subscribeNewsletter() {
@@ -139,14 +140,32 @@ async function subscribeNewsletter() {
         return
     }
 
-    subscribing.value     = true
-    newsletterError.value = ''
+    subscribing.value = true
+    alertStore.unsetAlert()
     try {
+        const captchaPayload = await newsletterCaptchaRef.value?.getPayload()
+        if (!newsletterCaptchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) {
+            return
+        }
         const baseUrl = el?.dataset?.baseUrl ?? ''
-        await http.post(`${baseUrl}/newsletter/subscribe`, { email: newsletterEmail.value })
+        const res = await http.post(`${baseUrl}/mail-chimp/subscribe`, { email: newsletterEmail.value, ...captchaPayload })
         newsletterSuccess.value = true
+        newsletterCaptchaRef.value?.reset()
+        alertStore.setAlert({
+            message: res?.data?.message ?? __('message.newsletter_subscribed'),
+            type: 'success',
+            component_name: 'newsletter',
+        })
     } catch (e) {
-        newsletterError.value = e.response?.data?.message ?? __('message.something_went_wrong')
+        if (e?.response?.data?.data?.show_v2_recaptcha) {
+            newsletterCaptchaRef.value?.triggerFallback()
+            return
+        }
+        alertStore.setAlert({
+            message: e?.response?.data?.message ?? __('message.something_went_wrong'),
+            type: 'danger',
+            component_name: 'newsletter',
+        })
     } finally {
         subscribing.value = false
     }

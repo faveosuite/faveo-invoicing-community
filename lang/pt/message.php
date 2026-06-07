@@ -1126,6 +1126,7 @@ return [
     'clear_my_cart' => 'Limpar Meu Carrinho',
     'proceed_checkout' => 'Continuar para o Checkout',
     'checkout' => 'Finalizar Compra',
+    'please_login_to_checkout' => 'Please log in to proceed with checkout.',
     'your_cart_empty' => 'Seu Carrinho está vazio',
     'your_order' => 'Seu Pedido',
     'cart_subtotal' => 'Subtotal do Carrinho',
