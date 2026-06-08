@@ -35,6 +35,7 @@ class ClientSpaShell
         'contact-us',
         'verify',
         'verify-2fa',
+        'open-payment',
     ];
 
     /** Guest-only paths: served to guests, but authenticated users go to their panel. */

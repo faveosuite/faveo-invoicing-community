@@ -168,10 +168,11 @@ const sections = computed(() => [
     {
         title: __('message.billing'),
         items: [
-            { to: '/settings/payment-gateway',   icon: 'fas fa-credit-card',        label: __('message.payment_gateway_integrations') },
-            { to: '/settings/common/currency',   icon: 'fas fa-money-bill-transfer', label: __('message.currency') },
-            { to: '/settings/common/countries',  icon: 'fas fa-globe',               label: __('message.countries') },
-            { to: '/settings/common/tax',        icon: 'fas fa-calculator',          label: __('message.tax') },
+            { to: '/settings/payment-gateway',   icon: 'fas fa-credit-card',          label: __('message.payment_gateway_integrations') },
+            { to: '/settings/common/currency',   icon: 'fas fa-money-bill-transfer',  label: __('message.currency') },
+            { to: '/settings/common/countries',  icon: 'fas fa-globe',                label: __('message.countries') },
+            { to: '/settings/common/tax',        icon: 'fas fa-calculator',           label: __('message.tax') },
+            { to: '/settings/open-payments',     icon: 'fas fa-money-check-dollar',   label: 'Open Payments' },
         ],
     },
     {

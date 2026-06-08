@@ -23,7 +23,10 @@ return new class extends Migration
                 $table->string('zip', 15);
                 $table->string('country');
                 $table->string('company');
-                $table->decimal('amount', 10, 2);
+                $table->decimal('amount', 10, 2);         // total charged to gateway (base + fee)
+                $table->decimal('base_amount', 10, 2);    // user-entered amount
+                $table->decimal('processing_fee', 10, 2)->default(0);
+                $table->decimal('processing_fee_rate', 5, 2)->default(0);
                 $table->string('currency', 3);
                 $table->string('gateway');
                 $table->text('description')->nullable();

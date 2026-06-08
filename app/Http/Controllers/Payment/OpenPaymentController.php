@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Payment;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Payment\OpenPaymentRequest;
+use App\Model\Common\Country;
+use App\Model\Payment\Currency;
 use App\Model\Payment\OpenPaymentOrder;
+use App\Model\Plugin;
 use App\Plugins\Payment\Exceptions\SignatureVerificationException;
 use App\Services\Payment\OpenPaymentService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -31,21 +34,30 @@ class OpenPaymentController extends Controller
     public function createOrder(OpenPaymentRequest $request)
     {
         try {
+            // Lock fee server-side — client cannot manipulate it
+            $feeRate    = (float) (\DB::table(strtolower($request->gateway))->value('processing_fee') ?? 0);
+            $baseAmount = round((float) $request->amount, 2);
+            $fee        = round($baseAmount * $feeRate / 100, 2);
+            $total      = round($baseAmount + $fee, 2);  // gateway always reads this directly
+
             $order = OpenPaymentOrder::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'mobile' => $request->mobile,
-                'address' => $request->address,
-                'city' => $request->city,
-                'state' => $request->state,
-                'zip' => $request->zip,
-                'country' => $request->country,
-                'company' => $request->company,
-                'amount' => $request->amount,
-                'currency' => $request->currency,
-                'gateway' => $request->gateway,
-                'description' => $request->description,
-                'payment_status' => 'pending',
+                'name'                => $request->name,
+                'email'               => $request->email,
+                'mobile'              => $request->mobile,
+                'address'             => $request->address,
+                'city'                => $request->city,
+                'state'               => $request->state,
+                'zip'                 => $request->zip,
+                'country'             => $request->country,
+                'company'             => $request->company,
+                'amount'              => $total,       // pre-calculated total — gateway charges this directly
+                'base_amount'         => $baseAmount,  // user-entered amount — for display/audit only
+                'processing_fee'      => $fee,
+                'processing_fee_rate' => $feeRate,
+                'currency'            => $request->currency,
+                'gateway'             => $request->gateway,
+                'description'         => $request->description,
+                'payment_status'      => 'pending',
             ]);
 
             return successResponse('Order created successfully', ['order' => $order]);
@@ -107,6 +119,32 @@ class OpenPaymentController extends Controller
     }
 
     /**
+     * Create a Stripe PaymentIntent for the custom card UI and return its client
+     * secret + publishable key. The browser confirms the card directly against
+     * the PaymentIntent; the server verifies the result via verifyStripePayment.
+     */
+    public function stripeCardSession(Request $request)
+    {
+        $request->validate(['order_id' => 'required|exists:open_payment_orders,id']);
+
+        try {
+            $order = OpenPaymentOrder::findOrFail($request->order_id);
+
+            if ($order->isPaid()) {
+                return errorResponse('This order has already been paid');
+            }
+
+            $session = $this->payments->startCardPayment($order);
+
+            $order->update(['gateway_transaction_id' => $session->id]);
+
+            return successResponse('', $session->clientConfig);
+        } catch (\Throwable $e) {
+            return errorResponse('Failed to create card session: '.$e->getMessage());
+        }
+    }
+
+    /**
      * Verify a Razorpay Checkout handler response (client-side verification).
      */
     public function verifyRazorpayPayment(Request $request)
@@ -136,19 +174,19 @@ class OpenPaymentController extends Controller
     }
 
     /**
-     * Verify a completed Stripe Checkout Session (client-side verification).
+     * Verify a completed Stripe PaymentIntent (custom card UI).
      */
     public function verifyStripePayment(Request $request)
     {
         $request->validate([
-            'order_id' => 'required|exists:open_payment_orders,id',
-            'session_id' => 'required|string',
+            'order_id'          => 'required|exists:open_payment_orders,id',
+            'payment_intent_id' => 'required|string',
         ]);
 
         try {
             $order = OpenPaymentOrder::findOrFail($request->order_id);
 
-            $paid = $this->payments->confirm($order, ['session_id' => $request->session_id]);
+            $paid = $this->payments->confirm($order, ['payment_intent' => $request->payment_intent_id]);
 
             return $paid
                 ? successResponse('Payment successful!', ['order' => $order->fresh()])
@@ -159,42 +197,125 @@ class OpenPaymentController extends Controller
     }
 
     /**
+     * Detect country from the user's IP using the installed GeoIP package.
+     */
+    public function detectCountry(Request $request)
+    {
+        $location    = getLocation($request->ip());
+        $countryCode = $location->iso_code ?? null;
+
+        $row = $countryCode
+            ? Country::where('country_code_char2', $countryCode)
+                ->first(['country_id', 'country_name', 'country_code_char2'])
+            : null;
+
+        $country = $row ? [
+            'id'   => $row->country_id,
+            'name' => $row->country_name,
+            'code' => $row->country_code_char2,
+        ] : null;
+
+        return successResponse('', ['country' => $country]);
+    }
+
+    /**
+     * Calculate totals server-side — called by the review page before order creation.
+     * Returns base_amount, processing_fee, processing_fee_rate, total.
+     */
+    public function calculate(Request $request)
+    {
+        $request->validate([
+            'amount'  => 'required|numeric|min:0',
+            'gateway' => 'required|string',
+        ]);
+
+        $feeRate    = (float) (\DB::table(strtolower($request->gateway))->value('processing_fee') ?? 0);
+        $baseAmount = round((float) $request->amount, 2);
+        $fee        = round($baseAmount * $feeRate / 100, 2);
+        $total      = round($baseAmount + $fee, 2);
+
+        return successResponse('', [
+            'base_amount'         => $baseAmount,
+            'processing_fee'      => $fee,
+            'processing_fee_rate' => $feeRate,
+            'total'               => $total,
+        ]);
+    }
+
+    /**
+     * Return enabled gateways (with processing fee) and active currencies (with symbol).
+     */
+    public function getConfig()
+    {
+        $gatewayNames = Plugin::where('status', 1)
+            ->whereIn('name', ['Stripe', 'Razorpay'])
+            ->pluck('name');
+
+        $gateways = $gatewayNames->map(function ($name) {
+            $table = strtolower($name);
+            $fee   = \DB::table($table)->value('processing_fee');
+            return ['name' => $name, 'processing_fee' => (float) ($fee ?? 0)];
+        })->values();
+
+        $currencies = Currency::where('status', 1)
+            ->orderBy('code')
+            ->get(['code', 'symbol', 'name']);
+
+        return successResponse('', ['gateways' => $gateways, 'currencies' => $currencies]);
+    }
+
+    /**
      * List all open payment orders (Admin).
+     * Accepts both DataTable params (search-query, sort-field, sort-order, limit)
+     * and legacy params (search, status, gateway, from_date, to_date, per_page).
+     * Returns the paginator directly so the frontend DataTable default adapter works.
      */
     public function listOrders(Request $request)
     {
         try {
             $query = OpenPaymentOrder::query();
 
-            if ($request->has('status') && $request->status !== 'all') {
-                $query->where('payment_status', $request->status);
-            }
-
-            if ($request->has('gateway') && $request->gateway !== 'all') {
-                $query->where('gateway', $request->gateway);
-            }
-
-            if ($request->has('search') && ! empty($request->search)) {
-                $search = $request->search;
+            $search = $request->input('search-query') ?: $request->input('search');
+            if ($search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%")
-                        ->orWhere('company', 'like', "%{$search}%")
-                        ->orWhere('transaction_id', 'like', "%{$search}%");
+                    $q->where('name',             'like', "%{$search}%")
+                      ->orWhere('email',          'like', "%{$search}%")
+                      ->orWhere('company',        'like', "%{$search}%")
+                      ->orWhere('transaction_id', 'like', "%{$search}%");
                 });
             }
 
-            if ($request->has('from_date') && $request->from_date) {
-                $query->whereDate('created_at', '>=', $request->from_date);
+            if ($status = $request->input('status')) {
+                if ($status !== 'all') $query->where('payment_status', $status);
             }
 
-            if ($request->has('to_date') && $request->to_date) {
-                $query->whereDate('created_at', '<=', $request->to_date);
+            if ($gateway = $request->input('gateway')) {
+                if ($gateway !== 'all') $query->where('gateway', $gateway);
             }
 
-            $orders = $query->orderBy('created_at', 'desc')->paginate($request->get('per_page', 20));
+            if ($from = $request->input('from_date')) {
+                $query->whereDate('created_at', '>=', $from);
+            }
 
-            return successResponse('', ['orders' => $orders]);
+            if ($to = $request->input('to_date')) {
+                $query->whereDate('created_at', '<=', $to);
+            }
+
+            $allowed   = ['name', 'email', 'amount', 'currency', 'gateway', 'payment_status', 'created_at'];
+            $sortField = $request->input('sort-field', 'created_at');
+            $sortOrder = $request->input('sort-order', 'desc');
+            if (! in_array($sortField, $allowed)) $sortField = 'created_at';
+
+            $perPage = (int) ($request->input('limit') ?: $request->input('per_page', 10));
+
+            $orders = $query
+                ->select('open_payment_orders.*')
+                ->leftJoin('currencies', 'open_payment_orders.currency', '=', 'currencies.code')
+                ->addSelect('currencies.symbol as currency_symbol')
+                ->orderBy("open_payment_orders.{$sortField}", $sortOrder === 'asc' ? 'asc' : 'desc')
+                ->paginate($perPage);
+
+            return successResponse('', $orders);
         } catch (\Exception $e) {
             return errorResponse('Failed to fetch orders: '.$e->getMessage());
         }
@@ -206,7 +327,11 @@ class OpenPaymentController extends Controller
     public function getOrder($id)
     {
         try {
-            $order = OpenPaymentOrder::findOrFail($id);
+            $order = OpenPaymentOrder::select('open_payment_orders.*')
+                ->leftJoin('currencies', 'open_payment_orders.currency', '=', 'currencies.code')
+                ->addSelect('currencies.symbol as currency_symbol')
+                ->where('open_payment_orders.id', $id)
+                ->firstOrFail();
 
             return successResponse('', ['order' => $order]);
         } catch (ModelNotFoundException $e) {

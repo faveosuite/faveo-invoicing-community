@@ -63,4 +63,7 @@ app.directive('tooltip', {
     },
 })
 
-app.mount('#app-client')
+// Wait for the initial navigation to resolve before mounting so that
+// route.meta (e.g. standalone: true) is correct on the very first render,
+// preventing a flash of the full layout on standalone pages like /open-payment.
+clientRouter.isReady().then(() => app.mount('#app-client'))

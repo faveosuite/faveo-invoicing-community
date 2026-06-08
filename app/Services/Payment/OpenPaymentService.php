@@ -2,6 +2,9 @@
 
 namespace App\Services\Payment;
 
+use App\Http\Controllers\Common\PhpMailController;
+use App\Model\Common\Setting;
+use App\Model\Common\TemplateType;
 use App\Model\Payment\OpenPaymentOrder;
 use App\Plugins\Payment\Dto\Customer;
 use App\Plugins\Payment\Dto\PaymentRequest;
@@ -48,6 +51,22 @@ class OpenPaymentService
     }
 
     /**
+     * Open a Stripe PaymentIntent for the custom card UI (same approach as the
+     * invoice panel's PlaceOrderPage). Returns clientConfig with client_secret
+     * and payment_intent_id for the browser to call confirmCardPayment.
+     *
+     * @throws \App\Plugins\Payment\Exceptions\PaymentException
+     */
+    public function startCardPayment(OpenPaymentOrder $order): PaymentSession
+    {
+        $session = $this->payments->startCardPayment($order->gateway, $this->orderRequest($order));
+
+        $order->update(['gateway_transaction_id' => $session->id]);
+
+        return $session;
+    }
+
+    /**
      * Verify a client callback for an order and mark it paid on success.
      *
      * Idempotent: an already-paid order short-circuits to true. Package
@@ -64,6 +83,7 @@ class OpenPaymentService
         $result = $this->payments->capture($order->gateway, $payload);
         if (! $result->paid) {
             $order->update(['payment_status' => 'failed']);
+            $this->sendFailureEmail($order);
 
             return false;
         }
@@ -105,14 +125,130 @@ class OpenPaymentService
         WebhookDispatcher::razorpay()->dispatch($event['event'] ?? '', $event);
     }
 
-    /** Mark an order paid, recording the gateway's transaction reference. */
+    /** Mark an order paid, recording the gateway's transaction reference, and send emails. */
     private function markPaid(OpenPaymentOrder $order, ?string $gatewayReference): void
     {
         $order->update([
-            'payment_status' => 'completed',
+            'payment_status'         => 'completed',
             'gateway_transaction_id' => $gatewayReference ?: $order->gateway_transaction_id,
-            'paid_at' => now(),
+            'paid_at'                => now(),
         ]);
+
+        $this->sendSuccessEmails($order->fresh());
+    }
+
+    /** Send payment failure notification to client. */
+    public function notifyFailure(OpenPaymentOrder $order): void
+    {
+        $this->sendFailureEmail($order);
+    }
+
+    /** Send success email to client + admin notification. */
+    private function sendSuccessEmails(OpenPaymentOrder $order): void
+    {
+        $setting    = Setting::find(1);
+        $fromEmail  = $setting?->email ?? config('mail.from.address');
+        $adminEmail = $setting?->company_email ?? $fromEmail;
+        $date       = $order->paid_at?->format('d M Y H:i') ?? now()->format('d M Y H:i');
+        $contact    = getContactData();
+
+        // Client success email
+        $clientTemplate = TemplateType::getSelectedTemplate('open_payment_success');
+        if ($clientTemplate) {
+            $replace = [
+                'name'           => $order->name,
+                'transaction_id' => $order->transaction_id,
+                'currency'       => $order->currency,
+                'amount'         => $order->amount,
+                'gateway'        => $order->gateway,
+                'date'           => $date,
+                'logo'           => $contact['logo'],
+                'contact'        => $contact['contact'],
+            ];
+            (new PhpMailController)->sendEmail(
+                $fromEmail, $order->email,
+                $clientTemplate->data, $clientTemplate->name,
+                'open_payment_success', $replace, 'open_payment_success',
+                [], '', $order->name
+            );
+        }
+
+        // Admin notification email
+        $adminTemplate = TemplateType::getSelectedTemplate('open_payment_admin_success');
+        if ($adminTemplate) {
+            $replace = [
+                'name'           => $order->name,
+                'company'        => $order->company,
+                'email'          => $order->email,
+                'currency'       => $order->currency,
+                'base_amount'    => $order->base_amount,
+                'processing_fee' => $order->processing_fee,
+                'fee_rate'       => $order->processing_fee_rate,
+                'amount'         => $order->amount,
+                'gateway'        => $order->gateway,
+                'transaction_id' => $order->transaction_id,
+                'date'           => $date,
+                'logo'           => $contact['logo'],
+                'contact'        => $contact['contact'],
+            ];
+            (new PhpMailController)->sendEmail(
+                $fromEmail, $adminEmail,
+                $adminTemplate->data, $adminTemplate->name,
+                'open_payment_admin_success', $replace, 'open_payment_admin_success',
+                [], '', 'Admin'
+            );
+        }
+    }
+
+    /** Send payment failure emails to client and admin. */
+    private function sendFailureEmail(OpenPaymentOrder $order): void
+    {
+        $setting    = Setting::find(1);
+        $fromEmail  = $setting?->email ?? config('mail.from.address');
+        $adminEmail = $setting?->company_email ?? $fromEmail;
+        $date       = now()->format('d M Y H:i');
+        $contact    = getContactData();
+
+        // Client failure email
+        $clientTemplate = TemplateType::getSelectedTemplate('open_payment_failed');
+        if ($clientTemplate) {
+            $replace = [
+                'name'     => $order->name,
+                'currency' => $order->currency,
+                'amount'   => $order->base_amount,
+                'gateway'  => $order->gateway,
+                'logo'     => $contact['logo'],
+                'contact'  => $contact['contact'],
+            ];
+            (new PhpMailController)->sendEmail(
+                $fromEmail, $order->email,
+                $clientTemplate->data, $clientTemplate->name,
+                'open_payment_failed', $replace, 'open_payment_failed',
+                [], '', $order->name
+            );
+        }
+
+        // Admin failure notification
+        $adminTemplate = TemplateType::getSelectedTemplate('open_payment_admin_failed');
+        if ($adminTemplate) {
+            $replace = [
+                'name'     => $order->name,
+                'company'  => $order->company,
+                'email'    => $order->email,
+                'currency' => $order->currency,
+                'amount'   => $order->base_amount,
+                'gateway'  => $order->gateway,
+                'date'     => $date,
+                'logo'     => $contact['logo'],
+                'contact'  => $contact['contact'],
+            ];
+            (new PhpMailController)->sendEmail(
+                $fromEmail, $adminEmail,
+                $adminTemplate->data, $adminTemplate->name,
+                'open_payment_admin_failed', $replace, 'open_payment_admin_failed',
+                [], '', 'Admin'
+            );
+        }
     }
 
     /** Build the package payment request for an open-payment order. */

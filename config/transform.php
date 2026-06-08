@@ -278,4 +278,52 @@ return[
         'contact' => '{{contact}}',
         'contact_url' => '{{contact_url}}',
     ],
+
+    'open_payment_success' => [
+        'name'           => '{{name}}',
+        'transaction_id' => '{{transaction_id}}',
+        'currency'       => '{{currency}}',
+        'amount'         => '{{amount}}',
+        'gateway'        => '{{gateway}}',
+        'date'           => '{{date}}',
+        'logo'           => '{{logo}}',
+        'contact'        => '{{contact}}',
+    ],
+
+    'open_payment_failed' => [
+        'name'     => '{{name}}',
+        'currency' => '{{currency}}',
+        'amount'   => '{{amount}}',
+        'gateway'  => '{{gateway}}',
+        'logo'     => '{{logo}}',
+        'contact'  => '{{contact}}',
+    ],
+
+    'open_payment_admin_success' => [
+        'name'           => '{{name}}',
+        'company'        => '{{company}}',
+        'email'          => '{{email}}',
+        'currency'       => '{{currency}}',
+        'base_amount'    => '{{base_amount}}',
+        'processing_fee' => '{{processing_fee}}',
+        'fee_rate'       => '{{fee_rate}}',
+        'amount'         => '{{amount}}',
+        'gateway'        => '{{gateway}}',
+        'transaction_id' => '{{transaction_id}}',
+        'date'           => '{{date}}',
+        'logo'           => '{{logo}}',
+        'contact'        => '{{contact}}',
+    ],
+
+    'open_payment_admin_failed' => [
+        'name'     => '{{name}}',
+        'company'  => '{{company}}',
+        'email'    => '{{email}}',
+        'currency' => '{{currency}}',
+        'amount'   => '{{amount}}',
+        'gateway'  => '{{gateway}}',
+        'date'     => '{{date}}',
+        'logo'     => '{{logo}}',
+        'contact'  => '{{contact}}',
+    ],
 ];

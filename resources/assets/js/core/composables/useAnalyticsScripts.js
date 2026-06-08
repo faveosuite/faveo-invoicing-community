@@ -45,6 +45,7 @@ export function useAnalyticsScripts() {
     const onRegistration = scripts.filter(s => s.on_registration)
 
     onMounted(() => {
+        if (route.meta?.standalone) return
         everyPage.forEach(injectScript)
     })
 

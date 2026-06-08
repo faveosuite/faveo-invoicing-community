@@ -869,13 +869,25 @@ Route::middleware('installAgora')->group(function () {
 });
 
 Route::prefix('open-payment')->withoutMiddleware(['auth', 'web'])->group(function () {
-    // Payment Page View
+    // Payment Page View — served by ClientSpaShell for browser navigations;
+    // this fallback handles direct non-browser requests to /open-payment.
     Route::get('/', function () {
-        return view('open-payment');
+        return view('client');
     })->name('open-payment.page');
 
-    // Create Order
-    Route::post('create', [OpenPaymentController::class, 'createOrder'])->name('open-payment.create');
+    // Payment form config — enabled gateways + active currencies
+    Route::get('config', [OpenPaymentController::class, 'getConfig'])->name('open-payment.config');
+
+    // Detect user's country from IP (server-side, avoids browser CORS/rate-limit issues)
+    Route::get('detect-country', [OpenPaymentController::class, 'detectCountry'])->name('open-payment.detect-country');
+
+    // Server-side fee calculation — called on review step to avoid frontend rounding mismatch
+    Route::get('calculate', [OpenPaymentController::class, 'calculate'])->name('open-payment.calculate');
+
+    // Create Order — rate-limited + reCAPTCHA protected
+    Route::post('create', [OpenPaymentController::class, 'createOrder'])
+        ->name('open-payment.create')
+        ->middleware(['throttle:10,1', 'recaptcha:open_payment']);
 
     // Get Order Details (Summary)
     Route::get('order/{id}', [OpenPaymentController::class, 'getOrderDetails'])->name('open-payment.details');
@@ -883,9 +895,18 @@ Route::prefix('open-payment')->withoutMiddleware(['auth', 'web'])->group(functio
     // Prepare Payment Gateway (AJAX)
     Route::post('prepare', [OpenPaymentController::class, 'preparePayment'])->name('open-payment.prepare');
 
+    // Stripe card session (PaymentIntent for custom card UI)
+    Route::post('stripe/card-session', [OpenPaymentController::class, 'stripeCardSession'])
+        ->name('open-payment.stripe.card-session')
+        ->middleware('throttle:20,1');
+
     // Verify Payments
-    Route::post('verify/razorpay', [OpenPaymentController::class, 'verifyRazorpayPayment'])->name('open-payment.verify.razorpay');
-    Route::post('verify/stripe', [OpenPaymentController::class, 'verifyStripePayment'])->name('open-payment.verify.stripe');
+    Route::post('verify/razorpay', [OpenPaymentController::class, 'verifyRazorpayPayment'])
+        ->name('open-payment.verify.razorpay')
+        ->middleware('throttle:20,1');
+    Route::post('verify/stripe', [OpenPaymentController::class, 'verifyStripePayment'])
+        ->name('open-payment.verify.stripe')
+        ->middleware('throttle:20,1');
 
     // Webhooks (CSRF exempt - handled in VerifyCsrfToken middleware)
     Route::post('webhook/stripe', [Front\PaymentController::class, 'stripeWebhook'])->name('webhook.stripe');

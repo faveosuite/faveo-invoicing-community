@@ -1,6 +1,8 @@
 <template>
     <RecaptchaProvider>
-    <div class="body">
+    <!-- Standalone pages (e.g. open-payment) bypass the full shell -->
+    <RouterView v-if="isStandalone" />
+    <div v-else class="body">
 
         <header id="header" class="header-effect-reveal"
                 data-plugin-options="{'stickyEnabled': true, 'stickyEffect': 'reveal', 'stickyEnableOnBoxed': true, 'stickyEnableOnMobile': false, 'stickyChangeLogo': false, 'stickyStartAt': 200, 'stickySetTop': '-44px'}">
@@ -92,9 +94,10 @@ const alertStore   = useAlertStore()
 const notification = reactive(useNotification())
 const { pageTitle, breadcrumbs } = useBreadcrumb()
 
-const el          = document.getElementById('app-client')
-const showSidebar = computed(() => route.meta?.sidebar !== false)
-const homeUrl     = computed(() => el?.dataset?.baseUrl ?? '/')
+const el           = document.getElementById('app-client')
+const showSidebar  = computed(() => route.meta?.sidebar !== false)
+const isStandalone = computed(() => route.meta?.standalone === true)
+const homeUrl      = computed(() => el?.dataset?.baseUrl ?? '/')
 
 watch(() => route.path, () => alertStore.unsetAlert())
 </script>
