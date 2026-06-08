@@ -129,9 +129,9 @@ class OpenPaymentService
     private function markPaid(OpenPaymentOrder $order, ?string $gatewayReference): void
     {
         $order->update([
-            'payment_status'         => 'completed',
+            'payment_status' => 'completed',
             'gateway_transaction_id' => $gatewayReference ?: $order->gateway_transaction_id,
-            'paid_at'                => now(),
+            'paid_at' => now(),
         ]);
 
         $this->sendSuccessEmails($order->fresh());
@@ -146,24 +146,24 @@ class OpenPaymentService
     /** Send success email to client + admin notification. */
     private function sendSuccessEmails(OpenPaymentOrder $order): void
     {
-        $setting    = Setting::find(1);
-        $fromEmail  = $setting?->email ?? config('mail.from.address');
+        $setting = Setting::find(1);
+        $fromEmail = $setting?->email ?? config('mail.from.address');
         $adminEmail = $setting?->company_email ?? $fromEmail;
-        $date       = $order->paid_at?->format('d M Y H:i') ?? now()->format('d M Y H:i');
-        $contact    = getContactData();
+        $date = $order->paid_at?->format('d M Y H:i') ?? now()->format('d M Y H:i');
+        $contact = getContactData();
 
         // Client success email
         $clientTemplate = TemplateType::getSelectedTemplate('open_payment_success');
         if ($clientTemplate) {
             $replace = [
-                'name'           => $order->name,
+                'name' => $order->name,
                 'transaction_id' => $order->transaction_id,
-                'currency'       => $order->currency,
-                'amount'         => $order->amount,
-                'gateway'        => $order->gateway,
-                'date'           => $date,
-                'logo'           => $contact['logo'],
-                'contact'        => $contact['contact'],
+                'currency' => $order->currency,
+                'amount' => $order->amount,
+                'gateway' => $order->gateway,
+                'date' => $date,
+                'logo' => $contact['logo'],
+                'contact' => $contact['contact'],
             ];
             (new PhpMailController)->sendEmail(
                 $fromEmail, $order->email,
@@ -177,19 +177,19 @@ class OpenPaymentService
         $adminTemplate = TemplateType::getSelectedTemplate('open_payment_admin_success');
         if ($adminTemplate) {
             $replace = [
-                'name'           => $order->name,
-                'company'        => $order->company,
-                'email'          => $order->email,
-                'currency'       => $order->currency,
-                'base_amount'    => $order->base_amount,
+                'name' => $order->name,
+                'company' => $order->company,
+                'email' => $order->email,
+                'currency' => $order->currency,
+                'base_amount' => $order->base_amount,
                 'processing_fee' => $order->processing_fee,
-                'fee_rate'       => $order->processing_fee_rate,
-                'amount'         => $order->amount,
-                'gateway'        => $order->gateway,
+                'fee_rate' => $order->processing_fee_rate,
+                'amount' => $order->amount,
+                'gateway' => $order->gateway,
                 'transaction_id' => $order->transaction_id,
-                'date'           => $date,
-                'logo'           => $contact['logo'],
-                'contact'        => $contact['contact'],
+                'date' => $date,
+                'logo' => $contact['logo'],
+                'contact' => $contact['contact'],
             ];
             (new PhpMailController)->sendEmail(
                 $fromEmail, $adminEmail,
@@ -203,22 +203,22 @@ class OpenPaymentService
     /** Send payment failure emails to client and admin. */
     private function sendFailureEmail(OpenPaymentOrder $order): void
     {
-        $setting    = Setting::find(1);
-        $fromEmail  = $setting?->email ?? config('mail.from.address');
+        $setting = Setting::find(1);
+        $fromEmail = $setting?->email ?? config('mail.from.address');
         $adminEmail = $setting?->company_email ?? $fromEmail;
-        $date       = now()->format('d M Y H:i');
-        $contact    = getContactData();
+        $date = now()->format('d M Y H:i');
+        $contact = getContactData();
 
         // Client failure email
         $clientTemplate = TemplateType::getSelectedTemplate('open_payment_failed');
         if ($clientTemplate) {
             $replace = [
-                'name'     => $order->name,
+                'name' => $order->name,
                 'currency' => $order->currency,
-                'amount'   => $order->base_amount,
-                'gateway'  => $order->gateway,
-                'logo'     => $contact['logo'],
-                'contact'  => $contact['contact'],
+                'amount' => $order->base_amount,
+                'gateway' => $order->gateway,
+                'logo' => $contact['logo'],
+                'contact' => $contact['contact'],
             ];
             (new PhpMailController)->sendEmail(
                 $fromEmail, $order->email,
@@ -232,15 +232,15 @@ class OpenPaymentService
         $adminTemplate = TemplateType::getSelectedTemplate('open_payment_admin_failed');
         if ($adminTemplate) {
             $replace = [
-                'name'     => $order->name,
-                'company'  => $order->company,
-                'email'    => $order->email,
+                'name' => $order->name,
+                'company' => $order->company,
+                'email' => $order->email,
                 'currency' => $order->currency,
-                'amount'   => $order->base_amount,
-                'gateway'  => $order->gateway,
-                'date'     => $date,
-                'logo'     => $contact['logo'],
-                'contact'  => $contact['contact'],
+                'amount' => $order->base_amount,
+                'gateway' => $order->gateway,
+                'date' => $date,
+                'logo' => $contact['logo'],
+                'contact' => $contact['contact'],
             ];
             (new PhpMailController)->sendEmail(
                 $fromEmail, $adminEmail,
