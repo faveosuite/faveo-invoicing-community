@@ -35,29 +35,29 @@ class OpenPaymentController extends Controller
     {
         try {
             // Lock fee server-side — client cannot manipulate it
-            $feeRate    = (float) (\DB::table(strtolower($request->gateway))->value('processing_fee') ?? 0);
+            $feeRate = (float) (\DB::table(strtolower($request->gateway))->value('processing_fee') ?? 0);
             $baseAmount = round((float) $request->amount, 2);
-            $fee        = round($baseAmount * $feeRate / 100, 2);
-            $total      = round($baseAmount + $fee, 2);  // gateway always reads this directly
+            $fee = round($baseAmount * $feeRate / 100, 2);
+            $total = round($baseAmount + $fee, 2);  // gateway always reads this directly
 
             $order = OpenPaymentOrder::create([
-                'name'                => $request->name,
-                'email'               => $request->email,
-                'mobile'              => $request->mobile,
-                'address'             => $request->address,
-                'city'                => $request->city,
-                'state'               => $request->state,
-                'zip'                 => $request->zip,
-                'country'             => $request->country,
-                'company'             => $request->company,
-                'amount'              => $total,       // pre-calculated total — gateway charges this directly
-                'base_amount'         => $baseAmount,  // user-entered amount — for display/audit only
-                'processing_fee'      => $fee,
+                'name' => $request->name,
+                'email' => $request->email,
+                'mobile' => $request->mobile,
+                'address' => $request->address,
+                'city' => $request->city,
+                'state' => $request->state,
+                'zip' => $request->zip,
+                'country' => $request->country,
+                'company' => $request->company,
+                'amount' => $total,       // pre-calculated total — gateway charges this directly
+                'base_amount' => $baseAmount,  // user-entered amount — for display/audit only
+                'processing_fee' => $fee,
                 'processing_fee_rate' => $feeRate,
-                'currency'            => $request->currency,
-                'gateway'             => $request->gateway,
-                'description'         => $request->description,
-                'payment_status'      => 'pending',
+                'currency' => $request->currency,
+                'gateway' => $request->gateway,
+                'description' => $request->description,
+                'payment_status' => 'pending',
             ]);
 
             return successResponse('Order created successfully', ['order' => $order]);
@@ -179,7 +179,7 @@ class OpenPaymentController extends Controller
     public function verifyStripePayment(Request $request)
     {
         $request->validate([
-            'order_id'          => 'required|exists:open_payment_orders,id',
+            'order_id' => 'required|exists:open_payment_orders,id',
             'payment_intent_id' => 'required|string',
         ]);
 
@@ -201,7 +201,7 @@ class OpenPaymentController extends Controller
      */
     public function detectCountry(Request $request)
     {
-        $location    = getLocation($request->ip());
+        $location = getLocation($request->ip());
         $countryCode = $location->iso_code ?? null;
 
         $row = $countryCode
@@ -210,7 +210,7 @@ class OpenPaymentController extends Controller
             : null;
 
         $country = $row ? [
-            'id'   => $row->country_id,
+            'id' => $row->country_id,
             'name' => $row->country_name,
             'code' => $row->country_code_char2,
         ] : null;
@@ -225,20 +225,20 @@ class OpenPaymentController extends Controller
     public function calculate(Request $request)
     {
         $request->validate([
-            'amount'  => 'required|numeric|min:0',
+            'amount' => 'required|numeric|min:0',
             'gateway' => 'required|string',
         ]);
 
-        $feeRate    = (float) (\DB::table(strtolower($request->gateway))->value('processing_fee') ?? 0);
+        $feeRate = (float) (\DB::table(strtolower($request->gateway))->value('processing_fee') ?? 0);
         $baseAmount = round((float) $request->amount, 2);
-        $fee        = round($baseAmount * $feeRate / 100, 2);
-        $total      = round($baseAmount + $fee, 2);
+        $fee = round($baseAmount * $feeRate / 100, 2);
+        $total = round($baseAmount + $fee, 2);
 
         return successResponse('', [
-            'base_amount'         => $baseAmount,
-            'processing_fee'      => $fee,
+            'base_amount' => $baseAmount,
+            'processing_fee' => $fee,
             'processing_fee_rate' => $feeRate,
-            'total'               => $total,
+            'total' => $total,
         ]);
     }
 
@@ -253,7 +253,8 @@ class OpenPaymentController extends Controller
 
         $gateways = $gatewayNames->map(function ($name) {
             $table = strtolower($name);
-            $fee   = \DB::table($table)->value('processing_fee');
+            $fee = \DB::table($table)->value('processing_fee');
+
             return ['name' => $name, 'processing_fee' => (float) ($fee ?? 0)];
         })->values();
 
@@ -278,19 +279,23 @@ class OpenPaymentController extends Controller
             $search = $request->input('search-query') ?: $request->input('search');
             if ($search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where('name',             'like', "%{$search}%")
-                      ->orWhere('email',          'like', "%{$search}%")
-                      ->orWhere('company',        'like', "%{$search}%")
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%")
+                      ->orWhere('company', 'like', "%{$search}%")
                       ->orWhere('transaction_id', 'like', "%{$search}%");
                 });
             }
 
             if ($status = $request->input('status')) {
-                if ($status !== 'all') $query->where('payment_status', $status);
+                if ($status !== 'all') {
+                    $query->where('payment_status', $status);
+                }
             }
 
             if ($gateway = $request->input('gateway')) {
-                if ($gateway !== 'all') $query->where('gateway', $gateway);
+                if ($gateway !== 'all') {
+                    $query->where('gateway', $gateway);
+                }
             }
 
             if ($from = $request->input('from_date')) {
@@ -301,10 +306,12 @@ class OpenPaymentController extends Controller
                 $query->whereDate('created_at', '<=', $to);
             }
 
-            $allowed   = ['name', 'email', 'amount', 'currency', 'gateway', 'payment_status', 'created_at'];
+            $allowed = ['name', 'email', 'amount', 'currency', 'gateway', 'payment_status', 'created_at'];
             $sortField = $request->input('sort-field', 'created_at');
             $sortOrder = $request->input('sort-order', 'desc');
-            if (! in_array($sortField, $allowed)) $sortField = 'created_at';
+            if (! in_array($sortField, $allowed)) {
+                $sortField = 'created_at';
+            }
 
             $perPage = (int) ($request->input('limit') ?: $request->input('per_page', 10));
 

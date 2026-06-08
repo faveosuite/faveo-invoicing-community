@@ -32,11 +32,11 @@ class OpenPaymentOrder extends Model
     ];
 
     protected $casts = [
-        'amount'              => 'decimal:2',
-        'base_amount'         => 'decimal:2',
-        'processing_fee'      => 'decimal:2',
+        'amount' => 'decimal:2',
+        'base_amount' => 'decimal:2',
+        'processing_fee' => 'decimal:2',
         'processing_fee_rate' => 'decimal:2',
-        'paid_at'             => 'datetime',
+        'paid_at' => 'datetime',
     ];
 
     /**
