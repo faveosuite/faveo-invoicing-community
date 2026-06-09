@@ -197,7 +197,7 @@ class ExtendedBaseProductController extends Controller
         }
     }
 
-    public function adminDownload($id, $invoice = '', $api = false, $release = "official")
+    public function adminDownload($id, $invoice = '', $api = false, $release = 'official')
     {
         $product = Product::where('id', $id)->get();
         $product = $product->toArray();
