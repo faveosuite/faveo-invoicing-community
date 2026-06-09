@@ -197,7 +197,7 @@ class ExtendedBaseProductController extends Controller
         }
     }
 
-    public function adminDownload($id, $invoice = '', $api = false, $beta = 1)
+    public function adminDownload($id, $invoice = '', $api = false, $release = "official")
     {
         $product = Product::where('id', $id)->get();
         $product = $product->toArray();
@@ -232,7 +232,7 @@ class ExtendedBaseProductController extends Controller
                         }, $fileName);
                     }
                 }
-                $release = $this->downloadProductAdmin($id, $beta);
+                $release = $this->downloadProductAdmin($id, $release);
                 $name = Product::where('id', $id)->value('name');
                 if (isS3Enabled()) {
                     if (! Attach::exists('products/'.explode('?', urldecode(basename($release)))[0])) {

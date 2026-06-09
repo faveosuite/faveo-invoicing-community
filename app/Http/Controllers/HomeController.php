@@ -333,7 +333,7 @@ class HomeController extends BaseHomeController
         try {
             $faveo_encrypted_order_number = $request->input('order_number');
             $faveo_serial_key = $request->input('serial_key');
-            $beta = $request->input('beta', 1);
+            $release  = $request->input('release', 'official');
 
             $orderSerialKey = $order->where('number', $faveo_encrypted_order_number)
                 ->value('serial_key');
@@ -345,7 +345,7 @@ class HomeController extends BaseHomeController
                 $product_id = $this_order->product;
                 $product_controller = new \App\Http\Controllers\Product\ProductController();
 
-                return $product_controller->adminDownload($product_id, '', true, $beta);
+                return $product_controller->adminDownload($product_id, '', true, $release);
             } else {
                 return response()->json(['Invalid Credentials']);
             }
