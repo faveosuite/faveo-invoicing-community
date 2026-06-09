@@ -257,7 +257,7 @@ class BaseProductController extends ExtendedBaseProductController
         }
     }
 
-    public function downloadProductAdmin($id, $release = "official")
+    public function downloadProductAdmin($id, $release = 'official')
     {
         try {
             $product = Product::findOrFail($id);

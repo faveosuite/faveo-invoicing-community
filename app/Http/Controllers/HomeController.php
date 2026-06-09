@@ -333,7 +333,7 @@ class HomeController extends BaseHomeController
         try {
             $faveo_encrypted_order_number = $request->input('order_number');
             $faveo_serial_key = $request->input('serial_key');
-            $release  = $request->input('release', 'official');
+            $release = $request->input('release', 'official');
 
             $orderSerialKey = $order->where('number', $faveo_encrypted_order_number)
                 ->value('serial_key');
