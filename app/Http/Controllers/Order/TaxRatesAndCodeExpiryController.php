@@ -172,10 +172,10 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
     public function paymentEditById($id)
     {
         try {
-            $payment  = Payment::findOrFail($id);
+            $payment = Payment::findOrFail($id);
             $clientid = $payment->user_id;
-            $client   = $this->user->where('id', $clientid)->firstOrFail();
-            $symbol   = Currency::where('code', $client->currency)->value('symbol');
+            $client = $this->user->where('id', $clientid)->firstOrFail();
+            $symbol = Currency::where('code', $client->currency)->value('symbol');
 
             // Client's available credit balance = sum of their invoice_id = 0 rows.
             $availableCredit = (new \App\Http\Controllers\User\AdvanceSearchController())->getExtraAmt($clientid);
@@ -191,28 +191,28 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
                         ->sum('amount');
 
                     return [
-                        'id'          => $inv->id,
-                        'number'      => $inv->number,
-                        'date'        => $inv->date,
+                        'id' => $inv->id,
+                        'number' => $inv->number,
+                        'date' => $inv->date,
                         'grand_total' => $inv->grand_total,
-                        'pending'     => max(0, $inv->grand_total - $paid),
-                        'status'      => $inv->status,
+                        'pending' => max(0, $inv->grand_total - $paid),
+                        'status' => $inv->status,
                     ];
                 })
                 ->filter(fn ($inv) => $inv['pending'] > 0)
                 ->values();
 
             return successResponse('', [
-                'payment'          => [
-                    'id'             => $payment->id,
-                    'invoice_id'     => $payment->invoice_id,
+                'payment' => [
+                    'id' => $payment->id,
+                    'invoice_id' => $payment->invoice_id,
                     'payment_method' => $payment->payment_method,
                 ],
-                'clientid'         => $clientid,
+                'clientid' => $clientid,
                 'available_credit' => $availableCredit,
-                'invoices'         => $invoices,
-                'symbol'           => $symbol,
-                'currency'         => $client->currency,
+                'invoices' => $invoices,
+                'symbol' => $symbol,
+                'currency' => $client->currency,
             ]);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
