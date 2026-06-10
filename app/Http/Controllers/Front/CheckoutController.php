@@ -464,7 +464,7 @@ class CheckoutController extends InfoController
         } else {
             $price = 0;
             \Session::put('discount', round($discount));
-            (new ExtendedBaseInvoiceController())->multiplePayment(\Auth::user()->id, [0 => 'Credit Balance'], 'Credit Balance', Carbon::now(), $price, null, round($discount), 'pending');
+            (new ExtendedBaseInvoiceController())->mergeCreditBalance(\Auth::user()->id, round($discount), Carbon::now(), 'pending');
         }
     }
 

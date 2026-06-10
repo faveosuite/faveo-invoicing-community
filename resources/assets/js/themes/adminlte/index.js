@@ -9,6 +9,7 @@ import AppFooter from './components/common/Footer.vue';
 import AppButton from './components/common/Button.vue';
 import AppBadge from './components/common/Badge.vue';
 import AppAlert from './components/common/Alert.vue'
+import StaticAlert from './components/common/StaticAlert.vue'
 import DeleteModal from './components/common/DeleteModal.vue';
 import AppBreadcrumb from './components/common/Breadcrumb.vue';
 
@@ -37,6 +38,7 @@ export const components = {
     AppButton,
     AppBadge,
     AppAlert,
+    StaticAlert,
     DeleteModal,
     AppBreadcrumb,
     AppTable,

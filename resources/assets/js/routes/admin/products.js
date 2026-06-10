@@ -2,6 +2,8 @@ export default [
     { path: '/products',                    component: () => import('../../pages/admin/products/ProductIndex.vue'),               meta: { title: 'Products',     titleKey: 'message.products' } },
     { path: '/products/create',             component: () => import('../../pages/admin/products/ProductCreate.vue'),              meta: { title: 'Create New Product', titleKey: 'message.create_new_product' } },
     { path: '/products/:id/edit',           component: () => import('../../pages/admin/products/ProductEdit.vue'),                meta: { title: 'Edit Product', titleKey: 'message.edit_product' } },
+    { path: '/products/:id/versions/create', component: () => import('../../pages/admin/products/ProductVersionCreate.vue'),      meta: { title: 'Add Version', titleKey: 'message.add_version' } },
+    { path: '/products/:id/versions/:versionId/edit', component: () => import('../../pages/admin/products/ProductVersionEdit.vue'), meta: { title: 'Edit Version', titleKey: 'message.edit_version' } },
     { path: '/products/plans',              component: () => import('../../pages/admin/products/plans/PlanIndex.vue'),         meta: { title: 'Plans',        titleKey: 'message.plans' } },
     { path: '/products/plans/create',       component: () => import('../../pages/admin/products/plans/PlanCreate.vue'),       meta: { title: 'Create Plan',  titleKey: 'message.plans' } },
     { path: '/products/plans/:id/edit',     component: () => import('../../pages/admin/products/plans/PlanEdit.vue'),         meta: { title: 'Edit Plan',    titleKey: 'message.edit_plan' } },

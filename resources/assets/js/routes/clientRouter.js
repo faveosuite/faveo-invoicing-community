@@ -37,7 +37,7 @@ const routes = [
     { path: '/payment-success', meta: { title: 'Payment Successful', sidebar: false }, component: () => import('@/pages/client/checkout/PaymentSuccessPage.vue') },
     { path: '/contact-us', meta: { sidebar: false, requiresAuth: false, title: 'Contact Us', titleKey: 'message.contact_us' }, component: () => import('@/pages/client/pages/ContactUsPage.vue') },
     { path: '/pages/:slug', meta: { sidebar: false, requiresAuth: false }, component: () => import('@/pages/client/pages/PageView.vue') },
-    { path: '/open-payment', meta: { requiresAuth: false, sidebar: false, standalone: true, title: 'Secure Payment' }, component: () => import('@/pages/client/open-payment/OpenPaymentPage.vue') },
+    { path: '/pay', meta: { requiresAuth: false, sidebar: false, title: 'Secure Payment' }, component: () => import('@/pages/client/open-payment/OpenPaymentPage.vue') },
 ]
 
 const router = createRouter({

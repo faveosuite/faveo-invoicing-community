@@ -1063,7 +1063,7 @@ class ClientController extends AdvanceSearchController
                     'date' => $payment->created_at,
                     'payment_method' => $payment->payment_method,
                     'amount' => $payment->amount,
-                    'currency' => $invoice?->currency,
+                    'currency' => $payment->currency ?: $invoice?->currency,
                     'status' => $payment->payment_status,
                 ];
             });

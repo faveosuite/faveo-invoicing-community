@@ -17,8 +17,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" :class="{ active: tab === 'tax' }" href="#" @click.prevent="tab = 'tax'">
-                                <i class="fas fa-receipt me-1"></i>{{ __('message.tax') }}
+                            <a class="nav-link" :class="{ active: tab === 'plans' }" href="#" @click.prevent="tab = 'plans'">
+                                <i class="fas fa-list me-1"></i>{{ __('message.plans') }}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" :class="{ active: tab === 'versions' }" href="#" @click.prevent="tab = 'versions'">
+                                <i class="fas fa-code-branch me-1"></i>{{ __('message.versions') }}
                             </a>
                         </li>
                     </ul>
@@ -179,10 +184,8 @@
                                     <TinyMCE name="product_description" :label="__('message.product_description')" :required="true" id="editor-product-description" :value="form.product_description" :onChange="onChange" :error="errors.product_description" />
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Tax Tab -->
-                        <div v-show="tab === 'tax'">
+                            <!-- Tax options -->
                             <div class="row">
                                 <div class="col-md-4">
                                     <SelectField
@@ -208,8 +211,11 @@
                                 </div>
                                 <div v-if="!taxClasses.length" class="col-12 text-muted">{{ __('message.no_tax_classes') }}</div>
                             </div>
+                        </div>
 
-                            <div class="card card-light mt-4">
+                        <!-- Plans Tab -->
+                        <div v-show="tab === 'plans'">
+                            <div class="card card-light">
                                 <div class="card-header">
                                     <h4 class="card-title">{{ __('message.plans') }}</h4>
                                     <div class="card-tools">
@@ -232,12 +238,37 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Versions Tab -->
+                        <div v-show="tab === 'versions'">
+                            <div class="card card-light">
+                                <div class="card-header">
+                                    <h4 class="card-title">{{ __('message.versions') }}</h4>
+                                    <div class="card-tools">
+                                        <router-link
+                                            :to="`/products/${route.params.id}/versions/create`"
+                                            class="btn btn-tool"
+                                            :title="__('message.add_version')"
+                                            v-tooltip
+                                        >
+                                            <i class="fas fa-plus"></i>
+                                        </router-link>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <DataTable
+                                        :url="versionsApiUrl"
+                                        :dataColumns="versionColumns"
+                                        :option="versionTableOptions"
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="card-footer">
+                <div class="card-footer" v-if="tab === 'details'">
                     <action-button action="update" :loading="saving" @click="submit" />
-                    <action-button action="cancel" to="/products" class="ms-2" />
                 </div>
             </template>
         </div>
@@ -246,7 +277,7 @@
 
 <script setup>
 import { h, reactive, ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
@@ -266,8 +297,52 @@ const { errors, setErrors, setFieldError } = useForm()
 const loading = ref(true)
 const saving = ref(false)
 const taxClasses = ref([])
-const tab = ref('details')
+const tab = ref(route.query.tab === 'versions' ? 'versions' : 'details')
 const githubEnabled = ref(false)
+
+// ── Versions (product uploads) ─────────────────────────────────────────────
+const versionsApiUrl = `${baseUrl}/product/uploads/${route.params.id}`
+const versionColumns = ['version', 'title', 'release_type', 'file', 'status', 'created_at', 'action']
+const versionTableOptions = reactive({
+    headings: {
+        version:      __('message.version'),
+        title:        __('message.title'),
+        release_type: __('message.release_type'),
+        file:         __('message.file'),
+        status:       __('message.status'),
+        created_at:   __('message.date'),
+        action:       __('message.actions'),
+    },
+    columnsClasses: {
+        version: 'dt-code', title: 'dt-name', release_type: 'dt-name',
+        file: 'dt-name', status: 'dt-status', created_at: 'dt-date', action: 'dt-action',
+    },
+    templates: {
+        version:      (f, row) => row.version || '—',
+        title:        (f, row) => row.title || '—',
+        release_type: (f, row) => row.release_type || '—',
+        file:         (f, row) => row.file || '—',
+        status:       (f, row) => h('span', { class: `badge ${Number(row.status) === 1 ? 'bg-success' : 'bg-secondary'}` }, Number(row.status) === 1 ? __('message.active') : __('message.inactive')),
+        created_at:   (f, row) => row.created_at ? new Date(row.created_at).toLocaleDateString() : '—',
+        action:       (f, row) => h(RouterLink, { to: `/products/${route.params.id}/versions/${row.id}/edit`, class: 'btn btn-light table_btn', title: __('message.edit') }, () => h('i', { class: 'fas fa-edit' })),
+    },
+    sortable: ['version', 'title', 'release_type', 'status', 'created_at'],
+    filterable: true,
+    requestAdapter(data) {
+        return {
+            'sort-field':   data.orderBy ?? 'created_at',
+            'sort-order':   data.ascending ? 'asc' : 'desc',
+            'search-query': (data.query ?? '').trim(),
+            page:           data.page,
+            limit:          data.limit,
+        }
+    },
+    responseAdapter({ data }) {
+        const res = data?.data
+        return { data: res?.data ?? [], count: res?.total ?? 0 }
+    },
+    orderBy: { column: 'created_at', ascending: false },
+})
 
 const taxStatusOptions = [
     { id: 1, name: __('message.taxable') },

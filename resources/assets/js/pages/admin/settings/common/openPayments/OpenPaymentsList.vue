@@ -2,6 +2,14 @@
     <div>
         <AppAlert :componentName="COMPONENT" />
 
+        <!-- Public page URL info -->
+        <StaticAlert class="mb-3">
+            <strong>Open Payment Page URL:</strong>
+            <span class="ms-2">{{ openPaymentUrl }}</span>
+            <i :class="copied ? 'fas fa-check text-success' : 'fas fa-copy'"
+               class="ms-2" @click="copyUrl" :title="copied ? 'Copied!' : 'Copy URL'" v-tooltip></i>
+        </StaticAlert>
+
         <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">Open Payments</h4>
@@ -155,12 +163,22 @@ import OpenPaymentsFilter from './OpenPaymentsFilter.vue'
 const COMPONENT = 'open-payments-list'
 const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
-const apiUrl  = `${baseUrl}/open-payment/list`
+const apiUrl  = `${baseUrl}/pay/list`
+
+const openPaymentUrl = `${baseUrl}/pay`
 
 const dtRef         = ref(null)
 const showFilter    = ref(false)
 const activeFilters = ref({})
 const selectedOrder = ref(null)
+const copied        = ref(false)
+
+function copyUrl() {
+    navigator.clipboard.writeText(openPaymentUrl).then(() => {
+        copied.value = true
+        setTimeout(() => { copied.value = false }, 2000)
+    })
+}
 
 function onFilterApply(params) {
     activeFilters.value = params

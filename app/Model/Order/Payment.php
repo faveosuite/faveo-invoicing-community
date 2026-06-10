@@ -12,7 +12,7 @@ class Payment extends BaseModel
     protected $table = 'payments';
 
     protected $fillable = ['parent_id', 'invoice_id', 'amount',
-        'payment_method', 'user_id', 'payment_status', 'created_at', 'amt_to_credit', ];
+        'payment_method', 'user_id', 'payment_status', 'created_at', 'amt_to_credit', 'currency', ];
 
     public function invoice()
     {

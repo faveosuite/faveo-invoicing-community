@@ -78,9 +78,7 @@ $chatScripts = \App\Model\Common\ChatScript::get(['id', 'script', 'google_analyt
      data-cart-count="{{ $cartFacade->getTotalQuantity() }}"
      data-social="{{ $social->toJson() }}"
      data-widgets="{{ $widgets->toJson() }}"
-     data-scripts="{{ $chatScripts->toJson() }}"
-     data-app-version="{{ config('app.version') }}"
-     data-app-name="Agora Invoicing">
+     data-scripts="{{ $chatScripts->toJson() }}">
 </div>
 
 {{-- Bootstrap 5 bundle JS (includes Popper) — used for dropdowns, collapse, tooltips. --}}

@@ -238,9 +238,9 @@
                             <RouterLink :to="`/invoices/create?clientid=${userId}`" class="btn btn-xs btn-light">
                                 <i class="fas fa-file-invoice">&nbsp;</i>{{ __('message.create_invoice') || 'Create Invoice' }}
                             </RouterLink>
-                            <a :href="`${baseUrl}/newPayment/receive?clientid=${userId}`" class="btn btn-xs btn-light">
+                            <RouterLink :to="`/users/${userId}/payments/create`" class="btn btn-xs btn-light">
                                 <i class="fas fa-money-bill">&nbsp;</i>{{ __('message.create-payment') }}
-                            </a>
+                            </RouterLink>
                             <action-button v-if="user.is_2fa_enabled" variant="light" class="btn-xs" icon="fas fa-ban" :label="__('message.disable_2fa') || 'Disable 2FA'" type="button" @click="disable2fa" />
                         </div>
                     </div>
@@ -273,30 +273,66 @@
                                     <div v-show="activeTab === 'invoices'">
                                         <DataTable
                                             v-if="tabMounted.invoices"
+                                            ref="invDtRef"
                                             :url="invoicesUrl"
                                             :dataColumns="invoiceColumns"
                                             :option="invoiceOptions"
-                                        />
+                                        >
+                                            <template #bulk-actions>
+                                                <div v-if="selInvoices.length > 0" class="dropdown">
+                                                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        {{ __('message.bulk_action') }}
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li><button class="dropdown-item" @click="startBulkDelete('invoices')">{{ __('message.Delete') }}</button></li>
+                                                    </ul>
+                                                </div>
+                                            </template>
+                                        </DataTable>
                                     </div>
 
                                     <!-- Payments -->
                                     <div v-show="activeTab === 'payments'">
                                         <DataTable
                                             v-if="tabMounted.payments"
+                                            ref="payDtRef"
                                             :url="paymentsUrl"
                                             :dataColumns="paymentColumns"
                                             :option="paymentOptions"
-                                        />
+                                        >
+                                            <template #bulk-actions>
+                                                <div v-if="selPayments.length > 0" class="dropdown">
+                                                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        {{ __('message.bulk_action') }}
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li><button class="dropdown-item" @click="startBulkDelete('payments')">{{ __('message.Delete') }}</button></li>
+                                                    </ul>
+                                                </div>
+                                            </template>
+                                        </DataTable>
                                     </div>
 
                                     <!-- Orders -->
                                     <div v-show="activeTab === 'orders'">
                                         <DataTable
                                             v-if="tabMounted.orders"
+                                            ref="ordDtRef"
                                             :url="ordersUrl"
                                             :dataColumns="orderColumns"
                                             :option="orderOptions"
-                                        />
+                                        >
+                                            <template #bulk-actions>
+                                                <div v-if="selOrders.length > 0" class="dropdown">
+                                                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        {{ __('message.bulk_action') }}
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li><button class="dropdown-item" @click="startBulkDelete('orders')">{{ __('message.Delete') }}</button></li>
+                                                    </ul>
+                                                </div>
+                                            </template>
+                                        </DataTable>
                                     </div>
 
                                     <!-- Comments -->
@@ -378,6 +414,18 @@
         :componentName="COMPONENT"
         @deleted="() => { const id = pendingDelete?.commentId; pendingDelete = null; comments.value = comments.value.filter(c => c.id !== id) }"
     />
+
+    <DeleteModal
+        v-if="bulkDelete"
+        :showModal="true"
+        :onClose="() => bulkDelete = null"
+        :deleteUrl="bulkDelete.url"
+        :deleteData="bulkDelete.data"
+        :title="__('message.confirm_delete') || 'Confirm Delete'"
+        :message="__('message.are_you_sure') || 'Are you sure?'"
+        :componentName="COMPONENT"
+        @deleted="onBulkDeleted"
+    />
 </template>
 
 <script setup>
@@ -390,6 +438,9 @@ import TextField                    from '@/components/Reusable/FormField/TextFi
 import { asset }                    from '@/core/utils/asset.js'
 import { useNotification }          from '@/core/composables/useNotification.js'
 import DeleteModal                  from '@/themes/adminlte/components/common/DeleteModal.vue'
+import PaymentTableActions          from './components/PaymentTableActions.vue'
+import InvoiceTableActions          from '../invoices/components/InvoiceTableActions.vue'
+import OrderTableActions            from '../orders/components/OrderTableActions.vue'
 
 const COMPONENT  = 'user-show'
 const route      = useRoute()
@@ -404,6 +455,55 @@ const fallbackAvatar = asset('themes/adminlte/assets/img/avatar.png')
 const invoicesUrl = `${baseUrl}/user/${userId}/invoices`
 const paymentsUrl = `${baseUrl}/user/${userId}/payments`
 const ordersUrl   = `${baseUrl}/orders`
+
+// ── Multi-select + bulk delete (per table) ─────────────────────────────────────
+const invDtRef = ref(null)
+const payDtRef = ref(null)
+const ordDtRef = ref(null)
+
+const selInvoices = ref([])
+const selPayments = ref([])
+const selOrders   = ref([])
+
+const allInvSelected = computed(() => { const d = invDtRef.value?.tableData ?? []; return d.length > 0 && d.every(r => selInvoices.value.includes(r.id)) })
+const allPaySelected = computed(() => { const d = payDtRef.value?.tableData ?? []; return d.length > 0 && d.every(r => selPayments.value.includes(r.id)) })
+const allOrdSelected = computed(() => { const d = ordDtRef.value?.tableData ?? []; return d.length > 0 && d.every(r => selOrders.value.includes(r.id)) })
+
+function toggleAll(selRef, dtRef, e) {
+    const data = dtRef.value?.tableData ?? []
+    if (e.target.checked) {
+        selRef.value.push(...data.map(r => r.id).filter(id => !selRef.value.includes(id)))
+    } else {
+        const ids = data.map(r => r.id)
+        selRef.value = selRef.value.filter(id => !ids.includes(id))
+    }
+}
+function toggleRow(selRef, id) {
+    const i = selRef.value.indexOf(id)
+    if (i === -1) selRef.value.push(id)
+    else selRef.value.splice(i, 1)
+}
+function selectCheckbox(selRef, row) {
+    return h('input', { type: 'checkbox', checked: selRef.value.includes(row.id), onChange: () => toggleRow(selRef, row.id) })
+}
+
+const bulkDelete = ref(null)
+function startBulkDelete(kind) {
+    const cfg = {
+        invoices: { sel: selInvoices, url: `${baseUrl}/invoices`, key: 'invoice_ids', dt: invDtRef },
+        payments: { sel: selPayments, url: `${baseUrl}/payments`, key: 'payment_ids', dt: payDtRef },
+        orders:   { sel: selOrders,   url: `${baseUrl}/orders`,   key: 'order_ids',   dt: ordDtRef },
+    }[kind]
+    if (!cfg.sel.value.length) return
+    bulkDelete.value = { url: cfg.url, data: { [cfg.key]: [...cfg.sel.value] }, sel: cfg.sel, dt: cfg.dt }
+}
+function onBulkDeleted() {
+    if (bulkDelete.value) {
+        bulkDelete.value.sel.value = []
+        bulkDelete.value.dt.value?.refresh()
+    }
+    bulkDelete.value = null
+}
 
 // ── State ─────────────────────────────────────────────────────────────────────
 const loading         = ref(true)
@@ -565,18 +665,20 @@ function statusBadge(status, map) {
 
 // ── DataTable column definitions ──────────────────────────────────────────────
 
-const invoiceColumns = ['date', 'number', 'grand_total', 'paid', 'balance', 'status', 'action']
+const invoiceColumns = ['select', 'date', 'number', 'grand_total', 'paid', 'balance', 'status', 'action']
 const invoiceOptions = {
     headings: {
+        select:      () => h('input', { type: 'checkbox', checked: allInvSelected.value, onChange: (e) => toggleAll(selInvoices, invDtRef, e) }),
         date:        __('message.date')       || 'Date',
         number:      __('message.invoice_no') || 'Invoice No',
         grand_total: __('message.total')      || 'Total',
         paid:        __('message.paid')       || 'Paid',
         balance:     __('message.balance')    || 'Balance',
         status:      __('message.status')     || 'Status',
-        action:      '',
+        action:      __('message.actions')    || 'Actions',
     },
     columnsClasses: {
+        select: 'dt-select',
         date: 'dt-date',
         number: 'dt-number',
         grand_total: 'dt-amount',
@@ -586,17 +688,14 @@ const invoiceOptions = {
         action: 'dt-action',
     },
     templates: {
+        select:      (_, row) => selectCheckbox(selInvoices, row),
         number:      (_, row) => row.number && row.id ? h(RouterLink, { to: '/invoices/' + row.id }, () => row.number) : (row.number || '—'),
         date:        (_, row) => fmtDate(row.date),
         grand_total: (_, row) => formatMoney(row.grand_total, row.currency),
         paid:        (_, row) => formatMoney(row.paid, row.currency),
         balance:     (_, row) => h('span', { class: row.balance > 0 ? 'text-danger' : '' }, formatMoney(row.balance, row.currency)),
         status:      (_, row) => statusBadge(row.status, { success: 'bg-success', pending: 'bg-warning text-dark', 'partially paid': 'bg-info text-dark' }),
-        action:      (_, row) => h('a', {
-            href:   `${baseUrl}/invoices/show?invoiceid=${row.id}`,
-            target: '_blank',
-            class:  'btn btn-xs btn-light',
-        }, h('i', { class: 'fas fa-eye' })),
+        action:      (_, row) => h(InvoiceTableActions, { invoiceId: row.id, showDelete: true }),
     },
     sortable:   ['date', 'number', 'grand_total', 'status'],
     filterable: true,
@@ -612,17 +711,19 @@ const invoiceOptions = {
     orderBy: { column: 'date', ascending: false },
 }
 
-const paymentColumns = ['invoice_number', 'date', 'payment_method', 'amount', 'status', 'action']
+const paymentColumns = ['select', 'invoice_number', 'date', 'payment_method', 'amount', 'status', 'action']
 const paymentOptions = {
     headings: {
+        select:         () => h('input', { type: 'checkbox', checked: allPaySelected.value, onChange: (e) => toggleAll(selPayments, payDtRef, e) }),
         invoice_number: __('message.invoice_no')     || 'Invoice No',
         date:           __('message.date')           || 'Date',
-        payment_method: __('message.payment_method') || 'Payment Method',
+        payment_method: __('message.payment-method') || 'Payment Method',
         amount:         __('message.total')          || 'Amount',
         status:         __('message.status')         || 'Status',
-        action:         '',
+        action:         __('message.actions')        || 'Actions',
     },
     columnsClasses: {
+        select: 'dt-select',
         invoice_number: 'dt-number',
         date: 'dt-date',
         payment_method: 'dt-name',
@@ -631,13 +732,17 @@ const paymentOptions = {
         action: 'dt-action',
     },
     templates: {
+        select:         (_, row) => selectCheckbox(selPayments, row),
         invoice_number: (_, row) => row.invoice_number && row.invoice_id ? h(RouterLink, { to: '/invoices/' + row.invoice_id }, () => row.invoice_number) : (row.invoice_number || '—'),
         date:           (_, row) => fmtDate(row.date),
         amount:         (_, row) => formatMoney(row.amount, row.currency),
         status:         (_, row) => statusBadge(row.status, { success: 'bg-success', pending: 'bg-warning text-dark', failed: 'bg-danger' }),
-        action:         (_, row) => row.invoice_id
-            ? h('a', { href: `${baseUrl}/invoices/show?invoiceid=${row.invoice_id}`, target: '_blank', class: 'btn btn-xs btn-light' }, h('i', { class: 'fas fa-eye' }))
-            : '—',
+        action:         (_, row) => h(PaymentTableActions, {
+            paymentId: row.id,
+            invoiceId: row.invoice_id,
+            userId:    userId,
+            baseUrl:   baseUrl,
+        }),
     },
     sortable:   ['date', 'payment_method', 'amount', 'status'],
     filterable: true,
@@ -654,17 +759,19 @@ const paymentOptions = {
     orderBy: { column: 'date', ascending: false },
 }
 
-const orderColumns = ['order_date', 'product_name', 'number', 'version', 'order_status', 'action']
+const orderColumns = ['select', 'order_date', 'product_name', 'number', 'version', 'order_status', 'action']
 const orderOptions = {
     headings: {
+        select:       () => h('input', { type: 'checkbox', checked: allOrdSelected.value, onChange: (e) => toggleAll(selOrders, ordDtRef, e) }),
         order_date:   __('message.date')     || 'Date',
         product_name: __('message.product')  || 'Product',
         number:       __('message.order_no') || 'Order No',
         version:      __('message.version')  || 'Version',
         order_status: __('message.status')   || 'Status',
-        action:       '',
+        action:       __('message.actions')   || 'Actions',
     },
     columnsClasses: {
+        select: 'dt-select',
         order_date: 'dt-date',
         product_name: 'dt-name',
         number: 'dt-number',
@@ -673,12 +780,13 @@ const orderOptions = {
         action: 'dt-action',
     },
     templates: {
+        select:       (_, row) => selectCheckbox(selOrders, row),
         order_date:   (_, row) => fmtDate(row.order_date),
         product_name: (_, row) => row.product_name && row.product_id ? h(RouterLink, { to: '/products/' + row.product_id + '/edit' }, () => row.product_name) : (row.product_name || '—'),
         number:       (_, row) => row.number && row.id ? h(RouterLink, { to: `/orders/${row.id}` }, () => `#${row.number}`) : (row.number ? `#${row.number}` : '—'),
         version:      (_, row) => row.version || '—',
         order_status: (_, row) => statusBadge(row.order_status, { active: 'bg-success', pending: 'bg-warning text-dark', cancelled: 'bg-danger', expired: 'bg-secondary', terminated: 'bg-dark' }),
-        action:       (_, row) => h(RouterLink, { to: `/orders/${row.id}`, class: 'btn btn-xs btn-light' }, () => h('i', { class: 'fas fa-eye' })),
+        action:       (_, row) => h(OrderTableActions, { orderId: row.id, showDelete: true }),
     },
     sortable:   ['order_date', 'number', 'order_status'],
     filterable: true,

@@ -8,12 +8,35 @@
         >
             <i class="fas fa-eye"></i>
         </router-link>
+
+        <template v-if="showDelete">
+            <button class="btn btn-light table_btn" :title="__('message.Delete')" v-tooltip @click="showModal = true">
+                <i class="fas fa-trash"></i>
+            </button>
+            <DeleteModal
+                v-if="showModal"
+                :showModal="showModal"
+                :onClose="() => showModal = false"
+                :deleteUrl="`${resolvedBaseUrl}/orders`"
+                :deleteData="{ order_ids: [orderId] }"
+                :title="__('message.confirm_delete') || 'Confirm Delete'"
+                :message="__('message.are_you_sure') || 'Are you sure?'"
+                componentName="user-show"
+            />
+        </template>
     </div>
 </template>
 
 <script setup>
-defineProps({
-    orderId: { type: Number, required: true },
-    baseUrl: { type: String, default: '' },
+import { ref } from 'vue'
+import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+
+const props = defineProps({
+    orderId:    { type: Number, required: true },
+    baseUrl:    { type: String, default: '' },
+    showDelete: { type: Boolean, default: false },
 })
+
+const resolvedBaseUrl = props.baseUrl || document.getElementById('app-root')?.dataset?.baseUrl || ''
+const showModal = ref(false)
 </script>

@@ -870,9 +870,9 @@ Route::middleware('installAgora')->group(function () {
     Route::post('profile/mobile/verify-otp', [Front\ProfileVerificationController::class, 'verifyMobileOtp']);
 });
 
-Route::prefix('open-payment')->withoutMiddleware(['auth', 'web'])->group(function () {
+Route::prefix('pay')->withoutMiddleware(['auth', 'web'])->group(function () {
     // Payment Page View — served by ClientSpaShell for browser navigations;
-    // this fallback handles direct non-browser requests to /open-payment.
+    // this fallback handles direct non-browser requests to /pay.
     Route::get('/', function () {
         return view('client');
     })->name('open-payment.page');
@@ -1020,6 +1020,7 @@ Route::post('edit-installation-limit', [Order\BaseOrderController::class, 'editI
 Route::post('switch-license-mode', [License\LocalizedLicenseController::class, 'chooseLicenseMode']);
 Route::get('invoices', [Order\InvoiceController::class, 'getInvoices']);
 Route::delete('invoices', [Order\InvoiceController::class, 'deleteBulkInvoices']);
+Route::delete('payments', [Order\InvoiceController::class, 'deleteBulkPayments']);
 Route::get('invoice/{id}', [Order\InvoiceController::class, 'getInvoice']);
 Route::post('get-price', [Product\ProductController::class, 'getPrice']);
 Route::get('dependency/{type}', [Common\Dependency\DependencyController::class, 'handle']);

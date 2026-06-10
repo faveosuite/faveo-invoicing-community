@@ -1,35 +1,5 @@
 <template>
 
-  <!-- Navbar -->
-  <nav class="navbar navbar-light bg-white border-bottom">
-    <div class="op-container mx-auto px-3 w-100 d-flex align-items-center justify-content-between">
-      <a href="javascript:;" class="navbar-brand py-2 m-0">
-        <img v-if="logoUrl" :src="logoUrl" alt="Logo" class="op-nav-logo">
-        <span v-else class="fw-bold">{{ company }}</span>
-      </a>
-
-      <!-- Language selector -->
-      <div v-if="languages.length" class="dropdown">
-        <button class="btn btn-link text-dark text-decoration-none p-0 d-flex align-items-center gap-2"
-                type="button" data-bs-toggle="dropdown" aria-expanded="false">
-          <span :class="`fi fi-${flagCodeFor(currentLocale)} op-flag`"></span>
-          <span class="fw-semibold">{{ currentLocale.toUpperCase() }}</span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end op-lang-menu">
-          <li v-for="lang in languages" :key="lang.locale">
-            <a class="dropdown-item d-flex align-items-center gap-2"
-               :class="{ active: lang.locale.toLowerCase() === currentLocale }"
-               href="javascript:;"
-               @click.prevent="selectLang(lang)">
-              <span :class="`fi fi-${flagCodeFor(lang.locale)}`"></span>
-              <span>{{ lang.name }}</span>
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
   <div class="op-page">
 
     <div class="op-wrapper">
@@ -57,7 +27,7 @@
 
           <div class="card-header bg-white border-bottom px-4 py-3">
             <h5 class="fw-bold mb-0">{{ __('message.op_payment_details') }}</h5>
-            <p class="text-muted small mb-0 mt-1">{{ __('message.op_fill_info') }}</p>
+            <p class="text-muted mb-0 mt-1">{{ __('message.op_pay_for', { app: appTitle }) }}</p>
           </div>
 
           <div class="card-body p-0">
@@ -151,28 +121,19 @@
 
                   <div class="mb-3">
                     <label class="form-label text-dark">{{ __('message.op_payment_gateway') }}</label>
-                    <div class="d-flex flex-column gap-2">
-                      <label v-for="gw in enabledGateways" :key="gw.name"
-                             :class="['op-gateway-card', form.gateway === gw.name ? 'op-gateway-selected' : '']">
-                        <input type="radio" v-model="form.gateway" :value="gw.name" />
-                        <div class="d-flex align-items-center gap-2">
-                          <div class="op-gateway-radio"></div>
-                          <div>
-                            <div class="fw-semibold small">{{ gw.name }}</div>
-                            <div class="text-muted op-gw-desc">
-                              {{ gw.name === 'Razorpay' ? __('message.op_razorpay_methods') : __('message.op_stripe_methods') }}
-                            </div>
-                          </div>
-                        </div>
+                    <div v-for="gw in enabledGateways" :key="gw.name" class="mb-3">
+                      <label class="d-flex align-items-center mb-0" :for="`gw_${gw.name}`" style="cursor:pointer;">
+                        <input :id="`gw_${gw.name}`" v-model="form.gateway" type="radio"
+                               class="me-2" name="payment_gateway" :value="gw.name" />
+                        <img :src="`${baseUrl}/images/logo/${gw.name}.png`" :alt="gw.name" height="22"
+                             @error="onLogoError($event, gw.name)" />
                       </label>
+                      <p v-if="form.gateway === gw.name && gw.processing_fee"
+                         class="text-muted small mt-2 mb-0 ms-4">
+                        {{ __('message.processing_fee_note', { fee: gw.processing_fee }) }}
+                      </p>
                     </div>
                   </div>
-
-                  <!-- Processing fee note -->
-                  <p v-if="processingFeeRate > 0" class="text-muted small mt-2 mb-3">
-                    <i class="fas fa-info-circle me-1"></i>
-                    {{ __('message.processing_fee_note', { fee: processingFeeRate }) }}
-                  </p>
 
                   <!-- push button to bottom -->
                   <div class="mt-auto">
@@ -195,7 +156,7 @@
 
           <div class="card-header bg-white border-bottom px-4 py-3">
             <h5 class="fw-bold mb-0">{{ __('message.op_review_order') }}</h5>
-            <p class="text-muted small mb-0 mt-1">{{ __('message.op_confirm_details') }}</p>
+            <p class="text-muted mb-0 mt-1">{{ __('message.op_confirm_details') }}</p>
           </div>
 
           <div class="card-body p-0">
@@ -314,40 +275,87 @@
 
       <!-- ── STEP 3: Result ── -->
       <transition name="op-slide" mode="out-in">
-        <div v-if="step === 'result'" key="result" class="card shadow border-0 rounded-3">
-          <div class="card-body p-5 text-center">
+        <div v-if="step === 'result'" key="result" class="row justify-content-center">
+          <div class="col-lg-8">
 
-            <div :class="['op-result-icon mx-auto mb-4', result.success ? 'op-result-success' : 'op-result-failed']">
-              <i :class="['fas fa-2x', result.success ? 'fa-check' : 'fa-times']"></i>
+          <!-- Success -->
+          <template v-if="result.success">
+
+            <!-- Thanks banner -->
+            <div class="card border-width-3 border-radius-0 border-color-success mb-0">
+              <div class="card-body text-center">
+                <p class="text-color-dark font-weight-bold text-4-5 mb-0">
+                  <i class="fas fa-check text-color-success me-1"></i> {{ __('message.thanks_order_received') }}
+                </p>
+              </div>
             </div>
 
-            <h4 class="fw-bold mb-2">{{ result.success ? __('message.op_payment_successful') : __('message.op_payment_failed') }}</h4>
-            <p class="op-result-msg text-muted mb-4">
-              {{ result.success
-                ? __('message.op_success_msg')
-                : (result.message || __('message.op_something_went_wrong')) }}
-            </p>
-
-            <template v-if="result.success && result.transactionId">
-              <div class="rounded-3 border bg-white p-3 mb-4 text-start">
-                <div class="d-flex justify-content-between py-2 border-bottom">
-                  <span class="text-muted">{{ __('message.op_transaction_id') }}</span>
-                  <span class="op-txn-id fw-bold">{{ result.transactionId }}</span>
-                </div>
-                <div class="d-flex justify-content-between py-2 border-bottom">
-                  <span class="text-muted">{{ __('message.op_amount_paid') }}</span>
-                  <span class="fw-semibold">{{ result.currency }} {{ result.amount }}</span>
-                </div>
-                <div class="d-flex justify-content-between py-2">
-                  <span class="text-muted">{{ __('message.op_gateway') }}</span>
-                  <span class="fw-semibold">{{ result.gateway }}</span>
-                </div>
+            <!-- Summary row -->
+            <div class="d-flex flex-column flex-md-row justify-content-between py-3 px-4 my-4">
+              <div class="text-center">
+                <span><strong class="text-color-dark">{{ __('message.op_transaction_id') }}</strong><br>
+                  <span class="font-monospace small">{{ result.transactionId || '—' }}</span>
+                </span>
               </div>
-            </template>
+              <div class="text-center mt-4 mt-md-0">
+                <span><strong class="text-color-dark">{{ __('message.status') }}</strong><br>{{ __('message.success') }}</span>
+              </div>
+              <div class="text-center mt-4 mt-md-0">
+                <span><strong class="text-color-dark">{{ __('message.payment-method') }}</strong><br>{{ result.gateway }}</span>
+              </div>
+              <div class="text-center mt-4 mt-md-0">
+                <span><strong class="text-color-dark">{{ __('message.total') }}</strong><br>{{ result.currency }} {{ result.amount }}</span>
+              </div>
+            </div>
 
-            <button class="btn btn-dark px-5 py-2 fw-semibold" @click="reset">
-              {{ result.success ? __('message.op_make_another') : __('message.op_try_again') }}
-            </button>
+            <!-- Details card -->
+            <div class="card border-width-3 border-radius-0 mb-4">
+              <div class="card-body">
+                <h4 class="font-weight-bold text-uppercase text-4 mb-3">{{ __('message.op_payment_details') }}</h4>
+                <table class="shop_table cart-totals mb-0">
+                  <tbody>
+                    <tr>
+                      <td class="border-top-0"><strong class="text-color-dark">{{ __('message.op_description_optional') }}</strong></td>
+                      <td class="border-top-0 text-end text-color-grey">{{ result.description || '—' }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong class="text-color-dark">{{ __('message.op_gateway') }}</strong></td>
+                      <td class="text-end text-color-grey">{{ result.gateway }}</td>
+                    </tr>
+                    <tr class="total">
+                      <td><strong class="text-color-dark text-3-5">{{ __('message.op_amount_paid') }}</strong></td>
+                      <td class="text-end">
+                        <strong class="text-color-dark"><span class="amount text-color-dark text-5">{{ result.currency }} {{ result.amount }}</span></strong>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Action -->
+            <div class="d-flex justify-content-center">
+              <button class="btn btn-dark btn-modern text-uppercase border-radius-0 px-5 py-2 fw-semibold" @click="reset">
+                {{ __('message.op_make_another') }}
+              </button>
+            </div>
+
+          </template>
+
+          <!-- Failed -->
+          <template v-else>
+            <div class="card border-width-3 border-radius-0 border-color-danger">
+              <div class="card-body text-center py-5">
+                <i class="fas fa-times-circle fa-3x text-danger mb-3 d-block"></i>
+                <h4 class="fw-bold mb-2">{{ __('message.op_payment_failed') }}</h4>
+                <p class="text-muted mb-4">{{ result.message || __('message.op_something_went_wrong') }}</p>
+                <button class="btn btn-dark btn-modern text-uppercase border-radius-0 px-5 py-2 fw-semibold" @click="reset">
+                  {{ __('message.op_try_again') }}
+                </button>
+              </div>
+            </div>
+          </template>
+
           </div>
         </div>
       </transition>
@@ -424,20 +432,6 @@
 
   <GlobalLoader />
 
-  <!-- Footer -->
-  <footer class="bg-white border-top py-3">
-    <div class="op-container mx-auto px-3 w-100 d-flex flex-wrap justify-content-between align-items-center gap-2">
-      <span class="text-muted">
-        <strong>{{ __('message.copyright') }} © 2015 - {{ currentYear }}
-          <a v-if="website" :href="website" target="_blank" class="text-primary text-decoration-none">{{ company }}</a>
-          <span v-else class="text-primary">{{ company }}</span>.
-        </strong>
-        {{ __('message.all_rights') }} <strong><a href="https://www.faveohelpdesk.com/" target="_blank" class="text-decoration-none">Faveo</a></strong>
-      </span>
-      <span v-if="appName || appVersion" class="text-muted d-none d-sm-inline">{{ appName }} {{ appVersion }}</span>
-    </div>
-  </footer>
-
 </template>
 
 <script setup>
@@ -453,43 +447,7 @@ import { useLoaderStore } from '@/core/stores/loader'
 
 const el      = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
-const API     = `${baseUrl}/open-payment`
-
-const logoUrl     = el?.dataset?.appLogo    ?? ''
-const company     = el?.dataset?.company    ?? ''
-const website     = el?.dataset?.website    ?? ''
-const appName     = el?.dataset?.appName    ?? ''
-const appVersion  = el?.dataset?.appVersion ?? ''
-const currentYear = new Date().getFullYear()
-
-// ── Language dropdown ────────────────────────────────────────────────
-const languages    = ref([])
-const currentLocale = computed(() => (el?.dataset?.locale ?? 'en').toLowerCase())
-
-const localeMap = {
-  ar: 'sa', bsn: 'ba', de: 'de', en: 'us', 'en-gb': 'gb', es: 'es', fr: 'fr',
-  he: 'il', hi: 'in', id: 'id', it: 'it', ja: 'jp', kr: 'kr', mt: 'mt',
-  nl: 'nl', no: 'no', pt: 'pt', ru: 'ru', ta: 'in', tr: 'tr', vi: 'vn',
-  'zh-hans': 'cn', 'zh-hant': 'tw',
-}
-function flagCodeFor(loc) {
-  const lc = String(loc ?? '').toLowerCase()
-  return localeMap[lc] ?? localeMap[lc.slice(0, 2)] ?? 'un'
-}
-async function loadLanguages() {
-  try {
-    const { data } = await http.get(`${baseUrl}/language/control`)
-    languages.value = (data?.data ?? []).filter(l => Number(l.status) === 1)
-  } catch { /* best-effort */ }
-}
-async function selectLang(lang) {
-  try {
-    await http.post(`${baseUrl}/lang/update`, { language: lang.locale })
-    window.location.reload()
-  } catch (e) {
-    console.error('Language switch failed', e)
-  }
-}
+const API     = `${baseUrl}/pay`
 
 const steps = computed(() => [
   { key: 'form',    label: __('message.op_step_details'), icon: 'fa-user'           },
@@ -520,7 +478,7 @@ const paying     = ref(false)
 const showPayBtn = ref(true)
 const showBackBtn  = ref(true)
 const order        = ref(null)
-const result       = reactive({ success: false, message: '', transactionId: '', currency: '', amount: '', gateway: '' })
+const result       = reactive({ success: false, message: '', transactionId: '', currency: '', amount: '', gateway: '', description: '' })
 const showStripeModal  = ref(false)
 const stripeLoading    = ref(false)
 const stripeSubmitting = ref(false)
@@ -537,11 +495,19 @@ const form = reactive({
 })
 
 // ── Currency ────────────────────────────────────────────────────────
+const appTitle        = ref('')
 const currencyOptions = ref([])
 const enabledGateways = ref([])
 const selectedCurrency = computed(() => currencyOptions.value.find(c => c.code === form.currency) ?? null)
 const selectedCurrencySymbol = computed(() => selectedCurrency.value?.symbol ?? '')
 const onCurrencyChange = (val) => { form.currency = val?.code ?? '' }
+
+const onLogoError = (event, name) => {
+  const span = document.createElement('span')
+  span.className = 'fw-semibold text-dark'
+  span.textContent = name
+  event.target.replaceWith(span)
+}
 
 // ── Payment summary — server-calculated to avoid any rounding mismatch ──
 const selectedGateway   = computed(() => enabledGateways.value.find(g => g.name === form.gateway) ?? null)
@@ -599,7 +565,7 @@ const reset = () => {
   clientSecret   = null
   selectedCountryObj.value = null
   selectedStateObj.value = null
-  Object.assign(result, { success: false, message: '', transactionId: '', currency: '', amount: '', gateway: '' })
+  Object.assign(result, { success: false, message: '', transactionId: '', currency: '', amount: '', gateway: '', description: '' })
   alertStore.unsetAlert()
 }
 
@@ -618,6 +584,7 @@ const showResult = (success, paidOrder, message = '') => {
     currency: paidOrder?.currency || '',
     amount: paidOrder?.amount || '',
     gateway: paidOrder?.gateway || '',
+    description: paidOrder?.description || '',
   })
   step.value = 'result'
 }
@@ -882,13 +849,13 @@ const autoDetectCountry = async () => {
 }
 
 onMounted(async () => {
-  loadLanguages()
   autoDetectCountry()
 
   // Load enabled gateways + active currencies from the backend
   try {
     const { data } = await http.get(`${API}/config`)
     const cfg = data.data
+    appTitle.value        = cfg.app_title ?? ''
     currencyOptions.value = (cfg.currencies ?? []).map(c => ({ code: c.code, symbol: c.symbol, name: `${c.name} (${c.code})` }))
     enabledGateways.value = cfg.gateways ?? []
     if (!form.currency && currencyOptions.value.length) form.currency = currencyOptions.value[0].code
@@ -923,14 +890,9 @@ onMounted(async () => {
 
 <style scoped>
 /* ── Shared layout ──────────────────────────────────────────────── */
-.op-container    { max-width: 980px; }
-.op-nav-logo     { height: 60px; max-width: 220px; object-fit: contain; }
-.op-lang-menu    { max-height: 320px; overflow-y: auto; }
-.op-flag         { width: 1.5em; height: 1.5em; }
 .op-right-bg     { background: #f8f9ff; }
 .op-section-label { font-size: 0.7rem; letter-spacing: 0.08em; }
 .op-detail-label  { font-size: 0.65rem; letter-spacing: 0.08em; }
-.op-gw-desc       { font-size: 0.72rem; }
 .op-address       { font-style: normal; line-height: 1.8; color: #374151; }
 .op-total-label   { font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; }
 .op-amount-display { font-size: 2rem; color: #111827; letter-spacing: -0.02em; line-height: 1.15; }
@@ -942,12 +904,9 @@ onMounted(async () => {
 
 /* ── Page ───────────────────────────────────────────────────────── */
 .op-page {
-  min-height: calc(100vh - 114px);
-  background: #f4f6f9;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 2rem 1rem 3rem;
 }
 
 
@@ -974,31 +933,6 @@ onMounted(async () => {
 .step-item      { min-width: 96px; }
 .step-connector { max-width: 90px; }
 
-/* ── Gateway radio cards ────────────────────────────────────────── */
-.op-gateway-card {
-  display: block;
-  cursor: pointer;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 0.7rem 0.9rem;
-  background: #fff;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-}
-.op-gateway-card input { display: none; }
-.op-gateway-selected {
-  border-color: var(--primary);
-  background: var(--primary-rgba-10);
-  box-shadow: 0 0 0 3px var(--primary-rgba-20);
-}
-.op-gateway-radio {
-  width: 16px; height: 16px; border-radius: 50%;
-  border: 2px solid #d1d5db; flex-shrink: 0;
-  transition: border-color 0.2s, background 0.2s;
-}
-.op-gateway-selected .op-gateway-radio {
-  border-color: var(--primary); background: var(--primary);
-  box-shadow: inset 0 0 0 3px var(--primary-rgba-10);
-}
 
 /* ── Review: avatar ─────────────────────────────────────────────── */
 .op-avatar {
@@ -1034,13 +968,6 @@ onMounted(async () => {
   color: white;
 }
 
-/* ── Result icon ────────────────────────────────────────────────── */
-.op-result-icon {
-  width: 80px; height: 80px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; color: white;
-}
-.op-result-success { background: var(--primary); box-shadow: 0 8px 24px var(--primary-rgba-40); }
-.op-result-failed  { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 8px 24px rgba(239,68,68,0.35); }
 
 
 /* ── Transition ─────────────────────────────────────────────────── */
@@ -1050,7 +977,6 @@ onMounted(async () => {
 
 /* ── Mobile ─────────────────────────────────────────────────────── */
 @media (max-width: 767px) {
-  .op-page { padding: 1.5rem 0.75rem 3rem; }
   .op-step-line { width: 28px; }
   .op-step-label { display: none; }
   .border-end { border-right: none !important; border-bottom: 1px solid #dee2e6 !important; }

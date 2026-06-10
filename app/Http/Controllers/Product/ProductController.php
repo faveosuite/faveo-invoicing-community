@@ -861,7 +861,7 @@ class ProductController extends BaseProductController
                 // Update the product version
                 $product->update(['version' => $validated['version']]);
 
-                (new AutoUpdateController())
+                app(AutoUpdateController::class)
                     ->addNewVersion(
                         $product->id,
                         $validated['version'],
@@ -871,6 +871,126 @@ class ProductController extends BaseProductController
             });
 
             return successResponse(__('message.product_uploaded_successfully'));
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    /**
+     * Paginated list of a product's version uploads, for the DataTable on the
+     * product edit page's "Versions" tab.
+     */
+    public function getProductUploads($productId, Request $request)
+    {
+        try {
+            $limit     = $request->input('limit', 10);
+            $page      = $request->input('page', 1);
+            $sortField = $request->input('sort-field', 'created_at');
+            $sortOrder = $request->input('sort-order', 'desc');
+            $search    = $request->input('search-query', '');
+
+            $allowed = ['created_at', 'version', 'title', 'release_type', 'status'];
+            if (! in_array($sortField, $allowed, true)) {
+                $sortField = 'created_at';
+            }
+
+            $uploads = ProductUpload::where('product_id', $productId)
+                ->when($search, function ($q, $search) {
+                    $q->where(function ($qq) use ($search) {
+                        $qq->where('title', 'like', "%{$search}%")
+                            ->orWhere('version', 'like', "%{$search}%")
+                            ->orWhere('release_type', 'like', "%{$search}%");
+                    });
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->paginate($limit, ['*'], 'page', $page);
+
+            $uploads->getCollection()->transform(function ($u) {
+                return [
+                    'id'           => $u->id,
+                    'title'        => $u->title,
+                    'version'      => $u->version,
+                    'release_type' => $u->release_type,
+                    'file'         => $u->file,
+                    'status'       => $u->status,
+                    'created_at'   => $u->created_at,
+                ];
+            });
+
+            return successResponse('', $uploads);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    /**
+     * Single version upload, for the edit form.
+     */
+    public function getProductUpload($productUploadId)
+    {
+        try {
+            $u = ProductUpload::findOrFail($productUploadId);
+
+            return successResponse('', [
+                'id'            => $u->id,
+                'product_id'    => $u->product_id,
+                'title'         => $u->title,
+                'description'   => $u->description,
+                'version'       => $u->version,
+                'file'          => $u->file,
+                'release_type'  => $u->release_type,
+                'is_private'    => (bool) $u->is_private,
+                'is_restricted' => (bool) $u->is_restricted,
+                'dependencies'  => json_decode($u->dependencies, true) ?: [],
+            ]);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    /**
+     * Update a version's metadata (the file itself is not changed on edit).
+     */
+    public function updateProductUpload($productUploadId, Request $request)
+    {
+        $validated = $request->validate([
+            'title'        => 'required|string|max:255',
+            'version'      => 'required|string|max:50',
+            'dependencies' => 'required|array',
+            'release_type' => 'required',
+        ], [
+            'title.required'        => __('validation.extend_product.title_required'),
+            'version.required'      => __('validation.extend_product.version_required'),
+            'dependencies.required' => __('validation.extend_product.dependencies_required'),
+        ]);
+
+        try {
+            $upload = ProductUpload::findOrFail($productUploadId);
+
+            $payload = [
+                'title'         => $validated['title'],
+                'description'   => $request->input('description'),
+                'version'       => $validated['version'],
+                'dependencies'  => json_encode($validated['dependencies']),
+                'is_private'    => $request->boolean('is_private'),
+                'is_restricted' => $request->boolean('is_restricted'),
+                'release_type'  => $validated['release_type'],
+            ];
+
+            // Only replace the file when a new one was uploaded.
+            if ($request->filled('filename')) {
+                $payload['file'] = $request->input('filename');
+            }
+
+            $upload->update($payload);
+
+            $productSku = $upload->product->product_sku ?? null;
+            if ($productSku) {
+                app(\App\Http\Controllers\AutoUpdate\AutoUpdateController::class)
+                    ->editVersion($validated['version'], $productSku);
+            }
+
+            return successResponse(__('message.product_updated_successfully'));
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }

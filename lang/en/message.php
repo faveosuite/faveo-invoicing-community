@@ -24,6 +24,9 @@ return [
     'signout' => 'Sign out',
     'clients' => 'Clients',
     'version' => 'Version',
+    'versions' => 'Versions',
+    'add_version' => 'Add Version',
+    'edit_version' => 'Edit Version',
     /*
      * Common for all
      */
@@ -575,6 +578,10 @@ return [
     'link' => 'Social Media Link',
     'edit-payment' => 'Edit Payment',
     'link-extra' => 'Link Extra Payment',
+    'available_credit' => 'Available Credit Balance',
+    'apply_credit' => 'Apply credit to invoices',
+    'insufficient_credit_balance' => 'The amount applied exceeds the available credit balance.',
+    'credit_applied' => 'Credit Applied',
 
     /*
      * Category
@@ -3299,6 +3306,7 @@ return [
     'op_secure_checkout' => 'Secure Checkout',
     'op_payment_details' => 'Payment Details',
     'op_fill_info' => 'Fill in your information to proceed with payment',
+    'op_pay_for'   => 'Pay for :app products & services here',
     'op_personal_info' => 'Personal Information',
     'op_street_address' => 'Street Address',
     'op_zip_code' => 'ZIP / Postal Code',

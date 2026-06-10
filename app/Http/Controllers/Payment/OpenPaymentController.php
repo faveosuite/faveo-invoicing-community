@@ -6,6 +6,7 @@ use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Payment\OpenPaymentRequest;
 use App\Model\Common\Country;
+use App\Model\Common\Setting;
 use App\Model\Payment\Currency;
 use App\Model\Payment\OpenPaymentOrder;
 use App\Model\Plugin;
@@ -262,7 +263,9 @@ class OpenPaymentController extends Controller
             ->orderBy('code')
             ->get(['code', 'symbol', 'name']);
 
-        return successResponse('', ['gateways' => $gateways, 'currencies' => $currencies]);
+        $appTitle = Setting::find(1)?->title ?? config('app.name');
+
+        return successResponse('', ['gateways' => $gateways, 'currencies' => $currencies, 'app_title' => $appTitle]);
     }
 
     /**

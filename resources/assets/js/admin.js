@@ -84,7 +84,10 @@ import(`./themes/${theme}/index.js`).then(themeModule => {
             const instance = window.bootstrap?.Tooltip?.getInstance(el)
             if (instance) {
                 const title = el.getAttribute('title')
-                if (title) instance.setContent({ '.tooltip-inner': title })
+                if (title) {
+                    instance.setContent({ '.tooltip-inner': title })
+                    el.removeAttribute('title')
+                }
             }
         },
         unmounted(el) {

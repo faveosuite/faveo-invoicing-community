@@ -149,4 +149,48 @@ trait CoupCodeAndInvoiceSearch
                 </div>';
         }
     }
+
+    /**
+     * JSON bulk-delete for payments (SPA). Deletes the given payment rows and
+     * recomputes the status of any invoice they were linked to.
+     */
+    public function deleteBulkPayments(Request $request)
+    {
+        try {
+            $ids = $request->input('payment_ids', []);
+
+            if (empty($ids)) {
+                return errorResponse(__('message.select-a-row'));
+            }
+
+            $payments = $this->payment->whereIn('id', $ids)->get();
+
+            foreach ($payments as $payment) {
+                $invoiceId = $payment->invoice_id;
+                $payment->delete();
+
+                if ($invoiceId) {
+                    $invoice = $this->invoice->find($invoiceId);
+                    if ($invoice) {
+                        $paid = $this->payment->where('invoice_id', $invoiceId)
+                            ->where('payment_status', 'success')
+                            ->sum('amount');
+
+                        if ($paid >= $invoice->grand_total) {
+                            $invoice->status = 'success';
+                        } elseif ($paid > 0) {
+                            $invoice->status = 'partially paid';
+                        } else {
+                            $invoice->status = 'pending';
+                        }
+                        $invoice->save();
+                    }
+                }
+            }
+
+            return successResponse(__('message.deleted-successfully'));
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
 }

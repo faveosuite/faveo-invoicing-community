@@ -172,27 +172,50 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
     public function paymentEditById($id)
     {
         try {
-            $cltCont = new \App\Http\Controllers\User\ClientController();
-            $payment = Payment::find($id);
+            $payment  = Payment::findOrFail($id);
             $clientid = $payment->user_id;
-            $invoice = new Invoice();
-            $order = new Order();
-            $invoices = $invoice->where('user_id', $clientid)->where('status', '=', 'pending')
-            ->orderBy('created_at', 'desc')->get();
-            $cltCont = new \App\Http\Controllers\User\ClientController();
-            $invoiceSum = $cltCont->getTotalInvoice($invoices);
-            $amountReceived = $cltCont->getExtraAmt($clientid);
-            $pendingAmount = $invoiceSum - $amountReceived;
-            $client = $this->user->where('id', $clientid)->first();
-            $currency = $client->currency;
-            $symbol = Currency::where('code', $currency)->pluck('symbol')->first();
-            $orders = $order->where('client', $clientid)->get();
+            $client   = $this->user->where('id', $clientid)->firstOrFail();
+            $symbol   = Currency::where('code', $client->currency)->value('symbol');
 
-            return view('themes.default1.invoice.editPayment',
-                compact('amountReceived', 'clientid', 'client', 'invoices', 'orders',
-                    'invoiceSum', 'amountReceived', 'pendingAmount', 'currency', 'symbol'));
+            // Client's available credit balance = sum of their invoice_id = 0 rows.
+            $availableCredit = (new \App\Http\Controllers\User\AdvanceSearchController())->getExtraAmt($clientid);
+
+            // Invoices that still carry a balance and can absorb credit.
+            $invoices = Invoice::where('user_id', $clientid)
+                ->whereNotIn('status', ['success', 'Success'])
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($inv) {
+                    $paid = Payment::where('invoice_id', $inv->id)
+                        ->where('payment_status', 'success')
+                        ->sum('amount');
+
+                    return [
+                        'id'          => $inv->id,
+                        'number'      => $inv->number,
+                        'date'        => $inv->date,
+                        'grand_total' => $inv->grand_total,
+                        'pending'     => max(0, $inv->grand_total - $paid),
+                        'status'      => $inv->status,
+                    ];
+                })
+                ->filter(fn ($inv) => $inv['pending'] > 0)
+                ->values();
+
+            return successResponse('', [
+                'payment'          => [
+                    'id'             => $payment->id,
+                    'invoice_id'     => $payment->invoice_id,
+                    'payment_method' => $payment->payment_method,
+                ],
+                'clientid'         => $clientid,
+                'available_credit' => $availableCredit,
+                'invoices'         => $invoices,
+                'symbol'           => $symbol,
+                'currency'         => $client->currency,
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            return errorResponse($e->getMessage());
         }
     }
 }

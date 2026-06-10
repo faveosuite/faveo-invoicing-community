@@ -190,7 +190,7 @@ const tableOptions = reactive({
         status:       (f, row) => row.status || '—',
         order_date:   (f, row) => row.order_date ? new Date(row.order_date).toLocaleDateString() : '—',
         update_ends_at: (f, row) => row.update_ends_at ? new Date(row.update_ends_at).toLocaleDateString() : '—',
-        action: (f, row) => h(OrderTableActions, { orderId: row.id, baseUrl: baseUrl }),
+        action: (f, row) => h(OrderTableActions, { orderId: row.id, baseUrl: baseUrl, showDelete: true }),
     },
 
     sortable: ['number', 'order_status', 'order_date', 'update_ends_at'],
