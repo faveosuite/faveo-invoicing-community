@@ -34,13 +34,13 @@ class ExtendedBaseInvoiceController extends Controller
                         ->sum('amount');
 
                     return [
-                        'id'          => $inv->id,
-                        'number'      => $inv->number,
-                        'date'        => $inv->date,
+                        'id' => $inv->id,
+                        'number' => $inv->number,
+                        'date' => $inv->date,
                         'grand_total' => $inv->grand_total,
-                        'pending'     => max(0, $inv->grand_total - $paid),
-                        'status'      => $inv->status,
-                        'currency'    => $inv->currency,
+                        'pending' => max(0, $inv->grand_total - $paid),
+                        'status' => $inv->status,
+                        'currency' => $inv->currency,
                     ];
                 })
                 ->values();
@@ -48,13 +48,13 @@ class ExtendedBaseInvoiceController extends Controller
             // Supported currencies = only the enabled ones (currency's own status = 1).
             // Note: the model's global scope filters by active country, not currency status.
             $currencies = Currency::where('status', 1)->orderBy('name')->get(['code', 'symbol', 'name'])->map(fn ($c) => [
-                'code'   => $c->code,
+                'code' => $c->code,
                 'symbol' => $c->symbol,
-                'name'   => $c->name,
+                'name' => $c->name,
             ]);
 
             return successResponse('', [
-                'invoices'   => $invoices,
+                'invoices' => $invoices,
                 'currencies' => $currencies,
             ]);
         } catch (Exception $ex) {
@@ -131,14 +131,14 @@ class ExtendedBaseInvoiceController extends Controller
     public function postNewMultiplePayment($clientid, Request $request)
     {
         $this->validate($request, [
-            'payment_date'   => 'required',
+            'payment_date' => 'required',
             'payment_method' => 'required',
-            'totalAmt'       => 'required|numeric|not_in:0',
+            'totalAmt' => 'required|numeric|not_in:0',
         ], [
-            'payment_date.required'   => __('validation.payment.payment_date_required'),
+            'payment_date.required' => __('validation.payment.payment_date_required'),
             'payment_method.required' => __('validation.payment.payment_method_required'),
-            'totalAmt.required'       => __('validation.amt_required'),
-            'totalAmt.numeric'        => __('validation.amt_numeric'),
+            'totalAmt.required' => __('validation.amt_required'),
+            'totalAmt.numeric' => __('validation.amt_numeric'),
         ]);
 
         try {
@@ -171,18 +171,18 @@ class ExtendedBaseInvoiceController extends Controller
                     continue;
                 }
 
-                $amount  = (isset($invoicAmount[$key]) && $invoicAmount[$key] !== '') ? $invoicAmount[$key] : 0;
+                $amount = (isset($invoicAmount[$key]) && $invoicAmount[$key] !== '') ? $invoicAmount[$key] : 0;
                 $invoice = Invoice::find($value);
 
                 Payment::create([
-                    'invoice_id'     => $value,
-                    'user_id'        => $clientid,
-                    'amount'         => $amount,
-                    'amt_to_credit'  => 0,
+                    'invoice_id' => $value,
+                    'user_id' => $clientid,
+                    'amount' => $amount,
+                    'amt_to_credit' => 0,
                     'payment_method' => $payment_method,
                     'payment_status' => $payment_status,
-                    'created_at'     => $payment_date,
-                    'currency'       => $invoice?->currency ?: $currency,
+                    'created_at' => $payment_date,
+                    'currency' => $invoice?->currency ?: $currency,
                 ]);
 
                 if ($invoice) {
@@ -206,14 +206,14 @@ class ExtendedBaseInvoiceController extends Controller
             //    is the SUM of these rows (see AdvanceSearchController::getExtraAmt).
             if ($amtToCredit > 0) {
                 Payment::create([
-                    'invoice_id'     => 0,
-                    'user_id'        => $clientid,
-                    'amount'         => $amtToCredit,
-                    'amt_to_credit'  => $amtToCredit,
+                    'invoice_id' => 0,
+                    'user_id' => $clientid,
+                    'amount' => $amtToCredit,
+                    'amt_to_credit' => $amtToCredit,
                     'payment_method' => $payment_method,
                     'payment_status' => $payment_status,
-                    'created_at'     => $payment_date,
-                    'currency'       => $currency,
+                    'created_at' => $payment_date,
+                    'currency' => $currency,
                 ]);
             }
         } catch (Exception $ex) {
@@ -239,7 +239,7 @@ class ExtendedBaseInvoiceController extends Controller
             ->where('invoice_id', 0)
             ->where('payment_method', 'Credit Balance');
 
-        $current  = (float) (clone $existing)->sum('amt_to_credit');
+        $current = (float) (clone $existing)->sum('amt_to_credit');
         $currency = (clone $existing)->orderBy('id', 'desc')->value('currency')
             ?: \App\User::where('id', $userId)->value('currency');
         $existing->delete();
@@ -247,14 +247,14 @@ class ExtendedBaseInvoiceController extends Controller
         $total = $current + (float) $amount;
 
         return Payment::create([
-            'invoice_id'     => 0,
-            'user_id'        => $userId,
-            'amount'         => $total,
-            'amt_to_credit'  => $total,
+            'invoice_id' => 0,
+            'user_id' => $userId,
+            'amount' => $total,
+            'amt_to_credit' => $total,
             'payment_method' => 'Credit Balance',
             'payment_status' => $payment_status,
-            'created_at'     => $payment_date,
-            'currency'       => $currency,
+            'created_at' => $payment_date,
+            'currency' => $currency,
         ]);
     }
 
@@ -264,15 +264,15 @@ class ExtendedBaseInvoiceController extends Controller
     public function updateNewMultiplePayment($clientid, Request $request)
     {
         $this->validate($request, [
-            'payment_date'    => 'required',
-            'payment_method'  => 'required',
-            'invoiceChecked'  => 'required|array|min:1',
+            'payment_date' => 'required',
+            'payment_method' => 'required',
+            'invoiceChecked' => 'required|array|min:1',
         ], [
-            'payment_date.required'   => __('validation.payment_date_required'),
+            'payment_date.required' => __('validation.payment_date_required'),
             'payment_method.required' => __('validation.payment_method_required'),
             'invoiceChecked.required' => __('validation.invoice_link_required'),
-            'invoiceChecked.array'    => __('validation.invoice_link_required'),
-            'invoiceChecked.min'      => __('validation.invoice_link_required'),
+            'invoiceChecked.array' => __('validation.invoice_link_required'),
+            'invoiceChecked.min' => __('validation.invoice_link_required'),
         ]);
 
         try {
@@ -308,9 +308,9 @@ class ExtendedBaseInvoiceController extends Controller
     {
         try {
             // Snapshot the current credit balance, and the method/currency it is held under.
-            $creditQuery    = Payment::where('user_id', $clientid)->where('invoice_id', 0);
-            $creditBefore   = (float) $creditQuery->sum('amt_to_credit');
-            $creditMethod   = (clone $creditQuery)->orderBy('id', 'desc')->value('payment_method') ?? $payment_method;
+            $creditQuery = Payment::where('user_id', $clientid)->where('invoice_id', 0);
+            $creditBefore = (float) $creditQuery->sum('amt_to_credit');
+            $creditMethod = (clone $creditQuery)->orderBy('id', 'desc')->value('payment_method') ?? $payment_method;
             $creditCurrency = (clone $creditQuery)->orderBy('id', 'desc')->value('currency');
 
             $applied = 0;
@@ -328,14 +328,14 @@ class ExtendedBaseInvoiceController extends Controller
                 $invoice = Invoice::find($value);
 
                 Payment::create([
-                    'invoice_id'     => $value,
-                    'user_id'        => $clientid,
-                    'amount'         => $amount,
-                    'amt_to_credit'  => 0,
+                    'invoice_id' => $value,
+                    'user_id' => $clientid,
+                    'amount' => $amount,
+                    'amt_to_credit' => 0,
                     'payment_method' => $payment_method,
                     'payment_status' => $payment_status,
-                    'created_at'     => $payment_date,
-                    'currency'       => $invoice?->currency ?: $creditCurrency,
+                    'created_at' => $payment_date,
+                    'currency' => $invoice?->currency ?: $creditCurrency,
                 ]);
                 $applied += $amount;
 
@@ -368,14 +368,14 @@ class ExtendedBaseInvoiceController extends Controller
             $creditQuery->delete();
             if ($remaining > 0) {
                 Payment::create([
-                    'invoice_id'     => 0,
-                    'user_id'        => $clientid,
-                    'amount'         => $remaining,
-                    'amt_to_credit'  => $remaining,
+                    'invoice_id' => 0,
+                    'user_id' => $clientid,
+                    'amount' => $remaining,
+                    'amt_to_credit' => $remaining,
                     'payment_method' => $creditMethod,
                     'payment_status' => 'success',
-                    'created_at'     => $payment_date,
-                    'currency'       => $creditCurrency,
+                    'created_at' => $payment_date,
+                    'currency' => $creditCurrency,
                 ]);
             }
         } catch (Exception $ex) {

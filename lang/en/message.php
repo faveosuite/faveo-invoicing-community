@@ -3306,7 +3306,7 @@ return [
     'op_secure_checkout' => 'Secure Checkout',
     'op_payment_details' => 'Payment Details',
     'op_fill_info' => 'Fill in your information to proceed with payment',
-    'op_pay_for'   => 'Pay for :app products & services here',
+    'op_pay_for' => 'Pay for :app products & services here',
     'op_personal_info' => 'Personal Information',
     'op_street_address' => 'Street Address',
     'op_zip_code' => 'ZIP / Postal Code',

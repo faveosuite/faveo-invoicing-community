@@ -883,11 +883,11 @@ class ProductController extends BaseProductController
     public function getProductUploads($productId, Request $request)
     {
         try {
-            $limit     = $request->input('limit', 10);
-            $page      = $request->input('page', 1);
+            $limit = $request->input('limit', 10);
+            $page = $request->input('page', 1);
             $sortField = $request->input('sort-field', 'created_at');
             $sortOrder = $request->input('sort-order', 'desc');
-            $search    = $request->input('search-query', '');
+            $search = $request->input('search-query', '');
 
             $allowed = ['created_at', 'version', 'title', 'release_type', 'status'];
             if (! in_array($sortField, $allowed, true)) {
@@ -907,13 +907,13 @@ class ProductController extends BaseProductController
 
             $uploads->getCollection()->transform(function ($u) {
                 return [
-                    'id'           => $u->id,
-                    'title'        => $u->title,
-                    'version'      => $u->version,
+                    'id' => $u->id,
+                    'title' => $u->title,
+                    'version' => $u->version,
                     'release_type' => $u->release_type,
-                    'file'         => $u->file,
-                    'status'       => $u->status,
-                    'created_at'   => $u->created_at,
+                    'file' => $u->file,
+                    'status' => $u->status,
+                    'created_at' => $u->created_at,
                 ];
             });
 
@@ -932,16 +932,16 @@ class ProductController extends BaseProductController
             $u = ProductUpload::findOrFail($productUploadId);
 
             return successResponse('', [
-                'id'            => $u->id,
-                'product_id'    => $u->product_id,
-                'title'         => $u->title,
-                'description'   => $u->description,
-                'version'       => $u->version,
-                'file'          => $u->file,
-                'release_type'  => $u->release_type,
-                'is_private'    => (bool) $u->is_private,
+                'id' => $u->id,
+                'product_id' => $u->product_id,
+                'title' => $u->title,
+                'description' => $u->description,
+                'version' => $u->version,
+                'file' => $u->file,
+                'release_type' => $u->release_type,
+                'is_private' => (bool) $u->is_private,
                 'is_restricted' => (bool) $u->is_restricted,
-                'dependencies'  => json_decode($u->dependencies, true) ?: [],
+                'dependencies' => json_decode($u->dependencies, true) ?: [],
             ]);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
@@ -954,13 +954,13 @@ class ProductController extends BaseProductController
     public function updateProductUpload($productUploadId, Request $request)
     {
         $validated = $request->validate([
-            'title'        => 'required|string|max:255',
-            'version'      => 'required|string|max:50',
+            'title' => 'required|string|max:255',
+            'version' => 'required|string|max:50',
             'dependencies' => 'required|array',
             'release_type' => 'required',
         ], [
-            'title.required'        => __('validation.extend_product.title_required'),
-            'version.required'      => __('validation.extend_product.version_required'),
+            'title.required' => __('validation.extend_product.title_required'),
+            'version.required' => __('validation.extend_product.version_required'),
             'dependencies.required' => __('validation.extend_product.dependencies_required'),
         ]);
 
@@ -968,13 +968,13 @@ class ProductController extends BaseProductController
             $upload = ProductUpload::findOrFail($productUploadId);
 
             $payload = [
-                'title'         => $validated['title'],
-                'description'   => $request->input('description'),
-                'version'       => $validated['version'],
-                'dependencies'  => json_encode($validated['dependencies']),
-                'is_private'    => $request->boolean('is_private'),
+                'title' => $validated['title'],
+                'description' => $request->input('description'),
+                'version' => $validated['version'],
+                'dependencies' => json_encode($validated['dependencies']),
+                'is_private' => $request->boolean('is_private'),
                 'is_restricted' => $request->boolean('is_restricted'),
-                'release_type'  => $validated['release_type'],
+                'release_type' => $validated['release_type'],
             ];
 
             // Only replace the file when a new one was uploaded.
