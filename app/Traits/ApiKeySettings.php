@@ -523,8 +523,8 @@ trait ApiKeySettings
             $settings = FileSystemSettings::first();
 
             return successResponse('', [
-                'node_path'   => $settings->node_path ?? '',
-                'npm_path'    => $settings->npm_path ?? '',
+                'node_path' => $settings->node_path ?? '',
+                'npm_path' => $settings->npm_path ?? '',
                 'chrome_path' => $settings->chrome_path ?? '',
             ]);
         } catch (\Exception $e) {
@@ -537,8 +537,8 @@ trait ApiKeySettings
         try {
             $settings = FileSystemSettings::firstOrNew([]);
             $settings->fill([
-                'node_path'   => $request->input('node_path', ''),
-                'npm_path'    => $request->input('npm_path', ''),
+                'node_path' => $request->input('node_path', ''),
+                'npm_path' => $request->input('npm_path', ''),
                 'chrome_path' => $request->input('chrome_path', ''),
             ]);
             $settings->save();

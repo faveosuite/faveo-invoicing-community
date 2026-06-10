@@ -3331,7 +3331,6 @@ return [
     'op_something_went_wrong' => 'Something went wrong. Please try again.',
     'cvc' => 'CVC',
 
-
     'application_debugging' => 'Application Debugging',
     'application_debugging_desc' => 'Control debug tools for development and troubleshooting.',
     'debugging_options' => 'Debugging Options',

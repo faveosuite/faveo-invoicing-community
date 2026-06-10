@@ -11,7 +11,7 @@ class CspPolicy implements Preset
 {
     public function configure(Policy $policy): void
     {
-        return ;
+        return;
         $policy
             ->add(Directive::DEFAULT, Keyword::SELF)
             ->add(Directive::SCRIPT, [
