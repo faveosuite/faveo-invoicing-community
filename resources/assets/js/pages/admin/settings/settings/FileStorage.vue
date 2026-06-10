@@ -3,13 +3,16 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">{{ __('message.file_storage') }}</h4>
+                <h4 class="card-title">{{ __('message.file_system') }}</h4>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <inline-loader v-if="loading && pdfLoading" context="card-body" />
 
             <template v-else>
                 <div class="card-body">
+
+                    <!-- Storage Settings -->
+                    <h5 class="mb-3">{{ __('message.file_storage') }}</h5>
                     <div class="row">
                         <div class="col-md-4">
                             <SelectField
@@ -61,6 +64,23 @@
                             </div>
                         </template>
                     </div>
+
+                    <hr class="my-4" />
+
+                    <!-- PDF Settings -->
+                    <h5 class="mb-3">{{ __('message.pdf_settings') }}</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <TextField name="node_path" :label="__('message.node_path')" :required="true" :hint="__('message.node_path_tooltip')" :value="pdfForm.node_path" :onChange="onPdfChange" :error="errors.node_path" />
+                        </div>
+                        <div class="col-md-4">
+                            <TextField name="npm_path" :label="__('message.npm_path')" :required="true" :hint="__('message.npm_path_tooltip')" :value="pdfForm.npm_path" :onChange="onPdfChange" :error="errors.npm_path" />
+                        </div>
+                        <div class="col-md-4">
+                            <TextField name="chrome_path" :label="__('message.chrome_path')" :required="true" :hint="__('message.chrome_path_tooltip')" :value="pdfForm.chrome_path" :onChange="onPdfChange" :error="errors.chrome_path" />
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="card-footer">
@@ -76,15 +96,17 @@ import { reactive, ref, onMounted } from 'vue'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { buildFileStorageSchema } from '@/validations/admin/systemSettingsValidations'
+import { buildFileStorageSchema, pdfSettingsSchema } from '@/validations/admin/systemSettingsValidations'
 
 const COMPONENT = 'file-storage'
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
 const { errors, setErrors, setFieldError, resetForm } = useForm()
-const loading = ref(true)
-const saving  = ref(false)
+
+const loading    = ref(true)
+const pdfLoading = ref(true)
+const saving     = ref(false)
 
 const diskOptions = [
     { id: 'system', name: __('message.system_local') },
@@ -108,6 +130,12 @@ const form = reactive({
     s3_url: '',
 })
 
+const pdfForm = reactive({
+    node_path:   '',
+    npm_path:    '',
+    chrome_path: '',
+})
+
 function onChange(val, name) {
     setFieldError(name, undefined)
     form[name] = val
@@ -116,6 +144,11 @@ function onChange(val, name) {
 function onDiskSelect(val) {
     form.disk = val?.id ?? 'system'
     resetForm()
+}
+
+function onPdfChange(val, name) {
+    setFieldError(name, undefined)
+    pdfForm[name] = val
 }
 
 onMounted(async () => {
@@ -135,25 +168,46 @@ onMounted(async () => {
         })
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { loading.value = false }
+
+    try {
+        const res = await http.get(`${baseUrl}/pdf-settings`)
+        const d = res.data?.data ?? {}
+        Object.assign(pdfForm, {
+            node_path:   d.node_path ?? '',
+            npm_path:    d.npm_path ?? '',
+            chrome_path: d.chrome_path ?? '',
+        })
+    } catch (e) { errorHandler(e, COMPONENT) }
+    finally { pdfLoading.value = false }
 })
 
 async function submit() {
+    const errMap = {}
+
     try {
         buildFileStorageSchema(form.disk).validateSync(form, { abortEarly: false })
     } catch (err) {
-        const errMap = {}
         err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+    }
+
+    try {
+        pdfSettingsSchema.validateSync(pdfForm, { abortEarly: false })
+    } catch (err) {
+        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
+    }
+
+    if (Object.keys(errMap).length) {
         setErrors(errMap)
         return
     }
 
     saving.value = true
     try {
-        const payload = { disk: form.disk }
+        const storagePayload = { disk: form.disk }
         if (form.disk === 'system') {
-            payload.path = form.path
+            storagePayload.path = form.path
         } else {
-            Object.assign(payload, {
+            Object.assign(storagePayload, {
                 s3_path_style_endpoint: form.s3_path_style_endpoint,
                 s3_bucket:     form.s3_bucket,
                 s3_region:     form.s3_region,
@@ -163,8 +217,13 @@ async function submit() {
                 s3_url:        form.s3_url,
             })
         }
-        const res = await http.post(`${baseUrl}/file-storage-path`, payload)
-        successHandler(res, COMPONENT)
+
+        const [storageRes] = await Promise.all([
+            http.post(`${baseUrl}/file-storage-path`, storagePayload),
+            http.post(`${baseUrl}/pdf-settings`, { ...pdfForm }),
+        ])
+
+        successHandler(storageRes, COMPONENT)
     } catch (e) { errorHandler(e, COMPONENT) }
     finally { saving.value = false }
 }

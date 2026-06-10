@@ -516,4 +516,36 @@ trait ApiKeySettings
             return false;
         }
     }
+
+    public function showPdfSettings()
+    {
+        try {
+            $settings = FileSystemSettings::first();
+
+            return successResponse('', [
+                'node_path'   => $settings->node_path ?? '',
+                'npm_path'    => $settings->npm_path ?? '',
+                'chrome_path' => $settings->chrome_path ?? '',
+            ]);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    public function updatePdfSettings(Request $request)
+    {
+        try {
+            $settings = FileSystemSettings::firstOrNew([]);
+            $settings->fill([
+                'node_path'   => $request->input('node_path', ''),
+                'npm_path'    => $request->input('npm_path', ''),
+                'chrome_path' => $request->input('chrome_path', ''),
+            ]);
+            $settings->save();
+
+            return successResponse(trans('message.setting_updated'));
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
 }

@@ -512,6 +512,8 @@ class SettingsController extends BaseSettingsController
         return successResponse('', [
             'is_redis_configured' => (bool) QueueService::where('short_name', 'redis')->value('status'),
             'is_debug_mode' => (bool) config('app.debug'),
+            'is_pulse_enabled' => (bool) commonSettings('debugging', 'pulse_enabled'),
+            'is_clockwork_enabled' => (bool) commonSettings('debugging', 'clockwork_enable'),
             'is_mail_sending_enabled' => (int) Setting::value('sending_status') === 1,
             'is_msg91_enabled' => (bool) $statusSetting?->msg91_status,
             'is_pipedrive_enabled' => (int) $statusSetting?->pipedrive_status === 1,
@@ -1340,18 +1342,44 @@ class SettingsController extends BaseSettingsController
     public function debugSettings()
     {
         return successResponse('', [
-            'debug' => env('APP_DEBUG', false),
+            'debug'              => (bool) commonSettings('debugging', 'app_debug'),
+            'pulse_enabled'      => (bool) commonSettings('debugging', 'pulse_enabled'),
+            'clockwork_enable'   => (bool) commonSettings('debugging', 'clockwork_enable'),
+            'sentry_reporting'   => (bool) commonSettings('sentry', 'crash_reporting'),
+            'sentry_performance' => (bool) commonSettings('sentry', 'performance_monitoring'),
         ]);
     }
 
     public function postdebugSettings(Request $request)
     {
-        $enable = filter_var($request->get('debug'), FILTER_VALIDATE_BOOLEAN);
-        setEnvValue([
-            'APP_DEBUG' => $enable ? 'true' : 'false',
-            'PULSE_ENABLED' => $enable ? 'true' : 'false',
-            'CLOCKWORK_ENABLE' => $enable ? 'true' : 'false',
+        $bool = fn (string $key) => $request->boolean($key) ? '1' : '0';
+
+        \App\Model\Common\CommonSettings::upsert([
+            ['option_name' => 'debugging', 'optional_field' => 'app_debug',              'option_value' => $bool('debug')],
+            ['option_name' => 'debugging', 'optional_field' => 'pulse_enabled',          'option_value' => $bool('pulse_enabled')],
+            ['option_name' => 'debugging', 'optional_field' => 'clockwork_enable',       'option_value' => $bool('clockwork_enable')],
+            ['option_name' => 'sentry',    'optional_field' => 'crash_reporting',        'option_value' => $bool('sentry_reporting')],
+            ['option_name' => 'sentry',    'optional_field' => 'performance_monitoring', 'option_value' => $bool('sentry_performance')],
+        ], ['option_name', 'optional_field'], ['option_value']);
+
+        \Cache::forget('debugging_settings');
+
+        $tracesRate = $request->boolean('sentry_performance') ? 0.1 : 0;
+
+        config([
+            'app.debug'                 => $request->boolean('debug'),
+            'pulse.enabled'             => $request->boolean('pulse_enabled'),
+            'clockwork.enable'          => $request->boolean('clockwork_enable'),
+            'app.sentry_reporting'      => $request->boolean('sentry_reporting'),
+            'sentry.traces_sample_rate' => $tracesRate,
         ]);
+
+        if (app()->bound(\Sentry\State\HubInterface::class)) {
+            app(\Sentry\State\HubInterface::class)
+                ->getClient()
+                ?->getOptions()
+                ->setTracesSampleRate($tracesRate ?: null);
+        }
 
         return successResponse(\Lang::get('message.updated-successfully'));
     }

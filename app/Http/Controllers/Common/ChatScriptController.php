@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Controller;
 use App\Model\Common\ChatScript;
-use Bugsnag;
 use Illuminate\Http\Request;
 
 class ChatScriptController extends Controller
@@ -73,7 +72,6 @@ class ChatScriptController extends Controller
 
             return successResponse(__('message.saved-successfully'));
         } catch (\Exception $ex) {
-            Bugsnag::notifyException($ex);
             \Logger::exception($ex);
 
             return errorResponse($ex->getMessage());

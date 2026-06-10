@@ -114,6 +114,8 @@ const baseUrl = el?.dataset?.baseUrl ?? ''
 const flags = ref({
     is_redis_configured:          false,
     is_debug_mode:                false,
+    is_pulse_enabled:             false,
+    is_clockwork_enabled:         false,
     is_mail_sending_enabled:      false,
     is_msg91_enabled:             false,
     is_pipedrive_enabled:         false,
@@ -151,7 +153,7 @@ const sections = computed(() => [
             { to: '/settings/system',    icon: 'fas fa-display',      label: __('message.system-settings') },
             { to: '/settings/cron',      icon: 'fas fa-gauge',         label: __('message.cron-setting') },
             { to: '/settings/language',  icon: 'fas fa-language',      label: __('message.language') },
-            { to: '/settings/file-storage', icon: 'fas fa-hard-drive', label: __('message.file_storage') },
+            { to: '/settings/file-storage', icon: 'fas fa-hard-drive', label: __('message.file_system') },
             { to: '/settings/common/queues', icon: 'fas fa-layer-group', label: __('message.queues') },
             { to: '/settings/debugging', icon: 'fas fa-bug',           label: __('message.debugging') },
         ],
@@ -205,10 +207,8 @@ const sections = computed(() => [
             ...(flags.value.is_msg91_enabled             ? [{ to: '/settings/logs/msg91',                           icon: 'fas fa-message',   label: __('message.msg_reports') }] : []),
             ...(flags.value.is_email_validation_enabled  ? [{ to: '/settings/api/email-validation/logs',            icon: 'fas fa-list-alt',  label: __('message.email_validation_logs') }] : []),
             ...(flags.value.is_redis_configured ? [{ monitor: 'horizon',   href: `${baseUrl}/horizon`,               icon: 'fas fa-gauge-high', label: 'Queue Monitor' }] : []),
-            ...(flags.value.is_debug_mode       ? [
-                { monitor: 'clockwork', href: `${baseUrl}/clockwork/app`, icon: 'fas fa-clock',     label: __('message.clockwork') },
-                { monitor: 'pulse',     href: `${baseUrl}/pulse`,         icon: 'fas fa-heartbeat', label: __('message.pulse') },
-            ] : []),
+            ...(flags.value.is_clockwork_enabled  ? [{ monitor: 'clockwork', href: `${baseUrl}/clockwork/app`, icon: 'fas fa-clock',     label: __('message.clockwork') }] : []),
+            ...(flags.value.is_pulse_enabled      ? [{ monitor: 'pulse',     href: `${baseUrl}/pulse`,         icon: 'fas fa-heartbeat', label: __('message.pulse') }]     : []),
         ],
     },
     {

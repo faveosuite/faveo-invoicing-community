@@ -1320,3 +1320,10 @@ function bundleLink(string $url): string
 
     return $baseUrl;
 }
+
+function commonSettings($option, $optionField, $returnColumn = 'option_value')
+{
+    return \App\Model\Common\CommonSettings::where('option_name', $option)
+        ->where('optional_field', $optionField)
+        ->value($returnColumn);
+}

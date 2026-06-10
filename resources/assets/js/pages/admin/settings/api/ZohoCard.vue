@@ -1,47 +1,46 @@
 <template>
-    <div class="small-box gateway-card-box bg-light d-flex flex-column p-3">
+    <div class="small-box gateway-card-box bg-light d-flex p-3">
 
-        <!-- Header row: icon + name/status | toggle + settings -->
-        <div class="d-flex align-items-start justify-content-between">
+        <!-- Main content -->
+        <div class="flex-grow-1 gateway-content">
             <div class="provider-header">
                 <div class="provider-icon-wrap">
                     <i :class="iconClass" class="gateway-icon text-secondary"></i>
                 </div>
                 <div class="provider-text-wrap">
-                    <div class="d-flex align-items-center gap-2">
-                        <b class="text-header">{{ label }}</b>
-                        <RouterLink
-                            v-if="integration.is_active"
-                            :to="`/settings/api/zoho/${integration.platform}`"
-                            class="text-muted settings-icon"
-                            v-tooltip :title="__('message.settings')"
-                        >
-                            <i class="fas fa-cog"></i>
-                        </RouterLink>
-                    </div>
+                    <b class="text-header">{{ label }}</b>
                     <div class="mt-1">
-                        <span class="provider-status-label" :class="integration.is_active ? 'text-success' : 'text-secondary'">
-                            {{ integration.is_active ? __('message.enabled') : __('message.disabled') }}
+                        <span class="provider-status-label" :class="integration.is_active ? 'text-success' : 'text-danger'">
+                            {{ integration.is_active ? __('message.active') : __('message.inactive') }}
                         </span>
                     </div>
                 </div>
             </div>
 
-            <div class="form-check form-switch mb-0 flex-shrink-0">
-                <input
-                    class="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                    :checked="integration.is_active"
-                    :disabled="toggling"
-                    style="cursor:pointer"
-                    @change="$emit('toggle', integration)"
-                />
-            </div>
+            <p class="text-muted fs-7 mt-2 mb-0">{{ integration.description }}</p>
         </div>
 
-        <!-- Description -->
-        <p class="text-muted fs-7 mt-3 mb-0">{{ integration.description }}</p>
+        <!-- Actions -->
+        <div class="d-flex align-items-center gap-2 ms-2 flex-shrink-0 align-self-start pt-1">
+            <RouterLink
+                v-if="integration.is_active"
+                :to="`/settings/api/zoho/${integration.platform}`"
+                class="btn btn-link p-0 text-muted"
+                :title="__('message.settings')"
+            >
+                <i class="fas fa-gear"></i>
+            </RouterLink>
+
+            <button
+                class="btn btn-link p-0"
+                :class="{ 'opacity-50 pe-none': toggling }"
+                :title="integration.is_active ? __('message.disable') : __('message.enable')"
+                :disabled="toggling"
+                @click="$emit('toggle', integration)"
+            >
+                <i :class="integration.is_active ? 'fa-solid fa-toggle-on' : 'fa-solid fa-toggle-off'" class="text-secondary fs-5"></i>
+            </button>
+        </div>
     </div>
 </template>
 
@@ -108,16 +107,5 @@ const label = computed(() => {
     font-size: 14px;
     font-weight: 700;
     line-height: 1.1;
-}
-
-.settings-icon {
-    font-size: 15px;
-    opacity: 0.65;
-    transition: opacity 0.15s;
-    text-decoration: none;
-}
-
-.settings-icon:hover {
-    opacity: 1;
 }
 </style>

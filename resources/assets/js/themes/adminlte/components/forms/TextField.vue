@@ -2,6 +2,7 @@
     <div class="mb-3">
         <label v-if="label" class="form-label fw-bold">
             {{ label }}<span v-if="required" class="text-danger ms-1">*</span>
+            <ToolTip v-if="hint" :message="hint" size="small" />
         </label>
         <div v-if="type === 'password'" class="input-group">
             <input
@@ -37,10 +38,12 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import ToolTip from '@/components/Reusable/Tooltip.vue'
 
 const props = defineProps({
     name:        { type: String, required: true },
     label:       { type: String, default: '' },
+    hint:        { type: String, default: '' },
     value:       { type: [String, Number], default: '' },
     type:        { type: String, default: 'text' },
     placeholder: { type: String, default: '' },

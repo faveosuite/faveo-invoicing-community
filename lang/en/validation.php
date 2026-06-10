@@ -763,6 +763,22 @@ return [
         ],
     ],
 
+    //pdf settings paths
+    'pdf_settings' => [
+        'node_path' => [
+            'required' => 'The node path field is required.',
+            'string'   => 'The node path must be a valid string.',
+        ],
+        'npm_path' => [
+            'required' => 'The npm path field is required.',
+            'string'   => 'The npm path must be a valid string.',
+        ],
+        'chrome_path' => [
+            'required' => 'The chrome path field is required.',
+            'string'   => 'The chrome path must be a valid string.',
+        ],
+    ],
+
     //ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [

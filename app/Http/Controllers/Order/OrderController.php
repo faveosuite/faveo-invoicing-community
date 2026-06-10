@@ -20,7 +20,6 @@ use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\Payment_log;
 use App\User;
-use Bugsnag;
 use Illuminate\Http\Request;
 
 class OrderController extends BaseOrderController
@@ -233,7 +232,6 @@ class OrderController extends BaseOrderController
 
             return view('themes.default1.order.create', compact('clients', 'product', 'subscription', 'promotion'));
         } catch (\Exception $e) {
-            Bugsnag::notifyExeption($e);
 
             return redirect()->back()->with('fails', $e->getMessage());
         }
@@ -327,7 +325,6 @@ class OrderController extends BaseOrderController
             return view('themes.default1.order.edit',
                 compact('clients', 'product', 'subscription', 'promotion', 'order'));
         } catch (\Exception $e) {
-            Bugsnag::notifyExeption($e);
 
             return redirect()->back()->with('fails', $e->getMessage());
         }
@@ -347,7 +344,6 @@ class OrderController extends BaseOrderController
 
             return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
         } catch (\Exception $e) {
-            Bugsnag::notifyExeption($e);
 
             return redirect()->back()->with('fails', $e->getMessage());
         }

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\v4_0_3;
 
+use App\Model\Common\CommonSettings;
 use App\Plugins\Zoho\Models\FaveoLocalFields;
 use App\Plugins\Zoho\Models\ZohoIntegration;
 use Illuminate\Database\Seeder;
@@ -19,6 +20,7 @@ class DatabaseSeeder extends Seeder
        $this->zohoSeeder();
        $this->packageRemoval();
        $this->openPaymentEmailTemplates();
+       $this->seedSentrySettings();
     }
 
     public function faveoLocalFieldsSeeder(): void
@@ -218,6 +220,8 @@ Dear {{name}},<br/><br/>
             'torann/currency',
             'devio/pipedrive',
             'slavka/mailchimp-apiv3',
+            'bugsnag/bugsnag',
+            'bugsnag/bugsnag-laravel',
         ];
 
         $configs = [
@@ -225,7 +229,8 @@ Dear {{name}},<br/><br/>
             'datatables-buttons.php',
             'datatables-fractal.php',
             'dompdf.php',
-            'currency.php'
+            'currency.php',
+            'bugsnag.php'
         ];
 
         foreach ($packages as $package) {
@@ -257,6 +262,27 @@ Dear {{name}},<br/><br/>
             if (File::exists($configPath)) {
                 File::delete($configPath);
             }
+        }
+    }
+
+
+    private function seedSentrySettings(): void
+    {
+        $settings = [
+            // Migrate debug settings from config (sourced from .env) → DB for existing users
+            ['option_name' => 'debugging', 'optional_field' => 'app_debug', 'option_value' => config('app.debug') ? '1' : '0'],
+            ['option_name' => 'debugging', 'optional_field' => 'pulse_enabled', 'option_value' => config('pulse.enabled') ? '1' : '0'],
+            ['option_name' => 'debugging', 'optional_field' => 'clockwork_enable', 'option_value' => config('clockwork.enable') ? '1' : '0'],
+            // Sentry defaults: crash reporting ON, performance monitoring OFF
+            ['option_name' => 'sentry', 'optional_field' => 'crash_reporting', 'option_value' => '1'],
+            ['option_name' => 'sentry', 'optional_field' => 'performance_monitoring', 'option_value' => '0'],
+        ];
+
+        foreach ($settings as $setting) {
+            CommonSettings::updateOrCreate(
+                ['option_name' => $setting['option_name'], 'optional_field' => $setting['optional_field']],
+                ['option_value' => $setting['option_value']]
+            );
         }
     }
 

@@ -34,6 +34,7 @@ use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Spatie\LaravelPdf\Facades\Pdf;
+use Spatie\LaravelPdf\Enums\Format;
 
 class InvoiceController extends TaxRatesAndCodeExpiryController
 {
@@ -582,13 +583,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 'phone_code', 'phone', 'logo', 'company_email', 'gstin', 'cin_no'
             )->first();
 
-            $base64 = '';
-            if ($set->logo) {
-                $type = pathinfo($set->logo, PATHINFO_EXTENSION);
-                $contents = file_get_contents($set->logo);
-                $base64 = 'data:image/'.$type.';base64,'.base64_encode($contents);
-            }
-
             $invoiceUser = $invoice->user;
             if ($invoiceUser) {
                 $invoiceUser->state = key_exists('name', getStateByCode($invoiceUser->country, $invoiceUser->state))
@@ -596,17 +590,29 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                     : $invoiceUser->state;
             }
 
+//            return view('themes.default1.invoice.newpdf', [
+//                'invoice'      => $invoice,
+//                'invoiceItems' => $invoice->invoiceItem()->get(),
+//                'user'         => $invoiceUser,
+//                'set'          => $set,
+//                'order'        => Order::getOrderLink(OrderInvoiceRelation::where('invoice_id', $id)->value('order_id'), 'my-order'),
+//                'date'         => getDateHtml($invoice->date),
+//                'symbol'       => $invoice->currency,
+//                'totals'       => $totals,
+//            ]);
+
             return Pdf::view('themes.default1.invoice.newpdf', [
-                'invoice' => $invoice,
+                'invoice'      => $invoice,
                 'invoiceItems' => $invoice->invoiceItem()->get(),
-                'user' => $invoiceUser,
-                'set' => $set,
-                'base64' => $base64,
-                'order' => Order::getOrderLink(OrderInvoiceRelation::where('invoice_id', $id)->value('order_id'), 'my-order'),
-                'date' => getDateHtml($invoice->date),
-                'symbol' => $invoice->currency,
-                'totals' => $totals,
+                'user'         => $invoiceUser,
+                'set'          => $set,
+                'order'        => Order::getOrderLink(OrderInvoiceRelation::where('invoice_id', $id)->value('order_id'), 'my-order'),
+                'date'         => getDateHtml($invoice->date),
+                'symbol'       => $invoice->currency,
+                'totals'       => $totals,
             ])
+                ->format(Format::A4)
+                ->margins(10, 10, 10, 10)
                 ->download($authUser->first_name.'-invoice.pdf');
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());

@@ -19,7 +19,6 @@
         "ext-pcntl": "*",
         "ext-zip": "*",
         "bacon/bacon-qr-code": "^v3.0.3",
-        "bugsnag/bugsnag-laravel": "^v2.29.0",
         "cartalyst/stripe-laravel": "^v17.0.0",
         "coconutcraig/laravel-postmark": "^v3.3.1",
         "creativeorange/gravatar": "^v1.0.25",
@@ -50,6 +49,7 @@
         "pragmarx/google2fa-qrcode": "^v3.0.1",
         "predis/predis": "^v3.3.0",
         "razorpay/razorpay": "^2.9.2",
+        "sentry/sentry-laravel": "^4.25",
         "spatie/laravel-activitylog": "^4.10.2",
         "spatie/laravel-csp": "^3.22.0",
         "spatie/laravel-html": "^3.12.3",
@@ -68,7 +68,8 @@
         "twig/cssinliner-extra": "^v3.23.0",
         "twig/extra-bundle": "^v3.23.0",
         "twig/twig": "^v3.23.0",
-        "vemcogroup/laravel-sparkpost-driver": "^5.1.2"
+        "vemcogroup/laravel-sparkpost-driver": "^5.1.2",
+      "ext-pdo": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^v3.16.5",

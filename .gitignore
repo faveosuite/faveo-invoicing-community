@@ -1,6 +1,7 @@
 /nbproject/private/
 
 /node_modules
+/vendor/ezyang/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/
 /public/hot
 /public/storage
 /storage/*.key

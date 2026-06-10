@@ -780,6 +780,7 @@ return [
 
     //file storage
 
+    'file_system' => 'File System',
     'file_storage' => 'File Storage',
     'set_file_storage' => 'Set file storage path',
     'storage_disk' => 'Storage Disk',
@@ -801,6 +802,15 @@ return [
     's3_secret_key_required' => 'S3 Secret Key is required',
     's3_endpoint_url_required' => 'S3 Endpoint URL is required',
     'setting_updated' => 'Storage settings updated successfully.',
+
+    //pdf settings
+    'pdf_settings' => 'PDF Settings',
+    'node_path' => 'Node Path',
+    'npm_path' => 'NPM Path',
+    'chrome_path' => 'Chrome Path',
+    'node_path_tooltip' => 'Enter the path where Node.js is installed. To find it, run "where node" on Windows or "which node" on Unix/macOS.',
+    'npm_path_tooltip' => 'Enter the path where NPM is installed. To find it, run "where npm" on Windows or "which npm" on Unix/macOS.',
+    'chrome_path_tooltip' => 'Enter the path where Google Chrome is installed. To find it, run "where chrome" on Windows or "which google-chrome" on Unix/macOS.',
     'file_not_exist' => 'Requested file doest not exits',
     's3_error' => 'Invalid S3 details were provided.',
     'disk_tooltip' => 'Select the storage disk you want to use. \'System\' means local storage on the server, while \'S3\' refers to Amazon S3 cloud storage.',
@@ -3320,4 +3330,24 @@ return [
     'op_what_payment_for' => 'What is this payment for?',
     'op_something_went_wrong' => 'Something went wrong. Please try again.',
     'cvc' => 'CVC',
+
+
+    'application_debugging' => 'Application Debugging',
+    'application_debugging_desc' => 'Control debug tools for development and troubleshooting.',
+    'debugging_options' => 'Debugging Options',
+    'debugging_mode' => 'Debugging Mode',
+    'debugging_mode_desc' => 'Enable Laravel debug mode to show detailed error messages.',
+    'pulse_monitoring' => 'Pulse Monitoring',
+    'pulse_monitoring_desc' => 'Enable Laravel Pulse to monitor application performance and health.',
+    'clockwork_debugging' => 'Clockwork Debugging',
+    'clockwork_debugging_desc' => 'Enable Clockwork for in-depth request profiling and debugging.',
+    'application_monitoring' => 'Application Monitoring',
+    'application_monitoring_desc' => 'Track errors and performance in production with monitoring tools.',
+    'monitoring_options' => 'Monitoring Options',
+    'sentry_crash_reporting' => 'Sentry Crash Reporting',
+    'sentry_crash_reporting_tooltip' => 'Sends error reports to Sentry when exceptions occur in the application.',
+    'sentry_crash_reporting_desc' => 'Automatically report application errors and exceptions to Sentry.',
+    'sentry_performance' => 'Sentry Performance Tracing',
+    'sentry_performance_tooltip' => 'Traces a sample of requests to monitor application response times in Sentry.',
+    'sentry_performance_desc' => 'Enable performance tracing to track slow transactions and bottlenecks.',
 ];

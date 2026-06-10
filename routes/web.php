@@ -722,6 +722,8 @@ Route::middleware('installAgora')->group(function () {
 
     Route::get('file-storage', [Common\SettingsController::class, 'showFileStorage']);
     Route::post('file-storage-path', [Common\SettingsController::class, 'updateStoragePath']);
+    Route::get('pdf-settings', [Common\SettingsController::class, 'showPdfSettings']);
+    Route::post('pdf-settings', [Common\SettingsController::class, 'updatePdfSettings']);
 //    We don't use this so commanded this
 //    Route::get('expired-subscriptions', [Common\CronController::class, 'eachSubscription']);
 

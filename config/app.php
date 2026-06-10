@@ -125,7 +125,7 @@ return [
       |to AGORA developers  when any exception/error occurs or not. True value of this variable will
       |allow application to send error reports to AGORA team's bugsnag log.
      */
-    'bugsnag_reporting' => env('APP_BUGSNAG', true),
+    'sentry_reporting' => env('APP_SENTRY', true),
     /*
 
     /*
@@ -187,7 +187,6 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-        Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
         Torann\GeoIP\GeoIPServiceProvider::class,
         /*
          * Package Service Providers...
@@ -226,6 +225,7 @@ return [
         App\Providers\CartServiceProvider::class,
         \App\Plugins\Zoho\Providers\ZohoServiceProvider::class,
         App\Plugins\Mailchimp\MailchimpServiceProvider::class,
+        App\Providers\ConfigServiceProvider::class,
     ],
 
     /*
@@ -242,7 +242,6 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         'UserCart' => App\Cart\UserCart::class,
         'Activity' => Spatie\Activitylog\ActivitylogFacade::class,
-        'Bugsnag' => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
         'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
         'Currency' => \Torann\Currency\Facades\Currency::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
