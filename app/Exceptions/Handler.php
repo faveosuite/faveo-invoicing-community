@@ -6,7 +6,6 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Validation\ValidationException;
 use PDOException;
@@ -32,10 +31,9 @@ class Handler extends ExceptionHandler
     public function report(Throwable $exception)
     {
         if ($this->shouldReport($exception)) {
-
             \Log::channel('daily')->error($exception);
 
-            if (config('app.sentry_reporting') && !app()->environment('production')) {
+            if (config('app.sentry_reporting') && ! app()->environment('production')) {
                 \Sentry\Laravel\Integration::captureUnhandledException($exception);
             }
 

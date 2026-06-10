@@ -1342,10 +1342,10 @@ class SettingsController extends BaseSettingsController
     public function debugSettings()
     {
         return successResponse('', [
-            'debug'              => (bool) commonSettings('debugging', 'app_debug'),
-            'pulse_enabled'      => (bool) commonSettings('debugging', 'pulse_enabled'),
-            'clockwork_enable'   => (bool) commonSettings('debugging', 'clockwork_enable'),
-            'sentry_reporting'   => (bool) commonSettings('sentry', 'crash_reporting'),
+            'debug' => (bool) commonSettings('debugging', 'app_debug'),
+            'pulse_enabled' => (bool) commonSettings('debugging', 'pulse_enabled'),
+            'clockwork_enable' => (bool) commonSettings('debugging', 'clockwork_enable'),
+            'sentry_reporting' => (bool) commonSettings('sentry', 'crash_reporting'),
             'sentry_performance' => (bool) commonSettings('sentry', 'performance_monitoring'),
         ]);
     }
@@ -1367,10 +1367,10 @@ class SettingsController extends BaseSettingsController
         $tracesRate = $request->boolean('sentry_performance') ? 0.1 : 0;
 
         config([
-            'app.debug'                 => $request->boolean('debug'),
-            'pulse.enabled'             => $request->boolean('pulse_enabled'),
-            'clockwork.enable'          => $request->boolean('clockwork_enable'),
-            'app.sentry_reporting'      => $request->boolean('sentry_reporting'),
+            'app.debug' => $request->boolean('debug'),
+            'pulse.enabled' => $request->boolean('pulse_enabled'),
+            'clockwork.enable' => $request->boolean('clockwork_enable'),
+            'app.sentry_reporting' => $request->boolean('sentry_reporting'),
             'sentry.traces_sample_rate' => $tracesRate,
         ]);
 

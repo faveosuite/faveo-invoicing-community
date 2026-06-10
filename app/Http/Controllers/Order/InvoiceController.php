@@ -33,8 +33,8 @@ use App\Traits\TaxCalculation;
 use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\LaravelPdf\Enums\Format;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class InvoiceController extends TaxRatesAndCodeExpiryController
 {
@@ -602,14 +602,14 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 //            ]);
 
             return Pdf::view('themes.default1.invoice.newpdf', [
-                'invoice'      => $invoice,
+                'invoice' => $invoice,
                 'invoiceItems' => $invoice->invoiceItem()->get(),
-                'user'         => $invoiceUser,
-                'set'          => $set,
-                'order'        => Order::getOrderLink(OrderInvoiceRelation::where('invoice_id', $id)->value('order_id'), 'my-order'),
-                'date'         => getDateHtml($invoice->date),
-                'symbol'       => $invoice->currency,
-                'totals'       => $totals,
+                'user' => $invoiceUser,
+                'set' => $set,
+                'order' => Order::getOrderLink(OrderInvoiceRelation::where('invoice_id', $id)->value('order_id'), 'my-order'),
+                'date' => getDateHtml($invoice->date),
+                'symbol' => $invoice->currency,
+                'totals' => $totals,
             ])
                 ->format(Format::A4)
                 ->margins(10, 10, 10, 10)

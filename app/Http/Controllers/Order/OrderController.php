@@ -232,7 +232,6 @@ class OrderController extends BaseOrderController
 
             return view('themes.default1.order.create', compact('clients', 'product', 'subscription', 'promotion'));
         } catch (\Exception $e) {
-
             return redirect()->back()->with('fails', $e->getMessage());
         }
     }
@@ -325,7 +324,6 @@ class OrderController extends BaseOrderController
             return view('themes.default1.order.edit',
                 compact('clients', 'product', 'subscription', 'promotion', 'order'));
         } catch (\Exception $e) {
-
             return redirect()->back()->with('fails', $e->getMessage());
         }
     }
@@ -344,7 +342,6 @@ class OrderController extends BaseOrderController
 
             return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
         } catch (\Exception $e) {
-
             return redirect()->back()->with('fails', $e->getMessage());
         }
     }
