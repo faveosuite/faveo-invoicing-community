@@ -30,7 +30,7 @@
             <p class="text-muted mb-0 mt-1">{{ __('message.op_pay_for', { app: appTitle }) }}</p>
           </div>
 
-          <div class="card-body p-0">
+          <div class="card-body px-0 pt-0">
             <form @submit.prevent="submitForm" novalidate>
               <div class="row g-0">
 
@@ -159,7 +159,7 @@
             <p class="text-muted mb-0 mt-1">{{ __('message.op_confirm_details') }}</p>
           </div>
 
-          <div class="card-body p-0">
+          <div class="card-body px-0 pt-0">
             <div class="row g-0">
 
               <!-- LEFT: Payer info -->

@@ -132,7 +132,6 @@
 
                 <div class="card-footer">
                     <action-button action="save" :loading="saving" @click="submit" />
-                    <action-button action="cancel" to="/settings/common/tax" class="ms-2" />
                 </div>
             </template>
         </div>

@@ -592,8 +592,8 @@ class TenantController extends Controller
                 'license_ip' => $ipAndDomain['ip'],
             ]);
         }
-        //Now make Installation status as inactive
-        app(\App\License\Services\InstallationService::class)->updateByLicenseCode($licenseCode, ['installation_status' => 0]);
+        //Remove installations so the install slots are freed
+        app(\App\License\Services\InstallationService::class)->deleteByLicenseCode($licenseCode);
 
         return ['message' => 'success', 'update' => __('message.license_installations_removed')];
     }

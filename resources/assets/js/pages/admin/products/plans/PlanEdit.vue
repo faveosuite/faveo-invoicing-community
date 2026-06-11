@@ -106,7 +106,6 @@
 
                 <div class="card-footer">
                     <action-button action="update" :loading="saving" @click="submit" />
-                    <action-button action="cancel" to="/products/plans" class="ms-2" />
                 </div>
             </template>
         </div>

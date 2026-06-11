@@ -76,6 +76,12 @@
                                     {{ __('message.auto_renewal') }}
                                 </a>
                             </li>
+                            <li v-if="order.whatsapp_enabled" class="nav-item">
+                                <a class="nav-link text-3" :class="{ active: activeTab === 'whatsapp' }"
+                                   href="javascript:;" @click="activeTab = 'whatsapp'">
+                                    {{ __('message.whatsapp_signup') }}
+                                </a>
+                            </li>
                         </ul>
                     </aside>
                 </div>
@@ -100,6 +106,14 @@
                                         @click="copyLicense">
                                     <i :class="copied ? 'fas fa-check text-success' : 'fas fa-copy'"></i>
                                 </button>
+                                <button v-if="order.serial_key && !order.is_cloud"
+                                        class="btn btn-light btn-sm"
+                                        :disabled="reissuing"
+                                        v-tooltip :title="__('message.reissue_license')"
+                                        @click="reissueLicense">
+                                    <i v-if="reissuing" class="fas fa-circle-notch fa-spin"></i>
+                                    <i v-else class="fas fa-id-card-alt"></i>
+                                </button>
                             </div>
                         </div>
 
@@ -111,7 +125,15 @@
                                     <span class="fw-bold">{{ __('message.license_expiry_date') }}</span>
                                 </div>
                             </div>
-                            <div class="col-sm-7">{{ formatDate(order.license_ends_at) }}</div>
+                            <div class="col-sm-7 d-flex align-items-center gap-2">
+                                <span>{{ formatDate(order.license_ends_at) }}</span>
+                                <button v-if="order.status !== 'Terminated'"
+                                        class="btn btn-light btn-sm ms-2"
+                                        v-tooltip :title="__('message.renew')"
+                                        @click="showRenewModal = true">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="row"><div class="col"><hr class="solid my-3"></div></div>
@@ -128,7 +150,7 @@
                         <div class="row"><div class="col"><hr class="solid my-3"></div></div>
 
                         <!-- Installations table -->
-                        <DataTable :url="installationsUrl" :dataColumns="installColumns" :option="installOptions">
+                        <DataTable :key="installKey" :url="installationsUrl" :dataColumns="installColumns" :option="installOptions">
                             <template #last_active="{ row }">{{ formatDate(row.last_active) }}</template>
                             <template #version="{ row }">{{ row.version || '—' }}</template>
                         </DataTable>
@@ -318,6 +340,11 @@
                                 </div>
                             </div>
                         </AppCard>
+                    </div>
+
+                    <!-- ── WhatsApp SignUp ──────────────────────────────── -->
+                    <div v-if="order.whatsapp_enabled" v-show="activeTab === 'whatsapp'">
+                        <WhatsappPanel :order="order" :active="activeTab === 'whatsapp'" />
                     </div>
 
                 </div>
@@ -520,6 +547,9 @@
             </template>
         </Modal>
 
+        <!-- ── Renew Order modal (shared with the orders list page) ── -->
+        <RenewModal v-model:show="showRenewModal" :order="order" />
+
         </template>
     </div>
 </template>
@@ -533,6 +563,8 @@ import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
 import { useAlertStore } from '@/core/stores/alert'
 import Modal from '@/themes/porto/components/common/Modal.vue'
 import AppAlert from '@/themes/porto/components/common/Alert.vue'
+import RenewModal from './components/RenewModal.vue'
+import WhatsappPanel from './components/WhatsappPanel.vue'
 
 const el      = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
@@ -894,6 +926,31 @@ async function copyLicense() {
         setTimeout(() => { copied.value = false }, 2000)
     } catch {}
 }
+
+/* ── Reissue license ──────────────────────────────────────── */
+const reissuing  = ref(false)
+const installKey = ref(0)
+
+async function reissueLicense() {
+    if (reissuing.value) return
+    reissuing.value = true
+    try {
+        const res = await http.patch(`${baseUrl}/reissue-license`, { id: orderId })
+        alertStore.setAlert({
+            message: res.data?.message ?? __('message.license_reissued'),
+            type: 'success',
+            component_name: 'client-page',
+        })
+        installKey.value++   // refresh installations table
+    } catch (e) {
+        errorHandler(e, 'client-page')
+    } finally {
+        reissuing.value = false
+    }
+}
+
+/* ── Renew order (shared modal) ───────────────────────────── */
+const showRenewModal = ref(false)
 
 /* ── Cloud settings: lazy load on first tab open ──────────── */
 async function openCloudTab() {

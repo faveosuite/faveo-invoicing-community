@@ -909,6 +909,7 @@ class ProductController extends BaseProductController
                 return [
                     'id' => $u->id,
                     'title' => $u->title,
+                    'description' => $u->description,
                     'version' => $u->version,
                     'release_type' => $u->release_type,
                     'file' => $u->file,

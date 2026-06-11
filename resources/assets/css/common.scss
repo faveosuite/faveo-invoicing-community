@@ -265,7 +265,7 @@ input .form-control{
   max-width: 600px;
 }
 
-select.form-control, input.form-control {
+select.form-control, input.form-control:not([type="file"]) {
   height: 36px !important;
 }
 

@@ -44,18 +44,33 @@
                        @update:modelValue="setFieldError('user_name', undefined)"
                        :required="true"/>
 
-          <!-- Email — read-only -->
+          <!-- Email — changed via verified flow -->
           <ClientField type="email" name="email"
                        :label="__('message.email')"
-                       v-model="form.email"
-                       :disabled="true"/>
+                       :model-value="form.email"
+                       :disabled="true">
+            <template #append>
+              <button type="button" class="input-group-text" tabindex="-1"
+                      @click="showEmailModal = true"
+                      v-tooltip :title="__('message.click_to_change_email')">
+                <i class="fa fa-pencil-alt"></i>
+              </button>
+            </template>
+          </ClientField>
 
-          <!-- Mobile -->
-          <PhoneField name="mobile" :label="__('message.mobile')" required
-                      :value="form.mobile" :error="errors.mobile"
-                      :initialCountry="(form.mobile_country_iso || 'auto').toLowerCase()"
-                      :onChange="onMobileInput"
-                      @countryChange="onMobileCountryChange"/>
+          <!-- Mobile — changed via verified flow -->
+          <ClientField type="text" name="mobile"
+                       :label="__('message.mobile')"
+                       :model-value="mobileDisplay"
+                       :disabled="true">
+            <template #append>
+              <button type="button" class="input-group-text" tabindex="-1"
+                      @click="showMobileModal = true"
+                      v-tooltip :title="__('message.click_to_change_mobile_no')">
+                <i class="fa fa-pencil-alt"></i>
+              </button>
+            </template>
+          </ClientField>
 
           <ClientField type="text" name="company"
                        :label="__('message.company')"
@@ -113,6 +128,16 @@
 
         </form>
 
+        <EmailChangeModal v-model:show="showEmailModal"
+                          :currentEmail="form.email"
+                          @updated="onEmailUpdated" />
+
+        <MobileChangeModal v-model:show="showMobileModal"
+                           :currentEmail="form.email"
+                           :currentCode="form.mobile_code"
+                           :currentIso="form.mobile_country_iso"
+                           @updated="onMobileUpdated" />
+
       </div>
     </AppCard>
   </div>
@@ -126,6 +151,8 @@ import {__} from '@/plugins/i18n'
 import {successHandler, errorHandler} from '@/helpers/responseHandler.js'
 import {profileSchema} from '@/validations/client/profile.js'
 import ProfileImageUpload from '@/themes/porto/components/common/ProfileImageUpload.vue'
+import EmailChangeModal from './components/EmailChangeModal.vue'
+import MobileChangeModal from './components/MobileChangeModal.vue'
 
 const el = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
@@ -214,15 +241,22 @@ function onImageChange({file, previewUrl}) {
   avatarPreview.value = previewUrl
 }
 
-// PhoneField writes the digits back; its own country selector drives the dial code.
-function onMobileInput(value) {
-  form.mobile = String(value).replace(/[^\d]/g, '')
-  setFieldError('mobile', undefined)
+// Email & mobile are changed through verified flows (OTP), not the main save.
+const showEmailModal  = ref(false)
+const showMobileModal = ref(false)
+
+const mobileDisplay = computed(() =>
+  form.mobile ? `${form.mobile_code ? '+' + form.mobile_code + ' ' : ''}${form.mobile}` : ''
+)
+
+function onEmailUpdated(email) {
+  form.email = email
 }
 
-function onMobileCountryChange({iso, dialCode}) {
-  form.mobile_country_iso = iso
-  form.mobile_code = dialCode
+function onMobileUpdated({ mobile, mobile_code, mobile_country_iso }) {
+  form.mobile = mobile
+  form.mobile_code = mobile_code
+  form.mobile_country_iso = mobile_country_iso
 }
 
 async function submitProfile() {

@@ -195,12 +195,10 @@ class BaseClientController extends Controller
             $user->first_name = strip_tags($request->input('first_name'));
             $user->user_name = strip_tags($request->input('user_name'));
             $user->last_name = strip_tags($request->input('last_name'));
-            $user->email = strip_tags($request->input('email'));
+            // Email & mobile are changed only through the verified OTP flow
+            // (ProfileVerificationController); the profile save must not alter them.
             $user->company = strip_tags($request->input('company'));
-            $user->mobile_code = strip_tags($request->input('mobile_code'));
-            $user->mobile_country_iso = strip_tags($request->input('mobile_country_iso'));
             $user->gstin = strip_tags($request->input('gstin'));
-            $user->mobile = strip_tags($request->input('mobile'));
             $user->address = strip_tags($request->input('address'));
             $user->town = strip_tags($request->input('town'));
             $user->timezone_id = strip_tags($request->input('timezone_id'));

@@ -19,7 +19,6 @@
 
             <div class="card-footer">
                 <action-button action="save" :loading="saving" @click="submit" />
-                <action-button action="cancel" to="/settings/widgets/social-media" class="ms-2" />
             </div>
         </div>
     </div>

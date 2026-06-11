@@ -210,6 +210,9 @@ class ClientController extends BaseClientController
                 'invoice_id' => $latestInvoice?->id,
                 'invoice_number' => $latestInvoice?->number,
                 'sub_id' => $order->subscription?->id,
+                'agents' => $order->invoiceItem?->agents,
+                'current_plan' => $order->subscription?->plan?->name,
+                'client_id' => $order->client,
                 'is_cloud' => in_array($order->productRelation?->id, cloudPopupProducts()),
                 'autorenew_status' => (bool) $order->subscription?->autoRenew_status,
                 'is_subscribed' => (bool) $order->subscription?->is_subscribed,
@@ -219,6 +222,10 @@ class ClientController extends BaseClientController
                     ->first(['payment_method', 'date']),
                 'available_gateways' => $this->autoRenewalGateways($user->country),
                 'autorenewal_enabled' => count($this->autoRenewalGateways($user->country)) > 0,
+                'whatsapp_enabled' => (bool) $order->productRelation?->whatsapp_integration,
+                'whatsapp_signup_enabled' => (bool) StatusSetting::pluck('whatsapp_status')->first(),
+                'whatsapp_app_id' => WhatsappIntegration::first()?->app_id,
+                'whatsapp_config_id' => WhatsappIntegration::first()?->config_id,
                 'user' => [
                     'name' => ucfirst($user->first_name ?? '').' '.ucfirst($user->last_name ?? ''),
                     'email' => $user->email,
@@ -733,7 +740,7 @@ class ClientController extends BaseClientController
     public function getClientPanelOrdersData()
     {
         return Order::with([
-            'productRelation:id,name,github_owner,github_repository,type',
+            'productRelation:id,name,github_owner,github_repository,type,whatsapp_integration',
             'subscription:id,order_id,plan_id,version,update_ends_at,ends_at',
             'subscription.plan:id,name',
             'invoiceItem:id,agents',

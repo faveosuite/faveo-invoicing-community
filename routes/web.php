@@ -56,23 +56,16 @@ Route::post('otp2/send', [Auth\AuthController::class, 'otp']);
 //Route::post('verifying/phone', [PhoneVerificationController::class, 'create']);
 
 Route::middleware('installAgora')->group(function () {
-    Route::get('whatsapp-test', function () {
-        return view('themes.default1.common.whatsapp-testing');
-    });
-    Route::get('get-webhook-url', [\App\Http\Controllers\WhatsappController::class, 'getWebhookUrl']);
-    Route::get('whatsapp-integration', [\App\Http\Controllers\WhatsappController::class, 'index']);
-    Route::get('whatsapp-users', [\App\Http\Controllers\WhatsappController::class, 'index1'])->middleware('auth');
-    Route::post('webhook-url-edit', [\App\Http\Controllers\WhatsappController::class, 'webhookUrlEdit']);
-    Route::get('whatsapp-users-table', [\App\Http\Controllers\WhatsappController::class, 'whatsappTable']);
-    Route::get('whatsapp-users-api', [\App\Http\Controllers\WhatsappController::class, 'whatsappUsersApi']);
-    Route::get('whatsapp-client-table/{orderid}', [\App\Http\Controllers\WhatsappController::class, 'whatsappClientTable']);
-    Route::post('whatsapp-deregister', [\App\Http\Controllers\WhatsappController::class, 'deregister']);
-    Route::post('direct-whatsapp', [\App\Http\Controllers\WhatsappController::class, 'directSaveWhatsapp']);
-    Route::post('url-save', [\App\Http\Controllers\WhatsappController::class, 'urlSave']);
-    // Route::post('save-access-token', [\App\Http\Controllers\WhatsappController::class, 'saveAccessToken']);
-    Route::post('save-waba-id', [\App\Http\Controllers\WhatsappController::class, 'saveWabaId']);
+    // WhatsApp Business integration — admin config (Vue), client embedded-signup, and Meta webhook.
     Route::get('whatsapp-integration-info', [\App\Http\Controllers\WhatsappController::class, 'whatsappIntegration']);
     Route::post('whatsapp-integration-save', [\App\Http\Controllers\WhatsappController::class, 'whatsappSave']);
+    Route::get('whatsapp-users-api', [\App\Http\Controllers\WhatsappController::class, 'whatsappUsersApi']);
+    Route::get('whatsapp-client-numbers/{orderid}', [\App\Http\Controllers\WhatsappController::class, 'whatsappClientNumbers']);
+    Route::post('url-save', [\App\Http\Controllers\WhatsappController::class, 'urlSave']);
+    Route::post('save-waba-id', [\App\Http\Controllers\WhatsappController::class, 'saveWabaId']);
+    Route::get('get-webhook-url', [\App\Http\Controllers\WhatsappController::class, 'getWebhookUrl']);
+    Route::post('webhook-url-edit', [\App\Http\Controllers\WhatsappController::class, 'webhookUrlEdit']);
+    Route::post('whatsapp-deregister', [\App\Http\Controllers\WhatsappController::class, 'deregister']);
     Route::post('store_toggle_state', [Common\TemplateController::class, 'toggle'])->withoutMiddleware(['auth', 'admin']);
     Route::get('pricing', [Front\CartController::class, 'cart'])->name('pricing');
     Route::get('group/{templateid}/{group}/', [Front\PageController::class, 'pageTemplates']);

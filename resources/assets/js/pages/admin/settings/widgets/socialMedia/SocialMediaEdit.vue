@@ -22,7 +22,6 @@
 
                 <div class="card-footer">
                     <action-button action="update" :loading="saving" @click="submit" />
-                    <action-button action="cancel" to="/settings/widgets/social-media" class="ms-2" />
                 </div>
             </template>
         </div>

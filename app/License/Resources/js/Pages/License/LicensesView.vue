@@ -126,7 +126,7 @@
         </div>
 
         <div class="card card-light">
-            <div class="card-body p-0">
+            <div class="card-body px-0 pt-0">
                 <ul class="nav nav-tabs px-3 pt-2" role="tablist">
                     <li class="nav-item">
                         <a class="nav-link" :class="{ active: activeTab === 'installations' }"

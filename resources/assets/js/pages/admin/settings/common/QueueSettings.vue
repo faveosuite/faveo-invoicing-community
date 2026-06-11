@@ -26,7 +26,6 @@
             </div>
             <div v-if="!loading && fields.length" class="card-footer">
                 <action-button action="save" :loading="saving" @click="save" />
-                <action-button action="cancel" to="/settings/common/queues" />
             </div>
         </div>
     </div>

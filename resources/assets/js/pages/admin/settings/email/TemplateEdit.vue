@@ -94,7 +94,6 @@
 
                 <div class="card-footer">
                     <action-button action="update" :loading="saving" @click="save" />
-                    <action-button action="cancel" to="/settings/email/templates" class="ms-2" />
                 </div>
             </template>
         </div>

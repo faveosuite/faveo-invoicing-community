@@ -129,45 +129,69 @@ class ExtendedOrderController extends Controller
                 'license_ip' => $ipAndDomain['ip'],
             ]);
         }
-        //Now make Installation status as inactive
-        app(\App\License\Services\InstallationService::class)->updateByLicenseCode($licenseCode, ['installation_status' => 0]);
+        //Remove old installations so the install slots are freed for the new allowed domains
+        app(\App\License\Services\InstallationService::class)->deleteByLicenseCode($licenseCode);
 
         return ['message' => 'success', 'update' => __('message.license_domain_updated')];
     }
 
     public function reissueLicense(Request $request)
     {
-        $order = Order::findorFail($request->input('id'));
-        if (\Auth::user()->role != 'admin' && $order->client != \Auth::user()->id) {
-            return errorResponse(__('message.reissue_license_invalid_modification_data'));
-        }
-        $order->domain = '';
-        $licenseCode = $order->serial_key;
-        $order->save();
-        $licenseExpiry = $order->subscription->ends_at;
-        $updatesExpiry = $order->subscription->update_ends_at;
-        $supportExpiry = $order->subscription->support_ends_at;
-        $ipAndDomain = \App\License\Services\LicenseService::parseIpAndDomain($order->domain);
-        $l_expiry = strtotime($licenseExpiry) > 1 ? date('Y-m-d', strtotime($licenseExpiry)) : '';
-        $u_expiry = strtotime($updatesExpiry) > 1 ? date('Y-m-d', strtotime($updatesExpiry)) : '';
-        $s_expiry = strtotime($supportExpiry) > 1 ? date('Y-m-d', strtotime($supportExpiry)) : '';
-        $licenseService = app(\App\License\Services\LicenseService::class);
-        $existingLicense = $licenseService->findByCode($licenseCode);
-        if ($existingLicense) {
-            $licenseService->update($existingLicense->id, [
-                'license_order_number' => $order->number,
-                'license_require_domain' => $ipAndDomain['requireDomain'],
-                'license_expire_date' => $l_expiry ?: $existingLicense->license_expire_date,
-                'license_updates_date' => $u_expiry ?: $existingLicense->license_updates_date,
-                'license_support_date' => $s_expiry ?: $existingLicense->license_support_date,
-                'license_domain' => $ipAndDomain['domain'],
-                'license_ip' => $ipAndDomain['ip'],
-            ]);
-        }
-        //Now make Installation status as inactive
-        app(\App\License\Services\InstallationService::class)->updateByLicenseCode($licenseCode, ['installation_status' => 0]);
+        $request->validate(['id' => 'required']);
 
-        return ['message' => 'success', 'update' => __('message.license_reissued')];
+        try {
+            $order = Order::with('subscription')->findOrFail($request->input('id'));
+
+            if (\Auth::user()->role !== 'admin' && $order->client != \Auth::id()) {
+                return errorResponse(__('message.reissue_license_invalid_modification_data'), 403);
+            }
+
+            $licenseCode = $order->serial_key;
+
+            \DB::transaction(function () use ($order, $licenseCode) {
+                // Clear the bound domain so the license can be activated afresh.
+                $order->domain = '';
+                $order->save();
+
+                $licenseService = app(\App\License\Services\LicenseService::class);
+                $existingLicense = $licenseService->findByCode($licenseCode);
+
+                if ($existingLicense) {
+                    $subscription = $order->subscription;
+
+                    // Domain is now empty, so the binding (domain/ip/require-domain) resets.
+                    $licenseService->update($existingLicense->id, [
+                        'license_order_number' => $order->number,
+                        'license_require_domain' => 0,
+                        'license_domain' => '',
+                        'license_ip' => '',
+                        'license_expire_date' => $this->toLicenseDate($subscription?->ends_at) ?: $existingLicense->license_expire_date,
+                        'license_updates_date' => $this->toLicenseDate($subscription?->update_ends_at) ?: $existingLicense->license_updates_date,
+                        'license_support_date' => $this->toLicenseDate($subscription?->support_ends_at) ?: $existingLicense->license_support_date,
+                    ]);
+                }
+
+                // Delete existing installations so the slots are freed and the
+                // user can re-install on a new domain. The install limit check
+                // counts rows regardless of installation_status, so deactivating
+                // (status => 0) would NOT free the slot — they must be removed.
+                app(\App\License\Services\InstallationService::class)
+                    ->deleteByLicenseCode($licenseCode);
+            });
+
+            return successResponse(__('message.license_reissued'));
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    /**
+     * Normalise a subscription date into the Y-m-d license format,
+     * returning '' when the date is empty/unset.
+     */
+    private function toLicenseDate($date): string
+    {
+        return $date && strtotime($date) > 1 ? date('Y-m-d', strtotime($date)) : '';
     }
 
     public function getAllowedDomains($seperateDomains)

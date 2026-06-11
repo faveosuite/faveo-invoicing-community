@@ -65,54 +65,8 @@
             </template>
         </AppModal>
 
-        <!-- Renew Modal -->
-        <AppModal
-            :showModal="showRenewModal"
-            :onClose="closeRenewModal"
-            :showCloseBtn="false"
-        >
-            <template #title>
-                <h5 class="modal-title fw-bold">{{ __('message.renew_your_order') }}</h5>
-            </template>
-            <template #fields>
-                <div v-if="renewLoading" class="text-center py-4">
-                    <inline-loader />
-                </div>
-                <template v-else>
-                    <!-- Current order info -->
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-muted">{{ __('message.current_plan') }}</span>
-                        <span class="fw-bold text-dark">{{ renewRow?.current_plan || '—' }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
-                        <span class="text-muted">{{ __('message.agents') }}</span>
-                        <span class="fw-bold text-dark">{{ renewRow?.agents || '—' }}</span>
-                    </div>
-
-                    <SelectField name="plan"
-                                 :label="__('message.plans')"
-                                 :elements="renewPlans"
-                                 :value="selectedPlan"
-                                 :onChange="onPlanChange"
-                                 :required="true" />
-
-                    <!-- Price summary -->
-                    <div v-if="renewPrice" class="d-flex justify-content-between align-items-center border-top pt-3 mt-1">
-                        <span class="text-muted">{{ __('message.price_to_be_paid') }}</span>
-                        <span class="fw-bold text-dark fs-6">{{ renewPrice }}</span>
-                    </div>
-                </template>
-            </template>
-            <template #controls>
-                <action-button
-                    action="confirm"
-                    :label="__('message.renew')"
-                    :loading="renewSubmitting"
-                    :disabled="!selectedPlan"
-                    @click="submitRenew"
-                />
-            </template>
-        </AppModal>
+        <!-- Renew Modal (shared with the order view page) -->
+        <RenewModal v-model:show="showRenewModal" :order="renewRow" />
 
         <!-- Delete Cloud Confirmation Modal -->
         <AppModal
@@ -135,13 +89,10 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import { __ } from '@/plugins/i18n'
-import http from '@/plugins/axios'
-import { errorHandler } from '@/helpers/responseHandler.js'
-import SelectField from '@/themes/porto/components/forms/SelectField.vue'
+import RenewModal from './components/RenewModal.vue'
 
-const router  = useRouter()
 const el      = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 const apiUrl  = `${baseUrl}/get-my-orders`
@@ -194,65 +145,12 @@ function closeDownloadModal() {
 }
 
 // ─── Renew Modal ─────────────────────────────────────────────
-const showRenewModal  = ref(false)
-const renewLoading    = ref(false)
-const renewSubmitting = ref(false)
-const renewRow        = ref(null)
-const renewPlans      = ref([])
-const selectedPlan    = ref(null)
-const renewPrice      = ref('')
+const showRenewModal = ref(false)
+const renewRow       = ref(null)
 
-async function openRenewModal(row) {
+function openRenewModal(row) {
     renewRow.value       = row
-    renewPlans.value     = []
-    selectedPlan.value   = null
-    renewPrice.value     = ''
-    renewLoading.value   = true
     showRenewModal.value = true
-
-    try {
-        const res = await http.get(`${baseUrl}/renew-popup-details/${row.product_id}`)
-        renewPlans.value = res.data?.data?.plans ?? []
-        if (renewPlans.value.length) await onPlanChange(renewPlans.value[0])
-    } catch { /* silent */ }
-    finally { renewLoading.value = false }
-}
-
-function closeRenewModal() {
-    showRenewModal.value = false
-}
-
-async function onPlanChange(plan) {
-    selectedPlan.value = plan
-    await fetchRenewCost()
-}
-
-async function fetchRenewCost() {
-    if (!selectedPlan.value) { renewPrice.value = ''; return }
-    try {
-        const res = await http.get(`${baseUrl}/get-renew-cost`, {
-            params: { plan: selectedPlan.value.id, order: renewRow.value?.id },
-        })
-        renewPrice.value = res.data?.data?.formatted_price ?? ''
-    } catch { /* silent */ }
-}
-
-async function submitRenew() {
-    if (!selectedPlan.value || renewSubmitting.value) return
-    renewSubmitting.value = true
-    try {
-        const res = await http.post(`${baseUrl}/client/renew/${renewRow.value?.sub_id}`, {
-            plan: selectedPlan.value.id,
-            user: renewRow.value?.client_id,
-        })
-        const invoiceId = res.data?.data?.invoice_id
-        if (invoiceId) router.push({ path: '/checkout', query: { invoice: invoiceId } })
-        else closeRenewModal()
-    } catch (e) {
-        errorHandler(e, 'client-page')
-    } finally {
-        renewSubmitting.value = false
-    }
 }
 
 // ─── Delete Cloud Modal ──────────────────────────────────────

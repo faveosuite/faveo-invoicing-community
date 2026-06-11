@@ -263,18 +263,6 @@
                         <div class="text-center text-sm fw_400">{{ __('message.language') }}</div>
                     </div>
                 </div>
-                <div class="col-md-2 col-sm-6">
-                    <div class="settingiconblue">
-                        <div class="settingdivblue">
-                            <a class="icons-color" href="{{url('whatsapp-users')}}">
-                            <span class="fa-stack fa-2x">
-                            <i class="fab fa-whatsapp fa-stack-1x" style="font-size: 1.4em;"></i>
-                            </span>
-                            </a>
-                        </div>
-                        <div class="text-center text-sm fw_400">Whatsapp-Users</div>
-                    </div>
-                </div>
                 @if($mailSendingStatus==1)
                     <div class="col-md-2 col-sm-6">
                         <div class="settingiconblue">

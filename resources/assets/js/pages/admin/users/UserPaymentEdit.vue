@@ -58,7 +58,7 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.invoices') }}</h4>
             </div>
-            <div class="card-body p-0">
+            <div class="card-body px-0 pt-0">
                 <inline-loader v-if="loading" />
                 <table v-else class="table table-bordered table-hover mb-0">
                     <thead>

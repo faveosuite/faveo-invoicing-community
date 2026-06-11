@@ -89,6 +89,19 @@ class InstallationService
     }
 
     /**
+     * Remove every installation tied to a license.
+     * Used on reissue so the install slots are freed and the user can
+     * re-install on a new domain — the install limit check counts rows
+     * regardless of installation_status, so they must be deleted, not deactivated.
+     *
+     * @return int Number of deleted rows.
+     */
+    public function deleteByLicenseCode(string $licenseCode): int
+    {
+        return Installation::where('license_code', $licenseCode)->delete();
+    }
+
+    /**
      * Get installation details for a license filtered by product, formatted as arrays.
      */
     public function getInstallationsByProduct(string $licenseCode, int $productId): array
