@@ -5,7 +5,6 @@ namespace App\Model\Order;
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
 use Carbon\Carbon;
-use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Invoice extends BaseModel
