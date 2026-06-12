@@ -109,5 +109,4 @@ class LicenseHelper
 
         return $status;
     }
-
 }

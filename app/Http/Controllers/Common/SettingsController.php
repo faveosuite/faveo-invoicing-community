@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Common;
 
-use Cache;
 use App\ApiKey;
 use App\CloudPopUp;
 use App\Email_log;
@@ -28,6 +27,7 @@ use App\Model\Plugin;
 use App\Model\Product\Product;
 use App\Payment_log;
 use App\User;
+use Cache;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -692,9 +692,9 @@ class SettingsController extends BaseSettingsController
     public function updateDateTimeSettingsData(Setting $settings, Request $request)
     {
         $request->validate([
-            'timezone_id'  => 'required|integer|exists:timezone,id',
-            'date_format'  => 'required|string|max:20',
-            'time_format'  => 'required|string|max:20',
+            'timezone_id' => 'required|integer|exists:timezone,id',
+            'date_format' => 'required|string|max:20',
+            'time_format' => 'required|string|max:20',
         ]);
 
         try {

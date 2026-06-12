@@ -25,16 +25,16 @@ class ConfigServiceProvider extends ServiceProvider
                 ->get()
                 ->keyBy(fn ($r) => "{$r->option_name}:{$r->optional_field}");
 
-            $bool     = fn (string $key): bool => (bool) ($rows->get($key)?->option_value ?? false);
-            $debugOn  = $bool('debugging:app_debug');
+            $bool = fn (string $key): bool => (bool) ($rows->get($key)?->option_value ?? false);
+            $debugOn = $bool('debugging:app_debug');
 
             config([
-                'app.debug'                   => $debugOn,
+                'app.debug' => $debugOn,
                 'debugbar.force_allow_enable' => $debugOn, // Debugbar v4 blocks itself in non-local envs
-                'pulse.enabled'               => $bool('debugging:pulse_enabled'),
-                'clockwork.enable'            => $bool('debugging:clockwork_enable'),
-                'app.sentry_reporting'        => $bool('sentry:crash_reporting'),
-                'sentry.traces_sample_rate'   => $rows->get('sentry:performance_monitoring')?->option_value ? 0.1 : 0,
+                'pulse.enabled' => $bool('debugging:pulse_enabled'),
+                'clockwork.enable' => $bool('debugging:clockwork_enable'),
+                'app.sentry_reporting' => $bool('sentry:crash_reporting'),
+                'sentry.traces_sample_rate' => $rows->get('sentry:performance_monitoring')?->option_value ? 0.1 : 0,
             ]);
         } catch (\Throwable) {
             // Fall back to .env values — app still boots correctly
@@ -55,7 +55,7 @@ class ConfigServiceProvider extends ServiceProvider
                     ->setTracesSampleRate(config('sentry.traces_sample_rate') ?: null);
             }
         } catch (\Exception $e) {
-            \Log::warning('ConfigServiceProvider: Sentry config failed — ' . $e->getMessage());
+            \Log::warning('ConfigServiceProvider: Sentry config failed — '.$e->getMessage());
         }
     }
 }
