@@ -10,21 +10,21 @@
                 <template #action="{ row }">
                     <div class="d-flex align-items-center gap-1 flex-nowrap">
                         <action-button action="view" :to="'/my-order/' + row.id"
-                                       v-tooltip :title="__('message.view')" />
+                                       v-tooltip="__('message.view')" />
 
                         <action-button v-if="!row.is_terminated"
                                        icon="fas fa-sync-alt" class="table_btn"
-                                       v-tooltip :title="__('message.click_renew')"
+                                       v-tooltip="__('message.click_renew')"
                                        @click="openRenewModal(row)" />
 
                         <action-button v-if="row.show_download && !row.is_terminated"
                                        icon="fas fa-download" class="table_btn"
-                                       v-tooltip :title="__('message.click_to_download')"
+                                       v-tooltip="__('message.click_to_download')"
                                        @click="openDownloadModal(row)" />
 
                         <action-button v-if="row.show_cloud_delete && !row.is_terminated"
                                        icon="fas fa-trash" class="table_btn"
-                                       v-tooltip :title="__('message.click_cloud')"
+                                       v-tooltip="__('message.click_cloud')"
                                        @click="openDeleteModal(row)" />
                     </div>
                 </template>
@@ -92,6 +92,9 @@ import { ref, reactive, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { __ } from '@/plugins/i18n'
 import RenewModal from './components/RenewModal.vue'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDate } = useDateTime()
 
 const el      = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
@@ -112,10 +115,6 @@ const tableOptions = reactive({
     filterable: true,
 })
 
-function formatDate(d) {
-    if (!d) return '—'
-    return new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
-}
 
 // ─── Download Modal ──────────────────────────────────────────
 const showDownloadModal   = ref(false)

@@ -211,26 +211,31 @@ Dear {{name}},<br/><br/>
     public function packageRemoval(): void
     {
         $packages = [
-            'simplesoftwareio/simple-qrcode',
-            'swiftmailer/swiftmailer',
-            'rachidlaasri/laravel-installer',
-            'yajra/laravel-datatables',
-            'anhskohbo/no-captcha',
-            'barryvdh/laravel-dompdf',
-            'torann/currency',
-            'devio/pipedrive',
-            'slavka/mailchimp-apiv3',
-            'bugsnag/bugsnag',
-            'bugsnag/bugsnag-laravel',
+            'simplesoftwareio/simple-qrcode',   // replaced by bacon/bacon-qr-code (already a dependency)
+            'swiftmailer/swiftmailer',           // EOL; replaced by symfony/mailer
+            'rachidlaasri/laravel-installer',   // unused installer scaffold; removed to reduce attack surface
+            'yajra/laravel-datatables',         // replaced by v-tables-3 on the Vue frontend
+            'anhskohbo/no-captcha',             // replaced by the in-house Recaptcha plugin
+            'barryvdh/laravel-dompdf',          // replaced by spatie/laravel-pdf
+            'torann/currency',                  // unused; currency logic moved in-house
+            'devio/pipedrive',                  // replaced by the official pipedrive/pipedrive SDK
+            'slavka/mailchimp-apiv3',           // replaced by the in-house Mailchimp plugin
+            'bugsnag/bugsnag',                  // replaced by sentry/sentry-laravel
+            'bugsnag/bugsnag-laravel',          // replaced by sentry/sentry-laravel
+            'graham-campbell/markdown',         // redundant wrapper; league/commonmark is already a direct dependency
+            'symfony/templating',               // deprecated since Symfony 5.4, removed in Symfony 7
+            'endroid/qr-code-bundle',           // Symfony Bundle — wrong architecture for Laravel; bacon/bacon-qr-code already covers QR generation
+            'cartalyst/stripe-laravel',         // superseded by the official stripe/stripe-php SDK; single usage migrated to StripeClient
         ];
 
         $configs = [
-            'datatables.php',
-            'datatables-buttons.php',
-            'datatables-fractal.php',
-            'dompdf.php',
-            'currency.php',
-            'bugsnag.php'
+            'datatables.php',         // belonged to yajra/laravel-datatables
+            'datatables-buttons.php', // belonged to yajra/laravel-datatables
+            'datatables-fractal.php', // belonged to yajra/laravel-datatables
+            'dompdf.php',             // belonged to barryvdh/laravel-dompdf
+            'currency.php',           // belonged to torann/currency
+            'bugsnag.php',            // belonged to bugsnag/bugsnag-laravel
+            'markdown.php',           // belonged to graham-campbell/markdown
         ];
 
         foreach ($packages as $package) {

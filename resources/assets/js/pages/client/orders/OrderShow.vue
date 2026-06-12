@@ -102,14 +102,14 @@
                                 <span>{{ order.serial_key || '—' }}</span>
                                 <button v-if="order.serial_key"
                                         class="btn btn-light btn-sm ms-2"
-                                        v-tooltip :title="copied ? __('message.copied') : __('message.copy')"
+                                        v-tooltip="copied ? __('message.copied') : __('message.copy')"
                                         @click="copyLicense">
                                     <i :class="copied ? 'fas fa-check text-success' : 'fas fa-copy'"></i>
                                 </button>
                                 <button v-if="order.serial_key && !order.is_cloud"
                                         class="btn btn-light btn-sm"
                                         :disabled="reissuing"
-                                        v-tooltip :title="__('message.reissue_license')"
+                                        v-tooltip="__('message.reissue_license')"
                                         @click="reissueLicense">
                                     <i v-if="reissuing" class="fas fa-circle-notch fa-spin"></i>
                                     <i v-else class="fas fa-id-card-alt"></i>
@@ -129,7 +129,7 @@
                                 <span>{{ formatDate(order.license_ends_at) }}</span>
                                 <button v-if="order.status !== 'Terminated'"
                                         class="btn btn-light btn-sm ms-2"
-                                        v-tooltip :title="__('message.renew')"
+                                        v-tooltip="__('message.renew')"
                                         @click="showRenewModal = true">
                                     <i class="fas fa-sync-alt"></i>
                                 </button>
@@ -212,7 +212,7 @@
                             </template>
                             <template #action="{ row }">
                                 <RouterLink :to="'/my-invoice/' + row.id" class="btn btn-sm btn-light"
-                                            v-tooltip :title="__('message.view')">
+                                            v-tooltip="__('message.view')">
                                     <i class="fas fa-eye"></i>
                                 </RouterLink>
                             </template>
@@ -565,6 +565,9 @@ import Modal from '@/themes/porto/components/common/Modal.vue'
 import AppAlert from '@/themes/porto/components/common/Alert.vue'
 import RenewModal from './components/RenewModal.vue'
 import WhatsappPanel from './components/WhatsappPanel.vue'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDate } = useDateTime()
 
 const el      = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
@@ -894,10 +897,6 @@ async function finalizeRenewalStripe() {
     }
 }
 
-function formatDate(d) {
-    if (!d) return '—'
-    return new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
-}
 
 function invoiceBadge(status) {
     const s = (status ?? '').toLowerCase()

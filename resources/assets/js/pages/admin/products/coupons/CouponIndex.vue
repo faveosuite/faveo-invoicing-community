@@ -5,7 +5,7 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.coupons') }}</h4>
                 <div class="card-tools">
-                    <router-link to="/products/coupons/create" class="btn btn-tool" :title="__('message.create_coupon_title')" v-tooltip>
+                    <router-link to="/products/coupons/create" class="btn btn-tool" v-tooltip="__('message.create_coupon_title')">
                         <i class="fas fa-plus"></i>
                     </router-link>
                 </div>

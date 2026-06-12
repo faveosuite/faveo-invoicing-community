@@ -5,7 +5,7 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.product_groups') }}</h4>
                 <div class="card-tools">
-                    <router-link to="/products/groups/create" class="btn btn-tool" :title="__('message.create_group')" v-tooltip>
+                    <router-link to="/products/groups/create" class="btn btn-tool" v-tooltip="__('message.create_group')">
                         <i class="fas fa-plus"></i>
                     </router-link>
                 </div>

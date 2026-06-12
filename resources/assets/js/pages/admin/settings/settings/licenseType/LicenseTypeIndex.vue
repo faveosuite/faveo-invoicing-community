@@ -5,7 +5,7 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.license_types') }}</h4>
                 <div class="card-tools">
-                    <button class="btn btn-tool" :title="__('message.add_license_type_btn')" v-tooltip @click="openCreate">
+                    <button class="btn btn-tool" v-tooltip="__('message.add_license_type_btn')" @click="openCreate">
                         <i class="fas fa-plus fw-bold"></i>
                     </button>
                 </div>

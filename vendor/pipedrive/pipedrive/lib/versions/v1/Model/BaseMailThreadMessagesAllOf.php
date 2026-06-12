@@ -2,7 +2,7 @@
 /**
  * BaseMailThreadMessagesAllOf
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -257,7 +257,7 @@ class BaseMailThreadMessagesAllOf implements ModelInterface, ArrayAccess, JsonSe
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['from'] = $data['from'] ?? null;
         $this->container['to'] = $data['to'] ?? null;

@@ -1,4 +1,6 @@
 import '../css/client.css'
+import FloatingVue from 'floating-vue'
+import 'floating-vue/dist/style.css'
 import { createApp } from 'vue'
 import Client from './Client.vue'
 import clientRouter from './routes/clientRouter'
@@ -16,6 +18,9 @@ import InlineLoader  from './components/Reusable/InlineLoader.vue'
 import MiniLoader    from './components/Reusable/MiniLoader.vue'
 import SpinnerLoader from './components/Reusable/SpinnerLoader.vue'
 import { setupLoaderInterceptors } from './plugins/axios.js'
+import DateTimePlugin from './plugins/dateTime.js'
+import { useDateTimeStore } from './core/stores/dateTimeStore.js'
+import axios from './plugins/axios.js'
 
 const progressBarOptions = {
     color: 'rgb(0, 154, 186)',
@@ -47,21 +52,31 @@ app.component('mini-loader',    MiniLoader)
 app.component('spinner-loader', SpinnerLoader)
 
 app.use(pinia)
+app.use(DateTimePlugin)
 app.use(ServerTable, {}, 'bootstrap4', {})
 app.use(clientRouter)
 app.use(i18n)
 app.use(VueProgressBar, progressBarOptions)
+app.use(FloatingVue)
+
+const clientEl = document.getElementById('app-client')
+const clientBaseUrl = clientEl?.dataset?.baseUrl ?? ''
+const clientUserTimezone = clientEl?.dataset?.userTimezone ?? ''
+
+axios.get(`${clientBaseUrl}/settings/system-data`).then(res => {
+    const s = res.data?.data?.settings ?? {}
+    useDateTimeStore().init({
+        timezone:   s.timezone?.name ?? 'UTC',
+        dateFormat: s.date_format    ?? 'd/m/Y',
+        timeFormat: s.time_format    ?? 'H:i',
+    })
+    if (clientUserTimezone) useDateTimeStore().setUserTimezone(clientUserTimezone)
+}).catch(() => {
+    useDateTimeStore().init({ timezone: 'UTC', dateFormat: 'd/m/Y', timeFormat: 'H:i' })
+    if (clientUserTimezone) useDateTimeStore().setUserTimezone(clientUserTimezone)
+})
 
 setupLoaderInterceptors(app.config.globalProperties.$Progress)
-
-app.directive('tooltip', {
-    mounted(el) {
-        if (window.bootstrap?.Tooltip) new window.bootstrap.Tooltip(el)
-    },
-    unmounted(el) {
-        window.bootstrap?.Tooltip?.getInstance(el)?.dispose()
-    },
-})
 
 // Wait for the initial navigation to resolve before mounting so that
 // route.meta (e.g. standalone: true) is correct on the very first render,

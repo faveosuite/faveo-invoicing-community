@@ -18,7 +18,9 @@
 import { reactive, h } from 'vue'
 import { RouterLink } from 'vue-router'
 import { lang } from '@/helpers/extraLogics'
+import { useDateTime } from '@/core/composables/useDateTime'
 
+const { formatDateTime } = useDateTime()
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const endPoint = baseUrl + '/api/admin/viewVersions'
@@ -74,6 +76,7 @@ const options = reactive({
             return h('span', { class: row.version_status ? 'badge bg-success' : 'badge bg-danger' },
                 row.version_status ? lang('active') : lang('inactive'))
         },
+        version_date: (f, row) => formatDateTime(row.version_date),
     },
     headings: {
         product_title: lang('product'),

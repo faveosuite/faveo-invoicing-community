@@ -119,7 +119,7 @@ import axios from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler'
 import { getIdFromUrl, generateRandomString, lang } from '@/helpers/extraLogics'
 import { licenseSchema } from '@/validations/admin/licenseValidations'
-import moment from 'moment'
+import { DateTime } from 'luxon'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import NumberField from '@/components/Reusable/FormField/NumberField.vue'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
@@ -206,9 +206,9 @@ function getInitialValues(id) {
         let resData = res.data.data
         let licenseData = res.data.data.license
         licenseData['api_key_secret'] = licenseData.api_key_secret ? licenseData.api_key_secret.split(',') : ''
-        licenseData['license_expire_date'] = licenseData.license_expire_date ? new Date(moment(licenseData.license_expire_date).format("MM-DD-YYYY")) : ''
-        licenseData['license_updates_date'] = licenseData.license_updates_date ? new Date(moment(licenseData.license_updates_date).format("MM-DD-YYYY")) : ''
-        licenseData['license_support_date'] = licenseData.license_support_date ? new Date(moment(licenseData.license_support_date).format("MM-DD-YYYY")) : ''
+        licenseData['license_expire_date'] = licenseData.license_expire_date ? DateTime.fromISO(licenseData.license_expire_date).toJSDate() : ''
+        licenseData['license_updates_date'] = licenseData.license_updates_date ? DateTime.fromISO(licenseData.license_updates_date).toJSDate() : ''
+        licenseData['license_support_date'] = licenseData.license_support_date ? DateTime.fromISO(licenseData.license_support_date).toJSDate() : ''
 
         product_id.value = resData.product_name[0].product_id
         product_title.value = resData.product_name[0].product_title
@@ -245,9 +245,9 @@ function onSubmit() {
     data['license_domain'] = license_domain.value
     if (license_limit.value) data['license_limit'] = license_limit.value
     data['license_comments'] = license_comments.value
-    if (license_expire_date.value) data['license_expire_date'] = moment(license_expire_date.value, 'DD-MM-YYYY').format("YYYY-MM-DD")
-    if (license_updates_date.value) data['license_updates_date'] = moment(license_updates_date.value, 'DD-MM-YYYY').format("YYYY-MM-DD")
-    if (license_support_date.value) data['license_support_date'] = moment(license_support_date.value, 'DD-MM-YYYY').format("YYYY-MM-DD")
+    if (license_expire_date.value) data['license_expire_date'] = DateTime.fromFormat(String(license_expire_date.value), 'dd-MM-yyyy').toFormat('yyyy-MM-dd')
+    if (license_updates_date.value) data['license_updates_date'] = DateTime.fromFormat(String(license_updates_date.value), 'dd-MM-yyyy').toFormat('yyyy-MM-dd')
+    if (license_support_date.value) data['license_support_date'] = DateTime.fromFormat(String(license_support_date.value), 'dd-MM-yyyy').toFormat('yyyy-MM-dd')
     data['license_code'] = license_code.value
 
     axios.post(apiEndpoint.value, data).then(res => {

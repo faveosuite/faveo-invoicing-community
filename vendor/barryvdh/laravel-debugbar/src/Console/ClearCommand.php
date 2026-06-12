@@ -1,9 +1,10 @@
 <?php
 
-namespace Barryvdh\Debugbar\Console;
+declare(strict_types=1);
 
-use Barryvdh\Debugbar\LaravelDebugbar;
-use DebugBar\DebugBar;
+namespace Fruitcake\LaravelDebugbar\Console;
+
+use Fruitcake\LaravelDebugbar\LaravelDebugbar;
 use Illuminate\Console\Command;
 
 class ClearCommand extends Command
@@ -11,8 +12,7 @@ class ClearCommand extends Command
     protected $name = 'debugbar:clear';
     protected $description = 'Clear the Debugbar Storage';
 
-
-    public function handle(LaravelDebugbar $debugbar)
+    public function handle(LaravelDebugbar $debugbar): void
     {
         $debugbar->boot();
 
@@ -21,7 +21,7 @@ class ClearCommand extends Command
                 $storage->clear();
             } catch (\InvalidArgumentException $e) {
                 // hide InvalidArgumentException if storage location does not exist
-                if (strpos($e->getMessage(), 'does not exist') === false) {
+                if (!str_contains($e->getMessage(), 'does not exist')) {
                     throw $e;
                 }
             }

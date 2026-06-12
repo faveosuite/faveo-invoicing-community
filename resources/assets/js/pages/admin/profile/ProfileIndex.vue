@@ -266,7 +266,7 @@
                         <div class="card-header">
                             <h3 class="card-title">{{ __('message.recovery_codes') }}</h3>
                             <div class="card-tools">
-                                <button type="button" class="btn btn-tool" @click="copyRecovery" v-tooltip :title="__('message.copy')">
+                                <button type="button" class="btn btn-tool" @click="copyRecovery" v-tooltip="__('message.copy')">
                                     <i :class="recoveryCopied ? 'fas fa-check' : 'fas fa-clipboard'"></i>
                                 </button>
                             </div>

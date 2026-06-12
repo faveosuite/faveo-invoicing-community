@@ -44,6 +44,7 @@
          data-user-name="{{ auth()->user() ? auth()->user()->first_name . ' ' . auth()->user()->last_name : 'Admin' }}"
          data-user-email="{{ auth()->user()?->email ?? '' }}"
          data-user-avatar="{{ auth()->user()?->profile_pic ?? '' }}"
+         data-user-timezone="{{ auth()->user()?->timezone?->name ?? '' }}"
          data-locale="{{ app()->getLocale() }}"
          data-app-version="{{ config('app.version', '') }}"
          data-page-title="{{ $set->favicon_title }}"

@@ -39,7 +39,7 @@
                                     class="list-inline-item mb-1"
                                     style="width: 23%"
                                 >
-                                    <span v-tooltip :title="label">{{ shortcode }}</span>
+                                    <span v-tooltip="label">{{ shortcode }}</span>
                                 </li>
                             </ul>
                         </div>

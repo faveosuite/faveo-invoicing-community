@@ -1,7 +1,7 @@
 <?php
 /**
  * PersonsApi
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -83,9 +83,9 @@ class PersonsApi
      * @param int                  $hostIndex (Optional) host index to select the list of hosts if defined in the OpenAPI spec
      */
     public function __construct(
-        ClientInterface $client = null,
-        Configuration $config = null,
-        HeaderSelector $selector = null,
+        ?ClientInterface $client = null,
+        ?Configuration $config = null,
+        ?HeaderSelector $selector = null,
         int $hostIndex = 0
     ) {
         $this->client = $client ?: new Client();
@@ -1336,14 +1336,16 @@ class PersonsApi
      * @param  int $id The ID of the person (required)
      * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
      * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
+     * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v2\Model\PostPatchGetPerson
      */
-    public function getPerson($id, $include_fields = null, $custom_fields = null)
+    public function getPerson($id, $include_fields = null, $custom_fields = null, $include_option_labels = null, $include_labels = null)
     {
-        list($response) = $this->getPersonWithHttpInfo($id, $include_fields, $custom_fields);
+        list($response) = $this->getPersonWithHttpInfo($id, $include_fields, $custom_fields, $include_option_labels, $include_labels);
         return $response;
     }
 
@@ -1355,14 +1357,16 @@ class PersonsApi
      * @param  int $id The ID of the person (required)
      * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
      * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
+     * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v2\Model\PostPatchGetPerson, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getPersonWithHttpInfo($id, $include_fields = null, $custom_fields = null)
+    public function getPersonWithHttpInfo($id, $include_fields = null, $custom_fields = null, $include_option_labels = null, $include_labels = null)
     {
-        $request = $this->getPersonRequest($id, $include_fields, $custom_fields);
+        $request = $this->getPersonRequest($id, $include_fields, $custom_fields, $include_option_labels, $include_labels);
 
         try {
             $options = $this->createHttpClientOption();
@@ -1371,7 +1375,7 @@ class PersonsApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->getPersonRequest($id, $include_fields, $custom_fields);
+                    $request = $this->getPersonRequest($id, $include_fields, $custom_fields, $include_option_labels, $include_labels);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -1458,13 +1462,15 @@ class PersonsApi
      * @param  int $id The ID of the person (required)
      * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
      * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
+     * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getPersonAsync($id, $include_fields = null, $custom_fields = null): PromiseInterface
+    public function getPersonAsync($id, $include_fields = null, $custom_fields = null, $include_option_labels = null, $include_labels = null): PromiseInterface
     {
-        return $this->getPersonAsyncWithHttpInfo($id, $include_fields, $custom_fields)
+        return $this->getPersonAsyncWithHttpInfo($id, $include_fields, $custom_fields, $include_option_labels, $include_labels)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1480,14 +1486,16 @@ class PersonsApi
      * @param  int $id The ID of the person (required)
      * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
      * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
+     * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getPersonAsyncWithHttpInfo($id, $include_fields = null, $custom_fields = null): PromiseInterface
+    public function getPersonAsyncWithHttpInfo($id, $include_fields = null, $custom_fields = null, $include_option_labels = null, $include_labels = null): PromiseInterface
     {
         $returnType = '\Pipedrive\versions\v2\Model\PostPatchGetPerson';
-        $request = $this->getPersonRequest($id, $include_fields, $custom_fields);
+        $request = $this->getPersonRequest($id, $include_fields, $custom_fields, $include_option_labels, $include_labels);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1529,11 +1537,13 @@ class PersonsApi
      * @param  int $id The ID of the person (required)
      * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
      * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
+     * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function getPersonRequest($id, $include_fields = null, $custom_fields = null): Request
+    public function getPersonRequest($id, $include_fields = null, $custom_fields = null, $include_option_labels = null, $include_labels = null): Request
     {
         // verify the required parameter 'id' is set
         /* @phpstan-ignore-next-line */
@@ -1565,6 +1575,22 @@ class PersonsApi
         }
         if ($custom_fields !== null) {
             $queryParams['custom_fields'] = $custom_fields;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($include_option_labels)) {
+            $include_option_labels = ObjectSerializer::serializeCollection($include_option_labels, '', true);
+        }
+        if ($include_option_labels !== null) {
+            $queryParams['include_option_labels'] = $include_option_labels;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($include_labels)) {
+            $include_labels = ObjectSerializer::serializeCollection($include_labels, '', true);
+        }
+        if ($include_labels !== null) {
+            $queryParams['include_labels'] = $include_labels;
         }
 
 
@@ -2606,6 +2632,8 @@ class PersonsApi
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
      * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
      * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
+     * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
@@ -2613,9 +2641,9 @@ class PersonsApi
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v2\Model\GetPersons
      */
-    public function getPersons($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null)
+    public function getPersons($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $include_option_labels = null, $include_labels = null, $limit = null, $cursor = null)
     {
-        list($response) = $this->getPersonsWithHttpInfo($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
+        list($response) = $this->getPersonsWithHttpInfo($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $include_option_labels, $include_labels, $limit, $cursor);
         return $response;
     }
 
@@ -2635,6 +2663,8 @@ class PersonsApi
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
      * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
      * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
+     * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
@@ -2642,9 +2672,9 @@ class PersonsApi
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v2\Model\GetPersons, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getPersonsWithHttpInfo($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null)
+    public function getPersonsWithHttpInfo($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $include_option_labels = null, $include_labels = null, $limit = null, $cursor = null)
     {
-        $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
+        $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $include_option_labels, $include_labels, $limit, $cursor);
 
         try {
             $options = $this->createHttpClientOption();
@@ -2653,7 +2683,7 @@ class PersonsApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
+                    $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $include_option_labels, $include_labels, $limit, $cursor);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -2748,15 +2778,17 @@ class PersonsApi
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
      * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
      * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
+     * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getPersonsAsync($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null): PromiseInterface
+    public function getPersonsAsync($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $include_option_labels = null, $include_labels = null, $limit = null, $cursor = null): PromiseInterface
     {
-        return $this->getPersonsAsyncWithHttpInfo($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor)
+        return $this->getPersonsAsyncWithHttpInfo($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $include_option_labels, $include_labels, $limit, $cursor)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2780,16 +2812,18 @@ class PersonsApi
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
      * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
      * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
+     * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getPersonsAsyncWithHttpInfo($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null): PromiseInterface
+    public function getPersonsAsyncWithHttpInfo($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $include_option_labels = null, $include_labels = null, $limit = null, $cursor = null): PromiseInterface
     {
         $returnType = '\Pipedrive\versions\v2\Model\GetPersons';
-        $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $limit, $cursor);
+        $request = $this->getPersonsRequest($filter_id, $ids, $owner_id, $org_id, $deal_id, $updated_since, $updated_until, $sort_by, $sort_direction, $include_fields, $custom_fields, $include_option_labels, $include_labels, $limit, $cursor);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2839,13 +2873,15 @@ class PersonsApi
      * @param  string|'asc' $sort_direction The sorting direction. Supported values: &#x60;asc&#x60;, &#x60;desc&#x60;. (optional, default to 'asc')
      * @param  string|null $include_fields Optional comma separated string array of additional fields to include. &#x60;marketing_status&#x60; and &#x60;doi_status&#x60; can only be included if the company has marketing app enabled. (optional)
      * @param  string|null $custom_fields Optional comma separated string array of custom fields keys to include. If you are only interested in a particular set of custom fields, please use this parameter for faster results and smaller response.&lt;br/&gt;A maximum of 15 keys is allowed. (optional)
+     * @param  bool|null $include_option_labels When provided with a &#39;true&#39; value, single option and multiple option custom fields values contain objects in the form of &#39;{ id: number, label: string }&#39; instead of plain id (optional)
+     * @param  bool|null $include_labels When provided with &#39;true&#39; value, response will include an array of label objects in the form of &#39;{ id: number, label: string }&#39; (optional)
      * @param  int|null $limit For pagination, the limit of entries to be returned. If not provided, 100 items will be returned. Please note that a maximum value of 500 is allowed. (optional)
      * @param  string|null $cursor For pagination, the marker (an opaque string value) representing the first item on the next page (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function getPersonsRequest($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $limit = null, $cursor = null): Request
+    public function getPersonsRequest($filter_id = null, $ids = null, $owner_id = null, $org_id = null, $deal_id = null, $updated_since = null, $updated_until = null, $sort_by = 'id', $sort_direction = 'asc', $include_fields = null, $custom_fields = null, $include_option_labels = null, $include_labels = null, $limit = null, $cursor = null): Request
     {
 
         $resourcePath = '/persons';
@@ -2942,6 +2978,22 @@ class PersonsApi
         }
         if ($custom_fields !== null) {
             $queryParams['custom_fields'] = $custom_fields;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($include_option_labels)) {
+            $include_option_labels = ObjectSerializer::serializeCollection($include_option_labels, '', true);
+        }
+        if ($include_option_labels !== null) {
+            $queryParams['include_option_labels'] = $include_option_labels;
+        }
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($include_labels)) {
+            $include_labels = ObjectSerializer::serializeCollection($include_labels, '', true);
+        }
+        if ($include_labels !== null) {
+            $queryParams['include_labels'] = $include_labels;
         }
         // query params
         /* @phpstan-ignore-next-line */

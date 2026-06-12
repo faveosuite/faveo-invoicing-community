@@ -13,8 +13,8 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\RateLimiter;
-use Spatie\Activitylog\ActivityLogger;
-use Spatie\Activitylog\ActivityLogStatus;
+use Spatie\Activitylog\Support\ActivityLogger;
+use Spatie\Activitylog\Support\ActivityLogStatus;
 
 function getLocation($ip = null)
 {
@@ -107,7 +107,7 @@ function successResponse($message = '', $data = '', $statusCode = 200)
  * @param  string  $format
  * @return string
  */
-function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = 'M j, Y, g:i a')
+function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = null)
 {
     try {
         $date = new DateTime($dateTimeString, new DateTimeZone('UTC'));
@@ -118,7 +118,7 @@ function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = 'M j, Y
         $tz = Cache::remember(
             $cacheKey,
             5,
-            fn () => $user->timezone->name ?? 'UTC'
+            fn () => $user->timezone->name ?? systemTimezone()
         );
 
         try {
@@ -127,10 +127,34 @@ function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = 'M j, Y
             $timezone = new DateTimeZone('UTC');
         }
 
-        return $date->setTimezone($timezone)->format($format);
+        return $date->setTimezone($timezone)->format($format ?? systemDateTimeFormat());
     } catch (Exception $e) {
         return $dateTimeString;
     }
+}
+
+/**
+ * Returns the system-level date+time format string from settings (cached).
+ */
+function systemDateTimeFormat(): string
+{
+    return Cache::remember('system_datetime_format', 60, function () {
+        $setting = \App\Model\Common\Setting::select('date_format', 'time_format')->first();
+
+        return ($setting->date_format ?? 'd/m/Y').' '.($setting->time_format ?? 'H:i');
+    });
+}
+
+/**
+ * Returns the system-level timezone name from settings (cached).
+ */
+function systemTimezone(): string
+{
+    return Cache::remember('system_timezone', 60, function () {
+        $setting = \App\Model\Common\Setting::with('timezone:id,name')->select('timezone_id')->first();
+
+        return $setting->timezone->name ?? 'UTC';
+    });
 }
 
 /**

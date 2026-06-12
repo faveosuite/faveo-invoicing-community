@@ -1,5 +1,7 @@
 import '../css/app.css'
 import '../css/common.scss';
+import FloatingVue from 'floating-vue'
+import 'floating-vue/dist/style.css'
 import { createApp } from 'vue'
 import App from './Admin.vue'
 import router from './routes/adminRouter'
@@ -19,6 +21,9 @@ import ActionButton from './components/Reusable/ActionButton.vue'
 import FormActions from './components/Reusable/FormActions.vue'
 import mitt from 'mitt'
 import { setupLoaderInterceptors } from './plugins/axios.js'
+import DateTimePlugin from './plugins/dateTime.js'
+import { useDateTimeStore } from './core/stores/dateTimeStore.js'
+import axios from './plugins/axios.js'
 
 const progressBarOptions = {
     color: 'rgb(0, 154, 186)',
@@ -66,35 +71,33 @@ import(`./themes/${theme}/index.js`).then(themeModule => {
     app.component('form-actions', FormActions)
 
     app.use(pinia)
+    app.use(DateTimePlugin)
     app.use(router)
     app.use(i18n)
     app.use(VueProgressBar, progressBarOptions)
     app.use(ServerTable, {}, 'bootstrap4', {})
+    app.use(FloatingVue)
+
+    // Boot datetime settings — non-blocking, UTC fallback stays active until resolved
+    const el = document.getElementById('app-root')
+    const baseUrl = el?.dataset?.baseUrl ?? ''
+    const userTimezone = el?.dataset?.userTimezone ?? ''
+
+    axios.get(`${baseUrl}/settings/system-data`).then(res => {
+        const s = res.data?.data?.settings ?? {}
+        useDateTimeStore().init({
+            timezone:   s.timezone?.name ?? 'UTC',
+            dateFormat: s.date_format    ?? 'd/m/Y',
+            timeFormat: s.time_format    ?? 'H:i',
+        })
+        // User's personal timezone overrides system timezone if set
+        if (userTimezone) useDateTimeStore().setUserTimezone(userTimezone)
+    }).catch(() => {
+        useDateTimeStore().init({ timezone: 'UTC', dateFormat: 'd/m/Y', timeFormat: 'H:i' })
+        if (userTimezone) useDateTimeStore().setUserTimezone(userTimezone)
+    })
 
     setupLoaderInterceptors(app.config.globalProperties.$Progress)
-
-    // ── Global Bootstrap 5 tooltip directive ───────────────────────────────
-    app.directive('tooltip', {
-        mounted(el) {
-            if (window.bootstrap?.Tooltip) {
-                new window.bootstrap.Tooltip(el)
-            }
-        },
-        updated(el) {
-            const instance = window.bootstrap?.Tooltip?.getInstance(el)
-            if (instance) {
-                const title = el.getAttribute('title')
-                if (title) {
-                    instance.setContent({ '.tooltip-inner': title })
-                    el.removeAttribute('title')
-                }
-            }
-        },
-        unmounted(el) {
-            const instance = window.bootstrap?.Tooltip?.getInstance(el)
-            if (instance) instance.dispose()
-        },
-    })
 
     app.mount('#app-root')
 }).catch(err => {

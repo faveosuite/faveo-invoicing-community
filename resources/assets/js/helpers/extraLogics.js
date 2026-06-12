@@ -1,6 +1,4 @@
-import moment from "moment";
-import 'moment-timezone'
-import { useAuthStore } from '../core/stores/auth';
+import { useDateTime } from '../core/composables/useDateTime';
 
 /**
  * gets the last integer from a given url(string)
@@ -182,57 +180,8 @@ const hasTimeShift = (timezone) => {
     }
 }
 
-/**
- * Formats a date-time string for a given timezone, adjusting for DST if necessary.
- * @param {moment.Moment} utcDate - The parsed UTC date.
- * @param {string} timezone - The target timezone.
- * @param {string} dateFormat - The desired date format.
- * @param {string} timeFormat - The desired time format.
- * @returns {string} The formatted date-time string.
- */
-const formatDateTimeWithTimezone = (utcDate, timezone, dateFormat, timeFormat) => {
-    const localizedDate = moment(utcDate.format()).tz(timezone);
-
-    if (localizedDate.isDST()) {
-        // Adjust for Daylight Saving Time
-        return localizedDate.subtract(1, 'hour').format(`${dateFormat} ${timeFormat}`);
-
-    } else if(hasTimeShift(timezone)) {
-
-        const value = hasTimeShift(timezone)
-        return localizedDate.add(value, 'hour').format(`${dateFormat} ${timeFormat}`);
-    }
-
-    else {
-        return localizedDate.format(`${dateFormat} ${timeFormat}`);
-    }
-};
-
-/**
- * Formats a date-time string based on the given parameters.
- * @param {string} dateTime - The date-time string to format.
- * @param {string} timezone - The target timezone.
- * @param {string} dateFormat - The desired date format.
- * @param {string} timeFormat - The desired time format.
- * @param {string} [format='YYYY-MM-DD HH:mm:ss'] - The expected input date-time format.
- * @returns {string} The formatted date-time string.
- */
-export const formatDateTime = (dateTime, timezone, dateFormat, timeFormat, format = 'YYYY-MM-DD HH:mm:ss') => {
-    if (!dateTime) return '----';
-
-    const clientTimezone = useAuthStore().clientTimezone?.name || 'UTC';
-    let effectiveTimezone = '';
-
-    effectiveTimezone = clientTimezone === 'UTC' ? timezone : clientTimezone;
-
-    const isIso = isIsoFormat(dateTime);
-    const hasTime = hasTimeComponent(dateTime);
-
-    if (hasTime || isIso) {
-        const utcDate = moment.utc(dateTime, format);
-        return formatDateTimeWithTimezone(utcDate, effectiveTimezone, dateFormat, timeFormat);
-    }
-    return moment(dateTime).format(dateFormat) === 'Invalid date' ? '0000-00-00' : moment(dateTime).format(dateFormat)
+export const formatDateTime = (dateTime) => {
+    return useDateTime().formatDateTime(dateTime)
 };
 
 /**

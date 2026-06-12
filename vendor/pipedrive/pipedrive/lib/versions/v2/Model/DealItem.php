@@ -2,7 +2,7 @@
 /**
  * DealItem
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -352,7 +352,7 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['id'] = $data['id'] ?? null;
         $this->container['title'] = $data['title'] ?? null;
@@ -1171,7 +1171,7 @@ class DealItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets custom_fields
      *
-     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes
+     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes. To clear a custom field value, set it to `null`. For multi-option fields (field type `set`), use `null` to clear the selection — sending an empty array `[]` is not supported and will result in a validation error.
      *
      * @return self
      */

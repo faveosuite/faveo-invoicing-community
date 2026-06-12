@@ -7,12 +7,12 @@
                 <h4 class="card-title">{{ __('message.mailchimp') }}</h4>
                 <div class="card-tools">
                     <button v-if="activeTab === 'field-mapping' && form.listId"
-                        class="btn btn-tool" v-tooltip :title="__('message.sync_fields')"
+                        class="btn btn-tool" v-tooltip="__('message.sync_fields')"
                         :disabled="syncingFields" @click="syncFields">
                         <i class="fas fa-sync" :class="{ 'fa-spin': syncingFields }"></i>
                     </button>
                     <button v-if="activeTab === 'interest-groups' && form.listId"
-                        class="btn btn-tool" v-tooltip :title="__('message.sync_groups')"
+                        class="btn btn-tool" v-tooltip="__('message.sync_groups')"
                         :disabled="syncingGroups" @click="syncGroups">
                         <i class="fas fa-sync" :class="{ 'fa-spin': syncingGroups }"></i>
                     </button>
@@ -166,8 +166,7 @@
                                         <button
                                             type="button"
                                             class="btn btn-light table_btn"
-                                            :title="__('message.Delete')"
-                                            v-tooltip
+                                            v-tooltip="__('message.Delete')"
                                             @click="removeFieldRow(idx)"
                                         >
                                             <i class="fas fa-trash"></i>
@@ -279,8 +278,7 @@
                                                 <button
                                                     type="button"
                                                     class="btn btn-light table_btn"
-                                                    :title="__('message.Delete')"
-                                                    v-tooltip
+                                                    v-tooltip="__('message.Delete')"
                                                     @click="removeProductRow(idx)"
                                                 >
                                                     <i class="fas fa-trash"></i>

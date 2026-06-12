@@ -11,6 +11,7 @@ namespace PHPUnit\Framework\Constraint;
 
 use function assert;
 use function count;
+use function is_bool;
 use function is_object;
 use PHPUnit\Framework\ActualValueIsNotAnObjectException;
 use PHPUnit\Framework\ComparisonMethodDoesNotAcceptParameterTypeException;
@@ -38,6 +39,20 @@ final class ObjectEquals extends Constraint
     public function toString(): string
     {
         return 'two objects are equal';
+    }
+
+    /**
+     * Returns the negated description when this constraint is wrapped in a
+     * LogicalNot operator. The guard ensures that LogicalAnd, LogicalOr, and
+     * LogicalXor keep using the affirmative toString().
+     */
+    protected function toStringInContext(Operator $operator, mixed $role): string
+    {
+        if (!$operator instanceof LogicalNot) {
+            return '';
+        }
+
+        return 'two objects are not equal';
     }
 
     /**
@@ -124,7 +139,9 @@ final class ObjectEquals extends Constraint
         $typeName = $type->getName();
 
         if ($typeName === 'self') {
+            // @codeCoverageIgnoreStart
             $typeName = $other::class;
+            // @codeCoverageIgnoreEnd
         }
 
         if (!$this->expected instanceof $typeName) {
@@ -136,11 +153,26 @@ final class ObjectEquals extends Constraint
         }
 
         /** @phpstan-ignore method.dynamicName */
-        return $other->{$this->method}($this->expected);
+        $result = $other->{$this->method}($this->expected);
+
+        assert(is_bool($result));
+
+        return $result;
     }
 
     protected function failureDescription(mixed $other): string
     {
         return $this->toString();
+    }
+
+    protected function failureDescriptionInContext(Operator $operator, mixed $role, mixed $other): string
+    {
+        // @codeCoverageIgnoreStart
+        if (!$operator instanceof LogicalNot) {
+            return '';
+        }
+        // @codeCoverageIgnoreEnd
+
+        return $this->toStringInContext($operator, $role);
     }
 }

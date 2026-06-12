@@ -194,6 +194,9 @@ import { useRoute, RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { errorHandler } from '@/helpers/responseHandler.js'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDate } = useDateTime()
 
 const COMPONENT = 'client-page'
 const el = document.getElementById('app-client')
@@ -225,10 +228,6 @@ function capitalize(str) {
     return str ? String(str).charAt(0).toUpperCase() + String(str).slice(1) : '—'
 }
 
-function formatDate(d) {
-    if (!d) return '—'
-    return new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
-}
 
 function formatCurrency(val) {
     if (val === null || val === undefined) return '—'

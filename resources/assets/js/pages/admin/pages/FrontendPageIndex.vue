@@ -5,7 +5,7 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.pages') }}</h4>
                 <div class="card-tools">
-                    <router-link to="/pages/create" class="btn btn-tool" :title="__('message.create_page')" v-tooltip>
+                    <router-link to="/pages/create" class="btn btn-tool" v-tooltip="__('message.create_page')">
                         <i class="fas fa-plus"></i>
                     </router-link>
                 </div>
@@ -57,6 +57,9 @@ import { h, ref, computed, reactive } from 'vue'
 import { RouterLink } from 'vue-router'
 import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
 import { errorHandler } from '@/helpers/responseHandler.js'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDate } = useDateTime()
 
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
@@ -113,7 +116,7 @@ const tableOptions = reactive({
         select:     (f, row) => h('input', { type: 'checkbox', checked: selected.value.includes(row.id), onChange: () => toggleRow(row.id) }),
         name:       (f, row) => row.name || '—',
         url:        (f, row) => row.url || '—',
-        created_at: (f, row) => row.created_at ? row.created_at.substring(0, 10) : '—',
+        created_at: (f, row) => formatDate(row.created_at),
         action:     (f, row) => h(RouterLink, { to: `/pages/${row.id}/edit`, class: 'btn btn-light table_btn', title: __('message.edit') }, () => h('i', { class: 'fas fa-edit' })),
     },
     sortable: ['name', 'url', 'created_at'],

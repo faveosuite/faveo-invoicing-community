@@ -7,16 +7,14 @@
             <div class="card-tools">
                 <button
                     class="btn btn-tool"
-                    :title="__('message.filter')"
-                    v-tooltip
+                    v-tooltip="__('message.filter')"
                     @click="showFilter = !showFilter"
                 >
                     <i class="fas fa-filter"></i>
                 </button>
                 <button
                     class="btn btn-tool"
-                    :title="__('message.export')"
-                    v-tooltip
+                    v-tooltip="__('message.export')"
                     :disabled="exporting"
                     @click="exportAll"
                 >
@@ -25,8 +23,7 @@
                 <router-link
                     to="/users/create"
                     class="btn btn-tool"
-                    :title="__('message.create_new_user')"
-                    v-tooltip
+                    v-tooltip="__('message.create_new_user')"
                 >
                     <i class="fas fa-plus fw-bold"></i>
                 </router-link>
@@ -96,9 +93,12 @@ import { RouterLink } from 'vue-router'
 
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { useDateTime } from '@/core/composables/useDateTime'
 import UserTableActions from './components/UserTableActions.vue'
 import UserFilter from './components/UserFilter.vue'
 import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+
+const { formatDate } = useDateTime()
 
 const COMPONENT = 'users-index'
 
@@ -229,7 +229,7 @@ const tableOptions = reactive({
         },
         mobile: (f, row) => row.mobile?.trim() || '—',
         country: (f, row) => row.country?.trim() || '—',
-        created_at: (f, row) => row.created_at ? new Date(row.created_at).toLocaleDateString() : '—',
+        created_at: (f, row) => row.created_at ? formatDate(row.created_at) : '—',
         account_info: (f, row) => h('div', { class: 'd-flex gap-2' }, [
             statusIcon('fas fa-envelope-circle-check', row.email_verified,  "User's email address is verified",  "User's email address is not verified"),
             statusIcon('fas fa-phone',                 row.mobile_verified, 'User has verified mobile',           'User has not verified mobile'),

@@ -18,9 +18,16 @@ namespace PHPUnit\TextUI\XmlConfiguration;
  */
 final readonly class PHPUnit
 {
+    /**
+     * @var ?non-empty-string
+     */
     private ?string $cacheDirectory;
     private bool $cacheResult;
     private int|string $columns;
+
+    /**
+     * @var non-empty-string
+     */
     private string $colors;
     private bool $stderr;
     private bool $displayDetailsOnAllIssues;
@@ -34,6 +41,11 @@ final readonly class PHPUnit
     private bool $displayDetailsOnTestsThatTriggerWarnings;
     private bool $reverseDefectList;
     private bool $requireCoverageMetadata;
+    private bool $requireSealedMockObjects;
+
+    /**
+     * @var ?non-empty-string
+     */
     private ?string $bootstrap;
 
     /**
@@ -53,15 +65,51 @@ final readonly class PHPUnit
     private bool $failOnRisky;
     private bool $failOnSkipped;
     private bool $failOnWarning;
-    private bool $stopOnDefect;
-    private bool $stopOnDeprecation;
-    private bool $stopOnError;
-    private bool $stopOnFailure;
-    private bool $stopOnIncomplete;
-    private bool $stopOnNotice;
-    private bool $stopOnRisky;
-    private bool $stopOnSkipped;
-    private bool $stopOnWarning;
+
+    /**
+     * @var non-negative-int
+     */
+    private int $stopOnDefect;
+
+    /**
+     * @var non-negative-int
+     */
+    private int $stopOnDeprecation;
+
+    /**
+     * @var non-negative-int
+     */
+    private int $stopOnError;
+
+    /**
+     * @var non-negative-int
+     */
+    private int $stopOnFailure;
+
+    /**
+     * @var non-negative-int
+     */
+    private int $stopOnIncomplete;
+
+    /**
+     * @var non-negative-int
+     */
+    private int $stopOnNotice;
+
+    /**
+     * @var non-negative-int
+     */
+    private int $stopOnRisky;
+
+    /**
+     * @var non-negative-int
+     */
+    private int $stopOnSkipped;
+
+    /**
+     * @var non-negative-int
+     */
+    private int $stopOnWarning;
 
     /**
      * @var ?non-empty-string
@@ -71,11 +119,32 @@ final readonly class PHPUnit
     private bool $beStrictAboutOutputDuringTests;
     private bool $beStrictAboutTestsThatDoNotTestAnything;
     private bool $beStrictAboutCoverageMetadata;
+    private bool $requireCoverageContribution;
     private bool $enforceTimeLimit;
+
+    /**
+     * @var non-negative-int
+     */
     private int $defaultTimeLimit;
+
+    /**
+     * @var positive-int
+     */
     private int $timeoutForSmallTests;
+
+    /**
+     * @var positive-int
+     */
     private int $timeoutForMediumTests;
+
+    /**
+     * @var positive-int
+     */
     private int $timeoutForLargeTests;
+
+    /**
+     * @var ?non-empty-string
+     */
     private ?string $defaultTestSuite;
     private int $executionOrder;
     private bool $resolveDependencies;
@@ -85,7 +154,16 @@ final readonly class PHPUnit
     private bool $testdoxPrinter;
     private bool $testdoxPrinterSummary;
     private bool $controlGarbageCollector;
+
+    /**
+     * @var positive-int
+     */
     private int $numberOfTestsBeforeGarbageCollection;
+
+    /**
+     * @var positive-int
+     */
+    private int $diffContext;
 
     /**
      * @var non-negative-int
@@ -93,11 +171,30 @@ final readonly class PHPUnit
     private int $shortenArraysForExportThreshold;
 
     /**
+     * @param ?non-empty-string                         $cacheDirectory
+     * @param non-empty-string                          $colors
+     * @param ?non-empty-string                         $bootstrap
      * @param array<non-empty-string, non-empty-string> $bootstrapForTestSuite
+     * @param non-negative-int                          $stopOnDefect
+     * @param non-negative-int                          $stopOnDeprecation
+     * @param non-negative-int                          $stopOnError
+     * @param non-negative-int                          $stopOnFailure
+     * @param non-negative-int                          $stopOnIncomplete
+     * @param non-negative-int                          $stopOnNotice
+     * @param non-negative-int                          $stopOnRisky
+     * @param non-negative-int                          $stopOnSkipped
+     * @param non-negative-int                          $stopOnWarning
      * @param ?non-empty-string                         $extensionsDirectory
+     * @param non-negative-int                          $defaultTimeLimit
+     * @param positive-int                              $timeoutForSmallTests
+     * @param positive-int                              $timeoutForMediumTests
+     * @param positive-int                              $timeoutForLargeTests
+     * @param ?non-empty-string                         $defaultTestSuite
+     * @param positive-int                              $numberOfTestsBeforeGarbageCollection
      * @param non-negative-int                          $shortenArraysForExportThreshold
+     * @param positive-int                              $diffContext
      */
-    public function __construct(?string $cacheDirectory, bool $cacheResult, int|string $columns, string $colors, bool $stderr, bool $displayDetailsOnAllIssues, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnPhpunitNotices, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, ?string $bootstrap, array $bootstrapForTestSuite, bool $processIsolation, bool $failOnAllIssues, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitNotice, bool $failOnPhpunitWarning, bool $failOnEmptyTestSuite, bool $hasFailOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, bool $stopOnDefect, bool $stopOnDeprecation, bool $stopOnError, bool $stopOnFailure, bool $stopOnIncomplete, bool $stopOnNotice, bool $stopOnRisky, bool $stopOnSkipped, bool $stopOnWarning, ?string $extensionsDirectory, bool $beStrictAboutChangesToGlobalState, bool $beStrictAboutOutputDuringTests, bool $beStrictAboutTestsThatDoNotTestAnything, bool $beStrictAboutCoverageMetadata, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, ?string $defaultTestSuite, int $executionOrder, bool $resolveDependencies, bool $defectsFirst, bool $backupGlobals, bool $backupStaticProperties, bool $testdoxPrinter, bool $testdoxPrinterSummary, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, int $shortenArraysForExportThreshold)
+    public function __construct(?string $cacheDirectory, bool $cacheResult, int|string $columns, string $colors, bool $stderr, bool $displayDetailsOnAllIssues, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnPhpunitNotices, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, bool $requireSealedMockObjects, ?string $bootstrap, array $bootstrapForTestSuite, bool $processIsolation, bool $failOnAllIssues, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitNotice, bool $failOnPhpunitWarning, bool $failOnEmptyTestSuite, bool $hasFailOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, int $stopOnDefect, int $stopOnDeprecation, int $stopOnError, int $stopOnFailure, int $stopOnIncomplete, int $stopOnNotice, int $stopOnRisky, int $stopOnSkipped, int $stopOnWarning, ?string $extensionsDirectory, bool $beStrictAboutChangesToGlobalState, bool $beStrictAboutOutputDuringTests, bool $beStrictAboutTestsThatDoNotTestAnything, bool $beStrictAboutCoverageMetadata, bool $requireCoverageContribution, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, ?string $defaultTestSuite, int $executionOrder, bool $resolveDependencies, bool $defectsFirst, bool $backupGlobals, bool $backupStaticProperties, bool $testdoxPrinter, bool $testdoxPrinterSummary, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, int $shortenArraysForExportThreshold, int $diffContext)
     {
         $this->cacheDirectory                               = $cacheDirectory;
         $this->cacheResult                                  = $cacheResult;
@@ -115,6 +212,7 @@ final readonly class PHPUnit
         $this->displayDetailsOnTestsThatTriggerWarnings     = $displayDetailsOnTestsThatTriggerWarnings;
         $this->reverseDefectList                            = $reverseDefectList;
         $this->requireCoverageMetadata                      = $requireCoverageMetadata;
+        $this->requireSealedMockObjects                     = $requireSealedMockObjects;
         $this->bootstrap                                    = $bootstrap;
         $this->bootstrapForTestSuite                        = $bootstrapForTestSuite;
         $this->processIsolation                             = $processIsolation;
@@ -144,6 +242,7 @@ final readonly class PHPUnit
         $this->beStrictAboutOutputDuringTests               = $beStrictAboutOutputDuringTests;
         $this->beStrictAboutTestsThatDoNotTestAnything      = $beStrictAboutTestsThatDoNotTestAnything;
         $this->beStrictAboutCoverageMetadata                = $beStrictAboutCoverageMetadata;
+        $this->requireCoverageContribution                  = $requireCoverageContribution;
         $this->enforceTimeLimit                             = $enforceTimeLimit;
         $this->defaultTimeLimit                             = $defaultTimeLimit;
         $this->timeoutForSmallTests                         = $timeoutForSmallTests;
@@ -160,6 +259,7 @@ final readonly class PHPUnit
         $this->controlGarbageCollector                      = $controlGarbageCollector;
         $this->numberOfTestsBeforeGarbageCollection         = $numberOfTestsBeforeGarbageCollection;
         $this->shortenArraysForExportThreshold              = $shortenArraysForExportThreshold;
+        $this->diffContext                                  = $diffContext;
     }
 
     /**
@@ -172,6 +272,8 @@ final readonly class PHPUnit
 
     /**
      * @throws Exception
+     *
+     * @return non-empty-string
      */
     public function cacheDirectory(): string
     {
@@ -192,6 +294,9 @@ final readonly class PHPUnit
         return $this->columns;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function colors(): string
     {
         return $this->colors;
@@ -257,6 +362,11 @@ final readonly class PHPUnit
         return $this->requireCoverageMetadata;
     }
 
+    public function requireSealedMockObjects(): bool
+    {
+        return $this->requireSealedMockObjects;
+    }
+
     /**
      * @phpstan-assert-if-true !null $this->bootstrap
      */
@@ -267,6 +377,8 @@ final readonly class PHPUnit
 
     /**
      * @throws Exception
+     *
+     * @return non-empty-string
      */
     public function bootstrap(): string
     {
@@ -350,47 +462,74 @@ final readonly class PHPUnit
         return $this->failOnWarning;
     }
 
-    public function stopOnDefect(): bool
+    /**
+     * @return non-negative-int
+     */
+    public function stopOnDefect(): int
     {
         return $this->stopOnDefect;
     }
 
-    public function stopOnDeprecation(): bool
+    /**
+     * @return non-negative-int
+     */
+    public function stopOnDeprecation(): int
     {
         return $this->stopOnDeprecation;
     }
 
-    public function stopOnError(): bool
+    /**
+     * @return non-negative-int
+     */
+    public function stopOnError(): int
     {
         return $this->stopOnError;
     }
 
-    public function stopOnFailure(): bool
+    /**
+     * @return non-negative-int
+     */
+    public function stopOnFailure(): int
     {
         return $this->stopOnFailure;
     }
 
-    public function stopOnIncomplete(): bool
+    /**
+     * @return non-negative-int
+     */
+    public function stopOnIncomplete(): int
     {
         return $this->stopOnIncomplete;
     }
 
-    public function stopOnNotice(): bool
+    /**
+     * @return non-negative-int
+     */
+    public function stopOnNotice(): int
     {
         return $this->stopOnNotice;
     }
 
-    public function stopOnRisky(): bool
+    /**
+     * @return non-negative-int
+     */
+    public function stopOnRisky(): int
     {
         return $this->stopOnRisky;
     }
 
-    public function stopOnSkipped(): bool
+    /**
+     * @return non-negative-int
+     */
+    public function stopOnSkipped(): int
     {
         return $this->stopOnSkipped;
     }
 
-    public function stopOnWarning(): bool
+    /**
+     * @return non-negative-int
+     */
+    public function stopOnWarning(): int
     {
         return $this->stopOnWarning;
     }
@@ -437,26 +576,43 @@ final readonly class PHPUnit
         return $this->beStrictAboutCoverageMetadata;
     }
 
+    public function requireCoverageContribution(): bool
+    {
+        return $this->requireCoverageContribution;
+    }
+
     public function enforceTimeLimit(): bool
     {
         return $this->enforceTimeLimit;
     }
 
+    /**
+     * @return non-negative-int
+     */
     public function defaultTimeLimit(): int
     {
         return $this->defaultTimeLimit;
     }
 
+    /**
+     * @return positive-int
+     */
     public function timeoutForSmallTests(): int
     {
         return $this->timeoutForSmallTests;
     }
 
+    /**
+     * @return positive-int
+     */
     public function timeoutForMediumTests(): int
     {
         return $this->timeoutForMediumTests;
     }
 
+    /**
+     * @return positive-int
+     */
     public function timeoutForLargeTests(): int
     {
         return $this->timeoutForLargeTests;
@@ -472,6 +628,8 @@ final readonly class PHPUnit
 
     /**
      * @throws Exception
+     *
+     * @return non-empty-string
      */
     public function defaultTestSuite(): string
     {
@@ -522,6 +680,9 @@ final readonly class PHPUnit
         return $this->controlGarbageCollector;
     }
 
+    /**
+     * @return positive-int
+     */
     public function numberOfTestsBeforeGarbageCollection(): int
     {
         return $this->numberOfTestsBeforeGarbageCollection;
@@ -533,5 +694,13 @@ final readonly class PHPUnit
     public function shortenArraysForExportThreshold(): int
     {
         return $this->shortenArraysForExportThreshold;
+    }
+
+    /**
+     * @return positive-int
+     */
+    public function diffContext(): int
+    {
+        return $this->diffContext;
     }
 }

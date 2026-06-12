@@ -40,11 +40,14 @@
 <script setup>
 import { h, ref } from 'vue'
 import { useForm } from 'vee-validate'
+import { useDateTime } from '@/core/composables/useDateTime'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import DataTable from '@/themes/adminlte/components/common/DataTable.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { webhookUrlSchema } from '@/validations/admin/systemSettingsValidations'
+
+const { formatDateTime } = useDateTime()
 
 const COMPONENT = 'whatsapp-users'
 const el      = document.getElementById('app-root')
@@ -155,6 +158,7 @@ const options = {
         action: 'dt-action',
     },
     templates: {
+        created_at:  (f, row) => formatDateTime(row.created_at),
         user_name: (f, row) => row.user_id
             ? h('a', { href: `${baseUrl}/clients/${row.user_id}` }, row.user_name)
             : row.user_name,

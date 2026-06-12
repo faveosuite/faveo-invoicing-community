@@ -95,14 +95,6 @@ class Order extends BaseModel
         return ucfirst($value);
     }
 
-    public function getCreatedAtAttribute($value)
-    {
-        $date1 = new DateTime($value);
-        $date = $date1->format('M j, Y, g:i a ');
-
-        return $date;
-    }
-
     public function getSerialKeyAttribute($value)
     {
         try {

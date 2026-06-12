@@ -8,8 +8,7 @@
                     <RouterLink
                         to="/settings/widgets/social-media/create"
                         class="btn btn-tool"
-                        :title="__('message.create')"
-                        v-tooltip
+                        v-tooltip="__('message.create')"
                     >
                         <i class="fas fa-plus fw-bold"></i>
                     </RouterLink>

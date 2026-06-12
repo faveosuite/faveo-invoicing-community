@@ -2,9 +2,8 @@
     <div class="d-flex gap-1">
         <button
             class="btn btn-light table_btn"
-            :title="isDefault ? __('message.cannot_disable_default_currency') : isDashboard ? __('message.cannot_disable_dashboard_currency') : (status ? __('message.disable') : __('message.enable'))"
             :disabled="toggling || isDefault || isDashboard"
-            v-tooltip
+            v-tooltip="isDefault ? __('message.cannot_disable_default_currency') : isDashboard ? __('message.cannot_disable_dashboard_currency') : (status ? __('message.disable') : __('message.enable'))"
             @click="emit('toggle')"
         >
             <spinner-loader v-if="toggling" :size="18" />
@@ -13,9 +12,8 @@
         <button
             v-if="!isDefault && status"
             class="btn btn-light table_btn"
-            :title="__('message.set_as_default_currency')"
             :disabled="settingDefault"
-            v-tooltip
+            v-tooltip="__('message.set_as_default_currency')"
             @click="emit('set-default')"
         >
             <spinner-loader v-if="settingDefault" :size="18" />
@@ -24,9 +22,8 @@
         <button
             v-if="status && !isDashboard"
             class="btn btn-light table_btn"
-            :title="__('message.set_as_dashboard_currency')"
             :disabled="settingDashboard"
-            v-tooltip
+            v-tooltip="__('message.set_as_dashboard_currency')"
             @click="emit('set-dashboard')"
         >
             <spinner-loader v-if="settingDashboard" :size="18" />

@@ -107,9 +107,8 @@
                   <span class="d-flex align-items-center">
                     <span class="amount text-success">−{{ symbol }}{{ cartStore.couponDiscount }}</span>
                     <button type="button"
-                            v-tooltip
+                            v-tooltip="__('message.remove')"
                             class="btn ms-2 p-0 lh-1 border-0"
-                            :title="__('message.remove')"
                             @click="removeCoupon">
                       <i class="fas fa-times-circle text-color-dark fa-lg"></i>
                     </button>

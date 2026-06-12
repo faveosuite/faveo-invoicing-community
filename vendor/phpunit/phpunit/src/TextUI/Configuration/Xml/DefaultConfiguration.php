@@ -13,8 +13,8 @@ use PHPUnit\Runner\TestSuiteSorter;
 use PHPUnit\TextUI\Configuration\ConstantCollection;
 use PHPUnit\TextUI\Configuration\DirectoryCollection;
 use PHPUnit\TextUI\Configuration\ExtensionBootstrapCollection;
-use PHPUnit\TextUI\Configuration\FileCollection;
-use PHPUnit\TextUI\Configuration\FilterDirectoryCollection as CodeCoverageFilterDirectoryCollection;
+use PHPUnit\TextUI\Configuration\FilterDirectoryCollection;
+use PHPUnit\TextUI\Configuration\FilterFileCollection;
 use PHPUnit\TextUI\Configuration\GroupCollection;
 use PHPUnit\TextUI\Configuration\IniSettingCollection;
 use PHPUnit\TextUI\Configuration\Php;
@@ -40,10 +40,10 @@ final readonly class DefaultConfiguration extends Configuration
             new Source(
                 null,
                 false,
-                CodeCoverageFilterDirectoryCollection::fromArray([]),
-                FileCollection::fromArray([]),
-                CodeCoverageFilterDirectoryCollection::fromArray([]),
-                FileCollection::fromArray([]),
+                FilterDirectoryCollection::fromArray([]),
+                FilterFileCollection::fromArray([]),
+                FilterDirectoryCollection::fromArray([]),
+                FilterFileCollection::fromArray([]),
                 false,
                 false,
                 false,
@@ -54,8 +54,9 @@ final readonly class DefaultConfiguration extends Configuration
                 false,
                 false,
                 [
-                    'functions' => [],
-                    'methods'   => [],
+                    'functions'               => [],
+                    'methods'                 => [],
+                    'ignoreUndefinedTriggers' => false,
                 ],
                 false,
                 false,
@@ -63,6 +64,7 @@ final readonly class DefaultConfiguration extends Configuration
                 true,
             ),
             new CodeCoverage(
+                false,
                 false,
                 true,
                 false,
@@ -117,6 +119,7 @@ final readonly class DefaultConfiguration extends Configuration
                 false,
                 false,
                 false,
+                false,
                 null,
                 [],
                 false,
@@ -132,19 +135,20 @@ final readonly class DefaultConfiguration extends Configuration
                 false,
                 false,
                 false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
                 null,
                 false,
                 false,
                 true,
+                false,
                 false,
                 false,
                 1,
@@ -162,6 +166,7 @@ final readonly class DefaultConfiguration extends Configuration
                 false,
                 100,
                 10,
+                3,
             ),
             TestSuiteCollection::fromArray([]),
         );

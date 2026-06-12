@@ -423,10 +423,12 @@ Class | Method | HTTP request | Description
 *ProductsApi* | [**getProductFiles**](Api/ProductsApi.md#getproductfiles) | **GET** /products/{id}/files | List files attached to a product
 *ProductsApi* | [**getProductFollowers**](Api/ProductsApi.md#getproductfollowers) | **GET** /products/{id}/followers | List followers of a product
 *ProductsApi* | [**getProductUsers**](Api/ProductsApi.md#getproductusers) | **GET** /products/{id}/permittedUsers | List permitted users
+*ProjectBoardsApi* | [**getProjectsBoard**](Api/ProjectBoardsApi.md#getprojectsboard) | **GET** /projects/boards/{id} | Get details of a board
+*ProjectBoardsApi* | [**getProjectsBoards**](Api/ProjectBoardsApi.md#getprojectsboards) | **GET** /projects/boards | Get all project boards
+*ProjectPhasesApi* | [**getProjectsPhase**](Api/ProjectPhasesApi.md#getprojectsphase) | **GET** /projects/phases/{id} | Get details of a phase
+*ProjectPhasesApi* | [**getProjectsPhases**](Api/ProjectPhasesApi.md#getprojectsphases) | **GET** /projects/phases | Get project phases
 *ProjectTemplatesApi* | [**getProjectTemplate**](Api/ProjectTemplatesApi.md#getprojecttemplate) | **GET** /projectTemplates/{id} | Get details of a template
 *ProjectTemplatesApi* | [**getProjectTemplates**](Api/ProjectTemplatesApi.md#getprojecttemplates) | **GET** /projectTemplates | Get all project templates
-*ProjectTemplatesApi* | [**getProjectsBoard**](Api/ProjectTemplatesApi.md#getprojectsboard) | **GET** /projects/boards/{id} | Get details of a board
-*ProjectTemplatesApi* | [**getProjectsPhase**](Api/ProjectTemplatesApi.md#getprojectsphase) | **GET** /projects/phases/{id} | Get details of a phase
 *ProjectsApi* | [**addProject**](Api/ProjectsApi.md#addproject) | **POST** /projects | Add a project
 *ProjectsApi* | [**archiveProject**](Api/ProjectsApi.md#archiveproject) | **POST** /projects/{id}/archive | Archive a project
 *ProjectsApi* | [**deleteProject**](Api/ProjectsApi.md#deleteproject) | **DELETE** /projects/{id} | Delete a project
@@ -436,8 +438,6 @@ Class | Method | HTTP request | Description
 *ProjectsApi* | [**getProjectPlan**](Api/ProjectsApi.md#getprojectplan) | **GET** /projects/{id}/plan | Returns project plan
 *ProjectsApi* | [**getProjectTasks**](Api/ProjectsApi.md#getprojecttasks) | **GET** /projects/{id}/tasks | Returns project tasks
 *ProjectsApi* | [**getProjects**](Api/ProjectsApi.md#getprojects) | **GET** /projects | Get all projects
-*ProjectsApi* | [**getProjectsBoards**](Api/ProjectsApi.md#getprojectsboards) | **GET** /projects/boards | Get all project boards
-*ProjectsApi* | [**getProjectsPhases**](Api/ProjectsApi.md#getprojectsphases) | **GET** /projects/phases | Get project phases
 *ProjectsApi* | [**putProjectPlanActivity**](Api/ProjectsApi.md#putprojectplanactivity) | **PUT** /projects/{id}/plan/activities/{activityId} | Update activity in project plan
 *ProjectsApi* | [**putProjectPlanTask**](Api/ProjectsApi.md#putprojectplantask) | **PUT** /projects/{id}/plan/tasks/{taskId} | Update task in project plan
 *ProjectsApi* | [**updateProject**](Api/ProjectsApi.md#updateproject) | **PUT** /projects/{id} | Update a project
@@ -551,6 +551,7 @@ Class | Method | HTTP request | Description
  - [BaseNoteOrganization](Model/BaseNoteOrganization.md)
  - [BaseNotePerson](Model/BaseNotePerson.md)
  - [BaseNoteProject](Model/BaseNoteProject.md)
+ - [BaseNoteTask](Model/BaseNoteTask.md)
  - [BaseOrganizationItem](Model/BaseOrganizationItem.md)
  - [BaseOrganizationItemFields](Model/BaseOrganizationItemFields.md)
  - [BaseOrganizationRelationshipItem](Model/BaseOrganizationRelationshipItem.md)

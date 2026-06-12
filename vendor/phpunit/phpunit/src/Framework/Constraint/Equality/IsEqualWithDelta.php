@@ -14,7 +14,6 @@ use function trim;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Util\Exporter;
 use SebastianBergmann\Comparator\ComparisonFailure;
-use SebastianBergmann\Comparator\Factory as ComparatorFactory;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -51,19 +50,8 @@ final class IsEqualWithDelta extends Constraint
             return true;
         }
 
-        $comparatorFactory = ComparatorFactory::getInstance();
-
         try {
-            $comparator = $comparatorFactory->getComparatorFor(
-                $this->value,
-                $other,
-            );
-
-            $comparator->assertEquals(
-                $this->value,
-                $other,
-                $this->delta,
-            );
+            $this->assertEqualsUsingComparator($this->value, $other, $this->delta);
         } catch (ComparisonFailure $f) {
             if ($returnResult) {
                 return false;
@@ -83,8 +71,29 @@ final class IsEqualWithDelta extends Constraint
      */
     public function toString(): string
     {
+        return 'is equal to ' . $this->valueAsString();
+    }
+
+    /**
+     * Returns the negated description when this constraint is wrapped in a
+     * LogicalNot operator. Authoring the negation here, instead of letting
+     * LogicalNot rewrite the affirmative description, keeps the exported value
+     * out of the negation entirely. The guard ensures that LogicalAnd,
+     * LogicalOr, and LogicalXor keep using the affirmative toString().
+     */
+    protected function toStringInContext(Operator $operator, mixed $role): string
+    {
+        if (!$operator instanceof LogicalNot) {
+            return '';
+        }
+
+        return 'is not equal to ' . $this->valueAsString();
+    }
+
+    private function valueAsString(): string
+    {
         return sprintf(
-            'is equal to %s with delta <%F>',
+            '%s with delta <%F>',
             Exporter::export($this->value),
             $this->delta,
         );

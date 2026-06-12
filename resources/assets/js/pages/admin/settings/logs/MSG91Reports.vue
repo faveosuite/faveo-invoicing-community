@@ -5,7 +5,7 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.msg_reports') }}</h4>
                 <div class="card-tools">
-                    <button class="btn btn-tool" :title="__('message.filters')" v-tooltip @click="showFilter = !showFilter">
+                    <button class="btn btn-tool" v-tooltip="__('message.filters')" @click="showFilter = !showFilter">
                         <i class="fas fa-filter"></i>
                     </button>
                 </div>

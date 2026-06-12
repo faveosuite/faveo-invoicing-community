@@ -26,8 +26,10 @@ use function ini_get_all;
 use function is_array;
 use function is_file;
 use function is_resource;
+use function is_string;
 use function proc_close;
 use function proc_open;
+use function rewind;
 use function sprintf;
 use function str_contains;
 use function str_replace;
@@ -35,13 +37,14 @@ use function str_starts_with;
 use function stream_get_contents;
 use function sys_get_temp_dir;
 use function tempnam;
+use function tmpfile;
 use function trim;
 use function unlink;
 use function xdebug_is_debugger_active;
 use PHPUnit\Event\Facade;
 use PHPUnit\Event\Facade as EventFacade;
-use PHPUnit\Framework\ChildProcessResultProcessor;
 use PHPUnit\Framework\Test;
+use PHPUnit\Framework\TestRunner\ChildProcessResultProcessor;
 use PHPUnit\Runner\CodeCoverage;
 use SebastianBergmann\Environment\Runtime;
 
@@ -133,29 +136,49 @@ final readonly class JobRunner
 
         if ($job->hasEnvironmentVariables()) {
             /** @phpstan-ignore nullCoalesce.variable */
-            $environmentVariables = $_SERVER ?? [];
+            $serverVariables = $_SERVER ?? [];
 
-            unset($environmentVariables['argv'], $environmentVariables['argc']);
+            unset($serverVariables['argv'], $serverVariables['argc']);
 
-            $environmentVariables = array_merge($environmentVariables, $job->environmentVariables());
+            $environmentVariables = [];
 
-            foreach ($environmentVariables as $key => $value) {
-                if (is_array($value)) {
-                    unset($environmentVariables[$key]);
+            foreach ($serverVariables as $key => $value) {
+                if (!is_string($key)) {
+                    continue;
                 }
+
+                if (is_array($value)) {
+                    continue;
+                }
+
+                $environmentVariables[$key] = $value;
             }
 
-            unset($key, $value);
+            $environmentVariables = array_merge($environmentVariables, $job->environmentVariables());
         }
 
-        $pipeSpec = [
-            0 => ['pipe', 'r'],
-            1 => ['pipe', 'w'],
-            2 => ['pipe', 'w'],
-        ];
+        $mergedOutputStream = null;
 
         if ($job->redirectErrors()) {
-            $pipeSpec[2] = ['redirect', 1];
+            $mergedOutputStream = tmpfile();
+
+            if ($mergedOutputStream === false) {
+                // @codeCoverageIgnoreStart
+                throw new PhpProcessException('Unable to create temporary file for redirected output');
+                // @codeCoverageIgnoreEnd
+            }
+
+            $pipeSpec = [
+                0 => ['pipe', 'r'],
+                1 => $mergedOutputStream,
+                2 => $mergedOutputStream,
+            ];
+        } else {
+            $pipeSpec = [
+                0 => ['pipe', 'r'],
+                1 => ['pipe', 'w'],
+                2 => ['pipe', 'w'],
+            ];
         }
 
         $process = proc_open(
@@ -176,8 +199,10 @@ final readonly class JobRunner
 
         Facade::emitter()->childProcessStarted();
 
-        fwrite($pipes[0], $job->code());
-        fclose($pipes[0]);
+        if (isset($pipes[0])) {
+            fwrite($pipes[0], $job->code());
+            fclose($pipes[0]);
+        }
 
         $stdout = '';
         $stderr = '';
@@ -195,6 +220,19 @@ final readonly class JobRunner
         }
 
         proc_close($process);
+
+        if ($mergedOutputStream !== null) {
+            rewind($mergedOutputStream);
+
+            $merged = stream_get_contents($mergedOutputStream);
+
+            fclose($mergedOutputStream);
+
+            assert($merged !== false);
+
+            $stdout = $merged;
+            $stderr = '';
+        }
 
         if ($temporaryFile !== null) {
             unlink($temporaryFile);
@@ -230,11 +268,15 @@ final readonly class JobRunner
 
             assert($pcovSettings !== false);
 
+            // The settings forwarded from the current process must be applied
+            // before the settings configured for the job so that the latter,
+            // for instance a "pcov.directory" set in the --INI-- section of a
+            // PHPT test, take precedence: the value of the last -d flag wins.
             $phpSettings = array_merge(
-                $phpSettings,
                 $runtime->getCurrentSettings(
                     array_keys($pcovSettings),
                 ),
+                $phpSettings,
             );
         } elseif ($runtime->hasXdebug()) {
             assert(function_exists('xdebug_is_debugger_active'));
@@ -243,11 +285,14 @@ final readonly class JobRunner
 
             assert($xdebugSettings !== false);
 
+            // The settings forwarded from the current process must be applied
+            // before the settings configured for the job so that the latter
+            // take precedence: the value of the last -d flag wins.
             $phpSettings = array_merge(
-                $phpSettings,
                 $runtime->getCurrentSettings(
                     array_keys($xdebugSettings),
                 ),
+                $phpSettings,
             );
 
             if (
@@ -349,7 +394,9 @@ final readonly class JobRunner
      *
      * Otherwise quotes the value portion only when it contains characters
      * PHP's INI parser would interpret as metacharacters (`;` starts a
-     * comment, `"` is a string delimiter).
+     * comment, `"` is a string delimiter, `=` is the assignment operator
+     * that would otherwise be parsed as starting a new directive and
+     * trigger `PHP: syntax error, unexpected '='`).
      *
      * Quoting is avoided for plain values so that boolean keywords such as
      * `On` / `Off` keep their special INI semantics; wrapping them in quotes
@@ -377,7 +424,7 @@ final readonly class JobRunner
             );
         }
 
-        if (!str_contains($value, ';') && !str_contains($value, '"')) {
+        if (!str_contains($value, ';') && !str_contains($value, '"') && !str_contains($value, '=')) {
             return $setting;
         }
 

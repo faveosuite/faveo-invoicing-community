@@ -7,7 +7,7 @@
                 <h4 class="card-title">{{ __('message.pipedrive_settings') }}</h4>
                 <div class="card-tools">
                     <button v-if="activeTab === 'field-mapping' && connectionStatus === 'connected'"
-                        class="btn btn-tool" v-tooltip :title="__('message.click_pipedrive_sync')"
+                        class="btn btn-tool" v-tooltip="__('message.click_pipedrive_sync')"
                         :disabled="syncing" @click="syncFields">
                         <i class="fas fa-sync" :class="{ 'fa-spin': syncing }"></i>
                     </button>
@@ -77,8 +77,7 @@
                                             v-model="form.requireVerification"
                                             style="cursor:pointer"
                                         />
-                                        <label class="form-check-label" for="requireVerification" v-tooltip
-                                            :title="__('message.pipedrive_user_verification_tooltip')">
+                                        <label class="form-check-label" for="requireVerification" v-tooltip="__('message.pipedrive_user_verification_tooltip')">
                                             {{ __('message.user_verification') }}
                                         </label>
                                     </div>
@@ -144,8 +143,7 @@
                                             v-if="index > 0"
                                             type="button"
                                             class="btn btn-light table_btn"
-                                            :title="__('message.delete_attribute')"
-                                            v-tooltip
+                                            v-tooltip="__('message.delete_attribute')"
                                             @click="deleteRow(index)"
                                         >
                                             <i class="fas fa-trash"></i>

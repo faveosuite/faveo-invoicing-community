@@ -5,14 +5,146 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [17.3.0](https://github.com/pipedrive/client-php/compare17.2.1...17.3.0) (2026-04-06)
+
+### Changed
+- Bumped minimum PHP version requirement from 8.0 to 8.1
+
+## [17.2.1](https://github.com/pipedrive/client-php/compare17.2.0...17.2.1) (2026-04-06)
+
+### Fixed
+- Fixed double-nested response schema in `GET /api/v2/products` — `data` array items were incorrectly typed as a full response wrapper object instead of the product schema
+- Added missing fields to v2 product response schema: `add_time`, `update_time`, `description`, and `category` (nullable)
+- Added typed properties to `prices` array items in v2 product schema: `product_id`, `price`, `currency`, `cost`, `direct_cost` (nullable), `notes`
+- Fixed `BaseProduct.id`, `ProductVariation.id`, and product image `product_id` typed as `number` instead of `integer`
+- Documented the `updated_since` query parameter for `GET /api/v2/products` which was supported by the API but absent from the spec
+- Fixed `quantity` field type from `integer` to `number` in deal product response schema (`GET /api/v2/deals/{id}/products`) — the API supports decimal values such as `5.5`
+
+## [17.2.0](https://github.com/pipedrive/client-php/compare17.1.0...17.2.0) (2026-04-06)
+
+### Added
+- Added `health_status` field to v1 project response schema (`GET /v1/projects`, `GET /v1/projects/{id}`)
+- Added `health_status` as a writable field to v2 project request body (`POST /api/v2/projects`, `PATCH /api/v2/projects/{id}`)
+### Fixed
+- Fixed `health_status` field type from `string` to `integer` in v2 project response schema (`GET /api/v2/projects`, `GET /api/v2/projects/{id}`)
+
+## [17.1.0](https://github.com/pipedrive/client-php/compare17.0.0...17.1.0) (2026-04-06)
+
+### Added
+- Added `project_id` parameter to `POST /v1/files` endpoint
+- Added `project_id` & `project_name` properties to responses in `/v1/files/*` endpoints
+
+## [17.0.0](https://github.com/pipedrive/client-php/compare16.0.0...17.0.0) (2026-03-06)
+
+### Added
+- Added `website`, `linkedin`, `industry`, `annual_revenue`, and `employee_count` fields to v2 organization response schema (`GET /api/v2/organizations`, `GET /api/v2/organizations/{id}`) — all nullable, not included by default
+- Added `deal_id`, `person_id`, and `org_id` as optional query filter parameters to `GET /api/v2/projects`
+### Changed
+- Dropped PHP 7.4 support — minimum required PHP version is now 8.0
+### Fixed
+- Fixed `deal_ids` query parameter serialization in `GET /api/v2/deals/products` — the array is now correctly encoded as a comma-separated string (e.g. `deal_ids=1,2,3`) to match the expected backend format
+- Fixed `BillingStartDate` format from non-standard `'YYYY-MM-DD'` to correct OAS3 `date` format in both v1 and v2 deal product schemas
+
+## [16.0.0](https://github.com/pipedrive/client-php/compare/15.7.0...16.0.0) (2026-05-05)
+### Added
+- Added projects v2 API
+- Added project boards v2 API
+- Added project phases v2 API
+- Added project tasks v2 API
+- Added project search v2 API
+- Added project templates v2 API
+- Added project fields v2 API
+- Added `include_option_labels` parameter for v2 GET deal, person and organization endpoints
+- Added `include_labels` parameter to v2 GET deal, person, and organization endpoints
+- Added `assignee_ids` field to Tasks endpoints:
+  - `GET /v1/tasks`
+  - `GET /v1/tasks/{id}`
+  - `POST /v1/tasks`
+  - `PUT /v1/tasks/{id}`
+- Added `task_id` field support to Notes endpoints:
+  - `GET /v1/notes` — new `task_id` and `pinned_to_task_flag` query parameters
+  - `POST /v1/notes` — new optional `task_id` field in request body
+  - `PUT /v1/notes/{id}` — new optional `task_id` field in request body
+  - Response schema includes new `task_id`, `task` (with `title`), and `pinned_to_task_flag` fields
+### Removed
+- Removed deprecated v1 endpoints that have v2 equivalents. See the [deprecation announcement](https://developers.pipedrive.com/changelog/post/deprecation-of-selected-api-v1-endpoints) for details. Please migrate to the corresponding v2 endpoints listed below:
+  - `GET /v1/activities` → `GET /api/v2/activities`
+  - `GET /v1/activities/collection` → `GET /api/v2/activities`
+  - `GET /v1/activities/{id}` → `GET /api/v2/activities/{id}`
+  - `POST /v1/activities` → `POST /api/v2/activities`
+  - `PUT /v1/activities/{id}` → `PATCH /api/v2/activities/{id}`
+  - `DELETE /v1/activities/{id}` → `DELETE /api/v2/activities/{id}`
+  - `GET /v1/deals` → `GET /api/v2/deals`
+  - `GET /v1/deals/collection` → `GET /api/v2/deals`
+  - `GET /v1/deals/{id}` → `GET /api/v2/deals/{id}`
+  - `GET /v1/deals/search` → `GET /api/v2/deals/search`
+  - `POST /v1/deals` → `POST /api/v2/deals`
+  - `PUT /v1/deals/{id}` → `PATCH /api/v2/deals/{id}`
+  - `DELETE /v1/deals/{id}` → `DELETE /api/v2/deals/{id}`
+  - `GET /v1/deals/{id}/activities` → `GET /api/v2/activities?deal_id={id}`
+  - `GET /v1/deals/{id}/persons` → `GET /api/v2/persons?deal_id={id}`
+  - `GET /v1/deals/{id}/products` → `GET /api/v2/deals/{id}/products`
+  - `POST /v1/deals/{id}/products` → `POST /api/v2/deals/{id}/products`
+  - `PUT /v1/deals/{id}/products/{product_attachment_id}` → `PATCH /api/v2/deals/{id}/products/{product_attachment_id}`
+  - `DELETE /v1/deals/{id}/products/{product_attachment_id}` → `DELETE /api/v2/deals/{id}/products/{product_attachment_id}`
+  - `GET /v1/itemSearch` → `GET /api/v2/itemSearch`
+  - `GET /v1/itemSearch/field` → `GET /api/v2/itemSearch/field`
+  - `GET /v1/organizations` → `GET /api/v2/organizations`
+  - `GET /v1/organizations/collection` → `GET /api/v2/organizations`
+  - `GET /v1/organizations/{id}` → `GET /api/v2/organizations/{id}`
+  - `GET /v1/organizations/search` → `GET /api/v2/organizations/search`
+  - `POST /v1/organizations` → `POST /api/v2/organizations`
+  - `PUT /v1/organizations/{id}` → `PATCH /api/v2/organizations/{id}`
+  - `DELETE /v1/organizations/{id}` → `DELETE /api/v2/organizations/{id}`
+  - `GET /v1/organizations/{id}/deals` → `GET /api/v2/deals?org_id={id}`
+  - `GET /v1/organizations/{id}/activities` → `GET /api/v2/activities?org_id={id}`
+  - `GET /v1/organizations/{id}/persons` → `GET /api/v2/persons?org_id={id}`
+  - `GET /v1/persons` → `GET /api/v2/persons`
+  - `GET /v1/persons/collection` → `GET /api/v2/persons`
+  - `GET /v1/persons/{id}` → `GET /api/v2/persons/{id}`
+  - `GET /v1/persons/search` → `GET /api/v2/persons/search`
+  - `POST /v1/persons` → `POST /api/v2/persons`
+  - `PUT /v1/persons/{id}` → `PATCH /api/v2/persons/{id}`
+  - `DELETE /v1/persons/{id}` → `DELETE /api/v2/persons/{id}`
+  - `GET /v1/persons/{id}/deals` → `GET /api/v2/deals?person_id={id}`
+  - `GET /v1/persons/{id}/activities` → `GET /api/v2/activities?person_id={id}`
+  - `GET /v1/pipelines` → `GET /api/v2/pipelines`
+  - `GET /v1/pipelines/{id}` → `GET /api/v2/pipelines/{id}`
+  - `POST /v1/pipelines` → `POST /api/v2/pipelines`
+  - `PUT /v1/pipelines/{id}` → `PATCH /api/v2/pipelines/{id}`
+  - `DELETE /v1/pipelines/{id}` → `DELETE /api/v2/pipelines/{id}`
+  - `GET /v1/products` → `GET /api/v2/products`
+  - `GET /v1/products/{id}` → `GET /api/v2/products/{id}`
+  - `GET /v1/products/search` → `GET /api/v2/products/search`
+  - `POST /v1/products` → `POST /api/v2/products`
+  - `PUT /v1/products/{id}` → `PATCH /api/v2/products/{id}`
+  - `DELETE /v1/products/{id}` → `DELETE /api/v2/products/{id}`
+  - `GET /v1/stages` → `GET /api/v2/stages`
+  - `GET /v1/stages/{id}` → `GET /api/v2/stages/{id}`
+  - `POST /v1/stages` → `POST /api/v2/stages`
+  - `PUT /v1/stages/{id}` → `PATCH /api/v2/stages/{id}`
+  - `DELETE /v1/stages/{id}` → `DELETE /api/v2/stages/{id}`
+### Fixed
+- Made `picture_id`, `org_id`, `label`, `last_name`, `cc_email`, `last_incoming_mail_time`, and `last_outgoing_mail_time` nullable in person and organization schemas to match real API behavior
+
+## [15.7.0](https://github.com/pipedrive/client-php/compare/15.6.0...15.7.0) (2026-05-05)
+### Changed
+- Changed `board_id` and `phase_id` to be optional in `POST /api/v1/projects`
+
+## [15.6.0](https://github.com/pipedrive/client-php/compare/15.5.0...15.6.0) (2026-05-05)
+### Added
+- Added `source_deal_id` field to Lead schema to track the deal ID when a lead is converted from a deal
+- Added `source_lead_id` field to v2 Deal schema to track the lead ID when a lead is converted from a lead
+
+## [15.5.0](https://github.com/pipedrive/client-php/compare/15.4.0...15.5.0) (2026-04-16)
+
 ### Added
 - Added `include_field_code` query parameter to Filters endpoints:
   - `GET /v1/filters/{id}`
   - `PUT /v1/filters/{id}`
   - `POST /v1/filters`
   - When set to `true`, each condition in the response includes a `field_code` field identifying the field by its code name. The value is `null` if the field code cannot be resolved.
-
-## [15.5.0](https://github.com/pipedrive/client-php/compare/15.4.0...15.5.0) (2026-04-16)
 
 ## [15.4.0](https://github.com/pipedrive/client-php/compare/15.3.0...15.4.0) (2026-02-16)
 
@@ -428,7 +560,7 @@ $config = (new Pipedrive\versions\v1\Configuration())->setApiKey('x-api-token', 
 
 ### Added
 
-- Added “pipeline_id” query parameter to GET /api/v1/deals/summary endpoint
+- Added "pipeline_id" query parameter to GET /api/v1/deals/summary endpoint
 
 ### Changed
 
@@ -446,9 +578,9 @@ $config = (new Pipedrive\versions\v1\Configuration())->setApiKey('x-api-token', 
   - `POST` `/v2/deals/{id}/products` endpoint
   - `PATCH` `/v2/deals/{id}/products/{product_attachment_id}` endpoint
   - `DELETE` `/v2/deals/{id}/products/{product_attachment_id}` endpoint
-- Added the field “notes” to product prices in the body and response for v1 and v2
-- Added the field “overhead_cost” to the product variation prices in the response for v1
-- Added the field “direct_cost” to the product variation prices in the response and body for v2
+- Added the field "notes" to product prices in the body and response for v1 and v2
+- Added the field "overhead_cost" to the product variation prices in the response for v1
+- Added the field "direct_cost" to the product variation prices in the response and body for v2
 - Add "custom_fields" query paremeter to GET /api/v2/products
 
 ### Changed

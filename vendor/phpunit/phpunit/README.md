@@ -48,6 +48,8 @@ Here is a list of all components that are primarily developed and maintained by 
 * [sebastian/diff](https://github.com/sebastianbergmann/diff)
 * [sebastian/environment](https://github.com/sebastianbergmann/environment)
 * [sebastian/exporter](https://github.com/sebastianbergmann/exporter)
+* [sebastian/file-filter](https://github.com/sebastianbergmann/file-filter)
+* [sebastian/git-state](https://github.com/sebastianbergmann/git-state)
 * [sebastian/global-state](https://github.com/sebastianbergmann/global-state)
 * [sebastian/lines-of-code](https://github.com/sebastianbergmann/lines-of-code)
 * [sebastian/object-enumerator](https://github.com/sebastianbergmann/object-enumerator)
@@ -88,14 +90,15 @@ These businesses support Sebastian Bergmann's work on PHPUnit:
         <tr>
             <td style="width: 30%; vertical-align: middle;"><a href="https://www.bubbleshooter.net/"><img alt="Bubble Shooter" src=".github/img/bubble-shooter.png" style="width: 200px;"/></a></td>
             <td style="width: 30%; vertical-align: middle;"><a href="https://www.in2it.be/phpunit-supporter/"><img alt="in2it vof" src=".github/img/in2it.svg" style="width: 200px;"/></a></td>
-            <td style="width: 30%; vertical-align: middle;"><a href="https://www.lambdatest.com/"><img alt="LambdaTest" src=".github/img/lambdatest.svg" style="width: 200px;"/></a></td>
+            <td style="width: 30%; vertical-align: middle;"><a href="https://l.rw.rw/php_unit"><img alt="Mailtrap" src=".github/img/mailtrap.svg" style="width: 200px;"/></a></td>
         </tr>
         <tr>
             <td style="width: 30%; vertical-align: middle;"><a href="https://testmo.com/"><img alt="Testmo GmbH" src=".github/img/testmo.svg" style="width: 200px;"/></a></td>
+            <td style="width: 30%; vertical-align: middle;"><a href="https://www.testmuai.com/?utm_medium=sponsor&utm_source=phpunit"><img alt="TestMu AI" src=".github/img/testmuai.svg" style="width: 200px;"/></a></td>
             <td style="width: 30%; vertical-align: middle;"><a href="https://tideways.com/"><img alt="Tideways GmbH" src=".github/img/tideways.svg" style="width: 200px;"/></a></td>
-            <td style="width: 30%; vertical-align: middle;"><a href="https://typo3.com/"><img alt="TYPO3 GmbH" src=".github/img/typo3.svg" style="width: 200px;"/></a></td>
         </tr>
         <tr>
+            <td style="width: 30%; vertical-align: middle;"><a href="https://typo3.com/"><img alt="TYPO3 GmbH" src=".github/img/typo3.svg" style="width: 200px;"/></a></td>
             <td style="width: 30%; vertical-align: middle;"><a href="https://vema-eg.de/"><img alt="VEMA Versicherungsmakler Genossenschaft eG" src=".github/img/vema.svg" style="width: 200px;"/></a></td>
         </tr>
     </tbody>

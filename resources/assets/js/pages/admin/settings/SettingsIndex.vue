@@ -150,6 +150,7 @@ const sections = computed(() => [
     {
         title: __('message.system'),
         items: [
+            { to: '/settings/company',   icon: 'fas fa-building',     label: __('message.company-settings') },
             { to: '/settings/system',    icon: 'fas fa-display',      label: __('message.system-settings') },
             { to: '/settings/cron',      icon: 'fas fa-gauge',         label: __('message.cron-setting') },
             { to: '/settings/language',  icon: 'fas fa-language',      label: __('message.language') },

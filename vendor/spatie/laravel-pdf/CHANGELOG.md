@@ -2,6 +2,185 @@
 
 All notable changes to `laravel-pdf` will be documented in this file.
 
+## 2.11.0 - 2026-05-27
+
+### What's Changed
+
+* Add `SensitiveParameter` attribute to password parameters by @sebdesign in https://github.com/spatie/laravel-pdf/pull/346
+
+### New Contributors
+
+* @sebdesign made their first contribution in https://github.com/spatie/laravel-pdf/pull/346
+
+**Full Changelog**: https://github.com/spatie/laravel-pdf/compare/2.10.0...2.11.0
+
+## 2.10.0 - 2026-05-27
+
+### What's Changed
+
+* Document Pdf::assertBrowsershot() by @freekmurze in https://github.com/spatie/laravel-pdf/pull/341
+* Add native AES-256 password protection by @freekmurze in https://github.com/spatie/laravel-pdf/pull/344
+* Add readiness waiting and render caching by @freekmurze in https://github.com/spatie/laravel-pdf/pull/345
+
+**Full Changelog**: https://github.com/spatie/laravel-pdf/compare/2.9.0...2.10.0
+
+## 2.9.0 - 2026-05-22
+
+### What's Changed
+
+* Update Cloudflare Driver Documentation by @Rorymercer in https://github.com/spatie/laravel-pdf/pull/337
+* Update Cloudflare API Token Screenshot by @intrepidws in https://github.com/spatie/laravel-pdf/pull/339
+* Support setting and asserting Browsershot config with Pdf::fake() by @freekmurze in https://github.com/spatie/laravel-pdf/pull/340
+
+### New Contributors
+
+* @Rorymercer made their first contribution in https://github.com/spatie/laravel-pdf/pull/337
+* @intrepidws made their first contribution in https://github.com/spatie/laravel-pdf/pull/339
+
+**Full Changelog**: https://github.com/spatie/laravel-pdf/compare/2.8.0...2.9.0
+
+## 2.8.0 - 2026-04-27
+
+### What's Changed
+
+* feat(chrome): add operation timeout configuration for PDF generation by @ycchuang99 in https://github.com/spatie/laravel-pdf/pull/335
+
+**Full Changelog**: https://github.com/spatie/laravel-pdf/compare/2.7.0...2.8.0
+
+## 2.7.0 - 2026-04-23
+
+### What's Changed
+
+* Bump dependabot/fetch-metadata from 3.0.0 to 3.1.0 by @dependabot[bot] in https://github.com/spatie/laravel-pdf/pull/330
+* feat(chrome): implement chrome-php/chrome driver by @ycchuang99 in https://github.com/spatie/laravel-pdf/pull/332
+
+### New Contributors
+
+* @ycchuang99 made their first contribution in https://github.com/spatie/laravel-pdf/pull/332
+
+**Full Changelog**: https://github.com/spatie/laravel-pdf/compare/2.6.0...2.7.0
+
+## 2.6.0 - 2026-04-13
+
+### What's Changed
+
+* Bump dependabot/fetch-metadata from 2.5.0 to 3.0.0 by @dependabot[bot] in https://github.com/spatie/laravel-pdf/pull/324
+* Implement toMailAttachment and Attachable on PdfBuilder by @QuentinGab in https://github.com/spatie/laravel-pdf/pull/327
+
+### New Contributors
+
+* @QuentinGab made their first contribution in https://github.com/spatie/laravel-pdf/pull/327
+
+**Full Changelog**: https://github.com/spatie/laravel-pdf/compare/2.5.0...2.6.0
+
+## 2.5.0 - 2026-04-02
+
+### What's Changed
+
+* Fix custom page size for Cloudflare driver by @freekmurze in https://github.com/spatie/laravel-pdf/pull/326
+
+**Full Changelog**: https://github.com/spatie/laravel-pdf/compare/2.4.0...2.5.0
+
+## 2.4.0 - 2026-03-11
+
+Add Laravel 13 support
+
+## 2.3.0 - 2026-03-11
+
+### What's new
+
+- Make `generatePdfContent()` public on `PdfBuilder`, allowing users to get raw PDF content directly without saving to a file
+
+## 2.2.1 - 2026-03-04
+
+### What's Changed
+
+- Default `write_options_to_file` to `true` to prevent "Argument list too long" errors when headers/footers contain large content (e.g. inline images)
+
+Fixes #317
+
+## 2.2.0 - 2026-02-12
+
+### What's Changed
+
+* Add Weasyprint driver by @barryvdh in https://github.com/spatie/laravel-pdf/pull/304
+
+### New Contributors
+
+* @barryvdh made their first contribution in https://github.com/spatie/laravel-pdf/pull/304
+
+**Full Changelog**: https://github.com/spatie/laravel-pdf/compare/2.1.1...2.2.0
+
+## 2.1.1 - 2026-02-10
+
+### What's Changed
+
+* Add support for basic auth in the Gotenberg driver by @grantholle in https://github.com/spatie/laravel-pdf/pull/303
+
+### New Contributors
+
+* @grantholle made their first contribution in https://github.com/spatie/laravel-pdf/pull/303
+
+**Full Changelog**: https://github.com/spatie/laravel-pdf/compare/2.1.0...2.1.1
+
+## 2.1.0 - 2026-02-09
+
+### What's Changed
+
+* Add Gotenberg driver by @freekmurze in https://github.com/spatie/laravel-pdf/pull/302
+
+**Full Changelog**: https://github.com/spatie/laravel-pdf/compare/2.0.0...2.1.0
+
+## 2.0.0 - 2026-02-08
+
+### What's new
+
+v2 introduces a **driver-based architecture**, allowing you to choose between different PDF generation backends.
+
+#### New drivers
+
+- **Cloudflare** - Generate PDFs using Cloudflare's Browser Rendering API
+- **DomPdf** - Generate PDFs using DomPdf (no external binary required)
+- **Browsershot** - Remains the default driver
+
+#### New features
+
+- Queued PDF generation via `saveQueued()`
+- PDF metadata support (title, author, subject, keywords, creator, creation date)
+- Runtime driver switching with `->driver('dompdf')`
+- Custom driver support
+
+#### Breaking changes
+
+- `spatie/browsershot` must now be explicitly required via Composer
+- `getBrowsershot()` has been removed — use `withBrowsershot()` instead
+- Config file structure has changed (new `driver` key)
+- Laravel 10 support has been dropped
+
+See the full [upgrade guide](https://github.com/spatie/laravel-pdf/blob/main/UPGRADING.md) for migration steps.
+
+**Full Changelog**: https://github.com/spatie/laravel-pdf/compare/1.9.0...2.0.0
+
+## 1.9.0 - 2026-01-31
+
+### What's Changed
+
+* Fix typo in alternatives.md regarding Chromium by @lienriviere in https://github.com/spatie/laravel-pdf/pull/277
+* Bump dependabot/fetch-metadata from 2.4.0 to 2.5.0 by @dependabot[bot] in https://github.com/spatie/laravel-pdf/pull/293
+* Bump actions/checkout from 5 to 6 by @dependabot[bot] in https://github.com/spatie/laravel-pdf/pull/290
+* Bump actions/setup-node from 5 to 6 by @dependabot[bot] in https://github.com/spatie/laravel-pdf/pull/284
+* Bump stefanzweifel/git-auto-commit-action from 6 to 7 by @dependabot[bot] in https://github.com/spatie/laravel-pdf/pull/283
+* Add PHP 8.4 to test matrix, add PR trigger by @freekbot in https://github.com/spatie/laravel-pdf/pull/296
+* Fix defaults not being preserved in queue:work by @freekmurze in https://github.com/spatie/laravel-pdf/pull/298
+
+### New Contributors
+
+* @lienriviere made their first contribution in https://github.com/spatie/laravel-pdf/pull/277
+* @freekbot made their first contribution in https://github.com/spatie/laravel-pdf/pull/296
+* @freekmurze made their first contribution in https://github.com/spatie/laravel-pdf/pull/298
+
+**Full Changelog**: https://github.com/spatie/laravel-pdf/compare/1.8.0...1.9.0
+
 ## 1.8.0 - 2025-09-12
 
 ### What's Changed

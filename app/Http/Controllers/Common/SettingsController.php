@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Common;
 
+use Cache;
 use App\ApiKey;
 use App\CloudPopUp;
 use App\Email_log;
@@ -583,7 +584,7 @@ class SettingsController extends BaseSettingsController
     public function getSystemSettingsData(Setting $settings)
     {
         try {
-            $set = $settings->find(1) ?: $settings->create(['company' => '']);
+            $set = $settings->with('timezone:id,name,location')->find(1) ?: $settings->create(['company' => '']);
             $languages = (new InstallerController())->languageList()->getData()->data ?? [];
 
             return successResponse('', [
@@ -611,11 +612,29 @@ class SettingsController extends BaseSettingsController
                     'logo' => $set->logo,
                     'admin_logo' => $set->admin_logo,
                     'fav_icon' => $set->fav_icon,
+                    'timezone_id' => $set->timezone_id,
+                    'timezone' => $set->timezone,
+                    'date_format' => $set->date_format ?? 'd/m/Y',
+                    'time_format' => $set->time_format ?? 'H:i',
                 ],
                 'countries' => Country::orderBy('country_name')->get(['country_code_char2', 'country_name']),
                 'states' => State::where('country_code', $set->country)->orderBy('state_subdivision_name')->get(['iso2', 'state_subdivision_name']),
                 'currencies' => Currency::orderBy('name')->get(['code', 'name', 'symbol']),
                 'languages' => $languages,
+                'timezones' => \App\Model\Common\Timezone::orderBy('name')->get(['id', 'name', 'location']),
+                'date_formats' => [
+                    ['value' => 'd/m/Y', 'label' => 'DD/MM/YYYY'],
+                    ['value' => 'm/d/Y', 'label' => 'MM/DD/YYYY'],
+                    ['value' => 'Y/m/d', 'label' => 'YYYY/MM/DD'],
+                    ['value' => 'Y-m-d', 'label' => 'YYYY-MM-DD'],
+                    ['value' => 'd-m-Y', 'label' => 'DD-MM-YYYY'],
+                    ['value' => 'm-d-Y', 'label' => 'MM-DD-YYYY'],
+                    ['value' => 'M j, Y', 'label' => 'Mon DD, YYYY'],
+                ],
+                'time_formats' => [
+                    ['value' => 'H:i',   'label' => '24 Hours'],
+                    ['value' => 'h:i A', 'label' => '12 Hours'],
+                ],
             ]);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
@@ -663,6 +682,27 @@ class SettingsController extends BaseSettingsController
             $setting->default_symbol = Currency::where('code', $request->input('default_currency'))->value('symbol');
             $setting->content = $request->input('language');
             $setting->fill($input)->save();
+
+            return successResponse(\Lang::get('message.updated-successfully'));
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function updateDateTimeSettingsData(Setting $settings, Request $request)
+    {
+        $request->validate([
+            'timezone_id'  => 'required|integer|exists:timezone,id',
+            'date_format'  => 'required|string|max:20',
+            'time_format'  => 'required|string|max:20',
+        ]);
+
+        try {
+            $setting = $settings->find(1) ?: $settings->create(['company' => '']);
+            $setting->fill($request->only(['timezone_id', 'date_format', 'time_format']))->save();
+
+            Cache::forget('system_datetime_format');
+            Cache::forget('system_timezone');
 
             return successResponse(\Lang::get('message.updated-successfully'));
         } catch (\Exception $ex) {

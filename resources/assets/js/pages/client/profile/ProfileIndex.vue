@@ -52,7 +52,7 @@
             <template #append>
               <button type="button" class="input-group-text" tabindex="-1"
                       @click="showEmailModal = true"
-                      v-tooltip :title="__('message.click_to_change_email')">
+                      v-tooltip="__('message.click_to_change_email')">
                 <i class="fa fa-pencil-alt"></i>
               </button>
             </template>
@@ -66,7 +66,7 @@
             <template #append>
               <button type="button" class="input-group-text" tabindex="-1"
                       @click="showMobileModal = true"
-                      v-tooltip :title="__('message.click_to_change_mobile_no')">
+                      v-tooltip="__('message.click_to_change_mobile_no')">
                 <i class="fa fa-pencil-alt"></i>
               </button>
             </template>

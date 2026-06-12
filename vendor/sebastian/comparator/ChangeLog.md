@@ -2,6 +2,94 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [8.3.0] - 2026-06-05
+
+### Added
+
+* [#163](https://github.com/sebastianbergmann/comparator/pull/163): Expose detection of closure comparisons
+
+## [8.2.1] - 2026-05-21
+
+### Changed
+
+* [#136](https://github.com/sebastianbergmann/comparator/pull/136): Cleaner diff output for canonicalized list comparisons
+* [#160](https://github.com/sebastianbergmann/comparator/pull/160): Use by-value comparison for closures
+
+### Fixed
+
+* [#136](https://github.com/sebastianbergmann/comparator/pull/136): Canonicalized array comparison destroys string keys
+
+## [8.2.0] - 2026-05-20
+
+### Added
+
+* [#126](https://github.com/sebastianbergmann/comparator/issues/126): `DateIntervalComparator` for comparing `DateInterval` objects with a delta tolerance
+
+### Fixed
+
+* [#70](https://github.com/sebastianbergmann/comparator/issues/70): Non-ASCII text in XML diffs is rendered as numeric character references, making diffs unreadable
+* [#87](https://github.com/sebastianbergmann/comparator/issues/87): `DOMNodeComparator` crashes or returns false positives when `DOMNode::C14N()` fails
+* [#107](https://github.com/sebastianbergmann/comparator/issues/107): `DOMNodeComparator` reports XML documents as equal when they differ only in comments
+* [#115](https://github.com/sebastianbergmann/comparator/issues/115): `DateTimeComparator` does not track processed pairs, producing misleading diffs in nested structures
+* [#158](https://github.com/sebastianbergmann/comparator/issues/158): `ComparisonFailure` cannot be serialized when stack trace contains non-serializable objects
+
+## [8.1.4] - 2026-05-15
+
+### Changed
+
+* [#138](https://github.com/sebastianbergmann/comparator/issues/138): Use `StrictUnifiedDiffOutputBuilder` instead of `UnifiedDiffOutputBuilder`
+
+## [8.1.3] - 2026-05-15
+
+### Changed
+
+* Pass configuration options introduced in sebastian/diff 8.3.0
+
+## [8.1.2] - 2026-04-14
+
+### Fixed
+
+* [#141](https://github.com/sebastianbergmann/comparator/issues/141): `ArrayComparator` sorts objects by `spl_object_id()`, breaking canonicalized equality for arrays of equal objects
+
+## [8.1.1] - 2026-04-08
+
+### Fixed
+
+* [#140](https://github.com/sebastianbergmann/comparator/issues/140): `sort()` in `ArrayComparator` produces non-deterministic results for arrays with mixed types
+
+## [8.1.0] - 2026-04-06
+
+### Added
+
+* [#137](https://github.com/sebastianbergmann/comparator/issues/137): Make diff context lines configurable
+
+## [8.0.0] - 2026-02-06
+
+### Removed
+
+* Removed support for PHP 8.3
+
+## [7.1.8] - 2026-05-21
+
+### Changed
+
+* [#136](https://github.com/sebastianbergmann/comparator/pull/136): Cleaner diff output for canonicalized list comparisons
+* [#160](https://github.com/sebastianbergmann/comparator/pull/160): Use by-value comparison for closures
+
+### Fixed
+
+* [#136](https://github.com/sebastianbergmann/comparator/pull/136): Canonicalized array comparison destroys string keys
+
+## [7.1.7] - 2026-05-20
+
+### Fixed
+
+* [#70](https://github.com/sebastianbergmann/comparator/issues/70): Non-ASCII text in XML diffs is rendered as numeric character references, making diffs unreadable
+* [#87](https://github.com/sebastianbergmann/comparator/issues/87): `DOMNodeComparator` crashes or returns false positives when `DOMNode::C14N()` fails
+* [#107](https://github.com/sebastianbergmann/comparator/issues/107): `DOMNodeComparator` reports XML documents as equal when they differ only in comments
+* [#115](https://github.com/sebastianbergmann/comparator/issues/115): `DateTimeComparator` does not track processed pairs, producing misleading diffs in nested structures
+* [#158](https://github.com/sebastianbergmann/comparator/issues/158): `ComparisonFailure` cannot be serialized when stack trace contains non-serializable objects
+
 ## [7.1.6] - 2026-04-14
 
 ### Fixed
@@ -312,6 +400,17 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 * Added `SebastianBergmann\Comparator\Factory::reset()` to unregister all non-default comparators
 * Added support for `phpunit/phpunit-mock-objects` version `^5.0`
 
+[8.3.0]: https://github.com/sebastianbergmann/comparator/compare/8.2.1...8.3.0
+[8.2.1]: https://github.com/sebastianbergmann/comparator/compare/8.2.0...8.2.1
+[8.2.0]: https://github.com/sebastianbergmann/comparator/compare/8.1.4...8.2.0
+[8.1.4]: https://github.com/sebastianbergmann/comparator/compare/8.1.3...8.1.4
+[8.1.3]: https://github.com/sebastianbergmann/comparator/compare/8.1.2...8.1.3
+[8.1.2]: https://github.com/sebastianbergmann/comparator/compare/8.1.1...8.1.2
+[8.1.1]: https://github.com/sebastianbergmann/comparator/compare/8.1.0...8.1.1
+[8.1.0]: https://github.com/sebastianbergmann/comparator/compare/8.0.0...8.1.0
+[8.0.0]: https://github.com/sebastianbergmann/comparator/compare/7.1...8.0.0
+[7.1.8]: https://github.com/sebastianbergmann/comparator/compare/7.1.7...7.1.8
+[7.1.7]: https://github.com/sebastianbergmann/comparator/compare/7.1.6...7.1.7
 [7.1.6]: https://github.com/sebastianbergmann/comparator/compare/7.1.5...7.1.6
 [7.1.5]: https://github.com/sebastianbergmann/comparator/compare/7.1.4...7.1.5
 [7.1.4]: https://github.com/sebastianbergmann/comparator/compare/7.1.3...7.1.4
@@ -332,14 +431,11 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 [6.0.2]: https://github.com/sebastianbergmann/comparator/compare/6.0.1...6.0.2
 [6.0.1]: https://github.com/sebastianbergmann/comparator/compare/6.0.0...6.0.1
 [6.0.0]: https://github.com/sebastianbergmann/comparator/compare/5.0...6.0.0
-[5.0.5]: https://github.com/sebastianbergmann/comparator/compare/5.0.4...5.0.5
 [5.0.4]: https://github.com/sebastianbergmann/comparator/compare/5.0.3...5.0.4
 [5.0.3]: https://github.com/sebastianbergmann/comparator/compare/5.0.2...5.0.3
 [5.0.2]: https://github.com/sebastianbergmann/comparator/compare/5.0.1...5.0.2
 [5.0.1]: https://github.com/sebastianbergmann/comparator/compare/5.0.0...5.0.1
-[5.0.0]: https://github.com/sebastianbergmann/comparator/compare/4.0...5.0.0
-[4.0.10]: https://github.com/sebastianbergmann/comparator/compare/4.0.9...4.0.10
-[4.0.9]: https://github.com/sebastianbergmann/comparator/compare/4.0.8...4.0.9
+[5.0.0]: https://github.com/sebastianbergmann/comparator/compare/4.0.8...5.0.0
 [4.0.8]: https://github.com/sebastianbergmann/comparator/compare/4.0.7...4.0.8
 [4.0.7]: https://github.com/sebastianbergmann/comparator/compare/4.0.6...4.0.7
 [4.0.6]: https://github.com/sebastianbergmann/comparator/compare/4.0.5...4.0.6
@@ -348,9 +444,7 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 [4.0.3]: https://github.com/sebastianbergmann/comparator/compare/4.0.2...4.0.3
 [4.0.2]: https://github.com/sebastianbergmann/comparator/compare/4.0.1...4.0.2
 [4.0.1]: https://github.com/sebastianbergmann/comparator/compare/4.0.0...4.0.1
-[4.0.0]: https://github.com/sebastianbergmann/comparator/compare/3.0...4.0.0
-[3.0.7]: https://github.com/sebastianbergmann/comparator/compare/3.0.6...3.0.7
-[3.0.6]: https://github.com/sebastianbergmann/comparator/compare/3.0.5...3.0.6
+[4.0.0]: https://github.com/sebastianbergmann/comparator/compare/3.0.5...4.0.0
 [3.0.5]: https://github.com/sebastianbergmann/comparator/compare/3.0.4...3.0.5
 [3.0.4]: https://github.com/sebastianbergmann/comparator/compare/3.0.3...3.0.4
 [3.0.3]: https://github.com/sebastianbergmann/comparator/compare/3.0.2...3.0.3

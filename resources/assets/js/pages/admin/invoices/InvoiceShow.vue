@@ -6,7 +6,7 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.invoice') }} #{{ invoice?.number }}</h4>
                 <div class="card-tools">
-                    <a :href="`${baseUrl}/pdf?invoiceid=${invoiceId}`" class="btn btn-tool" :title="__('message.download_pdf')" v-tooltip>
+                    <a :href="`${baseUrl}/pdf?invoiceid=${invoiceId}`" class="btn btn-tool" v-tooltip="__('message.download_pdf')">
                         <i class="fas fa-download"></i>
                     </a>
                 </div>
@@ -173,6 +173,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import http from '@/plugins/axios'
 import { errorHandler } from '@/helpers/responseHandler.js'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDate } = useDateTime()
 
 const COMPONENT = 'invoices-show'
 const el = document.getElementById('app-root')
@@ -202,10 +205,6 @@ function capitalize(str) {
     return str ? String(str).charAt(0).toUpperCase() + String(str).slice(1) : '—'
 }
 
-function formatDate(d) {
-    if (!d) return '—'
-    return new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
-}
 
 function formatCurrency(val) {
     if (val === null || val === undefined) return '—'

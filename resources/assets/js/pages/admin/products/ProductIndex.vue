@@ -5,7 +5,7 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.products') }}</h4>
                 <div class="card-tools">
-                    <router-link to="/products/create" class="btn btn-tool" :title="__('message.add_product')" v-tooltip>
+                    <router-link to="/products/create" class="btn btn-tool" v-tooltip="__('message.add_product')">
                         <i class="fas fa-plus"></i>
                     </router-link>
                 </div>

@@ -28,22 +28,19 @@
                             <span
                                 class="fas fa-envelope"
                                 :class="user.email_verified ? 'icon-success' : 'icon-danger'"
-                                :title="user.email_verified ? __('message.email_verified') : __('message.email_not_verified')"
-                                v-tooltip
+                                v-tooltip="user.email_verified ? __('message.email_verified') : __('message.email_not_verified')"
                             ></span>
                             &nbsp;
                             <span
                                 class="fas fa-mobile-alt"
                                 :class="user.mobile_verified ? 'icon-success' : 'icon-danger'"
-                                :title="user.mobile_verified ? __('message.mobile_verified') : __('message.mobile_not_verified')"
-                                v-tooltip
+                                v-tooltip="user.mobile_verified ? __('message.mobile_verified') : __('message.mobile_not_verified')"
                             ></span>
                             &nbsp;
                             <span
                                 class="fas fa-shield-alt"
                                 :class="user.is_2fa_enabled ? 'icon-success' : 'icon-danger'"
-                                :title="user.is_2fa_enabled ? __('message.2fa_enabled') : __('message.2fa_not_enabled')"
-                                v-tooltip
+                                v-tooltip="user.is_2fa_enabled ? __('message.2fa_enabled') : __('message.2fa_not_enabled')"
                             ></span>
                         </p>
 
@@ -437,6 +434,7 @@ import { errorHandler }             from '@/helpers/responseHandler.js'
 import TextField                    from '@/components/Reusable/FormField/TextField.vue'
 import { asset }                    from '@/core/utils/asset.js'
 import { useNotification }          from '@/core/composables/useNotification.js'
+import { useDateTime }              from '@/core/composables/useDateTime'
 import DeleteModal                  from '@/themes/adminlte/components/common/DeleteModal.vue'
 import PaymentTableActions          from './components/PaymentTableActions.vue'
 import InvoiceTableActions          from '../invoices/components/InvoiceTableActions.vue'
@@ -446,6 +444,7 @@ const COMPONENT  = 'user-show'
 const route      = useRoute()
 const userId     = route.params.id
 const { notify } = useNotification()
+const { formatDate } = useDateTime()
 
 const el             = document.getElementById('app-root')
 const baseUrl        = el?.dataset?.baseUrl ?? ''
@@ -651,11 +650,11 @@ function timeAgo(dateStr) {
     if (minutes < 60) return `${minutes}m ago`
     const hours = Math.floor(minutes / 60)
     if (hours < 24) return `${hours}h ago`
-    return new Date(dateStr).toLocaleDateString()
+    return formatDate(dateStr)
 }
 
 function fmtDate(val) {
-    return val ? new Date(val).toLocaleDateString() : '—'
+    return val ? formatDate(val) : '—'
 }
 
 function statusBadge(status, map) {

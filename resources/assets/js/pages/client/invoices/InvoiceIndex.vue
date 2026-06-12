@@ -28,11 +28,11 @@
         <template #action="{ row }">
           <div class="d-flex align-items-center gap-1 flex-nowrap">
             <action-button action="view" :to="'/my-invoice/' + row.id"
-                           v-tooltip :title="__('message.view')"/>
+                           v-tooltip="__('message.view')"/>
 
             <action-button v-if="row.show_pay"
                            icon="fas fa-credit-card" class="table_btn"
-                           v-tooltip :title="__('message.pay')"
+                           v-tooltip="__('message.pay')"
                            @click="goToPay(row.id)"/>
           </div>
         </template>
@@ -45,6 +45,9 @@
 import {reactive} from 'vue'
 import {RouterLink, useRouter} from 'vue-router'
 import {__} from '@/plugins/i18n'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDate } = useDateTime()
 
 const router = useRouter()
 const el = document.getElementById('app-client')
@@ -68,10 +71,6 @@ const tableOptions = reactive({
   filterable: true,
 })
 
-function formatDate(d) {
-  if (!d) return '—'
-  return new Date(d).toLocaleDateString(undefined, {year: 'numeric', month: 'short', day: 'numeric'})
-}
 
 function goToPay(invoiceId) {
   // Send to the checkout/gateway-selection step (page 2), not straight to the

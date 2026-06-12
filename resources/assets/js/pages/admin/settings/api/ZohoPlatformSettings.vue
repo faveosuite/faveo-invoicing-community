@@ -7,7 +7,7 @@
                 <h4 class="card-title text-capitalize">{{ platformLabel }}</h4>
                 <div class="card-tools">
                     <button v-if="activeTab === 'field-mapping'"
-                        class="btn btn-tool" v-tooltip :title="__('message.sync_fields')"
+                        class="btn btn-tool" v-tooltip="__('message.sync_fields')"
                         :disabled="syncing" @click="syncFields">
                         <i class="fas fa-sync" :class="{ 'fa-spin': syncing }"></i>
                     </button>
@@ -125,7 +125,7 @@
                                     </div>
                                     <div class="col-2 mb-3">
                                         <button v-if="idx > 0" type="button" class="btn btn-light table_btn"
-                                            :title="__('message.delete_attribute')" v-tooltip @click="removeRow(idx)">
+                                            v-tooltip="__('message.delete_attribute')" @click="removeRow(idx)">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>

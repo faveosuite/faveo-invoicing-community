@@ -31,6 +31,9 @@
 import { ref, h, onBeforeMount } from 'vue'
 import { RouterLink } from 'vue-router'
 import { lang } from '@/helpers/extraLogics'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDateTime } = useDateTime()
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
@@ -79,7 +82,7 @@ function updateData(value) {
                 callback_status: 'dt-status',
             },
             templates: {
-                callback_date_time: (f, row) => row.callback_date_time || '—',
+                callback_date_time: (f, row) => formatDateTime(row.callback_date_time),
                 product_title: (f, row) => {
                     if (row.product_title && row.product_id) {
                         return h(RouterLink, { to: '/products/' + row.product_id + '/edit' }, () => [row.product_title])
@@ -130,7 +133,7 @@ function updateData(value) {
                 callback_status: 'dt-status',
             },
             templates: {
-                callback_date_time: (f, row) => row.callback_date_time || '—',
+                callback_date_time: (f, row) => formatDateTime(row.callback_date_time),
                 product_title: (f, row) => {
                     if (row.product_title && row.product_id) {
                         return h(RouterLink, { to: '/products/' + row.product_id + '/edit' }, () => [row.product_title])

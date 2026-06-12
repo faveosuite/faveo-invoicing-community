@@ -290,8 +290,7 @@
                                         <router-link
                                             to="/products/plans/create"
                                             class="btn btn-tool"
-                                            :title="__('message.create_product_plan')"
-                                            v-tooltip
+                                            v-tooltip="__('message.create_product_plan')"
                                         >
                                             <i class="fas fa-plus"></i>
                                         </router-link>
@@ -316,8 +315,7 @@
                                         <router-link
                                             :to="`/products/${route.params.id}/versions/create`"
                                             class="btn btn-tool"
-                                            :title="__('message.add_version')"
-                                            v-tooltip
+                                            v-tooltip="__('message.add_version')"
                                         >
                                             <i class="fas fa-plus"></i>
                                         </router-link>

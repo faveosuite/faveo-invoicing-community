@@ -7,7 +7,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace PHPUnit\Framework;
+namespace PHPUnit\Framework\TestRunner;
 
 use function assert;
 use function bin2hex;
@@ -23,6 +23,9 @@ use function unlink;
 use function var_export;
 use PHPUnit\Event\Facade as EventFacade;
 use PHPUnit\Event\NoPreviousThrowableException;
+use PHPUnit\Framework\Exception;
+use PHPUnit\Framework\ProcessIsolationException;
+use PHPUnit\Framework\TestCase;
 use PHPUnit\Runner\CodeCoverage;
 use PHPUnit\TextUI\Configuration\Registry as ConfigurationRegistry;
 use PHPUnit\TextUI\Configuration\SourceMapper;
@@ -50,19 +53,9 @@ final class SeparateProcessTestRunner
      * @throws NoPreviousThrowableException
      * @throws ProcessIsolationException
      */
-    public function run(TestCase $test, bool $runEntireClass, bool $preserveGlobalState, bool $requiresXdebug): void
+    public function run(TestCase $test, bool $preserveGlobalState, bool $requiresXdebug): void
     {
         $class = new ReflectionClass($test);
-
-        if ($runEntireClass) {
-            $template = new Template(
-                __DIR__ . '/templates/class.tpl',
-            );
-        } else {
-            $template = new Template(
-                __DIR__ . '/templates/method.tpl',
-            );
-        }
 
         $bootstrap     = '';
         $constants     = '';
@@ -120,8 +113,15 @@ final class SeparateProcessTestRunner
         $offset                  = hrtime();
         $serializedConfiguration = $this->saveConfigurationForChildProcess();
         $processResultFile       = $this->pathForCachedSourceMap();
-        $processResultNonce      = bin2hex(random_bytes(16));
-        $sourceMapFile           = $this->sourceMapFileForChildProcess();
+
+        if ($processResultFile === false || $processResultFile === '') {
+            // @codeCoverageIgnoreStart
+            throw new ProcessIsolationException;
+            // @codeCoverageIgnoreEnd
+        }
+
+        $processResultNonce = bin2hex(random_bytes(16));
+        $sourceMapFile      = $this->sourceMapFileForChildProcess();
 
         $file = $class->getFileName();
 
@@ -133,6 +133,7 @@ final class SeparateProcessTestRunner
             'phar'                           => $phar,
             'filename'                       => $file,
             'className'                      => $class->getName(),
+            'methodName'                     => $test->name(),
             'collectCodeCoverageInformation' => $coverage,
             'data'                           => $data,
             'dataName'                       => $dataName,
@@ -151,9 +152,7 @@ final class SeparateProcessTestRunner
             'sourceMapFile'                  => $sourceMapFile,
         ];
 
-        if (!$runEntireClass) {
-            $var['methodName'] = $test->name();
-        }
+        $template = new Template(__DIR__ . '/templates/method.tpl');
 
         $template->setVar($var);
 

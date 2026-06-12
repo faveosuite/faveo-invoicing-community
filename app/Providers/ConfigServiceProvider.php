@@ -7,33 +7,55 @@ use Sentry\State\HubInterface;
 
 class ConfigServiceProvider extends ServiceProvider
 {
-    public function boot()
+    public function register(): void
     {
         if (! isInstall()) {
             return;
         }
 
         try {
-            $settings = \Cache::rememberForever('debugging_settings', function () {
-                return [
-                    'app.debug' => (bool) commonSettings('debugging', 'app_debug'),
-                    'pulse.enabled' => (bool) commonSettings('debugging', 'pulse_enabled'),
-                    'clockwork.enable' => (bool) commonSettings('debugging', 'clockwork_enable'),
-                    'app.sentry_reporting' => (bool) commonSettings('sentry', 'crash_reporting'),
-                    'sentry.traces_sample_rate' => commonSettings('sentry', 'performance_monitoring') ? 0.1 : 0,
-                ];
-            });
+            // Runs in register() (not boot()) so Debugbar, Clockwork, and Pulse read the
+            // correct values when their own boot() methods run — all register() calls
+            // complete before any boot() is invoked.
+            //
+            // \DB::table() instead of Eloquent: Model::$resolver is null until
+            // DatabaseServiceProvider::boot(), which hasn't run yet at this stage.
+            $rows = \DB::table('common_settings')
+                ->whereIn('option_name', ['debugging', 'sentry'])
+                ->get()
+                ->keyBy(fn ($r) => "{$r->option_name}:{$r->optional_field}");
 
-            config($settings);
+            $bool     = fn (string $key): bool => (bool) ($rows->get($key)?->option_value ?? false);
+            $debugOn  = $bool('debugging:app_debug');
 
+            config([
+                'app.debug'                   => $debugOn,
+                'debugbar.force_allow_enable' => $debugOn, // Debugbar v4 blocks itself in non-local envs
+                'pulse.enabled'               => $bool('debugging:pulse_enabled'),
+                'clockwork.enable'            => $bool('debugging:clockwork_enable'),
+                'app.sentry_reporting'        => $bool('sentry:crash_reporting'),
+                'sentry.traces_sample_rate'   => $rows->get('sentry:performance_monitoring')?->option_value ? 0.1 : 0,
+            ]);
+        } catch (\Throwable) {
+            // Fall back to .env values — app still boots correctly
+        }
+    }
+
+    public function boot(): void
+    {
+        if (! isInstall()) {
+            return;
+        }
+
+        try {
             if ($this->app->bound(HubInterface::class)) {
                 $this->app->make(HubInterface::class)
                     ->getClient()
                     ?->getOptions()
-                    ->setTracesSampleRate($settings['sentry.traces_sample_rate'] ?: null);
+                    ->setTracesSampleRate(config('sentry.traces_sample_rate') ?: null);
             }
         } catch (\Exception $e) {
-            \Log::warning('ConfigServiceProvider: failed to load debugging settings — '.$e->getMessage());
+            \Log::warning('ConfigServiceProvider: Sentry config failed — ' . $e->getMessage());
         }
     }
 }

@@ -18,6 +18,9 @@
 import { reactive, h } from 'vue'
 import { RouterLink } from 'vue-router'
 import { lang } from '@/helpers/extraLogics'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDateTime } = useDateTime()
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
@@ -54,7 +57,7 @@ const options = reactive({
         report_status: 'dt-status',
     },
     templates: {
-        report_date_time: (f, row) => row.report_date_time || '—',
+        report_date_time: (f, row) => formatDateTime(row.report_date_time),
         product: (f, row) => {
             if (row.product_title && row.product_id) {
                 return h(RouterLink, { to: '/products/' + row.product_id + '/edit' }, () => [row.product_title])

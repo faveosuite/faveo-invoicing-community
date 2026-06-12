@@ -7,8 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Services\Payment\ProcessingFee;
 use App\Traits\Payment\PostPaymentHandle;
 use App\User;
-use Cartalyst\Stripe\Laravel\Facades\Stripe;
 use Illuminate\Http\Request;
+use Stripe\Exception\AuthenticationException;
 use Stripe\StripeClient;
 
 /**
@@ -65,8 +65,8 @@ class SettingsController extends Controller
         ]);
 
         try {
-            $stripe = Stripe::make($request->input('stripe_secret'));
-            $stripe->customers()->create(['description' => 'Test Customer to Validate Secret Key']);
+            $stripe = new StripeClient($request->input('stripe_secret'));
+            $stripe->customers->create(['description' => 'Test Customer to Validate Secret Key']);
 
             ApiKey::find(1)->update([
                 'stripe_secret' => $request->input('stripe_secret'),
@@ -86,7 +86,7 @@ class SettingsController extends Controller
             }
 
             return successResponse(__('message.stripe_settings_updated_successfully'));
-        } catch (\Cartalyst\Stripe\Exception\UnauthorizedException $e) {
+        } catch (AuthenticationException $e) {
             return errorResponse($e->getMessage());
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());

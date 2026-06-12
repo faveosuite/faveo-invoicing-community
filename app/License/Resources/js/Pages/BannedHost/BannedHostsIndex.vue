@@ -22,6 +22,9 @@
 <script setup>
 import { reactive } from 'vue'
 import { lang } from '@/helpers/extraLogics'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDate } = useDateTime()
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
@@ -62,7 +65,7 @@ const options = reactive({
     templates: {
         banned_host_ip: (f, row) => row.banned_host_ip || '—',
         comments: (f, row) => row.comments || '—',
-        banned_host_date: (f, row) => row.banned_host_date || '—',
+        banned_host_date: (f, row) => formatDate(row.banned_host_date),
     },
     headings: {
         banned_host_ip: lang('ip_address'),

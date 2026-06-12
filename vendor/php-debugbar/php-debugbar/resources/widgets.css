@@ -1,0 +1,762 @@
+pre.phpdebugbar-widgets-code-block {
+    white-space: pre;
+    word-wrap: normal;
+    overflow: hidden;
+}
+  pre.phpdebugbar-widgets-code-block code {
+    display: block;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  pre.phpdebugbar-widgets-code-block code.phpdebugbar-widgets-numbered-code {
+    padding: 5px;
+    line-height: normal;
+  }
+  pre.phpdebugbar-widgets-code-block ul li.phpdebugbar-widgets-highlighted-line {
+    font-weight: bolder;
+    text-decoration: underline;
+  }
+  pre.phpdebugbar-widgets-code-block ul li.phpdebugbar-widgets-highlighted-line span {
+    position: absolute;
+    background: var(--debugbar-text);
+    min-width: calc(100% - 85px);
+    margin-left: 10px;
+    opacity: 0.15;
+  }
+  pre.phpdebugbar-widgets-code-block ul {
+    position: static;
+    float: left;
+    padding: 5px;
+    border-right: 1px solid var(--debugbar-header-border);
+    text-align: right;
+  }
+
+  .phpdebugbar-widgets-kvlist span.phpdebugbar-widgets-filename,
+  li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-filename,
+  table.phpdebugbar-widgets-tablevar span.phpdebugbar-widgets-filename {
+    display: block;
+    font-style: italic;
+    float: right;
+    margin-left: 8px;
+    color: var(--debugbar-link);
+  }
+  a.phpdebugbar-widgets-editor-link,
+  a.phpdebugbar-widgets-external-link {
+    color: var(--debugbar-link);
+  }
+  .phpdebugbar-widgets-kvlist span.phpdebugbar-widgets-filename:hover,
+  li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-filename:hover,
+  a.phpdebugbar-widgets-editor-link:hover,
+  a.phpdebugbar-widgets-external-link:hover {
+    color: var(--debugbar-hover);
+  }
+
+  a.phpdebugbar-widgets-editor-link:before,
+  a.phpdebugbar-widgets-external-link:after {
+    content: "";
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-left: 4px;
+    vertical-align: middle;
+    -webkit-mask-image: var(--debugbar-icon-external-link);
+    mask-image: var(--debugbar-icon-external-link);
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    background-color: currentColor;
+  }
+
+table.phpdebugbar-widgets-params {
+  width: 70%;
+  margin: 10px;
+  border: 1px solid var(--debugbar-border);
+  font-family: var(--debugbar-font-mono);
+  font-size: 13px;
+  border-collapse: collapse;
+}
+  table.phpdebugbar-widgets-params th {
+    font-weight: bold;
+  }
+  table.phpdebugbar-widgets-params td {
+    border: 1px solid var(--debugbar-border);
+    border-left: none ;
+    border-right: none;
+    padding: 0 5px;
+  }
+  table.phpdebugbar-widgets-params .phpdebugbar-widgets-name {
+    width: 20%;
+    font-weight: bold;
+    vertical-align: top;
+  }
+
+.phpdebugbar-widgets-truncated {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* -------------------------------------- */
+
+ul.phpdebugbar-widgets-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--debugbar-font-mono);
+}
+  ul.phpdebugbar-widgets-list li.phpdebugbar-widgets-list-item {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--debugbar-border);
+    position: relative;
+    overflow: hidden;
+  }
+
+/* -------------------------------------- */
+
+div.phpdebugbar-widgets-messages {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+  div.phpdebugbar-widgets-messages ul.phpdebugbar-widgets-list {
+    padding-bottom: 45px;
+    flex: 1;
+    overflow-y: auto;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value {
+    display: flex;
+    align-items: center;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value:before {
+    margin-right: 8px;
+    font-family: system-ui, sans-serif;
+    font-size: 1.25em;
+    line-height: 1;
+    display: inline-flex;  /* ensures perfect centering */
+    align-items: center;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-success {
+    color: #28a745;
+  }
+  .phpdebugbar[data-theme='dark'] div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-success {
+    color: #56DB3A;
+  }
+
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-success:before {
+    content: "✓";
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-alert:before {
+    content: "ℹ";
+    color: #cbcf38;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-debug:before {
+    color: #78d79a;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-warning:before,
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-emergency:before,
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-notice:before {
+    content: "⚠";
+    color: #ecb03d;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-error,
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-critical {
+    color: red;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-error:before,
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-critical:before {
+    content: "✖";
+  }
+  .phpdebugbar-widgets-params .phpdebugbar-widgets-value pre.sf-dump,
+  dl.phpdebugbar-widgets-kvlist dd.phpdebugbar-widgets-value pre.sf-dump,
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item pre.sf-dump {
+    display: inline-block !important;
+    padding-top: 0px;
+    padding-left: 0px;
+    padding-bottom: 0px;
+  }
+  dl.phpdebugbar-widgets-kvlist dd.phpdebugbar-widgets-value pre.sf-dump {
+    max-width: calc(100% - 5px); /* substract right padding */
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-collector,
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-label {
+    float: right;
+    font-size: 12px;
+    padding: 2px 4px;
+    color: #888;
+    margin: 0 2px;
+    text-decoration: none;
+    text-shadow: none;
+    background: none;
+    font-weight: normal;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-context-count {
+    float: right;
+    font-size: 12px;
+    padding: 2px 4px;
+    color: #888;
+    margin: 0 2px;
+    text-decoration: none;
+    text-shadow: none;
+    background: none;
+    font-weight: normal;
+    display: inline-flex;
+    align-items: center;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-context-count:before {
+    content: "";
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-right: 4px;
+    -webkit-mask-image: var(--debugbar-icon-table);
+    mask-image: var(--debugbar-icon-table);
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    background-color: currentColor;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-collector {
+    color: #555;
+    font-style: italic;
+  }
+  div.phpdebugbar-widgets-messages div.phpdebugbar-widgets-toolbar {
+    position: relative;
+    flex-shrink: 0;
+    width: 100%;
+    background: var(--debugbar-header);
+    color: var(--debugbar-text);
+    border-top: 1px solid var(--debugbar-border);
+    border-bottom: 0px;
+    height: 20px;
+    padding: 4px 0px 4px;
+  }
+  div.phpdebugbar-widgets-messages li .phpdebugbar-widgets-label-called-from {
+    float: right;
+    color: var(--debugbar-text-muted);
+    padding-left: 5px;
+    border-bottom: 1px dotted var(--debugbar-border);
+  }
+  div.phpdebugbar-widgets-messages li .phpdebugbar-widgets-label-called-from:before {
+    content: "";
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-right: 4px;
+    vertical-align: middle;
+    -webkit-mask-image: var(--debugbar-icon-link);
+    mask-image: var(--debugbar-icon-link);
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    background-color: currentColor;
+  }
+    div.phpdebugbar-widgets-messages div.phpdebugbar-widgets-toolbar input {
+      border: 0;
+      margin: 0;
+      margin-left: 7px;
+      width: 30%;
+      box-shadow: none;
+      border-radius: 3px;
+      padding: 2px 6px;
+      height: 15px;
+    }
+    div.phpdebugbar-widgets-messages div.phpdebugbar-widgets-toolbar input:focus {
+      outline: none;
+    }
+      div.phpdebugbar-widgets-messages div.phpdebugbar-widgets-toolbar a.phpdebugbar-widgets-filter {
+        float: right;
+        font-size: 12px;
+        padding: 2px 4px;
+        background: #7cacd5;
+        margin: 0 2px;
+        border-radius: 4px;
+        color: var(--debugbar-background);
+        text-decoration: none;
+      }
+      div.phpdebugbar-widgets-messages div.phpdebugbar-widgets-toolbar a.phpdebugbar-widgets-filter.phpdebugbar-widgets-excluded {
+        background: var(--debugbar-active);
+        color: var(--debugbar-text-muted);
+      }
+
+/* -------------------------------------- */
+
+dl.phpdebugbar-widgets-kvlist {
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(160px, 15%) minmax(0, 1fr);
+}
+  dl.phpdebugbar-widgets-kvlist dt {
+    grid-column: 1;
+    min-width: 0;
+    padding: 5px 10px;
+    border-top: 1px solid var(--debugbar-border);
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  dl.phpdebugbar-widgets-kvlist dd {
+    grid-column: 2;
+    margin: 0;
+    padding: 5px 10px;
+    border-top: 1px solid var(--debugbar-border);
+    cursor: pointer;
+    min-height: 17px;
+    overflow-wrap: anywhere;
+    overflow-x: auto;
+  }
+
+/* -------------------------------------- */
+
+dl.phpdebugbar-widgets-varlist,
+dl.phpdebugbar-widgets-jsonvarlist,
+dl.phpdebugbar-widgets-htmlvarlist {
+  font-family: var(--debugbar-font-mono);
+}
+  dl.phpdebugbar-widgets-jsonvarlist dd,
+  dl.phpdebugbar-widgets-htmlvarlist dd{
+    cursor: initial;
+  }
+
+/* -------------------------------------- */
+
+ul.phpdebugbar-widgets-timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+  ul.phpdebugbar-widgets-timeline .phpdebugbar-widgets-measure {
+    height: 20px;
+    position: relative;
+    border: none;
+    display: block;
+  }
+    ul.phpdebugbar-widgets-timeline li span.phpdebugbar-widgets-label,
+    ul.phpdebugbar-widgets-timeline li span.phpdebugbar-widgets-collector {
+      position: absolute;
+      font-size: 12px;
+      font-family: var(--debugbar-font-mono);
+      color: var(--debugbar-text);
+      top: 4px;
+      left: 5px;
+      background: none;
+      text-shadow: none;
+      font-weight: normal;
+      white-space: pre;
+    }
+    ul.phpdebugbar-widgets-timeline li span.phpdebugbar-widgets-collector {
+      left: initial;
+      right: 5px;
+    }
+    ul.phpdebugbar-widgets-timeline li span.phpdebugbar-widgets-value {
+      display: block;
+      position: absolute;
+      height: calc(100% - 4px);
+      background-color: var(--debugbar-accent);
+      border-bottom: 2px solid var(--debugbar-accent-border);
+      top: 2px;
+      border-radius: 3px;
+      min-width: 2px;
+    }
+
+
+/* -------------------------------------- */
+
+div.phpdebugbar-widgets-exceptions li.phpdebugbar-widgets-list-item {
+  cursor: pointer;
+}
+  div.phpdebugbar-widgets-exceptions li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-message {
+    display: block;
+    color: red;
+  }
+
+  div.phpdebugbar-widgets-exceptions li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-type {
+    display: block;
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    font-weight: bold;
+  }
+
+  div.phpdebugbar-widgets-exceptions li.phpdebugbar-widgets-list-item pre.phpdebugbar-widgets-file {
+    margin: 10px;
+    padding: 5px;
+    border: 1px solid var(--debugbar-border);
+    font-family: var(--debugbar-font-mono);
+  }
+
+  div.phpdebugbar-widgets-exceptions li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-filename {
+    float: none;
+  }
+
+div.phpdebugbar[data-theme='dark'] code.phpdebugbar-widgets-sql,
+div.phpdebugbar[data-theme='dark'] .phpdebugbar-widgets-name,
+div.phpdebugbar[data-theme='dark'] .phpdebugbar-widgets-key,
+div.phpdebugbar[data-theme='dark'] .phpdebugbar-widgets-success > pre.sf-dump > .sf-dump-note {
+    color: #fdfd96;
+}
+
+table.phpdebugbar-widgets-tablevar {
+  width: 100%;
+  table-layout: auto;
+  font-size: 1em;
+}
+
+table.phpdebugbar-widgets-tablevar td:first-child {
+  width: 150px;
+  white-space: nowrap;
+  font-family: var(--debugbar-font-mono);
+}
+
+table.phpdebugbar-widgets-tablevar td.phpdebugbar-widgets-editor {
+  width: 5%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+table.phpdebugbar-widgets-tablevar tr.phpdebugbar-widgets-header td,
+table.phpdebugbar-widgets-tablevar tr.phpdebugbar-widgets-summary td {
+  font-weight: bold;
+}
+
+table.phpdebugbar-widgets-tablevar td {
+  padding: 2px 4px;
+  border-bottom: 1px solid var(--debugbar-border);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: normal;
+}
+
+table.phpdebugbar-widgets-tablevar tr.phpdebugbar-widgets-header td,
+table.phpdebugbar-widgets-tablevar tr.phpdebugbar-widgets-summary td {
+  position: sticky;
+  inset-inline-start: 0px;
+  background: var(--debugbar-background);
+  border-bottom: none;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+}
+
+table.phpdebugbar-widgets-tablevar tr.phpdebugbar-widgets-header td::after,
+table.phpdebugbar-widgets-tablevar tr.phpdebugbar-widgets-summary td::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background-color: var(--debugbar-border);
+}
+
+table.phpdebugbar-widgets-tablevar tr.phpdebugbar-widgets-summary td::after {
+  bottom: auto;
+  top: 0;
+}
+
+div.phpdebugbar span.phpdebugbar-widgets-badge {
+  margin: 0 5px 0 8px;
+  font-size: 11px;
+  line-height: 14px;
+  padding: 0 6px;
+  background: var(--debugbar-badge-active);
+  border-radius: 4px;
+  color: var(--debugbar-badge-active-text);
+  font-weight: normal;
+  text-shadow: none;
+  vertical-align: middle;
+}
+
+
+/* Dataset Switcher Widget --------------------------------*/
+
+.phpdebugbar .phpdebugbar-widgets-datasets-switcher-widget {
+    position: relative;
+    float: right;
+    display: flex;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 32px;
+    align-items: center;
+}
+
+.phpdebugbar .phpdebugbar-widgets-datasets-badge {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+    height: 32px;
+    background: var(--debugbar-header);
+    color: var(--debugbar-header-text);
+    cursor: pointer;
+    font-size: 12px;
+    line-height: normal;
+    transition: background-color 0.15s;
+    font-family: var(--debugbar-font-sans);
+    border-right: 1px solid var(--debugbar-header-border);
+}
+
+.phpdebugbar .phpdebugbar-widgets-datasets-badge:hover {
+    background: var(--debugbar-active);
+}
+
+.phpdebugbar .phpdebugbar-widgets-datasets-badge-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background: var(--debugbar-badge);
+    color: var(--debugbar-badge-text);
+    border-radius: 9px;
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.phpdebugbar .phpdebugbar-widgets-datasets-badge-count[hidden] {
+    display: none;
+}
+
+.phpdebugbar .phpdebugbar-widgets-datasets-badge-url {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--debugbar-font-mono);
+}
+
+/* Dropdown panel */
+.phpdebugbar-widgets-datasets-panel {
+    position: fixed;
+    width: 600px;
+    background: var(--debugbar-background);
+    border: 1px solid var(--debugbar-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    z-index: 100000001;
+}
+
+.phpdebugbar-widgets-datasets-panel-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: var(--debugbar-background-alt);
+    border-bottom: 1px solid var(--debugbar-border);
+    font-size: 12px;
+    font-family: var(--debugbar-font-sans);
+}
+
+.phpdebugbar-widgets-datasets-autoshow {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    color: var(--debugbar-text);
+    white-space: nowrap;
+    font-family: var(--debugbar-font-sans);
+}
+
+.phpdebugbar-widgets-datasets-autoshow input[type="checkbox"] {
+    cursor: pointer;
+    margin: 0;
+}
+
+.phpdebugbar-widgets-datasets-clear-btn,
+.phpdebugbar-widgets-datasets-showall-btn {
+    color: var(--debugbar-link);
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: var(--debugbar-font-sans);
+}
+
+.phpdebugbar-widgets-datasets-clear-btn:hover,
+.phpdebugbar-widgets-datasets-showall-btn:hover {
+    color: var(--debugbar-hover);
+    text-decoration: underline;
+}
+
+.phpdebugbar-widgets-datasets-refresh-btn {
+    color: var(--debugbar-text-muted);
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.phpdebugbar-widgets-datasets-refresh-btn[hidden] {
+    display: none;
+}
+.phpdebugbar-widgets-datasets-refresh-btn:hover {
+    color: var(--debugbar-text);
+}
+
+.phpdebugbar-widgets-datasets-refresh-btn.phpdebugbar-widgets-active {
+    color: var(--debugbar-text);
+}
+
+.phpdebugbar-widgets-datasets-refresh-btn.phpdebugbar-widgets-active i {
+    animation: phpdebugbar-spin 2s linear infinite;
+}
+
+@keyframes phpdebugbar-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+.phpdebugbar-widgets-datasets-search {
+    flex: 1;
+    padding: 3px 8px;
+    font-size: 11px;
+    min-width: 120px;
+    border: 1px solid var(--debugbar-border);
+    background: var(--debugbar-background);
+    color: var(--debugbar-text);
+    border-radius: 2px;
+    font-family: var(--debugbar-font-sans);
+}
+
+.phpdebugbar-widgets-datasets-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.phpdebugbar-widgets-datasets-list-item {
+    display: grid;
+    grid-template-columns: 45px 50px 1fr auto auto auto;
+    gap: 6px;
+    padding: 5px 10px;
+    border-bottom: 1px solid var(--debugbar-border);
+    cursor: pointer;
+    transition: background-color 0.1s;
+    align-items: center;
+    font-size: 11px;
+}
+
+.phpdebugbar-widgets-datasets-list-item[hidden] {
+    display: none;
+}
+
+.phpdebugbar-widgets-datasets-list-item:hover {
+    background: var(--debugbar-background-alt);
+}
+
+.phpdebugbar-widgets-datasets-list-item.phpdebugbar-widgets-active {
+    background: var(--debugbar-active);
+    font-weight: 500;
+}
+
+.phpdebugbar-widgets-datasets-item-nb {
+    color: var(--debugbar-text-muted);
+    font-weight: 600;
+    font-family: var(--debugbar-font-mono);
+}
+
+.phpdebugbar-widgets-datasets-item-copy-id {
+    cursor: pointer;
+    color: var(--debugbar-text-muted);
+    display: inline-flex;
+    align-items: center;
+    margin-right: -4px;
+    position: relative;
+}
+
+.phpdebugbar-widgets-datasets-item-copy-id i {
+    font-size: 12px;
+}
+
+.phpdebugbar-widgets-datasets-item-copy-id:hover {
+    color: var(--debugbar-text);
+}
+
+.phpdebugbar-widgets-datasets-item-copy-id.phpdebugbar-widgets-copied {
+    color: var(--debugbar-success, #28a745);
+}
+
+.phpdebugbar-widgets-datasets-item-time {
+    color: var(--debugbar-text-muted);
+    font-family: var(--debugbar-font-mono);
+}
+
+.phpdebugbar-widgets-datasets-item-request {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    overflow: hidden;
+}
+
+.phpdebugbar-widgets-datasets-item-method {
+    padding: 1px 5px;
+    background: var(--debugbar-badge);
+    color: var(--debugbar-badge-text);
+    border-radius: 2px;
+    font-weight: 600;
+    font-family: var(--debugbar-font-mono);
+    flex-shrink: 0;
+}
+
+.phpdebugbar-widgets-datasets-item-url {
+    color: var(--debugbar-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--debugbar-font-mono);
+}
+
+.phpdebugbar-widgets-datasets-item-suffix {
+    color: var(--debugbar-text-muted);
+    font-family: var(--debugbar-font-mono);
+    flex-shrink: 0;
+}
+
+.phpdebugbar-widgets-datasets-item-badges {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.phpdebugbar-widgets-datasets-item-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 1px 4px;
+    background: var(--debugbar-badge);
+    color: var(--debugbar-badge-text);
+    border-radius: 2px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.1s;
+}
+
+.phpdebugbar-widgets-datasets-item-badge:hover {
+    background: var(--debugbar-badge-active);
+    color: var(--debugbar-badge-active-text);
+}
+
+.phpdebugbar-widgets-datasets-item-badge i {
+    width: 12px;
+    height: 12px;
+}

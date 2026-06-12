@@ -6,10 +6,10 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.activity_logs') }}</h4>
                 <div class="card-tools">
-                    <button class="btn btn-tool" :title="__('message.filters')" v-tooltip @click="showFilter = !showFilter">
+                    <button class="btn btn-tool" v-tooltip="__('message.filters')" @click="showFilter = !showFilter">
                         <i class="fas fa-filter"></i>
                     </button>
-                    <button class="btn btn-tool" :title="__('log.delete_logs')" v-tooltip @click="showDeleteModal = true">
+                    <button class="btn btn-tool" v-tooltip="__('log.delete_logs')" @click="showDeleteModal = true">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
@@ -78,6 +78,8 @@
 
 <script setup>
 import { h, reactive, ref } from 'vue'
+import { DateTime } from 'luxon'
+import { useDateTimeStore } from '@/core/stores/dateTimeStore'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import ActivityFilter from './ActivityFilter.vue'
@@ -170,7 +172,7 @@ function openReadMore(details) {
 
 // ── Delete modal ──────────────────────────────────────────────────────────────
 const showDeleteModal = ref(false)
-const deleteDate      = ref(new Date().toISOString().split('T')[0])
+const deleteDate      = ref(DateTime.now().setZone(useDateTimeStore().timezone).toFormat('yyyy-MM-dd'))
 const deleteError     = ref('')
 const deleting        = ref(false)
 

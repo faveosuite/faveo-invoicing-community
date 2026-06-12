@@ -214,6 +214,10 @@ final readonly class Requirements
         return $notSatisfied;
     }
 
+    /**
+     * @param class-string     $className
+     * @param non-empty-string $methodName
+     */
     public function requiresXdebug(string $className, string $methodName): bool
     {
         foreach (Registry::parser()->forClassAndMethod($className, $methodName) as $metadata) {

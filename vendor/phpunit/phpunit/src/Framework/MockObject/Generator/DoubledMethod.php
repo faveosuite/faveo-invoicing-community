@@ -96,7 +96,11 @@ final class DoubledMethod
         if (is_string($docComment) &&
             preg_match('#\*[ \t]*+@deprecated[ \t]*+(.*?)\r?+\n[ \t]*+\*(?:[ \t]*+@|/$)#s', $docComment, $deprecation) > 0
         ) {
-            $deprecation = trim(preg_replace('#[ \t]*\r?\n[ \t]*+\*[ \t]*+#', ' ', $deprecation[1]));
+            $deprecationText = preg_replace('#[ \t]*\r?\n[ \t]*+\*[ \t]*+#', ' ', $deprecation[1]);
+
+            assert($deprecationText !== null);
+
+            $deprecation = trim($deprecationText);
         } else {
             $deprecation = null;
         }
@@ -177,7 +181,7 @@ final class DoubledMethod
             $templateFile = 'doubled_method.tpl';
         }
 
-        $deprecation  = $this->deprecation;
+        $deprecation  = '';
         $returnResult = '';
 
         if (!$this->returnType->isNever() && !$this->returnType->isVoid()) {
@@ -274,9 +278,11 @@ EOT;
             /* Note: PHP extensions may use empty names for reference arguments
              * or "..." for methods taking a variable number of arguments.
              */
+            // @codeCoverageIgnoreStart
             if ($name === '$' || $name === '$...') {
                 $name = '$arg' . $i;
             }
+            // @codeCoverageIgnoreEnd
 
             $default         = '';
             $reference       = '';
@@ -321,9 +327,11 @@ EOT;
             /* Note: PHP extensions may use empty names for reference arguments
              * or "..." for methods taking a variable number of arguments.
              */
+            // @codeCoverageIgnoreStart
             if ($name === '$' || $name === '$...') {
                 $name = '$arg' . $i;
             }
+            // @codeCoverageIgnoreEnd
 
             if ($parameter->isVariadic()) {
                 continue;
@@ -353,17 +361,29 @@ EOT;
 
             $parameterAsString = $parameter->__toString();
 
-            return explode(
+            $pos = strpos($parameterAsString, '<optional> ');
+
+            if ($pos === false) {
+                return 'null';
+            }
+
+            $parts = explode(
                 ' = ',
                 substr(
                     substr(
                         $parameterAsString,
-                        strpos($parameterAsString, '<optional> ') + strlen('<optional> '),
+                        $pos + strlen('<optional> '),
                     ),
                     0,
                     -2,
                 ),
-            )[1];
+            );
+
+            if (isset($parts[1])) {
+                return $parts[1];
+            }
+
+            return 'null';
             // @codeCoverageIgnoreStart
         } catch (\ReflectionException $e) {
             throw new ReflectionException(

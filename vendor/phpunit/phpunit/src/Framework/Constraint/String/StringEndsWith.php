@@ -9,6 +9,7 @@
  */
 namespace PHPUnit\Framework\Constraint;
 
+use function is_string;
 use function str_ends_with;
 use PHPUnit\Framework\EmptyStringException;
 
@@ -40,11 +41,30 @@ final class StringEndsWith extends Constraint
     }
 
     /**
+     * Returns the negated description when this constraint is wrapped in a
+     * LogicalNot operator. Authoring the negation here keeps the suffix out of
+     * the negation entirely. The guard ensures that LogicalAnd, LogicalOr, and
+     * LogicalXor keep using the affirmative toString().
+     */
+    protected function toStringInContext(Operator $operator, mixed $role): string
+    {
+        if (!$operator instanceof LogicalNot) {
+            return '';
+        }
+
+        return 'does not end with "' . $this->suffix . '"';
+    }
+
+    /**
      * Evaluates the constraint for parameter $other. Returns true if the
      * constraint is met, false otherwise.
      */
     protected function matches(mixed $other): bool
     {
-        return str_ends_with((string) $other, $this->suffix);
+        if (!is_string($other)) {
+            return false;
+        }
+
+        return str_ends_with($other, $this->suffix);
     }
 }

@@ -63,7 +63,9 @@
 import { ref, h, onBeforeMount } from 'vue'
 import { getIdFromUrl, lang } from '@/helpers/extraLogics'
 import axios from '@/plugins/axios'
+import { useDateTime } from '@/core/composables/useDateTime'
 
+const { formatDate, formatDateTime } = useDateTime()
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
@@ -129,7 +131,7 @@ function updateData(versionId) {
             callback_status: 'dt-status',
         },
         templates: {
-            callback_date_time: (f, row) => row.callback_date_time || '—',
+            callback_date_time: (f, row) => formatDateTime(row.callback_date_time),
             callback_status: (f, row) => {
                 return h('span', { class: row.callback_status ? 'badge bg-success' : 'badge bg-danger' },
                     row.callback_status ? lang('active') : lang('inactive'))

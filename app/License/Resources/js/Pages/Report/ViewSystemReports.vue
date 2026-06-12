@@ -18,6 +18,9 @@
 import { reactive, h } from 'vue'
 import { RouterLink } from 'vue-router'
 import { lang } from '@/helpers/extraLogics'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDateTime } = useDateTime()
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
@@ -54,7 +57,7 @@ const options = reactive({
         user_formatted: 'dt-name',
     },
     templates: {
-        report_date_time: (f, row) => row.report_date_time || '—',
+        report_date_time: (f, row) => formatDateTime(row.report_date_time),
         user_formatted: (f, row) => {
             if (row.user_formatted && row.user_formatted !== 'System') {
                 return h(RouterLink, { to: '/users/' + row.account_id }, () => [row.user_formatted])

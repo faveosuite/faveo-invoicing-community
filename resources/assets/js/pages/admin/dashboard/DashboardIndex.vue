@@ -460,6 +460,9 @@
 import { ref, onMounted } from 'vue'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDate: dtFormatDate, formatCustom } = useDateTime()
 
 const loading = ref(true)
 const data = ref({
@@ -515,13 +518,12 @@ const formatDateForUser = (dateStr) => {
   } else if (date.toDateString() === yesterday.toDateString()) {
     return __('message.yesterday') || 'Yesterday'
   }
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  return formatCustom(dateStr, 'MMM d')
 }
 
 const formatDate = (dateStr) => {
   if (!dateStr) return ''
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+  return dtFormatDate(dateStr)
 }
 
 const isExpired = (dateStr) => {

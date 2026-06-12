@@ -7,23 +7,21 @@
                 <div class="card-tools">
                     <button
                         class="btn btn-tool"
-                        :title="__('message.filter')"
-                        v-tooltip
+                        v-tooltip="__('message.filter')"
                         @click="showFilter = !showFilter"
                     >
                         <i class="fas fa-filter"></i>
                     </button>
                     <button
                         class="btn btn-tool"
-                        :title="__('message.export')"
-                        v-tooltip
+                        v-tooltip="__('message.export')"
                         @click="exportInvoices"
                         :disabled="exporting"
                     >
                         <spinner-loader v-if="exporting" :size="18" />
                         <i v-else class="fas fa-paper-plane"></i>
                     </button>
-                    <router-link to="/invoices/create" class="btn btn-tool" :title="__('message.create_invoice')" v-tooltip>
+                    <router-link to="/invoices/create" class="btn btn-tool" v-tooltip="__('message.create_invoice')">
                         <i class="fas fa-plus"></i>
                     </router-link>
                 </div>
@@ -87,9 +85,12 @@ import { RouterLink } from 'vue-router'
 
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
+import { useDateTime } from '@/core/composables/useDateTime'
 import InvoiceTableActions from './components/InvoiceTableActions.vue'
 import InvoiceFilter from './components/InvoiceFilter.vue'
 import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+
+const { formatDate } = useDateTime()
 
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
@@ -204,7 +205,7 @@ const tableOptions = reactive({
         country:      (f, row) => row.user?.country || '—',
         number:       (f, row) => row.number || '—',
         product:      (f, row) => (row.products ?? []).join(', ') || '—',
-        date:         (f, row) => row.created_at ? new Date(row.created_at).toLocaleDateString() : '—',
+        date:         (f, row) => row.created_at ? formatDate(row.created_at) : '—',
         grand_total:  (f, row) => row.grand_total || '—',
         status:       (f, row) => {
             let badgeClass = 'badge bg-secondary'

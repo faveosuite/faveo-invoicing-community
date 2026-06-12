@@ -1,14 +1,14 @@
 <template>
     <div class="user-table-actions">
-        <router-link :to="`/invoices/${invoiceId}`" class="btn btn-default table_btn" :title="__('message.view')" v-tooltip>
+        <router-link :to="`/invoices/${invoiceId}`" class="btn btn-default table_btn" v-tooltip="__('message.view')">
             <i class="fas fa-eye"></i>
         </router-link>
-        <router-link :to="`/invoices/${invoiceId}/edit`" class="btn btn-light table_btn" :title="__('message.edit')" v-tooltip>
+        <router-link :to="`/invoices/${invoiceId}/edit`" class="btn btn-light table_btn" v-tooltip="__('message.edit')">
             <i class="fas fa-edit"></i>
         </router-link>
 
         <template v-if="showDelete">
-            <button class="btn btn-light table_btn" :title="__('message.Delete')" v-tooltip @click="showModal = true">
+            <button class="btn btn-light table_btn" v-tooltip="__('message.Delete')" @click="showModal = true">
                 <i class="fas fa-trash"></i>
             </button>
             <DeleteModal

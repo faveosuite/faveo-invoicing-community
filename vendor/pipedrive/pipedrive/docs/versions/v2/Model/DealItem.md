@@ -35,6 +35,6 @@ Name | Type | Description | Notes
 **arr** | **float** | Only available in Growth and above plans  The Annual Recurring Revenue of the deal  Null if there are no products attached to the deal | [optional]
 **mrr** | **float** | Only available in Growth and above plans  The Monthly Recurring Revenue of the deal  Null if there are no products attached to the deal | [optional]
 **acv** | **float** | Only available in Growth and above plans  The Annual Contract Value of the deal  Null if there are no products attached to the deal | [optional]
-**custom_fields** | **array<string,object>** | An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes | [optional]
+**custom_fields** | **array<string,object>** | An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes. To clear a custom field value, set it to &#x60;null&#x60;. For multi-option fields (field type &#x60;set&#x60;), use &#x60;null&#x60; to clear the selection — sending an empty array &#x60;[]&#x60; is not supported and will result in a validation error. | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

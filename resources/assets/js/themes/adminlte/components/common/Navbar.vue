@@ -33,7 +33,7 @@
           <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" data-bs-toggle="dropdown"
              href="javascript:;" role="button" :aria-label="`Change language, current: ${currentLocale}`"
              aria-haspopup="true">
-            <span :class="`fi fi-${flagCode(currentLocale)}`" :title="currentLocale.toUpperCase()" v-tooltip></span>
+            <span :class="`fi fi-${flagCode(currentLocale)}`" v-tooltip="currentLocale.toUpperCase()"></span>
             <span class="d-none d-md-inline">{{ currentLocale.toUpperCase() }}</span>
           </a>
 

@@ -7,8 +7,7 @@
                 <div class="card-tools">
                     <button
                         class="btn btn-tool"
-                        :title="__('message.filter')"
-                        v-tooltip
+                        v-tooltip="__('message.filter')"
                         @click="showFilter = !showFilter"
                     >
                         <i class="fas fa-filter"></i>
@@ -73,9 +72,12 @@ import { RouterLink } from 'vue-router'
 
 import http from '@/plugins/axios'
 import { errorHandler } from '@/helpers/responseHandler.js'
+import { useDateTime } from '@/core/composables/useDateTime'
 import OrderTableActions from './components/OrderTableActions.vue'
 import OrderFilter from './components/OrderFilter.vue'
 import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+
+const { formatDate } = useDateTime()
 
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
@@ -188,8 +190,8 @@ const tableOptions = reactive({
         version:      (f, row) => row.version || '—',
         agents:       (f, row) => row.agents ?? '—',
         status:       (f, row) => row.status || '—',
-        order_date:   (f, row) => row.order_date ? new Date(row.order_date).toLocaleDateString() : '—',
-        update_ends_at: (f, row) => row.update_ends_at ? new Date(row.update_ends_at).toLocaleDateString() : '—',
+        order_date:   (f, row) => row.order_date ? formatDate(row.order_date) : '—',
+        update_ends_at: (f, row) => row.update_ends_at ? formatDate(row.update_ends_at) : '—',
         action: (f, row) => h(OrderTableActions, { orderId: row.id, baseUrl: baseUrl, showDelete: true }),
     },
 

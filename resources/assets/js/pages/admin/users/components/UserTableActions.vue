@@ -3,23 +3,20 @@
         <router-link
             :to="`/users/${userId}/edit`"
             class="btn btn-light table_btn"
-            :title="__('message.edit')"
-            v-tooltip
+            v-tooltip="__('message.edit')"
         >
             <i class="fas fa-edit"></i>
         </router-link>
         <router-link
             :to="`/users/${userId}`"
             class="btn btn-default table_btn"
-            :title="__('message.view')"
-            v-tooltip
+            v-tooltip="__('message.view')"
         >
             <i class="fas fa-eye"></i>
         </router-link>
         <button
             class="btn btn-light table_btn"
-            :title="__('message.Delete')"
-            v-tooltip
+            v-tooltip="__('message.Delete')"
             @click="showModal = true"
         >
             <i class="fas fa-trash"></i>

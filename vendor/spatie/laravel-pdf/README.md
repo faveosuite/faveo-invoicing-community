@@ -9,13 +9,13 @@
 <h1>Create PDFs in Laravel apps</h1>
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/laravel-pdf.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-pdf)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/spatie/laravel-pdf/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/spatie/laravel-pdf/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/spatie/laravel-pdf/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/spatie/laravel-pdf/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![GitHub Tests Action Status](https://github.com/spatie/laravel-pdf/actions/workflows/run-tests.yml/badge.svg)](https://github.com/spatie/laravel-pdf/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://github.com/spatie/laravel-pdf/actions/workflows/fix-php-code-style-issues.yml/badge.svg)](https://github.com/spatie/laravel-pdf/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-pdf.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-pdf)
     
 </div>
 
-This package provides a simple way to create PDFs in Laravel apps. Under the hood it uses [Chromium](https://www.chromium.org/chromium-projects/) to generate PDFs from Blade views. You can use modern CSS features like grid and flexbox to create beautiful PDFs.
+This package provides a simple way to create PDFs in Laravel apps. It supports multiple drivers: [Browsershot](https://spatie.be/docs/browsershot) (Chromium), [Gotenberg](https://gotenberg.dev) (Docker-based), [Cloudflare Browser Run](https://developers.cloudflare.com/browser-run/), [WeasyPrint](https://doc.courtbouillon.org/weasyprint/stable/) (Python-based), [DOMPDF](https://github.com/dompdf/dompdf) (pure PHP), and [chrome-php/chrome](https://github.com/chrome-php/chrome) (Chromium). You can use modern CSS features like grid and flexbox with the Chromium-based drivers, use WeasyPrint for excellent CSS Paged Media support, or choose DOMPDF for a zero-dependency setup.
 
 Here's a quick example:
 
@@ -63,6 +63,10 @@ it('can render an invoice', function () {
     });
 });
 ```
+
+## Laravel Boost
+
+This package ships with a [Laravel Boost](https://laravel.com/docs/12.x/boost) skill. After installing the package, run `php artisan boost:install` to register the skill. This will help AI agents in your project generate correct PDF code.
 
 ## Support us
 

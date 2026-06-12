@@ -89,16 +89,22 @@ EOT;
 EOT;
 
     /**
-     * @param array<string, TestResultCollection> $tests
+     * @param array<class-string, TestResultCollection> $tests
      */
     public function render(array $tests): string
     {
         $buffer = self::PAGE_HEADER;
 
-        foreach ($tests as $prettifiedClassName => $_tests) {
+        foreach ($tests as $_tests) {
+            $list = $_tests->asArray();
+
+            if ($list === []) {
+                continue;
+            }
+
             $buffer .= sprintf(
                 self::CLASS_HEADER,
-                $prettifiedClassName,
+                $list[0]->test()->testDox()->prettifiedClassName(),
             );
 
             foreach ($this->reduce($_tests) as $prettifiedMethodName => $outcome) {

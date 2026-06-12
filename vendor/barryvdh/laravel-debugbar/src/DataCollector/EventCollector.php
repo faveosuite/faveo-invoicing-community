@@ -1,36 +1,37 @@
 <?php
 
-namespace Barryvdh\Debugbar\DataCollector;
+declare(strict_types=1);
 
-use Barryvdh\Debugbar\DataFormatter\SimpleFormatter;
+namespace Fruitcake\LaravelDebugbar\DataCollector;
+
 use DebugBar\DataCollector\TimeDataCollector;
-use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
-use Symfony\Component\VarDumper\Cloner\VarCloner;
 
 class EventCollector extends TimeDataCollector
 {
-    /** @var Dispatcher */
-    protected $events;
+    protected array $excludedEvents = [];
 
-    /** @var Dispatcher */
-    protected $excludedEvents;
+    protected bool $collectValues = false;
 
-    /** @var integer */
-    protected $previousTime;
+    protected bool $collectListeners = false;
 
-    /** @var bool */
-    protected $collectValues;
-
-    public function __construct($requestStartTime = null, $collectValues = false, $excludedEvents = [])
+    public function setCollectValues(bool $collectValues = true): void
     {
-        parent::__construct($requestStartTime);
         $this->collectValues = $collectValues;
-        $this->excludedEvents = $excludedEvents;
-        $this->setDataFormatter(new SimpleFormatter());
     }
 
-    public function onWildcardEvent($name = null, $data = [])
+    public function setCollectListeners(bool $collectListeners = true): void
+    {
+        $this->collectListeners = $collectListeners;
+    }
+
+    public function setExcludedEvents(array $excludedEvents): void
+    {
+        $this->excludedEvents = $excludedEvents;
+    }
+
+    public function onWildcardEvent(?string $name = null, array $data = []): void
     {
         $currentTime = microtime(true);
         $eventClass = explode(':', $name)[0];
@@ -47,65 +48,16 @@ class EventCollector extends TimeDataCollector
             return;
         }
 
-        $params = $this->prepareParams($data);
+        $params = $data;
 
-        // Find all listeners for the current event
-        foreach ($this->events->getListeners($name) as $i => $listener) {
-            // Check if it's an object + method name
-            if (is_array($listener) && count($listener) > 1 && is_object($listener[0])) {
-                list($class, $method) = $listener;
-
-                // Skip this class itself
-                if ($class instanceof static) {
-                    continue;
-                }
-
-                // Format the listener to readable format
-                $listener = get_class($class) . '@' . $method;
-
-            // Handle closures
-            } elseif ($listener instanceof \Closure) {
-                $reflector = new \ReflectionFunction($listener);
-
-                // Skip our own listeners
-                if ($reflector->getNamespaceName() == 'Barryvdh\Debugbar') {
-                    continue;
-                }
-
-                // Format the closure to a readable format
-                $filename = ltrim(str_replace(base_path(), '', $reflector->getFileName()), '/');
-                $lines = $reflector->getStartLine() . '-' . $reflector->getEndLine();
-                $listener = $reflector->getName() . ' (' . $filename . ':' . $lines . ')';
-            } else {
-                // Not sure if this is possible, but to prevent edge cases
-                $listener = $this->getDataFormatter()->formatVar($listener);
-            }
-
-            $params['listeners.' . $i] = $listener;
+        if ($this->collectListeners) {
+            $params['listeners'] = Event::getListeners($name);
         }
+
         $this->addMeasure($name, $currentTime, $currentTime, $params, null, $eventClass);
     }
 
-    public function subscribe(Dispatcher $events)
-    {
-        $this->events = $events;
-        $events->listen('*', [$this, 'onWildcardEvent']);
-    }
-
-    protected function prepareParams($params)
-    {
-        $data = [];
-        foreach ($params as $key => $value) {
-            if (is_object($value) && Str::is('Illuminate\*\Events\*', get_class($value))) {
-                $value =  $this->prepareParams(get_object_vars($value));
-            }
-            $data[$key] = htmlentities($this->getDataFormatter()->formatVar($value), ENT_QUOTES, 'UTF-8', false);
-        }
-
-        return $data;
-    }
-
-    public function collect()
+    public function collect(): array
     {
         $data = parent::collect();
         $data['nb_measures'] = $data['count'] = count($data['measures']);
@@ -113,24 +65,24 @@ class EventCollector extends TimeDataCollector
         return $data;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return 'event';
     }
 
-    public function getWidgets()
+    public function getWidgets(): array
     {
         return [
-          "events" => [
-            "icon" => "tasks",
-            "widget" => "PhpDebugBar.Widgets.TimelineWidget",
-            "map" => "event",
-            "default" => "{}",
-          ],
-          'events:badge' => [
-            'map' => 'event.nb_measures',
-            'default' => 0,
-          ],
+            "events" => [
+                "icon" => "subtask",
+                "widget" => "PhpDebugBar.Widgets.TimelineWidget",
+                "map" => "event",
+                "default" => "{}",
+            ],
+            'events:badge' => [
+                'map' => 'event.nb_measures',
+                'default' => 0,
+            ],
         ];
     }
 }

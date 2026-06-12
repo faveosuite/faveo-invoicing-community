@@ -186,6 +186,7 @@ trait HttpClientTrait
         }
 
         $options['max_duration'] = isset($options['max_duration']) ? (float) $options['max_duration'] : 0;
+        $options['max_connect_duration'] = isset($options['max_connect_duration']) ? (float) $options['max_connect_duration'] : 0;
         $options['headers'] = array_merge(...array_values($options['normalized_headers']));
 
         return [$url, $options];
@@ -697,11 +698,11 @@ trait HttpClientTrait
 
             if (str_contains($parts[$part], '%')) {
                 // https://tools.ietf.org/html/rfc3986#section-2.3
-                $parts[$part] = preg_replace_callback('/%(?:2[DE]|3[0-9]|[46][1-9A-F]|5F|[57][0-9A]|7E)++/i', fn ($m) => rawurldecode($m[0]), $parts[$part]);
+                $parts[$part] = preg_replace_callback('/%(?:2[DE]|3[0-9]|[46][1-9A-F]|5F|[57][0-9A]|7E)++/i', static fn ($m) => rawurldecode($m[0]), $parts[$part]);
             }
 
             // https://tools.ietf.org/html/rfc3986#section-3.3
-            $parts[$part] = preg_replace_callback("#[^-A-Za-z0-9._~!$&/'()[\]*+,;=:@{}%]++#", fn ($m) => rawurlencode($m[0]), $parts[$part]);
+            $parts[$part] = preg_replace_callback("#[^-A-Za-z0-9._~!$&/'()[\]*+,;=:@{}%]++#", static fn ($m) => rawurlencode($m[0]), $parts[$part]);
         }
 
         return [

@@ -49,6 +49,9 @@
 import { h, reactive, ref } from 'vue'
 import http from '@/plugins/axios'
 import { errorHandler } from '@/helpers/responseHandler.js'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDateTime } = useDateTime()
 
 const COMPONENT = 'email-validation-logs'
 const el      = document.getElementById('app-root')
@@ -102,7 +105,7 @@ const tableOptions = reactive({
                 : 'bg-secondary'
             return h('span', { class: `badge ${cls}` }, row.status || '—')
         },
-        created_at: (f, row) => h('span', { innerHTML: row.created_at }),
+        created_at: (f, row) => formatDateTime(row.created_at),
         action: (f, row) => h('button', {
             class: 'btn btn-light table_btn',
             title: __('message.click_here_view'),

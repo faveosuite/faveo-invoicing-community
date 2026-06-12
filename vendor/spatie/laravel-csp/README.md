@@ -9,7 +9,7 @@
 <h1>Set content security policy headers in a Laravel app</h1>
     
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/laravel-csp.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-csp)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/spatie/laravel-csp/run-tests.yml?branch=main&label=tests&style=flat-square)
+![GitHub Workflow Status](https://github.com/spatie/laravel-csp/actions/workflows/run-tests.yml/badge.svg)
 ![Check & fix styling](https://github.com/spatie/laravel-csp/workflows/Check%20&%20fix%20styling/badge.svg)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-csp.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-csp)
     
@@ -86,6 +86,33 @@ return [
      * A great service you could use for this is https://report-uri.com/
      */
     'report_uri' => env('CSP_REPORT_URI', ''),
+
+    /*
+     * Optional separate report url for the report-only policy. When empty,
+     * the report-only policy falls back to `report_uri` above.
+     */
+    'report_only_uri' => env('CSP_REPORT_ONLY_URI', ''),
+
+    /*
+     * The name of the reporting endpoint that violations should be sent to.
+     * The endpoint itself must be defined in `reporting_endpoints` below.
+     */
+    'report_to' => env('CSP_REPORT_TO', ''),
+
+    /*
+     * Optional separate reporting endpoint name for the report-only policy.
+     * When empty, the report-only policy falls back to `report_to` above.
+     */
+    'report_only_to' => env('CSP_REPORT_ONLY_TO', ''),
+
+    /*
+     * Reporting endpoints that will be sent in the `Reporting-Endpoints` HTTP
+     * header. The keys are the endpoint names that can be referenced from
+     * `report_to` above.
+     */
+    'reporting_endpoints' => [
+        // 'default' => 'https://example.com/csp-reports',
+    ],
 
     /*
      * Headers will only be added if this setting is set to true.
@@ -256,20 +283,19 @@ public function configure(Policy $policy): void
 }
 ```
 
-There are also a few cases where you don't have to or don't need to specify a value, eg. upgrade-insecure-requests, block-all-mixed-content, ... In this case you can use the following value:
+There are also a few cases where you don't have to or don't need to specify a value, eg. upgrade-insecure-requests, ... In this case you can use the following value:
 
 ```php
 public function configure(Policy $policy): void
 {
     $policy
-        ->add(Directive::UPGRADE_INSECURE_REQUESTS, Value::NO_VALUE)
-        ->add(Directive::BLOCK_ALL_MIXED_CONTENT, Value::NO_VALUE);
+        ->add(Directive::UPGRADE_INSECURE_REQUESTS, Value::NO_VALUE);
 }
 ```
 
 This will output a CSP like this:
 ```
-Content-Security-Policy: upgrade-insecure-requests;block-all-mixed-content
+Content-Security-Policy: upgrade-insecure-requests
 ```
 
 The `presets` key of the `csp` config file is set to `[\Spatie\Csp\Presets\Basic::class]` by default. This class allows your site to only use images, scripts, form actions of your own site.
@@ -459,7 +485,35 @@ Instead of outright blocking all violations, you can put configure a CSP policy 
 
 #### To an external url
 
-Any violations against the policy can be reported to a given url. You can set that url in the `report_uri` key of the `csp` config file. A great service that is specifically built for handling these violation reports is [http://report-uri.io/](http://report-uri.io/). 
+Any violations against the policy can be reported to a given url. There are two CSP directives for this:
+
+* `report-uri`: the original directive. It is deprecated, but still supported by most browsers. Set the url in the `report_uri` key of the `csp` config file.
+* `report-to`: the modern replacement. It points to a named endpoint defined in the `Reporting-Endpoints` HTTP header. Set the endpoint name in the `report_to` key, and define the endpoint url in the `reporting_endpoints` array.
+
+While the new directive is rolling out across browsers, you can configure both at the same time. Older browsers will use `report-uri`, newer ones will use `report-to`.
+
+```php
+// config/csp.php
+'report_uri' => env('CSP_REPORT_URI', 'https://example.com/csp-reports'),
+
+'report_to' => env('CSP_REPORT_TO', 'default'),
+
+'reporting_endpoints' => [
+    'default' => 'https://example.com/csp-reports',
+],
+```
+
+A great service that is specifically built for handling these violation reports is [http://report-uri.io/](http://report-uri.io/).
+
+If you are running an enforcing and a report-only policy side-by-side and need them to report to different endpoints (for example, report-uri.com requires `/enforce` for `Content-Security-Policy` and `/reportOnly` for `Content-Security-Policy-Report-Only`), you can configure `report_only_uri` and/or `report_only_to`:
+
+```php
+// config/csp.php
+'report_uri' => env('CSP_REPORT_URI', 'https://example.report-uri.com/r/d/csp/enforce'),
+'report_only_uri' => env('CSP_REPORT_ONLY_URI', 'https://example.report-uri.com/r/d/csp/reportOnly'),
+```
+
+When `report_only_uri` (or `report_only_to`) is empty, the report-only policy reuses `report_uri` (or `report_to`).
 
 ### Testing
 

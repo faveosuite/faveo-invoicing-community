@@ -14,6 +14,7 @@ use function array_key_exists;
 use function array_keys;
 use function array_map;
 use function array_pop;
+use function array_splice;
 use function array_values;
 use function assert;
 use function class_exists;
@@ -25,6 +26,7 @@ use function is_float;
 use function is_int;
 use function is_object;
 use function is_scalar;
+use function is_string;
 use function method_exists;
 use function preg_quote;
 use function preg_replace;
@@ -40,6 +42,7 @@ use function strtolower;
 use function substr;
 use function trim;
 use function ucfirst;
+use BackedEnum;
 use PHPUnit\Event\Code\TestMethodBuilder;
 use PHPUnit\Event\Facade as EventFacade;
 use PHPUnit\Framework\TestCase;
@@ -49,10 +52,11 @@ use PHPUnit\Metadata\TestDoxFormatter;
 use PHPUnit\Util\Color;
 use PHPUnit\Util\Exporter;
 use PHPUnit\Util\Filter;
-use ReflectionEnum;
+use PHPUnit\Util\Sanitizer;
 use ReflectionMethod;
-use ReflectionObject;
+use Stringable;
 use Throwable;
+use UnitEnum;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -67,7 +71,7 @@ final class NamePrettifier
     private array $strings = [];
 
     /**
-     * @var array<non-empty-string, non-empty-string>
+     * @var array<non-empty-string, string>
      */
     private array $prettifiedTestCases = [];
 
@@ -100,12 +104,6 @@ final class NamePrettifier
             $className = substr($className, 0, strlen($className) - strlen('Test'));
         }
 
-        if (str_starts_with($className, 'Tests')) {
-            $className = substr($className, strlen('Tests'));
-        } elseif (str_starts_with($className, 'Test')) {
-            $className = substr($className, strlen('Test'));
-        }
-
         if ($className === '') {
             $className = 'UnnamedTests';
         }
@@ -118,6 +116,8 @@ final class NamePrettifier
         }
 
         $result = preg_replace('/(?<=[[:lower:]])(?=[[:upper:]])/u', ' ', $className);
+
+        assert($result !== null);
 
         if ($fullyQualifiedName !== $className) {
             return $result . ' (' . $fullyQualifiedName . ')';
@@ -161,13 +161,27 @@ final class NamePrettifier
 
         $buffer = preg_replace_callback_array(
             [
-                '/(?!^)([A-Z])/' => static fn (array $matches) => ' ' . strtolower($matches[1]),
-                '/(\d+)/'        => static fn (array $matches) => ' ' . $matches[1],
+                '/(?!^)([A-Z])/' => static function (array $matches): string
+                {
+                    if (!isset($matches[1]) || !is_string($matches[1])) {
+                        return ' ';
+                    }
+
+                    return ' ' . strtolower($matches[1]);
+                },
+                '/(\d+)/' => static function (array $matches): string
+                {
+                    if (!isset($matches[1]) || !is_string($matches[1])) {
+                        return ' ';
+                    }
+
+                    return ' ' . $matches[1];
+                },
             ],
             $name,
         );
 
-        return trim($buffer);
+        return trim((string) $buffer);
     }
 
     public function prettifyTestCase(TestCase $test, bool $colorize): string
@@ -226,11 +240,16 @@ final class NamePrettifier
             return Color::dim(' with data set ') . Color::colorize('fg-cyan', (string) $test->dataName());
         }
 
-        return Color::dim(' with ') . Color::colorize('fg-cyan', Color::visualizeWhitespace($test->dataName()));
+        return Color::dim(' with ') . Color::colorize(
+            'fg-cyan',
+            Color::visualizeWhitespace(
+                Sanitizer::sanitizeBidirectionalControlCharacters($test->dataName()),
+            ),
+        );
     }
 
     /**
-     * @return array<non-empty-string, non-empty-string>
+     * @return array<non-empty-string, string>
      */
     private function mapTestMethodParameterNamesToProvidedDataValues(TestCase $test, bool $colorize): array
     {
@@ -243,7 +262,13 @@ final class NamePrettifier
         $providedDataValues = $test->providedData();
         $i                  = 0;
 
-        $providedData['$_dataName'] = $test->dataName();
+        $dataName = $test->dataName();
+
+        if (is_int($dataName)) {
+            $providedData['$_dataName'] = (string) $dataName;
+        } else {
+            $providedData['$_dataName'] = Sanitizer::sanitizeBidirectionalControlCharacters($dataName);
+        }
 
         foreach ($reflector->getParameters() as $parameter) {
             if (array_key_exists($parameter->getName(), $providedDataValues)) {
@@ -282,12 +307,16 @@ final class NamePrettifier
                 }
             }
 
-            $providedData['$' . $parameter->getName()] = str_replace('$', '\\$', $value);
+            $providedData['$' . $parameter->getName()] = str_replace(
+                '$',
+                '\\$',
+                Sanitizer::sanitizeBidirectionalControlCharacters($value),
+            );
         }
 
         if ($colorize) {
             $providedData = array_map(
-                static fn (mixed $value) => Color::colorize('fg-cyan', Color::visualizeWhitespace((string) $value, true)),
+                static fn (string $value) => Color::colorize('fg-cyan', Color::visualizeWhitespace($value, true)),
                 $providedData,
             );
         }
@@ -295,25 +324,18 @@ final class NamePrettifier
         return $providedData;
     }
 
-    /**
-     * @return non-empty-string
-     */
     private function objectToString(object $value): string
     {
-        $reflector = new ReflectionObject($value);
-
-        if ($reflector->isEnum()) {
-            $enumReflector = new ReflectionEnum($value);
-
-            if ($enumReflector->isBacked()) {
+        if ($value instanceof UnitEnum) {
+            if ($value instanceof BackedEnum) {
                 return (string) $value->value;
             }
 
             return $value->name;
         }
 
-        if ($reflector->hasMethod('__toString')) {
-            return $value->__toString();
+        if ($value instanceof Stringable || method_exists($value, '__toString')) {
+            return (string) $value;
         }
 
         return $value::class;
@@ -344,6 +366,8 @@ final class NamePrettifier
 
             $placeholdersUsed = true;
         }
+
+        assert($result !== null);
 
         return [$result, $placeholdersUsed];
     }
@@ -408,8 +432,22 @@ final class NamePrettifier
             return [$this->prettifyTestMethodName($test->name()), false];
         }
 
+        $arguments = array_values($test->providedData());
+
+        foreach ($reflector->getParameters() as $position => $parameter) {
+            if ($parameter->getName() === '_dataName') {
+                array_splice($arguments, $position, 0, [(string) $test->dataName()]);
+
+                break;
+            }
+        }
+
         try {
-            return [$reflector->invokeArgs(null, array_values($test->providedData())), true];
+            $result = $reflector->invokeArgs(null, $arguments);
+
+            assert(is_string($result));
+
+            return [$result, true];
         } catch (Throwable $t) {
             EventFacade::emitter()->testTriggeredPhpunitError(
                 TestMethodBuilder::fromTestCase($test, false),

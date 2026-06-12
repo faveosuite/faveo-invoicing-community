@@ -9,7 +9,10 @@
  */
 namespace PHPUnit\TextUI;
 
+use const FILE_IGNORE_NEW_LINES;
+use const FILE_SKIP_EMPTY_LINES;
 use function array_map;
+use function file;
 use PHPUnit\Event;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Runner\Filter\Factory;
@@ -26,15 +29,18 @@ final readonly class TestSuiteFilterProcessor
     /**
      * @throws Event\RuntimeException
      * @throws FilterNotConfiguredException
+     * @throws RuntimeException
      */
     public function process(Configuration $configuration, TestSuite $suite): void
     {
         $factory = new Factory;
 
         if (!$configuration->hasFilter() &&
+            !$configuration->hasExcludeFilter() &&
+            !$configuration->hasTestIdFilterFile() &&
+            !$configuration->hasTestIdFilter() &&
             !$configuration->hasGroups() &&
             !$configuration->hasExcludeGroups() &&
-            !$configuration->hasExcludeFilter() &&
             !$configuration->hasTestsCovering() &&
             !$configuration->hasTestsUsing() &&
             !$configuration->hasTestsRequiringPhpExtension()) {
@@ -80,16 +86,44 @@ final readonly class TestSuiteFilterProcessor
             );
         }
 
+        if ($configuration->hasTestIdFilterFile()) {
+            $lines = @file($configuration->testIdFilterFile(), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+            if ($lines === false) {
+                throw new RuntimeException('Cannot read from ' . $configuration->testIdFilterFile());
+            }
+
+            $testIds = [];
+
+            foreach ($lines as $line) {
+                if ($line !== '') {
+                    $testIds[] = $line;
+                }
+            }
+
+            if ($testIds !== []) {
+                $factory->addTestIdFilter($testIds);
+            }
+        }
+
+        if ($configuration->hasTestIdFilter()) {
+            $factory->addTestIdFilter([$configuration->testIdFilter()]);
+        }
+
         if ($configuration->hasExcludeFilter()) {
-            $factory->addExcludeNameFilter(
-                $configuration->excludeFilter(),
-            );
+            $excludeFilter = $configuration->excludeFilter();
+
+            if ($excludeFilter !== '') {
+                $factory->addExcludeNameFilter($excludeFilter);
+            }
         }
 
         if ($configuration->hasFilter()) {
-            $factory->addIncludeNameFilter(
-                $configuration->filter(),
-            );
+            $filter = $configuration->filter();
+
+            if ($filter !== '') {
+                $factory->addIncludeNameFilter($filter);
+            }
         }
 
         $suite->injectFilter($factory);

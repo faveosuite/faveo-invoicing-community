@@ -6,7 +6,7 @@
                 <h4 class="card-title">{{ __('message.email_validation_provider') }}</h4>
                 <div class="card-tools">
                     <RouterLink :to="{ path: '/settings/api/email-validation/logs' }" class="btn btn-tool"
-                        v-tooltip :title="__('message.email_validation_logs')">
+                        v-tooltip="__('message.email_validation_logs')">
                         <i class="fas fa-list-alt"></i>
                     </RouterLink>
                 </div>

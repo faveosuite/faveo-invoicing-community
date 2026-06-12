@@ -2,8 +2,7 @@
     <div class="user-table-actions">
         <button
             class="btn btn-light table_btn"
-            :title="__('message.restore')"
-            v-tooltip
+            v-tooltip="__('message.restore')"
             :disabled="restoring"
             @click="restore"
         >
@@ -13,8 +12,7 @@
 
         <button
             class="btn btn-light table_btn"
-            :title="__('message.Delete')"
-            v-tooltip
+            v-tooltip="__('message.Delete')"
             @click="showModal = true"
         >
             <i class="fas fa-trash"></i>

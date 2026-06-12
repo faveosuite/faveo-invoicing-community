@@ -341,6 +341,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('systemSettings/update', [Common\SettingsController::class, 'postSettingsSystem']);
     Route::get('settings/system-data', [Common\SettingsController::class, 'getSystemSettingsData']);
     Route::patch('settings/system-data', [Common\SettingsController::class, 'updateSystemSettingsData']);
+    Route::patch('settings/datetime-data', [Common\SettingsController::class, 'updateDateTimeSettingsData']);
 
     Route::get('settings/email', [Common\EmailSettingsController::class, 'settingsEmail'])->middleware('auth');
     Route::patch('settings/email', [Common\EmailSettingsController::class, 'postSettingsEmail']);

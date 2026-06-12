@@ -3,15 +3,13 @@
         <router-link
             :to="`/products/${productId}/versions/${versionId}/edit`"
             class="btn btn-light table_btn"
-            :title="__('message.edit')"
-            v-tooltip
+            v-tooltip="__('message.edit')"
         >
             <i class="fas fa-edit"></i>
         </router-link>
         <button
             class="btn btn-light table_btn"
-            :title="__('message.Delete')"
-            v-tooltip
+            v-tooltip="__('message.Delete')"
             @click="showModal = true"
         >
             <i class="fas fa-trash"></i>

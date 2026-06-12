@@ -2,7 +2,7 @@
 /**
  * FilterConditionsGroup
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -220,7 +220,7 @@ class FilterConditionsGroup implements ModelInterface, ArrayAccess, JsonSerializ
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['glue'] = $data['glue'] ?? null;
         $this->container['conditions'] = $data['conditions'] ?? null;

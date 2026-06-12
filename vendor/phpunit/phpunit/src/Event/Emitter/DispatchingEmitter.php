@@ -597,6 +597,17 @@ final class DispatchingEmitter implements Emitter
         );
     }
 
+    public function testUsedCustomMethodInvocation(TestMethod $test, ClassMethod $customTestMethodInvocation): void
+    {
+        $this->dispatcher->dispatch(
+            new Test\CustomTestMethodInvocationUsed(
+                $this->telemetryInfo(),
+                $test,
+                $customTestMethodInvocation,
+            ),
+        );
+    }
+
     /**
      * @param class-string $className
      *
@@ -1380,6 +1391,163 @@ final class DispatchingEmitter implements Emitter
     }
 
     /**
+     * @param non-empty-string $message
+     * @param non-empty-string $file
+     * @param positive-int     $line
+     *
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function testRunnerTriggeredPhpNotice(string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline): void
+    {
+        $this->dispatcher->dispatch(
+            new TestRunner\PhpNoticeTriggered(
+                $this->telemetryInfo(),
+                $message,
+                $file,
+                $line,
+                $suppressed,
+                $ignoredByBaseline,
+            ),
+        );
+    }
+
+    /**
+     * @param non-empty-string $message
+     * @param non-empty-string $file
+     * @param positive-int     $line
+     *
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function testRunnerTriggeredNotice(string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline): void
+    {
+        $this->dispatcher->dispatch(
+            new TestRunner\Issue\NoticeTriggered(
+                $this->telemetryInfo(),
+                $message,
+                $file,
+                $line,
+                $suppressed,
+                $ignoredByBaseline,
+            ),
+        );
+    }
+
+    /**
+     * @param non-empty-string $message
+     * @param non-empty-string $file
+     * @param positive-int     $line
+     *
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function testRunnerTriggeredPhpWarning(string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline): void
+    {
+        $this->dispatcher->dispatch(
+            new TestRunner\PhpWarningTriggered(
+                $this->telemetryInfo(),
+                $message,
+                $file,
+                $line,
+                $suppressed,
+                $ignoredByBaseline,
+            ),
+        );
+    }
+
+    /**
+     * @param non-empty-string $message
+     * @param non-empty-string $file
+     * @param positive-int     $line
+     *
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function testRunnerTriggeredWarning(string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline): void
+    {
+        $this->dispatcher->dispatch(
+            new TestRunner\Issue\WarningTriggered(
+                $this->telemetryInfo(),
+                $message,
+                $file,
+                $line,
+                $suppressed,
+                $ignoredByBaseline,
+            ),
+        );
+    }
+
+    /**
+     * @param non-empty-string $message
+     * @param non-empty-string $file
+     * @param positive-int     $line
+     *
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function testRunnerTriggeredPhpDeprecation(string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, IssueTrigger $trigger): void
+    {
+        $this->dispatcher->dispatch(
+            new TestRunner\PhpDeprecationTriggered(
+                $this->telemetryInfo(),
+                $message,
+                $file,
+                $line,
+                $suppressed,
+                $ignoredByBaseline,
+                $trigger,
+            ),
+        );
+    }
+
+    /**
+     * @param non-empty-string $message
+     * @param non-empty-string $file
+     * @param positive-int     $line
+     * @param non-empty-string $stackTrace
+     *
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function testRunnerTriggeredDeprecation(string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, IssueTrigger $trigger, string $stackTrace): void
+    {
+        $this->dispatcher->dispatch(
+            new TestRunner\Issue\DeprecationTriggered(
+                $this->telemetryInfo(),
+                $message,
+                $file,
+                $line,
+                $suppressed,
+                $ignoredByBaseline,
+                $trigger,
+                $stackTrace,
+            ),
+        );
+    }
+
+    /**
+     * @param non-empty-string $message
+     * @param non-empty-string $file
+     * @param positive-int     $line
+     *
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function testRunnerTriggeredError(string $message, string $file, int $line, bool $suppressed): void
+    {
+        $this->dispatcher->dispatch(
+            new TestRunner\ErrorTriggered(
+                $this->telemetryInfo(),
+                $message,
+                $file,
+                $line,
+                $suppressed,
+            ),
+        );
+    }
+
+    /**
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
@@ -1450,6 +1618,12 @@ final class DispatchingEmitter implements Emitter
             $current->memoryUsage()->diff($this->startSnapshot->memoryUsage()),
             $current->time()->duration($this->previousSnapshot->time()),
             $current->memoryUsage()->diff($this->previousSnapshot->memoryUsage()),
+            $current->userCpuTime()->diff($this->startSnapshot->userCpuTime()),
+            $current->systemCpuTime()->diff($this->startSnapshot->systemCpuTime()),
+            $current->totalCpuTime()->diff($this->startSnapshot->totalCpuTime()),
+            $current->userCpuTime()->diff($this->previousSnapshot->userCpuTime()),
+            $current->systemCpuTime()->diff($this->previousSnapshot->systemCpuTime()),
+            $current->totalCpuTime()->diff($this->previousSnapshot->totalCpuTime()),
         );
 
         $this->previousSnapshot = $current;

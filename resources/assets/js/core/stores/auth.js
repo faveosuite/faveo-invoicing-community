@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useDateTimeStore } from './dateTimeStore'
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -10,6 +11,8 @@ export const useAuthStore = defineStore('auth', {
     actions: {
         setUserInfo(payload) {
             this.user_data = payload
+            const tz = payload?.timezone?.name || payload?.client_timezone?.name || null
+            useDateTimeStore().setUserTimezone(tz)
         },
         setUserData(payload) {
             if (this.user_data) {
@@ -30,6 +33,7 @@ export const useAuthStore = defineStore('auth', {
         },
         setClientTimezone(timezone) {
             this.clientTimezone = timezone
+            useDateTimeStore().setUserTimezone(timezone?.name || null)
         },
     },
 })

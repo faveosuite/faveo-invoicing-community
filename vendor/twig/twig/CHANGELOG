@@ -1,3 +1,51 @@
+# 3.27.1 (2026-05-30)
+
+ * Fix array access with a `Stringable` key to coerce the key to string consistently instead of throwing in the optimized path
+ * Fix sandbox replacing `IteratorAggregate` arguments (e.g. Symfony's `FormView`) by a plain array
+
+# 3.27.0 (2026-05-27)
+
+ * Add a strict mode to `Twig\Sandbox\SecurityPolicy` to opt-in to the 4.0 behavior for the `extends`/`use` tags and the `parent`/`block`/`attribute` functions, which are otherwise still implicitly allowed in a sandbox
+ * Deprecate the fact that the `parent`, `block`, and `attribute` functions are always allowed in a sandboxed template
+ * Fix sandbox filter/tag/function allow-list bypass when the sandbox state changed between renders of a cached `Template` instance
+ * Fix PHP 8.1+ implicit float-to-int deprecation triggered by sandboxed `ArrayAccess` attribute access with a float key
+ * Restrict allowed classes in `Twig\Profiler\Profile::unserialize()` to prevent arbitrary class instantiation
+ * Escape root profile name in `HtmlDumper`
+ * Fix sandbox bypass in deprecated internal wrappers `twig_array_some()`, `twig_array_every()`, and `twig_check_arrow_in_sandbox()` (`src/Resources/core.php`)
+ * Deprecate the `Twig\Sandbox\SourcePolicyInterface` interface with no replacement
+ * Fix sandbox bypass in the "column" filter when sandboxing is enabled via `SourcePolicyInterface`
+ * Fix sandbox `__toString` bypass via `Traversable` arguments to the `join` and `replace` filters (also covers containers that implement both `Stringable` and `Traversable`)
+ * Fix sandbox `__toString` bypass via the `in` and `not in` operators
+ * Prevent a stack overflow in `SandboxExtension::ensureToStringAllowed()` when a self-referencing iterable is passed to a sandboxed template
+ * Add support for any expression as a dynamic mapping key (attribute access, filters, ...)
+ * Fix sandbox `__toString` policy bypass via dynamic mapping keys
+
+# 3.26.0 (2026-05-20)
+
+ * Document that the sandbox doesn't protect against resource exhaustion
+ * Document `template_from_string` caveats when used in a sandboxed environment
+ * Add docs on `Markup` about the goal of this class in the context of a sandbox
+ * Pre-escape HTML input on the `spaceless` filter
+ * Pre-escape HTML input on `inline_css` and `inky_to_html` filters
+ * Fix XSS by adjusting `is_safe` annotation on HTML-emitting filters
+ * [Profiler] Escape template and profile names in `HtmlDumper`
+ * Fix unbounded memoisation of `IntlDateFormatter` / `NumberFormatter`
+ * Fix sandbox bypass in the "column" filter
+ * Fix sandbox bypass in the `{% sandbox %}` tag when including a preloaded template
+ * Fix sandbox bypass: PHP code injection via `{% use %}` template name
+ * Fix sandbox bypass: PHP code injection via `_self` / import macro reference
+ * Fix sandbox bypass in object destructuring assignment
+ * Fix sandbox bypass: propagate `Source` to `checkArrow` for source-policy sandboxing
+ * Encode single quotes as `\x27` in `Compiler::string()` as a defense-in-depth measure
+ * Fix sandbox `__toString` bypasses
+ * Add `Twig\Node\CoercesChildrenToStringInterface` to let nodes declare which of their child nodes will be string-coerced at runtime so the sandbox wraps them with a `__toString` check
+
+# 3.25.0 (2026-05-17)
+
+ * Add a `needs_is_sandboxed` option for filters, functions, and tests
+ * Use deterministic suffixes for generated embed classes
+ * Lazy-load `EscaperRuntime` in `EscaperExtension`
+
 # 3.24.0 (2026-03-17)
 
  * Deprecate not implementing the `getOperatorTokens()` method in `ExpressionParserInterface` implementations

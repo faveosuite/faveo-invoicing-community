@@ -2,7 +2,7 @@
 /**
  * ProjectPostObject
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -78,6 +78,7 @@ class ProjectPostObject implements ModelInterface, ArrayAccess, JsonSerializable
         'org_id' => 'float',
         'person_id' => 'float',
         'labels' => 'int[]',
+        'health_status' => 'int',
         'template_id' => 'float'
     ];
 
@@ -101,6 +102,7 @@ class ProjectPostObject implements ModelInterface, ArrayAccess, JsonSerializable
         'org_id' => null,
         'person_id' => null,
         'labels' => null,
+        'health_status' => null,
         'template_id' => null
     ];
 
@@ -147,6 +149,7 @@ class ProjectPostObject implements ModelInterface, ArrayAccess, JsonSerializable
         'org_id' => 'org_id',
         'person_id' => 'person_id',
         'labels' => 'labels',
+        'health_status' => 'health_status',
         'template_id' => 'template_id'
     ];
 
@@ -168,6 +171,7 @@ class ProjectPostObject implements ModelInterface, ArrayAccess, JsonSerializable
         'org_id' => 'setOrgId',
         'person_id' => 'setPersonId',
         'labels' => 'setLabels',
+        'health_status' => 'setHealthStatus',
         'template_id' => 'setTemplateId'
     ];
 
@@ -189,6 +193,7 @@ class ProjectPostObject implements ModelInterface, ArrayAccess, JsonSerializable
         'org_id' => 'getOrgId',
         'person_id' => 'getPersonId',
         'labels' => 'getLabels',
+        'health_status' => 'getHealthStatus',
         'template_id' => 'getTemplateId'
     ];
 
@@ -257,7 +262,7 @@ class ProjectPostObject implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['title'] = $data['title'] ?? null;
         $this->container['board_id'] = $data['board_id'] ?? null;
@@ -271,6 +276,7 @@ class ProjectPostObject implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['org_id'] = $data['org_id'] ?? null;
         $this->container['person_id'] = $data['person_id'] ?? null;
         $this->container['labels'] = $data['labels'] ?? null;
+        $this->container['health_status'] = $data['health_status'] ?? null;
         $this->container['template_id'] = $data['template_id'] ?? null;
     }
 
@@ -587,6 +593,30 @@ class ProjectPostObject implements ModelInterface, ArrayAccess, JsonSerializable
     public function setLabels($labels): self
     {
         $this->container['labels'] = $labels;
+
+        return $this;
+    }
+
+    /**
+     * Gets health_status
+     *
+     * @return int|null
+     */
+    public function getHealthStatus()
+    {
+        return $this->container['health_status'];
+    }
+
+    /**
+     * Sets health_status
+     *
+     * @param int|null $health_status The health status of the project
+     *
+     * @return self
+     */
+    public function setHealthStatus($health_status): self
+    {
+        $this->container['health_status'] = $health_status;
 
         return $this;
     }

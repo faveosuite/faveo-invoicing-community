@@ -91,8 +91,7 @@
                                                     class="btn-xs"
                                                     :icon="copied ? 'fas fa-check' : 'fas fa-clipboard'"
                                                     :icon-only="true"
-                                                    :title="__('message.copy')"
-                                                    v-tooltip
+                                                    v-tooltip="__('message.copy')"
                                                     @click="copyLicenseCode"
                                                 />
                                                 <action-button
@@ -102,8 +101,7 @@
                                                     icon="fas fa-credit-card"
                                                     :icon-only="true"
                                                     :loading="saving.reissue"
-                                                    v-tooltip
-                                                    :title="__('message.reissue_license')"
+                                                    v-tooltip="__('message.reissue_license')"
                                                     @click="reissueLicense"
                                                 />
                                             </td>
@@ -128,8 +126,7 @@
                                                     class="btn-xs"
                                                     icon="fas fa-pen"
                                                     :icon-only="true"
-                                                    :title="__('message.edit')"
-                                                    v-tooltip
+                                                    v-tooltip="__('message.edit')"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#updateExpiryModal"
                                                     @click="modal.date = expiryRaw('update_end')"
@@ -156,8 +153,7 @@
                                                     class="btn-xs"
                                                     icon="fas fa-pen"
                                                     :icon-only="true"
-                                                    :title="__('message.edit')"
-                                                    v-tooltip
+                                                    v-tooltip="__('message.edit')"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#licenseExpiryModal"
                                                     @click="modal.date = expiryRaw('subscription_end')"
@@ -184,8 +180,7 @@
                                                     class="btn-xs"
                                                     icon="fas fa-pen"
                                                     :icon-only="true"
-                                                    :title="__('message.edit')"
-                                                    v-tooltip
+                                                    v-tooltip="__('message.edit')"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#supportExpiryModal"
                                                     @click="modal.date = expiryRaw('support_end')"
@@ -362,6 +357,9 @@ import http from '@/plugins/axios'
 import { errorHandler } from '@/helpers/responseHandler.js'
 import ExpiryModal from './components/ExpiryModal.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDate } = useDateTime()
 
 const COMPONENT = 'orders-show'
 
@@ -398,9 +396,6 @@ function capitalize(str) {
     return str ? str.charAt(0).toUpperCase() + str.slice(1) : ''
 }
 
-function formatDate(d) {
-    return new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
-}
 
 function expiryEntry(key) {
     return licenseDetails.value?.expiry_dates?.[key] ?? null

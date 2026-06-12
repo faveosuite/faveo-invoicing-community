@@ -2,7 +2,7 @@
 /**
  * OrganizationItem
  *
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v2
@@ -75,6 +75,11 @@ class OrganizationItem implements ModelInterface, ArrayAccess, JsonSerializable
         'visible_to' => 'int',
         'address' => '\Pipedrive\versions\v2\Model\OrganizationItemAddress',
         'label_ids' => 'int[]',
+        'website' => 'string',
+        'linkedin' => 'string',
+        'industry' => 'int',
+        'annual_revenue' => 'int',
+        'employee_count' => 'int',
         'custom_fields' => 'array<string,object>'
     ];
 
@@ -95,6 +100,11 @@ class OrganizationItem implements ModelInterface, ArrayAccess, JsonSerializable
         'visible_to' => null,
         'address' => null,
         'label_ids' => null,
+        'website' => null,
+        'linkedin' => null,
+        'industry' => null,
+        'annual_revenue' => null,
+        'employee_count' => null,
         'custom_fields' => null
     ];
 
@@ -138,6 +148,11 @@ class OrganizationItem implements ModelInterface, ArrayAccess, JsonSerializable
         'visible_to' => 'visible_to',
         'address' => 'address',
         'label_ids' => 'label_ids',
+        'website' => 'website',
+        'linkedin' => 'linkedin',
+        'industry' => 'industry',
+        'annual_revenue' => 'annual_revenue',
+        'employee_count' => 'employee_count',
         'custom_fields' => 'custom_fields'
     ];
 
@@ -156,6 +171,11 @@ class OrganizationItem implements ModelInterface, ArrayAccess, JsonSerializable
         'visible_to' => 'setVisibleTo',
         'address' => 'setAddress',
         'label_ids' => 'setLabelIds',
+        'website' => 'setWebsite',
+        'linkedin' => 'setLinkedin',
+        'industry' => 'setIndustry',
+        'annual_revenue' => 'setAnnualRevenue',
+        'employee_count' => 'setEmployeeCount',
         'custom_fields' => 'setCustomFields'
     ];
 
@@ -174,6 +194,11 @@ class OrganizationItem implements ModelInterface, ArrayAccess, JsonSerializable
         'visible_to' => 'getVisibleTo',
         'address' => 'getAddress',
         'label_ids' => 'getLabelIds',
+        'website' => 'getWebsite',
+        'linkedin' => 'getLinkedin',
+        'industry' => 'getIndustry',
+        'annual_revenue' => 'getAnnualRevenue',
+        'employee_count' => 'getEmployeeCount',
         'custom_fields' => 'getCustomFields'
     ];
 
@@ -242,7 +267,7 @@ class OrganizationItem implements ModelInterface, ArrayAccess, JsonSerializable
      * @param array|null $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['id'] = $data['id'] ?? null;
         $this->container['name'] = $data['name'] ?? null;
@@ -253,6 +278,11 @@ class OrganizationItem implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['visible_to'] = $data['visible_to'] ?? null;
         $this->container['address'] = $data['address'] ?? null;
         $this->container['label_ids'] = $data['label_ids'] ?? null;
+        $this->container['website'] = $data['website'] ?? null;
+        $this->container['linkedin'] = $data['linkedin'] ?? null;
+        $this->container['industry'] = $data['industry'] ?? null;
+        $this->container['annual_revenue'] = $data['annual_revenue'] ?? null;
+        $this->container['employee_count'] = $data['employee_count'] ?? null;
         $this->container['custom_fields'] = $data['custom_fields'] ?? null;
     }
 
@@ -499,6 +529,126 @@ class OrganizationItem implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
+     * Gets website
+     *
+     * @return string|null
+     */
+    public function getWebsite()
+    {
+        return $this->container['website'];
+    }
+
+    /**
+     * Sets website
+     *
+     * @param string|null $website The website of the organization
+     *
+     * @return self
+     */
+    public function setWebsite($website): self
+    {
+        $this->container['website'] = $website;
+
+        return $this;
+    }
+
+    /**
+     * Gets linkedin
+     *
+     * @return string|null
+     */
+    public function getLinkedin()
+    {
+        return $this->container['linkedin'];
+    }
+
+    /**
+     * Sets linkedin
+     *
+     * @param string|null $linkedin The LinkedIn profile URL of the organization
+     *
+     * @return self
+     */
+    public function setLinkedin($linkedin): self
+    {
+        $this->container['linkedin'] = $linkedin;
+
+        return $this;
+    }
+
+    /**
+     * Gets industry
+     *
+     * @return int|null
+     */
+    public function getIndustry()
+    {
+        return $this->container['industry'];
+    }
+
+    /**
+     * Sets industry
+     *
+     * @param int|null $industry The industry the organization belongs to
+     *
+     * @return self
+     */
+    public function setIndustry($industry): self
+    {
+        $this->container['industry'] = $industry;
+
+        return $this;
+    }
+
+    /**
+     * Gets annual_revenue
+     *
+     * @return int|null
+     */
+    public function getAnnualRevenue()
+    {
+        return $this->container['annual_revenue'];
+    }
+
+    /**
+     * Sets annual_revenue
+     *
+     * @param int|null $annual_revenue The annual revenue of the organization
+     *
+     * @return self
+     */
+    public function setAnnualRevenue($annual_revenue): self
+    {
+        $this->container['annual_revenue'] = $annual_revenue;
+
+        return $this;
+    }
+
+    /**
+     * Gets employee_count
+     *
+     * @return int|null
+     */
+    public function getEmployeeCount()
+    {
+        return $this->container['employee_count'];
+    }
+
+    /**
+     * Sets employee_count
+     *
+     * @param int|null $employee_count The number of employees in the organization
+     *
+     * @return self
+     */
+    public function setEmployeeCount($employee_count): self
+    {
+        $this->container['employee_count'] = $employee_count;
+
+        return $this;
+    }
+
+    /**
      * Gets custom_fields
      *
      * @return array<string,object>|null
@@ -511,7 +661,7 @@ class OrganizationItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets custom_fields
      *
-     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes
+     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes. To clear a custom field value, set it to `null`. For multi-option fields (field type `set`), use `null` to clear the selection — sending an empty array `[]` is not supported and will result in a validation error.
      *
      * @return self
      */

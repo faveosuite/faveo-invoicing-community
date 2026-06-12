@@ -5,7 +5,7 @@
             <div class="card-header">
                 <h3 class="card-title">{{ __('log.system_logs') }}</h3>
                 <div class="card-tools">
-                    <button class="btn btn-sm btn-secondary" title="Delete Logs" v-tooltip @click="showDeleteModal = true">
+                    <button class="btn btn-sm btn-secondary" v-tooltip="'Delete Logs'" @click="showDeleteModal = true">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
@@ -249,6 +249,8 @@
 
 <script setup>
 import { h, ref, computed, onMounted, nextTick } from 'vue'
+import { DateTime } from 'luxon'
+import { useDateTimeStore } from '@/core/stores/dateTimeStore'
 import VueDatePicker from 'vue-datepicker-next'
 import 'vue-datepicker-next/index.css'
 import http from '@/plugins/axios'
@@ -273,7 +275,7 @@ const deletableTypes = [
 
 // ── filter state ─────────────────────────────────────────────────────────────
 const activeType          = ref('cron')
-const selectedDate        = ref(new Date().toISOString().split('T')[0])
+const selectedDate        = ref(DateTime.now().setZone(useDateTimeStore().timezone).toFormat('yyyy-MM-dd'))
 const categories          = ref([])
 const loadingCategories   = ref(false)
 const selectedCategoryKey = ref(null)
@@ -294,7 +296,7 @@ const showEmailModal = ref(false)
 const emailIframe    = ref(null)
 
 const showDeleteModal = ref(false)
-const deleteDate      = ref(new Date().toISOString().split('T')[0])
+const deleteDate      = ref(DateTime.now().setZone(useDateTimeStore().timezone).toFormat('yyyy-MM-dd'))
 const deleteTypes     = ref([])
 const deleteError     = ref('')
 const deleteAttempted = ref(false)

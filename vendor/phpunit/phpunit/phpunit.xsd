@@ -2,7 +2,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:annotation>
         <xs:documentation source="https://phpunit.de/documentation.html">
-            This Schema file defines the rules by which the XML configuration file of PHPUnit 12.5 may be structured.
+            This Schema file defines the rules by which the XML configuration file of PHPUnit 13.2 may be structured.
         </xs:documentation>
         <xs:appinfo source="https://phpunit.de/documentation.html"/>
     </xs:annotation>
@@ -24,6 +24,7 @@
                 </xs:complexType>
             </xs:element>
             <xs:element name="deprecationTrigger" type="deprecationTriggerType" minOccurs="0"/>
+            <xs:element name="issueTriggerResolvers" type="issueTriggerResolversType" minOccurs="0"/>
         </xs:all>
         <xs:attribute name="baseline" type="xs:anyURI"/>
         <xs:attribute name="restrictNotices" type="xs:boolean" default="false"/>
@@ -44,7 +45,7 @@
         <xs:sequence>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element name="directory" type="sourceDirectoryType"/>
-                <xs:element name="file" type="xs:anyURI"/>
+                <xs:element name="file" type="sourceFileType"/>
             </xs:choice>
         </xs:sequence>
     </xs:group>
@@ -53,6 +54,14 @@
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:string" name="prefix" default=""/>
                 <xs:attribute type="xs:string" name="suffix" default=".php"/>
+                <xs:attribute type="xs:boolean" name="includeInCodeCoverage" default="true"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="sourceFileType">
+        <xs:simpleContent>
+            <xs:extension base="xs:anyURI">
+                <xs:attribute type="xs:boolean" name="includeInCodeCoverage" default="true"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -65,6 +74,7 @@
             </xs:element>
         </xs:all>
         <xs:attribute name="pathCoverage" type="xs:boolean" default="false"/>
+        <xs:attribute name="branchCoverage" type="xs:boolean" default="false"/>
         <xs:attribute name="includeUncoveredFiles" type="xs:boolean" default="true"/>
         <xs:attribute name="ignoreDeprecatedCodeUnits" type="xs:boolean" default="false"/>
         <xs:attribute name="disableCodeCoverageIgnore" type="xs:boolean" default="false"/>
@@ -119,23 +129,46 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="default"/>
             <xs:enumeration value="defects"/>
+            <xs:enumeration value="defects,duration-ascending"/>
+            <xs:enumeration value="defects,duration-descending"/>
             <xs:enumeration value="defects,random"/>
+            <xs:enumeration value="defects,reverse"/>
+            <xs:enumeration value="defects,size-ascending"/>
+            <xs:enumeration value="defects,size-descending"/>
             <xs:enumeration value="depends"/>
             <xs:enumeration value="depends,defects"/>
-            <xs:enumeration value="depends,duration"/>
+            <xs:enumeration value="depends,defects,duration-ascending"/>
+            <xs:enumeration value="depends,defects,duration-descending"/>
+            <xs:enumeration value="depends,defects,random"/>
+            <xs:enumeration value="depends,defects,reverse"/>
+            <xs:enumeration value="depends,defects,size-ascending"/>
+            <xs:enumeration value="depends,defects,size-descending"/>
+            <xs:enumeration value="depends,duration-ascending"/>
+            <xs:enumeration value="depends,duration-descending"/>
             <xs:enumeration value="depends,random"/>
             <xs:enumeration value="depends,reverse"/>
-            <xs:enumeration value="depends,size"/>
-            <xs:enumeration value="duration"/>
+            <xs:enumeration value="depends,size-ascending"/>
+            <xs:enumeration value="depends,size-descending"/>
+            <xs:enumeration value="duration-ascending"/>
+            <xs:enumeration value="duration-descending"/>
             <xs:enumeration value="no-depends"/>
             <xs:enumeration value="no-depends,defects"/>
-            <xs:enumeration value="no-depends,duration"/>
+            <xs:enumeration value="no-depends,defects,duration-ascending"/>
+            <xs:enumeration value="no-depends,defects,duration-descending"/>
+            <xs:enumeration value="no-depends,defects,random"/>
+            <xs:enumeration value="no-depends,defects,reverse"/>
+            <xs:enumeration value="no-depends,defects,size-ascending"/>
+            <xs:enumeration value="no-depends,defects,size-descending"/>
+            <xs:enumeration value="no-depends,duration-ascending"/>
+            <xs:enumeration value="no-depends,duration-descending"/>
             <xs:enumeration value="no-depends,random"/>
             <xs:enumeration value="no-depends,reverse"/>
-            <xs:enumeration value="no-depends,size"/>
+            <xs:enumeration value="no-depends,size-ascending"/>
+            <xs:enumeration value="no-depends,size-descending"/>
             <xs:enumeration value="random"/>
             <xs:enumeration value="reverse"/>
-            <xs:enumeration value="size"/>
+            <xs:enumeration value="size-ascending"/>
+            <xs:enumeration value="size-descending"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="phpType">
@@ -176,9 +209,11 @@
         <xs:attribute name="cacheResult" type="xs:boolean" default="true"/>
         <xs:attribute name="colors" type="xs:boolean" default="false"/>
         <xs:attribute name="columns" type="columnsType" default="80"/>
+        <xs:attribute name="diffContext" type="xs:integer" default="3"/>
         <xs:attribute name="controlGarbageCollector" type="xs:boolean" default="false"/>
         <xs:attribute name="numberOfTestsBeforeGarbageCollection" type="xs:integer" default="100"/>
         <xs:attribute name="requireCoverageMetadata" type="xs:boolean" default="false"/>
+        <xs:attribute name="requireSealedMockObjects" type="xs:boolean" default="false"/>
         <xs:attribute name="processIsolation" type="xs:boolean" default="false"/>
         <xs:attribute name="failOnAllIssues" type="xs:boolean" default="false"/>
         <xs:attribute name="failOnDeprecation" type="xs:boolean" default="false"/>
@@ -204,6 +239,7 @@
         <xs:attribute name="beStrictAboutOutputDuringTests" type="xs:boolean" default="false"/>
         <xs:attribute name="beStrictAboutTestsThatDoNotTestAnything" type="xs:boolean" default="true"/>
         <xs:attribute name="beStrictAboutCoverageMetadata" type="xs:boolean" default="false"/>
+        <xs:attribute name="requireCoverageContribution" type="xs:boolean" default="false"/>
         <xs:attribute name="defaultTimeLimit" type="xs:integer" default="0"/>
         <xs:attribute name="enforceTimeLimit" type="xs:boolean" default="false"/>
         <xs:attribute name="timeoutForSmallTests" type="xs:integer" default="1"/>
@@ -323,14 +359,27 @@
         <xs:attribute name="threshold" type="xs:integer"/>
     </xs:complexType>
     <xs:complexType name="coverageReportHtmlType">
-        <xs:attribute name="outputDirectory" type="xs:anyURI" use="required"/>
+        <xs:attribute name="outputDirectory" type="xs:anyURI"/>
         <xs:attribute name="lowUpperBound" type="xs:integer" default="50"/>
         <xs:attribute name="highLowerBound" type="xs:integer" default="90"/>
-        <xs:attribute name="colorSuccessLow" type="xs:string" default="#dff0d8"/>
-        <xs:attribute name="colorSuccessMedium" type="xs:string" default="#c3e3b5"/>
-        <xs:attribute name="colorSuccessHigh" type="xs:string" default="#99cb84"/>
-        <xs:attribute name="colorWarning" type="xs:string" default="#fcf8e3"/>
-        <xs:attribute name="colorDanger" type="xs:string" default="#f2dede"/>
+        <xs:attribute name="colorSuccessLow" type="xs:string" default="#d6e6f2"/>
+        <xs:attribute name="colorSuccessMedium" type="xs:string" default="#b3d1e8"/>
+        <xs:attribute name="colorSuccessHigh" type="xs:string" default="#8cb4d5"/>
+        <xs:attribute name="colorSuccessBar" type="xs:string" default="#1a73b4"/>
+        <xs:attribute name="colorWarning" type="xs:string" default="#fdf0d5"/>
+        <xs:attribute name="colorWarningBar" type="xs:string" default="#e5a100"/>
+        <xs:attribute name="colorDanger" type="xs:string" default="#fad4c0"/>
+        <xs:attribute name="colorDangerBar" type="xs:string" default="#d45500"/>
+        <xs:attribute name="colorBreadcrumbs" type="xs:string" default="var(--bs-gray-200)"/>
+        <xs:attribute name="colorSuccessLowDark" type="xs:string" default="#1e3550"/>
+        <xs:attribute name="colorSuccessMediumDark" type="xs:string" default="#2d4f6e"/>
+        <xs:attribute name="colorSuccessHighDark" type="xs:string" default="#2a4a6b"/>
+        <xs:attribute name="colorSuccessBarDark" type="xs:string" default="#1560a0"/>
+        <xs:attribute name="colorWarningDark" type="xs:string" default="#3d3010"/>
+        <xs:attribute name="colorWarningBarDark" type="xs:string" default="#b88a00"/>
+        <xs:attribute name="colorDangerDark" type="xs:string" default="#4a2a10"/>
+        <xs:attribute name="colorDangerBarDark" type="xs:string" default="#b54400"/>
+        <xs:attribute name="colorBreadcrumbsDark" type="xs:string" default="var(--bs-gray-800)"/>
         <xs:attribute name="customCssFile" type="xs:string"/>
     </xs:complexType>
     <xs:complexType name="coverageReportTextType">
@@ -349,5 +398,14 @@
                 <xs:element name="method" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             </xs:choice>
         </xs:sequence>
+        <xs:attribute name="ignoreUndefinedTriggers" type="xs:boolean" default="false"/>
+    </xs:complexType>
+    <xs:complexType name="issueTriggerResolversType">
+        <xs:sequence>
+            <xs:element name="issueTriggerResolver" type="issueTriggerResolverType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="issueTriggerResolverType">
+        <xs:attribute name="className" type="xs:string" use="required"/>
     </xs:complexType>
 </xs:schema>

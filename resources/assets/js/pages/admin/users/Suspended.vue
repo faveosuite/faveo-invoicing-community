@@ -60,8 +60,11 @@
 import { h, ref, computed, reactive } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { useDateTime } from '@/core/composables/useDateTime'
 import SuspendedTableActions from './components/SuspendedTableActions.vue'
 import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+
+const { formatDate } = useDateTime()
 
 const COMPONENT = 'suspended-index'
 
@@ -148,7 +151,7 @@ const tableOptions = reactive({
         name:       (f, row) => `${row.first_name ?? ''} ${row.last_name ?? ''}`.trim() || '—',
         mobile:     (f, row) => row.mobile?.trim() || '—',
         country:    (f, row) => row.country?.trim() || '—',
-        created_at: (f, row) => row.created_at ? new Date(row.created_at).toLocaleDateString() : '—',
+        created_at: (f, row) => row.created_at ? formatDate(row.created_at) : '—',
         action:     (f, row) => h(SuspendedTableActions, {
             userId:        row.id,
             baseUrl:       baseUrl,

@@ -23,6 +23,9 @@
 import { reactive, h } from 'vue'
 import { RouterLink } from 'vue-router'
 import { lang } from '@/helpers/extraLogics'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDate } = useDateTime()
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
@@ -79,10 +82,10 @@ const options = reactive({
     },
     templates: {
         license_ip: (f, row) => row.license_ip || '—',
-        license_updates_date: (f, row) => row.license_updates_date || '—',
+        license_updates_date: (f, row) => formatDate(row.license_updates_date),
         latest_call_backs: (f, row) => row.latest_call_backs || '—',
-        license_support_date: (f, row) => row.license_support_date || '—',
-        license_date: (f, row) => row.license_date || '—',
+        license_support_date: (f, row) => formatDate(row.license_support_date),
+        license_date: (f, row) => formatDate(row.license_date),
         license_expire_date: (f, row) => row.license_expire_date || '—',
         license_code: (f, row) => {
             if (row.license_code && row.id) {

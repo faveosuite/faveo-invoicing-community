@@ -97,8 +97,10 @@ import { useRouter } from 'vue-router'
 import { getIdFromUrl, lang } from '@/helpers/extraLogics'
 import axios from '@/plugins/axios'
 import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import { useDateTime } from '@/core/composables/useDateTime'
 
 const router = useRouter()
+const { formatDate, formatDateTime } = useDateTime()
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
@@ -183,7 +185,7 @@ function updateData(value, productId) {
         },
         templates: {
             callback_ip: (f, row) => row.callback_ip || '—',
-            callback_date_time: (f, row) => row.callback_date_time || '—',
+            callback_date_time: (f, row) => formatDateTime(row.callback_date_time),
             callback_status: (f, row) => {
                 return h('span', { class: row.callback_status ? 'badge bg-success' : 'badge bg-danger' },
                     row.callback_status ? lang('active') : lang('inactive'))

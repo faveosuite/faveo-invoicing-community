@@ -10,8 +10,7 @@
                 <div class="card-tools">
                     <button
                         class="btn btn-tool"
-                        v-tooltip
-                        :title="__('message.sync_fields')"
+                        v-tooltip="__('message.sync_fields')"
                         :disabled="syncing"
                         @click="syncFields"
                     >
@@ -76,8 +75,7 @@
                                         v-if="idx > 0"
                                         type="button"
                                         class="btn btn-light table_btn"
-                                        :title="__('message.delete_attribute')"
-                                        v-tooltip
+                                        v-tooltip="__('message.delete_attribute')"
                                         @click="removeRow(idx)"
                                     >
                                         <i class="fas fa-trash"></i>

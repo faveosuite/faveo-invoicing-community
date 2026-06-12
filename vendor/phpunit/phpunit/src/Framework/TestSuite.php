@@ -10,6 +10,7 @@
 namespace PHPUnit\Framework;
 
 use const PHP_EOL;
+use function array_all;
 use function array_merge;
 use function array_pop;
 use function array_reverse;
@@ -193,20 +194,22 @@ class TestSuite implements IteratorAggregate, Reorderable, Test
      */
     public function addTestSuite(ReflectionClass $testClass, array $groups = []): void
     {
+        $className = $testClass->getName();
+
         if ($testClass->isAbstract()) {
             throw new Exception(
                 sprintf(
                     'Class %s is abstract',
-                    $testClass->getName(),
+                    $className,
                 ),
             );
         }
 
-        if (!$testClass->isSubclassOf(TestCase::class)) {
+        if (!is_subclass_of($className, TestCase::class)) {
             throw new Exception(
                 sprintf(
                     'Class %s is not a subclass of %s',
-                    $testClass->getName(),
+                    $className,
                     TestCase::class,
                 ),
             );
@@ -239,8 +242,12 @@ class TestSuite implements IteratorAggregate, Reorderable, Test
                 );
             }
         } catch (RunnerException $e) {
+            $message = $e->getMessage();
+
+            assert($message !== '');
+
             Event\Facade::emitter()->testRunnerTriggeredPhpunitWarning(
-                $e->getMessage(),
+                $message,
             );
         }
     }
@@ -417,6 +424,7 @@ class TestSuite implements IteratorAggregate, Reorderable, Test
         $iterator = new TestSuiteIterator($this);
 
         if ($this->iteratorFilter !== null) {
+            /** @var Iterator<non-negative-int, Test> $iterator */
             $iterator = $this->iteratorFilter->factory($iterator, $this);
         }
 
@@ -531,12 +539,18 @@ class TestSuite implements IteratorAggregate, Reorderable, Test
                 );
             }
 
+            $file = $method->getFileName();
+            $line = $method->getStartLine();
+
+            assert($file !== false && $file !== '');
+            assert($line !== false);
+
             Event\Facade::emitter()->testTriggeredPhpunitError(
                 new TestMethod(
                     $className,
                     $methodName,
-                    $method->getFileName(),
-                    $method->getStartLine(),
+                    $file,
+                    $line,
                     Event\Code\TestDoxBuilder::fromClassNameAndMethodName(
                         $className,
                         $methodName,
@@ -576,18 +590,14 @@ class TestSuite implements IteratorAggregate, Reorderable, Test
      */
     private function containsOnlyVirtualGroups(array $groups): bool
     {
-        foreach ($groups as $group) {
-            if (!str_starts_with($group, '__phpunit_')) {
-                return false;
-            }
-        }
-
-        return true;
+        return array_all($groups, static fn (string $group) => str_starts_with($group, '__phpunit_'));
     }
 
     private function methodDoesNotExistOrIsDeclaredInTestCase(string $methodName): bool
     {
-        $reflector = new ReflectionClass($this->name);
+        /** @var class-string $className */
+        $className = $this->name;
+        $reflector = new ReflectionClass($className);
 
         return !$reflector->hasMethod($methodName) ||
                $reflector->getMethod($methodName)->getDeclaringClass()->getName() === TestCase::class;
@@ -645,7 +655,10 @@ class TestSuite implements IteratorAggregate, Reorderable, Test
                     $this->markTestSuiteSkipped(implode(PHP_EOL, $missingRequirements));
                 }
 
-                call_user_func([$this->name, $method]);
+                /** @var callable $callback */
+                $callback = [$this->name, $method];
+
+                call_user_func($callback);
             } catch (Throwable $t) {
             }
 
@@ -659,9 +672,12 @@ class TestSuite implements IteratorAggregate, Reorderable, Test
             }
 
             if (isset($t) && $t instanceof SkippedTest) {
+                /** @var non-empty-string $skippedMessage */
+                $skippedMessage = $t->getMessage();
+
                 $emitter->testSuiteSkipped(
                     $testSuiteValueObjectForEvents,
-                    $t->getMessage(),
+                    $skippedMessage,
                 );
 
                 return false;
@@ -720,7 +736,10 @@ class TestSuite implements IteratorAggregate, Reorderable, Test
             );
 
             try {
-                call_user_func([$this->name, $method]);
+                /** @var callable $callback */
+                $callback = [$this->name, $method];
+
+                call_user_func($callback);
             } catch (Throwable $t) {
             }
 

@@ -70,6 +70,7 @@ $chatScripts = \App\Model\Common\ChatScript::get(['id', 'script', 'google_analyt
      data-user-email="{{ auth()->user()?->email ?? '' }}"
      data-user-avatar="{{ auth()->user()?->profile_pic ?? '' }}"
      data-user-role="{{ auth()->user()?->role ?? '' }}"
+     data-user-timezone="{{ auth()->user()?->timezone?->name ?? '' }}"
      data-phone="{{ $set->phone ?? '' }}"
      data-phone-code="{{ $set->phone_code ?? '' }}"
      data-company-email="{{ $set->company_email ?? '' }}"

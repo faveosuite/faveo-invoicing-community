@@ -14,8 +14,8 @@ use function preg_match;
 use function sprintf;
 use function substr;
 use PHPUnit\Framework\Test;
+use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestSuite;
-use PHPUnit\Runner\Phpt\TestCase as PhptTestCase;
 use RecursiveFilterIterator;
 use RecursiveIterator;
 
@@ -56,7 +56,7 @@ abstract class NameFilterIterator extends RecursiveFilterIterator
             return true;
         }
 
-        if ($test instanceof PhptTestCase) {
+        if (!$test instanceof TestCase) {
             return false;
         }
 
@@ -88,7 +88,7 @@ abstract class NameFilterIterator extends RecursiveFilterIterator
             // Handles:
             //  * testAssertEqualsSucceeds#4
             //  * testAssertEqualsSucceeds#4-8
-            if (preg_match('/^(.*?)#(\d+)(?:-(\d+))?$/', $filter, $matches)) {
+            if (preg_match('/^(.*?)#(\d+)(?:-(\d+))?$/', $filter, $matches) === 1) {
                 if (isset($matches[3]) && $matches[2] < $matches[3]) {
                     $filter = sprintf(
                         '%s.*with data set #(\d+)$',
@@ -105,9 +105,17 @@ abstract class NameFilterIterator extends RecursiveFilterIterator
                     );
                 }
             } // Handles:
+            //  * testAssertEqualsSucceeds#named data set
+            elseif (preg_match('/^(.*?)#(.+)$/', $filter, $matches) === 1) {
+                $filter = sprintf(
+                    '%s.*with data set "%s"$',
+                    $matches[1],
+                    $matches[2],
+                );
+            } // Handles:
             //  * testDetermineJsonError@JSON_ERROR_NONE
             //  * testDetermineJsonError@JSON.*
-            elseif (preg_match('/^(.*?)@(.+)$/', $filter, $matches)) {
+            elseif (preg_match('/^(.*?)@(.+)$/', $filter, $matches) === 1) {
                 $filter = sprintf(
                     '%s.*with data set "%s"$',
                     $matches[1],

@@ -44,7 +44,7 @@ final class LogicalOr extends BinaryOperator
     public function matches(mixed $other): bool
     {
         foreach ($this->constraints() as $constraint) {
-            if ($constraint->evaluate($other, '', true)) {
+            if ($constraint->evaluate($other, '', true) === true) {
                 return true;
             }
         }

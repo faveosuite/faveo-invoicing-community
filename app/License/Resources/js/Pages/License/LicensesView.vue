@@ -170,11 +170,12 @@
 import { ref, reactive, h, onBeforeMount } from 'vue'
 import { getIdFromUrl, lang } from '@/helpers/extraLogics'
 import axios from '@/plugins/axios'
-import copy from 'clipboard-copy'
 import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
 import { useRouter } from 'vue-router'
+import { useDateTime } from '@/core/composables/useDateTime'
 
 const router = useRouter()
+const { formatDate, formatDateTime } = useDateTime()
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)
@@ -205,7 +206,7 @@ const tableOptions = ref({})
 const id = ref(null)
 
 function copyCommand() {
-    copy(license_code.value)
+    navigator.clipboard.writeText(license_code.value)
     iconClass.value = 'fas fa-check'
     setTimeout(() => { iconClass.value = 'fas fa-copy' }, 2000)
 }
@@ -286,7 +287,7 @@ function buildInstallationOptions() {
         },
         templates: {
             installation_ip: (f, row) => row.installation_ip || '—',
-            installation_date: (f, row) => row.installation_date || '—',
+            installation_date: (f, row) => formatDate(row.installation_date),
             installation_domain: (f, row) => {
                 if (row.installation_domain) {
                     return h('a', { href: 'https://' + row.installation_domain, target: '_blank' }, [row.installation_domain])
@@ -338,7 +339,7 @@ function buildCallbackOptions() {
         },
         templates: {
             callback_ip: (f, row) => row.callback_ip || '—',
-            callback_date_time: (f, row) => row.callback_date_time || '—',
+            callback_date_time: (f, row) => formatDateTime(row.callback_date_time),
             callback_domain: (f, row) => {
                 if (row.callback_domain) {
                     return h('a', { href: 'https://' + row.callback_domain, target: '_blank' }, [row.callback_domain])
@@ -391,7 +392,7 @@ function buildLogsOptions() {
         templates: {
             installation_ip: (f, row) => row.installation_ip || '—',
             version_number: (f, row) => row.version_number || '—',
-            installation_last_active_date: (f, row) => row.installation_last_active_date || '—',
+            installation_last_active_date: (f, row) => formatDate(row.installation_last_active_date),
             installation_domain: (f, row) => {
                 if (row.installation_domain) {
                     return h('a', { href: 'https://' + row.installation_domain, target: '_blank' }, [row.installation_domain])

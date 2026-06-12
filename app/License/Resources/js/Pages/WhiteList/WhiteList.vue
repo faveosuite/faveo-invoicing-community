@@ -22,6 +22,9 @@
 <script setup>
 import { reactive } from 'vue'
 import { lang } from '@/helpers/extraLogics'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDate } = useDateTime()
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
@@ -62,7 +65,7 @@ const options = reactive({
     templates: {
         whitelist_host_ip: (f, row) => row.whitelist_host_ip || '—',
         whitelist_host_comments: (f, row) => row.whitelist_host_comments || '—',
-        whitelist_host_date: (f, row) => row.whitelist_host_date || '—',
+        whitelist_host_date: (f, row) => formatDate(row.whitelist_host_date),
     },
     headings: {
         whitelist_host_ip: lang('ip_address'),

@@ -71,8 +71,20 @@ final readonly class HookedProperty
         return $this->setHook || !$this->virtual && $this->getHook;
     }
 
-    public function setterType(): ?Type
+    public function hasSetterType(): bool
     {
+        return $this->setterType !== null;
+    }
+
+    /**
+     * @throws RuntimeException
+     */
+    public function setterType(): Type
+    {
+        if ($this->setterType === null) {
+            throw new RuntimeException;
+        }
+
         return $this->setterType;
     }
 }

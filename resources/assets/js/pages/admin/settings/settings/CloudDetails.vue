@@ -101,7 +101,7 @@
                             <div class="card-header">
                                 <h4 class="card-title">{{ __('message.cloud_product_configuration') }}</h4>
                                 <div class="card-tools">
-                                    <button class="btn btn-tool" :title="__('message.add')" v-tooltip @click="openProductModal">
+                                    <button class="btn btn-tool" v-tooltip="__('message.add')" @click="openProductModal">
                                         <i class="fas fa-plus fw-bold"></i>
                                     </button>
                                 </div>
@@ -123,7 +123,7 @@
                             <div class="card-header">
                                 <h4 class="card-title">{{ __('message.cloud_data_centers') }}</h4>
                                 <div class="card-tools">
-                                    <button class="btn btn-tool" :title="__('message.add')" v-tooltip @click="openDCModal">
+                                    <button class="btn btn-tool" v-tooltip="__('message.add')" @click="openDCModal">
                                         <i class="fas fa-plus fw-bold"></i>
                                     </button>
                                 </div>

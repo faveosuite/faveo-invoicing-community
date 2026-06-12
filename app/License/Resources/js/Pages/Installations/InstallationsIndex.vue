@@ -18,6 +18,9 @@
 import { reactive, h } from 'vue'
 import { RouterLink } from 'vue-router'
 import { lang } from '@/helpers/extraLogics'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDate } = useDateTime()
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
@@ -64,7 +67,7 @@ const options = reactive({
         actions: 'dt-action',
     },
     templates: {
-        installation_date: (f, row) => row.installation_date || '—',
+        installation_date: (f, row) => formatDate(row.installation_date),
         product_title: (f, row) => {
             if (row.product_title && row.product_id) {
                 return h(RouterLink, { to: '/products/' + row.product_id + '/edit' }, () => [row.product_title])

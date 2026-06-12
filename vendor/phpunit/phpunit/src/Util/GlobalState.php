@@ -22,6 +22,7 @@ use function ini_get_all;
 use function is_array;
 use function is_file;
 use function is_scalar;
+use function is_string;
 use function preg_match;
 use function serialize;
 use function sprintf;
@@ -198,7 +199,7 @@ final readonly class GlobalState
         $prefix      = false;
         $result      = '';
 
-        if (defined('__PHPUNIT_PHAR__')) {
+        if (defined('__PHPUNIT_PHAR__') && is_string(__PHPUNIT_PHAR__)) {
             // @codeCoverageIgnoreStart
             $prefix = 'phar://' . __PHPUNIT_PHAR__ . '/';
             // @codeCoverageIgnoreEnd
@@ -208,7 +209,7 @@ final readonly class GlobalState
         array_shift($files);
 
         // If bootstrap script was a Composer bin proxy, skip the second entry as well
-        if (str_ends_with(strtr($files[0], '\\', '/'), '/phpunit/phpunit/phpunit')) {
+        if (isset($files[0]) && str_ends_with(strtr($files[0], '\\', '/'), '/phpunit/phpunit/phpunit')) {
             // @codeCoverageIgnoreStart
             array_shift($files);
             // @codeCoverageIgnoreEnd
@@ -249,6 +250,10 @@ final readonly class GlobalState
 
         foreach ($iniSettings as $key => $value) {
             if (self::isIniSettingDeprecated($key)) {
+                continue;
+            }
+
+            if (!is_scalar($value)) {
                 continue;
             }
 

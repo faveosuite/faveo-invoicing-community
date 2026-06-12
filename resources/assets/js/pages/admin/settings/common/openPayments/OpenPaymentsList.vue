@@ -7,14 +7,14 @@
             <strong>Open Payment Page URL:</strong>
             <span class="ms-2">{{ openPaymentUrl }}</span>
             <i :class="copied ? 'fas fa-check text-success' : 'fas fa-copy'"
-               class="ms-2" @click="copyUrl" :title="copied ? 'Copied!' : 'Copy URL'" v-tooltip></i>
+               class="ms-2" @click="copyUrl" v-tooltip="copied ? 'Copied!' : 'Copy URL'"></i>
         </StaticAlert>
 
         <div class="card card-light">
             <div class="card-header">
                 <h4 class="card-title">Open Payments</h4>
                 <div class="card-tools">
-                    <button class="btn btn-tool" title="Filters" v-tooltip @click="showFilter = !showFilter">
+                    <button class="btn btn-tool" v-tooltip="'Filters'" @click="showFilter = !showFilter">
                         <i class="fas fa-filter"></i>
                     </button>
                 </div>
@@ -159,6 +159,9 @@
 import { h, reactive, ref } from 'vue'
 import { __ } from '@/plugins/i18n'
 import OpenPaymentsFilter from './OpenPaymentsFilter.vue'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDateTime } = useDateTime()
 
 const COMPONENT = 'open-payments-list'
 const el      = document.getElementById('app-root')
@@ -241,6 +244,7 @@ const tableOptions = reactive({
                 'bg-warning text-dark': row.payment_status === 'pending',
             }],
         }, __(`message.${row.payment_status}`) || row.payment_status),
+        created_at:     (f, row) => formatDateTime(row.created_at),
         action: (f, row) => h('button', {
             class: 'btn btn-sm btn-light table_btn',
             title: 'View Details',

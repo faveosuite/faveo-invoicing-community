@@ -1,5 +1,6 @@
 export default [
     { path: '/settings',                          component: () => import('../../../pages/admin/settings/SettingsIndex.vue'),                          meta: { title: 'Settings',              titleKey: 'message.settings' } },
+    { path: '/settings/company',                  component: () => import('../../../pages/admin/settings/settings/CompanySettings.vue'),      meta: { title: 'Company Settings',      titleKey: 'message.company-settings' } },
     { path: '/settings/system',                   component: () => import('../../../pages/admin/settings/settings/SystemSettings.vue'),       meta: { title: 'System Settings',       titleKey: 'message.system-settings' } },
     { path: '/settings/cron',                     component: () => import('../../../pages/admin/settings/settings/Cron.vue'),                 meta: { title: 'Cron Settings',         titleKey: 'message.cron-setting' } },
     { path: '/settings/license-type',             component: () => import('../../../pages/admin/settings/settings/licenseType/LicenseTypeIndex.vue'),    meta: { title: 'License Types',         titleKey: 'message.license_types' } },

@@ -15,7 +15,7 @@
                 <div class="d-flex align-items-center gap-2">
                     <span>••••</span>
                     <button class="btn btn-light btn-sm"
-                            v-tooltip :title="copiedId === row.id ? __('message.copied') : __('message.copy')"
+                            v-tooltip="copiedId === row.id ? __('message.copied') : __('message.copy')"
                             @click="copyValue(row.id, row.phone_number_id)">
                         <i :class="copiedId === row.id ? 'fas fa-check text-success' : 'fas fa-copy'"></i>
                     </button>
@@ -24,12 +24,12 @@
             <template #action="{ row }">
                 <div class="d-flex gap-1">
                     <button class="btn btn-light btn-sm"
-                            v-tooltip :title="__('message.edit_webhook_url')"
+                            v-tooltip="__('message.edit_webhook_url')"
                             @click="openEdit(row)">
                         <i class="fas fa-edit"></i>
                     </button>
                     <button class="btn btn-light btn-sm"
-                            v-tooltip :title="__('message.Delete')"
+                            v-tooltip="__('message.Delete')"
                             @click="confirmDelete(row)">
                         <i class="fas fa-trash"></i>
                     </button>

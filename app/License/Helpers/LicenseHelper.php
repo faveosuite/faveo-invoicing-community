@@ -110,21 +110,4 @@ class LicenseHelper
         return $status;
     }
 
-    public static function formatDate(?string $date): string
-    {
-        if (empty($date)) {
-            return '----';
-        }
-
-        return getTimeInLoggedInUserTimeZone($date, 'M j, Y');
-    }
-
-    public static function formatDatetime(?string $date): string
-    {
-        if (empty($date)) {
-            return '----';
-        }
-
-        return getTimeInLoggedInUserTimeZone($date, 'M j, Y, g:i a');
-    }
 }

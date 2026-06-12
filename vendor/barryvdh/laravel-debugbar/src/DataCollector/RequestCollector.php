@@ -1,218 +1,147 @@
 <?php
 
-namespace Barryvdh\Debugbar\DataCollector;
+declare(strict_types=1);
 
-use DebugBar\DataCollector\DataCollector;
+namespace Fruitcake\LaravelDebugbar\DataCollector;
+
+use DebugBar\Bridge\Symfony\SymfonyRequestCollector;
 use DebugBar\DataCollector\DataCollectorInterface;
 use DebugBar\DataCollector\Renderable;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Config;
+use Fruitcake\LaravelDebugbar\LaravelDebugbar;
+use Illuminate\Contracts\Queue\Job;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 use Laravel\Telescope\IncomingEntry;
 use Laravel\Telescope\Telescope;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
+use Livewire\Mechanisms\HandleComponents\HandleComponents;
+use Symfony\Component\Console\Input\ArgvInput;
 
-/**
- *
- * Based on \Symfony\Component\HttpKernel\DataCollector\RequestDataCollector by Fabien Potencier <fabien@symfony.com>
- *
- */
-class RequestCollector extends DataCollector implements DataCollectorInterface, Renderable
+class RequestCollector extends SymfonyRequestCollector implements DataCollectorInterface, Renderable
 {
-    /** @var \Symfony\Component\HttpFoundation\Request $request */
-    protected $request;
-    /** @var  \Symfony\Component\HttpFoundation\Response $response */
-    protected $response;
-    /** @var  \Symfony\Component\HttpFoundation\Session\SessionInterface $session */
-    protected $session;
-    /** @var string|null */
-    protected $currentRequestId;
-    /** @var array */
-    protected $hiddens;
-
-    /**
-     * Create a new SymfonyRequestCollector
-     *
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @param \Symfony\Component\HttpFoundation\Response $response
-     * @param \Symfony\Component\HttpFoundation\Session\SessionInterface $session
-     * @param string|null $currentRequestId
-     * @param array $hiddens
-     */
-    public function __construct($request, $response, $session = null, $currentRequestId = null, $hiddens = [])
-    {
-        $this->request = $request;
-        $this->response = $response;
-        $this->session = $session;
-        $this->currentRequestId = $currentRequestId;
-        $this->hiddens = array_merge($hiddens, [
-            'request_request.password',
-            'request_headers.php-auth-pw.0',
-        ]);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getName()
-    {
-        return 'request';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getWidgets()
-    {
-        $widgets = [
-            "request" => [
-                "icon" => "tags",
-                "widget" => "PhpDebugBar.Widgets.HtmlVariableListWidget",
-                "map" => "request.data",
-                "order" => -100,
-                "default" => "{}"
-            ],
-            'request:badge' => [
-                "map" => "request.badge",
-                "default" => "null"
-            ]
-        ];
-
-        if (Config::get('debugbar.options.request.label', true)) {
-            $widgets['currentrequest'] = [
-                "icon" => "share",
-                "map" => "request.data.uri",
-                "link" => "request",
-                "default" => ""
-            ];
-            $widgets['currentrequest:tooltip'] = [
-                "map" => "request.tooltip",
-                "default" => "{}"
-            ];
-        }
-
-        return $widgets;
-    }
-
     /**
      * {@inheritdoc}
      */
-    public function collect()
+    public function collect(): array
     {
-        $request = $this->request;
-        $response = $this->response;
-
-        $responseHeaders = $response->headers->all();
-        $cookies = [];
-        foreach ($response->headers->getCookies() as $cookie) {
-            $cookies[] = $this->getCookieHeader(
-                $cookie->getName(),
-                $cookie->getValue(),
-                $cookie->getExpiresTime(),
-                $cookie->getPath(),
-                $cookie->getDomain(),
-                $cookie->isSecure(),
-                $cookie->isHttpOnly()
-            );
+        if ($job = debugbar()->getProcessingJob()) {
+            return $this->collectJob($job);
         }
-        if (count($cookies) > 0) {
-            $responseHeaders['Set-Cookie'] = $cookies;
+        if (app()->runningInConsole()) {
+            return $this->collectCli();
         }
 
-        $statusCode = $response->getStatusCode();
-        $startTime = defined('LARAVEL_START') ? LARAVEL_START :  $request->server->get('REQUEST_TIME_FLOAT');
-        $query = $request->getQueryString();
-        $htmlData = [];
-
-        $data = [
-            'status' => $statusCode . ' ' . (isset(Response::$statusTexts[$statusCode]) ? Response::$statusTexts[$statusCode] : ''),
-            'duration' => $startTime ? $this->formatDuration(microtime(true) - $startTime) : null,
-            'peak_memory' => $this->formatBytes(memory_get_peak_usage(true), 1),
+        $this->request = request();
+        $result = parent::collect();
+        if ($this->request->hasSession()) {
+            $sessionAttributes = $this->hideMaskedValues($this->request->session()->all());
+            $sessionAttributes = $this->getDataFormatter()->formatVar($sessionAttributes);
+            $result['data']['session_attributes'] = $sessionAttributes;
+        }
+        $result['tooltip'] += [
+            'full_url' => Str::limit($this->request->fullUrl(), 100),
         ];
 
-        if ($request instanceof Request) {
+        $htmlData = [];
 
-            if ($route = $request->route()) {
-                $htmlData += $this->getRouteInformation($route);
-            }
-
-            $fullUrl = $request->fullUrl();
-            $data += [
-                'full_url' => strlen($fullUrl) > 100 ? [$fullUrl] : $fullUrl,
+        $route = $this->request->route();
+        if ($route) {   // @phpstan-ignore-line despite what phpdocs say, this can return null
+            $htmlData += $this->getRouteInformation($this->request->route());
+            $result['tooltip'] += [
+                'action_name' => $route->getName(),
+                'controller_action' => $route->getActionName(),
             ];
         }
 
-        if ($response instanceof RedirectResponse) {
-            $data['response'] = 'Redirect to ' . $response->getTargetUrl();
-        }
-
-        $data += [
-            'response' => $response->headers->get('Content-Type') ? $response->headers->get(
-                'Content-Type'
-            ) : 'text/html',
-            'request_format' => $request->getRequestFormat(),
-            'request_query' => $request->query->all(),
-            'request_request' => $request->request->all(),
-            'request_headers' => $request->headers->all(),
-            'request_cookies' => $request->cookies->all(),
-            'response_headers' => $responseHeaders,
-        ];
-
-        if ($this->session) {
-            $data['session_attributes'] = $this->session->all();
-        }
-
-        if (isset($data['request_headers']['authorization'][0])) {
-            $data['request_headers']['authorization'][0] = substr($data['request_headers']['authorization'][0], 0, 12) . '******';
-        }
-
-        foreach ($this->hiddens as $key) {
-            if (Arr::has($data, $key)) {
-                Arr::set($data, $key, '******');
-            }
-        }
-
-        foreach ($data as $key => $var) {
-            if (!is_string($data[$key])) {
-                $data[$key] = DataCollector::getDefaultVarDumper()->renderVar($var);
-            } else {
-                $data[$key] = e($data[$key]);
-            }
-        }
-
-        if (class_exists(Telescope::class)) {
+        if (class_exists(Telescope::class) && class_exists(IncomingEntry::class) && Telescope::isRecording()) {
             $entry = IncomingEntry::make([
-                'requestId' => $this->currentRequestId,
+                'requestId' => app(LaravelDebugbar::class)->getCurrentRequestId(),
             ])->type('debugbar');
             Telescope::$entriesQueue[] = $entry;
             $url = route('debugbar.telescope', [$entry->uuid]);
-            $htmlData['telescope'] = '<a href="' . $url . '" target="_blank">View in Telescope</a>';
-        }
-
-        $tooltip = [
-            'status' => $data['status'],
-            'full_url' => Str::limit($request->fullUrl(), 100),
-        ];
-
-        if ($this->request instanceof Request) {
-            $tooltip += [
-                'action_name' => optional($this->request->route())->getName(),
-                'controller_action' => optional($this->request->route())->getActionName(),
-            ];
+            $htmlData['telescope'] = '<a href="' . $url . '" target="_blank" class="phpdebugbar-widgets-external-link">View in Telescope</a>';
         }
 
         unset($htmlData['as'], $htmlData['uses']);
 
-        return [
-            'data' => $tooltip + $htmlData + $data,
-            'tooltip' => array_filter($tooltip),
-            'badge' => $statusCode >= 300 ? $data['status'] : null,
-        ];
+        $result['data'] = $htmlData + $result['data'];
+
+        return $result;
     }
 
-    protected function getRouteInformation($route)
+    protected function collectCli(): array
+    {
+        $argv = new ArgvInput();
+        $command = $argv->getFirstArgument();
+        $commands = Artisan::all();
+        $commandClass = $commands[$command] ?? null;
+
+        $data = [
+            'method' => 'CLI',
+            'command' => $command,
+            'command_class' => $commandClass,
+            'args' => (new ArgvInput())->getRawTokens(),
+            'request_server' => $this->request->server->all(),
+        ];
+
+        $data = $this->hideMaskedValues($data);
+        foreach ($data as $key => $var) {
+            if (!is_string($var)) {
+                $data[$key] = $this->getDataFormatter()->formatVar($var);
+            }
+        }
+
+        if ($commandClass) {
+            $reflector = new \ReflectionClass($commandClass);
+            $filename = $this->normalizeFilePath($reflector->getFileName());
+
+            if ($link = $this->getXdebugLink($reflector->getFileName(), $reflector->getStartLine())) {
+                $data['command_class'] = [
+                    'value' => sprintf('%s:%s-%s', $filename, $reflector->getStartLine(), $reflector->getEndLine()),
+                    'xdebug_link' => $link,
+                ];
+            }
+        }
+
+        return ['data' => $data];
+    }
+
+    protected function collectJob(Job $job): array
+    {
+        $jobClass = $job->resolveQueuedJobClass();
+
+        $data = [
+            'method' => 'CLI',
+            'job' => $job->resolveName(),
+            'job_class' => $jobClass,
+            'job_id' => $job->getJobId(),
+            'connection' => $job->getConnectionName(),
+            'queue' => $job->getQueue(),
+            'payload' => $job->payload(),
+        ];
+
+        $data = $this->hideMaskedValues($data);
+        foreach ($data as $key => $var) {
+            if (!is_string($var)) {
+                $data[$key] = $this->getDataFormatter()->formatVar($var);
+            }
+        }
+
+        if ($jobClass) {
+            $reflector = new \ReflectionClass($jobClass);
+            $filename = $this->normalizeFilePath($reflector->getFileName());
+
+            if ($link = $this->getXdebugLink($reflector->getFileName(), $reflector->getStartLine())) {
+                $data['job_class'] = [
+                    'value' => sprintf('%s:%s-%s', $filename, $reflector->getStartLine(), $reflector->getEndLine()),
+                    'xdebug_link' => $link,
+                ];
+            }
+        }
+
+        return ['data' => $data];
+    }
+
+    protected function getRouteInformation(mixed $route): array
     {
         if (!is_a($route, 'Illuminate\Routing\Route')) {
             return [];
@@ -221,22 +150,27 @@ class RequestCollector extends DataCollector implements DataCollectorInterface, 
         $action = $route->getAction();
 
         $result = [
-            'uri' => $uri ?: '-',
+            'uri' => $uri,
         ];
 
         $result = array_merge($result, $action);
         $uses = $action['uses'] ?? null;
-        $controller = is_string($action['controller'] ?? null) ? $action['controller'] :  '';
+        $controller = is_string($action['controller'] ?? null) ? $action['controller'] : '';
 
-        if (request()->hasHeader('X-Livewire')) {
+        if (request()->hasHeader('X-Livewire') && class_exists(HandleComponents::class)) {
             try {
-                $component = request('components')[0];
-                $name = json_decode($component['snapshot'], true)['memo']['name'];
-                $method = $component['calls'][0]['method'];
-                $class = app(\Livewire\Mechanisms\ComponentRegistry::class)->getClass($name);
-                if (class_exists($class) && method_exists($class, $method)) {
-                    $controller = $class . '@' . $method;
-                    $result['controller'] = ltrim($controller, '\\');
+                $componentData = $this->request->request->all()['components'][0] ?? null;
+                if (isset($componentData['snapshot'], $componentData['updates'])) {
+                    $snapshot = json_decode($componentData['snapshot'], true);
+                    if (count($componentData['updates']) > 0) {
+                        $method = $componentData['updates'][array_key_first($componentData['updates'])] ?? null;
+                    } else {
+                        $method = null;
+                    }
+                    [$component] = app(HandleComponents::class)->fromSnapshot($snapshot);
+                    $result['controller'] = ltrim($component::class, '\\');
+                    $reflector = new \ReflectionClass($component);
+                    $controller = $component::class . '@' . $method;
                 }
             } catch (\Throwable $e) {
                 //
@@ -244,14 +178,14 @@ class RequestCollector extends DataCollector implements DataCollectorInterface, 
         }
 
         if (str_contains($controller, '@')) {
-            list($controller, $method) = explode('@', $controller);
+            [$controller, $method] = explode('@', $controller);
             if (class_exists($controller) && method_exists($controller, $method)) {
                 $reflector = new \ReflectionMethod($controller, $method);
             }
             unset($result['uses']);
         } elseif ($uses instanceof \Closure) {
             $reflector = new \ReflectionFunction($uses);
-            $result['uses'] = $this->formatVar($uses);
+            $result['uses'] = $this->getDataFormatter()->formatVar($uses);
         } elseif (is_string($uses) && str_contains($uses, '@__invoke')) {
             if (class_exists($controller) && method_exists($controller, 'render')) {
                 $reflector = new \ReflectionMethod($controller, 'render');
@@ -279,53 +213,9 @@ class RequestCollector extends DataCollector implements DataCollectorInterface, 
         }
 
         if (isset($result['middleware']) && is_array($result['middleware'])) {
-            $middleware = implode(', ', $result['middleware']);
-            unset($result['middleware']);
-            $result['middleware'] = $middleware;
+            $result['middleware'] = $this->getDataFormatter()->formatVar($result['middleware']);
         }
 
         return array_filter($result);
-    }
-
-    private function getCookieHeader($name, $value, $expires, $path, $domain, $secure, $httponly)
-    {
-        $cookie = sprintf('%s=%s', $name, urlencode($value ?? ''));
-
-        if (0 !== $expires) {
-            if (is_numeric($expires)) {
-                $expires = (int) $expires;
-            } elseif ($expires instanceof \DateTime) {
-                $expires = $expires->getTimestamp();
-            } else {
-                $expires = strtotime($expires);
-                if (false === $expires || -1 == $expires) {
-                    throw new \InvalidArgumentException(
-                        sprintf('The "expires" cookie parameter is not valid.', $expires)
-                    );
-                }
-            }
-
-            $cookie .= '; expires=' . substr(
-                    \DateTime::createFromFormat('U', $expires, new \DateTimeZone('UTC'))->format('D, d-M-Y H:i:s T'),
-                    0,
-                    -5
-                );
-        }
-
-        if ($domain) {
-            $cookie .= '; domain=' . $domain;
-        }
-
-        $cookie .= '; path=' . $path;
-
-        if ($secure) {
-            $cookie .= '; secure';
-        }
-
-        if ($httponly) {
-            $cookie .= '; httponly';
-        }
-
-        return $cookie;
     }
 }

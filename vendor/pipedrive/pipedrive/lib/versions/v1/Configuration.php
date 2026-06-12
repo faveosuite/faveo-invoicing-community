@@ -1,7 +1,7 @@
 <?php
 /**
  * Configuration
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -37,7 +37,7 @@ use Pipedrive\versions\v1\Exceptions\OAuthProviderException;
 
 /**
  * Configuration Class Doc Comment
- * PHP version 7.3
+ * PHP version 8.0
  *
  * @category Class
  * @package  Pipedrive\versions\v1
@@ -111,11 +111,11 @@ class Configuration
      */
     protected string $host = 'https://api.pipedrive.com/v1';
     /**
-     * User agent of the HTTP request, set to "Pipedrive-SDK-PHP-15.x" by default
+     * User agent of the HTTP request, set to "Pipedrive-SDK-PHP-16.x" by default
      *
      * @var string
      */
-    protected string $userAgent = 'Pipedrive-SDK-PHP-15.x';
+    protected string $userAgent = 'Pipedrive-SDK-PHP-16.x';
 
     /**
      * Debug switch (default set to false)

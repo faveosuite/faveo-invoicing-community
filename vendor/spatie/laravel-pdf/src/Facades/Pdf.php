@@ -4,11 +4,14 @@ namespace Spatie\LaravelPdf\Facades;
 
 use Illuminate\Support\Facades\Facade;
 use Spatie\LaravelPdf\FakePdfBuilder;
+use Spatie\LaravelPdf\PdfBuilder;
 use Spatie\LaravelPdf\PdfFactory;
 
 /**
- * @mixin \Spatie\LaravelPdf\PdfBuilder
- * @mixin \Spatie\LaravelPdf\FakePdfBuilder
+ * @method static string decrypt(string $pathOrContents, string $password)
+ *
+ * @mixin PdfBuilder
+ * @mixin FakePdfBuilder
  */
 class Pdf extends Facade
 {
@@ -17,10 +20,16 @@ class Pdf extends Facade
         return PdfFactory::class;
     }
 
-    public static function fake()
+    public static function fake(): FakePdfBuilder
     {
         $fake = new FakePdfBuilder;
 
+        if ($callback = PdfFactory::defaultBuilder()->getCustomizeBrowsershotCallback()) {
+            $fake->withBrowsershot($callback);
+        }
+
         static::swap($fake);
+
+        return $fake;
     }
 }

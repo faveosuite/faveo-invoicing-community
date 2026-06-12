@@ -24,7 +24,7 @@ class InstallationViewController extends Controller
                 'license_code' => $installation->license_code,
                 'installation_ip' => $installation->installation_ip,
                 'installation_domain' => $installation->installation_domain,
-                'installation_date' => LicenseHelper::formatDatetime($installation->installation_date),
+                'installation_date' => $installation->installation_date,
                 'installation_status' => $installation->installation_status,
                 'product_title' => optional($installation->product)->name,
                 'client_email' => optional($installation->user)->email,
@@ -60,7 +60,7 @@ class InstallationViewController extends Controller
             'id' => $cb->id,
             'callback_ip' => $cb->callback_ip,
             'callback_domain' => $cb->callback_domain,
-            'callback_date_time' => LicenseHelper::formatDatetime($cb->callback_date_time),
+            'callback_date_time' => $cb->callback_date_time,
             'callback_status' => $cb->callback_status,
         ]);
 

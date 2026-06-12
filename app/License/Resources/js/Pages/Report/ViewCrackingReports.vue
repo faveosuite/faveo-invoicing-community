@@ -18,6 +18,9 @@
 import { reactive, h } from 'vue'
 import { RouterLink } from 'vue-router'
 import { lang } from '@/helpers/extraLogics'
+import { useDateTime } from '@/core/composables/useDateTime'
+
+const { formatDateTime } = useDateTime()
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
@@ -54,7 +57,7 @@ const options = reactive({
         report_text: 'dt-text',
     },
     templates: {
-        report_date_time: (f, row) => row.report_date_time || '—',
+        report_date_time: (f, row) => formatDateTime(row.report_date_time),
         license_code: (f, row) => {
             if (row.license_code && row.license_id) {
                 return h(RouterLink, { to: '/licenses/' + row.license_id + '/view' },
