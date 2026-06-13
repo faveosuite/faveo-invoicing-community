@@ -2,17 +2,16 @@
 
 namespace App\Plugins\Mailchimp;
 
+use App\Events\UserRegisteredEvent;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Plugins\Mailchimp\Http\Client\MailchimpClient;
-use App\Contracts\NewsletterProvider;
-use App\Events\UserRegisteredEvent;
 use App\Plugins\Mailchimp\Listeners\SubscribeUserOnRegister;
-use App\Plugins\Mailchimp\Providers\MailchimpNewsletterProvider;
-use App\Services\NewsletterManager;
 use App\Plugins\Mailchimp\Listeners\UnsubscribeOnUserDeleted;
 use App\Plugins\Mailchimp\Listeners\UpdateSubscriberOnPurchase;
+use App\Plugins\Mailchimp\Providers\MailchimpNewsletterProvider;
 use App\Plugins\Mailchimp\Services\ContactBuilder;
 use App\Plugins\Mailchimp\Services\MailchimpService;
+use App\Services\NewsletterManager;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 

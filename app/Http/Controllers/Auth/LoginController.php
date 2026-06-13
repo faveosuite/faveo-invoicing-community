@@ -79,6 +79,7 @@ class LoginController extends BaseAuthController
             $github_status = SocialLogin::select('status')->where('type', 'github')->value('status');
             $twitter_status = SocialLogin::select('status')->where('type', 'twitter')->value('status');
             $linkedin_status = SocialLogin::select('status')->where('type', 'linkedin')->value('status');
+
             return view('themes.default1.front.auth.login-register', compact('bussinesses', 'location', 'status', 'apiKeys', 'analyticsTag', 'google_status', 'github_status', 'linkedin_status', 'twitter_status'));
         } catch (\Exception $ex) {
             \Logger::exception($ex);

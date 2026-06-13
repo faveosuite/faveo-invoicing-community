@@ -25,19 +25,19 @@ class CacheSettingsController extends Controller
 
         $drivers = collect(self::DRIVERS)->map(fn ($d) => [
             'DriverDetails' => [
-                'id'          => $d['short_name'],
-                'name'        => ['text' => $d['name'], 'link' => $this->hasForm($d['short_name'])],
-                'status'      => [
+                'id' => $d['short_name'],
+                'name' => ['text' => $d['name'], 'link' => $this->hasForm($d['short_name'])],
+                'status' => [
                     'label' => $d['short_name'] === $active ? __('message.active') : __('message.inactive'),
-                    'code'  => $d['short_name'] === $active ? 1 : 0,
+                    'code' => $d['short_name'] === $active ? 1 : 0,
                 ],
-                'configured'  => $this->isConfigured($d['short_name']),
-                'action'      => ['type' => $d['short_name'] === $active ? 'activated' : 'activate'],
+                'configured' => $this->isConfigured($d['short_name']),
+                'action' => ['type' => $d['short_name'] === $active ? 'activated' : 'activate'],
             ],
         ]);
 
         return successResponse('', [
-            'drivers'       => ['data' => $drivers->values(), 'total' => count(self::DRIVERS)],
+            'drivers' => ['data' => $drivers->values(), 'total' => count(self::DRIVERS)],
             'active_driver' => $active,
         ]);
     }
@@ -74,11 +74,11 @@ class CacheSettingsController extends Controller
 
     public function activate(string $driver)
     {
-        if (!collect(self::DRIVERS)->pluck('short_name')->contains($driver)) {
+        if (! collect(self::DRIVERS)->pluck('short_name')->contains($driver)) {
             return errorResponse(__('message.invalid_driver'), 422);
         }
 
-        if ($this->hasForm($driver) && !$this->isConfigured($driver)) {
+        if ($this->hasForm($driver) && ! $this->isConfigured($driver)) {
             return errorResponse(__('message.activate_configure_first', ['name' => ucfirst($driver)]), 422);
         }
 
@@ -131,20 +131,20 @@ class CacheSettingsController extends Controller
     {
         if (extension_loaded('redis')) {
             $redis = new \Redis();
-            if (!$redis->connect($host, $port, 3)) {
+            if (! $redis->connect($host, $port, 3)) {
                 throw new \RuntimeException("Could not connect to Redis at {$host}:{$port}");
             }
-            if (!empty($password)) {
+            if (! empty($password)) {
                 $redis->auth($password);
             }
             $redis->ping();
             $redis->close();
         } elseif (class_exists('Predis\Client')) {
             $client = new \Predis\Client([
-                'host'     => $host,
-                'port'     => $port,
+                'host' => $host,
+                'port' => $port,
                 'password' => $password ?: null,
-                'timeout'  => 3,
+                'timeout' => 3,
             ]);
             $client->ping();
         } else {
@@ -154,7 +154,7 @@ class CacheSettingsController extends Controller
 
     private function testMemcached(string $host, int $port): void
     {
-        if (!extension_loaded('memcached')) {
+        if (! extension_loaded('memcached')) {
             throw new \RuntimeException(__('message.extension_required_error', ['extension' => 'memcached']));
         }
 
@@ -162,7 +162,7 @@ class CacheSettingsController extends Controller
         $memcached->addServer($host, $port);
         $stats = $memcached->getStats();
 
-        if (empty($stats) || !isset($stats["{$host}:{$port}"])) {
+        if (empty($stats) || ! isset($stats["{$host}:{$port}"])) {
             throw new \RuntimeException("Could not connect to Memcached at {$host}:{$port}");
         }
     }
@@ -170,10 +170,10 @@ class CacheSettingsController extends Controller
     private function isConfigured(string $driver): bool
     {
         return match ($driver) {
-            'redis'     => !empty(env('REDIS_HOST')),
-            'memcached' => !empty(env('MEMCACHED_HOST')),
-            'dynamodb'  => !empty(env('AWS_ACCESS_KEY_ID')) && !empty(env('AWS_SECRET_ACCESS_KEY')),
-            default     => true, // file, database need no credentials
+            'redis' => ! empty(env('REDIS_HOST')),
+            'memcached' => ! empty(env('MEMCACHED_HOST')),
+            'dynamodb' => ! empty(env('AWS_ACCESS_KEY_ID')) && ! empty(env('AWS_SECRET_ACCESS_KEY')),
+            default => true, // file, database need no credentials
         };
     }
 
@@ -181,23 +181,23 @@ class CacheSettingsController extends Controller
     {
         return match ($driver) {
             'redis' => [
-                $this->field('Host',     'REDIS_HOST',     env('REDIS_HOST', '127.0.0.1'), true),
-                $this->field('Port',     'REDIS_PORT',     env('REDIS_PORT', 6379),         true),
-                $this->field('Password', 'REDIS_PASSWORD', '',                              false, 'password'),
+                $this->field('Host', 'REDIS_HOST', env('REDIS_HOST', '127.0.0.1'), true),
+                $this->field('Port', 'REDIS_PORT', env('REDIS_PORT', 6379), true),
+                $this->field('Password', 'REDIS_PASSWORD', '', false, 'password'),
             ],
             'memcached' => [
-                $this->field('Host',         'MEMCACHED_HOST',          env('MEMCACHED_HOST', '127.0.0.1'), true),
-                $this->field('Port',         'MEMCACHED_PORT',          env('MEMCACHED_PORT', 11211),        true),
-                $this->field('Persistent ID','MEMCACHED_PERSISTENT_ID', env('MEMCACHED_PERSISTENT_ID', ''), false),
-                $this->field('SASL Username','MEMCACHED_USERNAME',       env('MEMCACHED_USERNAME', ''),      false),
-                $this->field('SASL Password','MEMCACHED_PASSWORD',       '',                                 false, 'password'),
+                $this->field('Host', 'MEMCACHED_HOST', env('MEMCACHED_HOST', '127.0.0.1'), true),
+                $this->field('Port', 'MEMCACHED_PORT', env('MEMCACHED_PORT', 11211), true),
+                $this->field('Persistent ID', 'MEMCACHED_PERSISTENT_ID', env('MEMCACHED_PERSISTENT_ID', ''), false),
+                $this->field('SASL Username', 'MEMCACHED_USERNAME', env('MEMCACHED_USERNAME', ''), false),
+                $this->field('SASL Password', 'MEMCACHED_PASSWORD', '', false, 'password'),
             ],
             'dynamodb' => [
-                $this->field('AWS Key ID',   'AWS_ACCESS_KEY_ID',     env('AWS_ACCESS_KEY_ID', ''),          true),
-                $this->field('AWS Secret',   'AWS_SECRET_ACCESS_KEY', '',                                    true,  'password'),
-                $this->field('Region',       'AWS_DEFAULT_REGION',    env('AWS_DEFAULT_REGION', 'us-east-1'), true),
-                $this->field('Cache Table',  'DYNAMODB_CACHE_TABLE',  env('DYNAMODB_CACHE_TABLE', 'cache'),  true),
-                $this->field('Endpoint',     'DYNAMODB_ENDPOINT',     env('DYNAMODB_ENDPOINT', ''),          false),
+                $this->field('AWS Key ID', 'AWS_ACCESS_KEY_ID', env('AWS_ACCESS_KEY_ID', ''), true),
+                $this->field('AWS Secret', 'AWS_SECRET_ACCESS_KEY', '', true, 'password'),
+                $this->field('Region', 'AWS_DEFAULT_REGION', env('AWS_DEFAULT_REGION', 'us-east-1'), true),
+                $this->field('Cache Table', 'DYNAMODB_CACHE_TABLE', env('DYNAMODB_CACHE_TABLE', 'cache'), true),
+                $this->field('Endpoint', 'DYNAMODB_ENDPOINT', env('DYNAMODB_ENDPOINT', ''), false),
             ],
             default => [],
         };
@@ -207,5 +207,4 @@ class CacheSettingsController extends Controller
     {
         return compact('label', 'name', 'value', 'required', 'type');
     }
-
 }

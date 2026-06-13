@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\EmailValidationResults;
+use App\Events\UserRegisteredEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ProfileRequest;
-use App\Events\UserRegisteredEvent;
 use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\ManagerSetting;
 use App\Model\Common\StatusSetting;
