@@ -29,6 +29,7 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
@@ -48,14 +49,7 @@ const saving = ref(false)
 const hpReady = ref(false)
 
 async function submit() {
-    try {
-        forgotSchema.validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const map = {}
-        err.inner?.forEach(e => { if (e.path && !map[e.path]) map[e.path] = e.message })
-        setErrors(map)
-        return
-    }
+    if (!await validateForm(forgotSchema, form, setErrors)) return
 
     saving.value = true
     try {

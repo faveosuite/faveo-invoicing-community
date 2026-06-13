@@ -9,7 +9,7 @@
                       :maxlength="length" :type="type"
                       v-model="changedValue" @input="onChange(changedValue, name)"
                       :cols="columns" :rows="rows" :style="inputStyle"
-                      :placeholder="placehold"
+                      :placeholder="placeholderVal"
                       :required="required">
             </textarea>
         </div>
@@ -18,11 +18,11 @@
                 <input :id="id ? id : 'text-field-' + name" :name="name"
                        :class="['form-control', inputClass, { 'is-invalid': error }]"
                        :type="showPassword ? 'text' : 'password'"
-                       :disabled="disabled" :style="inputStyle"
+                       :disabled="disabled" :readonly="readonly" :style="inputStyle"
                        v-model="changedValue" @input="onChange(changedValue, name)"
                        @keyup="keyupListener($event, name)" @keydown="keydownListener($event, name)"
                        @keypress="keypressEvt($event, name)" @paste="pasteEvt($event, name)"
-                       :placeholder="placehold" :maxlength="max || undefined"
+                       :placeholder="placeholderVal" :maxlength="max || undefined"
                        :required="required" />
                 <button type="button" class="btn btn-secondary" @click="togglePasswordVisibility" tabindex="-1">
                     <i class="fa" :class="showPassword ? 'fa-eye' : 'fa-eye-slash'"></i>
@@ -31,17 +31,17 @@
         </div>
         <input v-else :id="id ? id : 'text-field-' + name" :name="name"
                :class="['form-control', inputClass, { 'is-invalid': error }]"
-               :type="type" :disabled="disabled" :style="inputStyle"
+               :type="type" :disabled="disabled" :readonly="readonly" :style="inputStyle"
                v-model="changedValue" @input="onChange(changedValue, name)"
                @keyup="keyupListener($event, name)" @keydown="keydownListener($event, name)"
                @keypress="keypressEvt($event, name)" @paste="pasteEvt($event, name)"
-               :placeholder="placehold" :maxlength="max || undefined"
+               :placeholder="placeholderVal" :maxlength="max || undefined"
                :required="required" />
     </FormFieldTemplate>
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import FormFieldTemplate from './FormFieldTemplate.vue'
 
 const props = defineProps({
@@ -59,9 +59,11 @@ const props = defineProps({
     keypressEvt:     { type: Function,         default: () => {} },
     pasteEvt:        { type: Function,         default: () => {} },
     labelStyle:      { type: Object },
-    placehold:       { type: String,           default: 'Enter a value' },
+    placeholder:     { type: String,           default: '' },
+    placehold:       { type: String,           default: '' },
     id:              { type: [String, Number], default: '' },
     disabled:        { type: Boolean,          default: false },
+    readonly:        { type: Boolean,          default: false },
     columns:         { type: [String, Number], default: '' },
     inputStyle:      { type: Object,           default: () => ({}) },
     max:             { type: [Number, String], default: '' },
@@ -78,6 +80,7 @@ const props = defineProps({
 
 const changedValue = ref(props.value)
 const showPassword = ref(false)
+const placeholderVal = computed(() => props.placeholder || props.placehold || '')
 
 onMounted(() => {
     changedValue.value = props.value

@@ -101,7 +101,7 @@ import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { useAlertStore } from '@/core/stores/alert'
 import Modal from '@/themes/porto/components/common/Modal.vue'
-import AppAlert from '@/themes/porto/components/common/Alert.vue'
+import AppAlert from '@/components/Reusable/Alert.vue'
 
 const props = defineProps({
     order:  { type: Object, default: null },

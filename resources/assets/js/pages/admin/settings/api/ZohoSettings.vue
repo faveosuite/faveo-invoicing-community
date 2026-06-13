@@ -7,7 +7,7 @@
                 <h4 class="card-title">{{ __('message.zoho_integration') }}</h4>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <div v-else class="card-body">
                 <div v-if="!integrations.length" class="text-center text-muted py-4">

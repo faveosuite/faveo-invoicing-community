@@ -75,6 +75,7 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { buildAnalyticsSchema } from '@/validations/admin/widgetValidations'
@@ -112,14 +113,7 @@ function onChange(val, name) {
 }
 
 async function submit() {
-    try {
-        buildAnalyticsSchema(!!form.google_analytics).validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(buildAnalyticsSchema(!!form.google_analytics), form, setErrors)) return
 
     saving.value = true
     try {

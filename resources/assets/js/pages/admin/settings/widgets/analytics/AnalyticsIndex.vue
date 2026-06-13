@@ -74,7 +74,7 @@ import { h, ref, computed, reactive } from 'vue'
 import { RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 
 const COMPONENT = 'analytics-widgets'
 const el      = document.getElementById('app-root')

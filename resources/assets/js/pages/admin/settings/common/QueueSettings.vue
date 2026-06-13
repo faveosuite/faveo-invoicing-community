@@ -6,7 +6,7 @@
                 <h4 class="card-title">{{ __('message.queue') }}</h4>
             </div>
             <div class="card-body">
-                <inline-loader v-if="loading" />
+                <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
                 <template v-else-if="fields.length">
                     <div class="row">
                         <div v-for="field in fields" :key="field.name" class="col-sm-6">
@@ -40,6 +40,7 @@ import TextField from '@/components/Reusable/FormField/TextField.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { queueDriverSchemas } from '@/validations/admin/queueDriverValidations.js'
+import { validateForm } from '@/helpers/formUtils.js'
 
 const COMPONENT = 'queue-settings'
 const el      = document.getElementById('app-root')
@@ -72,16 +73,7 @@ async function load() {
 
 async function save() {
     const schema = queueDriverSchemas[driver.value]
-    if (schema) {
-        try {
-            schema.validateSync(form, { abortEarly: false })
-        } catch (err) {
-            const errMap = {}
-            err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-            setErrors(errMap)
-            return
-        }
-    }
+    if (schema && !await validateForm(schema, form, setErrors)) return
 
     saving.value = true
     try {

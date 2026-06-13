@@ -6,7 +6,7 @@
                 <h4 class="card-title">{{ __('message.email_settings') }}</h4>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">
@@ -84,6 +84,7 @@ import { reactive, ref, onMounted } from 'vue'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { validateForm } from '@/helpers/formUtils.js'
 import { buildEmailSettingsSchema } from '@/validations/admin/emailValidations'
 
 const COMPONENT = 'email-settings'
@@ -147,14 +148,7 @@ onMounted(async () => {
 
 async function submit() {
     const driverId = form.driver?.id
-    try {
-        buildEmailSettingsSchema(driverId).validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(buildEmailSettingsSchema(driverId), form, setErrors)) return
 
     saving.value = true
     try {

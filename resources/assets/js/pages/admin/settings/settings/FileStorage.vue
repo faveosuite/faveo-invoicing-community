@@ -6,7 +6,7 @@
                 <h4 class="card-title">{{ __('message.file_system') }}</h4>
             </div>
 
-            <inline-loader v-if="loading && pdfLoading" context="card-body" />
+            <div v-if="loading && pdfLoading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">
@@ -97,6 +97,7 @@ import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { buildFileStorageSchema, pdfSettingsSchema } from '@/validations/admin/systemSettingsValidations'
+import { scrollToFirstError } from '@/helpers/formUtils.js'
 
 const COMPONENT = 'file-storage'
 const el = document.getElementById('app-root')
@@ -198,6 +199,7 @@ async function submit() {
 
     if (Object.keys(errMap).length) {
         setErrors(errMap)
+        await scrollToFirstError()
         return
     }
 

@@ -6,7 +6,7 @@
                 <h4 class="card-title">{{ __('message.template_settings') }}</h4>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">
@@ -38,7 +38,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
+import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 
 const COMPONENT = 'template-settings'
 const el = document.getElementById('app-root')

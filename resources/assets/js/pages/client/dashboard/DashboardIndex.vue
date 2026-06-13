@@ -1,6 +1,6 @@
 <template>
     <div>
-        <inline-loader v-if="loading" />
+        <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
         <div v-else class="row">
 
             <div class="col-md-4 mb-4">

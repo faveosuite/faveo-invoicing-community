@@ -4,17 +4,14 @@ import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 import { createApp } from 'vue'
 import App from './Admin.vue'
-import router from './routes/adminRouter'
+import router from './routes/admin/adminRouter'
 import pinia from './plugins/pinia.js'
 import i18n from './plugins/i18n.js'
 import { ServerTable } from 'v-tables-3'
 import VueProgressBar from '@aacassandra/vue3-progressbar'
 
-import CustomLoader from './components/Reusable/CustomLoader.vue'
 import GlobalLoader from './components/Reusable/GlobalLoader.vue'
-import InlineLoader from './components/Reusable/InlineLoader.vue'
-import MiniLoader from './components/Reusable/MiniLoader.vue'
-import SpinnerLoader from './components/Reusable/SpinnerLoader.vue'
+import Loader from './components/Reusable/Loader.vue'
 import DatatableActions from './components/Reusable/DatatableActions.vue'
 import StatusSwitch from './components/Reusable/FormField/Switch.vue'
 import ActionButton from './components/Reusable/ActionButton.vue'
@@ -60,11 +57,9 @@ import(`./themes/${theme}/index.js`).then(themeModule => {
         })
     }
 
-    app.component('custom-loader', CustomLoader)
     app.component('global-loader', GlobalLoader)
-    app.component('inline-loader', InlineLoader)
-    app.component('mini-loader', MiniLoader)
-    app.component('spinner-loader', SpinnerLoader)
+    app.component('loader', Loader)
+    app.component('spinner-loader', Loader)
     app.component('table-actions', DatatableActions)
     app.component('status-switch', StatusSwitch)
     app.component('action-button', ActionButton)

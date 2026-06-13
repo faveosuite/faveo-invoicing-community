@@ -7,7 +7,7 @@
             </div>
 
             <div class="card-body">
-                <inline-loader v-if="loading" />
+                <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
                 <div v-else class="row g-3">
                     <div class="col-md-4">
                         <TextField name="title" :label="__('message.title')" :required="true" :value="form.title"

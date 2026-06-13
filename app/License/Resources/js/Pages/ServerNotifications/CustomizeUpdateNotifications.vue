@@ -147,6 +147,7 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler'
 import { lang } from '@/helpers/extraLogics'
 import { useForm } from 'vee-validate'
 import { buildNotificationsSchema } from '@/validations/admin/licenseValidations'
+import { validateForm } from '@/helpers/formUtils.js'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
@@ -221,17 +222,10 @@ function getInitialValues() {
     })
 }
 
-function onSubmit() {
+async function onSubmit() {
     const data = {}
     fields.forEach(field => { data[field] = fieldRefs[field].value })
-    try {
-        buildNotificationsSchema(fields).validateSync(data, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(buildNotificationsSchema(fields), data, setErrors)) return
     saving.value = true
 
     axios.post(baseUrl + '/api/admin/updateNotifications/' + notification_id.value, data).then(res => {

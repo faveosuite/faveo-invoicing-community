@@ -70,6 +70,7 @@ import { useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { validateForm } from '@/helpers/formUtils.js'
 import { buildFrontendPageCreateSchema } from '@/validations/admin/pageValidations'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
@@ -112,14 +113,7 @@ function onChange(val, name) {
 }
 
 async function submit() {
-    try {
-        buildFrontendPageCreateSchema(form.type).validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(buildFrontendPageCreateSchema(form.type), form, setErrors)) return
 
     saving.value = true
     try {

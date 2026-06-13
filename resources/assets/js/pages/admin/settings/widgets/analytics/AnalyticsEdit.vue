@@ -6,7 +6,7 @@
                 <h4 class="card-title">{{ __('message.edit_script_code') }}</h4>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">
@@ -79,6 +79,7 @@
 import { reactive, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { buildAnalyticsSchema } from '@/validations/admin/widgetValidations'
@@ -137,14 +138,7 @@ onMounted(async () => {
 })
 
 async function submit() {
-    try {
-        buildAnalyticsSchema(!!form.google_analytics).validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(buildAnalyticsSchema(!!form.google_analytics), form, setErrors)) return
 
     saving.value = true
     try {

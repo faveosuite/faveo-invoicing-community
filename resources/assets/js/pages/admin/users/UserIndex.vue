@@ -104,7 +104,7 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { useDateTime } from '@/core/composables/useDateTime'
 import UserTableActions from './components/UserTableActions.vue'
 import UserFilter from './components/UserFilter.vue'
-import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import ColumnSelector from '@/components/Reusable/ColumnSelector.vue'
 
 const { formatDate } = useDateTime()

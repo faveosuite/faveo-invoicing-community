@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppAlert :componentName="COMPONENT" />
-        <inline-loader v-if="!hasDataPopulated" />
+        <div v-if="!hasDataPopulated" class="row justify-content-center py-3"><loader /></div>
 
         <div class="row">
             <!-- Left: Profile Card -->
@@ -239,9 +239,7 @@
             <h4>{{ __('message.setup_authenticator') }}</h4>
         </template>
         <template #fields>
-            <div v-if="twoFaLoading" class="text-center py-3">
-                <inline-loader context="card-body" />
-            </div>
+            <div v-if="twoFaLoading" class="row justify-content-center py-3"><loader /></div>
             <template v-else>
 
                 <div v-if="modalError" class="alert alert-danger py-2 mb-3">{{ modalError }}</div>
@@ -406,6 +404,7 @@ import { reactive, ref, computed, onMounted } from 'vue'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { validateForm } from '@/helpers/formUtils.js'
 import ImageUpload from '@/components/Reusable/FormField/ImageUpload.vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import { profileSchema, passwordChangeSchema } from '@/validations/admin/profileValidations'
@@ -578,14 +577,7 @@ async function onCountryChange(val) {
 }
 
 async function submitProfile() {
-    try {
-        profileSchema.validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(profileSchema, form, setErrors)) return
 
     savingProfile.value = true
     try {
@@ -610,14 +602,7 @@ async function submitProfile() {
 }
 
 async function submitPassword() {
-    try {
-        passwordChangeSchema.validateSync(pwForm, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(passwordChangeSchema, pwForm, setErrors)) return
 
     savingPassword.value = true
     try {

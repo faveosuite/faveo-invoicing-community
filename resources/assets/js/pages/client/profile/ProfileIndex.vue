@@ -1,7 +1,7 @@
 <template>
   <div>
     <AppCard :title="__('message.profile_information')">
-      <inline-loader v-if="!hasDataPopulated"/>
+      <div v-if="!hasDataPopulated" class="row justify-content-center py-3"><loader /></div>
 
       <div v-if="hasDataPopulated">
 
@@ -146,6 +146,7 @@
 <script setup>
 import {reactive, ref, computed, onMounted} from 'vue'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import {__} from '@/plugins/i18n'
 import {successHandler, errorHandler} from '@/helpers/responseHandler.js'
@@ -260,16 +261,7 @@ function onMobileUpdated({ mobile, mobile_code, mobile_country_iso }) {
 }
 
 async function submitProfile() {
-  try {
-    profileSchema.validateSync(form, {abortEarly: false})
-  } catch (err) {
-    const map = {}
-    err.inner?.forEach(e => {
-      if (e.path && !map[e.path]) map[e.path] = e.message
-    })
-    setErrors(map)
-    return
-  }
+  if (!await validateForm(profileSchema, form, setErrors)) return
   savingProfile.value = true
   try {
     const data = new FormData()

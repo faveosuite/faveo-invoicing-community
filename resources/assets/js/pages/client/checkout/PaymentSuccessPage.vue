@@ -2,7 +2,7 @@
   <div role="main" class="main shop pb-4">
     <div class="container py-4">
 
-      <inline-loader v-if="loading" />
+      <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
       <div v-else-if="error" class="text-center py-6">
         <i class="fas fa-triangle-exclamation fa-3x text-color-grey-lighten mb-3 d-block"></i>

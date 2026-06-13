@@ -223,6 +223,7 @@
 import { reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
 import { userCreateSchema } from '@/validations/admin/userValidations'
@@ -323,14 +324,7 @@ function extractId(val) {
 }
 
 async function submit() {
-    try {
-        userCreateSchema.validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(userCreateSchema, form, setErrors)) return
 
     saving.value = true
     try {

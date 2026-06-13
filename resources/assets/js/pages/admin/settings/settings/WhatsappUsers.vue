@@ -40,9 +40,10 @@
 <script setup>
 import { h, ref } from 'vue'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import { useDateTime } from '@/core/composables/useDateTime'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
-import DataTable from '@/themes/adminlte/components/common/DataTable.vue'
+import DataTable from '@/components/Reusable/DataTable.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { webhookUrlSchema } from '@/validations/admin/systemSettingsValidations'
@@ -74,14 +75,7 @@ function closeEdit() {
 }
 
 async function saveWebhook() {
-    try {
-        webhookUrlSchema.validateSync({ editWebhookUrl: editWebhookUrl.value }, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(webhookUrlSchema, { editWebhookUrl: editWebhookUrl.value }, setErrors)) return
     saving.value = true
     try {
         const res = await http.post(`${baseUrl}/webhook-url-edit`, {

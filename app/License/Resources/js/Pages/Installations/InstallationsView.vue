@@ -96,7 +96,7 @@ import { ref, h, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 import { getIdFromUrl, lang } from '@/helpers/extraLogics'
 import axios from '@/plugins/axios'
-import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import { useDateTime } from '@/core/composables/useDateTime'
 
 const router = useRouter()

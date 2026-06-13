@@ -5,9 +5,7 @@
                 <div class="card border-0 rounded-3">
                     <div class="card-body p-4 p-md-5">
 
-                        <div v-if="loading" class="text-center py-5">
-                            <inline-loader />
-                        </div>
+                        <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
                         <template v-else>
                             <!-- Step progress -->
@@ -94,6 +92,7 @@
 <script setup>
 import { reactive, ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
@@ -215,14 +214,7 @@ async function resend(type) {
 }
 
 async function verify() {
-    try {
-        otpSchema.validateSync({ otp: form.otp }, { abortEarly: false })
-    } catch (err) {
-        const map = {}
-        err.inner?.forEach(e => { if (e.path && !map[e.path]) map[e.path] = e.message })
-        setErrors(map)
-        return
-    }
+    if (!await validateForm(otpSchema, { otp: form.otp }, setErrors)) return
 
     const captchaPayload = await captchaRef.value?.getPayload()
     if (!captchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) return

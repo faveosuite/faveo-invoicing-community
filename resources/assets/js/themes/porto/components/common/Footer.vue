@@ -94,7 +94,7 @@ import * as yup from 'yup'
 import http from '@/plugins/axios'
 import { RecaptchaField } from '@recaptcha'
 import { useAlertStore } from '@/core/stores/alert'
-import Alert from '@/themes/porto/components/common/Alert.vue'
+import Alert from '@/components/Reusable/Alert.vue'
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 const newsletterSchema = yup.string()

@@ -26,7 +26,7 @@
         >
             <template #title><h4>{{ __('message.email_validation_result') }}</h4></template>
             <template #fields>
-                <inline-loader v-if="loadingDetail" />
+                <div v-if="loadingDetail" class="row justify-content-center py-3"><loader /></div>
                 <div v-else class="table-responsive">
                     <table class="table table-striped table-bordered mb-0">
                         <tbody>

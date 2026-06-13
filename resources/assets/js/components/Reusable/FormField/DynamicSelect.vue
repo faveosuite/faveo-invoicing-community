@@ -32,9 +32,10 @@
                 <slot name="option" v-bind="option">{{ option[optionLabel] }}</slot>
             </template>
             <template #list-footer>
-                <li v-show="hasNextPage" ref="loaderRef" class="vs__dropdown-option">
-                    Loading more options...
-                </li>
+                <li v-show="hasNextPage" ref="loaderRef" class="vs__load-trigger" />
+            </template>
+            <template #spinner>
+                <loader v-if="isLoading" class="loader-area" :duration="4000" :size="20" />
             </template>
             <template #no-options="{ search }">
                 <span v-if="search">No results for <em>{{ search }}</em></span>
@@ -280,6 +281,21 @@ watch(
 
 .faveo-dynamic-select .vs__clear {
     position: relative;
+}
+
+.faveo-dynamic-select.vs--loading .vs__open-indicator {
+    opacity: 1;
+}
+
+.faveo-dynamic-select .vs__actions .loader-area {
+    order: -1;
+    margin-right: 5px;
+}
+
+.faveo-dynamic-select .vs__load-trigger {
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
 }
 
 .faveo-dynamic-select .vs__search,

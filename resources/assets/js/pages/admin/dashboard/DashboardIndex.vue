@@ -1,6 +1,6 @@
 <template>
   <div>
-    <inline-loader v-if="loading" />
+    <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
     <div v-else>
       <div class="row">
         <div class="col-lg-4 col-6 d-flex">

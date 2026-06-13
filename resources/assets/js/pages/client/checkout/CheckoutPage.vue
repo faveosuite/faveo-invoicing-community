@@ -2,7 +2,7 @@
   <div role="main" class="main shop pb-4">
     <div class="container pt-4">
       <!-- Loading -->
-      <inline-loader v-if="loading && !displayItems.length" />
+      <div v-if="loading && !displayItems.length" class="row justify-content-center py-3"><loader /></div>
 
       <!-- Empty / not found -->
       <div v-else-if="isEmpty" class="d-flex flex-column align-items-center justify-content-center text-center py-6">

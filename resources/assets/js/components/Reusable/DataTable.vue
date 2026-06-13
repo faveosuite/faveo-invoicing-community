@@ -11,7 +11,6 @@
                 @keyup.enter="onSearch"
                 placeholder="Type and press enter to search..."
             />
-            <slot name="table-tools" />
         </div>
 
         <v-server-table
@@ -48,7 +47,7 @@
 <script setup>
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import http from '@/plugins/axios'
-import SimplePagination from './SimplePagination.vue'
+import SimplePagination from '@/components/Reusable/SimplePagination.vue'
 
 const props = defineProps({
     url: { type: String, required: true },
@@ -83,8 +82,10 @@ function onPaginate(direction) {
     if (page) tableRef.value?.setPage(page)
 }
 
-function defaultResponseAdapter({ data }) {
-    const res         = data?.data
+function defaultResponseAdapter(response) {
+    // requestFunction's catch returns undefined on HTTP errors — handle that
+    // safely so pagination doesn't end up with NaN (→ "Invalid array length").
+    const res         = response?.data?.data
     const pp          = parseInt(res?.per_page) || 10
     const currentPage = res?.current_page ?? 1
     const toVal       = res?.to ?? 0
@@ -132,22 +133,18 @@ const computedOptions = computed(() => ({
             limit: data.limit,
         }
     },
-    // bypass v-tables-3's window.axios path — axios 1.x removed CancelToken
     requestFunction(data) {
         return http.get(props.url, { params: data }).catch(e => {
             console.error('[DataTable] request error:', e)
         })
     },
-    // caller overrides
     ...props.option,
-    // always override — must not be changed by caller
     pagination: { chunk: 0, edge: false },
     responseAdapter: (response) => {
         const callerAdapter = props.option.responseAdapter
         const result = callerAdapter ? callerAdapter(response) : defaultResponseAdapter(response)
         if (callerAdapter) {
-            // Caller's adapter doesn't manage pagination state — extract it here
-            const res = response.data?.data
+            const res = response?.data?.data
             if (res) {
                 const pp          = parseInt(res.per_page) || 10
                 perPage.value     = pp
@@ -165,7 +162,6 @@ const computedOptions = computed(() => ({
 </script>
 
 <style>
-/* ── layout ── */
 .datatable                        { padding-top: 10px !important; padding-bottom: 10px !important; }
 table                             { border-collapse: collapse; }
 .VueTables .table-responsive      { width: 100% !important; }
@@ -173,7 +169,6 @@ table                             { border-collapse: collapse; }
 .VueTables__table th,
 .VueTables__table td              { padding: 0.75rem; vertical-align: middle; }
 
-/* ── column width utilities ── */
 .dt-select{width:40px!important;min-width:40px;max-width:40px;}
 .dt-action{min-width:200px;max-width:200px;}
 .dt-email{min-width:220px;max-width:220px;}
@@ -187,37 +182,34 @@ table                             { border-collapse: collapse; }
 .dt-code{min-width:120px;max-width:120px;}
 .dt-text{min-width:250px;max-width:250px;}
 
-/* ── hide built-in search, v-tables pagination ── */
 .datatable .VueTables__search     { display: none !important; }
 .datatable .VuePagination         { display: none !important; }
 
-/* ── per-page selector ── */
 .VueTables__limit                        { float: left !important; margin-left: 0; }
 .datatable .VueTables__limit-field       { display: flex; align-items: center; margin-bottom: 8px; }
 .datatable .VueTables__limit-field label { display: none !important; }
 .VueTables__limit-field .form-control    { cursor: pointer !important; appearance: auto !important; width: auto !important; min-width: 70px; }
 
-/* ── custom search input ── */
 .VueTables__search-field input,
 .globe-search                     { width: 300px !important; }
 
-/* ── button spacing (matches Faveo global .btn rule) ── */
 .datatable .btn                   { margin-right: 4px !important; }
 
-/* ── table links & sort ── */
 .VueTables__row a                 { text-decoration: none !important; }
 .VueTables__sort-icon             { float: right !important; cursor: pointer !important; font-size: 0.85em !important; font-weight: 900 !important; transform: translateY(25%) !important; }
 .VueTables__sortable              { cursor: pointer !important; }
 
-/* ── pagination footer ── */
 .pagination-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-/* ── Custom Button & Action Classes ── */
-.btn-light { border-color: #c6c7c8; box-shadow: none; }
+.btn-light {
+  color: #333 !important;
+  background-color: #dcdcdc !important;
+  border-color: #c6c7c8 !important;
+}
 .table_btn { background: #dcdcdc !important; }
 .user-table-actions .btn { margin-right: 4px; }
 .dt-success { color: #017701 !important; }

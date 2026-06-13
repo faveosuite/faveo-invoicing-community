@@ -6,7 +6,7 @@
                 <h4 class="card-title">{{ __('message.footer_widget') }}</h4>
             </div>
             <div class="card-body">
-                <inline-loader v-if="loading" />
+                <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
                 <template v-else>
                     <ul class="nav nav-tabs mb-3">
                         <li v-for="ft in footerTypes" :key="ft.key" class="nav-item">
@@ -69,6 +69,7 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { footerWidgetSchema } from '@/validations/admin/widgetValidations'
@@ -128,14 +129,7 @@ onMounted(async () => {
 })
 
 async function save(type) {
-    try {
-        footerWidgetSchema.validateSync({ name: forms[type].name }, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(footerWidgetSchema, { name: forms[type].name }, setErrors)) return
     saving[type] = true
     try {
         const payload = {

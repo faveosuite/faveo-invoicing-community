@@ -115,6 +115,7 @@ import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { planSchema } from '@/validations/admin/planValidations'
+import { validateForm } from '@/helpers/formUtils.js'
 import StaticSelect from '@/components/Reusable/FormField/StaticSelect.vue'
 
 const COMPONENT = 'plans-create'
@@ -173,15 +174,7 @@ onMounted(async () => {
 })
 
 async function submit() {
-    let schemaValid = true
-    try {
-        planSchema.validateSync(form, { abortEarly: false })
-    } catch (err) {
-        schemaValid = false
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-    }
+    const schemaValid = await validateForm(planSchema, form, setErrors)
 
     const invalidRow = form.prices.find(p => !p.currency || p.add_price === '' || p.renew_price === '')
     if (invalidRow) {

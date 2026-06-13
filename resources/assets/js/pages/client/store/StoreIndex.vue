@@ -1,6 +1,6 @@
 <template>
     <div>
-        <inline-loader v-if="loadingGroups" />
+        <div v-if="loadingGroups" class="row justify-content-center py-3"><loader /></div>
 
         <template v-else>
             <!-- Tagline only — group name is shown in the page header -->
@@ -9,7 +9,7 @@
             </div>
 
             <!-- Products -->
-            <inline-loader v-if="loadingProducts" />
+            <div v-if="loadingProducts" class="row justify-content-center py-3"><loader /></div>
             <div v-else-if="products.length === 0" class="text-center text-muted py-5">
                 {{ __('message.no_records_found') }}
             </div>

@@ -64,6 +64,7 @@ import { useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { validateForm } from '@/helpers/formUtils.js'
 import { productGroupSchema } from '@/validations/admin/productGroupValidations'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
@@ -97,14 +98,7 @@ function onChange(val, name) {
 }
 
 async function submit() {
-    try {
-        productGroupSchema.validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(productGroupSchema, form, setErrors)) return
 
     saving.value = true
     try {

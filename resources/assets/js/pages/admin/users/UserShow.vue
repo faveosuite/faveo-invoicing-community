@@ -2,7 +2,7 @@
     <div>
         <AppAlert :componentName="COMPONENT" />
 
-        <inline-loader v-if="loading" />
+        <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
         <div v-else-if="user" class="row">
 
@@ -61,7 +61,7 @@
                                 </div>
                             </div>
                         </div>
-                        <inline-loader v-else :min-height="60" :size="30" />
+                        <div v-else class="row justify-content-center py-3"><loader :size="30" /></div>
 
                         <ul class="list-group list-group-unbordered mb-3">
 
@@ -349,7 +349,7 @@
                                             </div>
                                         </div>
 
-                                        <inline-loader v-if="loadingComments" />
+                                        <div v-if="loadingComments" class="row justify-content-center py-3"><loader /></div>
                                         <div v-else-if="comments.length === 0" class="text-center text-muted py-3">
                                             {{ __('message.no-record') }}
                                         </div>
@@ -435,7 +435,7 @@ import TextField                    from '@/components/Reusable/FormField/TextFi
 import { asset }                    from '@/core/utils/asset.js'
 import { useNotification }          from '@/core/composables/useNotification.js'
 import { useDateTime }              from '@/core/composables/useDateTime'
-import DeleteModal                  from '@/themes/adminlte/components/common/DeleteModal.vue'
+import DeleteModal                  from '@/components/Reusable/DeleteModal.vue'
 import PaymentTableActions          from './components/PaymentTableActions.vue'
 import InvoiceTableActions          from '../invoices/components/InvoiceTableActions.vue'
 import OrderTableActions            from '../orders/components/OrderTableActions.vue'

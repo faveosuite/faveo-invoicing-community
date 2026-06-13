@@ -3,7 +3,7 @@ import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 import { createApp } from 'vue'
 import Client from './Client.vue'
-import clientRouter from './routes/clientRouter'
+import clientRouter from './routes/client/clientRouter'
 import pinia from './plugins/pinia.js'
 import i18n from './plugins/i18n.js'
 import VueProgressBar from '@aacassandra/vue3-progressbar'
@@ -12,11 +12,8 @@ import mitt from 'mitt'
 
 import { components as themeComponents } from './themes/porto/index.js'
 
-import CustomLoader  from './components/Reusable/CustomLoader.vue'
 import GlobalLoader  from './components/Reusable/GlobalLoader.vue'
-import InlineLoader  from './components/Reusable/InlineLoader.vue'
-import MiniLoader    from './components/Reusable/MiniLoader.vue'
-import SpinnerLoader from './components/Reusable/SpinnerLoader.vue'
+import Loader from './components/Reusable/Loader.vue'
 import { setupLoaderInterceptors } from './plugins/axios.js'
 import DateTimePlugin from './plugins/dateTime.js'
 import { useDateTimeStore } from './core/stores/dateTimeStore.js'
@@ -45,11 +42,9 @@ Object.entries(themeComponents).forEach(([name, component]) => {
     app.component(name, component)
 })
 
-app.component('custom-loader',  CustomLoader)
 app.component('global-loader',  GlobalLoader)
-app.component('inline-loader',  InlineLoader)
-app.component('mini-loader',    MiniLoader)
-app.component('spinner-loader', SpinnerLoader)
+app.component('loader', Loader)
+app.component('spinner-loader', Loader)
 
 app.use(pinia)
 app.use(DateTimePlugin)

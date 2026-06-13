@@ -6,7 +6,7 @@
                 <h4 class="card-title">{{ __('message.whatsapp_config') }}</h4>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">
@@ -70,9 +70,10 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import TextField from '@/themes/adminlte/components/forms/TextField.vue'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
 import { whatsappSchema } from '@/validations/admin/whatsappValidations'
 
 const COMPONENT = 'whatsapp-settings'
@@ -109,14 +110,7 @@ onMounted(async () => {
 })
 
 async function save() {
-    try {
-        whatsappSchema.validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(whatsappSchema, form, setErrors)) return
 
     saving.value = true
     try {

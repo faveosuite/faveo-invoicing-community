@@ -83,9 +83,9 @@ import { useAlertStore } from '@/core/stores/alert'
 import { demoSchema } from '@/validations/client/demoValidations'
 import http from '@/plugins/axios'
 import Modal from '../common/Modal.vue'
-import Alert from '../common/Alert.vue'
+import Alert from '@/components/Reusable/Alert.vue'
 import ClientField from '../forms/ClientField.vue'
-import PhoneField from '../forms/PhoneField.vue'
+import PhoneField from '@/components/Reusable/FormField/PhoneField.vue'
 import { RecaptchaField } from '@recaptcha'
 
 const props = defineProps({

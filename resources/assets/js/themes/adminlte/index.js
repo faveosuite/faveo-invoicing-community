@@ -8,27 +8,26 @@ import Navbar from './components/common/Navbar.vue';
 import AppFooter from './components/common/Footer.vue';
 import AppButton from './components/common/Button.vue';
 import AppBadge from './components/common/Badge.vue';
-import AppAlert from './components/common/Alert.vue'
-import StaticAlert from './components/common/StaticAlert.vue'
-import DeleteModal from './components/common/DeleteModal.vue';
-import AppBreadcrumb from './components/common/Breadcrumb.vue';
+import AppAlert        from '@/components/Reusable/Alert.vue'
+import DeleteModal     from '@/components/Reusable/DeleteModal.vue'
+import StaticAlert     from './components/common/StaticAlert.vue'
+import AppBreadcrumb   from './components/common/Breadcrumb.vue';
 
 // Heavy / page-specific components — split into their own chunks, loaded on demand
-const AppTable      = defineAsyncComponent(() => import('./components/common/Table.vue'));
-const DataTable        = defineAsyncComponent(() => import('./components/common/DataTable.vue'));
-const SimplePagination = defineAsyncComponent(() => import('./components/common/SimplePagination.vue'));
-const AppModal      = defineAsyncComponent(() => import('./components/common/Modal.vue'));
-const AppPagination = defineAsyncComponent(() => import('./components/common/Pagination.vue'));
-const AppCard       = defineAsyncComponent(() => import('./components/common/Card.vue'));
-const TextField     = defineAsyncComponent(() => import('./components/forms/TextField.vue'));
-const SelectField   = defineAsyncComponent(() => import('./components/forms/SelectField.vue'));
-const TextareaField = defineAsyncComponent(() => import('./components/forms/TextareaField.vue'));
-const DatePicker    = defineAsyncComponent(() => import('./components/forms/DatePicker.vue'));
-const FileUpload    = defineAsyncComponent(() => import('./components/forms/FileUpload.vue'));
-const ToggleSwitch  = defineAsyncComponent(() => import('./components/forms/ToggleSwitch.vue'));
-const DynamicSelect = defineAsyncComponent(() => import('./components/forms/DynamicSelect.vue'));
-const PhoneField    = defineAsyncComponent(() => import('./components/forms/PhoneField.vue'));
-const TinyMCE       = defineAsyncComponent(() => import('./components/forms/TinyMCE.vue'));
+const DataTable        = defineAsyncComponent(() => import('@/components/Reusable/DataTable.vue'));
+const SimplePagination = defineAsyncComponent(() => import('@/components/Reusable/SimplePagination.vue'));
+const AppModal         = defineAsyncComponent(() => import('./components/common/Modal.vue'));
+const AppPagination    = defineAsyncComponent(() => import('./components/common/Pagination.vue'));
+const AppCard          = defineAsyncComponent(() => import('./components/common/Card.vue'));
+const TextField        = defineAsyncComponent(() => import('@/components/Reusable/FormField/TextField.vue'));
+const SelectField      = defineAsyncComponent(() => import('@/components/Reusable/FormField/SelectField.vue'));
+const TextareaField    = defineAsyncComponent(() => import('@/components/Reusable/FormField/TextareaField.vue'));
+const DatePicker       = defineAsyncComponent(() => import('@/components/Reusable/FormField/DatePicker.vue'));
+const FileUpload       = defineAsyncComponent(() => import('@/components/Reusable/FormField/FileUpload.vue'));
+const ToggleSwitch     = defineAsyncComponent(() => import('@/components/Reusable/FormField/ToggleSwitch.vue'));
+const DynamicSelect    = defineAsyncComponent(() => import('@/components/Reusable/FormField/DynamicSelect.vue'));
+const PhoneField       = defineAsyncComponent(() => import('@/components/Reusable/FormField/PhoneField.vue'));
+const TinyMCE          = defineAsyncComponent(() => import('./components/forms/TinyMCE.vue'));
 
 export const components = {
     DefaultLayout,
@@ -41,7 +40,6 @@ export const components = {
     StaticAlert,
     DeleteModal,
     AppBreadcrumb,
-    AppTable,
     DataTable,
     SimplePagination,
     AppModal,

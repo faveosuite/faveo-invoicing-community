@@ -119,6 +119,7 @@ import axios from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler'
 import { getIdFromUrl, generateRandomString, lang } from '@/helpers/extraLogics'
 import { licenseSchema } from '@/validations/admin/licenseValidations'
+import { validateForm } from '@/helpers/formUtils.js'
 import { DateTime } from 'luxon'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import NumberField from '@/components/Reusable/FormField/NumberField.vue'
@@ -181,23 +182,15 @@ function generateCode() {
     setFieldError('license_code', undefined)
 }
 
-function isValid() {
-    try {
-        licenseSchema.validateSync({
-            product:              product_title.value,
-            client:               client_name.value,
-            license_code:         license_code.value,
-            license_expire_date:  license_expire_date.value,
-            license_updates_date: license_updates_date.value,
-            license_support_date: license_support_date.value,
-        }, { abortEarly: false })
-        return true
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return false
-    }
+async function isValid() {
+    return await validateForm(licenseSchema, {
+        product:              product_title.value,
+        client:               client_name.value,
+        license_code:         license_code.value,
+        license_expire_date:  license_expire_date.value,
+        license_updates_date: license_updates_date.value,
+        license_support_date: license_support_date.value,
+    }, setErrors)
 }
 
 function getInitialValues(id) {
@@ -230,8 +223,8 @@ function getInitialValues(id) {
     })
 }
 
-function onSubmit() {
-    if (!isValid()) return
+async function onSubmit() {
+    if (!await isValid()) return
     saving.value = true
     const data = {}
     if (license_id.value) data['id'] = license_id.value

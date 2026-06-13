@@ -6,7 +6,7 @@
                 <h4 class="card-title">{{ __('message.company-settings') }}</h4>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">
@@ -135,12 +135,13 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import ImageUpload from '@/components/Reusable/FormField/ImageUpload.vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
-import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
-import PhoneField from '@/themes/adminlte/components/forms/PhoneField.vue'
+import SelectField from '@/components/Reusable/FormField/SelectField.vue'
+import PhoneField from '@/components/Reusable/FormField/PhoneField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 import { systemSettingsSchema } from '@/validations/admin/systemSettingsValidations'
 
@@ -283,14 +284,7 @@ function onImageChange(value, name) {
 }
 
 async function save() {
-    try {
-        systemSettingsSchema.validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(systemSettingsSchema, form, setErrors)) return
 
     saving.value = true
     try {

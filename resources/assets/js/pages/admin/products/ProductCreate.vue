@@ -108,7 +108,7 @@
                                     </h4>
                                 </div>
                                 <div class="card-body">
-                                    <inline-loader v-if="loadingTax" context="card-body" />
+                                    <div v-if="loadingTax" class="row justify-content-center py-3"><loader /></div>
                                     <template v-else>
                                         <div class="row">
                                             <div class="col-md-6 mb-2">
@@ -227,6 +227,7 @@ import { useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { validateForm } from '@/helpers/formUtils.js'
 import { productSchema } from '@/validations/admin/productValidations'
 import Checkbox from '@/components/Reusable/FormField/Checkbox.vue'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
@@ -309,14 +310,7 @@ onMounted(async () => {
 })
 
 async function submit() {
-    try {
-        productSchema.validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(productSchema, form, setErrors)) return
 
     saving.value = true
     try {

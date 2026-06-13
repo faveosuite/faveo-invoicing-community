@@ -58,7 +58,7 @@
                                     <component :is="Component" />
                                 </template>
                                 <template #fallback>
-                                    <inline-loader />
+                                    <div class="row justify-content-center py-3"><loader /></div>
                                 </template>
                             </Suspense>
                         </RouterView>

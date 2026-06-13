@@ -12,9 +12,7 @@
         </button>
 
         <div class="dropdown-menu dropdown-menu-end column-selector-menu">
-            <div v-if="loading" class="text-center py-3">
-                <InlineLoader />
-            </div>
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <ul class="column-selector-list" @dragover.prevent>
@@ -66,7 +64,6 @@
 import { ref, computed } from 'vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import InlineLoader from '@/components/Reusable/InlineLoader.vue'
 
 const props = defineProps({
     // report_columns.type — e.g. 'users', 'orders', 'invoices'

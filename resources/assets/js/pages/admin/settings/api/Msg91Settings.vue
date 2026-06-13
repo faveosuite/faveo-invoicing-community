@@ -6,7 +6,7 @@
                 <h4 class="card-title">{{ __('message.msg91_heading') }}</h4>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">
@@ -95,8 +95,8 @@ import { reactive, ref, computed, onMounted } from 'vue'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import TextField from '@/themes/adminlte/components/forms/TextField.vue'
-import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
+import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 import { msg91Schema } from '@/validations/admin/msg91Validations'
 
 const COMPONENT = 'msg91-settings'

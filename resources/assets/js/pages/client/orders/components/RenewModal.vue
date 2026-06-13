@@ -8,9 +8,7 @@
             <h5 class="modal-title fw-bold">{{ __('message.renew_your_order') }}</h5>
         </template>
         <template #fields>
-            <div v-if="loading" class="text-center py-4">
-                <inline-loader />
-            </div>
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
             <template v-else>
                 <!-- Current order info -->
                 <div class="d-flex justify-content-between align-items-center mb-2">

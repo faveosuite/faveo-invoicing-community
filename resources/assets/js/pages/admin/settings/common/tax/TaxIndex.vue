@@ -7,7 +7,7 @@
             <div class="card-header">
                 <h4 class="card-title">{{ __('message.options') }}</h4>
             </div>
-            <inline-loader v-if="optionsLoading" />
+            <div v-if="optionsLoading" class="row justify-content-center py-3"><loader /></div>
             <template v-else>
                 <div class="card-body">
                     <div class="row">
@@ -161,7 +161,7 @@ import { h, ref, reactive, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 
 const COMPONENT = 'tax-index'
 const el      = document.getElementById('app-root')

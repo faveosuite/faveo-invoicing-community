@@ -6,7 +6,7 @@
                 <h4 class="card-title">{{ __('message.edit_product') }}</h4>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body px-0 pt-0">
@@ -373,13 +373,14 @@ import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { validateForm } from '@/helpers/formUtils.js'
 import { productSchema } from '@/validations/admin/productValidations'
 import Checkbox from '@/components/Reusable/FormField/Checkbox.vue'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 import Tooltip from '@/components/Reusable/Tooltip.vue'
 import ImageField from '@/components/Reusable/FormField/ImageField.vue'
 import VersionTableActions from './components/VersionTableActions.vue'
-import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 
 const COMPONENT = 'products-edit'
 const el = document.getElementById('app-root')
@@ -637,14 +638,7 @@ onMounted(async () => {
 })
 
 async function submit() {
-    try {
-        productSchema.validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(productSchema, form, setErrors)) return
 
     saving.value = true
     try {

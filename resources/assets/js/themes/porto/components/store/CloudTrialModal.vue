@@ -13,7 +13,7 @@
     <template #fields>
       <Alert componentName="CloudTrialModal" />
 
-      <inline-loader v-if="loading" />
+      <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
       <template v-else>
         <!-- Domain -->
@@ -84,9 +84,9 @@ import { useAlertStore } from '@/core/stores/alert'
 import { cloudTrialSchema } from '@/validations/client/cloudTrialValidations'
 import http from '@/plugins/axios'
 import Modal from '../common/Modal.vue'
-import Alert from '../common/Alert.vue'
+import Alert from '@/components/Reusable/Alert.vue'
 import ClientField from '../forms/ClientField.vue'
-import DynamicSelect from '../forms/DynamicSelect.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 
 const props = defineProps({
   show: { type: Boolean, default: false },

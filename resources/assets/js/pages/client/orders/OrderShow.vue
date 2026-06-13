@@ -1,7 +1,7 @@
 <template>
     <div>
 
-        <inline-loader v-if="loading" />
+        <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
         <template v-else-if="!order">
             <div class="alert alert-warning">{{ __('message.no_records_found') }}</div>
@@ -232,7 +232,7 @@
                     <!-- ── Cloud Settings ───────────────────────────────── -->
                     <div v-if="showCloudTab" v-show="activeTab === 'cloud'">
 
-                        <inline-loader v-if="cloudLoading" />
+                        <div v-if="cloudLoading" class="row justify-content-center py-3"><loader /></div>
 
                         <template v-else-if="cloud">
                             <div class="row">
@@ -562,7 +562,7 @@ import { __ } from '@/plugins/i18n'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
 import { useAlertStore } from '@/core/stores/alert'
 import Modal from '@/themes/porto/components/common/Modal.vue'
-import AppAlert from '@/themes/porto/components/common/Alert.vue'
+import AppAlert from '@/components/Reusable/Alert.vue'
 import RenewModal from './components/RenewModal.vue'
 import WhatsappPanel from './components/WhatsappPanel.vue'
 import { useDateTime } from '@/core/composables/useDateTime'

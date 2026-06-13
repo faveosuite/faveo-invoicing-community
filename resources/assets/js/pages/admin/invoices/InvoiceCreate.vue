@@ -153,6 +153,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
+import { validateForm } from '@/helpers/formUtils.js'
 import { buildInvoiceCreateSchema } from '@/validations/admin/invoiceValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import NumberField from '@/components/Reusable/FormField/NumberField.vue'
@@ -276,14 +277,7 @@ async function fetchPrice() {
 }
 
 async function submit() {
-    try {
-        buildInvoiceCreateSchema(dynamic).validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(buildInvoiceCreateSchema(dynamic), form, setErrors)) return
 
     const planId = typeof form.plan === 'object' ? form.plan?.id : form.plan
 

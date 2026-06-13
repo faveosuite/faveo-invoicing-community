@@ -14,7 +14,7 @@
                 </div>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">
@@ -91,7 +91,7 @@
                             </li>
                         </ul>
 
-                        <inline-loader v-if="loadingModule" />
+                        <div v-if="loadingModule" class="row justify-content-center py-3"><loader /></div>
 
                         <template v-else>
                             <div v-if="!zohoFields.length" class="text-muted">
@@ -152,9 +152,10 @@ import { useForm } from 'vee-validate'
 import { useAlertStore } from '@/core/stores/alert.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { validateForm } from '@/helpers/formUtils.js'
 import { zohoCredentialsSchema } from '@/validations/admin/zohoValidations.js'
-import TextField   from '@/themes/adminlte/components/forms/TextField.vue'
-import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
+import TextField   from '@/components/Reusable/FormField/TextField.vue'
+import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 
 const COMPONENT = 'zoho-platform-settings'
 const el      = document.getElementById('app-root')
@@ -314,14 +315,7 @@ onMounted(async () => {
 
 // ── Save connection ───────────────────────────────────────────────────────
 async function saveConnection() {
-    try {
-        zohoCredentialsSchema.validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(zohoCredentialsSchema, form, setErrors)) return
 
     saving.value = true
     try {

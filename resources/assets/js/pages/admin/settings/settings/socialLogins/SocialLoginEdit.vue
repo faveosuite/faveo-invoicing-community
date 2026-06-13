@@ -6,7 +6,7 @@
                 <h4 class="card-title">{{ __('message.edit_social_login') }} — {{ form.type }}</h4>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">
@@ -61,6 +61,7 @@ import TextField from '@/components/Reusable/FormField/TextField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { socialLoginSchema } from '@/validations/admin/socialLoginValidations'
@@ -101,14 +102,7 @@ onMounted(async () => {
 })
 
 async function submit() {
-    try {
-        socialLoginSchema.validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(socialLoginSchema, form, setErrors)) return
     saving.value = true
     try {
         const payload = {

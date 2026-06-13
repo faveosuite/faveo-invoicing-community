@@ -7,7 +7,7 @@
                 <h4 class="card-title">{{ __('message.cloud_hub') }}</h4>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">
@@ -257,12 +257,13 @@
 <script setup>
 import { h, ref, reactive, onMounted, nextTick, watch } from 'vue'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
+import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import Switch from '@/components/Reusable/FormField/Switch.vue'
-import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import { cloudSettingsSchema, cloudProductSchema } from '@/validations/admin/cloudValidations'
 
 const COMPONENT = 'cloud-details'
@@ -398,14 +399,7 @@ async function removeRegion(name, marker) {
 // ── Save handlers ─────────────────────────────────────────────────────────────
 
 async function saveSettings() {
-    try {
-        cloudSettingsSchema.validateSync({ ...form, ...popup }, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(cloudSettingsSchema, { ...form, ...popup }, setErrors)) return
     saving.value = true
     try {
         const [res] = await Promise.all([
@@ -422,14 +416,7 @@ async function saveSettings() {
 }
 
 async function saveProduct() {
-    try {
-        cloudProductSchema.validateSync(productForm, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(cloudProductSchema, productForm, setErrors)) return
     savingProduct.value = true
     try {
         const res = await http.post(`${baseUrl}/cloud-product-store`, {

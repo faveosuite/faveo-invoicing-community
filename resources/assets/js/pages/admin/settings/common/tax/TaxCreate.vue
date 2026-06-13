@@ -6,7 +6,7 @@
                 <h4 class="card-title">{{ __('message.create') }} {{ __('message.tax') }}</h4>
             </div>
 
-            <inline-loader v-if="loading" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">
@@ -144,6 +144,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { validateForm } from '@/helpers/formUtils.js'
 import { buildTaxCreateSchema } from '@/validations/admin/taxValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
@@ -201,14 +202,7 @@ onMounted(async () => {
 })
 
 async function submit() {
-    try {
-        buildTaxCreateSchema().validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(buildTaxCreateSchema(), form, setErrors)) return
 
     saving.value = true
     try {

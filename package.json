@@ -37,6 +37,7 @@
     "@vee-validate/rules": "^4.15.1",
     "@vueform/toggle": "^2.1.4",
     "axios": "^1.13.5",
+    "epic-spinners": "^2.0.0",
     "flag-icons": "^7.5.0",
     "floating-vue": "^5.2.2",
     "intl-tel-input": "^25.13.2",

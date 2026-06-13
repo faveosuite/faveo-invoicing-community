@@ -61,7 +61,7 @@ import { h, ref, computed, reactive } from 'vue'
 import http from '@/plugins/axios'
 import { errorHandler } from '@/helpers/responseHandler.js'
 import ProductTableActions from './components/ProductTableActions.vue'
-import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''

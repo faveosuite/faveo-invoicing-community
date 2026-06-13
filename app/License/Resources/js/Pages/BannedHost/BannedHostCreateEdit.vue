@@ -38,6 +38,7 @@ import { successHandler, errorHandler } from '@/helpers/responseHandler'
 import { getIdFromUrl, lang } from '@/helpers/extraLogics'
 import { useForm } from 'vee-validate'
 import { bannedHostSchema } from '@/validations/admin/licenseValidations'
+import { validateForm } from '@/helpers/formUtils.js'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
 const router = useRouter()
@@ -77,15 +78,8 @@ function getInitialValues(id) {
     })
 }
 
-function onSubmit() {
-    try {
-        bannedHostSchema.validateSync({ banned_host_ip: banned_host_ip.value }, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+async function onSubmit() {
+    if (!await validateForm(bannedHostSchema, { banned_host_ip: banned_host_ip.value }, setErrors)) return
     saving.value = true
     const formData = {
         banned_host_ip: banned_host_ip.value,

@@ -66,7 +66,7 @@
                 <h4>{{ __('message.edit-license-type') }}</h4>
             </template>
             <template #fields>
-                <inline-loader v-if="editLoading" />
+                <div v-if="editLoading" class="row justify-content-center py-3"><loader /></div>
                 <TextField
                     v-else
                     name="license_type_edit_name"
@@ -110,9 +110,10 @@
 <script setup>
 import { h, ref, computed, reactive } from 'vue'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import { licenseTypeCreateSchema, licenseTypeEditSchema } from '@/validations/admin/licenseTypeValidations'
 
 const { errors, setErrors, setFieldError, resetForm } = useForm()
@@ -194,14 +195,7 @@ function toggleAll(e) {
 }
 
 async function create() {
-    try {
-        licenseTypeCreateSchema.validateSync({ license_type_name: newName.value }, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(licenseTypeCreateSchema, { license_type_name: newName.value }, setErrors)) return
     creating.value = true
     try {
         const res = await http.post(`${baseUrl}/create-license-type`, { name: newName.value })
@@ -216,14 +210,7 @@ async function create() {
 }
 
 async function update() {
-    try {
-        licenseTypeEditSchema.validateSync({ license_type_edit_name: editName.value }, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(licenseTypeEditSchema, { license_type_edit_name: editName.value }, setErrors)) return
     saving.value = true
     try {
         const res = await http.put(`${baseUrl}/update-license-type/${editId.value}`, { name: editName.value })

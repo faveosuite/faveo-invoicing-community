@@ -53,7 +53,7 @@ import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import Modal from '@/themes/porto/components/common/Modal.vue'
-import AppAlert from '@/themes/porto/components/common/Alert.vue'
+import AppAlert from '@/components/Reusable/Alert.vue'
 
 const props = defineProps({
     show:         { type: Boolean, default: false },

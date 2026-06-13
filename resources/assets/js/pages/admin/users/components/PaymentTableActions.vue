@@ -34,7 +34,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 
 defineProps({
     paymentId: { type: [Number, String], required: true },

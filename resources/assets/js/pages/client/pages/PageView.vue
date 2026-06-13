@@ -1,6 +1,6 @@
 <template>
     <div class="page-content py-3">
-        <inline-loader v-if="loading" />
+        <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
         <div v-else-if="page">
             <!-- Content is sanitized server-side by HTMLPurifier on save (see BaseModel) -->

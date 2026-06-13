@@ -437,6 +437,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { useAlertStore } from '@/core/stores/alert'
 import { RecaptchaField } from '@recaptcha'
@@ -589,17 +590,10 @@ const showResult = (success, paidOrder, message = '') => {
   step.value = 'result'
 }
 
-const submitForm = () => {
+const submitForm = async () => {
   alertStore.unsetAlert()
 
-  try {
-    openPaymentSchema.validateSync(form, { abortEarly: false })
-  } catch (err) {
-    const map = {}
-    err.inner?.forEach(e => { if (e.path && !map[e.path]) map[e.path] = e.message })
-    setErrors(map)
-    return
-  }
+  if (!await validateForm(openPaymentSchema, form, setErrors)) return
 
   setErrors({})
   step.value = 'summary'

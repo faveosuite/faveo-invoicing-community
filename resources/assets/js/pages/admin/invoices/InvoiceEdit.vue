@@ -7,7 +7,7 @@
                 <h4 class="card-title">{{ __('message.edit_invoice') }}: #{{ invoice?.number }}</h4>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">
@@ -67,6 +67,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { errorHandler, successHandler } from '@/helpers/responseHandler.js'
+import { validateForm } from '@/helpers/formUtils.js'
 import { invoiceEditSchema } from '@/validations/admin/invoiceValidations'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
@@ -124,14 +125,7 @@ async function fetchInvoice() {
 }
 
 async function submit() {
-    try {
-        invoiceEditSchema.validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(invoiceEditSchema, form, setErrors)) return
 
     saving.value = true
     try {

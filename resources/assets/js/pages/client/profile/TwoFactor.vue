@@ -1,7 +1,7 @@
 <template>
     <div>
         <AppCard :title="__('message.two_factor_authentication')">
-            <inline-loader v-if="loading" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <div v-else>
                 <div class="d-flex align-items-center justify-content-between">
@@ -39,9 +39,7 @@
                 <h5 class="modal-title">{{ __('message.setup_authenticator') }}</h5>
             </template>
             <template #fields>
-                <div v-if="twoFaLoading" class="text-center py-4">
-                    <inline-loader />
-                </div>
+                <div v-if="twoFaLoading" class="row justify-content-center py-3"><loader /></div>
                 <template v-else>
 
                     <div v-if="modalError" class="alert alert-danger py-2 mb-3">{{ modalError }}</div>

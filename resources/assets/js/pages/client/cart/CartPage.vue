@@ -3,7 +3,7 @@
     <div class="container pt-4">
 
       <!-- Loading -->
-      <inline-loader v-if="cartStore.loading && !cartStore.items.length" />
+      <div v-if="cartStore.loading && !cartStore.items.length" class="row justify-content-center py-3"><loader /></div>
 
       <!-- Empty -->
       <div v-else-if="cartStore.items.length === 0"

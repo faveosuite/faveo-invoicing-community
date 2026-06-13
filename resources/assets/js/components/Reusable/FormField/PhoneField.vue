@@ -1,14 +1,12 @@
 <template>
     <div class="mb-3">
-        <label v-if="label" class="form-label text-dark">
-            {{ label }}
-            <span v-if="required" class="text-danger">*</span>
+        <label v-if="label" class="form-label fw-bold">
+            {{ label }}<span v-if="required" class="text-danger ms-1">*</span>
         </label>
         <input
             ref="phoneRef"
             type="tel"
-            class="form-control form-control-lg text-4"
-            :class="{ 'is-invalid': fieldError }"
+            :class="['form-control', { 'is-invalid': fieldError }]"
             :value="value"
             @input="onInput"
             @keypress="numbersOnly"

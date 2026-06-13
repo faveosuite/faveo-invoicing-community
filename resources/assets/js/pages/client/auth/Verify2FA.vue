@@ -1,8 +1,6 @@
 <template>
     <AuthLayout>
-        <div v-if="loading" class="text-center py-5">
-            <inline-loader />
-        </div>
+        <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
         <template v-else>
             <!-- TOTP code -->
@@ -65,6 +63,7 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
@@ -115,28 +114,14 @@ function toggleMode(recovery) {
 }
 
 async function submitTotp() {
-    try {
-        twoFaSchema.validateSync({ totp: form.totp }, { abortEarly: false })
-    } catch (err) {
-        const map = {}
-        err.inner?.forEach(e => { if (e.path && !map[e.path]) map[e.path] = e.message })
-        setErrors(map)
-        return
-    }
+    if (!await validateForm(twoFaSchema, { totp: form.totp }, setErrors)) return
     const captchaPayload = await totpCaptchaRef.value?.getPayload()
     if (!totpCaptchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) return
     await postVerify(`${baseUrl}/2fa/loginValidate`, { totp: form.totp, '2fa_code': form.code2fa, ...captchaPayload }, totpCaptchaRef)
 }
 
 async function submitRecovery() {
-    try {
-        recoverySchema.validateSync({ rec_code: form.rec_code }, { abortEarly: false })
-    } catch (err) {
-        const map = {}
-        err.inner?.forEach(e => { if (e.path && !map[e.path]) map[e.path] = e.message })
-        setErrors(map)
-        return
-    }
+    if (!await validateForm(recoverySchema, { rec_code: form.rec_code }, setErrors)) return
     const captchaPayload = await recCaptchaRef.value?.getPayload()
     if (!recCaptchaRef.value?.disabled && !captchaPayload?.['g-recaptcha-response']) return
     await postVerify(`${baseUrl}/verify-recovery-code`, { rec_code: form.rec_code, recovery_code: form.recovery, ...captchaPayload }, recCaptchaRef)

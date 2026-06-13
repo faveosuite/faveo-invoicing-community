@@ -19,7 +19,7 @@
                 </div>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">
@@ -133,7 +133,7 @@
                         </div>
 
                         <template v-else>
-                            <inline-loader v-if="syncingFields" />
+                            <div v-if="syncingFields" class="row justify-content-center py-3"><loader /></div>
 
                             <template v-else>
                                 <div v-for="(row, idx) in fieldRows" :key="idx" class="row mb-3 align-items-end">
@@ -327,8 +327,8 @@ import 'vue-select/dist/vue-select.css'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import TextField   from '@/themes/adminlte/components/forms/TextField.vue'
-import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
+import TextField   from '@/components/Reusable/FormField/TextField.vue'
+import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 import { connectionSchema, listSchema } from '@/validations/admin/mailchimpValidations'
 
 const COMPONENT = 'mailchimp-settings'

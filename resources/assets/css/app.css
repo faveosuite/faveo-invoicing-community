@@ -87,6 +87,10 @@
     padding-right: 0.75rem;
 }
 
+.is-invalid {
+    scroll-margin-top: 80px;
+}
+
 /* ── Tooltip indicator (matches TinyMCE content_style preview) ─────────────── */
 .has-tooltip {
     text-decoration: underline dotted #aaa;

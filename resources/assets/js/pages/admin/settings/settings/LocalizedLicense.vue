@@ -29,7 +29,7 @@
 
 <script setup>
 import { h, ref, reactive } from 'vue'
-import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 
 const COMPONENT = 'localized-license'
 const el      = document.getElementById('app-root')

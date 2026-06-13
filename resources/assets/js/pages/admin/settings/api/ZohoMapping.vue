@@ -19,7 +19,7 @@
                 </div>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">
@@ -37,7 +37,7 @@
                         </li>
                     </ul>
 
-                    <inline-loader v-if="loadingModule" />
+                    <div v-if="loadingModule" class="row justify-content-center py-3"><loader /></div>
 
                     <template v-else>
                         <div v-if="!zohoFields.length" class="text-muted">
@@ -108,7 +108,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
+import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 
 const COMPONENT = 'zoho-mapping'
 const el      = document.getElementById('app-root')

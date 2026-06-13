@@ -7,7 +7,7 @@
                 <h3 class="card-title">{{ __('message.cron-setting') }}</h3>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">

@@ -2,7 +2,9 @@
   <div>
     <Alert componentName="contact-us-page" />
 
-    <div class="row py-4">
+    <div v-if="loadingInfo" class="row justify-content-center py-3"><loader /></div>
+
+    <div v-else class="row py-4">
       <!-- Contact form -->
       <div class="col-lg-6">
         <h2 class="font-weight-bold text-8 mt-2 mb-0">{{ __('message.contact_us') }}</h2>
@@ -98,9 +100,7 @@
 
       <!-- Office info -->
       <div class="col-lg-6">
-        <inline-loader v-if="loadingInfo" />
-
-        <template v-else-if="info">
+        <template v-if="info">
           <h4 class="mt-2 mb-1">{{ __('message.our_office') }}</h4>
           <ul class="list list-icons list-icons-style-2 mt-2">
             <li>
@@ -129,12 +129,13 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import { __ } from '@/plugins/i18n'
 import { useAlertStore } from '@/core/stores/alert'
 import { contactUsSchema } from '@/validations/client/contactUsValidations'
 import http from '@/plugins/axios'
-import Alert from '@/themes/porto/components/common/Alert.vue'
-import PhoneField from '@/themes/porto/components/forms/PhoneField.vue'
+import Alert from '@/components/Reusable/Alert.vue'
+import PhoneField from '@/components/Reusable/FormField/PhoneField.vue'
 import { RecaptchaField } from '@recaptcha'
 
 const COMPONENT = 'contact-us-page'
@@ -181,17 +182,7 @@ function onCountryChange({ dialCode }) {
 }
 
 async function submit() {
-  try {
-    contactUsSchema.validateSync(
-      { name: form.name, email: form.email, mobile: form.mobile, message: form.message },
-      { abortEarly: false },
-    )
-  } catch (err) {
-    const map = {}
-    err.inner?.forEach(e => { if (e.path && !map[e.path]) map[e.path] = e.message })
-    setErrors(map)
-    return
-  }
+  if (!await validateForm(contactUsSchema, { name: form.name, email: form.email, mobile: form.mobile, message: form.message }, setErrors)) return
 
   submitting.value = true
   alertStore.unsetAlert()

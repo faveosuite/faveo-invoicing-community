@@ -6,7 +6,7 @@
                 <h4 class="card-title">{{ __('message.recaptcha_configuration') }}</h4>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">
@@ -230,8 +230,9 @@ import { reactive, ref, computed, onMounted, watch } from 'vue'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
-import TextField from '@/themes/adminlte/components/forms/TextField.vue'
+import { validateForm } from '@/helpers/formUtils.js'
+import SelectField from '@/components/Reusable/FormField/SelectField.vue'
+import TextField from '@/components/Reusable/FormField/TextField.vue'
 import { RecaptchaProvider, RecaptchaCheckbox, RecaptchaV2Invisible, RecaptchaV3 } from '@recaptcha'
 import RadioButton from '@/components/Reusable/FormField/RadioButton.vue'
 import { buildRecaptchaSchema } from '@/validations/admin/recaptchaValidations'
@@ -388,14 +389,7 @@ function onBadgeChange(val) {
 }
 
 async function save() {
-    try {
-        buildRecaptchaSchema(form).validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(buildRecaptchaSchema(form), form, setErrors)) return
 
     saving.value = true
     try {

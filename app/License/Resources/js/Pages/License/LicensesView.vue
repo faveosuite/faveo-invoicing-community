@@ -170,7 +170,7 @@
 import { ref, reactive, h, onBeforeMount } from 'vue'
 import { getIdFromUrl, lang } from '@/helpers/extraLogics'
 import axios from '@/plugins/axios'
-import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import { useRouter } from 'vue-router'
 import { useDateTime } from '@/core/composables/useDateTime'
 

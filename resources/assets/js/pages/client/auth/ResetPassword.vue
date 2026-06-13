@@ -1,8 +1,6 @@
 <template>
     <AuthLayout>
-        <div v-if="loading" class="text-center py-5">
-            <inline-loader />
-        </div>
+        <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
         <div v-else-if="invalid" class="text-center py-4">
             <i class="fas fa-times-circle text-danger fa-3x mb-3"></i>
@@ -51,6 +49,7 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { successHandler, applyServerValidation } from '@/helpers/responseHandler.js'
@@ -112,14 +111,7 @@ onMounted(async () => {
 })
 
 async function submit() {
-    try {
-        resetSchema.validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const map = {}
-        err.inner?.forEach(e => { if (e.path && !map[e.path]) map[e.path] = e.message })
-        setErrors(map)
-        return
-    }
+    if (!await validateForm(resetSchema, form, setErrors)) return
 
     saving.value = true
     try {

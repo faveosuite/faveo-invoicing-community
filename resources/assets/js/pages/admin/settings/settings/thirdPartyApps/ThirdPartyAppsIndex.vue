@@ -142,9 +142,10 @@
 <script setup>
 import { h, ref, reactive, computed } from 'vue'
 import { useForm } from 'vee-validate'
+import { validateForm } from '@/helpers/formUtils.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import { thirdPartyAppSchema } from '@/validations/admin/thirdPartyValidations'
 
 const COMPONENT = 'third-party-apps'
@@ -215,14 +216,7 @@ function toggleAll(e) {
 }
 
 async function saveApp() {
-    try {
-        thirdPartyAppSchema.validateSync(form, { abortEarly: false })
-    } catch (err) {
-        const errMap = {}
-        err.inner?.forEach(e => { if (e.path && !errMap[e.path]) errMap[e.path] = e.message })
-        setErrors(errMap)
-        return
-    }
+    if (!await validateForm(thirdPartyAppSchema, form, setErrors)) return
     saving.value = true
     try {
         const res = editId.value

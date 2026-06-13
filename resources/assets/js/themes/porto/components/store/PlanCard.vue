@@ -136,7 +136,7 @@ import { __ } from '@/plugins/i18n'
 import { useCartStore } from '@/core/stores/cart'
 import Modal from '../common/Modal.vue'
 import ClientField from '../forms/ClientField.vue'
-import DynamicSelect from '../forms/DynamicSelect.vue'
+import DynamicSelect from '@/components/Reusable/FormField/DynamicSelect.vue'
 
 const props = defineProps({
   product:        { type: Object,  required: true },

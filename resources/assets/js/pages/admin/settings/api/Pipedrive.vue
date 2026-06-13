@@ -14,7 +14,7 @@
                 </div>
             </div>
 
-            <inline-loader v-if="loading" context="card-body" />
+            <div v-if="loading" class="row justify-content-center py-3"><loader /></div>
 
             <template v-else>
                 <div class="card-body">
@@ -110,7 +110,7 @@
                                 </li>
                             </ul>
 
-                            <inline-loader v-if="loadingMapping" />
+                            <div v-if="loadingMapping" class="row justify-content-center py-3"><loader /></div>
 
                             <template v-else>
                                 <div v-for="(row, index) in rows" :key="index" class="row mb-3 align-items-end">
@@ -177,7 +177,7 @@ import { ref, reactive, onMounted, watch } from 'vue'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import SelectField from '@/themes/adminlte/components/forms/SelectField.vue'
+import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 import { apiKeySchema } from '@/validations/admin/pipedriveValidations'
 
 const COMPONENT = 'pipedrive-settings'

@@ -28,7 +28,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 
 const props = defineProps({
     orderId:    { type: Number, required: true },

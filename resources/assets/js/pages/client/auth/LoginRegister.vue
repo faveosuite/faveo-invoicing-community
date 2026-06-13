@@ -135,6 +135,7 @@ import http from '@/plugins/axios'
 import {__} from '@/plugins/i18n'
 import {successHandler, errorHandler, applyServerValidation} from '@/helpers/responseHandler.js'
 import {loginSchema, registerSchema, passwordChecks} from '@/validations/client/authSchemas.js'
+import { validateForm, scrollToFirstError } from '@/helpers/formUtils.js'
 import SocialButtons from './partials/SocialButtons.vue'
 import Honeypot from '@/components/Reusable/Honeypot.vue'
 import { RecaptchaField } from '@recaptcha'
@@ -234,16 +235,7 @@ function onMobileInput(value) {
 }
 
 async function submitLogin() {
-  try {
-    loginSchema.validateSync(loginForm, {abortEarly: false})
-  } catch (err) {
-    const map = {}
-    err.inner?.forEach(e => {
-      if (e.path && !map[e.path]) map[e.path] = e.message
-    })
-    loginSetErrors(map)
-    return
-  }
+  if (!await validateForm(loginSchema, loginForm, loginSetErrors)) return
 
   loggingIn.value = true
   try {
@@ -289,6 +281,7 @@ async function submitRegister() {
   }
   if (Object.keys(errs).length) {
     regSetErrors(errs)
+    await scrollToFirstError()
     return
   }
 
