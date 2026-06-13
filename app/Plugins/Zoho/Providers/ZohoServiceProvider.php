@@ -7,16 +7,16 @@ use App\Plugins\Zoho\Controllers\Api\{
     ZohoAccessToken,
     ZohoAccountsApi,
 };
-use App\Plugins\Zoho\Integrations\Campaigns\Providers\ZohoCampaignsNewsletterProvider;
-use App\Plugins\Zoho\Listeners\SyncUserToZohoCampaigns;
-use App\Plugins\Zoho\Listeners\SyncUserToZohoCrm;
-use App\Services\NewsletterManager;
-use Illuminate\Support\Facades\Event;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Api\ZohoCampaignsApi;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Campaigns;
+use App\Plugins\Zoho\Integrations\Campaigns\Providers\ZohoCampaignsNewsletterProvider;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\Api\ZohoCrmApi;
 use App\Plugins\Zoho\Integrations\Crm\Controllers\Crm;
+use App\Plugins\Zoho\Listeners\SyncUserToZohoCampaigns;
+use App\Plugins\Zoho\Listeners\SyncUserToZohoCrm;
 use App\Plugins\Zoho\Models\ZohoIntegration;
+use App\Services\NewsletterManager;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class ZohoServiceProvider extends ServiceProvider

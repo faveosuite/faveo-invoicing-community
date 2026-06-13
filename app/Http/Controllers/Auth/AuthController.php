@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\ApiKey;
+use App\Events\UserRegisteredEvent;
 use App\Http\Controllers\Common\Sms\SmsOtpController;
 use App\Http\Controllers\Controller;
-use App\Events\UserRegisteredEvent;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
 use App\Model\User\AccountActivate;

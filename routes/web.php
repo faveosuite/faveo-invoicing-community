@@ -611,7 +611,6 @@ Route::middleware('installAgora')->group(function () {
     Route::post('cache-settings/{driver}', [Common\CacheSettingsController::class, 'update']);
     Route::post('cache-settings/{driver}/activate', [Common\CacheSettingsController::class, 'activate']);
 
-
     /*
      * Monitoring (Pulse / Horizon) — path check API
      */

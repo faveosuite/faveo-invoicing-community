@@ -40,7 +40,6 @@ class ConfigServiceProvider extends ServiceProvider
             if ($cacheDriver = $rows->get('cache:driver')?->option_value) {
                 config(['cache.default' => $cacheDriver]);
             }
-
         } catch (\Throwable) {
             // Fall back to .env values — app still boots correctly
         }
