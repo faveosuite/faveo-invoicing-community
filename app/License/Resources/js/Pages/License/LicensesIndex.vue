@@ -12,6 +12,16 @@
             </div>
             <div class="card-body">
                 <DataTable :url="endPoint" :dataColumns="dataColumns" :option="options">
+                    <template #table-tools>
+                        <ColumnSelector
+                            :entityType="'licenses'"
+                            :pinStart="[]"
+                            :pinEnd="['actions']"
+                            :labels="columnLabels"
+                            componentName="dataTableModal"
+                            @change="onColumnsChange"
+                        />
+                    </template>
                     <template #actions="props"><table-actions :data="props.row" /></template>
                 </DataTable>
             </div>
@@ -20,10 +30,11 @@
 </template>
 
 <script setup>
-import { reactive, h } from 'vue'
+import { reactive, ref, h } from 'vue'
 import { RouterLink } from 'vue-router'
 import { lang } from '@/helpers/extraLogics'
 import { useDateTime } from '@/core/composables/useDateTime'
+import ColumnSelector from '@/components/Reusable/ColumnSelector.vue'
 
 const { formatDate } = useDateTime()
 
@@ -31,11 +42,37 @@ const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const endPoint = baseUrl + '/api/admin/viewLicenses'
 
-const dataColumns = [
+// report_columns keys (type 'licenses') equal these column names 1:1, so no
+// key map is needed — the ColumnSelector emits the names this table uses.
+const DEFAULT_COLUMNS = [
     'license_code', 'client_email', 'product_title', 'license_order_number', 'license_domain', 'license_ip',
     'license_date', 'installation_counts', 'call_backs_count', 'latest_call_backs',
     'license_limit', 'license_expire_date', 'license_updates_date', 'license_support_date', 'license_status', 'actions'
 ]
+const dataColumns = ref([...DEFAULT_COLUMNS])
+
+// Labels shown in the ColumnSelector dropdown (keyed by column key).
+const columnLabels = {
+    license_code:         lang('license_code'),
+    client_email:         lang('email'),
+    product_title:        lang('product'),
+    license_order_number: lang('order_number'),
+    license_domain:       lang('license_domain'),
+    license_ip:           lang('license_ip'),
+    license_date:         lang('date'),
+    installation_counts:  lang('installations_count'),
+    call_backs_count:     lang('callbacks_count'),
+    latest_call_backs:    lang('latest_callbacks'),
+    license_limit:        lang('license_limit'),
+    license_expire_date:  lang('license_expiry'),
+    license_updates_date: lang('updates_expiry'),
+    license_support_date: lang('support_expiry'),
+    license_status:       lang('status'),
+}
+
+function onColumnsChange(reportKeys) {
+    dataColumns.value = reportKeys.length ? [...reportKeys] : [...DEFAULT_COLUMNS]
+}
 
 const options = reactive({
     sortable: ['product_title', 'client_email', 'license_code', 'license_limit', 'license_order_number', 'license_expire_date', 'license_support_date', 'license_updates_date', 'license_status'],

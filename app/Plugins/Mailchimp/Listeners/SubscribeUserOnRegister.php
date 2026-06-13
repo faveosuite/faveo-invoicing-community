@@ -2,27 +2,29 @@
 
 namespace App\Plugins\Mailchimp\Listeners;
 
-use App\Plugins\Mailchimp\Exceptions\MailchimpApiException;
-use App\Plugins\Mailchimp\Exceptions\MailchimpRateLimitException;
+use App\Listeners\BaseExternalSyncListener;
+use App\Model\Common\StatusSetting;
 use App\Plugins\Mailchimp\Services\MailchimpService;
 use App\User;
 
-class SubscribeUserOnRegister
+class SubscribeUserOnRegister extends BaseExternalSyncListener
 {
     public function __construct(private readonly MailchimpService $service)
     {
     }
 
-    public function handle(User $user): void
+    protected function serviceKey(): string
     {
-        try {
-            $this->service->subscribe($user);
-        } catch (MailchimpRateLimitException $e) {
-            \Logger::exception($e);
-        } catch (MailchimpApiException $e) {
-            \Logger::exception($e);
-        } catch (\Throwable $e) {
-            \Logger::exception($e);
-        }
+        return 'mailchimp';
+    }
+
+    protected function isEnabled(): bool
+    {
+        return (bool) StatusSetting::value('mailchimp_status');
+    }
+
+    protected function sync(User $user): void
+    {
+        $this->service->subscribe($user);
     }
 }

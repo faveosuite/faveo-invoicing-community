@@ -5,48 +5,23 @@ namespace App\Http\Controllers\Auth;
 use App\EmailValidationResults;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ProfileRequest;
-use App\Jobs\AddUserToExternalService;
+use App\Events\UserRegisteredEvent;
 use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\ManagerSetting;
-use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Rules\Honeypot;
 use App\User;
 use Exception;
 use Facades\Spatie\Referer\Referer;
 use Illuminate\Foundation\Auth\RegistersUsers;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
-use Symfony\Component\Mime\Email;
 
 class RegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
     use RegistersUsers;
 
-    /**
-     * Where to redirect users after registration.
-     *
-     * @var string
-     */
     protected $redirectTo = '/';
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('guest');
@@ -89,6 +64,9 @@ class RegisterController extends Controller
             return ['status' => false, 'id' => $emailResult->id];
         } catch (\Exception $exception) {
             \Log::error($exception->getMessage());
+
+            // Fail open: if the verifier is unreachable, let the user proceed
+            return ['status' => true, 'id' => null];
         }
     }
 
@@ -142,24 +120,20 @@ class RegisterController extends Controller
         return $response;
     }
 
-    /**
-     * This function performs post registration operations(creating user,add user to pipedrive,mailchimp).
-     *
-     * @param  ProfileRequest  $request
-     * @param  User  $user
-     * @return \HTTP|JsonResponse
-     *
-     * @throws ValidationException
-     */
     public function postRegister(ProfileRequest $request, User $user)
     {
         $this->validate($request, [
             'registerForm' => [new Honeypot()],
         ]);
         try {
-            [$emailValidationStatus, $mobileValidationStatus] = array_values(StatusSetting::select('email_validation_status', 'mobile_validation_status')->first()->toArray());
+            $status = StatusSetting::select(
+                'email_validation_status',
+                'mobile_validation_status',
+                'emailverification_status',
+                'msg91_status'
+            )->first();
 
-            if ($emailValidationStatus) {
+            if ($status->email_validation_status) {
                 $emailVerifier = $this->emailVerification($request->input('email'));
                 if (! $emailVerifier['status']) {
                     $user = $this->getUserDetails($request);
@@ -169,7 +143,7 @@ class RegisterController extends Controller
                 }
             }
 
-            if ($mobileValidationStatus) {
+            if ($status->mobile_validation_status) {
                 $mobileVerifier = $this->phoneVerification($request->input('mobile_code').$request->input('mobile'));
                 if (! $mobileVerifier) {
                     return errorResponse(\Lang::get('message.mobile_provided_wrong'));
@@ -178,8 +152,8 @@ class RegisterController extends Controller
 
             $location = getLocation();
 
-            $accountManagerStatus = ManagerSetting::whereManagerRole('account')->value('auto_assign');
-            $salesManagerStatus = ManagerSetting::whereManagerRole('sales')->value('auto_assign');
+            $managerSettings = ManagerSetting::whereIn('manager_role', ['account', 'sales'])
+                ->pluck('auto_assign', 'manager_role');
 
             $state = getStateByCode($location['iso_code'], $location['state']);
 
@@ -204,13 +178,13 @@ class RegisterController extends Controller
             $user->referrer = Referer::get();
             $user->active = 1;
             $user->role = 'user';
-            $user->account_manager = $accountManagerStatus ? $user->assignManagerByPosition('account_manager') : null;
-            $user->manager = $salesManagerStatus ? $user->assignManagerByPosition('manager') : null;
+            $user->account_manager = $managerSettings->get('account') ? $user->assignManagerByPosition('account_manager') : null;
+            $user->manager = $managerSettings->get('sales') ? $user->assignManagerByPosition('manager') : null;
             $user->save();
 
-            $need_verify = $this->getEmailMobileStatusResponse();
+            $need_verify = ($status->emailverification_status || $status->msg91_status) ? 1 : 0;
 
-            AddUserToExternalService::dispatch($user, 'register');
+            event(new UserRegisteredEvent($user, 'register'));
 
             \Session::put([
                 'justStarted' => true,
@@ -253,89 +227,6 @@ class RegisterController extends Controller
         ];
 
         return $user;
-    }
-
-    /**
-     * This function returns the email and msg91 status this helps in verifying users email and mobile number.
-     *
-     * @param
-     * @param
-     * @return int
-     *
-     * @throws
-     */
-    protected function getEmailMobileStatusResponse()
-    {
-        $response = StatusSetting::first(['emailverification_status', 'msg91_status']);
-
-        return ($response->emailverification_status || $response->msg91_status) ? 1 : 0;
-    }
-
-    /**
-     * This function returns the default currency.
-     *
-     * @param
-     * @param
-     * @return int
-     *
-     * @throws
-     */
-    protected function getUserCurrency($userCountry)
-    {
-        $currency = Setting::find(1)->default_currency;
-        if ($userCountry->currency->status) {
-            return $userCountry->currency->code;
-        }
-
-        return $currency;
-    }
-
-    /**
-     * This function returns the default currency symbol.
-     *
-     * @param
-     * @return int
-     *
-     * @throws
-     */
-    protected function getUserCurrencySymbol($userCountry)
-    {
-        $currency_symbol = Setting::find(1)->default_symbol;
-        if ($userCountry->currency->status) {
-            return $userCountry->currency->symbol;
-        }
-
-        return $currency_symbol;
-    }
-
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-    protected function validator(array $data)
-    {
-        // return Validator::make($data, [
-        //     'name' => 'required|string|max:255',
-        //     'email' => 'required|string|email|max:255|unique:users',
-        //     'password' => 'required|string|min:6|confirmed',
-        // ]);
-    }
-
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return \App\User
-     */
-    protected function create(array $data)
-    {
-        // return User::create([
-        //     'name' => $data['name'],
-        //     'email' => $data['email'],
-        //     'password' => bcrypt($data['password']),
-        // ]);
     }
 
     public function logActivityRegister($user): void

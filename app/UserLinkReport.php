@@ -13,6 +13,7 @@ class UserLinkReport extends Model
         'user_id',
         'column_id',
         'type',
+        'order',
     ];
 
     public function user()

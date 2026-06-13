@@ -21,7 +21,7 @@ class ConfigServiceProvider extends ServiceProvider
             // \DB::table() instead of Eloquent: Model::$resolver is null until
             // DatabaseServiceProvider::boot(), which hasn't run yet at this stage.
             $rows = \DB::table('common_settings')
-                ->whereIn('option_name', ['debugging', 'sentry'])
+                ->whereIn('option_name', ['debugging', 'sentry', 'cache'])
                 ->get()
                 ->keyBy(fn ($r) => "{$r->option_name}:{$r->optional_field}");
 
@@ -36,6 +36,11 @@ class ConfigServiceProvider extends ServiceProvider
                 'app.sentry_reporting' => $bool('sentry:crash_reporting'),
                 'sentry.traces_sample_rate' => $rows->get('sentry:performance_monitoring')?->option_value ? 0.1 : 0,
             ]);
+
+            if ($cacheDriver = $rows->get('cache:driver')?->option_value) {
+                config(['cache.default' => $cacheDriver]);
+            }
+
         } catch (\Throwable) {
             // Fall back to .env values — app still boots correctly
         }

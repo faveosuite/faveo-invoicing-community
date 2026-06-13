@@ -44,6 +44,14 @@
                 :dataColumns="columns"
                 :option="tableOptions"
             >
+                <template #table-tools>
+                    <ColumnSelector
+                        :entityType="'users'"
+                        :labels="columnLabels"
+                        :componentName="COMPONENT"
+                        @change="onColumnsChange"
+                    />
+                </template>
                 <template #bulk-actions>
                     <div v-if="selectedUsers.length > 0" class="dropdown">
                         <button
@@ -97,6 +105,7 @@ import { useDateTime } from '@/core/composables/useDateTime'
 import UserTableActions from './components/UserTableActions.vue'
 import UserFilter from './components/UserFilter.vue'
 import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import ColumnSelector from '@/components/Reusable/ColumnSelector.vue'
 
 const { formatDate } = useDateTime()
 
@@ -178,7 +187,37 @@ function confirmBulkDelete() {
     pendingBulkDelete.value = { user_ids: [...selectedUsers.value] }
 }
 
-const columns = ['select', 'name', 'email', 'mobile', 'country', 'created_at', 'account_info', 'action']
+// report_columns keys (type 'users') ↔ this table's internal column names.
+const REPORT_TO_COL = {
+    checkbox: 'select',
+    name: 'name',
+    email: 'email',
+    mobile: 'mobile',
+    country: 'country',
+    created_at: 'created_at',
+    active: 'account_info',
+    action: 'action',
+}
+
+// Labels shown in the ColumnSelector dropdown (keyed by report_columns key).
+const columnLabels = {
+    name: __('message.name'),
+    email: __('message.email'),
+    mobile: __('message.mobile'),
+    country: __('message.country'),
+    created_at: __('message.registered_on'),
+    active: __('message.account_info'),
+}
+
+const DEFAULT_COLUMNS = ['select', 'name', 'email', 'mobile', 'country', 'created_at', 'account_info', 'action']
+const columns = ref([...DEFAULT_COLUMNS])
+
+// ColumnSelector emits ordered, visible report_columns keys — map them onto
+// this table's column names so the DataTable shows/orders columns accordingly.
+function onColumnsChange(reportKeys) {
+    const mapped = reportKeys.map(k => REPORT_TO_COL[k]).filter(Boolean)
+    columns.value = mapped.length ? mapped : [...DEFAULT_COLUMNS]
+}
 
 const statusIcon = (iconClass, active, activeTitle, inactiveTitle) =>
     h('i', {

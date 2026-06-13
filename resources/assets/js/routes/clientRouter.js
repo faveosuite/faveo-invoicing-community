@@ -48,7 +48,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     const requiresAuth = to.meta?.requiresAuth !== false
     if (requiresAuth && !isAuthenticated()) {
-        window.location.href = (el?.dataset?.baseUrl ?? '') + '/login'
+        next('/login')
     } else {
         next()
     }

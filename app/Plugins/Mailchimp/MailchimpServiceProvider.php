@@ -4,11 +4,16 @@ namespace App\Plugins\Mailchimp;
 
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Plugins\Mailchimp\Http\Client\MailchimpClient;
+use App\Contracts\NewsletterProvider;
+use App\Events\UserRegisteredEvent;
 use App\Plugins\Mailchimp\Listeners\SubscribeUserOnRegister;
+use App\Plugins\Mailchimp\Providers\MailchimpNewsletterProvider;
+use App\Services\NewsletterManager;
 use App\Plugins\Mailchimp\Listeners\UnsubscribeOnUserDeleted;
 use App\Plugins\Mailchimp\Listeners\UpdateSubscriberOnPurchase;
 use App\Plugins\Mailchimp\Services\ContactBuilder;
 use App\Plugins\Mailchimp\Services\MailchimpService;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class MailchimpServiceProvider extends ServiceProvider
@@ -44,5 +49,11 @@ class MailchimpServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
         $this->loadRoutesFrom(__DIR__.'/routes/routes.php');
+
+        Event::listen(UserRegisteredEvent::class, SubscribeUserOnRegister::class);
+
+        app(NewsletterManager::class)->register(
+            new MailchimpNewsletterProvider(app(MailchimpService::class))
+        );
     }
 }

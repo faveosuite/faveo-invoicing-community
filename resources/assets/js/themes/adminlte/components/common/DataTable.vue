@@ -11,6 +11,7 @@
                 @keyup.enter="onSearch"
                 placeholder="Type and press enter to search..."
             />
+            <slot name="table-tools" />
         </div>
 
         <v-server-table

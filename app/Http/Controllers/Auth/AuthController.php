@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\ApiKey;
 use App\Http\Controllers\Common\Sms\SmsOtpController;
 use App\Http\Controllers\Controller;
-use App\Jobs\AddUserToExternalService;
+use App\Events\UserRegisteredEvent;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
 use App\Model\User\AccountActivate;
@@ -212,7 +212,7 @@ class AuthController extends BaseAuthController
 
             if (! \Auth::check() && $this->userNeedVerified($user)) {
                 //dispatch the job to add user to external services
-                AddUserToExternalService::dispatch($user, 'verify');
+                event(new UserRegisteredEvent($user, 'verify'));
 
                 \Session::flash('success', __('message.registration_complete'));
             }
@@ -264,7 +264,7 @@ class AuthController extends BaseAuthController
 
             if (! \Auth::check() && $this->userNeedVerified($user)) {
                 //dispatch the job to add user to external services
-                AddUserToExternalService::dispatch($user, 'verify');
+                event(new UserRegisteredEvent($user, 'verify'));
 
                 \Session::flash('success', __('message.registration_complete'));
             }
@@ -440,17 +440,6 @@ class AuthController extends BaseAuthController
             'isEmailVerified' => $isEmailVerified,
             'verification_preference' => $verification_preference,
         ]);
-    }
-
-    private function userNeedVerified($user)
-    {
-        $setting = StatusSetting::first(['emailverification_status', 'msg91_status']);
-
-        return ! (
-            ($setting->emailverification_status && ! $user->email_verified) ||
-            ($setting->msg91_status && ! $user->mobile_verified) ||
-            ! $user->active
-        );
     }
 
     private function updateVerificationAttempts($user, $type = 'email')

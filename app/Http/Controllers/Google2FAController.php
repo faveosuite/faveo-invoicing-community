@@ -191,7 +191,7 @@ class Google2FAController extends Controller
     {
         $codes = [];
         for ($i = 0; $i < 10; $i++) {
-            $codes[] = substr(str_shuffle(str_repeat('0123456789abcdefghijklmnopqrstuvwxyz', 2)), 0, 20);
+            $codes[] = bin2hex(random_bytes(10));
         }
 
         return $codes;
@@ -222,16 +222,15 @@ class Google2FAController extends Controller
             $user = User::findOrFail($userId);
 
             return $this->handleTwoFactorLogin($request, $user, 'recovery-code', function ($user, $request) {
-                if ($user->code_usage_count == 1) {
-                    throw new \Exception(__('message.code_authenticator_disable_2fa'));
-                }
+                $code = \App\UserBackupCodes::where('user_id', $user->id)
+                    ->where('backup_codes', $request->rec_code)
+                    ->first();
 
-                if ($request->rec_code !== $user->backup_code) {
+                if (! $code) {
                     throw new \Exception(__('message.invalid_recovery_code'));
                 }
 
-                $user->code_usage_count = 1;
-                $user->save();
+                $code->delete();
             });
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
@@ -261,6 +260,7 @@ class Google2FAController extends Controller
         }
 
         // Normal login flow
+        $request->session()->regenerate();
         \Auth::login($user, $remember);
 
         $loginController = new LoginController();

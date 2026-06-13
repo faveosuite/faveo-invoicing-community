@@ -28,9 +28,10 @@ http.interceptors.request.use(config => {
 http.interceptors.response.use(
     response => response,
     error => {
-        if (error.response?.status === 401) {
+        const loginUrl = (el?.dataset?.baseUrl ?? '') + '/login'
+        if (error.response?.status === 401 && !window.location.href.endsWith('/login')) {
             // Session expired — redirect to client panel login
-            window.location.href = (el?.dataset?.baseUrl ?? '') + '/login'
+            window.location.href = loginUrl
         }
         return Promise.reject(error)
     }

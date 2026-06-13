@@ -3,7 +3,7 @@
         <AppAlert :componentName="COMPONENT" />
         <div class="card card-light">
             <div class="card-header">
-                <h4 class="card-title">{{ __('message.queue') }}</h4>
+                <h4 class="card-title">{{ __('message.cache') }}</h4>
             </div>
             <div class="card-body">
                 <inline-loader v-if="loading" />
@@ -39,29 +39,27 @@ import { useForm } from 'vee-validate'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { queueDriverSchemas } from '@/validations/admin/queueDriverValidations.js'
+import { cacheDriverSchemas } from '@/validations/admin/cacheDriverValidations.js'
 
-const COMPONENT = 'queue-settings'
+const COMPONENT = 'cache-driver-settings'
 const el      = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
-const route = useRoute()
-const id    = route.params.id
+const route  = useRoute()
+const driver = route.params.driver
 
 const { errors, setErrors, setFieldError } = useForm()
 
 const loading = ref(true)
 const saving  = ref(false)
 const fields  = ref([])
-const driver  = ref('')
 const form    = reactive({})
 
 async function load() {
     loading.value = true
     try {
-        const res    = await http.get(`${baseUrl}/queue/${id}/form`)
+        const res = await http.get(`${baseUrl}/cache-settings/${driver}/form`)
         fields.value = res.data?.data?.fields ?? []
-        driver.value = res.data?.data?.driver ?? ''
         fields.value.forEach(f => { form[f.name] = f.value ?? '' })
     } catch (e) {
         errorHandler(e, COMPONENT)
@@ -71,7 +69,7 @@ async function load() {
 }
 
 async function save() {
-    const schema = queueDriverSchemas[driver.value]
+    const schema = cacheDriverSchemas[driver]
     if (schema) {
         try {
             schema.validateSync(form, { abortEarly: false })
@@ -85,7 +83,7 @@ async function save() {
 
     saving.value = true
     try {
-        const res = await http.post(`${baseUrl}/queue/${id}`, { ...form })
+        const res = await http.post(`${baseUrl}/cache-settings/${driver}`, { ...form })
         successHandler(res, COMPONENT)
     } catch (e) {
         errorHandler(e, COMPONENT)

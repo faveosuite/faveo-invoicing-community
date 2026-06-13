@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Events\UserRegisteredEvent;
+use App\Listeners\SyncUserToPipedrive;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -17,6 +19,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         \Illuminate\Auth\Events\Login::class => [
             \App\Listeners\MergeGuestCartOnLogin::class,
+        ],
+        UserRegisteredEvent::class => [
+            SyncUserToPipedrive::class,
         ],
     ];
 

@@ -5,6 +5,7 @@ namespace Database\Seeders\v4_0_3;
 use App\Model\Common\CommonSettings;
 use App\Plugins\Zoho\Models\FaveoLocalFields;
 use App\Plugins\Zoho\Models\ZohoIntegration;
+use App\ReportColumn;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -21,6 +22,42 @@ class DatabaseSeeder extends Seeder
        $this->packageRemoval();
        $this->openPaymentEmailTemplates();
        $this->seedSentrySettings();
+       $this->seedCacheSessionDefaults();
+       $this->seedLicensesReportColumns();
+    }
+
+    /**
+     * Column definitions for the admin Licenses list (/licenses/list), consumed
+     * by the Vue ColumnSelector. Keys match the dataColumns names in
+     * LicensesIndex.vue so visibility/order map without translation.
+     */
+    public function seedLicensesReportColumns(): void
+    {
+        $columns = [
+            ['key' => 'license_code',          'label' => 'License code'],
+            ['key' => 'client_email',          'label' => 'Email'],
+            ['key' => 'product_title',         'label' => 'Product'],
+            ['key' => 'license_order_number',  'label' => 'Order number'],
+            ['key' => 'license_domain',        'label' => 'Domain'],
+            ['key' => 'license_ip',            'label' => 'IP'],
+            ['key' => 'license_date',          'label' => 'License date'],
+            ['key' => 'installation_counts',   'label' => 'Installations count'],
+            ['key' => 'call_backs_count',      'label' => 'Callbacks count'],
+            ['key' => 'latest_call_backs',     'label' => 'Latest callbacks'],
+            ['key' => 'license_limit',         'label' => 'License limit'],
+            ['key' => 'license_expire_date',   'label' => 'License expiry'],
+            ['key' => 'license_updates_date',  'label' => 'Updates expiry'],
+            ['key' => 'license_support_date',  'label' => 'Support expiry'],
+            ['key' => 'license_status',        'label' => 'Status'],
+            ['key' => 'actions',               'label' => 'Actions'],
+        ];
+
+        foreach ($columns as $col) {
+            ReportColumn::firstOrCreate(
+                ['type' => 'licenses', 'key' => $col['key']],
+                ['label' => $col['label'], 'default' => 1]
+            );
+        }
     }
 
     public function faveoLocalFieldsSeeder(): void
@@ -270,6 +307,20 @@ Dear {{name}},<br/><br/>
         }
     }
 
+
+    private function seedCacheSessionDefaults(): void
+    {
+        $defaults = [
+            ['option_name' => 'cache', 'optional_field' => 'driver', 'option_value' => 'file', 'status' => ''],
+        ];
+
+        foreach ($defaults as $setting) {
+            CommonSettings::firstOrCreate(
+                ['option_name' => $setting['option_name'], 'optional_field' => $setting['optional_field']],
+                ['option_value' => $setting['option_value']]
+            );
+        }
+    }
 
     private function seedSentrySettings(): void
     {

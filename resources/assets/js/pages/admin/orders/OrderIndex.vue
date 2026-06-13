@@ -29,6 +29,14 @@
                     :dataColumns="columns"
                     :option="tableOptions"
                 >
+                    <template #table-tools>
+                        <ColumnSelector
+                            :entityType="'orders'"
+                            :labels="columnLabels"
+                            componentName="orders-index"
+                            @change="onColumnsChange"
+                        />
+                    </template>
                     <template #bulk-actions>
                         <div v-if="selectedOrders.length > 0" class="dropdown">
                             <button
@@ -76,6 +84,7 @@ import { useDateTime } from '@/core/composables/useDateTime'
 import OrderTableActions from './components/OrderTableActions.vue'
 import OrderFilter from './components/OrderFilter.vue'
 import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import ColumnSelector from '@/components/Reusable/ColumnSelector.vue'
 
 const { formatDate } = useDateTime()
 
@@ -127,7 +136,51 @@ function confirmBulkDelete() {
     pendingBulkDelete.value = { order_ids: [...selectedOrders.value] }
 }
 
-const columns = ['select', 'client', 'email', 'mobile', 'country', 'number', 'order_status', 'product_name', 'group', 'plan', 'version', 'agents', 'status', 'order_date', 'update_ends_at', 'action']
+// report_columns keys (type 'orders') ↔ this table's internal column names.
+const REPORT_TO_COL = {
+    checkbox:       'select',
+    client:         'client',
+    email:          'email',
+    mobile:         'mobile',
+    country:        'country',
+    number:         'number',
+    status:         'status',
+    product_name:   'product_name',
+    plan_name:      'plan',
+    version:        'version',
+    agents:         'agents',
+    order_status:   'order_status',
+    order_date:     'order_date',
+    update_ends_at: 'update_ends_at',
+    group_name:     'group',
+    action:         'action',
+}
+
+// Labels shown in the ColumnSelector dropdown (keyed by report_columns key).
+const columnLabels = {
+    client:         __('message.user'),
+    email:          __('message.email'),
+    mobile:         __('message.mobile'),
+    country:        __('message.country'),
+    number:         __('message.order_no'),
+    status:         __('message.status'),
+    product_name:   __('message.product'),
+    plan_name:      __('message.plan'),
+    version:        __('message.version'),
+    agents:         __('message.agents'),
+    order_status:   __('message.order-status'),
+    order_date:     __('message.order_date'),
+    update_ends_at: __('message.expiry'),
+    group_name:     __('message.group'),
+}
+
+const DEFAULT_COLUMNS = ['select', 'client', 'email', 'mobile', 'country', 'number', 'order_status', 'product_name', 'group', 'plan', 'version', 'agents', 'status', 'order_date', 'update_ends_at', 'action']
+const columns = ref([...DEFAULT_COLUMNS])
+
+function onColumnsChange(reportKeys) {
+    const mapped = reportKeys.map(k => REPORT_TO_COL[k]).filter(Boolean)
+    columns.value = mapped.length ? mapped : [...DEFAULT_COLUMNS]
+}
 
 const tableOptions = reactive({
     headings: {

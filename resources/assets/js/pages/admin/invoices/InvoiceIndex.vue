@@ -42,6 +42,14 @@
                     :dataColumns="columns"
                     :option="tableOptions"
                 >
+                    <template #table-tools>
+                        <ColumnSelector
+                            :entityType="'invoices'"
+                            :labels="columnLabels"
+                            componentName="invoices-index"
+                            @change="onColumnsChange"
+                        />
+                    </template>
                     <template #bulk-actions>
                         <div v-if="selectedInvoices.length > 0" class="dropdown">
                             <button
@@ -89,6 +97,7 @@ import { useDateTime } from '@/core/composables/useDateTime'
 import InvoiceTableActions from './components/InvoiceTableActions.vue'
 import InvoiceFilter from './components/InvoiceFilter.vue'
 import DeleteModal from '@/themes/adminlte/components/common/DeleteModal.vue'
+import ColumnSelector from '@/components/Reusable/ColumnSelector.vue'
 
 const { formatDate } = useDateTime()
 
@@ -158,7 +167,41 @@ async function exportInvoices() {
     }
 }
 
-const columns = ['select', 'user', 'email', 'mobile', 'country', 'number', 'product', 'date', 'grand_total', 'status', 'action']
+// report_columns keys (type 'invoices') ↔ this table's internal column names.
+const REPORT_TO_COL = {
+    checkbox:    'select',
+    user_id:     'user',
+    email:       'email',
+    mobile:      'mobile',
+    country:     'country',
+    number:      'number',
+    product:     'product',
+    date:        'date',
+    grand_total: 'grand_total',
+    status:      'status',
+    action:      'action',
+}
+
+// Labels shown in the ColumnSelector dropdown (keyed by report_columns key).
+const columnLabels = {
+    user_id:     __('message.user'),
+    email:       __('message.email'),
+    mobile:      __('message.mobile'),
+    country:     __('message.country'),
+    number:      __('message.invoice_no'),
+    product:     __('message.product'),
+    date:        __('message.date'),
+    grand_total: __('message.total'),
+    status:      __('message.status'),
+}
+
+const DEFAULT_COLUMNS = ['select', 'user', 'email', 'mobile', 'country', 'number', 'product', 'date', 'grand_total', 'status', 'action']
+const columns = ref([...DEFAULT_COLUMNS])
+
+function onColumnsChange(reportKeys) {
+    const mapped = reportKeys.map(k => REPORT_TO_COL[k]).filter(Boolean)
+    columns.value = mapped.length ? mapped : [...DEFAULT_COLUMNS]
+}
 
 const tableOptions = reactive({
     headings: {

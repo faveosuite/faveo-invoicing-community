@@ -182,11 +182,6 @@ class BaseAuthController extends Controller
         }
     }
 
-    protected function addUserToMailchimp($user)
-    {
-        app(\App\Plugins\Mailchimp\Listeners\SubscribeUserOnRegister::class)->handle($user);
-    }
-
     public function emailverificationAttempt($user)
     {
         $attempt = $user->verificationAttempts->first();
@@ -195,7 +190,7 @@ class BaseAuthController extends Controller
             $attempt->email_attempt = $attempt->email_attempt + 1;
             $attempt->save();
         } else {
-            verificationAttempt::where('user_id', $user->id)->update(['email_attempt' => 1]);
+            VerificationAttempt::where('user_id', $user->id)->update(['email_attempt' => 1]);
         }
     }
 
@@ -207,7 +202,22 @@ class BaseAuthController extends Controller
             $mobileAttempt->mobile_attempt = $mobileAttempt->mobile_attempt + 1;
             $mobileAttempt->save();
         } else {
-            verificationAttempt::where('user_id', $user->id)->update(['mobile_attempt' => 1]);
+            VerificationAttempt::where('user_id', $user->id)->update(['mobile_attempt' => 1]);
         }
+    }
+
+    protected function userNeedVerified(User $user): bool
+    {
+        $setting = \App\Model\Common\StatusSetting::first(['emailverification_status', 'msg91_status']);
+
+        if ($setting->emailverification_status == 1 && $user->email_verified != 1) {
+            return false;
+        }
+
+        if ($setting->msg91_status == 1 && $user->mobile_verified != 1) {
+            return false;
+        }
+
+        return $user->active == 1;
     }
 }

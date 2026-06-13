@@ -155,8 +155,9 @@ const sections = computed(() => [
             { to: '/settings/cron',      icon: 'fas fa-gauge',         label: __('message.cron-setting') },
             { to: '/settings/language',  icon: 'fas fa-language',      label: __('message.language') },
             { to: '/settings/file-storage', icon: 'fas fa-hard-drive', label: __('message.file_system') },
-            { to: '/settings/common/queues', icon: 'fas fa-layer-group', label: __('message.queues') },
-            { to: '/settings/debugging', icon: 'fas fa-bug',           label: __('message.debugging') },
+            { to: '/settings/common/queues',   icon: 'fas fa-layer-group',  label: __('message.queues') },
+            { to: '/settings/common/cache',    icon: 'fas fa-database',     label: __('message.cache') },
+            { to: '/settings/debugging',       icon: 'fas fa-bug',          label: __('message.debugging') },
         ],
     },
     {

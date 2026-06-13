@@ -2,7 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Http\Controllers\Common\ExternalServiceController;
+use App\Events\UserRegisteredEvent;
+use App\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -13,27 +14,19 @@ class AddUserToExternalService implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $user;
-    protected $triggeredBy;
+    protected User $user;
 
-    /**
-     * Create a new job instance.
-     */
-    public function __construct($user, $triggeredBy = false)
+    protected string $trigger;
+
+    public function __construct(User $user, string|bool $trigger = 'register')
     {
         $this->user = $user;
-        $this->triggeredBy = $triggeredBy;
+        // false was the old default — treat it as admin_create so newsletters don't fire
+        $this->trigger = is_string($trigger) ? $trigger : 'admin_create';
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
-        try {
-            (new ExternalServiceController())->addUserToExternalServices($this->user, $this->triggeredBy);
-        } catch (\Exception $e) {
-            \Logger::exception($e);
-        }
+        event(new UserRegisteredEvent($this->user, $this->trigger));
     }
 }

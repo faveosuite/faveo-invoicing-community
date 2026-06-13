@@ -169,7 +169,9 @@ Route::middleware('installAgora')->group(function () {
     Route::post('trial-cloud-products', [Tenancy\CloudExtraActivities::class, 'trialCloudProducts']);
     Route::post('create/tenant/purchase', [Tenancy\CloudExtraActivities::class, 'storeTenantTillPurchase']);
     Route::post('available-groups', [Product\GroupController::class, 'getAvailableGroups'])->withoutMiddleware(['auth', 'admin']);
-    // Mailchimp newsletter subscribe — handled by plugin (see MailchimpServiceProvider)
+    // Generic newsletter subscribe — fans out to all enabled providers (Mailchimp, Zoho Campaigns, …)
+    Route::post('newsletter/subscribe', [Front\NewsletterController::class, 'subscribe'])
+        ->middleware('recaptcha:newsletter');
     Route::post('free-trial/start', [FreeTrailController::class, 'startTrial'])->name('free-trial.start');
 
     //invoice api's
@@ -180,7 +182,7 @@ Route::middleware('installAgora')->group(function () {
     Route::delete('invoices/delete/{id}', [Front\ClientController::class, 'invoiceDelete']);
     Route::get('paynow/{id}', [Front\CheckoutController::class, 'payNow']);
     //when company name and address is not present in the users details a dialog box will open and the details will be taken
-    Route::post('store-basic-details', [Auth\LoginController::class, 'storeBasicDetailsss'])->name('store-basic-details');
+    Route::post('store-basic-details', [Auth\LoginController::class, 'storeBasicDetails'])->name('store-basic-details');
 
     //order api's
     // Client order pages (my-orders, my-order/{id}) — Vue SPA served at their
@@ -600,6 +602,15 @@ Route::middleware('installAgora')->group(function () {
     Route::post('queue/{id}', [Jobs\QueueController::class, 'update'])->name('queue.update');
     Route::post('queue/{queue}/activate', [Jobs\QueueController::class, 'activate']);
     Route::get('queue/{id}/form', [Jobs\QueueController::class, 'getFormById'])->name('queue.form');
+
+    /**
+     * Cache driver settings.
+     */
+    Route::get('cache-settings/list', [Common\CacheSettingsController::class, 'getDriverData']);
+    Route::get('cache-settings/{driver}/form', [Common\CacheSettingsController::class, 'getFormByDriver']);
+    Route::post('cache-settings/{driver}', [Common\CacheSettingsController::class, 'update']);
+    Route::post('cache-settings/{driver}/activate', [Common\CacheSettingsController::class, 'activate']);
+
 
     /*
      * Monitoring (Pulse / Horizon) — path check API

@@ -696,8 +696,16 @@ class ClientController extends AdvanceSearchController
         $entityType = $request->get('entity_type');
         $selectedKeys = $request->get('selected_columns', []);
 
-        // Always ensure checkbox & action exist
-        $selectedKeys = array_unique(array_merge($selectedKeys, ['checkbox', 'action']));
+        // Always ensure the locked checkbox & action columns exist, while
+        // preserving the incoming display order (drag-and-drop reordering).
+        if (! in_array('checkbox', $selectedKeys, true)) {
+            array_unshift($selectedKeys, 'checkbox');
+        }
+        if (! in_array('action', $selectedKeys, true)) {
+            $selectedKeys[] = 'action';
+        }
+        // De-dupe while keeping the first occurrence's position.
+        $selectedKeys = array_values(array_unique($selectedKeys));
 
         // Map column keys to IDs
         $reportColumns = ReportColumn::where('type', $entityType)
@@ -709,12 +717,14 @@ class ClientController extends AdvanceSearchController
             ->delete();
 
         $insertData = [];
+        $order = 1;
         foreach ($selectedKeys as $key) {
             if (isset($reportColumns[$key])) {
                 $insertData[] = [
                     'user_id' => $userId,
                     'column_id' => $reportColumns[$key],
                     'type' => $entityType,
+                    'order' => $order++,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -735,22 +745,39 @@ class ClientController extends AdvanceSearchController
         $userId = auth()->id();
         $entityType = $request->get('entity_type');
 
-        // Get user's saved column IDs
-        $userColumnIds = UserLinkReport::where('user_id', $userId)
-            ->where('type', $entityType)
-            ->pluck('column_id');
+        // All available columns for this entity, in their canonical order.
+        $allColumns = ReportColumn::where('type', $entityType)
+            ->orderBy('id')
+            ->get(['id', 'key', 'label', 'default']);
 
-        // If user has no custom columns, fallback to defaults
-        $columns = $userColumnIds->isEmpty()
-            ? ReportColumn::where('type', $entityType)
-                ->where('default', true)
-                ->pluck('key')
-            : ReportColumn::where('type', $entityType)
-                ->whereIn('id', $userColumnIds)
-                ->pluck('key');
+        // The user's saved selection + display order (keyed by column id).
+        $saved = UserLinkReport::where('user_id', $userId)
+            ->where('type', $entityType)
+            ->orderBy('order')
+            ->get(['column_id', 'order'])
+            ->keyBy('column_id');
+
+        $hasSaved = $saved->isNotEmpty();
+
+        // Merge availability with the user's preference. New columns that the
+        // user has never seen sink to the bottom and stay hidden by default.
+        $columns = $allColumns->map(function ($col) use ($saved, $hasSaved) {
+            $savedRow = $saved->get($col->id);
+
+            return [
+                'id' => $col->id,
+                'key' => $col->key,
+                'label' => $col->label,
+                'is_visible' => $hasSaved ? (bool) $savedRow : (bool) $col->default,
+                'order' => $savedRow->order ?? (1000 + $col->id),
+            ];
+        })->sortBy('order')->values();
 
         return successResponse('', [
-            'selected_columns' => $columns,
+            // Kept flat for the legacy blade lists (they read selected keys only).
+            'selected_columns' => $columns->where('is_visible', true)->pluck('key')->values(),
+            // Full ordered metadata consumed by the Vue ColumnSelector.
+            'columns' => $columns,
         ]);
     }
 

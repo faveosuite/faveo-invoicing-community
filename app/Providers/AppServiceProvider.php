@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Events\UserOrderDelete;
 use App\Helper\PdfManager\FaveoBrowserShot;
 use App\Listeners\CloudDeletion;
+use App\Services\NewsletterManager;
 use File;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -56,6 +57,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->singleton(NewsletterManager::class);
+
         $this->app->alias('bugsnag.logger', \Illuminate\Contracts\Logging\Log::class);
         $this->app->alias('bugsnag.logger', \Psr\Log\LoggerInterface::class);
 

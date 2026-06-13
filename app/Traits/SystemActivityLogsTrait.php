@@ -5,7 +5,7 @@ namespace App\Traits;
 use App\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 
@@ -31,7 +31,7 @@ trait SystemActivityLogsTrait
         return LogOptions::defaults()
             ->logOnly($this->logAttributes ?? [])
             ->logOnlyDirty()
-            ->dontSubmitEmptyLogs()
+            ->dontLogEmptyChanges()
             ->useLogName(__('message.'.$this->getLogName(), [], 'en'));
     }
 
