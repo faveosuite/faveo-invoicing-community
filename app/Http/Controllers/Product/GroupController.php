@@ -35,35 +35,6 @@ class GroupController extends Controller
         $this->config = $config;
     }
 
-    public function getGroups()
-    {
-        $product_group = ProductGroup::select('id', 'name');
-
-        return \DataTables::of($product_group)
-        // return \Datatable::of($this->group->select('id', 'name')->get())
-                         ->orderColumn('name', '-id $1')
-                       ->addColumn('checkbox', function ($model) {
-                           return "<input type='checkbox' class='group_checkbox' 
-                            value=".$model->id.' name=select[] id=check>';
-                       })
-
-                        ->addColumn('name', function ($model) {
-                            return ucfirst($model->name);
-                        })
-                        // ->showColumns('name')
-
-                        ->addColumn('action', function ($model) {
-                            return '<a href='.url('groups/'.$model->id.'/edit').
-                            " class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit' 
-                            style='color:white;'> </i></a>";
-                        })
-                          ->filterColumn('name', function ($query, $keyword) {
-                              $sql = 'name like ?';
-                              $query->whereRaw($sql, ["%{$keyword}%"]);
-                          })
-                        ->rawColumns(['checkbox', 'name',  'action'])
-                        ->make(true);
-    }
 
     /**
      * Store a newly created resource in storage.

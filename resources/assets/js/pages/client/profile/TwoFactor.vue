@@ -242,7 +242,7 @@ const disabling2fa     = ref(false)
 
 onMounted(async () => {
     try {
-        const res  = await http.get(`${baseUrl}/my-profile`)
+        const res  = await http.get(`${baseUrl}/get-my-profile`)
         const user = res.data?.data?.user ?? {}
         is2faEnabled.value   = Boolean(user.is_2fa_enabled)
         dateSinceEnabled.value = user.google2fa_activation_date ?? null

@@ -50,7 +50,7 @@ router.beforeEach((to, from, next) => {
     const guestOnly    = to.meta?.guestOnly === true
 
     if (guestOnly && auth.isAuthenticated) return next('/client-dashboard')
-    if (requiresAuth && !auth.isAuthenticated) return next('/login')
+    if (requiresAuth && !auth.isAuthenticated) return next({ path: '/login', query: { redirect: to.fullPath } })
     next()
 })
 

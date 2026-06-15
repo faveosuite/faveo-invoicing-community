@@ -35,34 +35,6 @@ class CategoryController extends Controller
         }
     }
 
-    /*
-    * Get All the categories
-    */
-    public function getCategory()
-    {
-        try {
-            $allCategories = $this->productCategory->select('id', 'category_name')->get();
-
-            return \DataTables::of($allCategories)
-         ->addColumn('checkbox', function ($model) {
-             return "<input type='checkbox' class='category_checkbox' 
-            value=".$model->id.' name=select[] id=check>';
-         })
-         ->addColumn('category_name', function ($model) {
-             return ucfirst($model->category_name);
-         })
-         ->addColumn('action', function ($model) {
-             return "<p><button data-toggle='modal' 
-             data-id=".$model->id." data-name= '$model->category_name' 
-             class='btn btn-sm btn-secondary btn-xs editCat'".tooltip(__('message.edit'))."<i class='fa fa-edit'
-             style='color:white;'> </i></button>&nbsp;</p>";
-         })
-         ->rawColumns(['checkbox', 'category_name', 'action'])
-         ->make(true);
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
 
     public function update(Request $request, $id)
     {

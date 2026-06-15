@@ -3,9 +3,21 @@ import { useDateTimeStore } from './dateTimeStore'
 import http from '@/plugins/axios'
 
 export const useAuthStore = defineStore('auth', {
-    state: () => ({
-        user: null,  // null = guest, object = authenticated user
-    }),
+    state: () => {
+        const el = document.getElementById('app-client') ?? document.getElementById('app-root')
+        const isAuth = el?.dataset?.authenticated === 'true'
+        return {
+            user: isAuth ? {
+                id: el?.dataset?.userId ?? '',
+                first_name: el?.dataset?.userFirstName ?? '',
+                last_name: el?.dataset?.userLastName ?? '',
+                user_name: el?.dataset?.userUsername ?? '',
+                email: el?.dataset?.userEmail ?? '',
+                role: el?.dataset?.userRole ?? '',
+                timezone: { name: el?.dataset?.userTimezone ?? '' }
+            } : null,
+        }
+    },
 
     getters: {
         isAuthenticated: (s) => s.user !== null,

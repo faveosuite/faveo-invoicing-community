@@ -35,46 +35,6 @@ class PageController extends Controller
         $this->page = $page;
     }
 
-    public function getPages()
-    {
-        return \DataTables::of($this->page->select('id', 'name', 'url', 'created_at'))
-                        ->orderColumn('name', '-id $1')
-                        ->orderColumn('url', '-id $1')
-                        ->orderColumn('created_at', '-id $1')
-                        ->addColumn('checkbox', function ($model) {
-                            return "<input type='checkbox' class='page_checkbox' 
-                            value=".$model->id.' name=select[] id=check>';
-                        })
-                        ->addColumn('name', function ($model) {
-                            return ucfirst($model->name);
-                        })
-                        ->addColumn('url', function ($model) {
-                            return $model->url;
-                        })
-                        ->addColumn('created_at', function ($model) {
-                            return getDateHtml($model->created_at);
-                        })
-
-                        ->addColumn('action', function ($model) {
-                            return '<a href='.url('pages/'.$model->id.'/edit')
-                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit'
-                                 style='color:white;'> </i></a>";
-                        })
-                          ->filterColumn('name', function ($query, $keyword) {
-                              $sql = 'name like ?';
-                              $query->whereRaw($sql, ["%{$keyword}%"]);
-                          })
-                            ->filterColumn('url', function ($query, $keyword) {
-                                $sql = 'url like ?';
-                                $query->whereRaw($sql, ["%{$keyword}%"]);
-                            })
-
-                          ->rawColumns(['checkbox', 'name', 'url',  'created_at', 'action'])
-                        ->make(true);
-        // ->searchColumns('name', 'content')
-        // ->orderColumns('name')
-        // ->make();
-    }
 
     public function store(PageRequest $request)
     {

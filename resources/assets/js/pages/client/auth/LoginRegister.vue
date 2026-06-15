@@ -130,6 +130,7 @@
 
 <script setup>
 import {reactive, ref, computed, onMounted} from 'vue'
+import { useRoute } from 'vue-router'
 import {useForm} from 'vee-validate'
 import http from '@/plugins/axios'
 import {__} from '@/plugins/i18n'
@@ -140,6 +141,7 @@ import SocialButtons from './partials/SocialButtons.vue'
 import Honeypot from '@/components/Reusable/Honeypot.vue'
 import { RecaptchaField } from '@recaptcha'
 
+const route     = useRoute()
 const COMPONENT = 'client-page'
 const el        = document.getElementById('app-client')
 const baseUrl   = el?.dataset?.baseUrl ?? ''
@@ -252,7 +254,12 @@ async function submitLogin() {
     })
     const redirect = res.data?.data?.redirect
     if (redirect) {
-      window.location.href = redirect
+      const redirectPath = route.query.redirect
+      if (redirectPath) {
+        window.location.href = `${baseUrl}${redirectPath}`
+      } else {
+        window.location.href = redirect
+      }
     } else {
       errorHandler({response: {status: 400, data: {message: __('message.something_wrong')}}}, COMPONENT)
     }

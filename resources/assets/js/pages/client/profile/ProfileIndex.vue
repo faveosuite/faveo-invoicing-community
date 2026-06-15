@@ -189,7 +189,7 @@ const selectedTimezone = ref(null)
 onMounted(async () => {
   try {
     const [profileRes, countriesRes] = await Promise.all([
-      http.get(`${baseUrl}/my-profile`),
+      http.get(`${baseUrl}/get-my-profile`),
       http.get(`${baseUrl}/dependency/countries`, {params: {limit: 'all'}}),
     ])
     countries.value = countriesRes.data?.data?.countries ?? []

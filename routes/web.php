@@ -338,7 +338,7 @@ Route::middleware('installAgora')->group(function () {
     });
 
     //Route::get('my-subscriptions', [Front\ClientController::class, 'subscriptions']);
-    //Route::get('get-my-subscriptions', [Front\ClientController::class, 'getSubscriptions']);
+    Route::get('get-my-profile', [Front\ClientController::class, 'profile'])->name('get-my-profile');
 
     Route::patch('my-profile', [Front\ClientController::class, 'postProfile']);
     Route::patch('my-password', [Front\ClientController::class, 'postPassword']);

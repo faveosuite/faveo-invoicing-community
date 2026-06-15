@@ -50,52 +50,6 @@ class PromotionController extends BasePromotionController
         $this->cart = new Cart();
     }
 
-//    public function getPromotion()
-//    {
-//        $new_promotion = $this->promotion->select('code', 'type', 'id');
-//
-//        return DataTables::of($new_promotion)
-//                            ->orderColumn('code', '-created_at $1')
-//                            ->orderColumn('type', '-created_at $1')
-//                            ->orderColumn('products', '-created_at $1')
-//
-//                            ->addColumn('checkbox', function ($model) {
-//                                return "<input type='checkbox' class='promotion_checkbox'
-//                                 value=".$model->id.' name=select[] id=check>';
-//                            })
-//                        ->addColumn('code', function ($model) {
-//                            return ucfirst($model->code);
-//                        })
-//                        ->addColumn('type', function ($model) {
-//                            return $this->type->where('id', $model->type)->first()->name;
-//                        })
-//                        ->addColumn('products', function ($model) {
-//                            $selected = $this->promoRelation->select('product_id')
-//                            ->where('promotion_id', $model->id)->get();
-//                            $result = [];
-//                            foreach ($selected as $key => $select) {
-//                                $result[$key] = $this->product->where('id', $select->product_id)->first()->name;
-//                            }
-//                            if (! empty($result)) {
-//                                return implode(',', $result);
-//                            } else {
-//                                return 'None';
-//                            }
-//                        })
-//                        ->addColumn('action', function ($model) {
-//                            return '<a href='.url('promotions/'.$model->id.'/edit')
-//                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit'
-//                            style='color:white;'> </i></a>";
-//                        })
-//                         ->filterColumn('code', function ($query, $keyword) {
-//                             $sql = 'code like ?';
-//                             $query->whereRaw($sql, ["%{$keyword}%"]);
-//                         })
-//
-//                         ->rawColumns(['checkbox', 'code', 'products', 'action'])
-//
-//                        ->make(true);
-//    }
 
     /**
      * Store a newly created resource in storage.
