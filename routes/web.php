@@ -1093,6 +1093,9 @@ Route::get('/admin/{any?}', fn () => view('admin'))
 // ========================================================================
 Route::get('/{any?}', function () {
     // Don't intercept XHR/JSON requests — let them 404 rather than returning HTML
-    if (request()->wantsJson()) abort(404);
+    if (request()->wantsJson()) {
+        abort(404);
+    }
+
     return view('client');
 })->where('any', '.*');
