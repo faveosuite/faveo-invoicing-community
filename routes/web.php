@@ -49,7 +49,6 @@ use Illuminate\Support\Facades\Route;
 // ============================================================
 
 Route::middleware('installAgora')->group(function () {
-
     // ============================================================
     // SECTION 2: EXTERNAL/PUBLIC APIs
     // ============================================================
@@ -182,7 +181,6 @@ Route::middleware('installAgora')->group(function () {
             : response()->json(['message' => 'Unauthenticated.'], 401);
     });
 
-
     // ============================================================
     // SECTION 3: AUTH APIs
     // ============================================================
@@ -191,7 +189,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('login', [Auth\LoginController::class, 'login'])->name('login')->middleware(['blockFailedVerifications:login']);
 
     // Guest SPA JSON config endpoints
-    Route::get('honeypot', fn() => successResponse('honeypot', honeypotData()));
+    Route::get('honeypot', fn () => successResponse('honeypot', honeypotData()));
     Route::get('auth/login-config', [Auth\LoginController::class, 'loginConfig']);
     Route::get('auth/forgot-config', [Auth\ForgotPasswordController::class, 'showLinkRequestForm']);
     Route::get('auth/reset-validate/{token}', [Auth\ResetPasswordController::class, 'showResetForm']);
@@ -248,7 +246,6 @@ Route::middleware('installAgora')->group(function () {
 
     Route::post('api/login', [Auth\LoginController::class, 'postLoginAndGetToken']);
 
-
     // ============================================================
     // SECTION 4: SHARED APIs (Used by both Client Panel and Admin Panel)
     // ============================================================
@@ -272,7 +269,6 @@ Route::middleware('installAgora')->group(function () {
     // Contact Us info / form POST
     Route::post('contact-us', [Front\PageController::class, 'postContactUs']);
 
-
     // ============================================================
     // SECTION 5: CLIENT PANEL APIs
     // ============================================================
@@ -284,7 +280,7 @@ Route::middleware('installAgora')->group(function () {
     Route::patch('my-password', [Front\ClientController::class, 'postPassword']);
 
     // Client Invoices
-    Route::get('my-invoices', fn() => view('client'))->name('my-invoices');
+    Route::get('my-invoices', fn () => view('client'))->name('my-invoices');
     Route::get('get-my-invoices', [Front\ClientController::class, 'getInvoices'])->name('get-my-invoices');
     Route::delete('invoices/delete/{id}', [Front\ClientController::class, 'invoiceDelete']);
     Route::get('paynow/{id}', [Front\CheckoutController::class, 'payNow'])->middleware(['auth']);
@@ -332,7 +328,7 @@ Route::middleware('installAgora')->group(function () {
     });
     Route::post('pricing/update', [Front\CartController::class, 'addCouponUpdate']);
     Route::post('remove-coupon', [Front\CartController::class, 'removeCoupon']);
-    Route::post('remove-product', fn() => abort(404));
+    Route::post('remove-product', fn () => abort(404));
     Route::get('confirm/payment', [RazorpayController::class, 'afterPayment']);
     Route::post('stripeUpdatePayment/confirm', [Front\ClientController::class, 'stripeUpdatePayment']);
 
@@ -375,7 +371,6 @@ Route::middleware('installAgora')->group(function () {
     Route::post('demo-request', [Front\PageController::class, 'postDemoReq'])->withoutMiddleware(['auth']);
     Route::post('newsletter/subscribe', [Front\NewsletterController::class, 'subscribe'])->middleware('recaptcha:newsletter');
     Route::get('footer1', [Front\WidgetController::class, 'footer1'])->name('footer1')->withoutMiddleware(['auth', 'admin']);
-
 
     // ============================================================
     // SECTION 6: ADMIN PANEL APIs
@@ -470,7 +465,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('get-installation-details/{orderId}', [Order\OrderController::class, 'getInstallationDetails']);
     Route::get('export-orders', [Order\OrderController::class, 'exportOrders'])->name('export-orders');
     Route::get('orders/license/{order_number}', function ($orderNumber) {
-        return redirect('/orders/' . \App\Model\Order\Order::where('number', $orderNumber)->value('id'));
+        return redirect('/orders/'.\App\Model\Order\Order::where('number', $orderNumber)->value('id'));
     });
 
     Route::get('orders', [Order\OrderController::class, 'getOrders']);
@@ -809,7 +804,6 @@ Route::middleware('installAgora')->group(function () {
     Route::get('syncing/pipedriveFields', [PipedriveController::class, 'syncFields']);
     Route::post('pipedrive/get-dropdown', [PipedriveController::class, 'getDropdown']);
 
-
     // ============================================================
     // 3e. Remaining/Internal APIs
     // ============================================================
@@ -826,13 +820,12 @@ Route::middleware('installAgora')->group(function () {
         Route::post('msg91/reports/{app_key}/{app_secret}', [Common\Sms\MSG91Controller::class, 'handleReports'])->withoutMiddleware(['admin', 'auth']);
     });
 
-
     // ============================================================
     // SECTION 4: SPA SHELL ROUTES (MUST stay last)
     // ============================================================
 
     // ADMIN SPA ROUTES
-    Route::get('/admin/{any?}', fn() => view('admin'))
+    Route::get('/admin/{any?}', fn () => view('admin'))
         ->where('any', '.*');
 
     // CLIENT SPA CATCH-ALL (Keep this as the last route)
@@ -844,5 +837,4 @@ Route::middleware('installAgora')->group(function () {
 
         return view('client');
     })->where('any', '.*');
-
 }); // end Route::middleware('installAgora')
