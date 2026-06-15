@@ -53,31 +53,6 @@ class SettingsController extends BaseSettingsController
         $this->statusSetting = $status;
     }
 
-    public function settings(Setting $settings)
-    {
-        if (! $settings->where('id', '1')->first()) {
-            $settings->create(['company' => '']);
-        }
-        $isRedisConfigured = QueueService::where('short_name', 'redis')->value('status');
-        $mailSendingStatus = Setting::value('sending_status');
-
-        return view('themes.default1.common.admin-settings', compact('isRedisConfigured', 'mailSendingStatus'));
-    }
-
-    public function plugins()
-    {
-        $a = [];
-        $payment = new PaymentSettingsController();
-        $pay = $payment->fetchConfig();
-
-        $status = Plugin::all();
-
-        // $demo = json_decode(json_encode($plug));
-        // $status = collect($demo)->all();
-
-        return view('themes.default1.common.plugins', compact('pay', 'status'));
-    }
-
     public function mobileVerification(ApiKey $apikeys)
     {
         [$mobileauthkey,$msg91Sender,$msg91TemplateId,$msg91ThirdPartyId] = array_values($apikeys->select('msg91_auth_key', 'msg91_sender', 'msg91_template_id', 'msg91_third_party_id')->first()->toArray());
@@ -196,61 +171,6 @@ class SettingsController extends BaseSettingsController
             ];
 
             return successResponse('', $data);
-        }
-    }
-
-    public function getKeys(ApiKey $apikeys)
-    {
-        try {
-            $updateStatus = StatusSetting::pluck('update_settings')->first();
-            $mobileStatus = StatusSetting::pluck('msg91_status')->first();
-            $siteKey = $apikeys->pluck('nocaptcha_sitekey')->first();
-            $secretKey = $apikeys->pluck('captcha_secretCheck')->first();
-            $updateSecret = $apikeys->pluck('update_api_secret')->first();
-            $mobileauthkey = $apikeys->pluck('msg91_auth_key')->first();
-            $msg91Sender = $apikeys->pluck('msg91_sender')->first();
-            $msg91TemplateId = $apikeys->pluck('msg91_template_id')->first();
-            $updateUrl = $apikeys->pluck('update_api_url')->first();
-            $twitterKeys = $apikeys->select('twitter_consumer_key', 'twitter_consumer_secret',
-                'twitter_access_token', 'access_tooken_secret')->first();
-            $twitterStatus = $this->statusSetting->pluck('twitter_status')->first();
-            $zohoStatus = $this->statusSetting->pluck('zoho_status')->first();
-            $zohoKey = $apikeys->pluck('zoho_api_key')->first();
-            $rzpStatus = $this->statusSetting->pluck('rzp_status')->first();
-            $rzpKeys = $apikeys->select('rzp_key', 'rzp_secret', 'apilayer_key')->first();
-            $mailchimpSetting = StatusSetting::pluck('mailchimp_status')->first();
-            $mailchimpKey = MailchimpSetting::pluck('api_key')->first();
-
-            $termsStatus = StatusSetting::pluck('terms')->first();
-            $termsUrl = $apikeys->pluck('terms_url')->first();
-            $pipedriveKey = $apikeys->pluck('pipedrive_api_key')->first();
-            $pipedriveStatus = StatusSetting::pluck('pipedrive_status')->first();
-            $domainCheckStatus = StatusSetting::pluck('domain_check')->first();
-            $mailSendingStatus = Setting::value('sending_status');
-            $emailStatus = StatusSetting::pluck('emailverification_status')->first();
-            $model = $apikeys->find(1);
-            $mailchimp_set = new MailchimpSetting();
-            $set = $mailchimp_set->firstOrFail();
-            $mail_api_key = $set->api_key;
-            try {
-                $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
-                $allists = $mailchimp->get('lists?count=20')['lists'];
-                $selectedList[] = $set->list_id;
-            } catch (\Exception $e) {
-                $allists = [];
-                $selectedList = [];
-            }
-            $model = new Github();
-            $github = $model->firstOrFail();
-            $githubStatus = StatusSetting::first()->github_status;
-            $msg91ThirdPartyId = $apikeys->pluck('msg91_third_party_id')->first();
-            $isPipedriveVerificationEnabled = ApiKey::value('require_pipedrive_user_verification');
-            $selectedProvider = EmailMobileValidationProviders::where('type', 'mobile')->where('to_use', 1)->value('provider');
-
-            return view('themes.default1.common.apikey', compact('model', 'siteKey', 'secretKey', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
-                'allists', 'selectedList', 'set', 'githubStatus', 'msg91ThirdPartyId', 'isPipedriveVerificationEnabled', 'selectedProvider'));
-        } catch (\Exception $ex) {
-            return redirect('/')->with('fails', $ex->getMessage());
         }
     }
 
@@ -402,29 +322,6 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function settingsSystem(Setting $settings)
-    {
-        try {
-            $set = $settings->find(1);
-            $state = getStateByCode($set->country, $set->state);
-            $selectedCountry = \DB::table('countries')->where('country_code_char2', $set->country)
-                ->pluck('country_name', 'country_code_char2')->toArray();
-            $selectedCurrency = \DB::table('currencies')->where('code', $set->default_currency)
-                ->pluck('name', 'symbol')->toArray();
-            $states = findStateByRegionId($set->country);
-            $response = (new InstallerController())->languageList();
-            $languages = $response->getData()->data ?? [];
-            $defaultLang = optional(Setting::first())->content;
-
-            return view(
-                'themes.default1.common.setting.system',
-                compact('set', 'selectedCountry', 'state', 'states', 'selectedCurrency', 'languages', 'defaultLang')
-            );
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
     public function postSettingsSystem(Setting $settings, SettingsRequest $request)
     {
         try {
@@ -495,17 +392,6 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function settingsEmail(Setting $settings)
-    {
-        try {
-            $set = $settings->find(1);
-
-            return view('themes.default1.common.setting.email', compact('set'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
     public function getSettingsIndexData()
     {
         $statusSetting = $this->statusSetting->first();
@@ -553,17 +439,6 @@ class SettingsController extends BaseSettingsController
             return successResponse(\Lang::get('message.updated-successfully'));
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
-        }
-    }
-
-    public function settingsError(Setting $settings)
-    {
-        try {
-            $set = $settings->find(1);
-
-            return view('themes.default1.common.setting.error-log', compact('set'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -958,50 +833,6 @@ class SettingsController extends BaseSettingsController
             ]);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
-        }
-    }
-
-    public function settingsActivity(Request $request, Activity $activities)
-    {
-        $validator = \Validator::make($request->all(), [
-            'from' => 'nullable|date',
-            'till' => 'nullable|date|after:from',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect('settings/activitylog')
-                ->with('fails', __('message.start_date_before_end_date'));
-        }
-
-        try {
-            $from = $request->input('log_from');
-            $till = $request->input('log_till');
-
-            // Get distinct module names from activity logs
-            $modules = $activities->query()
-                ->select('log_name')
-                ->distinct()
-                ->pluck('log_name')
-                ->filter()
-                ->values();
-
-            // Get distinct events from activity logs
-            $events = $activities->query()
-                ->select('event')
-                ->distinct()
-                ->pluck('event')
-                ->filter()
-                ->values();
-
-            // Get users who performed actions (join with users table)
-            $users = User::select('id', 'first_name', 'last_name', 'email')
-                ->whereIn('id', $activities->query()->distinct()->pluck('causer_id'))
-                ->orderBy('first_name')
-                ->get();
-
-            return view('themes.default1.common.Activity-Log', compact('from', 'till', 'modules', 'events', 'users'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -1422,18 +1253,6 @@ class SettingsController extends BaseSettingsController
         }
 
         return successResponse(\Lang::get('message.updated-successfully'));
-    }
-
-    public function settingsPayment(Setting $settings, Request $request)
-    {
-        try {
-            $from = $request->input('from');
-            $till = $request->input('till');
-
-            return view('themes.default1.common.payment-log', compact('from', 'till'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', \Lang::get('message.err_msg'));
-        }
     }
 
     public function getPaymentlog(Request $request)

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Order;
 
 use App\Facades\Cart;
 use App\Http\Controllers\Front\CartController;
-use App\Http\Controllers\Front\ClientController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Http\Requests\InvoiceRequest;
 use App\Jobs\ReportExport;
@@ -26,7 +25,6 @@ use App\Model\Payment\TaxByState;
 use App\Model\Payment\TaxOption;
 use App\Model\Product\Price;
 use App\Model\Product\Product;
-use App\Model\Product\ProductGroup;
 use App\Traits\CoupCodeAndInvoiceSearch;
 use App\Traits\PaymentsAndInvoices;
 use App\Traits\TaxCalculation;
@@ -125,37 +123,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         $this->cart = new Cart();
     }
 
-    public function index(Request $request)
-    {
-        $validator = \Validator::make($request->all(), [
-            'from' => 'nullable',
-            'till' => 'nullable|after:from',
-
-        ]);
-        if ($validator->fails()) {
-            $request->from = '';
-            $request->till = '';
-
-            return redirect('invoices')->with('fails', __('message.start_date_before_end_date'));
-        }
-        try {
-            $currencies = Currency::where('status', 1)->pluck('code')->toArray();
-            $name = $request->input('name');
-            $invoice_no = $request->input('invoice_no');
-            $status = $request->input('status');
-
-            $currency_id = $request->input('currency_id');
-            $from = $request->input('from');
-            $till = $request->input('till');
-
-            return view('themes.default1.invoice.index', compact('request', 'name', 'invoice_no', 'status', 'currencies', 'currency_id', 'from',
-
-                'till'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
     public function getInvoices(Request $request)
     {
         try {
@@ -214,73 +181,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             return successResponse('', $invoice);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
-        }
-    }
-
-    /**
-     * Shoe Invoice when view Invoice is selected from dropdown in Admin Panel.
-     *
-     * @param  Request  $request  Get InvoiceId as Request
-     */
-    public function show(Request $request)
-    {
-        try {
-            $invoice = Invoice::findOrFail($request->input('invoiceid'));
-
-            if (User::onlyTrashed()->find($invoice->user_id)) {
-                throw new \Exception(__('message.user_suspended'));
-            }
-
-            $user = $this->user->findOrFail($invoice->user_id);
-
-            $invoiceData = (new ClientController())->prepareInvoiceData($invoice, $user);
-
-            return view('themes.default1.invoice.show', array_merge(['invoice' => $invoice], $invoiceData));
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     * not in use case.
-     *
-     * @param  Request  $request
-     * @return type
-     */
-    public function generateById(Request $request)
-    {
-        try {
-            $clientid = $request->input('clientid');
-            $user = new User();
-            if ($clientid) {
-                $user = $user->where('id', $clientid)->first();
-                if (! $user) {
-                    return redirect()->back()->with('fails', __('message.invalid_user'));
-                }
-            } else {
-                $user = '';
-            }
-            $products = ProductGroup::with(['product' => function ($query) {
-                $query->where('invoice_hidden', 0);
-            }])->get()
-                ->filter(fn ($group) => $group->product->isNotEmpty())
-                ->mapWithKeys(fn ($group) => [$group->name => $group->product->pluck('name', 'id')->toArray()])
-                ->toArray();
-
-            // Include ungrouped products
-            $ungrouped = $this->product->where('invoice_hidden', 0)->whereNull('group')->pluck('name', 'id')->toArray();
-            if (! empty($ungrouped)) {
-                $products = array_merge(['Other' => $ungrouped], $products);
-            }
-            $currency = $this->currency->pluck('name', 'code')->toArray();
-
-            return view('themes.default1.invoice.generate', compact('user', 'products', 'currency'));
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 

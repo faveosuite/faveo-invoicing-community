@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Order;
 use App\Events\UserOrderDelete;
 use App\Http\Requests\Order\OrderRequest;
 use App\Jobs\ReportExport;
-use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\QueueService;
 use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
@@ -78,45 +77,6 @@ class OrderController extends BaseOrderController
 
         $product_upload = new ProductUpload();
         $this->product_upload = $product_upload;
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @param  Request  $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function index(Request $request)
-    {
-        $validator = \Validator::make($request->all(), [
-            'from' => 'nullable',
-            'till' => 'nullable|after:from',
-
-        ]);
-        if ($validator->fails()) {
-            $request->from = '';
-            $request->till = '';
-
-            return redirect('orders')->with('fails', __('message.start_date_before_end_date'));
-        }
-        try {
-            $products = $this->product->where('id', '!=', 1)->pluck('name', 'id')->toArray();
-
-            $paidUnpaidOptions = ['paid' => 'Paid Products', 'unpaid' => 'Unpaid Products'];
-            $insNotIns = ['installed' => 'Yes (Installed atleast once)', 'not_installed' => 'No (Not Installed)'];
-            $activeInstallationOptions = ['paid_ins' => 'Active installation'];
-            $inactiveInstallationOptions = ['paid_inactive_ins' => 'Inactive installation'];
-            $renewal = ['expired_subscription' => 'Expired Subscriptions', 'active_subscription' => 'Active Subscriptions', 'expiring_subscription' => 'Expiring Subscriptions'];
-            $selectedVersion = $request->version;
-            $allVersions = Subscription::where('version', '!=', '')->whereNotNull('version')
-                ->orderBy('version', 'desc')->groupBy('version')
-                ->select('version')->get();
-
-            return view('themes.default1.order.index',
-                compact('request', 'products', 'allVersions', 'activeInstallationOptions', 'paidUnpaidOptions', 'inactiveInstallationOptions', 'renewal', 'insNotIns', 'selectedVersion'));
-        } catch (\Exception $e) {
-            return redirect('orders')->with('fails', $e->getMessage());
-        }
     }
 
     public function getOrders(Request $request)
@@ -217,25 +177,6 @@ class OrderController extends BaseOrderController
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Response
-     */
-    public function create()
-    {
-        try {
-            $clients = $this->user->pluck('first_name', 'id')->toArray();
-            $product = $this->product->pluck('name', 'id')->toArray();
-            $subscription = $this->subscription->pluck('name', 'id')->toArray();
-            $promotion = $this->promotion->pluck('code', 'id')->toArray();
-
-            return view('themes.default1.order.create', compact('clients', 'product', 'subscription', 'promotion'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
-        }
-    }
-
     public function getInstallationDetails($orderId)
     {
         try {
@@ -252,79 +193,6 @@ class OrderController extends BaseOrderController
             return successResponse('', $installationDetails);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
-        }
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @return \Response
-     */
-    public function show($id)
-    {
-        try {
-            $order = $this->order->findOrFail($id);
-            if (User::onlyTrashed()->find($order->client)) {
-                throw new \Exception(__('message.user_suspended_restore_to_view'));
-            }
-            $subscription = $order->subscription()->first();
-
-            $date = '--';
-            $licdate = '--';
-            $supdate = '--';
-            $connectionLabel = '--';
-            $lastActivity = '--';
-            $versionLabel = '--';
-            if ($subscription) {
-                $date = strtotime($subscription->update_ends_at) > 1 ? getExpiryLabel($subscription->update_ends_at) : '--';
-                $licdate = strtotime($subscription->ends_at) > 1 ? getExpiryLabel($subscription->ends_at) : '--';
-                $supdate = strtotime($subscription->support_ends_at) > 1 ? getExpiryLabel($subscription->support_ends_at) : '--';
-            }
-            $invoice = $this->invoice->where('id', $order->invoice_id)->first();
-
-            if (! $invoice) {
-                return redirect()->back()->with('fails', __('message.no_orders'));
-            }
-            $user = $this->user->find($invoice->user_id);
-            $noOfAllowedInstallation = '';
-            $allowDomainStatus = StatusSetting::pluck('domain_check')->first();
-            $installationDetails = [];
-            $currency = getCurrencyForClient($user->country);
-            $amount = currencyFormat(1, $currency);
-            $payment_log = Payment_log::where('order', $order->number)
-                ->where('amount', $amount)
-                ->where('payment_type', 'Payment method updated')
-                ->orderBy('id', 'desc')
-                ->first();
-
-            $statusAutorenewal = Subscription::where('order_id', $id)->value('is_subscribed');
-
-            return view('themes.default1.order.show',
-                compact('user', 'order', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'noOfAllowedInstallation', 'lastActivity', 'versionLabel', 'date', 'licdate', 'supdate', 'id', 'statusAutorenewal', 'payment_log'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Response
-     */
-    public function edit($id)
-    {
-        try {
-            $order = $this->order->where('id', $id)->first();
-            $clients = $this->user->pluck('first_name', 'id')->toArray();
-            $product = $this->product->pluck('name', 'id')->toArray();
-            $subscription = $this->subscription->pluck('name', 'id')->toArray();
-            $promotion = $this->promotion->pluck('code', 'id')->toArray();
-
-            return view('themes.default1.order.edit',
-                compact('clients', 'product', 'subscription', 'promotion', 'order'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
         }
     }
 

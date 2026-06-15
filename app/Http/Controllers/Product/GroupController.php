@@ -35,20 +35,6 @@ class GroupController extends Controller
         $this->config = $config;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Response
-     */
-    public function index()
-    {
-        try {
-            return view('themes.default1.product.group.index');
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
     public function getGroups()
     {
         $product_group = ProductGroup::select('id', 'name');
@@ -80,22 +66,6 @@ class GroupController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Response
-     */
-    public function create()
-    {
-        try {
-            $template = PricingTemplate::select('image', 'id', 'name')->first();
-
-            return view('themes.default1.product.group.create', compact('template'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @return \Response
@@ -116,25 +86,6 @@ class GroupController extends Controller
             $this->group->refresh();
 
             return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Response
-     */
-    public function edit($id)
-    {
-        try {
-            $group = $this->group->where('id', $id)->first();
-            $selectedTemplate = $group->pricing_templates_id;
-            $template = PricingTemplate::first();
-
-            return view('themes.default1.product.group.edit', compact('group', 'selectedTemplate', 'template'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

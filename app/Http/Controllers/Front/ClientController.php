@@ -110,26 +110,6 @@ class ClientController extends BaseClientController
     }
 
     /**
-     *  Show the invoice to the client.
-     *
-     * @param  request  $request
-     * @return \Illuminate\Contracts\View\View|RedirectResponse
-     */
-    public function invoices(Request $request)
-    {
-        try {
-            $amt = Payment::where('user_id', \Auth::user()->id)->where('payment_method', 'Credit Balance')->where('payment_status', 'success')->value('amt_to_credit');
-            $formattedValue = currencyFormat($amt, getCurrencyForClient(\Auth::user()->country), true);
-            $payment_id = Payment::where('user_id', \Auth::user()->id)->where('payment_method', 'Credit Balance')->where('payment_status', 'success')->value('id');
-            $payment_activity = CreditActivity::where('payment_id', $payment_id)->where('role', 'user')->orderBy('created_at', 'desc')->get();
-
-            return view('themes.default1.front.clients.invoice', compact('request', 'formattedValue', 'payment_activity'));
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
      *  Get all the invoices in data table.
      *
      * @param  request  $request
@@ -416,34 +396,6 @@ class ClientController extends BaseClientController
             return successResponse('', $paginated);
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
-        }
-    }
-
-    /**
-     *  Show the invoice to the client.
-     *
-     * @param  $id
-     * @return \Illuminate\Contracts\View\View|RedirectResponse
-     *
-     * @throws \Exception
-     */
-    public function getInvoice($id)
-    {
-        try {
-            $invoice = $this->invoice->find($id);
-            if (! $invoice) {
-                throw new \Exception(__('message.invoice_not_found'));
-            }
-
-            if ($invoice->user_id != \Auth::id()) {
-                throw new \Exception(__('message.invalid_invoice_modification'));
-            }
-
-            $data = $this->prepareInvoiceData($invoice);
-
-            return view('themes.default1.front.clients.show-invoice', array_merge(['invoice' => $invoice], $data));
-        } catch (\Exception $ex) {
-            return redirect()->route('my-invoices')->with('fails', $ex->getMessage());
         }
     }
 
@@ -762,180 +714,15 @@ class ClientController extends BaseClientController
         try {
             $user = $this->user->where('id', \Auth::user()->id)->first();
 
-            if ($request->expectsJson()) {
-                return successResponse('', ['user' => $user]);
-            }
-
-            $is2faEnabled = $user->is_2fa_enabled;
-            $dateSinceEnabled = $user->google2fa_activation_date;
-            $timezonesList = \App\Model\Common\Timezone::get();
-            foreach ($timezonesList as $timezone) {
-                $location = $timezone->location;
-                if ($location) {
-                    $start = strpos($location, '(');
-                    $end = strpos($location, ')', $start + 1);
-                    $length = $end - $start;
-                    $result = substr($location, $start + 1, $length - 1);
-                    $display[] = ['id' => $timezone->id, 'name' => '('.$result.')'.' '.$timezone->name];
-                }
-            }
-            //for display
-            $timezones = array_column($display, 'name', 'id');
-            $state = getStateByCode($user->country, $user->state);
-            $states = findStateByRegionId($user->country);
-            $bussinesses = \App\Model\Common\Bussiness::pluck('name', 'short')->toArray();
-            $selectedIndustry = \App\Model\Common\Bussiness::where('name', $user->bussiness)
-            ->pluck('name', 'short')->toArray();
-            $selectedCompany = \DB::table('company_types')->where('name', $user->company_type)
-            ->pluck('name', 'short')->toArray();
-            $selectedCompanySize = \DB::table('company_sizes')->where('short', $user->company_size)
-            ->pluck('name', 'short')->toArray();
-
-            $selectedCountry = \DB::table('countries')->where('country_code_char2', $user->country)
-            ->value('country_name');
-
-            return view(
-                'themes.default1.front.clients.profile',
-                compact('user', 'timezones', 'state', 'states', 'bussinesses', 'is2faEnabled', 'dateSinceEnabled', 'selectedIndustry', 'selectedCompany', 'selectedCompanySize', 'selectedCountry')
-            );
+            return successResponse('', ['user' => $user]);
         } catch (Exception $ex) {
-            if ($request->expectsJson()) {
-                return errorResponse($ex->getMessage());
-            }
-
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
     public function generateMerchantRandomString($length = 10)
     {
         return substr(bin2hex(random_bytes($length)), 0, $length);
-    }
-
-    /**
-     *  Returns to individual order page.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Contracts\View\View|RedirectResponse
-     *
-     * @throws Exception
-     */
-    public function getOrder($id)
-    {
-        try {
-            $user = \Auth::user();
-            $order = $this->order->findOrFail($id);
-            if ($order->client != $user->id) {
-                throw new \Exception(trans('message.order_error_modification'));
-            }
-            $invoice = $order->invoice()->first();
-            $items = $order->invoice()->first()->invoiceItem()->get();
-            $subscription = $order->subscription()->first();
-            $date = '--';
-            $licdate = '--';
-            $versionLabel = '--';
-            if ($subscription) {
-                $date = strtotime($subscription->update_ends_at) > 1 ? getExpiryLabel($subscription->update_ends_at, 'badge') : '--';
-                $licdate = strtotime($subscription->ends_at) > 1 ? getExpiryLabel($subscription->ends_at, 'badge') : '--';
-            }
-            $product = $order->product()->first();
-            $price = $product->price()->first();
-
-            $allowDomainStatus = StatusSetting::pluck('domain_check')->first();
-            $installationDetails = [];
-
-            $installationDetails = app(\App\License\Services\InstallationService::class)->getInstallationsByProduct($order->serial_key, $order->product);
-
-            $statusAutorenewal = Subscription::where('order_id', $id)->value('is_subscribed');
-
-            $status = Subscription::where('order_id', $id)->value('autoRenew_status');
-            $currency = getCurrencyForClient(\Auth::user()->country);
-            $amount = currencyFormat(1, $currency);
-            $payment_log = Payment_log::where('order', $order->number)
-            ->where('amount', $amount)
-            ->where('payment_type', 'Payment method updated')
-            ->orderBy('id', 'desc')
-            ->first();
-
-            $relation = $order->invoiceRelation()->pluck('invoice_id')->toArray();
-            if (count($relation) > 0) {
-                $invoices = $relation;
-            } else {
-                $invoices = $order->invoice()->pluck('id')->toArray();
-            }
-
-            $recentPayment = $this->payment->whereIn('invoice_id', $invoices)
-                ->select('id', 'invoice_id', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at')
-                ->orderByDesc('created_at')
-                ->first();
-
-            $merchant_orderid = $this->generateMerchantRandomString();
-
-            [$rzp_key, $rzp_secret,$apilayer_key,$stripe_key] = array_values(ApiKey::select('rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key')->first()->toArray());
-            $api = new Api($rzp_key, $rzp_secret);
-            $userCountry = \Auth::user()->country;
-            $displayCurrency = getCurrencyForClient($userCountry);
-
-            if (
-                Plugin::whereStatus(1)->where('name', 'razorpay')->exists()
-                && ! isCurrencySupportedForPayments($displayCurrency, 'razorpay')
-            ) {
-                throw new \Exception(__('message.unsupported_country'));
-            }
-
-            $exchangeRate = '';
-            $orderData = [
-                'receipt' => '3456',
-                'amount' => calculateUnitCost($displayCurrency, getMinimumAmountForPayments($displayCurrency, 'razorpay')),
-                'currency' => $displayCurrency,
-                'payment_capture' => 0, // auto capture
-            ];
-
-            $razorpayOrder = ($rzp_key && $rzp_secret) ? $api->order->create($orderData) : '';
-
-            $razorpayOrderId = ($razorpayOrder != null) ? $razorpayOrder['id'] : '';
-            \Session::put('razorpay_order_id', $razorpayOrderId);
-            $displayAmount = $amount = $orderData['amount'];
-
-            $json = $this->dataToOrder($user, $rzp_key, $invoice, $userCountry, $exchangeRate, $merchant_orderid, $razorpayOrderId, $displayCurrency);
-            $currency = $user->currency;
-            $gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway($displayCurrency);
-            $planid = \App\Model\Payment\Plan::where('product', $product->id)->value('id');
-            $price = $order->price_override;
-
-            $installation_path = \App\License\Models\Installation::where('license_code', $order->serial_key)
-                ->where('installation_path', '!=', cloudCentralDomain())->latest('updated_at')->value('installation_path');
-            $latestAgents = ltrim(substr($order->serial_key, 12), '0');
-            $terminatedOrderId = \DB::table('terminated_order_upgrade')->where('upgraded_order_id', $order->id)->value('terminated_order_id');
-            $terminatedOrderNumber = \App\Model\Order\Order::where('id', $terminatedOrderId)->value('number');
-            if ($statusAutorenewal == 1 && $payment_log == null && ! empty($terminatedOrderId)) {
-                $payment_log = $this->paymentLogGet($terminatedOrderNumber);
-            }
-
-            $plans = $this->planPriceProductRelation($product);
-            $planIds = array_keys($plans);
-            $countryids = \App\Model\Common\Country::where('country_code_char2', $userCountry)->first();
-            $plans = $this->planDetails($planIds, $countryids, $userCountry, $plans, $product);
-
-            $planIdOld = \App\Model\Product\Subscription::where('order_id', $id)->value('plan_id');
-            $planNameReal = \App\Model\Payment\Plan::where('id', $planIdOld)->value('name');
-            $autorenewal_status = Setting::where('id', 1)->value('autorenewal_status');
-
-            $whatsappStatus = $product->whatsapp_integration;
-            [$app_id, $config_id] =
-                array_values(WhatsappIntegration::first()?->only(['app_id', 'config_id']) ?? [null, null]);
-            $actualWhatsappStatus = StatusSetting::pluck('whatsapp_status')->first();
-
-            return view(
-                'themes.default1.front.clients.show-order',
-                compact('invoice', 'order', 'user', 'product', 'subscription', 'installationDetails', 'allowDomainStatus', 'date',
-                    'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment', 'stripe_key', 'json', 'gateways',
-                    'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal', 'whatsappStatus', 'app_id', 'config_id', 'autorenewal_status', 'actualWhatsappStatus',
-                )
-            );
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
     }
 
     /**
@@ -1217,28 +1004,6 @@ class ClientController extends BaseClientController
                 ->whereHas('subscription', fn ($q) => $q->where('update_ends_at', '<', now()))
                 ->count(),
         ]);
-    }
-
-    /**
-     *  Returns to client dashboard.
-     *
-     * @param
-     * @return \Illuminate\Contracts\View\View
-     *
-     * @throws
-     */
-    public function index()
-    {
-        $user = auth()->user();
-        $pendingInvoicesCount = $user->invoice()->where('status', 'pending')->count();
-        $ordersCount = $user->order()->count();
-        $renewalCount = $user->order()
-        ->whereHas('subscription', function ($query) {
-            $query->where('update_ends_at', '<', now());
-        })
-        ->count();
-
-        return view('themes.default1.front.clients.index', compact('pendingInvoicesCount', 'ordersCount', 'renewalCount'));
     }
 
     /**

@@ -45,33 +45,6 @@ class PlanController extends ExtendedPlanController
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function index()
-    {
-        $countries = Country::get(['country_id', 'country_name'])->toArray();
-        $currency = $this->currency->where('status', '1')->pluck('name', 'code')->toArray();
-        $periods = $this->period->pluck('name', 'days')->toArray();
-        $products = ProductGroup::with('product')
-            ->get()
-            ->filter(fn ($group) => $group->product->isNotEmpty())
-            ->mapWithKeys(fn ($group) => [$group->name => $group->product->pluck('name', 'id')->toArray()])
-            ->toArray();
-
-        $ungrouped = $this->product->whereNull('group')->pluck('name', 'id')->toArray();
-        if (! empty($ungrouped)) {
-            $products = array_merge(['Other' => $ungrouped], $products);
-        }
-
-        return view(
-            'themes.default1.product.plan.index',
-            compact('currency', 'periods', 'products', 'countries')
-        );
-    }
-
-    /**
      * Get plans for chumper datatable.
      */
     public function getPlans()
@@ -165,29 +138,6 @@ class PlanController extends ExtendedPlanController
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function create()
-    {
-        $currency = $this->currency->where('status', 1)->pluck('name', 'code')->toArray();
-        $periods = $this->period->pluck('name', 'days')->toArray();
-        $products = ProductGroup::with('product')
-            ->get()
-            ->filter(fn ($group) => $group->product->isNotEmpty())
-            ->mapWithKeys(fn ($group) => [$group->name => $group->product->pluck('name', 'id')->toArray()])
-            ->toArray();
-
-        $ungrouped = $this->product->whereNull('group')->pluck('name', 'id')->toArray();
-        if (! empty($ungrouped)) {
-            $products = array_merge(['Other' => $ungrouped], $products);
-        }
-
-        return view('themes.default1.product.plan.create', compact('currency', 'periods', 'products'));
-    }
-
-    /**
      * Store the Plans Details While Plan Creation.
      *
      * @param  Request  $request  Plan Form Details
@@ -232,61 +182,6 @@ class PlanController extends ExtendedPlanController
         } catch (Exception $ex) {
             return redirect()->back()->withj('fails', $ex->getMessage());
         }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  Plan  $plan
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function edit(Plan $plan)
-    {
-        $currency = $this->currency->where('status', '1')->pluck('name', 'code')->toArray();
-        $planPrices = $plan->planPrice()->get()->toArray();
-        foreach ($planPrices as $planPrice) {
-            if (! array_key_exists($planPrice['currency'], $currency)) {
-                $disabledCurrency = $this->currency->where('code', $planPrice['currency'])->first();
-                if ($disabledCurrency) {
-                    $currency[$disabledCurrency->code] = $disabledCurrency->name;
-                }
-            }
-        }
-        $periods = $this->period->pluck('name', 'days')->toArray();
-        $products = ProductGroup::with('product')
-            ->get()
-            ->filter(fn ($group) => $group->product->isNotEmpty())
-            ->mapWithKeys(fn ($group) => [$group->name => $group->product->pluck('name', 'id')->toArray()])
-            ->toArray();
-
-        $ungrouped = $this->product->whereNull('group')->pluck('name', 'id')->toArray();
-        if (! empty($ungrouped)) {
-            $products = array_merge(['Other' => $ungrouped], $products);
-        }
-
-        $priceDescription = $planPrices[0]['price_description'];
-        $productQuantity = $planPrices[0]['product_quantity'];
-        $agentQuantity = $planPrices[0]['no_of_agents'];
-        $selectedProduct = $this->product->where('id', $plan->product)
-            ->pluck('name', 'id')->toArray();
-        $selectedPeriods = $this->period->where('days', $plan->days)
-       ->pluck('name', 'days')->toArray();
-
-        return view(
-            'themes.default1.product.plan.edit',
-            compact(
-                'plan',
-                'currency',
-                'periods',
-                'products',
-                'selectedPeriods',
-                'selectedProduct',
-                'priceDescription',
-                'productQuantity',
-                'agentQuantity',
-                'planPrices'
-            )
-        );
     }
 
     /**

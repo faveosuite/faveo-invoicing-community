@@ -35,17 +35,6 @@ class PageController extends Controller
         $this->page = $page;
     }
 
-    public function index()
-    {
-        try {
-            $pages_count = count($this->page->all());
-
-            return view('themes.default1.front.page.index', compact('pages_count'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
     public function getPages()
     {
         return \DataTables::of($this->page->select('id', 'name', 'url', 'created_at'))
@@ -85,37 +74,6 @@ class PageController extends Controller
         // ->searchColumns('name', 'content')
         // ->orderColumns('name')
         // ->make();
-    }
-
-    public function create()
-    {
-        try {
-            $parents = $this->page->pluck('name', 'id')->toArray();
-
-            return view('themes.default1.front.page.create', compact('parents'));
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function edit($id)
-    {
-        try {
-            $page = $this->page->where('id', $id)->first();
-            $parents = $this->page->where('id', '!=', $id)->pluck('name', 'id')->toArray();
-            $selectedDefault = DefaultPage::value('page_id');
-            $date = $this->page->where('id', $id)->pluck('created_at')->first();
-            $publishingDate = date('m/d/Y', strtotime($date));
-            $selectedParent = $this->page->where('id', $id)->pluck('parent_page_id')->toArray();
-            $parentName = $this->page->where('id', $selectedParent)->pluck('name', 'id')->toArray();
-
-            return view('themes.default1.front.page.edit', compact('parents', 'page', 'selectedDefault', 'publishingDate', 'selectedParent',
-                'parentName'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
     }
 
     public function store(PageRequest $request)
@@ -223,20 +181,6 @@ class PageController extends Controller
             $slug = $request->input('url');
 
             return $this->getPageUrl($slug);
-        }
-    }
-
-    public function show($slug)
-    {
-        try {
-            $page = $this->page->where('slug', $slug)->where('publish', 1)->first();
-            if ($page && $page->type == 'cart') {
-                return $this->cart();
-            }
-
-            return view('themes.default1.front.page.show', compact('page'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -1132,18 +1076,6 @@ class PageController extends Controller
         return false;
     }
 
-    public function viewDemoReq()
-    {
-        try {
-            $status = StatusSetting::select('recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
-            $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
-
-            return view('themes.default1.front.demoForm', compact('status', 'apiKeys'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
     public function postDemoReq(ContactRequest $request)
     {
         try {
@@ -1183,17 +1115,6 @@ class PageController extends Controller
             return successResponse(__('message.message_sent_successfully_400'));
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
-        }
-    }
-
-    public function VewDemoPage()
-    {
-        try {
-            $Demo_page = Demo_page::first();
-
-            return view('themes.default1.common.setting.demo-page', compact('Demo_page'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 

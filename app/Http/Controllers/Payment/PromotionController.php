@@ -50,20 +50,6 @@ class PromotionController extends BasePromotionController
         $this->cart = new Cart();
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Response
-     */
-    public function index()
-    {
-        try {
-            return view('themes.default1.payment.promotion.index');
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
 //    public function getPromotion()
 //    {
 //        $new_promotion = $this->promotion->select('code', 'type', 'id');
@@ -112,23 +98,6 @@ class PromotionController extends BasePromotionController
 //    }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Response
-     */
-    public function create()
-    {
-        try {
-            $product = $this->product->pluck('name', 'id')->toArray();
-            $type = $this->type->pluck('name', 'id')->toArray();
-
-            return view('themes.default1.payment.promotion.create', compact('product', 'type'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @return \Response
@@ -152,32 +121,6 @@ class PromotionController extends BasePromotionController
             $this->promoRelation->create(['product_id' => $product, 'promotion_id' => $this->promotion->id]);
 
             return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Response
-     */
-    public function edit($id)
-    {
-        try {
-            $promotion = $this->promotion->where('id', $id)->first();
-            $product = $this->product->pluck('name', 'id')->toArray();
-            $type = $this->type->pluck('name', 'id')->toArray();
-            $startDate = date('m/d/Y', strtotime($this->promotion->where('id', $id)->pluck('start')->first()));
-            $expiryDate = date('m/d/Y', strtotime($this->promotion->where('id', $id)->pluck('expiry')->first()));
-            $selectedProduct = $this->promoRelation
-            ->where('promotion_id', $id)
-            ->pluck('product_id', 'product_id')->toArray();
-
-            return view(
-                'themes.default1.payment.promotion.edit',
-                compact('product', 'promotion', 'selectedProduct', 'type', 'startDate', 'expiryDate'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

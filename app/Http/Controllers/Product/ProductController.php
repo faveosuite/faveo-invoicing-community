@@ -105,22 +105,6 @@ class ProductController extends BaseProductController
      *
      * @return \Response
      */
-    public function index(Request $request)
-    {
-        try {
-            $data = $request->input('value');
-
-            return view('themes.default1.product.product.index', compact('data'));
-        } catch (\Exception $e) {
-            return redirect('/')->with('fails', $e->getMessage());
-        }
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Response
-     */
     public function getProducts(Request $request)
     {
         try {
@@ -253,50 +237,6 @@ class ProductController extends BaseProductController
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Response
-     */
-    public function create()
-    {
-        try {
-            /*
-             * server url
-             */
-            $url = url('/');
-            $id = $this->product->orderBy('id', 'desc')->first();
-            $i = $id ? $id->id + 1 : 1;
-            $cartUrl = $url.'/pricing?id='.$i;
-            $type = $this->type->pluck('name', 'id')->toArray();
-            $subscription = $this->plan->pluck('name', 'id')->toArray();
-            $currency = $this->currency->where('status', 1)->pluck('name', 'code')->toArray();
-            $group = $this->group->pluck('name', 'id')->toArray();
-            $products = $this->product->pluck('name', 'id')->toArray();
-            $periods = $this->period->pluck('name', 'days')->toArray();
-            $taxes = $this->tax_class->pluck('name', 'id')->toArray();
-            $taxes = $this->tax_class->with('tax:tax_classes_id,id,name')->get()->toArray();
-            $whatsappStatus = StatusSetting::pluck('whatsapp_status')->first();
-
-            return view(
-                'themes.default1.product.product.create',
-                compact(
-                    'subscription',
-                    'type',
-                    'periods',
-                    'currency',
-                    'group',
-                    'cartUrl',
-                    'products',
-                    'taxes',
-                    'whatsappStatus'
-                )
-            );
-        } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
-        }
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @return \Response
@@ -363,69 +303,6 @@ class ProductController extends BaseProductController
         } catch (\Exception $e) {
             \Logger::exception($e);
 
-            return redirect()->back()->with('fails', $e->getMessage());
-        }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Response
-     */
-    public function edit($id)
-    {
-        try {
-            $type = $this->type->pluck('name', 'id')->toArray();
-
-            $subscription = $this->plan->pluck('name', 'id')->toArray();
-            $currency = $this->currency->pluck('name', 'code')->toArray();
-            $group = $this->group->pluck('name', 'id')->toArray();
-            $products = $this->product->pluck('name', 'id')->toArray();
-
-            $checkowner = Product::where('id', $id)->value('github_owner');
-            $periods = $this->period->pluck('name', 'days')->toArray();
-            // $url = $this->GetMyUrl();
-            $url = url('/');
-            $cartUrl = $url.'/cart?id='.$id;
-            $product = $this->product->where('id', $id)->first();
-            $selectedGroup = ProductGroup::where('id', $product->group)->pluck('name')->toArray();
-            $taxes = $this->tax_class->pluck('name', 'id')->toArray();
-            $taxes = $this->tax_class->with('tax:tax_classes_id,id,name')->get()->toArray();
-            $saved_taxes = $this->tax_relation->where('product_id', $id)->get();
-            $savedTaxes = $this->tax_relation->where('product_id', $id)->pluck('tax_class_id')->toArray();
-            $showagent = $product->show_agent;
-            $showProductQuantity = $product->show_product_quantity;
-            $canModifyAgent = $product->can_modify_agent;
-            $canModifyQuantity = $product->can_modify_quantity;
-            $githubStatus = StatusSetting::pluck('github_status')->first();
-            $whatsappStatus = StatusSetting::pluck('whatsapp_status')->first();
-
-            return view(
-                'themes.default1.product.product.edit',
-                compact(
-                    'product',
-                    'periods',
-                    'type',
-                    'subscription',
-                    'currency',
-                    'group',
-                    'cartUrl',
-                    'products',
-                    'taxes',
-                    'saved_taxes',
-                    'savedTaxes',
-                    'selectedGroup',
-                    'showagent',
-                    'showProductQuantity',
-                    'canModifyAgent',
-                    'canModifyQuantity',
-                    'checkowner',
-                    'githubStatus',
-                    'whatsappStatus',
-                )
-            );
-        } catch (\Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
         }
     }

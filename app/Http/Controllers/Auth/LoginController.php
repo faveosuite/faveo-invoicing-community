@@ -58,36 +58,6 @@ class LoginController extends BaseAuthController
     }
 
     /**
-     * This function returns to the login page.
-     *
-     * @param
-     * @param
-     * @return
-     *
-     * @throws
-     */
-    public function showLoginForm()
-    {
-        try {
-            $bussinesses = Bussiness::pluck('name', 'short')->toArray();
-            $status = StatusSetting::select('msg91_status', 'emailverification_status', 'terms')->first();
-            $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
-            $analyticsTag = ChatScript::where('google_analytics', 1)->where('on_registration', 1)->value('google_analytics_tag');
-            $location = getLocation();
-
-            $google_status = SocialLogin::select('status')->where('type', 'google')->value('status');
-            $github_status = SocialLogin::select('status')->where('type', 'github')->value('status');
-            $twitter_status = SocialLogin::select('status')->where('type', 'twitter')->value('status');
-            $linkedin_status = SocialLogin::select('status')->where('type', 'linkedin')->value('status');
-
-            return view('themes.default1.front.auth.login-register', compact('bussinesses', 'location', 'status', 'apiKeys', 'analyticsTag', 'google_status', 'github_status', 'linkedin_status', 'twitter_status'));
-        } catch (\Exception $ex) {
-            \Logger::exception($ex);
-            $error = $ex->getMessage();
-        }
-    }
-
-    /**
      * JSON config consumed by the Vue guest login/register SPA page.
      * Mirrors the data that showLoginForm() passed to the blade view.
      */

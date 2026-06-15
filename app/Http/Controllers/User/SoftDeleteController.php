@@ -15,11 +15,6 @@ class SoftDeleteController extends ClientController
         $this->middleware('admin');
     }
 
-    public function index(Request $request)
-    {
-        return view('themes.default1.user.client.softDelete', compact('request'));
-    }
-
     public function softDeletedUsers(Request $request)
     {
         $searchQuery = $request->input('search-query', '');
