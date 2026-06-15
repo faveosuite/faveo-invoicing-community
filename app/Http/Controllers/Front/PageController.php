@@ -35,7 +35,6 @@ class PageController extends Controller
         $this->page = $page;
     }
 
-
     public function store(PageRequest $request)
     {
         try {

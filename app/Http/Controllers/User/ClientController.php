@@ -11,7 +11,6 @@ use App\Model\Common\Country;
 use App\Model\Mailjob\QueueService;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
-use App\Model\Payment\Currency;
 use App\Model\User\AccountActivate;
 use App\ReportColumn;
 use App\Traits\PaginationTotal;
@@ -23,7 +22,6 @@ use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Storage;
-use Yajra\DataTables\DataTables;
 
 class ClientController extends AdvanceSearchController
 {
@@ -46,7 +44,6 @@ class ClientController extends AdvanceSearchController
         $product = new \App\Model\Product\Product();
         $this->product = $product;
     }
-
 
     public function getActiveLabel($mobileActive, $emailActive, $twoFaActive)
     {

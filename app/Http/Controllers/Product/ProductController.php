@@ -28,7 +28,6 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Yajra\DataTables\DataTables;
 
 // use Input;
 
@@ -99,7 +98,6 @@ class ProductController extends BaseProductController
         $product_upload = new ProductUpload();
         $this->product_upload = $product_upload;
     }
-
 
     // Save file Info in Modal popup
     public function save(Request $request)

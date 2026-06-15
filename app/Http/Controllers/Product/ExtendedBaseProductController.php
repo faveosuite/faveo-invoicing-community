@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class ExtendedBaseProductController extends Controller
 {
-
     /**
      * Go to edit Product Upload Page.
      *

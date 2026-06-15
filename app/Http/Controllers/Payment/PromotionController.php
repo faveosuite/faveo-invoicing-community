@@ -11,7 +11,6 @@ use App\Model\Payment\PromotionType;
 use App\Model\Product\Product;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Yajra\DataTables\DataTables;
 
 class PromotionController extends BasePromotionController
 {
@@ -49,7 +48,6 @@ class PromotionController extends BasePromotionController
 
         $this->cart = new Cart();
     }
-
 
     /**
      * Store a newly created resource in storage.

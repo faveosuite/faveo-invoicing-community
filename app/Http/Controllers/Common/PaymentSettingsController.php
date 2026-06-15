@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Common;
 use App\Http\Controllers\Controller;
 use App\Model\Plugin;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 
 class PaymentSettingsController extends Controller
 {
@@ -14,7 +13,6 @@ class PaymentSettingsController extends Controller
         $this->middleware('auth');
         $this->middleware('admin');
     }
-
 
     public function fetchConfig()
     {

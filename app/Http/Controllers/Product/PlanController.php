@@ -4,17 +4,13 @@ namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Requests\PlanRequest;
-use App\Model\Common\Country;
-use App\Model\Common\Setting;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Period;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
-use App\Model\Product\ProductGroup;
 use App\Model\Product\Subscription;
 use Illuminate\Http\Request;
-use Yajra\DataTables\DataTables;
 
 class PlanController extends ExtendedPlanController
 {
@@ -43,8 +39,6 @@ class PlanController extends ExtendedPlanController
         $product = new Product();
         $this->product = $product;
     }
-
-
 
     /**
      * Store the Plans Details While Plan Creation.

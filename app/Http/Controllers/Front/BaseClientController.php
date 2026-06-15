@@ -334,8 +334,6 @@ class BaseClientController extends Controller
             });
 
             return successResponse('', $paginated);
-
-
         } catch (Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
