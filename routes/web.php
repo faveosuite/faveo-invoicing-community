@@ -181,7 +181,6 @@ Route::get('404', function () {
 // ============================================================
 
 Route::middleware('installAgora')->group(function () {
-
     // ============================================================
     // SECTION 5: AUTH APIs
     // (Login, register, 2FA, OTP, password, social auth)
@@ -324,7 +323,7 @@ Route::middleware('installAgora')->group(function () {
     // Mailchimp routes moved to App\Plugins\Mailchimp\MailchimpServiceProvider
     Route::post('contact-us', [Front\PageController::class, 'postContactUs']);
     Route::post('remove-coupon', [Front\CartController::class, 'removeCoupon']);
-    Route::post('remove-product', fn() => abort(404));
+    Route::post('remove-product', fn () => abort(404));
     Route::get('confirm/payment', [RazorpayController::class, 'afterPayment']);
     Route::post('stripeUpdatePayment/confirm', [Front\ClientController::class, 'stripeUpdatePayment']);
     Route::get('get-my-payment/{orderid}/{userid}', [Front\ClientController::class, 'getPaymentByOrderId'])->name('get-my-payment');
@@ -844,7 +843,6 @@ Route::middleware('installAgora')->group(function () {
         //        it receive the reports form the MSG91
         Route::post('msg91/reports/{app_key}/{app_secret}', [Common\Sms\MSG91Controller::class, 'handleReports'])->withoutMiddleware(['admin', 'auth']);
     });
-
 }); // end Route::middleware('installAgora')
 
 // ============================================================

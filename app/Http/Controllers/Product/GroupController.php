@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\GroupRequest;
-use App\Model\Common\PricingTemplate;
 use App\Model\Payment\Plan;
 use App\Model\Product\ConfigurableOption;
 use App\Model\Product\GroupFeatures;
