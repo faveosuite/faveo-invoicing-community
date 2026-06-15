@@ -20,7 +20,6 @@ use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
 use App\Model\Github\Github;
 use App\Model\Mailjob\QueueService;
-use App\Model\Order\Order;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Plugin;
@@ -33,7 +32,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Spatie\Activitylog\Models\Activity;
-use Yajra\DataTables\DataTables;
 
 class SettingsController extends BaseSettingsController
 {
@@ -173,7 +171,6 @@ class SettingsController extends BaseSettingsController
             return successResponse('', $data);
         }
     }
-
 
     private function getStatus($value)
     {
@@ -755,7 +752,6 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-
     public function getActivityApi(Request $request)
     {
         try {
@@ -918,7 +914,6 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-
     public function mailSearch($from = '', $till = '')
     {
         $join = Email_log::select('id', 'from', 'to', 'date', 'subject', 'status');
@@ -1045,7 +1040,6 @@ class SettingsController extends BaseSettingsController
 
         return successResponse(\Lang::get('message.updated-successfully'));
     }
-
 
     public function paymentSearch($from = '', $till = '')
     {
@@ -1176,7 +1170,6 @@ class SettingsController extends BaseSettingsController
 
         return successResponse(trans('message.success'), $response);
     }
-
 
     public function listEmailValidationLogs(Request $request)
     {

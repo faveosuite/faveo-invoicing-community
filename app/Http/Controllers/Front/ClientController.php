@@ -7,7 +7,6 @@ use App\Auto_renewal;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\Order\RenewController;
-use App\Model\Common\CreditActivity;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Github\Github;
@@ -18,18 +17,15 @@ use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
-use App\Model\Plugin;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
-use App\Payment_log;
 use App\User;
 use App\WhatsappIntegration;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Razorpay\Api\Api;
 
 class ClientController extends BaseClientController
 {
@@ -855,7 +851,6 @@ class ClientController extends BaseClientController
 
         return json_encode($data);
     }
-
 
     /**
      *  Returns to client individual orders with payment details as datatable.

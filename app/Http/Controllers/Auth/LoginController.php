@@ -6,7 +6,6 @@ use App\ApiKey;
 use App\Facades\Cart;
 use App\Http\Controllers\Front\CartController;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Model\Common\Bussiness;
 use App\Model\Common\ChatScript;
 use App\Model\Common\Country;
 use App\Model\Common\StatusSetting;

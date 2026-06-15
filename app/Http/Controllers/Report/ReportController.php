@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Report;
 use App\ExportDetail;
 use App\Http\Controllers\Controller;
 use App\ReportSetting;
-use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -21,7 +20,6 @@ class ReportController extends Controller
     {
         return view('themes.default1.report.index');
     }
-
 
     public function destroyReports(Request $request)
     {
