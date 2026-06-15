@@ -1,10 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/core/stores/auth'
 
-const el         = document.getElementById('app-client')
-const clientUrl  = el?.dataset?.clientUrl ?? ''
-const base       = clientUrl ? new URL(clientUrl).pathname : '/'
-
-const isAuthenticated = () => el?.dataset?.authenticated === 'true'
+const el        = document.getElementById('app-client')
+const clientUrl = el?.dataset?.clientUrl ?? ''
+const base      = clientUrl ? new URL(clientUrl).pathname : '/'
 
 const routes = [
     { path: '/', redirect: '/client-dashboard' },
@@ -12,9 +11,9 @@ const routes = [
     // ── Guest auth pages (served at app root: /login, /verify, …) ────────────
     // These load on hard navigation from the client.blade shell; the server
     // guard bounces already-authenticated users to their panel.
-    { path: '/login',                 meta: { requiresAuth: false, sidebar: false, title: 'Login', titleKey: 'message.login' }, component: () => import('@/pages/client/auth/LoginRegister.vue') },
-    { path: '/password/reset',        meta: { requiresAuth: false, sidebar: false, title: 'Forgot Password', titleKey: 'message.forgot-password' }, component: () => import('@/pages/client/auth/ForgotPassword.vue') },
-    { path: '/password/reset/:token', meta: { requiresAuth: false, sidebar: false, title: 'Reset Password', titleKey: 'message.reset_password', breadcrumb: [{ title: 'Reset Password', titleKey: 'message.reset_password' }] }, component: () => import('@/pages/client/auth/ResetPassword.vue') },
+    { path: '/login',                 meta: { requiresAuth: false, guestOnly: true,  sidebar: false, title: 'Login', titleKey: 'message.login' }, component: () => import('@/pages/client/auth/LoginRegister.vue') },
+    { path: '/password/reset',        meta: { requiresAuth: false, guestOnly: true,  sidebar: false, title: 'Forgot Password', titleKey: 'message.forgot-password' }, component: () => import('@/pages/client/auth/ForgotPassword.vue') },
+    { path: '/password/reset/:token', meta: { requiresAuth: false, guestOnly: true,  sidebar: false, title: 'Reset Password', titleKey: 'message.reset_password', breadcrumb: [{ title: 'Reset Password', titleKey: 'message.reset_password' }] }, component: () => import('@/pages/client/auth/ResetPassword.vue') },
     { path: '/verify',                meta: { requiresAuth: false, sidebar: false, title: 'Verify Email', titleKey: 'message.verify_email' }, component: () => import('@/pages/client/auth/Verify.vue') },
     { path: '/verify-2fa',            meta: { requiresAuth: false, sidebar: false, title: 'Two-Factor Authentication', titleKey: 'message.two_factor_authentication' }, component: () => import('@/pages/client/auth/Verify2FA.vue') },
 
@@ -46,12 +45,13 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
+    const auth         = useAuthStore()
     const requiresAuth = to.meta?.requiresAuth !== false
-    if (requiresAuth && !isAuthenticated()) {
-        next('/login')
-    } else {
-        next()
-    }
+    const guestOnly    = to.meta?.guestOnly === true
+
+    if (guestOnly && auth.isAuthenticated) return next('/client-dashboard')
+    if (requiresAuth && !auth.isAuthenticated) return next('/login')
+    next()
 })
 
 const appName = el?.dataset?.pageTitle || 'Client Panel'

@@ -52,9 +52,6 @@ Route::get('refresh-csrf', function () {
         200);
 });
 
-Route::post('otp2/send', [Auth\AuthController::class, 'otp']);
-//Route::post('verifying/phone', [PhoneVerificationController::class, 'create']);
-
 Route::middleware('installAgora')->group(function () {
     // WhatsApp Business integration — admin config (Vue), client embedded-signup, and Meta webhook.
     Route::get('whatsapp-integration-info', [\App\Http\Controllers\WhatsappController::class, 'whatsappIntegration']);
@@ -113,11 +110,9 @@ Route::middleware('installAgora')->group(function () {
     Route::get('auth/reset-validate/{token}', [Auth\ResetPasswordController::class, 'showResetForm']);
     Route::get('auth/verify-config', [Auth\AuthController::class, 'verifyConfig']);
 
-    // Login/register/verify pages are served by the Vue SPA (ClientSpaShell) and
-    // submit to the dedicated endpoints above (POST login, auth/register, …), so
-    // Route::auth() is not used. Only the password-reset endpoints it used to
-    // provide are still needed — defined explicitly here (the GET route is kept
-    // for its `password.reset` name, used by the reset email + 2FA redirect).
+    // Login/register/verify pages are served by the Vue SPA. Route::auth() is not
+    // used; only the password-reset endpoints are defined explicitly here (the GET
+    // route is kept for its `password.reset` name, used by the reset email + 2FA redirect).
     Route::get('password/reset/{token}', [Auth\ResetPasswordController::class, 'showResetForm'])->name('password.reset');
     Route::post('password/email', [Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
     Route::post('password/reset', [Auth\ResetPasswordController::class, 'reset'])->name('password.update');
@@ -158,7 +153,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('get-currency', [WelcomeController::class, 'getCurrency'])->middleware('admin'); //Not in use
 
     //Dashboard api's
-    Route::get('client-dashboard', [Front\ClientController::class, 'index']); // use this or use the next one which will be very useful
+//    Route::get('client-dashboard', [Front\ClientController::class, 'index']); // use this or use the next one which will be very useful
     Route::get('client-dashboard-details', [Front\ClientController::class, 'clientDetails']);
 
     // master api's
@@ -175,8 +170,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('free-trial/start', [FreeTrailController::class, 'startTrial'])->name('free-trial.start');
 
     //invoice api's
-    // Client invoice pages — Vue SPA served at their legacy URLs by ClientSpaShell
-    // (browser navigations). `my-invoices` is kept as a named route for route('my-invoices').
+    // `my-invoices` is kept as a named route for route('my-invoices').
     Route::get('my-invoices', fn () => view('client'))->name('my-invoices');
     Route::get('get-my-invoices', [Front\ClientController::class, 'getInvoices'])->name('get-my-invoices');
     Route::delete('invoices/delete/{id}', [Front\ClientController::class, 'invoiceDelete']);
@@ -185,8 +179,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('store-basic-details', [Auth\LoginController::class, 'storeBasicDetails'])->name('store-basic-details');
 
     //order api's
-    // Client order pages (my-orders, my-order/{id}) — Vue SPA served at their
-    // legacy URLs by ClientSpaShell. Data APIs (get-my-orders) are unchanged.
+    // Client order pages (my-orders, my-order/{id}) — Vue SPA. Data APIs (get-my-orders) are unchanged.
     Route::get('get-my-orders', [Front\ClientController::class, 'getClientOrder'])->name('get-my-orders');
     Route::get('renew-popup-details/{productid}', [Front\ClientController::class, 'renewPopupVue']);
     Route::get('get-cloud-settings/{orderId}', [Front\ClientController::class, 'getCloudSettings']);
@@ -247,7 +240,11 @@ Route::middleware('installAgora')->group(function () {
     });
 
 //    Route::get('/', [DashboardController::class, 'index']);
-    Route::get('/', fn () => redirect(url('admin/dashboard')));
+//    Route::get('/', function () {
+//        if (!auth()->check()) return redirect(url('login'));
+//        if (auth()->user()->role !== 'user') return redirect(url('admin'));
+//        return view('client'); // client SPA — router handles { path: '/', redirect: '/client-dashboard' }
+//    });
 
     Route::get('/auth/redirect/{provider}', [Auth\LoginController::class, 'redirectToGithub']);
     Route::get('/auth/callback/{provider}', [Auth\LoginController::class, 'handler']);
@@ -875,8 +872,7 @@ Route::middleware('installAgora')->group(function () {
 });
 
 Route::prefix('pay')->withoutMiddleware(['auth', 'web'])->group(function () {
-    // Payment Page View — served by ClientSpaShell for browser navigations;
-    // this fallback handles direct non-browser requests to /pay.
+    // Payment Page View — Vue SPA.
     Route::get('/', function () {
         return view('client');
     })->name('open-payment.page');
@@ -1076,12 +1072,27 @@ Route::get('dashboard', [DashboardController::class, 'dashboard']);
 
 Route::get('module-settings', [Common\SettingsController::class, 'getModuleSettings']);
 
-// Admin Vue Panel — guard at the server level so unauthenticated users never
-// receive the blade/JS bundle and see a flash of the admin UI.
-Route::get('/admin/{any?}', function () {
-    if (! auth()->check()) {
-        return redirect(url('/login'));
-    }
+// ========================================================================
+// SPA AUTH CHECK — both SPAs call GET /api/user to hydrate auth state.
+// Must return JSON (never an HTML redirect) so auth store works correctly.
+// ========================================================================
+Route::get('api/user', function () {
+    return auth()->check()
+        ? successResponse('user', auth()->user())
+        : response()->json(['message' => 'Unauthenticated.'], 401);
+});
 
-    return view('admin');
+// ========================================================================
+// ADMIN SPA ROUTES
+// ========================================================================
+Route::get('/admin/{any?}', fn () => view('admin'))
+    ->where('any', '.*');
+
+// ========================================================================
+// CLIENT SPA CATCH-ALL (Keep this as the last route)
+// ========================================================================
+Route::get('/{any?}', function () {
+    // Don't intercept XHR/JSON requests — let them 404 rather than returning HTML
+    if (request()->wantsJson()) abort(404);
+    return view('client');
 })->where('any', '.*');

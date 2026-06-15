@@ -1,39 +1,36 @@
 import { defineStore } from 'pinia'
 import { useDateTimeStore } from './dateTimeStore'
+import http from '@/plugins/axios'
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
-        user_data: '',
-        api_key: '',
-        admin_data: '',
-        clientTimezone: '',
+        user: null,  // null = guest, object = authenticated user
     }),
+
+    getters: {
+        isAuthenticated: (s) => s.user !== null,
+        isAdmin: (s) => s.user?.role === 'admin',
+    },
+
     actions: {
-        setUserInfo(payload) {
-            this.user_data = payload
-            const tz = payload?.timezone?.name || payload?.client_timezone?.name || null
-            useDateTimeStore().setUserTimezone(tz)
-        },
-        setUserData(payload) {
-            if (this.user_data) {
-                this.user_data.client_profile_pic = payload.profile_pic
-                this.user_data.client_mobile_code = payload.client_mobile_code
-                this.user_data.client_iso2 = payload.client_iso2
-                this.user_data.client_fname = payload.client_fname
-                this.user_data.client_lname = payload.client_lname
-                this.user_data.client_email = payload.client_email
-                this.user_data.client_timezone_id = payload.client_timezone_id
+        async hydrate() {
+            try {
+                const { data } = await http.get('/api/user', { _skipAuthRedirect: true })
+                this.user = data.data
+                const tz = this.user?.timezone?.name ?? null
+                if (tz) useDateTimeStore().setUserTimezone(tz)
+            } catch {
+                this.user = null
             }
         },
-        setApiKey(key = '') {
-            this.api_key = key
+
+        clear() {
+            this.user = null
         },
-        setAdminData(payload) {
-            this.admin_data = payload
-        },
-        setClientTimezone(timezone) {
-            this.clientTimezone = timezone
-            useDateTimeStore().setUserTimezone(timezone?.name || null)
+
+        // Called after profile update to patch local user fields without re-hydrating
+        patchUser(payload) {
+            if (this.user) Object.assign(this.user, payload)
         },
     },
 })

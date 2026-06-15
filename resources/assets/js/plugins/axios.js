@@ -27,12 +27,26 @@ http.interceptors.request.use(config => {
 
 http.interceptors.response.use(
     response => response,
-    error => {
-        const loginUrl = (el?.dataset?.baseUrl ?? '') + '/login'
-        if (error.response?.status === 401 && !window.location.href.endsWith('/login')) {
-            // Session expired — redirect to client panel login
+    async error => {
+        const status    = error.response?.status
+        const loginUrl  = (el?.dataset?.baseUrl ?? '') + '/login'
+
+        // 401 — session expired; skip if the caller flagged this request
+        // (e.g. auth.hydrate() which expects 401 for guests)
+        if (status === 401 && !error.config?._skipAuthRedirect && !window.location.href.endsWith('/login')) {
             window.location.href = loginUrl
         }
+
+        // 419 — CSRF token expired; refresh the token and retry the request once
+        if (status === 419 && !error.config?._csrfRetry) {
+            const freshToken = document.querySelector('meta[name="csrf-token"]')?.content
+            if (freshToken) {
+                error.config.headers['X-CSRF-TOKEN'] = freshToken
+                error.config._csrfRetry = true
+                return http(error.config)
+            }
+        }
+
         return Promise.reject(error)
     }
 )

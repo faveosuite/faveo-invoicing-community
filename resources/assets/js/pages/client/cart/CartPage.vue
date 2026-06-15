@@ -108,19 +108,19 @@ import { useCartStore } from '@/core/stores/cart'
 import { useAlertStore } from '@/core/stores/alert'
 import { __ } from '@/plugins/i18n'
 import CartItemRow from '@/themes/porto/components/cart/CartItemRow.vue'
+import { useAuthStore } from '@/core/stores/auth'
 
 const router     = useRouter()
 const cartStore  = useCartStore()
 const alertStore = useAlertStore()
-const el         = document.getElementById('app-client')
+const authStore  = useAuthStore()
 
-const isAuthenticated = () => el?.dataset?.authenticated === 'true'
-const symbol          = computed(() => cartStore.currencySymbol)
+const symbol = computed(() => cartStore.currencySymbol)
 
 onMounted(() => cartStore.fetchCart())
 
 function checkout() {
-  if (!isAuthenticated()) {
+  if (!authStore.isAuthenticated) {
     router.push('/login').then(() => {
       alertStore.setAlert({
         message: __('message.please_login_to_checkout'),

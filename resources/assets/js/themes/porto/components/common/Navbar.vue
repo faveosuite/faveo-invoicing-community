@@ -312,6 +312,7 @@ import CloudTrialModal from '../store/CloudTrialModal.vue'
 import BookDemoModal from '../store/BookDemoModal.vue'
 import { useRouter } from 'vue-router'
 import { __ } from '@/plugins/i18n'
+import { useAuthStore } from '@/core/stores/auth'
 
 const {toggle: toggleLanguage} = useNavFeatureToggle()
 
@@ -351,16 +352,17 @@ function onClickOutside(e) {
   }
 }
 
-const el = document.getElementById('app-client')
+const el        = document.getElementById('app-client')
+const authStore = useAuthStore()
 
-const isAuthenticated = computed(() => el?.dataset?.authenticated === 'true')
-const logoUrl = computed(() => el?.dataset?.appLogo ?? '')
-const appCompany = computed(() => el?.dataset?.company ?? '')
-const baseUrl = computed(() => el?.dataset?.baseUrl ?? '')
-const assetUrl = computed(() => el?.dataset?.assetUrl ?? '')
-const logoutUrl = computed(() => `${baseUrl.value}/auth/logout`)
-const loginUrl = computed(() => `${baseUrl.value}/login`)
-const isAdmin = computed(() => el?.dataset?.userRole === 'admin')
+const isAuthenticated = computed(() => authStore.isAuthenticated)
+const isAdmin         = computed(() => authStore.isAdmin)
+const logoUrl         = computed(() => el?.dataset?.appLogo ?? '')
+const appCompany      = computed(() => el?.dataset?.company ?? '')
+const baseUrl         = computed(() => el?.dataset?.baseUrl ?? '')
+const assetUrl        = computed(() => el?.dataset?.assetUrl ?? '')
+const logoutUrl       = computed(() => `${baseUrl.value}/auth/logout`)
+const loginUrl        = computed(() => `${baseUrl.value}/login`)
 const adminDashboardUrl = computed(() => `${baseUrl.value}/admin/dashboard`)
 
 const phone = computed(() => el?.dataset?.phone ?? '')

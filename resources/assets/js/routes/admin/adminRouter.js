@@ -48,13 +48,12 @@ const router = createRouter({
 // Auth navigation guard
 // Login is handled by the client panel (not the admin Vue SPA).
 // If the session expires mid-session, redirect back to the client panel login.
-const isAuthenticated = () => el?.dataset?.authenticated === 'true'
+import { useAuthStore } from '@/core/stores/auth'
 
 router.beforeEach((to, from, next) => {
     const requiresAuth = to.meta?.requiresAuth !== false
 
-    if (requiresAuth && !isAuthenticated()) {
-        // Send user to client panel login; it will redirect back after auth
+    if (requiresAuth && !useAuthStore().isAuthenticated) {
         window.location.href = (el?.dataset?.baseUrl ?? '') + '/login'
     } else {
         next()

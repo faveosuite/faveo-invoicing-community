@@ -264,7 +264,7 @@ class LoginController extends BaseAuthController
             return url('/cart');
         }
 
-        return url(($auth && $auth->role === 'user') ? '/client-dashboard' : '/admin');
+        return url(($auth && $auth->role === 'user') ? '/' : '/admin');
     }
 
     /**

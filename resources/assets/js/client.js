@@ -17,6 +17,7 @@ import Loader from './components/Reusable/Loader.vue'
 import { setupLoaderInterceptors } from './plugins/axios.js'
 import DateTimePlugin from './plugins/dateTime.js'
 import { useDateTimeStore } from './core/stores/dateTimeStore.js'
+import { useAuthStore } from './core/stores/auth.js'
 import axios from './plugins/axios.js'
 
 const progressBarOptions = {
@@ -49,6 +50,14 @@ app.component('spinner-loader', Loader)
 app.use(pinia)
 app.use(DateTimePlugin)
 app.use(ServerTable, {}, 'bootstrap4', {})
+
+// Hydrate auth BEFORE installing the router. app.use(router) immediately
+// triggers Vue Router's initial navigation, which fires beforeEach. If auth
+// is not yet hydrated at that point, isAuthenticated is false and guestOnly
+// routes (like /login) are not redirected even for logged-in users.
+const auth = useAuthStore()
+await auth.hydrate()
+
 app.use(clientRouter)
 app.use(i18n)
 app.use(VueProgressBar, progressBarOptions)
@@ -56,8 +65,8 @@ app.use(FloatingVue)
 
 const clientEl = document.getElementById('app-client')
 const clientBaseUrl = clientEl?.dataset?.baseUrl ?? ''
-const clientUserTimezone = clientEl?.dataset?.userTimezone ?? ''
 
+// Load system date/time settings non-blocking; auth store provides user timezone
 axios.get(`${clientBaseUrl}/settings/system-data`).then(res => {
     const s = res.data?.data?.settings ?? {}
     useDateTimeStore().init({
@@ -65,15 +74,14 @@ axios.get(`${clientBaseUrl}/settings/system-data`).then(res => {
         dateFormat: s.date_format    ?? 'd/m/Y',
         timeFormat: s.time_format    ?? 'H:i',
     })
-    if (clientUserTimezone) useDateTimeStore().setUserTimezone(clientUserTimezone)
+    // Re-apply user timezone after system data loads so it isn't overwritten
+    const userTz = useAuthStore().user?.timezone?.name
+    if (userTz) useDateTimeStore().setUserTimezone(userTz)
 }).catch(() => {
     useDateTimeStore().init({ timezone: 'UTC', dateFormat: 'd/m/Y', timeFormat: 'H:i' })
-    if (clientUserTimezone) useDateTimeStore().setUserTimezone(clientUserTimezone)
 })
 
 setupLoaderInterceptors(app.config.globalProperties.$Progress)
 
-// Wait for the initial navigation to resolve before mounting so that
-// route.meta (e.g. standalone: true) is correct on the very first render,
-// preventing a flash of the full layout on standalone pages like /open-payment.
-clientRouter.isReady().then(() => app.mount('#app-client'))
+await clientRouter.isReady()
+app.mount('#app-client')

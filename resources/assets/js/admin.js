@@ -20,6 +20,7 @@ import mitt from 'mitt'
 import { setupLoaderInterceptors } from './plugins/axios.js'
 import DateTimePlugin from './plugins/dateTime.js'
 import { useDateTimeStore } from './core/stores/dateTimeStore.js'
+import { useAuthStore } from './core/stores/auth.js'
 import axios from './plugins/axios.js'
 
 const progressBarOptions = {
@@ -41,7 +42,7 @@ const emitter = mitt()
 window.emitter = emitter
 
 // load theme first, then mount
-import(`./themes/${theme}/index.js`).then(themeModule => {
+import(`./themes/${theme}/index.js`).then(async themeModule => {
     const app = createApp(App)
 
     // surface Vue runtime errors in the console
@@ -76,7 +77,6 @@ import(`./themes/${theme}/index.js`).then(themeModule => {
     // Boot datetime settings — non-blocking, UTC fallback stays active until resolved
     const el = document.getElementById('app-root')
     const baseUrl = el?.dataset?.baseUrl ?? ''
-    const userTimezone = el?.dataset?.userTimezone ?? ''
 
     axios.get(`${baseUrl}/settings/system-data`).then(res => {
         const s = res.data?.data?.settings ?? {}
@@ -85,15 +85,17 @@ import(`./themes/${theme}/index.js`).then(themeModule => {
             dateFormat: s.date_format    ?? 'd/m/Y',
             timeFormat: s.time_format    ?? 'H:i',
         })
-        // User's personal timezone overrides system timezone if set
-        if (userTimezone) useDateTimeStore().setUserTimezone(userTimezone)
+        // Re-apply user timezone after system data loads so it isn't overwritten
+        const userTz = useAuthStore().user?.timezone?.name
+        if (userTz) useDateTimeStore().setUserTimezone(userTz)
     }).catch(() => {
         useDateTimeStore().init({ timezone: 'UTC', dateFormat: 'd/m/Y', timeFormat: 'H:i' })
-        if (userTimezone) useDateTimeStore().setUserTimezone(userTimezone)
     })
 
     setupLoaderInterceptors(app.config.globalProperties.$Progress)
 
+    // Hydrate auth state before mount — replaces data-authenticated DOM flag
+    await useAuthStore().hydrate()
     app.mount('#app-root')
 }).catch(err => {
     console.error('[Theme load failed]', err)
