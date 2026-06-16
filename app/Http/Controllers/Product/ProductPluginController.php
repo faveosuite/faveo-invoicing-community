@@ -21,8 +21,8 @@ class ProductPluginController extends Controller
         try {
             $product = Product::findOrFail($productId);
 
-            $pluginTypeId  = LicenseType::where('name', 'plugin')->value('id');
-            $bundledIds    = $product->bundledPlugins()->pluck('products.id')->toArray();
+            $pluginTypeId = LicenseType::where('name', 'plugin')->value('id');
+            $bundledIds = $product->bundledPlugins()->pluck('products.id')->toArray();
             $compatibleIds = $product->compatiblePlugins()->pluck('products.id')->toArray();
 
             $plugins = Product::where('type', $pluginTypeId)
@@ -30,9 +30,9 @@ class ProductPluginController extends Controller
                 ->orderBy('name')
                 ->get(['id', 'name'])
                 ->map(fn ($p) => [
-                    'id'            => $p->id,
-                    'name'          => $p->name,
-                    'is_bundled'    => in_array($p->id, $bundledIds),
+                    'id' => $p->id,
+                    'name' => $p->name,
+                    'is_bundled' => in_array($p->id, $bundledIds),
                     'is_compatible' => in_array($p->id, $compatibleIds),
                 ]);
 
@@ -45,21 +45,21 @@ class ProductPluginController extends Controller
     public function sync(Request $request, $productId)
     {
         $request->validate([
-            'bundled'      => 'array',
-            'bundled.*'    => 'integer',
-            'compatible'   => 'array',
+            'bundled' => 'array',
+            'bundled.*' => 'integer',
+            'compatible' => 'array',
             'compatible.*' => 'integer',
         ]);
 
         try {
             $product = Product::findOrFail($productId);
 
-            $pluginTypeId  = LicenseType::where('name', 'plugin')->value('id');
-            $validIds      = Product::where('type', $pluginTypeId)
+            $pluginTypeId = LicenseType::where('name', 'plugin')->value('id');
+            $validIds = Product::where('type', $pluginTypeId)
                 ->where('id', '!=', $productId)
                 ->pluck('id')->toArray();
 
-            $bundledIds    = array_values(array_intersect($request->input('bundled', []), $validIds));
+            $bundledIds = array_values(array_intersect($request->input('bundled', []), $validIds));
             $compatibleIds = array_values(array_intersect($request->input('compatible', []), $validIds));
 
             DB::transaction(function () use ($product, $bundledIds, $compatibleIds) {
