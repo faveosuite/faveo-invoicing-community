@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Payment;
 
-use Illuminate\Contracts\Database\Query\Builder;
 use App\Http\Controllers\Controller;
 use App\Model\Common\State;
 use App\Model\Payment\TaxClass;
@@ -11,6 +10,7 @@ use App\Model\Payment\TaxProductRelation;
 use App\Model\Payment\TaxRate;
 use App\Model\Payment\TaxRateLocation;
 use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Validator;

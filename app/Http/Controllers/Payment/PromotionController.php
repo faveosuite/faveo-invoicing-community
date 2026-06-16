@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Payment;
 
-use Illuminate\Contracts\Database\Query\Builder;
 use App\Facades\Cart;
 use App\Http\Controllers\Order\InvoiceController;
 use App\Http\Requests\Payment\PromotionRequest;
@@ -14,6 +13,7 @@ use App\Model\Product\Product;
 use Auth;
 use DB;
 use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Lang;
