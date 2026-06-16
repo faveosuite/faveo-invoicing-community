@@ -38,8 +38,8 @@ describe('FaveoImageElement.vue', () => {
 
     it('handles image load error by setting default image', async () => {
         const wrapper = mountComponent();
-        const img = wrapper.find('img');
-        
+        wrapper.find('img');
+
         // Mock the event
         const event = {
             target: {

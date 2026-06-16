@@ -143,42 +143,6 @@ export const generateRandomString = (length = 16) => {
 
     return a;
 };
-/**
- * Checks if a given date-time string is in ISO 8601 format.
- * @param {string} dateTime - The date-time string to check.
- * @returns {boolean} True if the string contains 'T' and 'Z', false otherwise.
- */
-const isIsoFormat = (dateTime) => dateTime.includes('T') && dateTime.includes('Z');
-
-/**
- * Checks if a given date-time string contains a time component.
- * @param {string} dateTime - The date-time string to check.
- * @returns {boolean} True if the string has a time component, false otherwise.
- */
-const hasTimeComponent = (dateTime) => dateTime.split(' ').length === 2;
-
-const hasTimeShift = (timezone) => {
-
-    switch (timezone) {
-        case 'Asia/Magadan':
-            return 1;
-
-        case 'Asia/Krasnoyarsk' :
-            return 1;
-
-        case 'Europe/Volgograd' :
-            return 1;
-
-        case 'Europe/Minsk' :
-            return -1;
-
-        case 'Europe/Moscow' :
-            return 1;
-
-        default:
-            return 0;
-    }
-}
 
 export const formatDateTime = (dateTime) => {
     return useDateTime().formatDateTime(dateTime)

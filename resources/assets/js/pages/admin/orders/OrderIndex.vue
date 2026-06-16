@@ -78,8 +78,6 @@
 import { h, ref, computed, reactive } from 'vue'
 import { RouterLink } from 'vue-router'
 
-import http from '@/plugins/axios'
-import { errorHandler } from '@/helpers/responseHandler.js'
 import { useDateTime } from '@/core/composables/useDateTime'
 import OrderTableActions from './components/OrderTableActions.vue'
 import OrderFilter from './components/OrderFilter.vue'

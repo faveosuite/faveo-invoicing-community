@@ -4,7 +4,7 @@
         <div v-if="footerWidgets.length" class="container py-4">
             <div class="row py-5">
 
-                <div v-for="(widget, index) in footerWidgets" :key="widget.id"
+                <div v-for="widget in footerWidgets" :key="widget.id"
                      class="col-md-6 col-lg-4 mb-4 mb-lg-0">
 
                     <h5 class="text-3 text-color-dark mb-3">{{ widget.name.toUpperCase() }}</h5>

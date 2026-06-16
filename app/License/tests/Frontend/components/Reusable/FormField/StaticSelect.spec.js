@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils';
 import StaticSelect from '../../../../../../Resources/js/components/Reusable/FormField/StaticSelect.vue';
-import { getSubStringValue } from '../../../../../../Resources/js/helpers/extraLogics';
 
 jest.mock('../../../../../../Resources/js/helpers/extraLogics', () => ({
     getSubStringValue: jest.fn((val) => val)

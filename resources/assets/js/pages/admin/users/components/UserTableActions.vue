@@ -37,7 +37,7 @@
 <script setup>
 import { ref } from 'vue'
 
-const props = defineProps({
+defineProps({
     userId:        { type: Number, required: true },
     baseUrl:       { type: String, default: '' },
     componentName: { type: String, default: 'users-index' },

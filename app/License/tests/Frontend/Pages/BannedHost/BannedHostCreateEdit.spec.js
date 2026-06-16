@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import BannedHostCreateEdit from '../../../../../../Resources/js/Pages/BannedHost/BannedHostCreateEdit.vue';
 import axios from 'axios';
-import { successHandler, errorHandler } from '../../../../../../Resources/js/helpers/responseHandler';
+import { successHandler } from '../../../../../../Resources/js/helpers/responseHandler';
 import { bannedHostValidation } from "../../../../../../Resources/js/helpers/validator/bannedHostValidation.js";
 import { getIdFromUrl } from '../../../../../../Resources/js/helpers/extraLogics';
 

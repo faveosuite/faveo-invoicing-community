@@ -16,7 +16,7 @@
 <script setup>
 import { computed, useId } from 'vue'
 
-const props = defineProps({
+defineProps({
     modelValue: { type: Boolean, default: false },
     label:      { type: String,  default: '' },
     error:      { type: String,  default: undefined },

@@ -33,7 +33,7 @@
 import { ref } from 'vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 
-const props = defineProps({
+defineProps({
     productId: { type: [Number, String], required: true },
     versionId: { type: [Number, String], required: true },
     baseUrl:   { type: String, default: '' },

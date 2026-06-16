@@ -223,7 +223,7 @@ function onProductChange(val) {
     resetDynamicFields()
 }
 
-function onPlanChange(val, name) {
+function onPlanChange(val, _name) {
     setFieldError('plan', undefined)
     form.plan = val
     if (val) {

@@ -100,7 +100,7 @@ import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 import { useDateTime } from '@/core/composables/useDateTime'
 
 const router = useRouter()
-const { formatDate, formatDateTime } = useDateTime()
+const { formatDateTime } = useDateTime()
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)

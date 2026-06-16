@@ -52,7 +52,7 @@ describe('NumberField.vue', () => {
             }
         });
 
-        const input = wrapper.find('input#number');
+        wrapper.find('input#number');
         const event = {
             which: 65, // 'A'
             preventDefault: jest.fn()
@@ -71,7 +71,7 @@ describe('NumberField.vue', () => {
             }
         });
 
-        const input = wrapper.find('input#number');
+        wrapper.find('input#number');
         const event = {
             which: 50, // '2'
             preventDefault: jest.fn()

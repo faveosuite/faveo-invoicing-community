@@ -923,7 +923,7 @@ async function copyLicense() {
         await navigator.clipboard.writeText(code)
         copied.value = true
         setTimeout(() => { copied.value = false }, 2000)
-    } catch {}
+    } catch { /* ignore */ }
 }
 
 /* ── Reissue license ──────────────────────────────────────── */

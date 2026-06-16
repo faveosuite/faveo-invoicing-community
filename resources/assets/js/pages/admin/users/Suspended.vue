@@ -59,7 +59,7 @@
 <script setup>
 import { h, ref, computed, reactive } from 'vue'
 import http from '@/plugins/axios'
-import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
+import { errorHandler } from '@/helpers/responseHandler.js'
 import { useDateTime } from '@/core/composables/useDateTime'
 import SuspendedTableActions from './components/SuspendedTableActions.vue'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'

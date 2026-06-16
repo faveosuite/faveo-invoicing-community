@@ -167,7 +167,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, h, onBeforeMount } from 'vue'
+import { ref, h, onBeforeMount } from 'vue'
 import { getIdFromUrl, lang } from '@/helpers/extraLogics'
 import axios from '@/plugins/axios'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'

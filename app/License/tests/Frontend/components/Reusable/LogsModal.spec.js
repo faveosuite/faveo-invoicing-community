@@ -49,7 +49,7 @@ describe('LogsModal.vue', () => {
 
     it('fetches and renders log content when title is "logs_content"', async () => {
         propsData.title = 'logs_content';
-        const wrapper = mountComponent();
+        mountComponent();
         
         // Wait for axios call
         await new Promise(resolve => setTimeout(resolve, 0));

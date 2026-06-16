@@ -91,14 +91,11 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { boolean, lang } from '@/helpers/extraLogics'
-import { useAlertStore } from '@/core/stores/alert'
 import DeleteModal from '@/components/Reusable/DeleteModal.vue'
 
 const props = defineProps({
     data: { type: Object, required: true },
 })
-
-const alertStore = useAlertStore()
 
 const showModal = ref(false)
 const showRestoreModal = ref(false)

@@ -129,7 +129,7 @@ onMounted(async () => {
     try {
         const res = await http.get(`${baseUrl}/settings/index-data`)
         Object.assign(flags.value, res.data?.data ?? {})
-    } catch {}
+    } catch { /* ignore */ }
 })
 
 async function checkMonitoring(type, url) {

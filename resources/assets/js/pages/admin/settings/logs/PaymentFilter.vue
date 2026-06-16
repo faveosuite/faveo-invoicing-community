@@ -45,7 +45,7 @@
 <script setup>
 import { reactive } from 'vue'
 
-const props = defineProps({
+defineProps({
     show:    { type: Boolean, default: false },
     baseUrl: { type: String, default: '' },
 })

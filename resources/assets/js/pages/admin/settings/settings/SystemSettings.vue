@@ -80,7 +80,7 @@ const COMPONENT = 'system-settings'
 const el = document.getElementById('app-root')
 const baseUrl = el?.dataset?.baseUrl ?? ''
 
-const { errors, setErrors, setFieldError } = useForm()
+const { errors, setFieldError } = useForm()
 
 const loading = ref(true)
 const saving  = ref(false)

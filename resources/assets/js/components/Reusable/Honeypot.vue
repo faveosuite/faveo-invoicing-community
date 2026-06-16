@@ -19,7 +19,7 @@
 import { ref, watch, onMounted } from 'vue'
 import http from '@/plugins/axios'
 
-const props = defineProps({
+defineProps({
     // The form field name the backend App\Rules\Honeypot is attached to
     // (e.g. 'login', 'registerForm', 'forgot', 'reset').
     name:       { type: String, required: true },

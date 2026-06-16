@@ -201,7 +201,6 @@ const { formatDate } = useDateTime()
 const COMPONENT = 'client-page'
 const el = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
-const userId = el?.dataset?.userId ?? ''
 
 const route = useRoute()
 const invoiceId = route.params.id

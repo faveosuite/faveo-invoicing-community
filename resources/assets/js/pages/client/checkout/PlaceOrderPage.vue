@@ -200,12 +200,6 @@ let cardNumber = null
 let clientSecret = null
 let paymentIntentId = null
 
-function logoFallback(event, name) {
-  const span = document.createElement('span')
-  span.className = 'font-weight-bold text-color-dark'
-  span.textContent = name
-  event.target.replaceWith(span)
-}
 
 function loadScript(src) {
   return new Promise((resolve, reject) => {

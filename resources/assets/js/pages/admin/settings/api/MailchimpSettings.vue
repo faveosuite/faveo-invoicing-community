@@ -327,7 +327,6 @@ import 'vue-select/dist/vue-select.css'
 import { useForm } from 'vee-validate'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import TextField   from '@/components/Reusable/FormField/TextField.vue'
 import SelectField from '@/components/Reusable/FormField/SelectField.vue'
 import { connectionSchema, listSchema } from '@/validations/admin/mailchimpValidations'
 

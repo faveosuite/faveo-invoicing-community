@@ -1,7 +1,6 @@
 import { mount } from '@vue/test-utils';
 import LicenseManagerLayout from '../../../Resources/js/Layouts/LicenseManagerLayout.vue';
 import { useStore } from 'vuex';
-import { computed } from 'vue';
 
 jest.mock('vuex');
 

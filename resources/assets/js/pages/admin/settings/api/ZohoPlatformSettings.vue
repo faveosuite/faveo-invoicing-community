@@ -149,7 +149,6 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useForm } from 'vee-validate'
-import { useAlertStore } from '@/core/stores/alert.js'
 import http from '@/plugins/axios'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
 import { validateForm } from '@/helpers/formUtils.js'
@@ -287,8 +286,7 @@ async function switchModule(tabId) {
 // ── Init ──────────────────────────────────────────────────────────────────
 onMounted(async () => {
     try {
-        const [intRes, keysRes] = await Promise.all([
-            http.get(`${baseUrl}/zoho/integrations`),
+        const [intRes] = await Promise.all([
             http.get(`${baseUrl}/zoho/integrations`),
         ])
 

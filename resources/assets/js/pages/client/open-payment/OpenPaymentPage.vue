@@ -473,7 +473,6 @@ const avatarInitials = computed(() => {
     : (parts[0]?.[0] ?? '?').toUpperCase()
 })
 
-const submitting = ref(false)
 const captchaRef = ref(null)
 const paying     = ref(false)
 const showPayBtn = ref(true)
@@ -511,9 +510,6 @@ const onLogoError = (event, name) => {
 }
 
 // ── Payment summary — server-calculated to avoid any rounding mismatch ──
-const selectedGateway   = computed(() => enabledGateways.value.find(g => g.name === form.gateway) ?? null)
-const processingFeeRate = computed(() => selectedGateway.value?.processing_fee ?? 0)
-
 const calculation = reactive({ base_amount: '0.00', processing_fee: '0.00', processing_fee_rate: 0, total: '0.00' })
 const calcLoading  = ref(false)
 

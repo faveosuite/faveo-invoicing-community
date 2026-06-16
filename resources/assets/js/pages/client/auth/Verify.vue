@@ -149,9 +149,9 @@ onMounted(async () => {
 
         // Honour the configured ordering preference (email-first vs mobile-first).
         if (data.verification_preference === 'email') {
-            pending.sort((a, b) => (a.type === 'email' ? -1 : 1))
+            pending.sort((a, _b) => (a.type === 'email' ? -1 : 1))
         } else {
-            pending.sort((a, b) => (a.type === 'mobile' ? -1 : 1))
+            pending.sort((a, _b) => (a.type === 'mobile' ? -1 : 1))
         }
 
         steps.value = pending

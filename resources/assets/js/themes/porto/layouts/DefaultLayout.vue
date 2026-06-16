@@ -77,7 +77,7 @@
 
 <script setup>
 import { computed, reactive, watch } from 'vue'
-import { useRoute, useRouter }       from 'vue-router'
+import { useRoute }       from 'vue-router'
 import { useNotification }           from '@/core/composables/useNotification.js'
 import { useAlertStore }             from '@/core/stores/alert.js'
 import { useBreadcrumb }             from '@/core/composables/useBreadcrumb.js'
@@ -89,7 +89,6 @@ useStickyHeader()
 useAnalyticsScripts()
 
 const route        = useRoute()
-const router       = useRouter()
 const alertStore   = useAlertStore()
 const notification = reactive(useNotification())
 const { pageTitle, breadcrumbs } = useBreadcrumb()

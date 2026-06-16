@@ -100,7 +100,7 @@
 import { reactive } from 'vue'
 import TextField from '@/components/Reusable/FormField/TextField.vue'
 
-const props = defineProps({
+defineProps({
     show:    { type: Boolean, default: false },
     baseUrl: { type: String, default: '' },
 })

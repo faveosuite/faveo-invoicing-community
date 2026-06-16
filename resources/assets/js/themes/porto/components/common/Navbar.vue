@@ -360,9 +360,7 @@ const isAdmin         = computed(() => authStore.isAdmin)
 const logoUrl         = computed(() => el?.dataset?.appLogo ?? '')
 const appCompany      = computed(() => el?.dataset?.company ?? '')
 const baseUrl         = computed(() => el?.dataset?.baseUrl ?? '')
-const assetUrl        = computed(() => el?.dataset?.assetUrl ?? '')
 const logoutUrl       = computed(() => `${baseUrl.value}/auth/logout`)
-const loginUrl        = computed(() => `${baseUrl.value}/login`)
 const adminDashboardUrl = computed(() => `${baseUrl.value}/admin/dashboard`)
 
 const phone = computed(() => el?.dataset?.phone ?? '')
@@ -437,13 +435,11 @@ onMounted(async () => {
   try {
     const {data} = await http.post('available-groups')
     productGroups.value = Object.entries(data.data ?? {}).map(([id, g]) => ({id: parseInt(id), ...g}))
-  } catch {
-  }
+  } catch { /* ignore */ }
   try {
     const {data} = await http.get('published-pages')
     publishedPages.value = data.data ?? []
-  } catch {
-  }
+  } catch { /* ignore */ }
 })
 
 onUnmounted(() => {

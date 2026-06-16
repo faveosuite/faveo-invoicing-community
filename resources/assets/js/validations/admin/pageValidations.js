@@ -2,7 +2,7 @@ import * as yup from 'yup'
 
 // URL is optional: custom pages render by slug via the SPA page view, and
 // contact-us pages have their URL auto-filled. (type kept for signature parity.)
-export function buildFrontendPageCreateSchema(type) {
+export function buildFrontendPageCreateSchema(_type) {
     return yup.object({
         name:    yup.string().required(() => __('validation.frontend_pages.name.required')),
         slug:    yup.string().required(() => __('validation.frontend_pages.slug.required')),
@@ -10,7 +10,7 @@ export function buildFrontendPageCreateSchema(type) {
     })
 }
 
-export function buildFrontendPageEditSchema(type) {
+export function buildFrontendPageEditSchema(_type) {
     return yup.object({
         name:            yup.string().required(() => __('validation.frontend_pages.name.required')),
         slug:            yup.string().required(() => __('validation.frontend_pages.slug.required')),

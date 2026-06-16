@@ -65,7 +65,7 @@ import { getIdFromUrl, lang } from '@/helpers/extraLogics'
 import axios from '@/plugins/axios'
 import { useDateTime } from '@/core/composables/useDateTime'
 
-const { formatDate, formatDateTime } = useDateTime()
+const { formatDateTime } = useDateTime()
 const baseUrl = document.getElementById('app-root')?.dataset?.baseUrl ?? ''
 
 const loading = ref(true)

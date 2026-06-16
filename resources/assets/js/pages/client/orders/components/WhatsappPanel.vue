@@ -99,7 +99,6 @@ import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
 import http from '@/plugins/axios'
 import { __ } from '@/plugins/i18n'
 import { successHandler, errorHandler } from '@/helpers/responseHandler.js'
-import { useAlertStore } from '@/core/stores/alert'
 import Modal from '@/themes/porto/components/common/Modal.vue'
 import AppAlert from '@/components/Reusable/Alert.vue'
 
@@ -110,7 +109,6 @@ const props = defineProps({
 
 const el      = document.getElementById('app-client')
 const baseUrl = el?.dataset?.baseUrl ?? ''
-const alertStore = useAlertStore()
 const COMPONENT  = 'whatsapp-panel'
 
 const copiedId = ref(null)
@@ -138,7 +136,7 @@ function refreshTable() {
 
 async function copyValue(id, text) {
     if (!text) return
-    try { await navigator.clipboard.writeText(text) } catch {}
+    try { await navigator.clipboard.writeText(text) } catch { /* ignore */ }
     copiedId.value = id
     setTimeout(() => { copiedId.value = null }, 2000)
 }

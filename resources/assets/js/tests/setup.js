@@ -1,4 +1,3 @@
-import { config } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 
 // setup fresh pinia before each test

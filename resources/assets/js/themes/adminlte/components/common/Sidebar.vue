@@ -431,7 +431,6 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { asset } from '@/core/utils/asset.js'
 
 const route = useRoute()
 
