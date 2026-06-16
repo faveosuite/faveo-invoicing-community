@@ -2,10 +2,10 @@
 
 namespace App\Traits;
 
-use Illuminate\Contracts\Database\Query\Builder;
 use App\Model\Order\Invoice;
 use Cart;
 use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Lang;

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Report;
 
-use Illuminate\Contracts\Database\Query\Builder;
 use App\ExportDetail;
 use App\Http\Controllers\Controller;
 use App\ReportSetting;
 use DB;
 use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Lang;

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Contracts\Database\Query\Builder;
 use App\Jobs\SendWhatsappMessage;
 use App\Model\Common\StatusSetting;
 use App\WhatsappIntegration;
 use App\WhatsappIntegrationUser;
 use Auth;
 use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Log;

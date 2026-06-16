@@ -2,9 +2,9 @@
 
 namespace App\License\Controllers\Admin;
 
-use Illuminate\Contracts\Database\Query\Builder;
 use App\Http\Controllers\Controller;
 use App\Model\Product\ProductUpload;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
 
 class VersionsController extends Controller

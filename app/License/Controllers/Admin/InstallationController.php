@@ -2,12 +2,12 @@
 
 namespace App\License\Controllers\Admin;
 
-use Illuminate\Contracts\Database\Query\Builder;
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\Installation;
 use App\License\Models\License;
 use App\License\Models\LicensePlugin;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 

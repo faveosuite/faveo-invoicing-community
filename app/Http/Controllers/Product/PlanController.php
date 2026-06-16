@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Product;
 
-use Illuminate\Contracts\Database\Query\Builder;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Requests\PlanRequest;
 use App\Model\Payment\Currency;
@@ -13,6 +12,7 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use DB;
 use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;

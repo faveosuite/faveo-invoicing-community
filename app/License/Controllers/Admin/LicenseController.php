@@ -2,7 +2,6 @@
 
 namespace App\License\Controllers\Admin;
 
-use Illuminate\Contracts\Database\Query\Builder;
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\Installation;
@@ -15,6 +14,7 @@ use App\License\Requests\LicenseRequest;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
