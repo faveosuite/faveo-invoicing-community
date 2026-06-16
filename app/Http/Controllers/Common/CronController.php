@@ -2,11 +2,6 @@
 
 namespace App\Http\Controllers\Common;
 
-use Override;
-use Illuminate\Support\Facades\Date;
-use Illuminate\Contracts\Database\Eloquent\Builder;
-use Session;
-use DB;
 use App\EmailValidationResults;
 use App\FailedWhatsappMessage;
 use App\Jobs\SendWhatsappMessage;
@@ -23,7 +18,12 @@ use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use DB;
 use GuzzleHttp\Client;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Date;
+use Override;
+use Session;
 
 class CronController extends BaseCronController
 {

@@ -2,9 +2,9 @@
 
 namespace App\Plugins\Recaptcha\Requests;
 
-use Override;
 use App\Plugins\Recaptcha\Services\RecaptchaVerifier;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class UpdateSettingsRequest extends FormRequest
 {

@@ -189,7 +189,7 @@ class ZohoCampaignsControllerTest extends DBTestCase
 
         $this->controller->subscribe('test@example.com', 'newsletter');
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'listsubscribe'));
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'listsubscribe'));
     }
 
     public function test_it_returns_early_when_topic_not_configured()
@@ -230,7 +230,7 @@ class ZohoCampaignsControllerTest extends DBTestCase
 
         $this->controller->subscribe('test@example.com', 'newsletter');
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'listsubscribe'));
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'listsubscribe'));
     }
 
     public function test_it_subscribes_with_tag()
@@ -241,7 +241,7 @@ class ZohoCampaignsControllerTest extends DBTestCase
 
         $this->controller->subscribeWithTag('test@example.com', 'newsletter', 'VIP');
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'listsubscribe') ||
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'listsubscribe') ||
                str_contains((string) $request->url(), 'associate'));
     }
 }

@@ -33,7 +33,7 @@ class UsersExport implements FromCollection, WithHeadings, WithTitle
             'is_2fa_enabled' => '2FA status',
         ];
 
-        return array_map(fn($column) => $headingsMap[$column] ?? $column, $this->selectedColumns);
+        return array_map(fn ($column) => $headingsMap[$column] ?? $column, $this->selectedColumns);
     }
 
     public function title(): string

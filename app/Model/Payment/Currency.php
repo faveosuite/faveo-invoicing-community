@@ -2,11 +2,11 @@
 
 namespace App\Model\Payment;
 
-use Override;
-use App\Model\Common\Country;
 use App\BaseModel;
+use App\Model\Common\Country;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Builder;
+use Override;
 
 class Currency extends BaseModel
 {

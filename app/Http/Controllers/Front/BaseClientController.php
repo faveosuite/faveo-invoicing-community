@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers\Front;
 
-use App\Http\Controllers\Github\GithubApiController;
-use Auth;
-use Hash;
-use DB;
-use Lang;
-use Logger;
-use Illuminate\Contracts\View\View;
 use app\Cart\UserCart;
 use App\Facades\Attach;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Requests\User\ProfileRequest;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
+use Auth;
+use DB;
 use Exception;
+use Hash;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Lang;
+use Logger;
 
 class BaseClientController extends Controller
 {

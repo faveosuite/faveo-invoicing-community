@@ -2,22 +2,22 @@
 
 namespace App\Traits;
 
-use Lang;
-use Exception;
-use Auth;
-use DateTimeZone;
-use App\Model\Mailjob\Condition;
 use App\ApiKey;
 use App\FileSystemSettings;
 use App\Http\Requests\UpdateStoragePathRequest;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\StatusSetting;
+use App\Model\Mailjob\Condition;
+use Auth;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
 use DateTime;
+use DateTimeZone;
 use DrewM\MailChimp\MailChimp;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Lang;
 
 //////////////////////////////////////////////////////////////
 //TRAIT FOR SAVING API STATUS AND API KEYS //
@@ -43,7 +43,7 @@ trait ApiKeySettings
             $input = $request->all();
 
             // Find the first matching status key
-            $statusEntry = $statusData->first(fn($value, $inputKey) => array_key_exists($inputKey, $input));
+            $statusEntry = $statusData->first(fn ($value, $inputKey) => array_key_exists($inputKey, $input));
 
             if (! $statusEntry) {
                 return errorResponse(Lang::get('message.invalid_key'));

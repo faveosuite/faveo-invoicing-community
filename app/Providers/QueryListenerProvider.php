@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use Override;
-use DB;
 use Clockwork;
+use DB;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class QueryListenerProvider extends ServiceProvider
 {

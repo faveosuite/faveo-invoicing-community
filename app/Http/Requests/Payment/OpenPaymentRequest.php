@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Payment;
 
-use Override;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class OpenPaymentRequest extends FormRequest
 {

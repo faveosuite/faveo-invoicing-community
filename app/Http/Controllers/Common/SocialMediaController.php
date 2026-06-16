@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Common;
 
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Common\SocialMediaRequest;
 use App\Model\Common\SocialMedia;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SocialMediaController extends Controller
@@ -47,7 +47,7 @@ class SocialMediaController extends Controller
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $socials->getCollection()->transform(fn($social) => [
+            $socials->getCollection()->transform(fn ($social) => [
                 'id' => $social->id,
                 'name' => ucfirst((string) $social->name),
                 'link' => $social->link,
@@ -63,7 +63,7 @@ class SocialMediaController extends Controller
     /**
      * Store a newly created social media account in storage.
      *
-     * @param SocialMediaRequest $request
+     * @param  SocialMediaRequest  $request
      * @return JsonResponse
      */
     public function createSocialMedia(SocialMediaRequest $request)
@@ -102,7 +102,7 @@ class SocialMediaController extends Controller
     /**
      * Update the specified social media account in storage.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @param  int  $id
      * @return JsonResponse
      */

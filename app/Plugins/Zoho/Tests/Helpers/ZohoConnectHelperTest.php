@@ -2,12 +2,12 @@
 
 namespace App\Plugins\Zoho\Tests\Helpers;
 
-use InvalidArgumentException;
 use App\Plugins\Zoho\Helpers\ZohoConnectHelper;
 use App\Plugins\Zoho\Models\FaveoLocalFields;
 use App\Plugins\Zoho\Models\ZohoFieldMappings;
 use App\Plugins\Zoho\Models\ZohoFields;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use InvalidArgumentException;
 use Tests\DBTestCase;
 
 class ZohoConnectHelperTest extends DBTestCase

@@ -2,13 +2,13 @@
 
 namespace Tests\Unit\Client\Cart;
 
-use Exception;
 use App\Facades\Cart;
 use App\Http\Controllers\Front\CartController;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
+use Exception;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 

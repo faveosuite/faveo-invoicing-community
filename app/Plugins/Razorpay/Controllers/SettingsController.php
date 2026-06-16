@@ -2,15 +2,15 @@
 
 namespace App\Plugins\Razorpay\Controllers;
 
-use Exception;
-use App\Jobs\CancelGatewaySubscriptionsJob;
-use Razorpay\Api\Errors\BadRequestError;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
+use App\Jobs\CancelGatewaySubscriptionsJob;
 use App\Model\Common\StatusSetting;
 use App\Services\Payment\ProcessingFee;
+use Exception;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
+use Razorpay\Api\Errors\BadRequestError;
 
 class SettingsController extends Controller
 {

@@ -3,11 +3,11 @@
 namespace Tests\Unit\Client\Product;
 
 use App\Http\Controllers\Product\ExtendedBaseProductController;
-use Exception;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use Exception;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 

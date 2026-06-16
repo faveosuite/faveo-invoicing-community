@@ -37,7 +37,7 @@ class TenatExport implements FromCollection, WithHeadings, WithTitle
             'db_username' => 'Database Username',
         ];
 
-        return array_map(fn($column) => $headingsMap[$column] ?? $column, $this->selectedColumns);
+        return array_map(fn ($column) => $headingsMap[$column] ?? $column, $this->selectedColumns);
     }
 
     public function title(): string

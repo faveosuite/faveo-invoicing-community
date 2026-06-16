@@ -2,12 +2,12 @@
 
 namespace App\Model\Cart;
 
-use Override;
 use App\Model\Order\Invoice;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Override;
 
 class Cart extends Model
 {
@@ -56,6 +56,7 @@ class Cart extends Model
     {
         return (int) $this->items->sum('quantity');
     }
+
     #[Override]
     protected function casts(): array
     {

@@ -2,13 +2,13 @@
 
 namespace App\BillingLog\Controllers;
 
-use Illuminate\Support\Facades\Date;
-use Illuminate\Database\Eloquent\Model;
 use App\BillingLog\Model\CronLog;
 use App\BillingLog\Model\LogCategory;
 use App\BillingLog\Model\MailLog;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Throwable;
 
 class LogWriteController

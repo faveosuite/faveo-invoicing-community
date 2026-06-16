@@ -2,8 +2,6 @@
 
 namespace Tests\Unit\Admin\Dashboard;
 
-use Illuminate\Support\Facades\Date;
-use DB;
 use App\Http\Controllers\DashboardController;
 use App\Model\Common\Setting;
 use App\Model\Order\Invoice;
@@ -14,7 +12,9 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Date;
 use Tests\DBTestCase;
 
 class DashboardControllerTest extends DBTestCase

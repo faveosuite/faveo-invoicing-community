@@ -2,12 +2,12 @@
 
 namespace App\Plugins\Zoho\Tests\Controllers\Api;
 
-use Throwable;
 use App\Plugins\Zoho\Controllers\Api\ZohoAccountsApi;
 use App\Plugins\Zoho\Controllers\Api\ZohoRegion;
 use App\Plugins\Zoho\Controllers\Exceptions\ZohoAccountsApiException;
 use Illuminate\Support\Facades\Http;
 use Tests\DBTestCase;
+use Throwable;
 
 class ZohoAccountsApiTest extends DBTestCase
 {
@@ -168,7 +168,7 @@ class ZohoAccountsApiTest extends DBTestCase
         } catch (Throwable) {
         }
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'accounts.zoho.com/oauth/v2/token'));
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'accounts.zoho.com/oauth/v2/token'));
     }
 
     public function test_it_uses_correct_endpoint_for_eu_region()
@@ -186,7 +186,7 @@ class ZohoAccountsApiTest extends DBTestCase
         } catch (Throwable) {
         }
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'accounts.zoho.eu/oauth/v2/token'));
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'accounts.zoho.eu/oauth/v2/token'));
     }
 
     public function test_it_uses_correct_endpoint_for_india_region()
@@ -204,7 +204,7 @@ class ZohoAccountsApiTest extends DBTestCase
         } catch (Throwable) {
         }
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'accounts.zoho.in/oauth/v2/token'));
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'accounts.zoho.in/oauth/v2/token'));
     }
 
     public function test_it_handles_error_in_refresh_token()

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Report;
 
-use Lang;
-use DB;
-use Exception;
 use App\ExportDetail;
 use App\Http\Controllers\Controller;
 use App\ReportSetting;
+use DB;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Lang;
 
 class ReportController extends Controller
 {

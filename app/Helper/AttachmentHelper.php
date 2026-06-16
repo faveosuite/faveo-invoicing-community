@@ -2,12 +2,12 @@
 
 namespace App\Helper;
 
-use Illuminate\Filesystem\FilesystemAdapter;
-use Exception;
-use Storage;
 use App\FileSystemSettings;
+use Exception;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
+use Storage;
 
 class AttachmentHelper
 {

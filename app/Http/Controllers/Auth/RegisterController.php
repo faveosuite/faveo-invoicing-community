@@ -2,11 +2,6 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Log;
-use Lang;
-use Hash;
-use Session;
-use Logger;
 use App\EmailValidationResults;
 use App\Events\UserRegisteredEvent;
 use App\Http\Controllers\Controller;
@@ -18,8 +13,13 @@ use App\Rules\Honeypot;
 use App\User;
 use Exception;
 use Facades\Spatie\Referer\Referer;
+use Hash;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Http;
+use Lang;
+use Log;
+use Logger;
+use Session;
 
 class RegisterController extends Controller
 {

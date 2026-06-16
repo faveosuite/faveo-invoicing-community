@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
-use Override;
 use App\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Hash;
+use Override;
 
 class verifyOtp extends FormRequest
 {

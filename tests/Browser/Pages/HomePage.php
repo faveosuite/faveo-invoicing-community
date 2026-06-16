@@ -2,8 +2,8 @@
 
 namespace Tests\Browser\Pages;
 
-use Override;
 use Laravel\Dusk\Browser;
+use Override;
 
 class HomePage extends Page
 {

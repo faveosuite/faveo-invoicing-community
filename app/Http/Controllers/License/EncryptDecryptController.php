@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\License;
 
-use Exception;
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Support\Facades\Storage;
 
 class EncryptDecryptController extends Controller

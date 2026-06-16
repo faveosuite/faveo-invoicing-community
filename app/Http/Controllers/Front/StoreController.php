@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Front;
 
-use Illuminate\Contracts\Database\Query\Builder;
-use Auth;
 use App\Http\Controllers\Controller;
 use App\Model\CloudDataCenters;
 use App\Model\Payment\Currency;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
+use Auth;
+use Illuminate\Contracts\Database\Query\Builder;
 
 class StoreController extends Controller
 {

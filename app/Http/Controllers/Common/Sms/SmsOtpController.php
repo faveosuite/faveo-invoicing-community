@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Common\Sms;
 
-use Exception;
-use Logger;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\User;
+use Exception;
 use Illuminate\Support\Facades\Http;
+use Logger;
 
 class SmsOtpController extends Controller
 {

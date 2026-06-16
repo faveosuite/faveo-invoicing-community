@@ -2,12 +2,12 @@
 
 namespace App\Traits;
 
-use Illuminate\Support\Facades\Date;
+use App\Model\Order\Invoice;
 use Cart;
 use Exception;
-use Lang;
-use App\Model\Order\Invoice;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
+use Lang;
 
 //////////////////////////////////////////////////////////////////////////////
 // ADVANCE SEARCH FOR INVOICE AND COUPON CODE CALCULATION

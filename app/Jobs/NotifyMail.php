@@ -2,9 +2,9 @@
 
 namespace App\Jobs;
 
-use Illuminate\Foundation\Queue\Queueable;
 use App\Http\Controllers\Common\PhpMailController;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
 
 class NotifyMail implements ShouldQueue
 {

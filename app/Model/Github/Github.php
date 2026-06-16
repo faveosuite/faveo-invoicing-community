@@ -2,9 +2,9 @@
 
 namespace App\Model\Github;
 
-use Crypt;
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
+use Crypt;
 
 class Github extends BaseModel
 {

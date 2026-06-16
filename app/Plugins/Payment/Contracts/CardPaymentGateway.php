@@ -2,9 +2,9 @@
 
 namespace App\Plugins\Payment\Contracts;
 
-use App\Plugins\Payment\Exceptions\PaymentException;
 use App\Plugins\Payment\Dto\PaymentRequest;
 use App\Plugins\Payment\Dto\PaymentSession;
+use App\Plugins\Payment\Exceptions\PaymentException;
 
 /**
  * Contract for gateways that support a custom, in-page card UI.

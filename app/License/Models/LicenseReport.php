@@ -2,12 +2,12 @@
 
 namespace App\License\Models;
 
-use Override;
 use App\Model\Product\Product;
 use App\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Override;
 
 class LicenseReport extends Model
 {
@@ -52,6 +52,7 @@ class LicenseReport extends Model
     {
         return $query->where('report_status', 0);
     }
+
     #[Override]
     protected function casts(): array
     {

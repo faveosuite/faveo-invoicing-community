@@ -2,22 +2,12 @@
 
 namespace App\Http\Controllers\Tenancy;
 
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Date;
-use Illuminate\Support\Arr;
-use Auth;
-use Exception;
-use Logger;
-use DB;
-use App\License\Services\LicenseService;
-use Crypt;
-use Illuminate\Contracts\Database\Query\Builder;
-use Lang;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\CartController;
 use App\Http\Controllers\Order\InvoiceController as InvoiceCtrl;
 use App\Http\Controllers\Order\RenewController;
 use App\License\Models\Installation;
+use App\License\Services\LicenseService;
 use App\Model\CloudDataCenters;
 use App\Model\Common\Country;
 use App\Model\Common\FaveoCloud;
@@ -34,8 +24,18 @@ use App\Model\Product\Subscription;
 use App\ThirdPartyApp;
 use App\Traits\TaxCalculation;
 use App\User;
+use Auth;
+use Crypt;
+use DB;
+use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Str;
+use Lang;
+use Logger;
 
 class CloudExtraActivities extends Controller
 {

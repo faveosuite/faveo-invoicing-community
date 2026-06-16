@@ -2,19 +2,16 @@
 
 namespace App\Http\Controllers\Report;
 
-use Illuminate\Support\Facades\Date;
-use App\Model\Common\Setting;
-use App\Http\Controllers\Common\PhpMailController;
-use Exception;
-use DB;
 use App\ExportDetail;
 use App\Exports\InvoiceExport;
 use App\Exports\OrderExport;
 use App\Exports\TenatExport;
 use App\Exports\UsersExport;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Order\OrderSearchController;
 use App\Model\Common\Country;
 use App\Model\Common\FaveoCloud;
+use App\Model\Common\Setting;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
@@ -26,8 +23,11 @@ use App\ThirdPartyApp;
 use App\Traits\CoupCodeAndInvoiceSearch;
 use App\User;
 use Carbon\Carbon;
+use DB;
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Maatwebsite\Excel\Facades\Excel;
 
 abstract class ExportHandleController
@@ -58,7 +58,7 @@ class ConcreteExportHandleController extends ExportHandleController
     {
         try {
             // Filter out unwanted columns
-            $selectedColumns = array_filter($selectedColumns, fn($column) => ! in_array($column, ['checkbox', 'action']));
+            $selectedColumns = array_filter($selectedColumns, fn ($column) => ! in_array($column, ['checkbox', 'action']));
 
             // Prepare the query
             $users = User::query();
@@ -197,7 +197,7 @@ class ConcreteExportHandleController extends ExportHandleController
     {
         try {
             // Filter out unwanted columns
-            $selectedColumns = array_filter($selectedColumns, fn($column) => ! in_array($column, ['checkbox', 'action']));
+            $selectedColumns = array_filter($selectedColumns, fn ($column) => ! in_array($column, ['checkbox', 'action']));
 
             // Perform search and filtering
             $request = new Request();
@@ -318,7 +318,7 @@ class ConcreteExportHandleController extends ExportHandleController
     {
         try {
             // Filter out unwanted columns
-            $selectedColumns = array_filter($selectedColumns, fn($column) => ! in_array($column, ['checkbox', 'action']));
+            $selectedColumns = array_filter($selectedColumns, fn ($column) => ! in_array($column, ['checkbox', 'action']));
             $searchRequest = new Request($searchParams);
 
             // Perform advanced order search
@@ -441,7 +441,7 @@ class ConcreteExportHandleController extends ExportHandleController
         $client = new Client();
 
         // Similar logic to export users but for orders
-        $this->selectedColumns = array_filter($this->selectedColumns, fn($column) => ! in_array($column, ['action']));
+        $this->selectedColumns = array_filter($this->selectedColumns, fn ($column) => ! in_array($column, ['action']));
 
         $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
@@ -463,7 +463,7 @@ class ConcreteExportHandleController extends ExportHandleController
         $responseBody = (string) $response->getBody();
         $responseData = json_decode($responseBody);
 
-        $tenats = collect($responseData->message)->reject(fn($item) => $item === null);
+        $tenats = collect($responseData->message)->reject(fn ($item) => $item === null);
         $filteredTenants = $tenats->map(function ($tenats) {
             $tenantData = [];
             foreach ($this->selectedColumns as $column) {

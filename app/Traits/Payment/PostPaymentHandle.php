@@ -2,12 +2,12 @@
 
 namespace App\Traits\Payment;
 
-use Auth;
 use App\Http\Controllers\Common\PhpMailController;
 use App\Model\Common\Setting;
 use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
+use Auth;
 
 trait PostPaymentHandle
 {

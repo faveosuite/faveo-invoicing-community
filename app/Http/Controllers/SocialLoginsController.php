@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
 use App\SocialLogin;
+use Exception;
 use Illuminate\Http\Request;
 
 class SocialLoginsController extends Controller

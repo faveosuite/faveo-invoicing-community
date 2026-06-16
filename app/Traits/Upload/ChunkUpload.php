@@ -2,16 +2,16 @@
 
 namespace App\Traits\Upload;
 
-use ZipArchive;
+use App\Facades\Attach;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use App\Facades\Attach;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
 use Pion\Laravel\ChunkUpload\Handler\AbstractHandler;
 use Pion\Laravel\ChunkUpload\Handler\HandlerFactory;
 use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
+use ZipArchive;
 
 trait ChunkUpload
 {

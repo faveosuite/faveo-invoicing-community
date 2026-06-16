@@ -2,7 +2,6 @@
 
 namespace App\Plugins\Payment\Gateways;
 
-use Throwable;
 use App\Plugins\Payment\Contracts\CardPaymentGateway;
 use App\Plugins\Payment\Contracts\PaymentGateway;
 use App\Plugins\Payment\Contracts\SubscriptionGateway;
@@ -17,6 +16,7 @@ use App\Plugins\Payment\Support\Money;
 use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
 use Stripe\Webhook;
+use Throwable;
 
 /**
  * Stripe driver — embedded Checkout Session.

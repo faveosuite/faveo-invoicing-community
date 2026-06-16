@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers\Payment;
 
-use Lang;
-use Exception;
-use Session;
-use Auth;
-use Illuminate\Support\Facades\Date;
-use App\Http\Controllers\Order\InvoiceController;
-use DB;
 use App\Facades\Cart;
+use App\Http\Controllers\Order\InvoiceController;
 use App\Http\Requests\Payment\PromotionRequest;
 use App\Model\Order\Invoice;
 use App\Model\Payment\PromoProductRelation;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\PromotionType;
 use App\Model\Product\Product;
+use Auth;
+use DB;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
+use Lang;
+use Session;
 
 class PromotionController extends BasePromotionController
 {

@@ -1,7 +1,7 @@
 <?php
 
-use App\BillingLog\Controllers\LogViewController;
 use App\BillingLog\Controllers\AutomationController;
+use App\BillingLog\Controllers\LogViewController;
 use App\BillingLog\Controllers\LogWriteController;
 
 Route::middleware(['auth', 'admin'])->group(function (): void {

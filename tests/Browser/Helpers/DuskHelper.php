@@ -2,12 +2,12 @@
 
 namespace Tests\Browser\Helpers;
 
-use Exception;
-use Artisan;
 use App\ApiKey;
 use App\Http\Controllers\Common\EmailSettingsController;
 use App\Http\Requests\Email\EmailSettingRequest;
 use App\Model\Common\StatusSetting;
+use Artisan;
+use Exception;
 use Illuminate\Http\Request;
 use Laravel\Dusk\Browser;
 use Symfony\Component\Console\Output\NullOutput;

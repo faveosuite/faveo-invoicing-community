@@ -2,10 +2,10 @@
 
 namespace App\License\Console\Commands;
 
-use Illuminate\Support\Facades\Date;
 use App\License\Models\InstallationLog;
 use App\Model\Mailjob\ExpiryMailDay;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Date;
 
 class InstallationLogsCommand extends Command
 {

@@ -2,10 +2,10 @@
 
 namespace App\Model\Payment;
 
-use Override;
-use Str;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Model;
+use Override;
+use Str;
 
 class OpenPaymentOrder extends Model
 {
@@ -116,6 +116,7 @@ class OpenPaymentOrder extends Model
     {
         return $this->gateway_transaction_id;
     }
+
     #[Override]
     protected function casts(): array
     {

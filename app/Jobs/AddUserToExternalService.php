@@ -2,10 +2,10 @@
 
 namespace App\Jobs;
 
-use Illuminate\Foundation\Queue\Queueable;
 use App\Events\UserRegisteredEvent;
 use App\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
 
 class AddUserToExternalService implements ShouldQueue
 {

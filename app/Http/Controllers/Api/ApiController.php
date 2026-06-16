@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use Log;
 use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\Request;
+use Log;
 
 class ApiController extends Controller
 {

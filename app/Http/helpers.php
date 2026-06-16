@@ -1,34 +1,34 @@
 <?php
 
-use Illuminate\Support\Facades\Date;
+use App\CloudPopUp;
+use App\FileSystemSettings;
+use App\Http\Controllers\Common\PaymentSettingsController;
+use App\License\Models\Installation;
+use App\Model\Common\CommonSettings;
+use App\Model\Common\Country;
+use App\Model\Common\FaveoCloud;
+use App\Model\Common\Setting;
 use App\Model\Common\State;
 use App\Model\Common\Timezone;
-use App\Model\Payment\TaxOption;
-use Illuminate\Mail\MailServiceProvider;
-use App\Model\Common\FaveoCloud;
-use App\CloudPopUp;
-use App\Model\Product\CloudProducts;
-use Illuminate\Cache\ArrayStore;
-use Carbon\CarbonInterval;
-use App\Model\Payment\PlanPrice;
-use App\Model\Product\Product;
-use App\Http\Controllers\Common\PaymentSettingsController;
-use Illuminate\Support\Sleep;
-use Illuminate\Http\JsonResponse;
-use App\Model\Common\CommonSettings;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use App\FileSystemSettings;
-use App\License\Models\Installation;
-use App\Model\Common\Country;
-use App\Model\Common\Setting;
 use App\Model\Payment\Currency;
+use App\Model\Payment\PlanPrice;
+use App\Model\Payment\TaxOption;
+use App\Model\Product\CloudProducts;
+use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Traits\TaxCalculation;
 use App\User;
 use Carbon\Carbon;
+use Carbon\CarbonInterval;
 use GuzzleHttp\Client;
+use Illuminate\Cache\ArrayStore;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Mail\MailServiceProvider;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Sleep;
 use Spatie\Activitylog\Support\ActivityLogger;
 use Spatie\Activitylog\Support\ActivityLogStatus;
 
@@ -225,7 +225,7 @@ function getExpiryLabel($expiryDate, $badge = 'badge')
 function getVersionAndLabel($productVersion, $productId, $path = null)
 {
     // Get latest version from cache
-    $latestVersion = Cache::remember('latest_'.$productId, 10, fn() => ProductUpload::where('product_id', $productId)->latest()->value('version'));
+    $latestVersion = Cache::remember('latest_'.$productId, 10, fn () => ProductUpload::where('product_id', $productId)->latest()->value('version'));
 
     // Fallback to installation detail if version not provided
     if (! $productVersion && $path) {
@@ -382,7 +382,7 @@ function getCountry($userid)
         return User::where('id', $userid)->value('country');
     }
 
-    $location = cache()->remember('user_location', 60, fn() => getLocation());
+    $location = cache()->remember('user_location', 60, fn () => getLocation());
 
     return $location['iso_code'] ? findCountryByGeoip($location['iso_code']) : null;
 }
@@ -1216,7 +1216,7 @@ function getSupportedCountriesForIntlInput()
 
     $unsupportedIso = ['BV', 'PN', 'GS', 'UM', 'HM'];
 
-    return collect($countries)->reject(fn($name, $iso) => in_array(strtoupper((string) $iso), $unsupportedIso))->toArray();
+    return collect($countries)->reject(fn ($name, $iso) => in_array(strtoupper((string) $iso), $unsupportedIso))->toArray();
 }
 
 /**

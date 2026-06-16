@@ -2,21 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Log;
-use App\Http\Controllers\Product\ProductController;
-use Validator;
-use Logger;
-use Illuminate\Contracts\Database\Query\Builder;
-use DB;
-use NumberFormatter;
-use Illuminate\Http\JsonResponse;
-use App\License\Services\LicenseService;
 use App\Http\Controllers\Common\CronController;
 use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Order\RenewController;
+use App\Http\Controllers\Product\ProductController;
 use App\Http\Requests\ProductRenewalRequest;
 use App\License\Models\Installation;
 use App\License\Models\License;
+use App\License\Services\LicenseService;
 use App\Model\Configure\PluginCompatibleWithProducts;
 use App\Model\Configure\ProductPluginGroup;
 use App\Model\License\LicenseType;
@@ -28,8 +21,15 @@ use App\Model\Product\ProductGroup;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\User;
+use DB;
 use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Log;
+use Logger;
+use NumberFormatter;
+use Validator;
 
 class HomeController extends BaseHomeController
 {
@@ -434,7 +434,7 @@ class HomeController extends BaseHomeController
 
                     $inBetweenVersions = ProductUpload::where([['product_id', $product->id]])->select('version', 'description', 'created_at', 'is_restricted', 'is_private', 'dependencies')
                         ->whereIn('release_type', $releases)
-                    ->get()->filter(fn($newVersion) => version_compare($this->getPHPCompatibleVersionString($newVersion->version), $currenctVersion) == 1)->sortBy('version', SORT_NATURAL)->toArray();
+                    ->get()->filter(fn ($newVersion) => version_compare($this->getPHPCompatibleVersionString($newVersion->version), $currenctVersion) == 1)->sortBy('version', SORT_NATURAL)->toArray();
 
                     $message = ['version' => array_values($inBetweenVersions)];
                 } else {

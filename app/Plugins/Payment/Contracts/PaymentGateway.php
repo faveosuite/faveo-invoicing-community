@@ -2,11 +2,11 @@
 
 namespace App\Plugins\Payment\Contracts;
 
-use App\Plugins\Payment\Exceptions\PaymentException;
-use App\Plugins\Payment\Exceptions\SignatureVerificationException;
 use App\Plugins\Payment\Dto\PaymentRequest;
 use App\Plugins\Payment\Dto\PaymentResult;
 use App\Plugins\Payment\Dto\PaymentSession;
+use App\Plugins\Payment\Exceptions\PaymentException;
+use App\Plugins\Payment\Exceptions\SignatureVerificationException;
 
 /**
  * Contract every payment gateway driver implements.

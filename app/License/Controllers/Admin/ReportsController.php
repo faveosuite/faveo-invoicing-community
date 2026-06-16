@@ -90,7 +90,7 @@ class ReportsController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $reportsQuery->getCollection()->transform(fn(LicenseReport $report) => [
+        $reportsQuery->getCollection()->transform(fn (LicenseReport $report) => [
             'id' => $report->id,
             'account_id' => $report->user_id,
             'license_code' => $report->license_code,
@@ -134,7 +134,7 @@ class ReportsController extends Controller
         $licenseIdsByCode = License::whereIn('license_code', $crakingReports->pluck('license_code')->filter()->unique())
             ->pluck('id', 'license_code');
 
-        $crakingReports->getCollection()->transform(fn(LicenseReport $report) => [
+        $crakingReports->getCollection()->transform(fn (LicenseReport $report) => [
             'id' => $report->id,
             'user_id' => $report->user_id,
             'license_code' => $report->license_code,
@@ -178,7 +178,7 @@ class ReportsController extends Controller
         $licenseIdsByCode = License::whereIn('license_code', $LicenseReports->pluck('license_code')->filter()->unique())
             ->pluck('id', 'license_code');
 
-        $LicenseReports->getCollection()->transform(fn(LicenseReport $report) => [
+        $LicenseReports->getCollection()->transform(fn (LicenseReport $report) => [
             'id' => $report->id,
             'client_id' => $report->user_id,
             'report_text' => $report->report_text,
@@ -219,7 +219,7 @@ class ReportsController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $updateReports->getCollection()->transform(fn(LicenseReport $report) => [
+        $updateReports->getCollection()->transform(fn (LicenseReport $report) => [
             'id' => $report->id,
             'user_id' => $report->user_id,
             'report_text' => $report->report_text,

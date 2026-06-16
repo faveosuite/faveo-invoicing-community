@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
-use Auth;
-use Session;
-use Log;
 use App\Jobs\SendWhatsappMessage;
 use App\Model\Common\StatusSetting;
 use App\WhatsappIntegration;
 use App\WhatsappIntegrationUser;
+use Auth;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Log;
+use Session;
 
 /**
  * WhatsApp Business (Meta) integration.

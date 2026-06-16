@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Order;
 
-use Override;
 use App\Http\Requests\Request;
+use Override;
 
 class OrderRequest extends Request
 {

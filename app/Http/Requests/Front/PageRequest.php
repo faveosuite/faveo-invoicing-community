@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Front;
 
-use Override;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class PageRequest extends FormRequest
 {

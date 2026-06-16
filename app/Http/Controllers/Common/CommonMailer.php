@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Common;
 
-use Mail;
 use Exception;
+use Mail;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 
 class CommonMailer

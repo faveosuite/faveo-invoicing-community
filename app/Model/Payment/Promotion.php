@@ -2,11 +2,11 @@
 
 namespace App\Model\Payment;
 
-use Override;
 use App\BaseModel;
 use App\Model\Product\Product;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Override;
 
 class Promotion extends BaseModel
 {

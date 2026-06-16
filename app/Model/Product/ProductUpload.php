@@ -2,11 +2,11 @@
 
 namespace App\Model\Product;
 
-use App\Model\Order\Order;
 use App\License\Models\VersionCallback;
 use App\License\Models\VersionInstallation;
-use Illuminate\Database\Eloquent\Attributes\Scope;
+use App\Model\Order\Order;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

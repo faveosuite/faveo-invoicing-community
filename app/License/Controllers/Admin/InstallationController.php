@@ -107,7 +107,7 @@ class InstallationController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $installations->getCollection()->transform(fn(Installation $installation) => [
+        $installations->getCollection()->transform(fn (Installation $installation) => [
             'id' => $installation->id,
             'product_id' => $installation->product_id,
             'client_id' => $installation->user_id,

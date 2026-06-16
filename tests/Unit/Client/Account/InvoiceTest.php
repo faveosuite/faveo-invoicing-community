@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Client\Account;
 
-use Exception;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
+use Exception;
 use Tests\DBTestCase;
 
 class InvoiceTest extends DBTestCase

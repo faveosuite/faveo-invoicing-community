@@ -2,33 +2,33 @@
 
 namespace App\Http\Controllers\Common;
 
-use Logger;
-use App\Jobs\SendEmail;
-use DB;
-use App\Jobs\NotifyMail;
-use App\Model\Mailjob\QueueService;
-use App\Model\Mailjob\FaveoQueue;
-use Exception;
-use Illuminate\Support\Facades\Date;
-use Log;
-use Config;
-use App\Http\Controllers\Front\PageController;
-use Mail;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Tenancy\TenantController;
+use App\Jobs\NotifyMail;
+use App\Jobs\SendEmail;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use App\Model\Mailjob\ExpiryMailDay;
+use App\Model\Mailjob\FaveoQueue;
+use App\Model\Mailjob\QueueService;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Payment_log;
 use App\Traits\QueueTrait;
+use Config;
 use Crypt;
+use DB;
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
+use Log;
+use Logger;
+use Mail;
 
 class PhpMailController extends Controller
 {

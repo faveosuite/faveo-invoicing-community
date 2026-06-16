@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Override;
 use App\Rules\Honeypot;
+use Override;
 
 class ValidateSecretRequest extends Request
 {

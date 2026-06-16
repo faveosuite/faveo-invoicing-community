@@ -2,8 +2,8 @@
 
 namespace App\Facades;
 
-use Exception;
 use App\Traits\TaxCalculation;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Facade;
 

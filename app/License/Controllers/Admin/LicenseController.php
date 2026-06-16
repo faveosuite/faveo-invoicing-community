@@ -2,9 +2,6 @@
 
 namespace App\License\Controllers\Admin;
 
-use Exception;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Date;
 use App\Http\Controllers\Controller;
 use App\License\Helpers\LicenseHelper;
 use App\License\Models\Installation;
@@ -16,7 +13,10 @@ use App\License\Models\LicensePlugin;
 use App\License\Requests\LicenseRequest;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Log;
@@ -179,7 +179,7 @@ class LicenseController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $licenses->getCollection()->transform(fn(License $license) => (object) [
+        $licenses->getCollection()->transform(fn (License $license) => (object) [
             'id' => $license->id,
             'product_id' => $license->product_id,
             'client_id' => $license->user_id,
@@ -326,7 +326,7 @@ class LicenseController extends Controller
         $license = License::with(['addonProducts.latestVersion'])->where('license_code', $request->input('license_code'))->firstOrFail();
         $product = Product::find($license->product_id);
 
-        $addons = $license->addonProducts->map(fn($product) => [
+        $addons = $license->addonProducts->map(fn ($product) => [
             'id' => $product->id,
             'product_name' => $product->name,
             'product_attributes' => $product->product_attributes,
@@ -345,7 +345,7 @@ class LicenseController extends Controller
             return successResponse('', []);
         }
 
-        $licenseOptions = $license->licenseOptions->map(fn(LicenseOption $option) => [
+        $licenseOptions = $license->licenseOptions->map(fn (LicenseOption $option) => [
             'license_code' => $license->license_code,
             'id' => $option->id,
             'option_group' => $option->option_group,

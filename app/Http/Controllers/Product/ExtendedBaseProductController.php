@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers\Product;
 
-use App\Http\Controllers\AutoUpdate\AutoUpdateController;
-use Exception;
-use Logger;
-use Lang;
-use App\Http\Controllers\Github\GithubApiController;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use Auth;
 use App\Facades\Attach;
+use App\Http\Controllers\AutoUpdate\AutoUpdateController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Github\GithubApiController;
 use App\Model\Order\Invoice;
 use App\Model\Payment\TaxProductRelation;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
+use Auth;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Lang;
+use Logger;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExtendedBaseProductController extends Controller
 {
@@ -253,7 +253,7 @@ class ExtendedBaseProductController extends Controller
      *
      * @date   2019-01-07T14:34:54+0530
      *
-     * @param Request $input All the Product Detais Sent from  the form
+     * @param  Request  $input  All the Product Detais Sent from  the form
      * @param  bool  $can_modify_agent  Whether Agents can be modified by customer
      * @param  bool  $can_modify_quantity  Whether Product Quantity can be modified by Customers
      * @return
@@ -274,7 +274,7 @@ class ExtendedBaseProductController extends Controller
      *
      * @date   2019-01-07T20:40:20+0530
      *
-     * @param Request $input All the Product Detais Sent from  the form
+     * @param  Request  $input  All the Product Detais Sent from  the form
      * @param Illuminate\Http\Request; $request
      * @param  array  $product  instance of the Product
      * @return Save The Details

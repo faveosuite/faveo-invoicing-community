@@ -3,77 +3,77 @@
 // ============================================================
 // SECTION 1: USE IMPORTS
 // ============================================================
-use App\Model\Order\Order;
-use App\Http\Controllers\Tenancy\TenantController;
-use App\Http\Controllers\Product\BaseProductController;
-use App\Http\Controllers\WhatsappController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Common\Dependency\DependencyController;
-use App\Http\Controllers\Order\InvoiceController;
-use App\Http\Controllers\Order\ExtendedOrderController;
-use App\Http\Controllers\Front\PageController;
-use App\Http\Controllers\Tenancy\CloudExtraActivities;
-use App\Http\Controllers\Front\ClientController;
-use App\Http\Controllers\Front\StoreController;
-use App\Http\Controllers\Product\GroupController;
-use App\Http\Controllers\Front\NewsletterController;
-use App\Http\Controllers\Front\PaymentController;
-use App\Http\Controllers\Front\Cart\CartApiController;
-use App\Http\Controllers\Front\BaseClientController;
-use App\Http\Controllers\Front\CartController;
-use App\Http\Controllers\Front\CheckoutController;
-use App\Http\Controllers\Order\RenewController;
-use App\Http\Controllers\Front\AutoRenewalController;
-use App\Http\Controllers\Front\ProfileVerificationController;
-use App\Http\Controllers\Front\WidgetController;
-use App\Http\Controllers\User\SoftDeleteController;
-use App\Http\Controllers\User\ProfileController;
-use App\Http\Controllers\User\CommentController;
-use App\Http\Controllers\Product\ProductController;
-use App\Http\Controllers\Product\ProductPluginController;
-use App\Http\Controllers\Product\PlanController;
-use App\Http\Controllers\Product\CategoryController;
-use App\Http\Controllers\Order\OrderController;
-use App\Http\Controllers\Order\BaseOrderController;
-use App\Http\Controllers\Payment\PromotionController;
-use App\Http\Controllers\Payment\CurrencyController;
-use App\Http\Controllers\Payment\TaxController;
-use App\Http\Controllers\License\LicenseSettingsController;
-use App\Http\Controllers\License\LicensePermissionsController;
-use App\Http\Controllers\Common\TemplateController;
-use App\Http\Controllers\Common\SettingsController;
-use App\Http\Controllers\Common\EmailSettingsController;
-use App\Http\Controllers\Common\BaseSettingsController;
-use App\Http\Controllers\Github\GithubController;
-use App\Http\Controllers\Common\SystemManagerController;
-use App\Http\Controllers\Common\PaymentSettingsController;
-use App\Http\Controllers\Common\SocialMediaController;
-use App\Http\Controllers\Jobs\QueueController;
-use App\Http\Controllers\Common\CacheSettingsController;
-use App\Http\Controllers\Common\Monitoring\MonitoringController;
 use App\Http\Controllers\Api\ApiController;
-use App\License\Controllers\Admin\Views\InstallationViewController;
 use App\Http\Controllers\Auth;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Common\BaseSettingsController;
+use App\Http\Controllers\Common\CacheSettingsController;
+use App\Http\Controllers\Common\Dependency\DependencyController;
+use App\Http\Controllers\Common\EmailSettingsController;
 use App\Http\Controllers\Common\FileManagerController;
+use App\Http\Controllers\Common\Monitoring\MonitoringController;
+use App\Http\Controllers\Common\PaymentSettingsController;
 use App\Http\Controllers\Common\PipedriveController;
+use App\Http\Controllers\Common\SettingsController;
 use App\Http\Controllers\Common\Sms\MSG91Controller;
+use App\Http\Controllers\Common\SocialMediaController;
+use App\Http\Controllers\Common\SystemManagerController;
+use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FreeTrailController;
+use App\Http\Controllers\Front\AutoRenewalController;
+use App\Http\Controllers\Front\BaseClientController;
+use App\Http\Controllers\Front\Cart\CartApiController;
+use App\Http\Controllers\Front\CartController;
+use App\Http\Controllers\Front\CheckoutController;
+use App\Http\Controllers\Front\ClientController;
+use App\Http\Controllers\Front\NewsletterController;
+use App\Http\Controllers\Front\PageController;
+use App\Http\Controllers\Front\PaymentController;
+use App\Http\Controllers\Front\ProfileVerificationController;
+use App\Http\Controllers\Front\StoreController;
+use App\Http\Controllers\Front\WidgetController;
+use App\Http\Controllers\Github\GithubController;
 use App\Http\Controllers\Google2FAController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Jobs\QueueController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\License\LicensePermissionsController;
+use App\Http\Controllers\License\LicenseSettingsController;
 use App\Http\Controllers\License\LocalizedLicenseController;
+use App\Http\Controllers\Order\BaseOrderController;
+use App\Http\Controllers\Order\ExtendedOrderController;
+use App\Http\Controllers\Order\InvoiceController;
+use App\Http\Controllers\Order\OrderController;
+use App\Http\Controllers\Order\RenewController;
+use App\Http\Controllers\Payment\CurrencyController;
 use App\Http\Controllers\Payment\OpenPaymentController;
+use App\Http\Controllers\Payment\PromotionController;
+use App\Http\Controllers\Payment\TaxController;
+use App\Http\Controllers\Product\BaseProductController;
+use App\Http\Controllers\Product\CategoryController;
+use App\Http\Controllers\Product\GroupController;
+use App\Http\Controllers\Product\PlanController;
+use App\Http\Controllers\Product\ProductController;
+use App\Http\Controllers\Product\ProductPluginController;
 use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\SocialLoginsController;
+use App\Http\Controllers\Tenancy\CloudExtraActivities;
+use App\Http\Controllers\Tenancy\TenantController;
 use App\Http\Controllers\ThirdPartyAppController;
 use App\Http\Controllers\User;
+use App\Http\Controllers\User\CommentController;
+use App\Http\Controllers\User\ProfileController;
+use App\Http\Controllers\User\SoftDeleteController;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\WhatsappController;
+use App\License\Controllers\Admin\Views\InstallationViewController;
+use App\Model\Order\Order;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -148,7 +148,7 @@ Route::middleware('installAgora')->group(function (): void {
     // ==========================================================
 
     // CSRF token refresh — called by Vue SPA before form submission
-    Route::get('refresh-csrf', fn() => response()->json(['token' => csrf_token()], 200));
+    Route::get('refresh-csrf', fn () => response()->json(['token' => csrf_token()], 200));
 
     // SPA login-form config (honeypot metadata, captcha settings, etc.)
     Route::get('honeypot', fn () => successResponse('honeypot', honeypotData()));
@@ -217,7 +217,7 @@ Route::middleware('installAgora')->group(function (): void {
 
     // SPA auth check — both SPAs call GET /api/user to hydrate auth state.
     // Returns JSON (never HTML) so auth store works correctly.
-    Route::get('api/user', fn() => auth()->check()
+    Route::get('api/user', fn () => auth()->check()
         ? successResponse('user', auth()->user())
         : response()->json(['message' => 'Unauthenticated.'], 401));
 
@@ -284,7 +284,7 @@ Route::middleware('installAgora')->group(function (): void {
         ->middleware('recaptcha:newsletter');
     Route::post('demo-request', [PageController::class, 'postDemoReq'])
         ->withoutMiddleware(['auth']);
-    Route::get('404', fn() => view('errors.404'))->name('error404');
+    Route::get('404', fn () => view('errors.404'))->name('error404');
 
     // Published pages / contact info / demo status (public, no auth)
     Route::get('published-pages', [PageController::class, 'publishedPages']);
@@ -548,7 +548,7 @@ Route::middleware('installAgora')->group(function (): void {
     Route::post('edit-support-expiry', [BaseOrderController::class, 'editSupportExpiry']);
     Route::get('get-installation-details/{orderId}', [OrderController::class, 'getInstallationDetails']);
     Route::get('export-orders', [OrderController::class, 'exportOrders'])->name('export-orders');
-    Route::get('orders/license/{order_number}', fn($orderNumber) => redirect('/orders/'.Order::where('number', $orderNumber)->value('id')));
+    Route::get('orders/license/{order_number}', fn ($orderNumber) => redirect('/orders/'.Order::where('number', $orderNumber)->value('id')));
 
     Route::post('switch-license-mode', [LocalizedLicenseController::class, 'chooseLicenseMode']);
 

@@ -2,7 +2,6 @@
 
 namespace App\License;
 
-use Override;
 use App\License\Console\Commands\CrackCallbackCleanup;
 use App\License\Console\Commands\CrackReportsCleanup;
 use App\License\Console\Commands\InstallationLogsCommand;
@@ -16,6 +15,7 @@ use App\License\Services\InstallationService;
 use App\License\Services\LicenseService;
 use App\License\Services\VersionService;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class LicenseServiceProvider extends ServiceProvider
 {
@@ -25,13 +25,13 @@ class LicenseServiceProvider extends ServiceProvider
     #[Override]
     public function register(): void
     {
-        $this->app->singleton(fn($app): LicenseValidator => new LicenseValidator());
+        $this->app->singleton(fn ($app): LicenseValidator => new LicenseValidator());
 
-        $this->app->singleton(fn($app): LicenseService => new LicenseService());
+        $this->app->singleton(fn ($app): LicenseService => new LicenseService());
 
-        $this->app->singleton(fn($app): InstallationService => new InstallationService());
+        $this->app->singleton(fn ($app): InstallationService => new InstallationService());
 
-        $this->app->singleton(fn($app): VersionService => new VersionService());
+        $this->app->singleton(fn ($app): VersionService => new VersionService());
     }
 
     /**

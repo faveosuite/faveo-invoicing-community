@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Common;
 
-use Exception;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Common\SystemManagerSettingsRequest;
 use App\Model\Common\ManagerSetting;
 use App\User;
 use Closure;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class SystemManagerController extends Controller
@@ -83,7 +83,7 @@ class SystemManagerController extends Controller
                 ->select('id', 'email', 'first_name', 'last_name')
                 ->simplePaginate();
 
-            $users->getCollection()->transform(fn($user) => [
+            $users->getCollection()->transform(fn ($user) => [
                 'id' => $user->id,
                 'name' => $user->first_name.' '.$user->last_name,
                 'email' => $user->email,
@@ -101,7 +101,7 @@ class SystemManagerController extends Controller
      * Validates the request, updates manager assignments, auto-assign settings,
      * and sends notification emails if enabled.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return JsonResponse|RedirectResponse
      */
     public function updateManagerSettings(SystemManagerSettingsRequest $request)
@@ -152,7 +152,7 @@ class SystemManagerController extends Controller
      * @param  string  $role  The manager role ('account' or 'sales').
      * @param  int  $oldManagerId  The ID of the old manager.
      * @param  int  $newManagerId  The ID of the new manager.
-     * @param Closure $mailCallback Callback to send notification email.
+     * @param  Closure  $mailCallback  Callback to send notification email.
      * @return void
      */
     private function updateManager($managerColumn, $positionColumn, $role, $oldManagerId, $newManagerId, Closure $mailCallback)

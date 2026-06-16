@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Common;
 
-use Illuminate\Support\Facades\Date;
 use App\ApiKey;
 use App\Http\Controllers\Common\Sms\MSG91Controller;
 use App\Model\Common\Msg91Status;
@@ -11,6 +10,7 @@ use App\ThirdPartyApp;
 use App\User;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 use Mockery;
 use Tests\DBTestCase;
@@ -143,7 +143,7 @@ class MSG91ControllerTest extends DBTestCase
             ->toDateTimeString();
         $controller->shouldReceive('processIndividualReport')
             ->once()
-            ->with(Mockery::on(fn($arg) => $arg['request_id'] === 'r1'
+            ->with(Mockery::on(fn ($arg) => $arg['request_id'] === 'r1'
                 && $arg['number'] === '555'
                 && $arg['status'] === 'DELIVRD'
                 && $arg['date'] === $expectedUtcDate));

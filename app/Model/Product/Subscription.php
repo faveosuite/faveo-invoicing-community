@@ -2,13 +2,13 @@
 
 namespace App\Model\Product;
 
-use Override;
-use App\User;
-use App\Model\Payment\Plan;
 use App\Model\Order\Order;
+use App\Model\Payment\Plan;
 use App\Traits\SystemActivityLogsTrait;
+use App\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 class Subscription extends Model
 {
@@ -91,11 +91,11 @@ class Subscription extends Model
 //
 //        return parent::delete();
 //    }
-#[Override]
-protected function casts(): array
-{
-    return [
-        'ends_at' => 'datetime',
-    ];
-}
+    #[Override]
+    protected function casts(): array
+    {
+        return [
+            'ends_at' => 'datetime',
+        ];
+    }
 }

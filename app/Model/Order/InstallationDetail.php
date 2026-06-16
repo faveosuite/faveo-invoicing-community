@@ -2,9 +2,9 @@
 
 namespace App\Model\Order;
 
-use Override;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 class InstallationDetail extends Model
 {

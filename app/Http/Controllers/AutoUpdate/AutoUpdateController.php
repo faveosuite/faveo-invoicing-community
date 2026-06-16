@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\AutoUpdate;
 
-use Exception;
 use App\Http\Controllers\Controller;
 use App\License\Services\VersionService;
 use App\Model\Product\Product;
+use Exception;
 
 class AutoUpdateController extends Controller
 {

@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Override;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class LocalizedLicenseRequest extends FormRequest
 {

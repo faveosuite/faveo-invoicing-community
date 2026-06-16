@@ -2,8 +2,8 @@
 
 namespace App;
 
-use Override;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 class Comment extends Model
 {

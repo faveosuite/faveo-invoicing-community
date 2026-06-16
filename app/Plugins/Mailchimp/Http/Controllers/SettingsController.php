@@ -2,7 +2,6 @@
 
 namespace App\Plugins\Mailchimp\Http\Controllers;
 
-use Throwable;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Mailchimp\MailchimpField;
 use App\Model\Common\Mailchimp\MailchimpFieldAgoraRelation;
@@ -17,6 +16,7 @@ use App\Plugins\Mailchimp\Http\Requests\UpdateSettingsRequest;
 use App\Plugins\Mailchimp\Services\MailchimpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Throwable;
 
 class SettingsController extends Controller
 {

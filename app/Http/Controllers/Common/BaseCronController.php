@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Common;
 
-use App\Model\Common\Setting;
 use App\Http\Controllers\Controller;
+use App\Model\Common\Setting;
 use App\Model\Common\TemplateType;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Order\Invoice;

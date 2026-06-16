@@ -2,8 +2,8 @@
 
 namespace App\License\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use App\Traits\RequestJsonValidation;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

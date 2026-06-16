@@ -2,34 +2,18 @@
 
 namespace App\Http\Controllers\Front;
 
-use Exception;
-use Logger;
-use Illuminate\Support\Facades\Date;
-use Lang;
-use App\Http\Controllers\Product\ProductController;
-use Illuminate\Support\Str;
-use Config;
-use Auth;
-use DB;
-use Illuminate\Contracts\Database\Query\Builder;
-use App\Model\Common\Setting;
-use Form;
-use App\Http\Controllers\Common\PhpMailController;
-use DateTime;
-use Throwable;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Foundation\Application;
-use Illuminate\Http\RedirectResponse;
 use App\ApiKey;
 use App\DefaultPage;
 use App\Demo_page;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Product\ProductController;
 use App\Http\Requests\Front\ContactRequest;
 use App\Http\Requests\Front\PageRequest;
 use App\Model\Common\Country;
 use App\Model\Common\PricingTemplate;
+use App\Model\Common\Setting;
 use App\Model\Common\State;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\TemplateType;
@@ -38,7 +22,23 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
+use Auth;
+use Config;
+use DateTime;
+use DB;
+use Exception;
+use Form;
+use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Str;
+use Lang;
+use Logger;
+use Throwable;
 
 class PageController extends Controller
 {
@@ -516,7 +516,7 @@ class PageController extends Controller
                 ->orderBy('id')
                 ->get();
 
-            $productsRelatedToGroup = $productsRelatedToGroup->sortBy(fn($product) => $product->planRelation
+            $productsRelatedToGroup = $productsRelatedToGroup->sortBy(fn ($product) => $product->planRelation
                 ->flatMap(fn ($plan) => $plan->planPrice)
                 ->pluck('add_price')
                 ->filter(fn ($v) => $v !== null)
@@ -1062,7 +1062,8 @@ class PageController extends Controller
     private function containsSpamKeywords($text)
     {
         $spamKeywords = ['viagra', 'casino', 'lottery', 'free money', 'enlargement', 'promotions'];
-        return array_any($spamKeywords, fn($keyword) => stripos((string) $text, (string) $keyword) !== false);
+
+        return array_any($spamKeywords, fn ($keyword) => stripos((string) $text, (string) $keyword) !== false);
     }
 
     public function postDemoReq(ContactRequest $request)

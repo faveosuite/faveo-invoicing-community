@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Product;
 
-use Override;
 use App\Http\Requests\Request;
+use Override;
 
 class AddonRequest extends Request
 {

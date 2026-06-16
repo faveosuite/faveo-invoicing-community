@@ -2,12 +2,12 @@
 
 namespace Tests;
 
-use Override;
-use Illuminate\Foundation\Application;
 use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Http\Request;
 use Mockery;
+use Override;
 use Spatie\Html\Html;
 
 abstract class TestCase extends BaseTestCase

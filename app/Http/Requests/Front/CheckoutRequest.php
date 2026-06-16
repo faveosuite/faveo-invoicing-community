@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Front;
 
-use Override;
 use App\Http\Requests\Request;
+use Override;
 
 class CheckoutRequest extends Request
 {

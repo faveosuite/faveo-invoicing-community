@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Product;
 
-use Exception;
-use Lang;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\AddonRequest;
 use App\Model\Payment\Plan;
 use App\Model\Product\Addon;
 use App\Model\Product\Product;
 use App\Model\Product\ProductAddonRelation;
+use Exception;
 use Illuminate\Http\Request;
+use Lang;
 
 class AddonController extends Controller
 {

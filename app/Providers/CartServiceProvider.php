@@ -2,16 +2,16 @@
 
 namespace App\Providers;
 
-use Override;
 use App\Facades\Cart;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class CartServiceProvider extends ServiceProvider
 {
     #[Override]
     public function register(): void
     {
-        $this->app->singleton('user-cart', fn() => new Cart());
+        $this->app->singleton('user-cart', fn () => new Cart());
     }
 
     #[Override]

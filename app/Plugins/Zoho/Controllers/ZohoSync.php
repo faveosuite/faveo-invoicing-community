@@ -2,8 +2,8 @@
 
 namespace App\Plugins\Zoho\Controllers;
 
-use Exception;
 use App\Plugins\Zoho\Models\ZohoFields;
+use Exception;
 
 class ZohoSync
 {

@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use Override;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Horizon\HorizonApplicationServiceProvider;
+use Override;
 
 class HorizonServiceProvider extends HorizonApplicationServiceProvider
 {
@@ -35,7 +35,7 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     #[Override]
     protected function gate()
     {
-        Gate::define('viewHorizon', fn($user) => in_array($user->email, [
+        Gate::define('viewHorizon', fn ($user) => in_array($user->email, [
             $user->email,
         ]));
     }

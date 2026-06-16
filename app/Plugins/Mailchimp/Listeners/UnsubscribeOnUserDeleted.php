@@ -2,10 +2,10 @@
 
 namespace App\Plugins\Mailchimp\Listeners;
 
-use Throwable;
-use Logger;
 use App\Plugins\Mailchimp\Exceptions\MailchimpApiException;
 use App\Plugins\Mailchimp\Services\MailchimpService;
+use Logger;
+use Throwable;
 
 class UnsubscribeOnUserDeleted
 {

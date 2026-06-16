@@ -2,12 +2,6 @@
 
 namespace App\Http\Controllers\Product;
 
-use Lang;
-use Exception;
-use DB;
-use Throwable;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Requests\PlanRequest;
 use App\Model\Payment\Currency;
@@ -16,7 +10,13 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use DB;
+use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Lang;
+use Throwable;
 
 class PlanController extends ExtendedPlanController
 {
@@ -305,7 +305,7 @@ class PlanController extends ExtendedPlanController
 
             // Insert pricing data
             if ($request->filled('add_price')) {
-                $priceData = collect($request->add_price)->map(fn($addPrice, $key) => [
+                $priceData = collect($request->add_price)->map(fn ($addPrice, $key) => [
                     'plan_id' => $plan->id,
                     'currency' => $request->currency[$key],
                     'add_price' => $addPrice,
@@ -366,7 +366,7 @@ class PlanController extends ExtendedPlanController
             if ($request->filled('add_price')) {
                 $plan->planPrice()->delete();
 
-                $priceData = collect($request->add_price)->map(fn($addPrice, $key) => [
+                $priceData = collect($request->add_price)->map(fn ($addPrice, $key) => [
                     'plan_id' => $plan->id,
                     'currency' => $request->currency[$key],
                     'add_price' => $addPrice,

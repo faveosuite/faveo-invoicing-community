@@ -19,6 +19,7 @@ class ZohoOAuthClient extends Model
 
     /**
      * Parent integration.
+     *
      * @return BelongsTo<ZohoIntegration, $this>
      */
     public function integration(): BelongsTo

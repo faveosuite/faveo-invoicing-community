@@ -2,10 +2,6 @@
 
 namespace App\Http\Controllers\Common;
 
-use Exception;
-use Lang;
-use Logger;
-use Session;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Product\ProductController;
@@ -14,7 +10,11 @@ use App\Model\Common\TemplateType;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
+use Exception;
 use Illuminate\Http\Request;
+use Lang;
+use Logger;
+use Session;
 
 class TemplateController extends Controller
 {

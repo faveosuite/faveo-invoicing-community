@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Front;
 
-use App\Model\Payment\TaxOption;
-use Throwable;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Order\Invoice;
@@ -11,11 +9,13 @@ use App\Model\Order\InvoiceTaxLine;
 use App\Model\Order\Order;
 use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Payment\Currency;
+use App\Model\Payment\TaxOption;
 use App\Model\Product\Product;
 use App\Services\Payment\InvoicePaymentService;
 use App\Services\Payment\OpenPaymentService;
 use App\Services\Payment\ProcessingFee;
 use Illuminate\Http\Request;
+use Throwable;
 
 /**
  * Invoice-driven SPA payment (HTTP layer).
@@ -52,7 +52,7 @@ class PaymentController extends Controller
 
         // Each gateway carries its processing fee; surface the fee amount and the
         // resulting payable total so the pay page shows exactly what's charged.
-        $gateways = array_map(fn($gateway) => $gateway + [
+        $gateways = array_map(fn ($gateway) => $gateway + [
             'fee_amount' => ProcessingFee::amount($outstanding, $gateway['name']),
             'payable' => ProcessingFee::addTo($outstanding, $gateway['name']),
         ], $this->invoices->gatewaysFor($model->currency));

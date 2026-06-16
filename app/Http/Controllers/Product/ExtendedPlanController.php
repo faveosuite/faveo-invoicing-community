@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Product;
 
-use Exception;
 use App\Http\Controllers\Controller;
 use App\Model\Payment\Period;
+use Exception;
 use Illuminate\Http\Request;
 
 /////

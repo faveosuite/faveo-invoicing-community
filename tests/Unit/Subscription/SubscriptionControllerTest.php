@@ -2,13 +2,9 @@
 
 namespace Tests\Unit\Subscription;
 
-use DB;
-use App\Http\Controllers\License\LicensePermissionsController;
-use Mail;
-use Illuminate\Support\Facades\Date;
-use Artisan;
 use App\ApiKey;
 use App\Http\Controllers\ConcretePostSubscriptionHandleController;
+use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\Subscription\SubscriptionController;
 use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
@@ -20,6 +16,10 @@ use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
+use Artisan;
+use DB;
+use Illuminate\Support\Facades\Date;
+use Mail;
 use Tests\DBTestCase;
 
 class SubscriptionControllerTest extends DBTestCase

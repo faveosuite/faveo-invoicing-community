@@ -2,17 +2,17 @@
 
 namespace App\Http\Middleware;
 
+use Closure;
 use File;
 use Illuminate\Http\Request;
-use Closure;
 
 class Install
 {
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure $next
+     * @param  Request  $request
+     * @param  Closure  $next
      * @return mixed
      */
     public function handle($request, Closure $next)

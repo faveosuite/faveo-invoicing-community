@@ -2,9 +2,9 @@
 
 namespace App\Plugins\Zoho\Tests\Controllers\Exceptions;
 
-use Exception;
 use App\Plugins\Zoho\Controllers\Exceptions\ZohoAccountsApiException;
 use App\Plugins\Zoho\Controllers\Exceptions\ZohoApiException;
+use Exception;
 use Tests\DBTestCase;
 
 class ZohoAccountsApiExceptionTest extends DBTestCase

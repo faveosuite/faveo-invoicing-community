@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\User;
 
-use Lang;
-use Logger;
-use Illuminate\Http\Response;
 use App\Comment;
 use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Lang;
+use Logger;
 
 class CommentController extends Controller
 {
@@ -47,7 +47,7 @@ class CommentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return Response
      */
     public function store(Request $request)
@@ -66,7 +66,7 @@ class CommentController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @param  int  $id
      * @return Response
      */

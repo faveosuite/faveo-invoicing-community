@@ -1,19 +1,17 @@
 <?php
 
-use App\License\Controllers\Admin\ClientController;
-use App\License\Controllers\Admin\VersionsController;
-use App\License\Controllers\Admin\Views\VersionsViewController;
-use App\License\Controllers\Update\AfuVersionsController;
-use App\License\Controllers\Admin\LicenseController;
-use App\License\Controllers\Admin\Views\LicenseViewController;
-use App\License\Controllers\Admin\InstallationController;
-use App\License\Controllers\Admin\Views\InstallationViewController;
-use App\License\Controllers\Admin\CallBackController;
-use App\License\Controllers\Admin\ReportsController;
 use App\License\Controllers\Admin\BannedHostController;
-use App\License\Controllers\WhitelistIpsController;
-use App\License\Controllers\Admin\NotificationsController;
+use App\License\Controllers\Admin\CallBackController;
+use App\License\Controllers\Admin\ClientController;
+use App\License\Controllers\Admin\InstallationController;
 use App\License\Controllers\Admin\LanguageController;
+use App\License\Controllers\Admin\LicenseController;
+use App\License\Controllers\Admin\NotificationsController;
+use App\License\Controllers\Admin\ReportsController;
+use App\License\Controllers\Admin\VersionsController;
+use App\License\Controllers\Admin\Views\InstallationViewController;
+use App\License\Controllers\Admin\Views\LicenseViewController;
+use App\License\Controllers\Admin\Views\VersionsViewController;
 use App\License\Controllers\AflCallbacks\ConnectionTestController;
 use App\License\Controllers\AflCallbacks\LicenseInstallController;
 use App\License\Controllers\AflCallbacks\LicenseSchemeController;
@@ -22,6 +20,8 @@ use App\License\Controllers\AfuCallbacks\DownloadFileController;
 use App\License\Controllers\AfuCallbacks\GetAllVersionsController;
 use App\License\Controllers\AfuCallbacks\GetVersionsController;
 use App\License\Controllers\LicenseApiController;
+use App\License\Controllers\Update\AfuVersionsController;
+use App\License\Controllers\WhitelistIpsController;
 use Illuminate\Support\Facades\Route;
 
 /*

@@ -3,8 +3,8 @@
 namespace App\Plugins\Recaptcha;
 
 use App\Plugins\Recaptcha\Middleware\RecaptchaMiddleware;
-use Override;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class RecaptchaServiceProvider extends ServiceProvider
 {

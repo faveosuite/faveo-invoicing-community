@@ -2,10 +2,6 @@
 
 namespace App\Http\Controllers\Product;
 
-use Lang;
-use Exception;
-use Illuminate\Support\Str;
-use DB;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\GroupRequest;
 use App\Model\Payment\Plan;
@@ -13,7 +9,11 @@ use App\Model\Product\ConfigurableOption;
 use App\Model\Product\GroupFeatures;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
+use DB;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Lang;
 
 class GroupController extends Controller
 {

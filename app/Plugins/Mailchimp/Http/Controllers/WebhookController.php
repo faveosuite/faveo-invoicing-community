@@ -2,12 +2,12 @@
 
 namespace App\Plugins\Mailchimp\Http\Controllers;
 
-use Throwable;
-use Logger;
-use Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Log;
+use Logger;
+use Throwable;
 
 class WebhookController extends Controller
 {

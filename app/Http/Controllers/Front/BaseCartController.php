@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Front;
 
-use Exception;
 use App\Facades\Cart;
 use App\Http\Controllers\Controller;
-//use Cart;
 use App\Model\Product\Product;
+//use Cart;
+use Exception;
 use Illuminate\Http\Request;
 
 class BaseCartController extends Controller

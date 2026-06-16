@@ -34,7 +34,7 @@ class VersionsController extends Controller
             ->orderBy($sortField, $sortOrder)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $versions->getCollection()->transform(fn(ProductUpload $version) => [
+        $versions->getCollection()->transform(fn (ProductUpload $version) => [
             'id' => $version->id,
             'product_id' => $version->product_id,
             'version_number' => $version->version,

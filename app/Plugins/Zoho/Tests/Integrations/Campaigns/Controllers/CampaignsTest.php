@@ -2,16 +2,16 @@
 
 namespace App\Plugins\Zoho\Tests\Integrations\Campaigns\Controllers;
 
-use Illuminate\Support\LazyCollection;
-use Illuminate\Support\Collection;
-use RuntimeException;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Campaigns;
 use App\Plugins\Zoho\Models\ZohoIntegration;
 use App\Plugins\Zoho\Models\ZohoOAuthClient;
 use App\Plugins\Zoho\Models\ZohoOAuthToken;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\LazyCollection;
+use RuntimeException;
 use Tests\DBTestCase;
 
 class CampaignsTest extends DBTestCase
@@ -59,7 +59,7 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->subscribe('test@example.com', ['First_Name' => 'John']);
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'listsubscribe'));
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'listsubscribe'));
     }
 
     public function test_it_resubscribes_contact_to_list()
@@ -72,7 +72,7 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->resubscribe('test@example.com', ['First_Name' => 'John']);
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'donotmail_resub=true'));
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'donotmail_resub=true'));
     }
 
     public function test_it_unsubscribes_contact_from_list()
@@ -85,7 +85,7 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->unsubscribe('test@example.com');
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'listunsubscribe'));
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'listunsubscribe'));
     }
 
     public function test_it_retrieves_subscribers_lazily()
@@ -152,7 +152,7 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->attachTag('test@example.com', 'VIP');
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'associate'));
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'associate'));
     }
 
     public function test_it_creates_tag_if_not_exists_when_attaching()
@@ -171,7 +171,7 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->attachTag('test@example.com', 'NewTag');
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'tag/add'));
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'tag/add'));
     }
 
     public function test_it_detaches_tag_from_contact()
@@ -189,7 +189,7 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->detachTag('test@example.com', 'VIP');
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'tag/deassociate'));
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'tag/deassociate'));
     }
 
     public function test_it_handles_detach_tag_when_tag_not_found()
@@ -255,7 +255,7 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->syncTopics();
 
-        Http::assertSent(fn($request) => $request->method() === 'POST' && str_contains((string) $request->url(), 'topics'));
+        Http::assertSent(fn ($request) => $request->method() === 'POST' && str_contains((string) $request->url(), 'topics'));
     }
 
     public function test_it_skips_existing_topics_when_syncing()
@@ -282,7 +282,7 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->syncTopics();
 
-        Http::assertSent(fn($request) => $request->method() === 'GET' &&
+        Http::assertSent(fn ($request) => $request->method() === 'GET' &&
             str_contains((string) $request->url(), 'topics') &&
             $request->method() !== 'POST');
     }
@@ -295,7 +295,7 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->subscribe('test@example.com', [], 'Test List');
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'test_list_key'));
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'test_list_key'));
     }
 
     public function test_it_throws_exception_when_default_list_cannot_be_resolved()
@@ -334,7 +334,7 @@ class CampaignsTest extends DBTestCase
         // Force lazy collection evaluation by iterating
         $subscribers->take(1)->all();
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'range=650'));
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'range=650'));
     }
 
     public function test_it_subscribes_with_topic()
@@ -350,6 +350,6 @@ class CampaignsTest extends DBTestCase
 
         $this->campaigns->subscribe('test@example.com', [], null, 'Newsletter');
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'listsubscribe'));
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'listsubscribe'));
     }
 }

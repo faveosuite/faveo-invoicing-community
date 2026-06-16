@@ -2,12 +2,12 @@
 
 namespace Tests\Unit;
 
-use Hash;
 use App\Http\Middleware\Install;
 use App\Model\Common\StatusSetting;
 use App\Plugins\Recaptcha\Model\RecaptchaSetting;
 use App\User;
 use App\VerificationAttempt;
+use Hash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 

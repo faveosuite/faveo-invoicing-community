@@ -2,37 +2,37 @@
 
 namespace App\Console;
 
+use App\BillingLog\Console\Commands\DeleteLogs;
+use App\Console\Commands\AutorenewalExpirymail;
+use App\Console\Commands\CleanupMsg91Reports;
+use App\Console\Commands\DropTables;
+use App\Console\Commands\ExpiryCron;
+use App\Console\Commands\FailedMessageDelivery;
 use App\Console\Commands\Inspire;
 use App\Console\Commands\Install;
-use App\Console\Commands\DropTables;
 use App\Console\Commands\InstallDB;
-use App\Console\Commands\ExpiryCron;
-use App\Console\Commands\SyncDatabaseToLatestVersion;
-use App\Console\Commands\RenewalCron;
-use App\Console\Commands\AutorenewalExpirymail;
-use App\Console\Commands\PostExpiryCron;
-use App\Console\Commands\moveImages;
 use App\Console\Commands\invoiceDeletion;
-use App\Console\Commands\CleanupMsg91Reports;
+use App\Console\Commands\moveImages;
+use App\Console\Commands\PostExpiryCron;
+use App\Console\Commands\RenewalCron;
 use App\Console\Commands\ReoonLogsDeletion;
-use App\Console\Commands\FailedMessageDelivery;
-use Override;
-use App\Model\Mailjob\Condition;
-use File;
-use Schema;
-use Config;
-use App\Http\Controllers\Common\PhpMailController;
-use Exception;
-use App\BillingLog\Console\Commands\DeleteLogs;
 use App\Console\Commands\SetupTestEnv;
+use App\Console\Commands\SyncDatabaseToLatestVersion;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Jobs\NotifyMail;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\ActivityLogDay;
 use App\Model\Mailjob\CloudEmail as cloudemailsend;
+use App\Model\Mailjob\Condition;
+use Config;
+use Exception;
+use File;
 use GuzzleHttp\Client;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Override;
+use Schema;
 
 class Kernel extends ConsoleKernel
 {
@@ -64,7 +64,7 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param Schedule $schedule
+     * @param  Schedule  $schedule
      * @return void
      */
     #[Override]
@@ -233,6 +233,7 @@ class Kernel extends ConsoleKernel
     {
         $condition = $command['condition'];
         $at = $command['at'];
+
         return match ($condition) {
             'everyMinute' => $schedule->everyMinute(),
             'everyFiveMinutes' => $schedule->everyFiveMinutes(),

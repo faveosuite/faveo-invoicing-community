@@ -2,13 +2,13 @@
 
 namespace Tests\Unit\Agent\Order;
 
-use Illuminate\Support\Facades\Date;
 use App\Http\Controllers\License\LicenseController;
 use App\Model\Common\StatusSetting;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
 use Event;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Date;
 use Mockery\MockInterface;
 use Tests\DBTestCase;
 

@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use Cache;
-use Exception;
-use Illuminate\Support\Str;
 use App\Console\LoggableCommand;
 use App\Http\Controllers\BillingInstaller\BillingDependencyController;
 use App\Http\Controllers\BillingInstaller\InstallerController;
+use Cache;
+use Exception;
+use Illuminate\Support\Str;
 
 class Install extends LoggableCommand
 {

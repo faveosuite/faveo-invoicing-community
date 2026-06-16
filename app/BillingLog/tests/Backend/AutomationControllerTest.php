@@ -2,7 +2,6 @@
 
 namespace App\BillingLog\tests\Backend;
 
-use Illuminate\Support\Facades\Date;
 use App\BillingLog\Controllers\AutomationController;
 use App\BillingLog\Model\CronLog;
 use App\BillingLog\Model\ExceptionLog;
@@ -12,6 +11,7 @@ use App\Http\Controllers\Common\PhpMailController;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Date;
 use Mail;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;

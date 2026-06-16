@@ -2,9 +2,9 @@
 
 namespace App\License\Models;
 
-use Override;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 /**
  * Installation log — tracks installation activity with license code.
@@ -40,6 +40,7 @@ class InstallationLog extends Model
     {
         return $query->orderBy('installation_last_active_date', 'desc');
     }
+
     #[Override]
     protected function casts(): array
     {

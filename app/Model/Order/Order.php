@@ -2,17 +2,17 @@
 
 namespace App\Model\Order;
 
-use App\User;
+use App\BaseModel;
+use App\License\Models\Installation;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
-use App\License\Models\Installation;
-use Override;
-use Crypt;
-use Illuminate\Support\Str;
-use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
+use App\User;
+use Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
+use Override;
 
 class Order extends BaseModel
 {

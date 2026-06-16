@@ -2,11 +2,11 @@
 
 namespace App;
 
-use Override;
-use HTMLPurifier_Config;
-use HTMLPurifier;
 use File;
+use HTMLPurifier;
+use HTMLPurifier_Config;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 /**
  * ======================================

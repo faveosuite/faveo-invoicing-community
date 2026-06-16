@@ -26,7 +26,7 @@ class RegistrationTest extends DBTestCase
         $builder = new MockBuilder();
         $builder->setNamespace('Illuminate\Foundation\Auth')
                 ->setName('file_get_contents')
-                ->setFunction(fn() => $content);
+                ->setFunction(fn () => $content);
 
         $this->mock = $builder->build();
         $this->mock->disable();

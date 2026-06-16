@@ -2,8 +2,8 @@
 
 namespace App\Services\Tax;
 
-use App\Model\Payment\TaxOption;
 use App\Model\Common\Setting;
+use App\Model\Payment\TaxOption;
 use App\Model\Payment\TaxRate;
 
 /**
@@ -100,7 +100,7 @@ class TaxRateResolver
         }
 
         // Most specific first, stable within a priority.
-        usort($scored, fn($a, $b) => [$a['rate']->priority, -$a['score'], $a['rate']->id]
+        usort($scored, fn ($a, $b) => [$a['rate']->priority, -$a['score'], $a['rate']->id]
             <=> [$b['rate']->priority, -$b['score'], $b['rate']->id]);
 
         $matched = [];

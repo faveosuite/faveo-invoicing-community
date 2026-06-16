@@ -2,14 +2,14 @@
 
 namespace App\Http\Middleware;
 
-use Auth;
-use Session;
-use Illuminate\Http\Request;
 use App\DefaultPage;
-//use Illuminate\Routing\Middleware;
+use Auth;
 use Cart;
 use Closure;
+//use Illuminate\Routing\Middleware;
 use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Http\Request;
+use Session;
 
 class Admin
 {
@@ -37,8 +37,8 @@ class Admin
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure $next
+     * @param  Request  $request
+     * @param  Closure  $next
      * @return mixed
      */
     public function handle($request, Closure $next)

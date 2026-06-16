@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Common;
 
-use Exception;
-use Lang;
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Http\Request;
+use Lang;
 
 class PHPController extends Controller
 {

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\BillingInstaller;
 
-use Illuminate\Support\Facades\Request;
 use App\Http\Controllers\Controller;
 use Exception;
+use Illuminate\Support\Facades\Request;
 
 class BillingDependencyController extends Controller
 {

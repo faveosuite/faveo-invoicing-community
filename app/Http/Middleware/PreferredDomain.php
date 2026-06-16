@@ -2,17 +2,17 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PreferredDomain
 {
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure $next
+     * @param  Request  $request
+     * @param  Closure  $next
      * @return mixed
      */
     public function handle($request, Closure $next)

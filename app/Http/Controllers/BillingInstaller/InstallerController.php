@@ -2,31 +2,30 @@
 
 namespace App\Http\Controllers\BillingInstaller;
 
-use Schema;
-use Illuminate\Support\Str;
-use Validator;
-use Predis\Client;
-use App\Model\Common\Timezone;
-use Hash;
-use App\Model\Common\Setting;
-use Logger;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\SyncBillingToLatestVersion;
 use App\Http\Requests\StoreLanguageRequest;
+use App\Model\Common\Setting;
+use App\Model\Common\Timezone;
 use App\Model\Mailjob\QueueService;
 use App\User;
 use Artisan;
 use DB;
 use Exception;
+use Hash;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
+use Logger;
+use Predis\Client;
+use Schema;
+use Validator;
 
 class InstallerController extends Controller
 {

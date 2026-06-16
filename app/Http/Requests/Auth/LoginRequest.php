@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Auth;
 
-use Override;
 use App\Rules\Honeypot;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class LoginRequest extends FormRequest
 {

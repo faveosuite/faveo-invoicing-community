@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Order;
 
-use Exception;
-use Session;
-use Illuminate\Support\Facades\Date;
-use Lang;
-use Logger;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Payment\Promotion;
 use App\Model\Payment\TaxOption;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
+use Lang;
+use Logger;
+use Session;
 
 class BaseInvoiceController extends ExtendedBaseInvoiceController
 {

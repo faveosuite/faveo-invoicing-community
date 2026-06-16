@@ -3,12 +3,12 @@
 namespace App\Providers;
 
 use App\Events\Event;
-use Illuminate\Auth\Events\Login;
-use App\Listeners\MergeGuestCartOnLogin;
-use Override;
 use App\Events\UserRegisteredEvent;
+use App\Listeners\MergeGuestCartOnLogin;
 use App\Listeners\SyncUserToPipedrive;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Override;
 
 class EventServiceProvider extends ServiceProvider
 {

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Jobs;
 
-use Exception;
-use Throwable;
 use App\Http\Controllers\Common\PHPController as Controller;
 use App\Http\Requests\Queue\QueueRequest;
 use App\Model\Mailjob\FaveoQueue;
 use App\Model\Mailjob\QueueService;
+use Exception;
 use Illuminate\Http\Request;
+use Throwable;
 
 class QueueController extends Controller
 {
@@ -44,7 +44,7 @@ class QueueController extends Controller
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $queueData->getCollection()->transform(fn($queue) => [
+            $queueData->getCollection()->transform(fn ($queue) => [
                 'id' => $queue->id,
                 'QueueDetails' => $queue->getQueueDetails(),
             ]);

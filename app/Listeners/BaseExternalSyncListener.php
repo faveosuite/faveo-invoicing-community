@@ -2,14 +2,14 @@
 
 namespace App\Listeners;
 
-use Throwable;
-use Logger;
 use App\ApiKey;
 use App\Events\UserRegisteredEvent;
 use App\Model\Common\StatusSetting;
 use App\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Logger;
+use Throwable;
 
 abstract class BaseExternalSyncListener implements ShouldQueue
 {

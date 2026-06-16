@@ -33,7 +33,7 @@ class InvoiceExport implements FromCollection, WithHeadings, WithTitle
             'status' => 'Status',
         ];
 
-        return array_map(fn($column) => $headingsMap[$column] ?? $column, $this->selectedColumns);
+        return array_map(fn ($column) => $headingsMap[$column] ?? $column, $this->selectedColumns);
     }
 
     public function title(): string

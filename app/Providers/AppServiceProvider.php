@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use Override;
 use App\Events\UserOrderDelete;
 use App\Helper\PdfManager\FaveoBrowserShot;
 use App\Listeners\CloudDeletion;
@@ -14,6 +13,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
 
-        Validator::extend('no_http', fn($attribute, $value, $parameters, $validator) => !str_contains((string) $value, 'http://') && !str_contains((string) $value, 'https://'));
+        Validator::extend('no_http', fn ($attribute, $value, $parameters, $validator) => ! str_contains((string) $value, 'http://') && ! str_contains((string) $value, 'https://'));
 
         Collection::macro('paginate', function ($perPage, $total = null, $page = null, $pageName = 'page') {
             $page = $page ?: LengthAwarePaginator::resolveCurrentPage($pageName);

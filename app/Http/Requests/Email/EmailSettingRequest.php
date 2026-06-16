@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\Email;
 
-use Request;
-use Override;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Lang;
+use Override;
+use Request;
 
 class EmailSettingRequest extends FormRequest
 {

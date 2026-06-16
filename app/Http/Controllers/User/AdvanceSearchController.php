@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\User;
 
-use Response;
-use Exception;
-use Logger;
 use App\Model\Order\Payment;
 use App\User;
+use Exception;
 use Illuminate\Http\Request;
+use Logger;
+use Response;
 
 class AdvanceSearchController extends AdminOrderInvoiceController
 {

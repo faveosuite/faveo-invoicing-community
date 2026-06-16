@@ -2,13 +2,13 @@
 
 namespace App\Plugins\Zoho\Controllers;
 
-use DB;
 use App\Http\Controllers\Controller;
 use App\Plugins\Zoho\Helpers\ZohoConnectHelper;
 use App\Plugins\Zoho\Models\FaveoLocalFields;
 use App\Plugins\Zoho\Models\ZohoFieldMappings;
 use App\Plugins\Zoho\Models\ZohoFields;
 use App\Plugins\Zoho\Models\ZohoIntegration;
+use DB;
 use Illuminate\Http\Request;
 
 class ZohoBaseController extends Controller

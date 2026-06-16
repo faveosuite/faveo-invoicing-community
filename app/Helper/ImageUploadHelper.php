@@ -11,7 +11,7 @@ class ImageUploadHelper
     /**
      * Stores the files in default disk.
      *
-     * @param UploadedFile $contents
+     * @param  UploadedFile  $contents
      * @param  null  $disk
      *
      * @throws Exception

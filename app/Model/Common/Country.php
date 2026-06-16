@@ -2,11 +2,11 @@
 
 namespace App\Model\Common;
 
-use Override;
+use App\BaseModel;
 use App\Model\Payment\Currency;
 use App\User;
-use App\BaseModel;
 use Illuminate\Database\Eloquent\Builder;
+use Override;
 
 class Country extends BaseModel
 {

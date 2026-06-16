@@ -2,11 +2,11 @@
 
 namespace App\License\Models;
 
-use Override;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Override;
 
 class VersionCallback extends Model
 {
@@ -37,6 +37,7 @@ class VersionCallback extends Model
     {
         return $this->belongsTo(ProductUpload::class, 'version_id');
     }
+
     #[Override]
     protected function casts(): array
     {

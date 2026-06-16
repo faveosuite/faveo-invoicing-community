@@ -2,15 +2,15 @@
 
 namespace App\License\Models;
 
-use Override;
 use App\Model\Product\Product;
 use App\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Override;
 
 class License extends Model
 {
@@ -119,6 +119,7 @@ class License extends Model
     {
         return $query->where('license_status', 2);
     }
+
     #[Override]
     protected function casts(): array
     {

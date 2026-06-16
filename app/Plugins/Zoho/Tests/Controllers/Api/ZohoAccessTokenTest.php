@@ -176,7 +176,7 @@ class ZohoAccessTokenTest extends DBTestCase
 
         $this->accessToken->get(1);
 
-        Http::assertSent(fn($request) => str_contains((string) $request->url(), 'accounts.zoho.eu') &&
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'accounts.zoho.eu') &&
                str_contains((string) $request->url(), 'client_id=specific_client_id') &&
                str_contains((string) $request->url(), 'client_secret=specific_client_secret'));
     }

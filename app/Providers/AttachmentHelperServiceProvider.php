@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use Override;
 use App\Helper\AttachmentHelper;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class AttachmentHelperServiceProvider extends ServiceProvider
 {
@@ -14,7 +14,7 @@ class AttachmentHelperServiceProvider extends ServiceProvider
     #[Override]
     public function register(): void
     {
-        $this->app->bind('attachment-helper', fn() => new AttachmentHelper());
+        $this->app->bind('attachment-helper', fn () => new AttachmentHelper());
     }
 
     #[Override]

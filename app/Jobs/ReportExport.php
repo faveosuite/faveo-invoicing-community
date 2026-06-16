@@ -2,9 +2,9 @@
 
 namespace App\Jobs;
 
-use Illuminate\Foundation\Queue\Queueable;
 use App\Http\Controllers\Report\ConcreteExportHandleController;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
 
 class ReportExport implements ShouldQueue
 {

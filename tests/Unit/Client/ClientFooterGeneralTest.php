@@ -2,8 +2,6 @@
 
 namespace Tests\Unit\Client;
 
-use PHPUnit\Framework\Attributes\Group;
-use DB;
 use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
@@ -15,9 +13,11 @@ use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
 use App\User;
+use DB;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Mockery;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\DBTestCase;
 
 class ClientFooterGeneralTest extends DBTestCase

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\License;
 
-use Exception;
-use Logger;
 use App\Http\Controllers\Controller;
 use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
 use App\Model\Product\Product;
+use Exception;
 use Illuminate\Http\Request;
+use Logger;
 
 /*
 * Operations for License Permissions Module to be performed here
@@ -47,11 +47,11 @@ class LicensePermissionsController extends Controller
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $data = $licenseTypes->getCollection()->map(fn($license) => [
+            $data = $licenseTypes->getCollection()->map(fn ($license) => [
                 'id' => $license->id,
                 'name' => $license->name,
                 'permissions' => $license->permissions->pluck('permissions'),
-                'all_permissions' => $allPermissions->map(fn($perm) => [
+                'all_permissions' => $allPermissions->map(fn ($perm) => [
                     'id' => $perm->id,
                     'permissions' => $perm->permissions,
                     'assigned' => $license->permissions->contains('id', $perm->id),

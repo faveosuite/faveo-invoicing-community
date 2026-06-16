@@ -2,7 +2,6 @@
 
 namespace App\Plugins\Zoho\Integrations\Campaigns\Controllers\Api;
 
-use Override;
 use App\Plugins\Zoho\Controllers\Api\ZohoBaseApi;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Exceptions\ContactNotFoundException;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Exceptions\TagNotFoundException;
@@ -10,6 +9,7 @@ use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Exceptions\ZohoCampaigns
 use Illuminate\Http\Client\HttpClientException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Collection;
+use Override;
 
 class ZohoCampaignsApi extends ZohoBaseApi
 {

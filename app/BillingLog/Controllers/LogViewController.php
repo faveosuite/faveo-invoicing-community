@@ -2,12 +2,12 @@
 
 namespace App\BillingLog\Controllers;
 
-use Exception;
-use DB;
 use App\BillingLog\Model\CronLog;
 use App\BillingLog\Model\ExceptionLog;
 use App\BillingLog\Model\LogCategory;
 use App\BillingLog\Model\MailLog;
+use DB;
+use Exception;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 

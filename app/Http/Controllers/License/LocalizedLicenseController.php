@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\License;
 
-use Exception;
-use Illuminate\Support\Facades\Date;
-use App\License\Models\Installation;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LocalizedLicenseRequest;
+use App\License\Models\Installation;
 use App\License\Services\InstallationService;
 use App\Model\Order\Order;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Redirect;

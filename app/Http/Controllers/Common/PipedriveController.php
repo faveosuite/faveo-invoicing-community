@@ -2,16 +2,6 @@
 
 namespace App\Http\Controllers\Common;
 
-use Pipedrive\versions\v1\Api\DealFieldsApi;
-use Pipedrive\versions\v1\Api\PersonFieldsApi;
-use Pipedrive\versions\v1\Api\PersonsApi;
-use Pipedrive\versions\v1\Api\OrganizationsApi;
-use Pipedrive\versions\v1\Api\OrganizationFieldsApi;
-use Pipedrive\versions\v1\Api\DealsApi;
-use Exception;
-use Logger;
-use DB;
-use Throwable;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Country;
@@ -21,11 +11,21 @@ use App\Model\Common\PipedriveGroups;
 use App\Model\Common\PipedriveLocalFields;
 use App\Model\Common\StatusSetting;
 use App\User;
+use DB;
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
+use Logger;
+use Pipedrive\versions\v1\Api\DealFieldsApi;
+use Pipedrive\versions\v1\Api\DealsApi;
+use Pipedrive\versions\v1\Api\OrganizationFieldsApi;
+use Pipedrive\versions\v1\Api\OrganizationsApi;
+use Pipedrive\versions\v1\Api\PersonFieldsApi;
+use Pipedrive\versions\v1\Api\PersonsApi;
 use Pipedrive\versions\v1\ApiException;
 use Pipedrive\versions\v1\Configuration as PipedriveConfiguration;
+use Throwable;
 
 class PipedriveController extends Controller
 {
@@ -236,7 +236,7 @@ class PipedriveController extends Controller
         $existingFields = PipedriveField::where('pipedrive_group_id', $groupId)->get()->keyBy('field_key');
 
         // Filter bulk-edit-allowed fields
-        $allowedFields = collect($fields)->filter(fn($field) => isset($field->bulk_edit_allowed) && $field->bulk_edit_allowed === true &&
+        $allowedFields = collect($fields)->filter(fn ($field) => isset($field->bulk_edit_allowed) && $field->bulk_edit_allowed === true &&
             (! isset($field->use_field) || $field->use_field === 'id') &&
             ! in_array($field->key, $this->excludeKeysFromPipedrive($groupId)));
 
@@ -384,7 +384,7 @@ class PipedriveController extends Controller
 
                 // Reset non-selected options
                 $fieldIds = PipedriveField::where('pipedrive_group_id', $groupID)->pluck('id')->toArray();
-                $selectedOptionIds = collect($select2)->filter(fn($item) => isset($item['id']) && $item['faveo_fields'] !== 'true')->pluck('id')->toArray();
+                $selectedOptionIds = collect($select2)->filter(fn ($item) => isset($item['id']) && $item['faveo_fields'] !== 'true')->pluck('id')->toArray();
 
                 PipedriveFieldOption::whereIn('pipedrive_field_id', $fieldIds)
                     ->whereNotIn('id', $selectedOptionIds)
@@ -533,7 +533,7 @@ class PipedriveController extends Controller
             ->get(['id', 'value']);
 
         if ($fieldOptions->isEmpty()) {
-            $localOptions = PipedriveLocalFields::get(['id', 'field_name'])->map(fn($item) => [
+            $localOptions = PipedriveLocalFields::get(['id', 'field_name'])->map(fn ($item) => [
                 'id' => $item->id,
                 'value' => $item->field_name,
             ]);

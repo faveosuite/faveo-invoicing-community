@@ -2,8 +2,8 @@
 
 namespace App\Plugins\Mailchimp\Exceptions;
 
-use Throwable;
 use RuntimeException;
+use Throwable;
 
 class MailchimpApiException extends RuntimeException
 {

@@ -2,17 +2,17 @@
 
 namespace App\Console\Commands;
 
-use Exception;
-use App\User;
-use Hash;
-use App\Model\Common\Setting;
 use App\Console\LoggableCommand;
 use App\Http\Controllers\BillingInstaller\InstallerController;
 use App\Http\Controllers\SyncBillingToLatestVersion;
+use App\Model\Common\Setting;
+use App\User;
 use Artisan;
 use Config;
 use DB;
 use Dotenv\Dotenv;
+use Exception;
+use Hash;
 
 class InstallDB extends LoggableCommand
 {
@@ -103,7 +103,7 @@ class InstallDB extends LoggableCommand
         try {
             $pdo = DB::connection()->getPdo();
             $version = $pdo->query('select version()')->fetchColumn();
-            if (!str_contains((string) $version, 'Maria')) {
+            if (! str_contains((string) $version, 'Maria')) {
                 $this->checkMySQLVersion($version);
 
                 return;

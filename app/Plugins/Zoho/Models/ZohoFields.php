@@ -2,8 +2,8 @@
 
 namespace App\Plugins\Zoho\Models;
 
-use Override;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 class ZohoFields extends Model
 {

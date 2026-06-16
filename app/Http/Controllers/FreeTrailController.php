@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use RuntimeException;
-use Throwable;
-use Logger;
 use App\Model\CloudDataCenters;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Services\Payment\FreeTrialService;
 use Illuminate\Http\Request;
+use Logger;
+use RuntimeException;
+use Throwable;
 
 class FreeTrailController extends Controller
 {

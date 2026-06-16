@@ -2,10 +2,6 @@
 
 namespace App\Http\Controllers\Common\Sms;
 
-use Log;
-use Illuminate\Support\Facades\Date;
-use Exception;
-use Logger;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Msg91Status;
@@ -13,7 +9,11 @@ use App\Model\Common\MsgDeliveryReports;
 use App\Model\Common\StatusSetting;
 use App\ThirdPartyApp;
 use Carbon\CarbonImmutable;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
+use Log;
+use Logger;
 
 class MSG91Controller extends Controller
 {

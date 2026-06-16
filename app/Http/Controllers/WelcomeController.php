@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
 use App\Model\Common\Country;
+use Exception;
 use Illuminate\Http\Request;
 
 class WelcomeController extends Controller
@@ -56,7 +56,7 @@ class WelcomeController extends Controller
                 ->orderBy($sortField, $sortOrder)
                 ->simplePaginate($limit);
 
-            $countryList->getCollection()->transform(fn($country) => [
+            $countryList->getCollection()->transform(fn ($country) => [
                 'id' => $country->country_id,
                 'country' => ucfirst($country->country_name ?? ''),
                 'code' => $country->country_code_char2 ?? '',

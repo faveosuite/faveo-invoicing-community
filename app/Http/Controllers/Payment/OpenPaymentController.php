@@ -2,10 +2,6 @@
 
 namespace App\Http\Controllers\Payment;
 
-use DB;
-use Exception;
-use Throwable;
-use Illuminate\Contracts\Database\Query\Builder;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Payment\OpenPaymentRequest;
@@ -16,8 +12,12 @@ use App\Model\Payment\OpenPaymentOrder;
 use App\Model\Plugin;
 use App\Plugins\Payment\Exceptions\SignatureVerificationException;
 use App\Services\Payment\OpenPaymentService;
+use DB;
+use Exception;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Throwable;
 
 /**
  * Open payments — standalone, ad-hoc charges not tied to an invoice.

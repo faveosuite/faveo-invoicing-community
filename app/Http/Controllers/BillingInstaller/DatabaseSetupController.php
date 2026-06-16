@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\BillingInstaller;
 
-use Lang;
 use App\Http\Controllers\Controller;
 use Config;
 use Exception;
+use Lang;
 use PDO;
 use Session;
 

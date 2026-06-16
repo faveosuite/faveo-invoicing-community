@@ -2,8 +2,8 @@
 
 namespace App\Plugins\Mailchimp\Http\Requests;
 
-use Override;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class UpdateSettingsRequest extends FormRequest
 {

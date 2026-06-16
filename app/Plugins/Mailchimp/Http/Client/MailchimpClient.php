@@ -2,11 +2,11 @@
 
 namespace App\Plugins\Mailchimp\Http\Client;
 
-use Throwable;
-use InvalidArgumentException;
 use App\Plugins\Mailchimp\Exceptions\MailchimpApiException;
 use App\Plugins\Mailchimp\Exceptions\MailchimpRateLimitException;
 use Illuminate\Support\Facades\Http;
+use InvalidArgumentException;
+use Throwable;
 
 class MailchimpClient
 {

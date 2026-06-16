@@ -2,8 +2,8 @@
 
 namespace App\Model\Order;
 
-use Override;
 use App\BaseModel;
+use Override;
 
 /**
  * One applied tax (rate) against an invoice line item. Drives invoice tax
@@ -27,6 +27,7 @@ class InvoiceTaxLine extends BaseModel
     {
         return $this->belongsTo(InvoiceItem::class, 'invoice_item_id');
     }
+
     #[Override]
     protected function casts(): array
     {

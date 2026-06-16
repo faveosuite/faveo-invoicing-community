@@ -2,7 +2,6 @@
 
 namespace App\Plugins\Zoho\Integrations\Campaigns\Controllers;
 
-use RuntimeException;
 use App\Plugins\Zoho\Controllers\Api\ZohoAccessToken;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Api\ZohoCampaignsApi;
 use App\Plugins\Zoho\Integrations\Campaigns\Controllers\Exceptions\TagNotFoundException;
@@ -12,6 +11,7 @@ use Illuminate\Http\Client\HttpClientException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\LazyCollection;
+use RuntimeException;
 
 /**
  * @phpstan-import-type ZohoCustomer from ZohoCampaignsApi
@@ -250,7 +250,7 @@ class Campaigns
 
         $topics = collect($this->zohoApi->topics());
 
-        $matched = $topics->first(fn($topic) => strtolower(trim($topic['topicName'] ?? '')) === $topicName);
+        $matched = $topics->first(fn ($topic) => strtolower(trim($topic['topicName'] ?? '')) === $topicName);
 
         if ($matched) {
             return $matched['topicId'] ?? null;

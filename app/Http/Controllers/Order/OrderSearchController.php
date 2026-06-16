@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Order;
 
-use Illuminate\Support\Facades\Date;
-use DB;
 use App\Http\Controllers\Controller;
 use App\Model\Order\Order;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
+use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 
 class OrderSearchController extends Controller
 {

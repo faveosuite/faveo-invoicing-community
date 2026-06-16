@@ -2,9 +2,9 @@
 
 namespace Database\Seeders\v2_0_0;
 
-use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CompanySize extends Seeder
 {
