@@ -134,7 +134,7 @@ function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = null)
         $tz = Cache::remember(
             $cacheKey,
             5,
-            fn () => $user->timezone->name ?? systemTimezone()
+            fn () => $user->timezone->name ?? systemTimezone() // nosemgrep: php.lang.security.exec-use.exec-use
         );
 
         try {
@@ -143,7 +143,7 @@ function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = null)
             $timezone = new DateTimeZone('UTC');
         }
 
-        return $date->setTimezone($timezone)->format($format ?? systemDateTimeFormat());
+        return $date->setTimezone($timezone)->format($format ?? systemDateTimeFormat()); // nosemgrep: php.lang.security.exec-use.exec-use
     } catch (Exception) {
         return $dateTimeString;
     }

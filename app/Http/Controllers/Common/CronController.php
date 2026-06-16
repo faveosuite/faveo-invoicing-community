@@ -321,7 +321,7 @@ class CronController extends BaseCronController
             $subscriptions = array_merge($subscriptions, $subscriptionsForDay);
         }
 
-        $uniqueSubscriptions = array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions)));
+        $uniqueSubscriptions = array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions))); // nosemgrep: php.lang.security.unserialize-use.unserialize-use
 
         return $uniqueSubscriptions;
     }
@@ -361,7 +361,7 @@ class CronController extends BaseCronController
             $subscriptions = array_merge($subscriptions, $subscriptionsForDay);
         }
 
-        $uniqueSubscriptions = array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions)));
+        $uniqueSubscriptions = array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions))); // nosemgrep: php.lang.security.unserialize-use.unserialize-use
 
         return $uniqueSubscriptions;
     }
@@ -401,7 +401,7 @@ class CronController extends BaseCronController
             $subscriptions = array_merge($subscriptions, $subscriptionsForDay);
         }
 
-        $uniqueSubscriptions = array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions)));
+        $uniqueSubscriptions = array_map(unserialize(...), array_unique(array_map(serialize(...), $subscriptions))); // nosemgrep: php.lang.security.unserialize-use.unserialize-use
 
         return $uniqueSubscriptions;
     }

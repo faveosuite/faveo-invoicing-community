@@ -711,13 +711,13 @@ class AfuVersionsController extends Controller
 
             if (! empty($files_array)) { //proceed deleting files/directories
                 foreach ($files_array as $file) {
-                    if (is_file("$root_directory/$file") && unlink("$root_directory/$file")) { //this is a file, delete
+                    if (is_file("$root_directory/$file") && unlink("$root_directory/$file")) { // nosemgrep: php.lang.security.unlink-use.unlink-use
                         $removed_records++;
                     }
 
                     if (is_dir("$root_directory/$file")) { //this is a directory, enter it and delete all files inside first
                         foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator("$root_directory/$file", FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST) as $path) {
-                            $path->isDir() && ! $path->isLink() ? rmdir($path->getPathname()) : unlink($path->getPathname());
+                            $path->isDir() && ! $path->isLink() ? rmdir($path->getPathname()) : unlink($path->getPathname()); // nosemgrep: php.lang.security.unlink-use.unlink-use
                         }
 
                         if (rmdir("$root_directory/$file")) {

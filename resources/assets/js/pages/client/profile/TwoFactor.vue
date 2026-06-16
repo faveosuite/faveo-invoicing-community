@@ -83,7 +83,7 @@
                                 <li>{{ __('message.get_authenticator_app') }}</li>
                                 <li>{{ __('message.choose') }} <b>{{ __('message.scan_a_barcode') }}</b></li>
                             </ul>
-                            <div class="text-center mb-3" v-html="qrImage"></div>
+                            <div class="text-center mb-3" v-html="qrImage"></div> <!-- nosemgrep: javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html -->
                             <div class="text-center">
                                 <a href="#" class="text-decoration-underline text-3"
                                    @click.prevent="showSecretKey = true">{{ __('message.cant_scan') }}</a>

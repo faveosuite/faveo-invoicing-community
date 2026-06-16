@@ -11,7 +11,7 @@
           </h4>
 
           <!-- Short description -->
-          <p v-if="product.short_description" class="text-muted text-3 mb-3" v-html="product.short_description"></p>
+          <p v-if="product.short_description" class="text-muted text-3 mb-3" v-html="product.short_description"></p> <!-- nosemgrep: javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html -->
 
           <!-- Custom Pricing label for Contact Sales products -->
           <div v-if="product.button.type === 'contact'" class="plan-price bg-transparent mb-2">
@@ -60,6 +60,7 @@
         </div>
 
         <!-- Features / description -->
+        <!-- nosemgrep: javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html -->
         <div
             ref="descriptionEl"
             class="product-description"

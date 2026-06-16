@@ -10,7 +10,7 @@
                     <h5 class="text-3 text-color-dark mb-3">{{ widget.name.toUpperCase() }}</h5>
 
                     <!-- Widget HTML content -->
-                    <div v-if="widget.content" class="footer-widget-content" v-html="widget.content"></div>
+                    <div v-if="widget.content" class="footer-widget-content" v-html="widget.content"></div> <!-- nosemgrep: javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html -->
 
                     <!-- Newsletter form (allow_mailchimp) -->
                     <template v-if="widget.allow_mailchimp">

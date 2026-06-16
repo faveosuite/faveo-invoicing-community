@@ -1,0 +1,27 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    paths:
+        - .
+
+    level: 8
+
+    reportUnmatchedIgnoredErrors: true
+    treatPhpDocTypesAsCertain: true
+
+    ignoreErrors:
+
+    excludePaths:
+        - vendor/*
+        - node_modules/*
+        - storage/*
+        - bootstrap/cache/*
+        - public/*
+        - tests
+        - lang
+        - resources/lang (?)
+        - resources/views (?)
+        # IDE helper stubs — cause Larastan circular type resolution
+        - _ide_helper.php
+        - .phpstorm.meta.php (?)

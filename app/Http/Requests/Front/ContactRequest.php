@@ -43,6 +43,8 @@ class ContactRequest extends FormRequest
                 'demo' => [new Honeypot()],
             ];
         }
+
+        return [];
     }
 
     #[Override]

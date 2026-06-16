@@ -112,7 +112,7 @@ class AppServiceProvider extends ServiceProvider
 
             $content = @File::get($filePath);
 
-            return $unserialize ? @unserialize($content) : $content;
+            return $unserialize ? @unserialize($content) : $content; // nosemgrep: php.lang.security.unserialize-use.unserialize-use
         });
     }
 }

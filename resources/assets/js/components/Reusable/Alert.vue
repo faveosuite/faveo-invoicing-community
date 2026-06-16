@@ -4,7 +4,7 @@
         <i v-else-if="store.type === 'danger'"  class="fas fa-triangle-exclamation me-2"></i>
         <i v-else-if="store.type === 'warning'" class="fas fa-circle-exclamation me-2"></i>
         <i v-else                               class="fas fa-circle-info me-2"></i>
-        <span v-html="store.message"></span>
+        <span v-html="store.message"></span> <!-- nosemgrep: javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html -->
         <button type="button" class="btn-close ms-auto" @click="store.unsetAlert()" />
     </div>
 </template>

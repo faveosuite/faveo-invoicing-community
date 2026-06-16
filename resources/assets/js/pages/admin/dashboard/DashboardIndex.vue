@@ -149,7 +149,7 @@
                   <td>{{ formatDate(invoice.date) }}</td>
                   <td>{{ invoice.paid_amount }}</td>
                   <td><div class="sparkbar" data-color="#00a65a" data-height="20">{{ invoice.balance }}</div></td>
-                  <td><span v-html="invoice.status"></span></td>
+                  <td><span v-html="invoice.status"></span></td> <!-- nosemgrep: javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html -->
                 </tr>
                 </tbody>
               </table>

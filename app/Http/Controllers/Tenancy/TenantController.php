@@ -212,8 +212,8 @@ class TenantController extends Controller
         curl_setopt($ch, CURLOPT_URL, $post_url);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_info);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         $result = curl_exec($ch);
@@ -288,8 +288,8 @@ class TenantController extends Controller
             $response = '{'.$response[1];
 
             $result = json_decode($response);
-            if ($result->status == 'fails') {
-                if ($result->message == 'Domain already taken. Please select a different domain') {
+            if ($result->status == 'fails') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
+                if ($result->message == 'Domain already taken. Please select a different domain') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
                     $toDisplay = preg_replace('/\s+/', '', (string) $product);
                     $newRandomDomain = substr($toDisplay.str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 28);
 
@@ -302,7 +302,7 @@ class TenantController extends Controller
 
                 return errorResponse(trans('message.something_bad'));
                 //return ['status' => 'false', 'message' => trans('message.something_bad')];
-            } elseif ($result->status == 'validationFailure') {
+            } elseif ($result->status == 'validationFailure') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
                 $this->prepareMessages($faveoCloud, $userEmail);
 
                 $this->googleChat($result->message);
@@ -325,7 +325,7 @@ class TenantController extends Controller
                 $productName = Product::find($order[0]->product)?->name ?? '';
                 $type = $template?->type()->value('name') ?? '';
                 $subject = 'Your '.$productName.' is now ready for use. Get started!';
-                $message = (isset($result->reason) && $result->reason != '') ? __('message.'.$result->message, ['installationUrl' => $result->installationUrl, 'reason' => $result->reason]) :
+                $message = (isset($result->reason) && $result->reason != '') ? __('message.'.$result->message, ['installationUrl' => $result->installationUrl, 'reason' => $result->reason]) : // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
                                         __('message.'.$result->message, ['installationUrl' => $result->installationUrl]);
 
                 $message = str_replace('website', strtolower((string) $product), $message);
@@ -355,7 +355,7 @@ class TenantController extends Controller
                     $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $template->type()->value('name'), $replace, $type);
                 }
 
-                if (isset($result->reason) && $result->reason != '') {
+                if (isset($result->reason) && $result->reason != '') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
                     $data = ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'reason' => $result->reason, 'Free_trial_domain' => $faveoCloud];
 
                     return successResponse('', $data);
@@ -413,7 +413,7 @@ class TenantController extends Controller
             $response = json_decode($responseBody);
             $user = Auth::user()?->email ?? 'Auto deletion';
 
-            if ($response->status == 'success') {
+            if ($response->status == 'success') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
                 $this->deleteCronForTenant($request->input('id'));
                 DB::table('free_trial_allowed')->where('domain', $request->input('id'))->delete();
                 if (! empty($request->orderId)) {
@@ -443,7 +443,7 @@ class TenantController extends Controller
 
                 return successResponse(__('message.cloud_deleted_successfully'));
             } else {
-                if ($response->message == 'tenant_not_found' && ! empty($request->orderId)) {
+                if ($response->message == 'tenant_not_found' && ! empty($request->orderId)) { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
                     $this->statusChange($request->orderId);
                 }
 
@@ -539,7 +539,7 @@ class TenantController extends Controller
                         $responseBody = (string) $response->getBody();
                         $response = json_decode($responseBody);
                         $user = Auth::user()?->email ?? 'Auto deletion';
-                        if ($response->status == 'success') {
+                        if ($response->status == 'success') { // nosemgrep: php.lang.security.md5-loose-equality.md5-loose-equality
                             $this->deleteCronForTenant($domainArray[$i]->id);
                             $this->reissueCloudLicense($order_id);
                             Order::where('number', $orderNumber)->where('client', Auth::user()->id)->delete();

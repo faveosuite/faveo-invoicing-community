@@ -287,18 +287,18 @@ class PageController extends Controller
                             $planDetails = userCurrencyAndPrice('', $plan);
 
                             $prices[$plan->id][] = ($product->status) ? ($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
-                            $prices[$plan->id][] .= $planDetails['symbol'];
-                            $prices[$plan->id][] .= $planDetails['currency'];
-                            $prices[$plan->id][] .= $plan->id;
+                            $prices[$plan->id][] = $planDetails['symbol'];
+                            $prices[$plan->id][] = $planDetails['currency'];
+                            $prices[$plan->id][] = $plan->id;
                         }
                     } else {
                         $currency = userCurrencyAndPrice('', $plan);
                         $offerprice = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('offer_price');
                         $planDetails = userCurrencyAndPrice('', $plan);
                         $prices[$plan->id][] = $planDetails['plan']->add_price;
-                        $prices[$plan->id][] .= $planDetails['symbol'];
-                        $prices[$plan->id][] .= $planDetails['currency'];
-                        $prices[$plan->id][] .= $plan->id;
+                        $prices[$plan->id][] = $planDetails['symbol'];
+                        $prices[$plan->id][] = $planDetails['currency'];
+                        $prices[$plan->id][] = $plan->id;
                     }
 
                     if (isset($prices[$plan->id]) && ! empty($prices[$plan->id])) {
@@ -435,8 +435,8 @@ class PageController extends Controller
                         }
 
                         $prices[] = $price;
-                        $prices[] .= $symbol;
-                        $prices[] .= $currency;
+                        $prices[] = $symbol;
+                        $prices[] = $currency;
                     }
                 }
 
@@ -832,13 +832,13 @@ class PageController extends Controller
                 if ($plan->days == 365 || $plan->days == 366) {
                     $planDetails = userCurrencyAndPrice('', $plan);
                     $prices[$plan->id][] = ($product->status) ? ($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
-                    $prices[$plan->id][] .= $planDetails['symbol'];
-                    $prices[$plan->id][] .= $planDetails['currency'];
+                    $prices[$plan->id][] = $planDetails['symbol'];
+                    $prices[$plan->id][] = $planDetails['currency'];
                 } elseif (! $product->status && ! in_array($product->id, cloudPopupProducts())) {
                     $planDetails = userCurrencyAndPrice('', $plan);
                     $prices[$plan->id][] = $planDetails['plan']->add_price;
-                    $prices[$plan->id][] .= $planDetails['symbol'];
-                    $prices[$plan->id][] .= $planDetails['currency'];
+                    $prices[$plan->id][] = $planDetails['symbol'];
+                    $prices[$plan->id][] = $planDetails['currency'];
                 }
 
                 if (isset($prices[$plan->id]) && ! empty($prices)) {

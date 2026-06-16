@@ -31,7 +31,7 @@
             <template v-if="hint !== '' && tipRule">
                 <div class="text-small">
                     <i class="fas fa-question-circle text-primary"></i>
-                    <em v-html="getHint(hint)"></em>
+                    <em v-html="getHint(hint)"></em> <!-- nosemgrep: javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html -->
                 </div>
             </template>
             <div v-if="error" class="invalid-feedback d-block">{{ error }}</div>

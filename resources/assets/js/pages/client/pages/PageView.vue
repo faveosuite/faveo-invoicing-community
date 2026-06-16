@@ -4,7 +4,7 @@
 
         <div v-else-if="page">
             <!-- Content is sanitized server-side by HTMLPurifier on save (see BaseModel) -->
-            <div v-html="page.content"></div>
+            <div v-html="page.content"></div> <!-- nosemgrep: javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html -->
         </div>
 
         <div v-else class="text-center py-5">

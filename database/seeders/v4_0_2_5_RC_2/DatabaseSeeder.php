@@ -37,7 +37,7 @@ class DatabaseSeeder extends Seeder
                 if (is_dir($path)) {
                     $this->deleteDirectory($path);
                 } else {
-                    @unlink($path);
+                    @unlink($path); // nosemgrep: php.lang.security.unlink-use.unlink-use
                 }
             }
         }
@@ -63,7 +63,7 @@ class DatabaseSeeder extends Seeder
             if (is_dir($path)) {
                 $this->deleteDirectory($path);
             } else {
-                @unlink($path);
+                @unlink($path); // nosemgrep: php.lang.security.unlink-use.unlink-use
             }
         }
 

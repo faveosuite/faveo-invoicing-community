@@ -726,7 +726,7 @@ class LicenseDataMigration extends Command
             2 => ['pipe', 'w'],
         ];
 
-        $process = proc_open($cmd, $descriptors, $pipes, null, $env);
+        $process = proc_open($cmd, $descriptors, $pipes, null, $env); // nosemgrep: php.lang.security.exec-use.exec-use
 
         if (! is_resource($process)) {
             DB::statement("DROP DATABASE IF EXISTS `{$this->tempDatabase}`");

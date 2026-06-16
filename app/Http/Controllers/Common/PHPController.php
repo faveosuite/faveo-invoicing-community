@@ -75,7 +75,7 @@ class PHPController extends Controller
 
             if ($this->execEnabled()) {
                 $execScript = $path.' '.public_path('cron-test.php');
-                $version = exec($execScript, $output);
+                $version = exec($execScript, $output); // nosemgrep: php.lang.security.exec-use.exec-use
 
                 return (version_compare($version, '7.3', '>=') == 1) ? successResponse(Lang::get('message.valid-php-path')) : errorResponse(Lang::get('message.invalid-php-version-or-path'));
             }

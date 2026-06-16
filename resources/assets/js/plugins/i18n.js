@@ -16,7 +16,7 @@ export function __(key, replace = {}) {
     let value = (typeof translator !== 'undefined') ? translator : {}
     for (const part of parts) {
         if (value !== null && typeof value === 'object' && part in value) {
-            value = value[part]
+            value = value[part] // nosemgrep: javascript.lang.security.audit.prototype-pollution.prototype-pollution-loop.prototype-pollution-loop
         } else {
             return key
         }

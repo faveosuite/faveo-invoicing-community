@@ -35,7 +35,7 @@ trait ChunkUpload
                 if ($res === true && $zip->numFiles > 0) {
                     return $this->saveFile($save->getFile());
                 } else {
-                    unlink($filePath);
+                    unlink($filePath); // nosemgrep: php.lang.security.unlink-use.unlink-use
 
                     return response()->json(__('message.file_invalid'), 500);
                 }

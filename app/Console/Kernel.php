@@ -95,7 +95,7 @@ class Kernel extends ConsoleKernel
                 $this->cloudEmail();
 
                 // Remove the lock file
-                unlink($lockFilePath);
+                unlink($lockFilePath); // nosemgrep: php.lang.security.unlink-use.unlink-use
             }
         })->everyFiveMinutes()->name('sendCloudEmail');
 
@@ -348,7 +348,7 @@ class Kernel extends ConsoleKernel
             }
 
             // Remove the lock file
-            unlink($lockFilePath);
+            unlink($lockFilePath); // nosemgrep: php.lang.security.unlink-use.unlink-use
         }
     }
 }

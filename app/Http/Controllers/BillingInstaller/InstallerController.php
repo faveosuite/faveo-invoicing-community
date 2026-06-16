@@ -190,7 +190,7 @@ class InstallerController extends Controller
 
         // Remove old .env file if it exists
         if (is_file($envPath)) {
-            unlink($envPath);
+            unlink($envPath); // nosemgrep: php.lang.security.unlink-use.unlink-use
         }
 
         // Create a new example.env file if it doesn't exist

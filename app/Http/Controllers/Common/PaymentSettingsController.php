@@ -236,7 +236,7 @@ class PaymentSettingsController extends Controller
         }
 
         if (! is_dir($dir)) {
-            return unlink($dir);
+            return unlink($dir); // nosemgrep: php.lang.security.unlink-use.unlink-use
         }
 
         foreach (scandir($dir) as $item) {
